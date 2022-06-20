@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '$src/app';
     let settings: App.Settings = {
         'Text Display': {
             'Show verse numbers': {

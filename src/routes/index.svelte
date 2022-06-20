@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '$src/app';
     import ScriptureView from '$lib/components/ScriptureView.svelte';
     let text: App.BibleText = {
         title: 'The Good News According to John',

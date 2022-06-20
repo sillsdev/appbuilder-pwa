@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '$src/app';
     import ColorCard from '$lib/components/ColorCard.svelte';
 
     let highlights: App.Highlight[] = [

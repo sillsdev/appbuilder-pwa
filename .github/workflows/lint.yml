@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+    push:
+        branches: ['*']
+    pull_request:
+        branches: ['*']
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: NPM Install
+              run: npm i
+
+            - name: Add config
+              run: echo "export default {};" > src/config.js
+
+            - name: TypeScript Check
+              run: |
+                  npm list --depth=0 typescript
+                  tsc --noEmit
+
+            - name: ESLint
+              run: |
+                  npm list --depth=0 eslint eslint-plugin-import prettier
+                  npm run lint
+
+            - name: Build
+              run: |
+                  npm run build

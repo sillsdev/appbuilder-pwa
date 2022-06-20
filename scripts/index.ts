@@ -7,7 +7,7 @@ import jsdom from 'jsdom';
  * Layouts?
  */
 
-const dom = new jsdom.JSDOM(readFileSync('./data/appdef.xml').toString());
+const dom = new jsdom.JSDOM(readFileSync('../data/appdef.xml').toString());
 const { document } = dom.window;
 type BookCollection = {
     features: any;
@@ -220,4 +220,4 @@ if (document.getElementsByTagName('keys').length > 0) {
     console.log(`Converted ${data.keys.length} keys`);
 }
 
-writeFileSync('./config.json', JSON.stringify(data));
+writeFileSync('../src/config.js', 'export default ' + JSON.stringify(data) + ';');

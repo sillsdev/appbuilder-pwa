@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '$src/app';
     export let text: App.BibleText = {
         title: '',
         book: '',

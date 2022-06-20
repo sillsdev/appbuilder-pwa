@@ -1,5 +1,5 @@
 import { derived, readable, writable } from 'svelte/store';
-import globalConfigJson from '../../config.json';
+import globalConfigJson from '../../config';
 
 export const globalConfig = readable(globalConfigJson);
 export const activeBookName = writable('john');
