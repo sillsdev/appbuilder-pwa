@@ -19,10 +19,10 @@ jobs:
             - name: Add config
               run: echo "export default {};" > src/config.js
 
-            - name: TypeScript Check
+            - name: TypeScript/Svelte Check
               run: |
                   npm list --depth=0 typescript
-                  tsc --noEmit
+                  npm run check
 
             - name: ESLint
               run: |
