@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "dev": "svelte-kit dev",
-        "build": "svelte-kit build",
+        "dev": "ts-node scripts/index.ts --watch & svelte-kit dev",
+        "build": "ts-node scripts/index.ts && node svelte-kit build",
         "package": "svelte-kit package",
         "preview": "svelte-kit preview",
         "prepare": "svelte-kit sync",
