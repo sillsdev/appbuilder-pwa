@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "svelte-kit dev",
-        "build": "node svelte-kit build",
+        "build": "svelte-kit build",
         "package": "svelte-kit package",
         "preview": "svelte-kit preview",
         "prepare": "svelte-kit sync",
