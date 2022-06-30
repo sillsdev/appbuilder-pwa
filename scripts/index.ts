@@ -2,7 +2,9 @@ import { convertConfig } from './convertConfig';
 import { convertMedia } from './convertMedia';
 
 // Not incremental
-const steps = [convertConfig, convertMedia];
+const steps = [convertConfig, convertMedia].map((f) =>
+    f.bind(null, process.argv.includes('--examples') ? 'example_data' : 'data')
+);
 
 const oldConsoleLog = console.log;
 const oldConsoleError = console.error;
