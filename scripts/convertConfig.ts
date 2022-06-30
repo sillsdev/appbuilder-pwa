@@ -62,8 +62,8 @@ function parseConfigValue(value: any) {
     // else {} // " " split array, string, enum or time
     return value;
 }
-export function convertConfig() {
-    const dom = new jsdom.JSDOM(readFileSync(path.join('data', 'appdef.xml')).toString());
+export function convertConfig(dataDir: string) {
+    const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString());
     const { document } = dom.window;
 
     // Name
