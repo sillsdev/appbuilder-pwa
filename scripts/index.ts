@@ -48,7 +48,7 @@ console.error = (...args) => {
     print();
 };
 
-async function convert() {
+async function convert(): Promise<boolean> {
     currentErrors = '';
     currentStep = 0;
     for (const step of steps) {
@@ -58,10 +58,11 @@ async function convert() {
             await step(dataDir);
         } catch (e) {
             console.log(e);
-            return;
+            return false;
         }
         currentStep++;
     }
+    return true;
 }
 
 // TODO: watch mode/examples
@@ -79,5 +80,6 @@ if (process.argv.includes('--watch')) {
         }, watchTimeout);
         print();
     });
+} else {
+    convert().then((success) => process.exit(success ? 0 : 1));
 }
-convert();
