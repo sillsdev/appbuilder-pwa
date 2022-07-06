@@ -1,10 +1,11 @@
 {
-    "name": "appbuilder-kit",
+    "name": "appbuilder-pwa",
     "version": "0.0.1",
     "type": "module",
     "scripts": {
         "dev": "ts-node scripts/index.ts --watch & svelte-kit dev",
-        "build": "ts-node scripts/index.ts && node svelte-kit build",
+        "build": "ts-node scripts/index.ts && svelte-kit build",
+        "buildExamples": "ts-node scripts/index.ts --examples && svelte-kit build",
         "package": "svelte-kit package",
         "preview": "svelte-kit preview",
         "prepare": "svelte-kit sync",
@@ -14,7 +15,7 @@
         "format": "prettier --write --plugin-search-dir=. .",
         "convert": "ts-node scripts/index.ts",
         "convert:watch": "ts-node scripts/index.ts --watch",
-        "convertSample": "ts-node scripts/index.ts --sample"
+        "convertExamples": "ts-node scripts/index.ts --example"
     },
     "devDependencies": {
         "@sveltejs/adapter-static": "next",
