@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "dev": "ts-node scripts/index.ts --watch & svelte-kit dev",
+        "dev": "concurrently -t HH:mm:ss -p \"[{time} {name}]\" -n Converter,Svelte \"ts-node scripts/index.ts --watch\" \"svelte-kit dev\"",
         "build": "ts-node scripts/index.ts && svelte-kit build",
         "buildExamples": "ts-node scripts/index.ts --examples && svelte-kit build",
         "package": "svelte-kit package",
@@ -40,6 +40,7 @@
     },
     "dependencies": {
         "@tailwindcss/typography": "^0.5.2",
+        "concurrently": "^7.2.2",
         "eslint-plugin-prettier": "^4.0.0"
     }
 }
