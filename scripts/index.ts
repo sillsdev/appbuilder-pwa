@@ -27,7 +27,7 @@ let currentStep = 0;
 let lastStepOutput = '';
 
 const stepLogger = (...args: any[]) => (lastStepOutput += args.join(' ') + '\n');
-async function convert(): Promise<boolean> {
+async function convert(printDetails: boolean): Promise<boolean> {
     currentStep = 0;
     const oldConsoleError = console.error;
     const oldConsoleLog = console.log;
@@ -35,6 +35,7 @@ async function convert(): Promise<boolean> {
     console.log = stepLogger;
     for (const step of steps) {
         lastStepOutput = '';
+        if (printDetails) oldConsoleLog(step.name + ` (${currentStep + 1}/${steps.length})`);
         try {
             // step may be async, in which case it should be awaited
             await step(dataDir);
@@ -45,6 +46,7 @@ async function convert(): Promise<boolean> {
             console.log = oldConsoleLog;
             return false;
         }
+        if (printDetails) oldConsoleLog(lastStepOutput);
         currentStep++;
     }
     console.error = oldConsoleError;
@@ -60,10 +62,10 @@ if (process.argv.includes('--watch')) {
         console.log(`${path} changed`);
         if (timer) clearTimeout(timer);
         timer = setTimeout(async () => {
-            console.log((await convert()) ? 'Conversion successful' : 'Conversion failed');
+            console.log((await convert(false)) ? 'Conversion successful' : 'Conversion failed');
             console.log('Watching for changes...');
         }, watchTimeout);
     });
 } else {
-    convert().then((success) => process.exit(success ? 0 : 1));
+    convert(true).then((success) => process.exit(success ? 0 : 1));
 }
