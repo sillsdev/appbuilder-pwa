@@ -23,62 +23,46 @@ const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) :
 // Not incremental
 const steps = [convertConfig, convertMedia, convertBooks, convertAbout];
 
-const oldConsoleLog = console.log;
-const oldConsoleError = console.error;
 let currentStep = 0;
-let currentWatchOutput = '';
-let currentOutput = '';
-let currentErrors = '';
+let lastStepOutput = '';
 
-function print() {
-    console.clear();
-    oldConsoleLog(currentWatchOutput);
-    oldConsoleLog(currentOutput);
-    oldConsoleError(currentErrors);
-    oldConsoleLog(`${steps[currentStep].name} (${currentStep + 1}/${steps.length})...`);
-}
-
-console.log = (...args) => {
-    currentOutput += args.join(' ') + '\n';
-    print();
-};
-
-console.error = (...args) => {
-    currentErrors += args.join(' ') + '\n';
-    print();
-};
-
+const stepLogger = (...args: any[]) => (lastStepOutput += args.join(' ') + '\n');
 async function convert(): Promise<boolean> {
-    currentErrors = '';
     currentStep = 0;
+    const oldConsoleError = console.error;
+    const oldConsoleLog = console.log;
+    console.error = stepLogger;
+    console.log = stepLogger;
     for (const step of steps) {
-        currentOutput = '';
+        lastStepOutput = '';
         try {
             // step may be async, in which case it should be awaited
             await step(dataDir);
         } catch (e) {
-            console.log(e);
+            oldConsoleLog(lastStepOutput);
+            oldConsoleLog(e + ''); // Just print the short error
+            console.error = oldConsoleError;
+            console.log = oldConsoleLog;
             return false;
         }
         currentStep++;
     }
+    console.error = oldConsoleError;
+    console.log = oldConsoleLog;
     return true;
 }
 
-// TODO: watch mode/examples
 if (process.argv.includes('--watch')) {
-    currentWatchOutput += 'Watching for changes...\n';
-    // watch for changes with chokidar
+    console.log('Watching for changes...');
     let timer: NodeJS.Timeout;
 
     watch(dataDir).on('all', async (event, path) => {
-        currentWatchOutput += `${path} changed\n`;
+        console.log(`${path} changed`);
         if (timer) clearTimeout(timer);
         timer = setTimeout(async () => {
-            await convert();
-            currentWatchOutput = 'Watching for changes...\n';
+            console.log((await convert()) ? 'Conversion successful' : 'Conversion failed');
+            console.log('Watching for changes...');
         }, watchTimeout);
-        print();
     });
 } else {
     convert().then((success) => process.exit(success ? 0 : 1));
