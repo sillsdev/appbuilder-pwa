@@ -41,7 +41,7 @@ async function convert(printDetails: boolean): Promise<boolean> {
             await step(dataDir);
         } catch (e) {
             oldConsoleLog(lastStepOutput);
-            oldConsoleLog(e + ''); // Just print the short error
+            oldConsoleLog(e);
             console.error = oldConsoleError;
             console.log = oldConsoleLog;
             return false;
