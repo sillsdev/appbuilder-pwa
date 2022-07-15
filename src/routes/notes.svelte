@@ -1,23 +1,20 @@
 <script lang="ts">
     import IconCard from '$lib/components/IconCard.svelte';
+    import { NoteIcon } from '$lib/icons';
     let notes = [
         {
             id: '1',
             reference: 'John 1:9',
             text: 'He is the light',
             date: '23 May 2022',
-            actions: ['View', 'Edit', 'Share', 'Delete'],
-            src: 'icons/ic_note_black_24dp.png',
-            alt: 'text bubble'
+            actions: ['View', 'Edit', 'Share', 'Delete']
         },
         {
             id: '0',
             reference: 'John 1:1',
             text: 'Similar to Genesis 1:1',
             date: '23 May 2022',
-            actions: ['View', 'Edit', 'Share', 'Delete'],
-            src: 'icons/ic_note_black_24dp.png',
-            alt: 'text bubble'
+            actions: ['View', 'Edit', 'Share', 'Delete']
         }
     ];
 
@@ -29,5 +26,7 @@
 <h1>Notes</h1>
 
 {#each notes as n}
-    <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...n} />
+<IconCard on:menuaction={e => handleMenuaction(e, n.id)} {...n}>
+    <NoteIcon slot="icon"/>
+</IconCard>
 {/each}

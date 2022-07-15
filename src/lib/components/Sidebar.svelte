@@ -1,14 +1,5 @@
 <script lang="ts">
-    import BibleIcon from '$lib/icons/BibleIcon.svelte';
-    import SearchIcon from '$lib/icons/SearchIcon.svelte';
-    import HistoryIcon from '$lib/icons/HistoryIcon.svelte';
-    import BookmarkIcon from '$lib/icons/BookmarkIcon.svelte';
-    import NoteIcon from '$lib/icons/NoteIcon.svelte';
-    import HighlightIcon from '$lib/icons/HighlightIcon.svelte';
-    import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
-    import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
-    import AboutIcon from '$lib/icons/AboutIcon.svelte';
+    import { BibleIcon, SearchIcon, HistoryIcon, BookmarkIcon, NoteIcon, HighlightIcon, ShareIcon, SettingsIcon, TextAppearanceIcon, AboutIcon } from '$lib/icons';
     import { globalConfig } from '$lib/scripts/stores';
     export let drawerId = 'drawer';
 </script>

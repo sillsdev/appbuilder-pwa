@@ -2,7 +2,7 @@
     import '../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
-    import HamburgerIcon from '$lib/icons/HamburgerIcon.svelte';
+    import { HamburgerIcon } from '$lib/icons';
     let reference = { book: 'John', chapter: '1', verse: '1' };
     let drawerName = 'sidebar';
 </script>
