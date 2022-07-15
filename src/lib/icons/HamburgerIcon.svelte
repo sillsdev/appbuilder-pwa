@@ -1,3 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20"
+<script lang="ts">
+    export let _class = 'fill-black-100';
+</script>
+
+<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="20" width="20"
     ><path d="M2.5 15V13.25H17.5V15ZM2.5 10.875V9.125H17.5V10.875ZM2.5 6.75V5H17.5V6.75Z" /></svg
 >
