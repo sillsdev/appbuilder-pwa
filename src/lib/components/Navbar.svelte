@@ -2,7 +2,15 @@
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { MuteIcon, SearchIcon, DropdownIcon, TextAppearanceIcon } from '$lib/icons';
+    import {
+        MuteIcon,
+        SearchIcon,
+        DropdownIcon,
+        TextAppearanceIcon,
+        SinglePaneIcon,
+        SideBySideIcon,
+        VerseByVerseIcon
+    } from '$lib/icons';
     import { activeBook, globalConfig } from '$lib/scripts/stores';
     export let book = '';
     export let chapter = '';
@@ -44,6 +52,7 @@
 <div class="dy-navbar bg-primary">
     <div class="dy-navbar-start">
         <slot name="drawer-button" />
+        <!-- Book Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
                 {book}
@@ -61,6 +70,7 @@
                 />
             </svelte:fragment>
         </Dropdown>
+        <!-- Chapter Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
                 {chapter}
