@@ -1,6 +1,7 @@
 <script lang="ts">
     import IconCard from '$lib/components/IconCard.svelte';
     import { BookmarkIcon } from '$lib/icons';
+    import { BookmarkIcon } from '$lib/icons';
     let bookmarks = [
         {
             id: '1',
