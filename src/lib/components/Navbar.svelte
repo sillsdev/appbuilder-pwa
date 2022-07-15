@@ -1,11 +1,8 @@
 <script lang="ts">
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
-    import MuteIcon from '$lib/icons/MuteIcon.svelte';
-    import SearchIcon from '$lib/icons/SearchIcon.svelte';
-    import DropdownIcon from '$lib/icons/DropdownIcon.svelte';
-    import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
     import TabsMenu from './TabsMenu.svelte';
+    import { MuteIcon, SearchIcon, DropdownIcon, TextAppearanceIcon } from '$lib/icons';
     import { activeBook, globalConfig } from '$lib/scripts/stores';
     export let book = '';
     export let chapter = '';

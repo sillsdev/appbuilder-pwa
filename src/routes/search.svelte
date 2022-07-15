@@ -1,5 +1,5 @@
 <script lang="ts">
-    import SearchIcon from '$lib/icons/SearchIcon.svelte';
+    import { SearchIcon } from '$lib/icons';
     import { globalConfig } from '$lib/scripts/stores';
     let searchText = '';
     let matchWholeWords = true;

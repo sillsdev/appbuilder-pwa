@@ -10,7 +10,11 @@
 
 <div class="annotation-item-block">
     <div class="annotation-item-icon annotation-float-left">
-        <span><img {src} {alt} /></span>
+        {#if src !== '' && alt !== ''}
+            <span><img {src} {alt}></span>
+        {:else}
+            <slot name="icon"/>
+        {/if}
     </div>
     <!--Menu-->
     <CardMenu on:menuaction {actions} />
