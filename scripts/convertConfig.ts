@@ -18,7 +18,6 @@ type BookCollection = {
         section: string; // Pentateuch
         chapters: number;
         chaptersN: string; // 1-34
-        bd: string;
     }[];
     style?: {
         font: string;
@@ -153,7 +152,6 @@ export function convertConfig(dataDir: string) {
         const bookTags = tag.getElementsByTagName('book');
         for (const book of bookTags) {
             books.push({
-                bd: book.getElementsByTagName('bd')[0].innerHTML,
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
                 ),
