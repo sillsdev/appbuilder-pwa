@@ -29,16 +29,16 @@ declare namespace App {
     }
 
     interface TabMenuOptions {
-		[key: string]: {
-			tab?:{
-				component: any;
-				props?: any;
-			};
-			handler?: function;
-			component: any;
-			props: any;
-		}
-	}
+        [key: string]: {
+            tab?: {
+                component: any;
+                props?: any;
+            };
+            handler?: function;
+            component: any;
+            props: any;
+        };
+    }
 
     interface Settings {
         [category: string]: {
