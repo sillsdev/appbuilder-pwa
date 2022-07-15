@@ -34,7 +34,6 @@ declare namespace App {
                 component: any;
                 props?: any;
             };
-            handler?: function;
             component: any;
             props: any;
         };
