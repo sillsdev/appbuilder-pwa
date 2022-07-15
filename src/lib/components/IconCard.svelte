@@ -11,9 +11,9 @@
 <div class="annotation-item-block">
     <div class="annotation-item-icon annotation-float-left">
         {#if src !== '' && alt !== ''}
-            <span><img {src} {alt}></span>
+            <span><img {src} {alt} /></span>
         {:else}
-            <slot name="icon"/>
+            <slot name="icon" />
         {/if}
     </div>
     <!--Menu-->

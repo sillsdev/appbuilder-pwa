@@ -26,7 +26,7 @@
 <h1>Notes</h1>
 
 {#each notes as n}
-<IconCard on:menuaction={e => handleMenuaction(e, n.id)} {...n}>
-    <NoteIcon slot="icon"/>
-</IconCard>
+    <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...n}>
+        <NoteIcon slot="icon" />
+    </IconCard>
 {/each}

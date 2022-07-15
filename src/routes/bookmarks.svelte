@@ -27,6 +27,6 @@
 
 {#each bookmarks as b}
     <IconCard on:menuaction={(e) => handleMenuaction(e, b.id)} {...b}>
-        <BookmarkIcon slot="icon" _class="fill-red-700"/>   
+        <BookmarkIcon slot="icon" _class="fill-red-700" />
     </IconCard>
 {/each}

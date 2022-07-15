@@ -1,5 +1,16 @@
 <script lang="ts">
-    import { BibleIcon, SearchIcon, HistoryIcon, BookmarkIcon, NoteIcon, HighlightIcon, ShareIcon, SettingsIcon, TextAppearanceIcon, AboutIcon } from '$lib/icons';
+    import {
+        BibleIcon,
+        SearchIcon,
+        HistoryIcon,
+        BookmarkIcon,
+        NoteIcon,
+        HighlightIcon,
+        ShareIcon,
+        SettingsIcon,
+        TextAppearanceIcon,
+        AboutIcon
+    } from '$lib/icons';
     import { globalConfig } from '$lib/scripts/stores';
     export let drawerId = 'drawer';
 </script>
