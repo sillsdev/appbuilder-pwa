@@ -11,7 +11,7 @@
         TextAppearanceIcon,
         AboutIcon
     } from '$lib/icons';
-    import { globalConfig } from '$lib/scripts/stores';
+    import { globalConfig } from '$lib/data/stores';
     export let drawerId = 'drawer';
 </script>
 

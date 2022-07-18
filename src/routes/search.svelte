@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SearchIcon } from '$lib/icons';
-    import { globalConfig } from '$lib/scripts/stores';
+    import { globalConfig } from '$lib/data/stores';
     let searchText = '';
     let matchWholeWords = true;
     $: specialCharacters = $globalConfig.mainFeatures['input-buttons']

@@ -11,7 +11,7 @@
         SideBySideIcon,
         VerseByVerseIcon
     } from '$lib/icons';
-    import { activeBook, globalConfig } from '$lib/scripts/stores';
+    import { activeBook, globalConfig } from '$lib/data/stores';
     export let book = '';
     export let chapter = '';
     // let books = [
