@@ -3,6 +3,7 @@
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {} } };
     export let active = '';
+    export let _class = 'bg-primary'
     const dispatch = createEventDispatcher();
 
     function handleMenuaction({ detail }: CustomEvent) {
@@ -13,7 +14,7 @@
     }
 </script>
 
-<div class="tabs bg-primary">
+<div class="tabs {_class}">
     {#each Object.keys(options) as opt}
         <!-- svelte-ignore a11y-missing-attribute -->
         <a
