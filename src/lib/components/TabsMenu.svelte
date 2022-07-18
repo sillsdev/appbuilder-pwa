@@ -3,7 +3,7 @@
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {} } };
     export let active = '';
-    export let _class = 'bg-primary'
+    export let _class = 'bg-primary';
     const dispatch = createEventDispatcher();
 
     function handleMenuaction({ detail }: CustomEvent) {
