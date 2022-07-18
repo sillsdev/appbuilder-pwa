@@ -11,6 +11,7 @@
         SideBySideIcon,
         VerseByVerseIcon
     } from '$lib/icons';
+    import { catalog } from '$lib/data/constants';
     import { activeBook, globalConfig } from '$lib/data/stores';
     export let book = '';
     export let chapter = '';
@@ -37,7 +38,7 @@
     ];
 
     // FIXME: Doesn't account for missing chapters. Shoud parse chaptersN for included chapters
-    $: chapters = Array.from(Array($activeBook?.chapters), (_, i) => i + 1); // Creates an array [1, 2, 3] from an input 3
+    //$: chapters = Array.from(Array($activeBook?.chapters), (_, i) => i + 1); // Creates an array [1, 2, 3] from an input 3
     $: bookAbbreviations = $globalConfig.bookCollections[0 /*currentCollection*/].books.map(
         (book) => (book.abbreviation || book.id).substring(0, 4)
     );
@@ -47,6 +48,13 @@
         );
         // TODO: after proskomma store is finished, update the scripture view to the new reference
     }
+
+    const docSets = catalog.map((ds) => ds.id);
+    let ds = docSets[0];
+    $: books = catalog.find((d) => d.id === ds).documents;
+    $: b = books[0].bookCode;
+    $: chapters = books.find((d) => d.bookCode === b).versesByChapters;
+    $: c = Object.keys(chapters)[0];
 </script>
 
 <div class="dy-navbar bg-primary">
@@ -61,9 +69,18 @@
             <svelte:fragment slot="content">
                 <TabsMenu
                     options={{
-                        Book: { component: SelectGrid, props: { options: bookAbbreviations } },
-                        Chapter: { component: SelectGrid, props: { options: chapters } },
-                        Verse: { component: SelectGrid, props: { options: verses } }
+                        Book: {
+                            component: SelectGrid,
+                            props: { options: books.map((d) => d.bookCode) /*bookAbbreviations*/ }
+                        },
+                        Chapter: {
+                            component: SelectGrid,
+                            props: { options: Object.keys(chapters) }
+                        },
+                        Verse: {
+                            component: SelectGrid,
+                            props: { options: Object.keys(chapters[c]) }
+                        }
                     }}
                     active="Book"
                     on:menuaction={navigateReference}
@@ -79,8 +96,14 @@
             <svelte:fragment slot="content">
                 <TabsMenu
                     options={{
-                        Chapter: { component: SelectGrid, props: { options: chapters } },
-                        Verse: { component: SelectGrid, props: { options: verses } }
+                        Chapter: {
+                            component: SelectGrid,
+                            props: { options: Object.keys(chapters) }
+                        },
+                        Verse: {
+                            component: SelectGrid,
+                            props: { options: Object.keys(chapters[c]) }
+                        }
                     }}
                     active="Chapter"
                 />
