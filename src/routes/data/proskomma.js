@@ -37,8 +37,6 @@ const pk = (() => {
 export async function post({ request }) {
     const body = await request.json();
     return {
-        body: {
-            text: await pk.query(body.query)
-        }
+        body: await pk.query(body.query)
     };
 }
