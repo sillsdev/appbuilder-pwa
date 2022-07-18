@@ -1,13 +1,59 @@
 <script lang="ts">
     import { SearchIcon } from '$lib/icons';
     import { globalConfig } from '$lib/data/stores';
+    import { refs } from '$lib/data/stores';
+    import { query } from '$lib/scripts/query';
+    import { postQueries, queries } from 'proskomma-tools';
     let searchText = '';
     let matchWholeWords = true;
     $: specialCharacters = $globalConfig.mainFeatures['input-buttons']
         .split(' ')
         .filter((x) => x !== '');
     function submit() {
+        searching = true;
         console.log('search: ' + searchText + '\nmatch whole words: ' + matchWholeWords);
+    }
+
+    let searching = false;
+    let passages: any[] = [];
+    $: promise = search(searching);
+    async function search(s = false) {
+        if (!s) return;
+        if (searchText === '') {
+            searching = false;
+            return;
+        }
+
+        const books = postQueries.searchForBookCodesFilter({
+            data: (
+                await query(
+                    queries.searchForBookCodesQuery({
+                        text: searchText,
+                        docSetId: $refs.default.docSet
+                    })
+                )
+            ).data
+        });
+
+        passages = [];
+
+        for (const book of books) {
+            passages = passages.concat(
+                postQueries.searchForVersesFilter({
+                    data: (
+                        await query(
+                            queries.searchForPassagesQuery({
+                                text: searchText,
+                                docSetId: $refs.default.docSet,
+                                bookCode: book
+                            })
+                        )
+                    ).data
+                })
+            );
+        }
+        console.log(passages.length);
+        searching = false;
     }
 </script>
 
@@ -52,6 +98,14 @@
         </div>
     {/if}
 </form>
+{#await promise}
+    searching . . .
+{:then results}
+    {#each passages as p}
+        <h2>{p.reference} <i>{p.docSetId}</i></h2>
+        <p>{p.text}</p>
+    {/each}
+{/await}
 
 <style>
     .special-characters {
