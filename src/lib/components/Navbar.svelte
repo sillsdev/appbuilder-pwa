@@ -2,6 +2,7 @@
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
+    import LayoutOptions from './LayoutOptions.svelte';
     import {
         MuteIcon,
         SearchIcon,
@@ -60,6 +61,32 @@
 <div class="dy-navbar bg-primary">
     <div class="dy-navbar-start">
         <slot name="drawer-button" />
+        <!-- Translation/View Selector -->
+        <Dropdown>
+            <svelte:fragment slot="label">{ds} <DropdownIcon /></svelte:fragment>
+            <svelte:fragment slot="content">
+                <TabsMenu
+                    options={{
+                        'Single Pane': {
+                            tab: { component: SinglePaneIcon },
+                            component: LayoutOptions,
+                            props: { layoutOption: 'Single Pane' }
+                        },
+                        'Side By Side': {
+                            tab: { component: SideBySideIcon },
+                            component: LayoutOptions,
+                            props: { layoutOption: 'Side By Side' }
+                        },
+                        'Verse By Verse': {
+                            tab: { component: VerseByVerseIcon },
+                            component: LayoutOptions,
+                            props: { layoutOption: 'Verse By Verse' }
+                        }
+                    }}
+                    active="Single Pane"
+                />
+            </svelte:fragment>
+        </Dropdown>
         <!-- Book Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
