@@ -90,7 +90,7 @@
         <!-- Book Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
-                {book}
+                {b}
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
@@ -117,7 +117,7 @@
         <!-- Chapter Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
-                {chapter}
+                {c}
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
