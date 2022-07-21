@@ -12,3 +12,4 @@ data/*
 static/sab-stylesheet.css
 static/fonts
 static/images
+static/audio
