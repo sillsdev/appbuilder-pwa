@@ -15,6 +15,7 @@ import SideBySideIcon from './SideBySideIcon.svelte';
 import SinglePaneIcon from './SinglePaneIcon.svelte';
 import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import VerseByVerseIcon from './VerseByVerseIcon.svelte';
+import VolumeIcon from './VolumeIcon.svelte';
 
 export {
     AboutIcon,
@@ -32,5 +33,6 @@ export {
     SideBySideIcon,
     SinglePaneIcon,
     TextAppearanceIcon,
-    VerseByVerseIcon
+    VerseByVerseIcon,
+    VolumeIcon
 };
