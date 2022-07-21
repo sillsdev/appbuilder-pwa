@@ -1,4 +1,5 @@
 <script>
+    export let src = '';
 </script>
 
-<audio class="w-full h-full" controls />
+<audio {src} class="w-full h-full" />
