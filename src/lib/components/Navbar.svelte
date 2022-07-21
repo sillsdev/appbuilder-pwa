@@ -4,14 +4,13 @@
     import TabsMenu from './TabsMenu.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import {
-        MuteIcon,
+        AudioIcon,
         SearchIcon,
         DropdownIcon,
         TextAppearanceIcon,
         SinglePaneIcon,
         SideBySideIcon,
-        VerseByVerseIcon,
-        VolumeIcon
+        VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/constants';
     import { activeBook, globalConfig, playingAudio } from '$lib/data/stores';
@@ -145,10 +144,10 @@
                 <input type="checkbox" bind:checked={$playingAudio} />
 
                 <!-- volume on icon -->
-                <VolumeIcon _class="dy-swap-on fill-black-100" />
+                <AudioIcon.Volume _class="dy-swap-on fill-black-100" />
 
                 <!-- volume off icon -->
-                <MuteIcon _class="dy-swap-off fill-black-100" />
+                <AudioIcon.Mute _class="dy-swap-off fill-black-100" />
             </label>
         </button>
         <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
