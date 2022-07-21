@@ -18871,6 +18871,6 @@ const catalogJSON = `[
     }
 ]`;
 
-const catalog = JSON.parse(catalogJSON)
+const catalog = JSON.parse(catalogJSON);
 
-export { catalog }
+export { catalog };
