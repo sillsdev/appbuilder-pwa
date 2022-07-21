@@ -3,7 +3,8 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode } from '$lib/data/stores';
+    import { viewMode, playingAudio } from '$lib/data/stores';
+    import AudioBar from '$lib/components/AudioBar.svelte';
     let drawerName = 'sidebar';
 </script>
 
@@ -22,9 +23,14 @@
                 </label>
             </Navbar>
         </div>
-        <main class="p-2 w-full overflow-y-auto">
+        <main class="p-2 w-full overflow-y-auto {$playingAudio ? 'smaller' : ''}">
             <slot />
         </main>
+        {#if $playingAudio}
+            <div class="audio-bar">
+                <AudioBar />
+            </div>
+        {/if}
     </div>
 </Sidebar>
 
@@ -34,5 +40,11 @@
     }
     main {
         height: 90vh;
+    }
+    .smaller {
+        height: 80vh;
+    }
+    .audio-bar {
+        height: 10vh;
     }
 </style>
