@@ -10,10 +10,11 @@
         TextAppearanceIcon,
         SinglePaneIcon,
         SideBySideIcon,
-        VerseByVerseIcon
+        VerseByVerseIcon,
+        VolumeIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/constants';
-    import { activeBook, globalConfig } from '$lib/data/stores';
+    import { activeBook, globalConfig, playingAudio } from '$lib/data/stores';
     export let book = '';
     export let chapter = '';
     // let books = [
@@ -139,7 +140,16 @@
     </div>
     <div class="dy-navbar-end fill-base-content">
         <button class="dy-btn dy-btn-ghost dy-btn-circle">
-            <MuteIcon />
+            <label class="dy-swap">
+                <!-- this hidden checkbox controls the state -->
+                <input type="checkbox" bind:checked={$playingAudio} />
+
+                <!-- volume on icon -->
+                <VolumeIcon _class="dy-swap-on fill-black-100" />
+
+                <!-- volume off icon -->
+                <MuteIcon _class="dy-swap-off fill-black-100" />
+            </label>
         </button>
         <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
             <SearchIcon />
