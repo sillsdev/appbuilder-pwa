@@ -1,12 +1,64 @@
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs } from '$lib/data/stores';
+    import { refs, audioHighlight } from '$lib/data/stores';
     //based on https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0
     export let src = '';
     let duration = NaN;
     let progress = 0;
     let timer;
     let playing = false;
+    let timing = [
+        { time: 4.36, tag: 'title' },
+        { time: 6.92, tag: '1a' },
+        { time: 8.04, tag: '1b' },
+        { time: 10.08, tag: '1c' },
+        { time: 13.76, tag: '2' },
+        { time: 15.8, tag: '3a' },
+        { time: 17.32, tag: '3b' },
+        { time: 19.72, tag: '3c' },
+        { time: 21.2, tag: '4a' },
+        { time: 23.92, tag: '4b' },
+        { time: 25.68, tag: '5a' },
+        { time: 28.48, tag: '5b' },
+        { time: 30.96, tag: '6a' },
+        { time: 32.84, tag: '6b' },
+        { time: 34.44, tag: '7a' },
+        { time: 36.6, tag: '7b' },
+        { time: 39.36, tag: '7c' },
+        { time: 40.7, tag: '8a' },
+        { time: 43.56, tag: '8b' },
+        { time: 48.2, tag: '9' },
+        { time: 50.2, tag: '10a' },
+        { time: 54.28, tag: '10b' },
+        { time: 54.96, tag: '10c' },
+        { time: 56.4, tag: '11a' },
+        { time: 59.28, tag: '11b' },
+        { time: 61.54, tag: '12a' },
+        { time: 64.44, tag: '12b' },
+        { time: 66.92, tag: '12c' },
+        { time: 68.64, tag: '13a' },
+        { time: 69.52, tag: '13b' },
+        { time: 71.2, tag: '13c' },
+        { time: 72.64, tag: '13d' },
+        { time: 75.4, tag: '13e' },
+        { time: 78.28, tag: '14a' },
+        { time: 79.72, tag: '14b' },
+        { time: 82.56, tag: '14c' },
+        { time: 85.16, tag: '14d' },
+        { time: 87, tag: '15a' },
+        { time: 88.16, tag: ' 15b' },
+        { time: 88.8, tag: '15c' },
+        { time: 91.08, tag: '15d' },
+        { time: 94.76, tag: '15e' },
+        { time: 97.08, tag: '15f' },
+        { time: 101.36, tag: '16' },
+        { time: 103.18, tag: '17a' },
+        { time: 107.96, tag: '17b' },
+        { time: 110.14, tag: '18a' },
+        { time: 111.76, tag: '18b' },
+        { time: 113.56, tag: '18c' },
+        { time: 116.32, tag: '18d' }
+    ];
     $: audio = (() => {
         const a = new Audio(src);
         a.onloadedmetadata = () => {
