@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
@@ -43,7 +43,7 @@
     $: bookAbbreviations = $globalConfig.bookCollections[0 /*currentCollection*/].books.map(
         (book) => (book.abbreviation || book.id).substring(0, 4)
     );
-    function navigateReference(e: CustomEvent) {
+    function navigateReference(e) {
         console.log(
             `Navigated to ${e.detail.tab} ${e.detail.text}. New reference: ${book} ${chapter}:_`
         );
