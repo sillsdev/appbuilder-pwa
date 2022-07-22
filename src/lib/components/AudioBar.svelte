@@ -7,6 +7,7 @@
     let progress = 0;
     let timer;
     let playing = false;
+    let timeIndex = 0;
     let timing = [
         { time: 4.36, tag: 'title' },
         { time: 6.92, tag: '1a' },
@@ -57,12 +58,14 @@
         { time: 110.14, tag: '18a' },
         { time: 111.76, tag: '18b' },
         { time: 113.56, tag: '18c' },
-        { time: 116.32, tag: '18d' }
+        { time: 116.32, tag: '18d' },
+        { time: +Infinity, tag: '0' }
     ];
     $: audio = (() => {
         const a = new Audio(src);
         a.onloadedmetadata = () => {
             duration = a.duration;
+            timeIndex = 0;
             updateTime();
         };
         return a;
@@ -70,6 +73,9 @@
 
     function updateTime() {
         progress = audio.currentTime;
+        if (progress >= timing[timeIndex].time) timeIndex++;
+        else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
+        $audioHighlight = timing[timeIndex].tag;
         if (audio.ended) toggleTimeRunning();
     }
     const toggleTimeRunning = () => {
@@ -82,13 +88,15 @@
     };
 
     const playPause = () => {
-        playing = !playing;
+        //clearInterval(timer);
         toggleTimeRunning();
         console.log(playing ? 'playing' : 'paused');
         if (playing) {
-            audio.play();
-        } else {
             audio.pause();
+            playing = false;
+        } else {
+            audio.play();
+            playing = true;
         }
     };
 
@@ -101,6 +109,8 @@
             if (scale === 0) {
                 audio.playbackRate = audio.defaultPlaybackRate;
             } else if (scale > 0) {
+                mutedBySeek = true;
+                audio.muted = true;
                 audio.playbackRate = audio.defaultPlaybackRate * scale;
             } else {
                 seekTimer = setInterval(() => {
