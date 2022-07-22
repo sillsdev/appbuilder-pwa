@@ -21,4 +21,6 @@ export const scrolls = groupStore(writable, 'title');
 
 export const viewMode = writable('Side By Side');
 
-export const playingAudio = writable(false);
+export const playingAudio = writable(true);
+
+export const audioHighlight = writable('0');
