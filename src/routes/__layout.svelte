@@ -6,6 +6,7 @@
     import { viewMode, playingAudio } from '$lib/data/stores';
     import AudioBar from '$lib/components/AudioBar.svelte';
     let drawerName = 'sidebar';
+    let audioSource = 'audio/B04___01_John________ENGWEBN2DA.mp3';
 </script>
 
 <Sidebar drawerId={drawerName}>
@@ -28,7 +29,7 @@
         </main>
         {#if $playingAudio}
             <div class="audio-bar">
-                <AudioBar />
+                <AudioBar src={audioSource} />
             </div>
         {/if}
     </div>
