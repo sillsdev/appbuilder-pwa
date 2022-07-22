@@ -36,7 +36,46 @@ export const referenceStore = () => {
         numVerses: $internal.n,
         title: catalog
             .find((ds) => ds.id === $internal.ds)
-            .documents?.find((b) => b.bookCode === $internal.b).toc
+            .documents.find((b) => b.bookCode === $internal.b).toc,
+        next: (() => {
+            let nextBook = null;
+            let nextChapter = null;
+            const books = catalog.find((ds) => ds.id === $internal.ds).documents;
+            const codes = books.map((b) => b.bookCode);
+            const i = codes.indexOf($internal.b);
+            const chapters = Object.keys(books[i].versesByChapters);
+            const j = chapters.indexOf($internal.c);
+            if (j + 1 >= chapters.length) {
+                if (i + 1 < codes.length) {
+                    nextBook = codes[i + 1];
+                    nextChapter = Object.keys(books[i + 1].versesByChapters)[0];
+                }
+            } else {
+                nextChapter = chapters[j + 1];
+                nextBook = codes[i];
+            }
+            return { book: nextBook, chapter: nextChapter };
+        })(),
+        prev: (() => {
+            let prevBook = null;
+            let prevChapter = null;
+            const books = catalog.find((ds) => ds.id === $internal.ds).documents;
+            const codes = books.map((b) => b.bookCode);
+            const i = codes.indexOf($internal.b);
+            const chapters = Object.keys(books[i].versesByChapters);
+            const j = chapters.indexOf($internal.c);
+            if (j - 1 <= 0) {
+                if (i - 1 >= 0) {
+                    prevBook = codes[i - 1];
+                    const c2 = Object.keys(books[i - 1].versesByChapters);
+                    prevChapter = c2[c2.length - 1];
+                }
+            } else {
+                prevChapter = chapters[j - 1];
+                prevBook = codes[i];
+            }
+            return { book: prevBook, chapter: prevChapter };
+        })()
     }));
     return { subscribe: external.subscribe, set: setInternal };
 };
