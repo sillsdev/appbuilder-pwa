@@ -10,40 +10,55 @@
     $: audio = (() => {
         const a = new Audio(src);
         a.onloadedmetadata = () => {
-			duration = a.duration;
-			updateTime();
-		}
+            duration = a.duration;
+            updateTime();
+        };
         return a;
     })();
 
     function updateTime() {
-		progress = audio.currentTime;
-		if (audio.ended) toggleTimeRunning();
-	}
+        progress = audio.currentTime;
+        if (audio.ended) toggleTimeRunning();
+    }
     const toggleTimeRunning = () => {
-		if (audio.ended) {
-			playing = false;
-			clearInterval(timer);
-		} else {
-			timer = setInterval(updateTime, 100);
-		}
-	}
+        if (audio.ended) {
+            playing = false;
+            clearInterval(timer);
+        } else {
+            timer = setInterval(updateTime, 100);
+        }
+    };
 
     const playPause = () => {
         playing = !playing;
         toggleTimeRunning();
         console.log(playing ? 'playing' : 'paused');
-        if(playing) {
-            audio.play()
-        }
-        else {
-            audio.pause()
+        if (playing) {
+            audio.play();
+        } else {
+            audio.pause();
         }
     };
 
-    const seek = (scale) => {
-        console.log(`seeking: ${scale}`);
-    };
+    const seek = (() => {
+        let seekTimer;
+        let mutedBySeek;
+        return (scale) => {
+            clearInterval(seekTimer);
+            if (mutedBySeek) audio.muted = false;
+            if (scale === 0) {
+                audio.playbackRate = audio.defaultPlaybackRate;
+            } else if (scale > 0) {
+                audio.playbackRate = audio.defaultPlaybackRate * scale;
+            } else {
+                seekTimer = setInterval(() => {
+                    mutedBySeek = true;
+                    audio.muted = true;
+                    audio.currentTime -= audio.defaultPlaybackRate;
+                }, 100);
+            }
+        };
+    })();
 
     const skip = (direction) => {
         console.log(
@@ -52,8 +67,6 @@
             )}`
         );
     };
-    $: console.log(`${audio?.currentTime} : ${duration}`)
-    $: console.log("source: '"+audio?.src+"'\nsrc: '"+src+"'")
 </script>
 
 <div class="w-11/12 h-5/6 bg-base-100 mx-auto rounded-full flex items-center flex-col">
@@ -71,7 +84,12 @@
             <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
                 <AudioIcon.Prev />
             </button>
-            <button class="dy-btn-sm dy-btn-ghost" on:click={() => seek(-1)}>
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:pointerdown={() => seek(-1)}
+                on:pointerup={() => seek(0)}
+                on:pointercancel={() => seek(0)}
+            >
                 <AudioIcon.RW />
             </button>
             <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
@@ -82,7 +100,12 @@
                     <AudioIcon.Pause />
                 {/if}
             </button>
-            <button class="dy-btn-sm dy-btn-ghost" on:click={() => seek(1)}>
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:pointerdown={() => seek(4)}
+                on:pointerup={() => seek(0)}
+                on:pointercancel={() => seek(0)}
+            >
                 <AudioIcon.FF />
             </button>
             <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(1)}>
