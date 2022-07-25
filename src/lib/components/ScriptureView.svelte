@@ -22,8 +22,8 @@
     };
     $: scrollTo($scrolls['default']);
 
+    let verses: string[] = [];
     const handleChange = (() => {
-        let verses: string[];
         let changeTimer: NodeJS.Timeout;
 
         return (e: CustomEvent<ObserverEventDetails>, id: string) => {
@@ -43,6 +43,14 @@
                 }, 500);
         };
     })();
+
+    const highlightInView = (id: string) => {
+        const el = container?.getElementsByClassName('highlighting')?.item(0);
+        if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) == verses[verses.length - 1]) {
+            el.scrollIntoView();
+        }
+    };
+    $: highlightInView($audioHighlight);
 
     const options = { threshold: 0.5 };
 </script>
