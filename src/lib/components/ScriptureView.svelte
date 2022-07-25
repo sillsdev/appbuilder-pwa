@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { audioHighlight } from '$lib/data/stores';
+    import { audioHighlight, refs, scrolls } from '$lib/data/stores';
+    import { inview } from 'svelte-inview';
     export let text: App.BibleText = {
         title: '',
         book: '',
@@ -13,14 +14,57 @@
             }
         ]
     };
+
+    let container: HTMLElement;
+
+    const scrollTo = (id: string) => {
+        container?.getElementsByClassName('scroll-item')?.namedItem(id)?.scrollIntoView();
+    };
+    $: scrollTo($scrolls['default']);
+
+    const handleChange = (() => {
+        let verses: string[];
+        let changeTimer: NodeJS.Timeout;
+
+        return (e: CustomEvent<ObserverEventDetails>, id: string) => {
+            clearTimeout(changeTimer);
+            if (e.detail.inView) {
+                verses.push(id);
+                verses = verses.sort((a, b) => {
+                    if (a === 'title') return -1;
+                    return parseInt(a) - parseInt(b);
+                });
+            } else {
+                verses = verses.filter((v) => v !== id);
+            }
+            if (verses.length > 0)
+                changeTimer = setTimeout(() => {
+                    $scrolls = { key: 'default', val: verses[0] };
+                }, 500);
+        };
+    })();
+
+    const options = { threshold: 0.5 };
 </script>
 
-<article class="prose container mx-auto">
-    <h1 class="text-center" class:highlighting={$audioHighlight === 'title'}>{text.title}</h1>
+<article class="prose container mx-auto" bind:this={container}>
+    <h1
+        id="title"
+        class="text-center scroll-item"
+        class:highlighting={$audioHighlight === 'title'}
+        use:inview={options}
+        on:change={(e) => handleChange(e, 'title')}
+    >
+        {text.title}
+    </h1>
     {#each text.paragraphs as paragraph}
         <p>
             {#each Object.entries(paragraph) as [verse, verseData]}
-                <span id={verse}
+                <span
+                    id={verse}
+                    class="scroll-item"
+                    use:inview={options}
+                    on:change={(e) => handleChange(e, verse)}
                     ><h4>{verse}</h4>
                     {#if verseData['b']}
                         {#each Object.entries(verseData) as [versePart, verseText]}
