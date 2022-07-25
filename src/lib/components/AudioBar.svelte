@@ -88,9 +88,7 @@
     };
 
     const playPause = () => {
-        //clearInterval(timer);
         toggleTimeRunning();
-        console.log(playing ? 'playing' : 'paused');
         if (playing) {
             audio.pause();
             playing = false;
@@ -98,6 +96,7 @@
             audio.play();
             playing = true;
         }
+        console.log(playing ? 'playing' : 'paused');
     };
 
     const seek = (() => {
