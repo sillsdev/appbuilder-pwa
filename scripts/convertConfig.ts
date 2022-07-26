@@ -1,12 +1,25 @@
 import { readFileSync, writeFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
+import { Promisable, Task, TaskOutput } from './Task';
 
 /**
  * TODO:
  * Backgroud images?
  * Layouts?
+ * Colors?
+ * Styles?
  */
+type HTML = string;
+
+type BookCollectionAudio = {
+    num: number;
+    src: string;
+    len: number;
+    size: number;
+    filename: string;
+    timingsFile: string;
+};
 
 type BookCollection = {
     features: any;
@@ -18,6 +31,8 @@ type BookCollection = {
         section: string; // Pentateuch
         chapters: number;
         chaptersN: string; // 1-34
+        file: string;
+        audio: BookCollectionAudio[];
     }[];
     style?: {
         font: string;
@@ -29,6 +44,18 @@ type BookCollection = {
         languageCode: string;
         languageName: string;
     };
+    footer?: HTML; //
+    meta?: {
+        [key: string]: string;
+    };
+    styles?: {
+        [selector: string]: {
+            [property: string]: string;
+        };
+    };
+    collectionName: string;
+    collectionAbbreviation: string;
+    collectionDescription: string;
 };
 const data: {
     name?: string;
@@ -53,6 +80,49 @@ const data: {
         };
     };
     keys?: string[];
+    about?: string; //
+    analytics?: {
+        id: string;
+        name: string;
+        type: string;
+    }[];
+    audio?: {
+        sources: {
+            name: string;
+            accessMethods: string[];
+            folder: string;
+            key: string;
+            damId: string;
+        }[];
+    };
+    videos?: {
+        id: string;
+        width: number;
+        height: number;
+        title: string;
+        thumbnail: string;
+        onlineUrl: string;
+        placement: {
+            pos: string;
+            ref: string;
+            collection: number;
+        };
+    };
+    layouts?: {
+        mode: string;
+        enabled: boolean;
+        features?: {
+            [key: string]: any;
+        };
+    }[];
+    defaultLayout?: string;
+    security?: {
+        features?: {
+            [key: string]: any;
+        };
+        pin: string;
+        mode: string;
+    };
 } = {};
 
 function parseConfigValue(value: any) {
@@ -61,7 +131,8 @@ function parseConfigValue(value: any) {
     // else {} // " " split array, string, enum or time
     return value;
 }
-export function convertConfig(dataDir: string) {
+
+function convertConfig(dataDir: string) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString());
     const { document } = dom.window;
 
@@ -151,6 +222,20 @@ export function convertConfig(dataDir: string) {
         const books: BookCollection['books'] = [];
         const bookTags = tag.getElementsByTagName('book');
         for (const book of bookTags) {
+            const audio: BookCollectionAudio[] = [];
+            for (const page of tag.getElementsByTagName('page')) {
+                const audioTag = page.getElementsByTagName('audio')[0];
+                if (!audioTag) continue;
+                const fTag = audioTag.getElementsByTagName('f')[0];
+                audio.push({
+                    num: parseInt(page.attributes.getNamedItem('num')!.value),
+                    filename: fTag.innerHTML,
+                    len: parseInt(fTag.attributes.getNamedItem('len')!.value),
+                    size: parseInt(fTag.attributes.getNamedItem('size')!.value),
+                    src: fTag.attributes.getNamedItem('src')!.value,
+                    timingsFile: audioTag.getElementsByTagName('y')[0].innerHTML
+                });
+            }
             books.push({
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
@@ -161,12 +246,25 @@ export function convertConfig(dataDir: string) {
                 name: book.getElementsByTagName('n')[0]?.innerHTML,
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
-                abbreviation: book.getElementsByTagName('v')[0]?.innerHTML
+                abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
+                audio,
+                file: book.getElementsByTagName('f')[0]?.innerHTML
             });
         }
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
+        const collectionNameTags = tag.getElementsByTagName('book-collection-name');
+        const collectionName = collectionNameTags.length > 0 ? collectionNameTags[0].innerHTML : '';
+        const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
+        const collectionDescription =
+            collectionDescriptionTags.length > 0 ? collectionDescriptionTags[0].innerHTML : '';
+        const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbreviation');
+        const collectionAbbreviation =
+            collectionAbbreviationTags.length > 0 ? collectionAbbreviationTags[0].innerHTML : '';
         data.bookCollections.push({
+            collectionName,
+            collectionAbbreviation,
+            collectionDescription,
             features,
             books,
             style: {
@@ -227,6 +325,27 @@ export function convertConfig(dataDir: string) {
         ).map((key) => key.innerHTML);
         console.log(`Converted ${data.keys.length} keys`);
     }
+    return data;
+    // writeFileSync(path.join('src', 'config.js'), 'export default ' + JSON.stringify(data) + ';');
+}
 
-    writeFileSync(path.join('src', 'config.js'), 'export default ' + JSON.stringify(data) + ';');
+export interface ConfigTaskOutput extends TaskOutput {
+    data: any;
+}
+
+export class ConvertConfig extends Task {
+    public triggerFiles: string[] = ['appdef.xml'];
+    public run(): ConfigTaskOutput {
+        const data = convertConfig(this.dataDir);
+        return {
+            taskName: 'ConvertConfig',
+            data,
+            files: [
+                {
+                    path: 'src/config.js',
+                    content: `export default ${JSON.stringify(data)};`
+                }
+            ]
+        };
+    }
 }

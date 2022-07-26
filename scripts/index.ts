@@ -1,8 +1,11 @@
-import { convertConfig } from './convertConfig';
-import { convertMedia } from './convertMedia';
-import { convertBooks } from './convertBooks';
-import { convertAbout } from './convertAbout';
+import { ConvertConfig } from './convertConfig';
+import { ConvertMedia } from './convertMedia';
+import { ConvertBooks } from './convertBooks';
+import { ConvertAbout } from './convertAbout';
 import { watch } from 'chokidar';
+import { Task, TaskOutput } from './Task';
+import { writeFile, writeFileSync } from 'fs';
+import path from 'path';
 
 // Possible arguments:
 // --data-dir=<path> (override data path)
@@ -20,25 +23,34 @@ const dataDir = suppliedDataDir
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
 
-// Not incremental
-const steps = [convertConfig, convertMedia, convertBooks, convertAbout];
+const stepClasses: Task[] = [ConvertConfig, ConvertMedia, ConvertAbout, ConvertBooks].map(
+    (x) => new x(dataDir)
+);
+const allPaths = new Set(
+    stepClasses.reduce((acc, step) => acc.concat(step.triggerFiles), [] as string[])
+);
+
+const outputs: Map<string, TaskOutput | null> = new Map(
+    stepClasses.map((x) => [x.constructor.name, null])
+);
 
 let currentStep = 0;
 let lastStepOutput = '';
 
 const stepLogger = (...args: any[]) => (lastStepOutput += args.join(' ') + '\n');
-async function convert(printDetails: boolean): Promise<boolean> {
+async function fullConvert(printDetails: boolean): Promise<boolean> {
     currentStep = 0;
     const oldConsoleError = console.error;
     const oldConsoleLog = console.log;
     console.error = stepLogger;
     console.log = stepLogger;
-    for (const step of steps) {
+    for (const step of stepClasses) {
         lastStepOutput = '';
-        if (printDetails) oldConsoleLog(step.name + ` (${currentStep + 1}/${steps.length})`);
+        if (printDetails)
+            oldConsoleLog(step.constructor.name + ` (${currentStep + 1}/${stepClasses.length})`);
         try {
             // step may be async, in which case it should be awaited
-            await step(dataDir);
+            outputs.set(step.constructor.name, await step.run(outputs));
         } catch (e) {
             oldConsoleLog(lastStepOutput);
             oldConsoleLog(e);
@@ -55,17 +67,70 @@ async function convert(printDetails: boolean): Promise<boolean> {
 }
 
 if (process.argv.includes('--watch')) {
-    console.log('Watching for changes...');
-    let timer: NodeJS.Timeout;
+    (async () => {
+        console.log('Compiling...');
+        await fullConvert(false);
+        console.log('Watching for changes...');
+        let timer: NodeJS.Timeout;
+        let paths: string[] = [];
+        let firstRun = true;
+        watch(dataDir).on('all', async (event, watchPath) => {
+            watchPath = watchPath.substring(dataDir.length + 1);
+            if (
+                !firstRun &&
+                Array.from(allPaths.values()).some(
+                    (p) => watchPath.startsWith(p + path.sep) || watchPath === p
+                )
+            )
+                console.log(`${watchPath} changed`);
+            paths.push(watchPath);
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(async () => {
+                if (firstRun) {
+                    firstRun = false;
+                    paths = [];
+                    return;
+                }
+                const oldConsoleError = console.error;
+                const oldConsoleLog = console.log;
+                console.error = stepLogger;
+                console.log = stepLogger;
 
-    watch(dataDir).on('all', async (event, path) => {
-        console.log(`${path} changed`);
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(async () => {
-            console.log((await convert(false)) ? 'Conversion successful' : 'Conversion failed');
-            console.log('Watching for changes...');
-        }, watchTimeout);
-    });
+                for (const step of stepClasses) {
+                    for (const triggerFile of step.triggerFiles) {
+                        // Trigger if the path is a trigger file OR
+                        // if the trigger file is a directory (ends with /) and the path is in that directory
+                        if (
+                            paths.includes(triggerFile) ||
+                            paths.find((p) => p.startsWith(triggerFile + path.sep))
+                        ) {
+                            try {
+                                oldConsoleLog('Running step ' + step.constructor.name);
+                                const out = await step.run(outputs);
+                                outputs.set(step.constructor.name, out);
+                                for (const file of out.files) {
+                                    writeFileSync(file.path, file.content);
+                                }
+                            } catch (e) {
+                                oldConsoleLog(lastStepOutput);
+                                oldConsoleLog(e);
+                                console.error = oldConsoleError;
+                                console.log = oldConsoleLog;
+                                return false;
+                            }
+                            break;
+                        }
+                    }
+                }
+                console.error = oldConsoleError;
+                console.log = oldConsoleLog;
+
+                console.log('Conversion successful');
+                console.log('Watching for changes...');
+                paths = [];
+            }, watchTimeout);
+        });
+    })();
 } else {
-    convert(true).then((success) => process.exit(success ? 0 : 1));
+    fullConvert(true).then((success) => process.exit(success ? 0 : 1));
 }
