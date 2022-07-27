@@ -12,7 +12,7 @@
         SideBySideIcon,
         VerseByVerseIcon
     } from '$lib/icons';
-    import { catalog } from '$lib/data/constants';
+    import { catalog } from '$lib/data/catalog';
     import { activeBook, globalConfig, playingAudio } from '$lib/data/stores';
     export let book = '';
     export let chapter = '';
