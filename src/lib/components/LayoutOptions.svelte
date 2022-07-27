@@ -1,6 +1,6 @@
 <script>
     import { onDestroy } from 'svelte';
-    import { catalog } from '$lib/data/constants';
+    import { catalog } from '$lib/data/catalog';
     import { refs, viewMode } from '$lib/data/stores';
 
     export let layoutOption = '';
