@@ -19,10 +19,16 @@ export async function convertBooks(
     const freezer = new Map<string, Promise<string>>();
     /**array of catalog query promises*/
     const catalogEntries: Promise<any>[] = [];
+
+    const usedLangs = new Set<string>();
     //loop through collections
     for (const collection of collections!) {
         const pk = new Proskomma();
-        const lang = collection.languageCode;
+        const lang = collection.languageCode.split('-')[0];
+        if (usedLangs.has(lang)) {
+            console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
+        }
+        usedLangs.add(lang);
         const abbr = collection.collectionAbbreviation;
         const docSet = lang + '_' + abbr;
         console.log('converting to docSet: ' + docSet);
