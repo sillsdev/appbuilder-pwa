@@ -22,6 +22,7 @@ type BookCollectionAudio = {
 };
 
 type BookCollection = {
+    id: string;
     features: any;
     books: {
         id: string;
@@ -41,9 +42,9 @@ type BookCollection = {
         textDirection: string;
         numeralSystem: string;
         verseNumbers: string;
-        languageCode: string;
-        languageName: string;
     };
+    languageCode: string;
+    languageName: string;
     footer?: HTML; //
     meta?: {
         [key: string]: string;
@@ -57,7 +58,8 @@ type BookCollection = {
     collectionAbbreviation: string;
     collectionDescription: string;
 };
-const data: {
+
+export type ConfigData = {
     name?: string;
     mainFeatures?: any;
     fonts?: {
@@ -123,7 +125,9 @@ const data: {
         pin: string;
         mode: string;
     };
-} = {};
+};
+
+const data: ConfigData = {};
 
 function parseConfigValue(value: any) {
     if (!value.includes(':') && !isNaN(parseInt(value))) value = parseInt(value);
@@ -248,7 +252,7 @@ function convertConfig(dataDir: string) {
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
-                file: book.getElementsByTagName('f')[0]?.innerHTML
+                file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm')
             });
         }
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
@@ -258,23 +262,24 @@ function convertConfig(dataDir: string) {
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
         const collectionDescription =
             collectionDescriptionTags.length > 0 ? collectionDescriptionTags[0].innerHTML : '';
-        const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbreviation');
+        const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbrev');
         const collectionAbbreviation =
             collectionAbbreviationTags.length > 0 ? collectionAbbreviationTags[0].innerHTML : '';
         data.bookCollections.push({
+            id: tag.id,
             collectionName,
             collectionAbbreviation,
             collectionDescription,
             features,
             books,
+            languageCode: writingSystem.attributes.getNamedItem('code')!.value,
+            languageName: writingSystem
+                .getElementsByTagName('display-names')[0]
+                .getElementsByTagName('form')[0].innerHTML,
             style: {
                 font: stylesTag
                     .getElementsByTagName('text-font')[0]
                     .attributes.getNamedItem('family')!.value,
-                languageCode: writingSystem.attributes.getNamedItem('code')!.value,
-                languageName: writingSystem
-                    .getElementsByTagName('display-names')[0]
-                    .getElementsByTagName('form')[0].innerHTML,
                 lineHeight: parseInt(
                     stylesTag
                         .getElementsByTagName('line-height')[0]
@@ -330,7 +335,7 @@ function convertConfig(dataDir: string) {
 }
 
 export interface ConfigTaskOutput extends TaskOutput {
-    data: any;
+    data: ConfigData;
 }
 
 export class ConvertConfig extends Task {

@@ -23,7 +23,7 @@ const dataDir = suppliedDataDir
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
 
-const stepClasses: Task[] = [ConvertConfig, ConvertMedia, ConvertAbout, ConvertBooks].map(
+const stepClasses: Task[] = [ConvertConfig, ConvertMedia, ConvertBooks, ConvertAbout].map(
     (x) => new x(dataDir)
 );
 const allPaths = new Set(
@@ -42,23 +42,30 @@ async function fullConvert(printDetails: boolean): Promise<boolean> {
     currentStep = 0;
     const oldConsoleError = console.error;
     const oldConsoleLog = console.log;
-    console.error = stepLogger;
-    console.log = stepLogger;
+    if (!printDetails) {
+        console.error = stepLogger;
+        console.log = stepLogger;
+    }
     for (const step of stepClasses) {
         lastStepOutput = '';
-        if (printDetails)
-            oldConsoleLog(step.constructor.name + ` (${currentStep + 1}/${stepClasses.length})`);
+        oldConsoleLog(step.constructor.name + ` (${currentStep + 1}/${stepClasses.length})`);
         try {
             // step may be async, in which case it should be awaited
-            outputs.set(step.constructor.name, await step.run(outputs));
+            const out = await step.run(outputs, step.triggerFiles);
+            outputs.set(step.constructor.name, out);
+            await Promise.all(
+                out.files.map((f) => new Promise((r) => writeFile(f.path, f.content, r)))
+            );
         } catch (e) {
-            oldConsoleLog(lastStepOutput);
-            oldConsoleLog(e);
+            if (!printDetails) {
+                oldConsoleLog(lastStepOutput);
+                oldConsoleLog(e);
+            }
             console.error = oldConsoleError;
             console.log = oldConsoleLog;
             return false;
         }
-        if (printDetails) oldConsoleLog(lastStepOutput);
+        // if (printDetails) oldConsoleLog(lastStepOutput);
         currentStep++;
     }
     console.error = oldConsoleError;
@@ -106,11 +113,14 @@ if (process.argv.includes('--watch')) {
                         ) {
                             try {
                                 oldConsoleLog('Running step ' + step.constructor.name);
-                                const out = await step.run(outputs);
+                                const out = await step.run(outputs, paths);
                                 outputs.set(step.constructor.name, out);
-                                for (const file of out.files) {
-                                    writeFileSync(file.path, file.content);
-                                }
+                                // Write all files to disk
+                                await Promise.all(
+                                    out.files.map(
+                                        (f) => new Promise((r) => writeFile(f.path, f.content, r))
+                                    )
+                                );
                             } catch (e) {
                                 oldConsoleLog(lastStepOutput);
                                 oldConsoleLog(e);
