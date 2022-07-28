@@ -94,7 +94,7 @@ export async function convertBooks(
         await Promise.all(docs);
         console.timeEnd('convert ' + collection.id);
         //start freezing process
-        freezer.set(docSet.replace(/(\-| )+/, '_'), freeze(pk));
+        freezer.set(docSet.replace(/(-| )+/, '_'), freeze(pk));
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
     }
