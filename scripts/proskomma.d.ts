@@ -1,6 +1,13 @@
+declare module 'sab-proskomma' {
+    export class SABProskomma {
+        gqlQuery(query: string, callback?: (r: any) => void): Promise<any>;
+    }
+}
+
 declare module 'proskomma' {
     export class Proskomma {
         gqlQuery(query: string, callback?: (r: any) => void): Promise<any>;
+        validateSelectors(): void;
     }
 }
 
