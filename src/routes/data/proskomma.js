@@ -1,4 +1,4 @@
-import { Proskomma } from 'proskomma';
+import { SABProskomma } from '../../../sab-proskomma';
 import { thaw } from 'proskomma-freeze';
 import { collections } from '$lib/data/book-collections';
 
