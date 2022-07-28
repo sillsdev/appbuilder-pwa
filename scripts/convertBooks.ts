@@ -3,7 +3,7 @@
 
 import { ConfigTaskOutput } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
-import { readFile, readFileSync, writeFile, writeFileSync } from 'fs';
+import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { SABProskomma } from '../sab-proskomma';
 import { freeze } from 'proskomma-freeze';
@@ -89,12 +89,12 @@ export async function convertBooks(
                 })
             );
         }
-        console.time('convertBooks');
+        console.time('convert '+collection.id);
         //wait for documents to finish being added
         await Promise.all(docs);
-        console.timeEnd('convertBooks');
+        console.timeEnd('convert '+collection.id);
         //start freezing process
-        freezer.set(docSet.replace('- ', '_'), freeze(pk));
+        freezer.set(docSet.replace(/(\-| )+/, '_'), freeze(pk));
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
     }
@@ -114,6 +114,10 @@ export async function convertBooks(
         () => null
     );
     console.time('freeze');
+    if(!existsSync(path.join('src', 'lib', 'data', 'book-collections'))) {
+        console.log('creating: '+path.join('src', 'lib', 'data', 'book-collections'));
+        mkdirSync(path.join('src', 'lib', 'data', 'book-collections'));
+    }
     //write frozen archives for import
     const vals = await Promise.all(freezer.values());
     //write frozen archives
@@ -130,14 +134,12 @@ export async function convertBooks(
         // );
         i++;
     }
-    console.log('writing index');
     //write index file
     writeFileSync(
         path.join('src', 'lib', 'data', 'book-collections', 'index.js'),
         `${(() => {
             let s = '';
             for (const k of freezer.keys()) {
-                console.log('collection: '+k)
                 //import collection
                 s += 'import { ' + k + ' } from ' + "'./" + k + "';\n";
             }
@@ -147,14 +149,12 @@ export async function convertBooks(
             let s = '';
             let i = 0;
             for (const k of freezer.keys()) {
-                console.log('const: '+k)
                 s += k + (i + 1 < freezer.size ? ', ' : '');
                 i++;
             }
             return s;
         })()}];`
     );
-    console.log('after index');
     console.timeEnd('freeze');
     return {
         files,
