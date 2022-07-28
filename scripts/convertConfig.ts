@@ -18,7 +18,7 @@ type BookCollectionAudio = {
     len: number;
     size: number;
     filename: string;
-    timingsFile: string;
+    timingFile: string;
 };
 
 type BookCollection = {
@@ -237,7 +237,7 @@ function convertConfig(dataDir: string) {
                     len: parseInt(fTag.attributes.getNamedItem('len')!.value),
                     size: parseInt(fTag.attributes.getNamedItem('size')!.value),
                     src: fTag.attributes.getNamedItem('src')!.value,
-                    timingsFile: audioTag.getElementsByTagName('y')[0].innerHTML
+                    timingFile: audioTag.getElementsByTagName('y')[0].innerHTML
                 });
             }
             books.push({
