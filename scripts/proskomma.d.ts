@@ -4,13 +4,6 @@ declare module 'sab-proskomma' {
     }
 }
 
-declare module 'proskomma' {
-    export class Proskomma {
-        gqlQuery(query: string, callback?: (r: any) => void): Promise<any>;
-        validateSelectors(): void;
-    }
-}
-
 declare module 'proskomma-freeze' {
     export function freeze(proskommaInstance: Proskomma): Promise<string>;
 }

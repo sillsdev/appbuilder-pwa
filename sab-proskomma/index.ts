@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+///<reference path="./proskomma.d.ts"/>
+
 import { Proskomma } from 'proskomma';
 
 export class SABProskomma extends Proskomma {
