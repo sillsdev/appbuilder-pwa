@@ -2,7 +2,7 @@ import { Proskomma } from 'proskomma';
 
 export class SABProskomma extends Proskomma {
     selectors: { name: string; type: string; regex: string }[];
-    filters: {};
+    filters: any;
     customTags: {
         heading: string[];
         paragraph: string[];
