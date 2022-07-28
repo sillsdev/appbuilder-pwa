@@ -227,7 +227,7 @@ function convertConfig(dataDir: string) {
         const bookTags = tag.getElementsByTagName('book');
         for (const book of bookTags) {
             const audio: BookCollectionAudio[] = [];
-            for (const page of tag.getElementsByTagName('page')) {
+            for (const page of book.getElementsByTagName('page')) {
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
                 const fTag = audioTag.getElementsByTagName('f')[0];
