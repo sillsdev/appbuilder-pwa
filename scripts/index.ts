@@ -57,10 +57,8 @@ async function fullConvert(printDetails: boolean): Promise<boolean> {
                 out.files.map((f) => new Promise((r) => writeFile(f.path, f.content, r)))
             );
         } catch (e) {
-            if (!printDetails) {
-                oldConsoleLog(lastStepOutput);
-                oldConsoleLog(e);
-            }
+            oldConsoleLog(lastStepOutput);
+            oldConsoleLog(e);
             console.error = oldConsoleError;
             console.log = oldConsoleLog;
             return false;
