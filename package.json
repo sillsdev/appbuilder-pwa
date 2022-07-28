@@ -15,7 +15,7 @@
         "format": "prettier --write --plugin-search-dir=. .",
         "convert": "ts-node scripts/index.ts",
         "convert:watch": "ts-node scripts/index.ts --watch",
-        "convertExamples": "ts-node scripts/index.ts --example"
+        "convertExamples": "ts-node scripts/index.ts --examples"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
