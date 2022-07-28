@@ -1,5 +1,5 @@
 import { writable, derived, get } from 'svelte/store';
-import { catalog } from './constants';
+import { catalog } from './catalog';
 
 export const referenceStore = () => {
     const internal = writable({ ds: '', b: '', c: '', n: 0 });
