@@ -5,7 +5,7 @@ import { ConfigTaskOutput } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
 import { readFile, readFileSync, writeFile, writeFileSync } from 'fs';
 import path from 'path';
-import { Proskomma } from 'proskomma';
+import { SABProskomma } from '../sab-proskomma';
 import { freeze } from 'proskomma-freeze';
 import { queries, postQueries } from 'proskomma-tools';
 
@@ -23,8 +23,8 @@ export async function convertBooks(
     const usedLangs = new Set<string>();
     //loop through collections
     for (const collection of collections!) {
-        const pk = new Proskomma();
-        const lang = collection.languageCode.split('-')[0];
+        const pk = new SABProskomma();
+        const lang = collection.languageCode;
         if (usedLangs.has(lang)) {
             console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
         }
