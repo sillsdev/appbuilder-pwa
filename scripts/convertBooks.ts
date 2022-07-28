@@ -31,7 +31,7 @@ export async function convertBooks(
         usedLangs.add(lang);
         const abbr = collection.collectionAbbreviation;
         const docSet = lang + '_' + abbr;
-        console.log('converting collection: '+collection.id+' to docSet: ' + docSet);
+        console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
         /**array of promises of Proskomma mutations*/
         const docs: Promise<void>[] = [];
         //loop through books in collection
@@ -89,10 +89,10 @@ export async function convertBooks(
                 })
             );
         }
-        console.time('convert '+collection.id);
+        console.time('convert ' + collection.id);
         //wait for documents to finish being added
         await Promise.all(docs);
-        console.timeEnd('convert '+collection.id);
+        console.timeEnd('convert ' + collection.id);
         //start freezing process
         freezer.set(docSet.replace(/(\-| )+/, '_'), freeze(pk));
         //start catalog generation process
@@ -114,8 +114,8 @@ export async function convertBooks(
         () => null
     );
     console.time('freeze');
-    if(!existsSync(path.join('src', 'lib', 'data', 'book-collections'))) {
-        console.log('creating: '+path.join('src', 'lib', 'data', 'book-collections'));
+    if (!existsSync(path.join('src', 'lib', 'data', 'book-collections'))) {
+        console.log('creating: ' + path.join('src', 'lib', 'data', 'book-collections'));
         mkdirSync(path.join('src', 'lib', 'data', 'book-collections'));
     }
     //write frozen archives for import
