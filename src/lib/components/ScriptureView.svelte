@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onDestroy } from 'svelte';
     import { audioHighlight, refs, scrolls } from '$lib/data/stores';
     import { inview } from 'svelte-inview';
     export let text: App.BibleText = {
@@ -16,11 +17,22 @@
     };
 
     let container: HTMLElement;
+    const key = {};
 
-    const scrollTo = (id: string) => {
+    let group = 'default';
+    let scrollId: string;
+    let scrollMod: any;
+    const unSub = scrolls.subscribe((vals, mods) => {
+        scrollId = vals[group];
+        scrollMod = mods[group];
+    }); 
+
+    const scrollTo = (id: string, mod: any) => {
+        if(scrollMod === key) return;
+        console.log('scrolling: '+id);
         container?.getElementsByClassName('scroll-item')?.namedItem(id)?.scrollIntoView();
     };
-    $: scrollTo($scrolls['default']);
+    $: scrollTo(scrollId, scrollMod);
 
     let verses: string[] = [];
     const handleChange = (() => {
@@ -39,7 +51,7 @@
             }
             if (verses.length > 0)
                 changeTimer = setTimeout(() => {
-                    $scrolls = { key: 'default', val: verses[0] };
+                    $scrolls = { key: 'default', val: verses[0], mod: key };
                 }, 500);
         };
     })();
@@ -53,6 +65,8 @@
     $: highlightInView($audioHighlight);
 
     const options = { threshold: 0.5 };
+
+    onDestroy(unSub);
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>

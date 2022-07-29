@@ -83,6 +83,7 @@ export const referenceStore = () => {
 export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => {
     /**@type{any}*/ const stores = { default: groupType(props) };
     /**@type{any}*/ const vals = { default: undefined };
+    /**@type{any}*/ const mods = { default: undefined };
     /**@type{any}*/ const unsubs = {
         default: stores.default.subscribe((v) => (vals['default'] = v))
     };
@@ -91,18 +92,20 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
 
     const subscribe = (cb) => {
         subs.push(cb);
-        cb(vals);
+        cb(vals, mods);
         return () => (subs = subs.filter((sub) => sub !== cb));
     };
 
-    const set = ({ key, val }) => {
+    const set = ({ key, val, mod }) => {
         stores[key].set(val);
-        subs.forEach((sub) => sub(vals));
+        mods[key] = mod;
+        subs.forEach((sub) => sub(vals, mods));
     };
     const addKey = (/**@type{any}*/ key) => {
         if (key === 'default') return () => {};
         if (stores[key] === undefined) {
             stores[key] = groupType(props);
+            mods[key] = undefined;
             unsubs[key] = stores[key].subscribe((v) => (vals[key] = v));
             subGroupCounts[key] = 0;
         }
@@ -113,6 +116,7 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
                 unsubs[key]();
                 delete unsubs[key];
                 delete vals[key];
+                delete mods[key];
                 delete stores[key];
             }
         };
