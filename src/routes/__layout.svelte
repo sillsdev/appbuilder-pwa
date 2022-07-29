@@ -10,40 +10,38 @@
 </script>
 
 <Sidebar drawerId={drawerName}>
-    <div class="flex flex-col justify-center">
-        <div class="navbar">
-            <Navbar>
-                <label
-                    for={drawerName}
-                    slot="drawer-button"
-                    class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
-                        ? ''
-                        : 'lg:hidden'}"
-                >
-                    <HamburgerIcon />
-                </label>
-            </Navbar>
-        </div>
-        <main class="p-2 w-full overflow-y-auto {$playingAudio ? 'smaller' : ''}">
-            <slot />
-        </main>
-        {#if $playingAudio}
-            <div class="audio-bar">
-                <AudioBar src={audioSource} />
-            </div>
-        {/if}
+    <div class="navbar">
+        <Navbar>
+            <label
+                for={drawerName}
+                slot="drawer-button"
+                class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
+                    ? ''
+                    : 'lg:hidden'}"
+            >
+                <HamburgerIcon />
+            </label>
+        </Navbar>
     </div>
+    <main class="p-2 w-full overflow-y-auto {$playingAudio ? 'smaller' : 'larger'}">
+        <slot />
+    </main>
+    {#if $playingAudio}
+        <div class="audio-bar">
+            <AudioBar src={audioSource} />
+        </div>
+    {/if}
 </Sidebar>
 
 <style>
     .navbar {
         height: 10vh;
     }
-    main {
-        height: 90vh;
-    }
     .smaller {
         height: 80vh;
+    }
+    .larger {
+        height: 90vh;
     }
     .audio-bar {
         height: 10vh;
