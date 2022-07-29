@@ -14,7 +14,7 @@
     }
 </script>
 
-<div class="tabs {_class}">
+<div class="dy-tabs {_class}">
     {#each Object.keys(options) as opt}
         <!-- svelte-ignore a11y-missing-attribute -->
         <a
@@ -29,9 +29,17 @@
         </a>
     {/each}
 </div>
+<div class="tabs-content">
+    <svelte:component
+        this={options[active].component}
+        on:menuaction={handleMenuaction}
+        {...options[active].props}
+    />
+</div>
 
-<svelte:component
-    this={options[active].component}
-    on:menuaction={handleMenuaction}
-    {...options[active].props}
-/>
+<style>
+    .tabs-content {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+</style>
