@@ -25,11 +25,10 @@
     const unSub = scrolls.subscribe((vals, mods) => {
         scrollId = vals[group];
         scrollMod = mods[group];
-    }); 
+    });
 
     const scrollTo = (id: string, mod: any) => {
-        if(scrollMod === key) return;
-        console.log('scrolling: '+id);
+        if (scrollMod === key) return;
         container?.getElementsByClassName('scroll-item')?.namedItem(id)?.scrollIntoView();
     };
     $: scrollTo(scrollId, scrollMod);
