@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import { audioHighlight, refs, scrolls } from '$lib/data/stores';
+    import { audioHighlight, refs, scrolls, playingAudio } from '$lib/data/stores';
     import { inview } from 'svelte-inview';
     export let text: App.BibleText = {
         title: '',
@@ -18,7 +18,7 @@
 
     let container: HTMLElement;
     const key = {};
-
+    
     let group = 'default';
     let scrollId: string;
     let scrollMod: any;
@@ -56,6 +56,7 @@
     })();
 
     const highlightInView = (id: string) => {
+        if(!$playingAudio) return;
         const el = container?.getElementsByClassName('highlighting')?.item(0);
         if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) == verses[verses.length - 1]) {
             el.scrollIntoView();
