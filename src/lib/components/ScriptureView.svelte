@@ -55,6 +55,7 @@
         };
     })();
 
+    $: hglt = $playingAudio ? $audioHighlight : '';
     const highlightInView = (id: string) => {
         if(!$playingAudio) return;
         const el = container?.getElementsByClassName('highlighting')?.item(0);
@@ -73,7 +74,7 @@
     <h1
         id="title"
         class="text-center scroll-item"
-        class:highlighting={$audioHighlight === 'title'}
+        class:highlighting={hglt === 'title'}
         use:inview={options}
         on:change={(e) => handleChange(e, 'title')}
     >
@@ -92,13 +93,13 @@
                         {#each Object.entries(verseData) as [versePart, verseText]}
                             <span
                                 id={verse + versePart}
-                                class:highlighting={$audioHighlight === verse + versePart}
+                                class:highlighting={hglt === verse + versePart}
                             >
                                 {verseText + ' '}
                             </span>
                         {/each}
                     {:else}
-                        <span id={verse} class:highlighting={$audioHighlight === verse}>
+                        <span id={verse} class:highlighting={hglt === verse}>
                             {verseData['a'] + ' '}
                         </span>
                     {/if}
