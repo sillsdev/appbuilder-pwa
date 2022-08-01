@@ -142,7 +142,7 @@ export async function convertBooks(
             let s = '';
             let i = 0;
             for (const k of freezer.keys()) {
-                s += '\'' + k + '\'' + (i + 1 < freezer.size ? ', ' : '');
+                s += "'" + k + "'" + (i + 1 < freezer.size ? ', ' : '');
                 i++;
             }
             return s;
