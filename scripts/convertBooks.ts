@@ -125,7 +125,7 @@ export async function convertBooks(
     let i = 0;
     for (const k of freezer.keys()) {
         files.push({
-            path: path.join('static', 'collections', k + '.pkzip'),
+            path: path.join('static', 'collections', k + '.pkf'),
             content: `${vals[i]}`
         });
         // writeFileSync(
