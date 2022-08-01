@@ -13,41 +13,11 @@
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
-    import { activeBook, globalConfig, playingAudio } from '$lib/data/stores';
-    export let book = '';
-    export let chapter = '';
-    // let books = [
-    //     "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua",
-    //     "Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings",
-    //     "1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job",
-    //     "Psalm","Proverbs","Ecclesiastes","Song of Songs","Isaiah","Jeremiah",
-    //     "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos",
-    //     "Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah",
-    //     "Haggai","Zechariah","Malachi","Matthew","Mark","Luke",
-    //     "John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians",
-    //     "Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy",
-    //     "2 Timothy","Titus","Philemon","Hebrews","James","1 Peter",
-    //     "2 Peter","1 John","2 John","3 John","Jude","Revelation",
-    // ];
-    // let chapters = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+    import { globalConfig, playingAudio } from '$lib/data/stores';
 
-    // TODO: Number of verses is in the book files, data-drive this once the proskomma store is created
-    let verses = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
-        49, 50, 51
-    ];
-
-    // FIXME: Doesn't account for missing chapters. Shoud parse chaptersN for included chapters
-    //$: chapters = Array.from(Array($activeBook?.chapters), (_, i) => i + 1); // Creates an array [1, 2, 3] from an input 3
-    $: bookAbbreviations = $globalConfig.bookCollections[0 /*currentCollection*/].books.map(
-        (book) => (book.abbreviation || book.id).substring(0, 4)
-    );
     function navigateReference(e) {
-        console.log(
-            `Navigated to ${e.detail.tab} ${e.detail.text}. New reference: ${book} ${chapter}:_`
-        );
-        // TODO: after proskomma store is finished, update the scripture view to the new reference
+        console.log(e.detail);
+        
     }
 
     const docSets = catalog.map((ds) => ds.id);
@@ -98,7 +68,7 @@
                     options={{
                         Book: {
                             component: SelectGrid,
-                            props: { options: books.map((d) => d.bookCode) /*bookAbbreviations*/ }
+                            props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
                         },
                         Chapter: {
                             component: SelectGrid,
