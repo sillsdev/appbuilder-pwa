@@ -6,7 +6,7 @@
 
     let container: HTMLElement;
     const key = {};
-    
+
     let group = 'default';
     let scrollId: string;
     let scrollMod: any;
@@ -45,7 +45,7 @@
 
     $: hglt = $playingAudio ? $audioHighlight : '';
     const highlightInView = (id: string) => {
-        if(!$playingAudio) return;
+        if (!$playingAudio) return;
         const el = container?.getElementsByClassName('highlighting')?.item(0);
         if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) == verses[verses.length - 1]) {
             el.scrollIntoView();
@@ -77,7 +77,7 @@
         class="scroll-item"
         class:highlighting={hglt === 'title'}
         use:inview={options}
-        on:change={(e) => handleChange(e, "title")}
+        on:change={(e) => handleChange(e, 'title')}
     >
         <h1>{$refs['default'].title}</h1>
         <h2>Chapter {$refs['default'].chapter}</h2>
@@ -87,19 +87,21 @@
     {:then res}
         {#if Array.isArray(res.data.docSet?.book?.main.blocks)}
             {#each res.data.docSet?.book?.main.blocks as block, i}
-                <div class="{i === 0?"m":"p"}">
+                <div class={i === 0 ? 'm' : 'p'}>
                     {#each block.items as item}
-                        {#if item.type === "scope" && item.subType === "start"}
-                            {#if item.payload.split("/")[0] === "verses"}
-                                <em id="{item.payload.split("/")[1]}"
+                        {#if item.type === 'scope' && item.subType === 'start'}
+                            {#if item.payload.split('/')[0] === 'verses'}
+                                <em
+                                    id={item.payload.split('/')[1]}
                                     class="scroll-item"
                                     use:inview={options}
-                                    on:change={(e) => handleChange(e, item.payload.split("/")[1])}
-                                >{item.payload.split("/")[1]}</em><span>&nbsp;</span>
+                                    on:change={(e) => handleChange(e, item.payload.split('/')[1])}
+                                    >{item.payload.split('/')[1]}</em
+                                ><span>&nbsp;</span>
                             {:else}
                                 <!---->
                             {/if}
-                        {:else if item.type === "token"}
+                        {:else if item.type === 'token'}
                             {item.payload}
                         {/if}
                     {/each}

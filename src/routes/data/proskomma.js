@@ -10,7 +10,7 @@ const pk = (() => {
 
     //thaws frozen archives
     const initialized = (async () => {
-        console.log('initializing Proskomma')
+        //console.log('initializing Proskomma');
         const promises = [];
         for (const c of collections) {
             promises.push(thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkf'),'utf8')));
