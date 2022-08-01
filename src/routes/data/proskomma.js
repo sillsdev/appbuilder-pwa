@@ -7,25 +7,19 @@ import { collections } from '../../../static/collections';
 const pk = (() => {
     let _val = new SABProskomma();
 
-    const memo = { initialized: null };
-    function memoInit() {
-        if (memo['initialized'] !== null) {
-            return memo['initialized'];
-        }
-
-        memo['initialized'] = init(); // memoize the promise for key
-        return memo['initialized'];
-    }
 
     //thaws frozen archives
-    const init = async () => {
+    const initialized = (async () => {
+        console.log('initializing Proskomma')
+        const promises = [];
         for (const c of collections) {
-            await thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkf'),'utf8'));
+            promises.push(thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkf'),'utf8')));
         }
-    };
+        return Promise.all(promises);
+    })();
 
     const query = async (q, cb) => {
-        memoInit();
+        await initialized;
         return _val.gqlQuery(q, cb);
     };
 
