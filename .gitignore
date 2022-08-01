@@ -16,5 +16,4 @@ static/audio
 static/styles
 static/illustrations
 static/collections
-src/lib/data/book-collections
 src/lib/data/catalog.js
