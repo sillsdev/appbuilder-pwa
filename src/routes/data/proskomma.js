@@ -20,7 +20,7 @@ const pk = (() => {
     //thaws frozen archives
     const init = async () => {
         for (const c of collections) {
-            await thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkzip'),'utf8'));
+            await thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkf'),'utf8'));
         }
     };
 
