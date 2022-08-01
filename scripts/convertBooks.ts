@@ -114,9 +114,9 @@ export async function convertBooks(
         () => null
     );
     console.time('freeze');
-    if (!existsSync(path.join('src', 'lib', 'data', 'book-collections'))) {
-        console.log('creating: ' + path.join('src', 'lib', 'data', 'book-collections'));
-        mkdirSync(path.join('src', 'lib', 'data', 'book-collections'));
+    if (!existsSync(path.join('static', 'collections'))) {
+        console.log('creating: ' + path.join('static', 'collections'));
+        mkdirSync(path.join('static', 'collections'));
     }
     //write frozen archives for import
     const vals = await Promise.all(freezer.values());
@@ -125,8 +125,8 @@ export async function convertBooks(
     let i = 0;
     for (const k of freezer.keys()) {
         files.push({
-            path: path.join('src', 'lib', 'data', 'book-collections', k + '.js'),
-            content: `const ${k} = '${vals[i]}';\nexport { ${k} };`
+            path: path.join('static', 'collections', k + '.pkzip'),
+            content: `${vals[i]}`
         });
         // writeFileSync(
         //     path.join('src', 'lib', 'data', 'book-collections', k + '.js'),
@@ -136,20 +136,13 @@ export async function convertBooks(
     }
     //write index file
     writeFileSync(
-        path.join('src', 'lib', 'data', 'book-collections', 'index.js'),
-        `${(() => {
-            let s = '';
-            for (const k of freezer.keys()) {
-                //import collection
-                s += 'import { ' + k + ' } from ' + "'./" + k + "';\n";
-            }
-            return s;
-        })()}\nexport const collections = [${(() => {
+        path.join('static', 'collections', 'index.js'),
+        `export const collections = [${(() => {
             //export collections as array
             let s = '';
             let i = 0;
             for (const k of freezer.keys()) {
-                s += k + (i + 1 < freezer.size ? ', ' : '');
+                s += '\'' + k + '\'' + (i + 1 < freezer.size ? ', ' : '');
                 i++;
             }
             return s;

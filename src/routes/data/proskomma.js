@@ -1,9 +1,11 @@
 import { SABProskomma } from '../../../sab-proskomma';
+import path from 'path';
+import { readFileSync } from 'fs';
 import { thaw } from 'proskomma-freeze';
-import { collections } from '$lib/data/book-collections';
+import { collections } from '../../../static/collections';
 
 const pk = (() => {
-    let _val = new Proskomma();
+    let _val = new SABProskomma();
 
     const memo = { initialized: null };
     function memoInit() {
@@ -18,7 +20,7 @@ const pk = (() => {
     //thaws frozen archives
     const init = async () => {
         for (const c of collections) {
-            await thaw(_val, c);
+            await thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkzip'),'utf8'));
         }
     };
 
