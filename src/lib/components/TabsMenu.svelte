@@ -12,6 +12,11 @@
             tab: active
         });
     }
+
+    export const setActive = (tab: string) => {
+        if(!options.hasOwnProperty(tab)) return;
+        active = tab;
+    }
 </script>
 
 <div class="dy-tabs {_class}">

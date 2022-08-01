@@ -13,11 +13,30 @@
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
-    import { globalConfig, playingAudio } from '$lib/data/stores';
+    import { playingAudio, refs } from '$lib/data/stores';
+    import { onDestroy } from 'svelte';
+
+    const unsub = refs.addKey('next');
+
+    let bookSelector;
+    let chapterSelector;
 
     function navigateReference(e) {
         console.log(e.detail);
-        
+        if(e.detail.tab === 'Book') {
+            bookSelector.setActive('Chapter');
+            $refs = { key: 'next', val: { book: e.detail.text } };
+        }
+        else if(e.detail.tab === 'Chapter') {
+            bookSelector.setActive('Verse');
+            chapterSelector.setActive('Verse');
+            $refs = { key: 'next', val: { chapter: e.detail.text } };
+        }
+        else if(e.detail.tab === 'Verse') {
+            bookSelector.setActive('Book');
+            chapterSelector.setActive('Chapter');
+            $refs = { key: 'default', val: { book: $refs['next'].bookCode, chapter: $refs['next'].chapter } };
+        }
     }
 
     const docSets = catalog.map((ds) => ds.id);
@@ -26,6 +45,8 @@
     $: b = books[0].bookCode;
     $: chapters = books.find((d) => d.bookCode === b).versesByChapters;
     $: c = Object.keys(chapters)[0];
+
+    onDestroy(unsub);
 </script>
 
 <div class="dy-navbar bg-primary h-full">
@@ -64,7 +85,7 @@
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
-                <TabsMenu
+                <TabsMenu bind:this={bookSelector}
                     options={{
                         Book: {
                             component: SelectGrid,
@@ -91,7 +112,7 @@
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
-                <TabsMenu
+                <TabsMenu bind:this={chapterSelector}
                     options={{
                         Chapter: {
                             component: SelectGrid,
