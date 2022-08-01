@@ -3,19 +3,6 @@
     import { onDestroy } from 'svelte';
     import { audioHighlight, refs, scrolls, playingAudio } from '$lib/data/stores';
     import { inview } from 'svelte-inview';
-    export let text: App.BibleText = {
-        title: '',
-        book: '',
-        chapter: '',
-        bookmark: '',
-        paragraphs: [
-            {
-                1: {
-                    a: ''
-                }
-            }
-        ]
-    };
 
     let container: HTMLElement;
     const key = {};
@@ -86,18 +73,20 @@
 
 <article class="prose container mx-auto" bind:this={container}>
     <div
-            id="title"
-            class="scroll-item"
-            use:inview={options}
-            on:change={(e) => handleChange(e, "title")}>
-            <h1>{$refs['default'].title}</h1>
-            <h2>Chapter {$refs['default'].chapter}</h2>
-        </div>
+        id="title"
+        class="scroll-item"
+        class:highlighting={hglt === 'title'}
+        use:inview={options}
+        on:change={(e) => handleChange(e, "title")}
+    >
+        <h1>{$refs['default'].title}</h1>
+        <h2>Chapter {$refs['default'].chapter}</h2>
+    </div>
     {#await promise}
-        <p>loading</p>
+        <p>loading . . .</p>
     {:then res}
-        {#if Array.isArray(JSON.parse(res).data.docSet?.book?.main.blocks)}
-            {#each JSON.parse(res).data.docSet?.book?.main.blocks as block, i}
+        {#if Array.isArray(res.data.docSet?.book?.main.blocks)}
+            {#each res.data.docSet?.book?.main.blocks as block, i}
                 <div class="{i === 0?"m":"p"}">
                     {#each block.items as item}
                         {#if item.type === "scope" && item.subType === "start"}
@@ -123,42 +112,31 @@
         <pre style="color: red">{err.message}</pre>
     {/await}
     <!--
-    <h1
-        id="title"
-        class="text-center scroll-item"
-        class:highlighting={hglt === 'title'}
-        use:inview={options}
-        on:change={(e) => handleChange(e, 'title')}
-    >
-        {text.title}
-    </h1>
-    {#each text.paragraphs as paragraph}
-        <p>
-            {#each Object.entries(paragraph) as [verse, verseData]}
-                <span
-                    id={verse}
-                    class="scroll-item"
-                    use:inview={options}
-                    on:change={(e) => handleChange(e, verse)}
-                    ><h4>{verse}</h4>
-                    {#if verseData['b']}
-                        {#each Object.entries(verseData) as [versePart, verseText]}
-                            <span
-                                id={verse + versePart}
-                                class:highlighting={hglt === verse + versePart}
-                            >
-                                {verseText + ' '}
-                            </span>
-                        {/each}
-                    {:else}
-                        <span id={verse} class:highlighting={hglt === verse}>
-                            {verseData['a'] + ' '}
+    <p>
+        {#each Object.entries(paragraph) as [verse, verseData]}
+            <span
+                id={verse}
+                class="scroll-item"
+                use:inview={options}
+                on:change={(e) => handleChange(e, verse)}
+                ><h4>{verse}</h4>
+                {#if verseData['b']}
+                    {#each Object.entries(verseData) as [versePart, verseText]}
+                        <span
+                            id={verse + versePart}
+                            class:highlighting={hglt === verse + versePart}
+                        >
+                            {verseText + ' '}
                         </span>
-                    {/if}
-                </span>
-            {/each}
-        </p>
-    {/each}
+                    {/each}
+                {:else}
+                    <span id={verse} class:highlighting={hglt === verse}>
+                        {verseData['a'] + ' '}
+                    </span>
+                {/if}
+            </span>
+        {/each}
+    </p>
     -->
 </article>
 
