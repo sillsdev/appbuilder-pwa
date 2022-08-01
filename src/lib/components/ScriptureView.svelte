@@ -143,9 +143,6 @@
 </article>
 
 <style>
-    h4 {
-        display: inline;
-    }
     .highlighting {
         background-color: #ffff99;
     }
