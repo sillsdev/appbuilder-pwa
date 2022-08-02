@@ -31,6 +31,11 @@ export function convertMedia(dataDir: string) {
     cpSyncOptional(path.join(dataDir, 'audio'), path.join('static', 'audio'), {
         recursive: true
     });
+
+    // Copy timing files
+    cpSyncOptional(path.join(dataDir, 'timings'), path.join('static', 'timings'), {
+        recursive: true
+    });
 }
 
 export interface MediaTaskOutput extends TaskOutput {
