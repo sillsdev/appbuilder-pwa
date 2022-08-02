@@ -61,7 +61,7 @@
         { time: 116.32, tag: '18d' },
         { time: +Infinity, tag: '0' }
     ];
-    /**@type{HTMLAudioElement}*/let audio;
+    /**@type{HTMLAudioElement}*/ let audio;
     const getAudio = async (collection, book, chapter) => {
         loaded = false;
         duration = NaN;
@@ -80,7 +80,10 @@
             }
         });
         const j = await res.json();
-        if(j.error) { console.error(j.error); return; }
+        if (j.error) {
+            console.error(j.error);
+            return;
+        }
 
         const a = new Audio(`/audio/${j.source}`);
         a.onloadedmetadata = () => {
@@ -95,10 +98,12 @@
     $: getAudio($refs.docSet, $refs.book, $refs.chapter);
 
     function updateTime() {
-        if(!loaded) return;
+        if (!loaded) return;
         progress = audio.currentTime;
-        if (progress >= timing[timeIndex].time) timeIndex++;
-        else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
+        if (progress >= timing[timeIndex].time) {
+            timeIndex++;
+            console.log('reading phrase: ' + timing[timeIndex].tag);
+        } else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
         $audioHighlight = timing[timeIndex].tag;
         if (audio.ended) toggleTimeRunning();
     }
@@ -112,7 +117,7 @@
     };
 
     const playPause = () => {
-        if(!loaded) return;
+        if (!loaded) return;
         toggleTimeRunning();
         if (playing) {
             audio.pause();
@@ -129,7 +134,7 @@
         let mutedBySeek;
         return (scale) => {
             clearInterval(seekTimer);
-            if(!loaded) return;
+            if (!loaded) return;
             if (mutedBySeek) audio.muted = false;
             if (scale === 0) {
                 audio.playbackRate = audio.defaultPlaybackRate;
@@ -148,11 +153,7 @@
     })();
 
     const skip = (direction) => {
-        console.log(
-            `${direction}: ${JSON.stringify(
-                direction < 0 ? $refs.prev : $refs.next
-            )}`
-        );
+        console.log(`${direction}: ${JSON.stringify(direction < 0 ? $refs.prev : $refs.next)}`);
     };
 </script>
 
