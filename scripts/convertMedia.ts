@@ -26,6 +26,11 @@ export function convertMedia(dataDir: string) {
     cpSyncOptional(path.join(dataDir, 'illustrations'), path.join('static', 'illustrations'), {
         recursive: true
     });
+
+    // Copy local audio files
+    cpSyncOptional(path.join(dataDir, 'audio'), path.join('static', 'audio'), {
+        recursive: true
+    });
 }
 
 export interface MediaTaskOutput extends TaskOutput {
