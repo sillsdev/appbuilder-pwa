@@ -5,8 +5,9 @@
 
     export let layoutOption = '';
 
+    let nextDocSet;
     let docSetList = catalog.map((ds) => ds.id);
-    const removeKey = refs.addKey('next');
+    const removeKey = refs.subscribe((v) => { nextDocSet = v.docSet}, 'next');
     onDestroy(removeKey);
 </script>
 
@@ -19,8 +20,8 @@
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
                     <a
-                        on:click={() => ($refs['next'].docSet = d)}
-                        class={$refs['next'].docSet === d ? 'dy-active' : ''}
+                        on:click={() => (refs.set({ docSet: nextDocSet}, 'next'))}
+                        class={nextDocSet === d ? 'dy-active' : ''}
                         >{d}
                     </a>
                 </li>
@@ -33,8 +34,8 @@
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
                     <a
-                        on:click={() => ($refs['next'].docSet = d)}
-                        class={$refs['next'].docSet === d ? 'dy-active' : ''}
+                        on:click={() => (refs.set({ docSet: nextDocSet}, 'next'))}
+                        class={nextDocSet === d ? 'dy-active' : ''}
                         >{d}
                     </a>
                 </li>
@@ -47,8 +48,8 @@
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
                     <a
-                        on:click={() => ($refs['next'].docSet = d)}
-                        class={$refs['next'].docSet === d ? 'dy-active' : ''}
+                        on:click={() => (refs.set({ docSet: nextDocSet}, 'next'))}
+                        class={nextDocSet === d ? 'dy-active' : ''}
                         >{d}
                     </a>
                 </li>

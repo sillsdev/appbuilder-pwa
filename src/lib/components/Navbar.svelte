@@ -16,7 +16,8 @@
     import { playingAudio, refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
 
-    const unsub = refs.addKey('next');
+    let nextRef;
+    const unsub = refs.subscribe((v) => { nextRef = v; }, 'next');
 
     let bookSelector;
     let chapterSelector;
@@ -25,17 +26,18 @@
         console.log(e.detail);
         if(e.detail.tab === 'Book') {
             bookSelector.setActive('Chapter');
-            $refs = { key: 'next', val: { book: e.detail.text } };
+            refs.set({ book: e.detail.text }, 'next');
         }
         else if(e.detail.tab === 'Chapter') {
             bookSelector.setActive('Verse');
             chapterSelector.setActive('Verse');
-            $refs = { key: 'next', val: { chapter: e.detail.text } };
+            refs.set({ chapter: e.detail.text }, 'next');
         }
         else if(e.detail.tab === 'Verse') {
             bookSelector.setActive('Book');
             chapterSelector.setActive('Chapter');
-            $refs = { key: 'default', val: { book: $refs['next'].bookCode, chapter: $refs['next'].chapter } };
+            $refs = { book: nextRef.book, chapter: nextRef.chapter };
+            document.activeElement.blur();
         }
     }
 
@@ -81,7 +83,7 @@
         <!-- Book Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
-                {b}
+                {nextRef.book}
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
@@ -108,7 +110,7 @@
         <!-- Chapter Selector -->
         <Dropdown>
             <svelte:fragment slot="label">
-                {c}
+                {nextRef.chapter}
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
@@ -124,6 +126,7 @@
                         }
                     }}
                     active="Chapter"
+                    on:menuaction={navigateReference}
                 />
             </svelte:fragment>
         </Dropdown>
