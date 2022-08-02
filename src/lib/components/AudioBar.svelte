@@ -2,12 +2,12 @@
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight } from '$lib/data/stores';
     //based on https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0
-    export let src = '';
     let duration = NaN;
     let progress = 0;
     let timer;
     let playing = false;
     let timeIndex = 0;
+    let loaded;
     let timing = [
         { time: 4.36, tag: 'title' },
         { time: 6.92, tag: '1a' },
@@ -61,17 +61,41 @@
         { time: 116.32, tag: '18d' },
         { time: +Infinity, tag: '0' }
     ];
-    $: audio = ((source) => {
-        const a = new Audio(source);
+    /**@type{HTMLAudioElement}*/let audio;
+    const getAudio = async (collection, book, chapter) => {
+        loaded = false;
+        duration = NaN;
+        progress = 0;
+
+        const res = await fetch('http://localhost:3000/data/audio', {
+            method: 'POST',
+            body: JSON.stringify({
+                collection: collection,
+                book: book,
+                chapter: chapter
+            }),
+            headers: {
+                'content-type': 'application/json',
+                accept: 'application/json'
+            }
+        });
+        const j = await res.json();
+        if(j.error) { console.error(j.error); return; }
+
+        const a = new Audio(`/audio/${j.source}`);
         a.onloadedmetadata = () => {
             duration = a.duration;
             timeIndex = 0;
+            loaded = true;
+            audio = a;
             updateTime();
         };
-        return a;
-    })(src);
+        timing = j.timing;
+    };
+    $: getAudio($refs.docSet, $refs.book, $refs.chapter);
 
     function updateTime() {
+        if(!loaded) return;
         progress = audio.currentTime;
         if (progress >= timing[timeIndex].time) timeIndex++;
         else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
@@ -88,6 +112,7 @@
     };
 
     const playPause = () => {
+        if(!loaded) return;
         toggleTimeRunning();
         if (playing) {
             audio.pause();
@@ -104,6 +129,7 @@
         let mutedBySeek;
         return (scale) => {
             clearInterval(seekTimer);
+            if(!loaded) return;
             if (mutedBySeek) audio.muted = false;
             if (scale === 0) {
                 audio.playbackRate = audio.defaultPlaybackRate;
@@ -132,7 +158,7 @@
 
 <div class="w-11/12 h-5/6 bg-base-100 mx-auto rounded-full flex items-center flex-col">
     <div class="flex flex-col justify-center w-11/12 flex-grow">
-        {#if src}
+        {#if loaded}
             <progress
                 class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1"
                 value={progress}
