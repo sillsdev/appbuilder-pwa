@@ -14,7 +14,7 @@
     }
 
     export const setActive = (tab: string) => {
-        if (!options.hasOwnProperty(tab)) return;
+        if (!Object.hasOwn(options, tab)) return;
         active = tab;
     };
 </script>
