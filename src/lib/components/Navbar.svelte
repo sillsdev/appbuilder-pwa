@@ -17,23 +17,23 @@
     import { onDestroy } from 'svelte';
 
     let nextRef;
-    const unsub = refs.subscribe((v) => { nextRef = v; }, 'next');
+    const unsub = refs.subscribe((v) => {
+        nextRef = v;
+    }, 'next');
 
     let bookSelector;
     let chapterSelector;
 
     function navigateReference(e) {
         console.log(e.detail);
-        if(e.detail.tab === 'Book') {
+        if (e.detail.tab === 'Book') {
             bookSelector.setActive('Chapter');
             refs.set({ book: e.detail.text }, 'next');
-        }
-        else if(e.detail.tab === 'Chapter') {
+        } else if (e.detail.tab === 'Chapter') {
             bookSelector.setActive('Verse');
             chapterSelector.setActive('Verse');
             refs.set({ chapter: e.detail.text }, 'next');
-        }
-        else if(e.detail.tab === 'Verse') {
+        } else if (e.detail.tab === 'Verse') {
             bookSelector.setActive('Book');
             chapterSelector.setActive('Chapter');
             $refs = { book: nextRef.book, chapter: nextRef.chapter };
@@ -87,7 +87,8 @@
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
-                <TabsMenu bind:this={bookSelector}
+                <TabsMenu
+                    bind:this={bookSelector}
                     options={{
                         Book: {
                             component: SelectGrid,
@@ -114,7 +115,8 @@
                 <DropdownIcon />
             </svelte:fragment>
             <svelte:fragment slot="content">
-                <TabsMenu bind:this={chapterSelector}
+                <TabsMenu
+                    bind:this={chapterSelector}
                     options={{
                         Chapter: {
                             component: SelectGrid,

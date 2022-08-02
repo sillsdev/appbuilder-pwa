@@ -14,9 +14,9 @@
     }
 
     export const setActive = (tab: string) => {
-        if(!options.hasOwnProperty(tab)) return;
+        if (!options.hasOwnProperty(tab)) return;
         active = tab;
-    }
+    };
 </script>
 
 <div class="dy-tabs {_class}">
