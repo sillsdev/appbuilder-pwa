@@ -87,40 +87,34 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
     /**@type{any}*/ const unsubs = {
         default: stores.default.subscribe((v) => (vals['default'] = v))
     };
-    /**@type{any[]}*/ let subs = [];
-    let subGroupCounts = {};
+    /**@type{any}*/ let subs = { default: []};
 
-    const subscribe = (cb) => {
-        subs.push(cb);
-        cb(vals, mods);
-        return () => (subs = subs.filter((sub) => sub !== cb));
-    };
-
-    const set = ({ key, val, mod }) => {
-        stores[key].set(val);
-        mods[key] = mod;
-        subs.forEach((sub) => sub(vals, mods));
-    };
-    const addKey = (/**@type{any}*/ key) => {
-        if (key === 'default') return () => {};
-        if (stores[key] === undefined) {
+    const subscribe = (cb, key = 'default') => {
+        if(key !== 'default') {
             stores[key] = groupType(props);
-            mods[key] = undefined;
             unsubs[key] = stores[key].subscribe((v) => (vals[key] = v));
-            subGroupCounts[key] = 0;
+            if(!subs.hasOwnProperty(key)) subs[key] = [];
         }
-        subGroupCounts[key] += 1;
+        subs[key].push(cb);
+        cb(vals[key], mods[key]);
         return () => {
-            subGroupCounts[key] -= 1;
-            if (subGroupCounts[key] <= 0) {
+            subs[key] = subs[key].filter((sub) => sub !== cb);
+            if(key !== 'default' && subs[key].length <= 0) {
                 unsubs[key]();
-                delete unsubs[key];
+                delete stores[key];
                 delete vals[key];
                 delete mods[key];
-                delete stores[key];
+                delete unsubs[key];
+                delete subs[key];
             }
-        };
+        }
     };
 
-    return { subscribe, set, addKey };
+    const set = (val, key = 'default', mod = undefined) => {
+        stores[key].set(val);
+        mods[key] = mod;
+        subs[key].forEach((sub) => sub(vals[key], mods[key]));
+    };
+
+    return { subscribe, set };
 };

@@ -29,7 +29,7 @@
                 await query(
                     queries.searchForBookCodesQuery({
                         text: searchText,
-                        docSetId: $refs.default.docSet
+                        docSetId: $refs.docSet
                     })
                 )
             ).data
@@ -44,7 +44,7 @@
                         await query(
                             queries.searchForPassagesQuery({
                                 text: searchText,
-                                docSetId: $refs.default.docSet,
+                                docSetId: $refs.docSet,
                                 bookCode: book
                             })
                         )

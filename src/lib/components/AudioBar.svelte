@@ -61,15 +61,15 @@
         { time: 116.32, tag: '18d' },
         { time: +Infinity, tag: '0' }
     ];
-    $: audio = (() => {
-        const a = new Audio(src);
+    $: audio = ((source) => {
+        const a = new Audio(source);
         a.onloadedmetadata = () => {
             duration = a.duration;
             timeIndex = 0;
             updateTime();
         };
         return a;
-    })();
+    })(src);
 
     function updateTime() {
         progress = audio.currentTime;
@@ -124,7 +124,7 @@
     const skip = (direction) => {
         console.log(
             `${direction}: ${JSON.stringify(
-                direction < 0 ? $refs['default'].prev : $refs['default'].next
+                direction < 0 ? $refs.prev : $refs.next
             )}`
         );
     };

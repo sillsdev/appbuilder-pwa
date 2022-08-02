@@ -10,10 +10,10 @@
     let group = 'default';
     let scrollId: string;
     let scrollMod: any;
-    const unSub = scrolls.subscribe((vals, mods) => {
-        scrollId = vals[group];
-        scrollMod = mods[group];
-    });
+    const unSub = scrolls.subscribe((val, mod) => {
+        scrollId = val;
+        scrollMod = mod;
+    }, group);
 
     const scrollTo = (id: string, mod: any) => {
         if (scrollMod === key) return;
@@ -58,10 +58,10 @@
     onDestroy(unSub);
 
     $: promise = query(`{
-        docSet(id:"${$refs['default'].docSet}") {
-            book: document(bookCode: "${$refs['default'].book}") {
+        docSet(id:"${$refs.docSet}") {
+            book: document(bookCode: "${$refs.book}") {
                 main: mainSequence {
-                    blocks(withScriptureCV: "${$refs['default'].chapter}") {
+                    blocks(withScriptureCV: "${$refs.chapter}") {
                         bs { payload }
                         items { type subType payload }
                     }
@@ -79,8 +79,8 @@
         use:inview={options}
         on:change={(e) => handleChange(e, 'title')}
     >
-        <h1>{$refs['default'].title}</h1>
-        <h2>Chapter {$refs['default'].chapter}</h2>
+        <h1>{$refs.title}</h1>
+        <h2>Chapter {$refs.chapter}</h2>
     </div>
     {#await promise}
         <p>loading . . .</p>
