@@ -16,6 +16,8 @@ This can be accomplished in two ways:
 
 If you are using the example data, run `npx svelte-kit dev` to start a development server. Otherwise, `npm run dev` will automatically convert the files in the folder copied to by `Build PWA Data Files`.
 
+> Note: The book conversion step can take up to several minutes depending on the amount of scripture in the project and the speed of your computer's hard drive.
+
 ### Build
 
 Run `npm run build` to build an app with the data provided by `Build PWA Data Files`.
