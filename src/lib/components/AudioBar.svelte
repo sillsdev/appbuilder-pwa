@@ -1,67 +1,23 @@
+<!--
+@component
+Based on an audio component found at https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0.
+Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play/Pause, Seek, and Skip functionality.  
+TODO:
+- remove console.log statement from updateTime once synchronized highlighting is fully implemented.
+- display audio not found message in UI when audio is not found
+-->
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight } from '$lib/data/stores';
-    //based on https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0
     let duration = NaN;
     let progress = 0;
-    let timer;
     let playing = false;
+    let loaded = false;
     let timeIndex = 0;
-    let loaded;
-    let timing = [
-        { time: 4.36, tag: 'title' },
-        { time: 6.92, tag: '1a' },
-        { time: 8.04, tag: '1b' },
-        { time: 10.08, tag: '1c' },
-        { time: 13.76, tag: '2' },
-        { time: 15.8, tag: '3a' },
-        { time: 17.32, tag: '3b' },
-        { time: 19.72, tag: '3c' },
-        { time: 21.2, tag: '4a' },
-        { time: 23.92, tag: '4b' },
-        { time: 25.68, tag: '5a' },
-        { time: 28.48, tag: '5b' },
-        { time: 30.96, tag: '6a' },
-        { time: 32.84, tag: '6b' },
-        { time: 34.44, tag: '7a' },
-        { time: 36.6, tag: '7b' },
-        { time: 39.36, tag: '7c' },
-        { time: 40.7, tag: '8a' },
-        { time: 43.56, tag: '8b' },
-        { time: 48.2, tag: '9' },
-        { time: 50.2, tag: '10a' },
-        { time: 54.28, tag: '10b' },
-        { time: 54.96, tag: '10c' },
-        { time: 56.4, tag: '11a' },
-        { time: 59.28, tag: '11b' },
-        { time: 61.54, tag: '12a' },
-        { time: 64.44, tag: '12b' },
-        { time: 66.92, tag: '12c' },
-        { time: 68.64, tag: '13a' },
-        { time: 69.52, tag: '13b' },
-        { time: 71.2, tag: '13c' },
-        { time: 72.64, tag: '13d' },
-        { time: 75.4, tag: '13e' },
-        { time: 78.28, tag: '14a' },
-        { time: 79.72, tag: '14b' },
-        { time: 82.56, tag: '14c' },
-        { time: 85.16, tag: '14d' },
-        { time: 87, tag: '15a' },
-        { time: 88.16, tag: ' 15b' },
-        { time: 88.8, tag: '15c' },
-        { time: 91.08, tag: '15d' },
-        { time: 94.76, tag: '15e' },
-        { time: 97.08, tag: '15f' },
-        { time: 101.36, tag: '16' },
-        { time: 103.18, tag: '17a' },
-        { time: 107.96, tag: '17b' },
-        { time: 110.14, tag: '18a' },
-        { time: 111.76, tag: '18b' },
-        { time: 113.56, tag: '18c' },
-        { time: 116.32, tag: '18d' },
-        { time: +Infinity, tag: '0' }
-    ];
+    let timing = [];
     /**@type{HTMLAudioElement}*/ let audio;
+
+    //get the audio source and timing files, based off the current reference
     const getAudio = async (collection, book, chapter) => {
         loaded = false;
         duration = NaN;
@@ -96,8 +52,8 @@
         timing = j.timing;
     };
     $: getAudio($refs.docSet, $refs.book, $refs.chapter);
-
-    function updateTime() {
+    /**updates the progress bar, and if necessary the timeIndex*/
+    const updateTime = () => {
         if (!loaded) return;
         progress = audio.currentTime;
         if (progress >= timing[timeIndex].time) {
@@ -107,15 +63,20 @@
         $audioHighlight = timing[timeIndex].tag;
         if (audio.ended) toggleTimeRunning();
     }
-    const toggleTimeRunning = () => {
-        if (audio.ended) {
-            playing = false;
-            clearInterval(timer);
-        } else {
-            timer = setInterval(updateTime, 100);
-        }
-    };
+    /**sets an interval for updateTime*/
+    const toggleTimeRunning = (() => {
+        let timer;
 
+        return () => {
+            if (audio.ended) {
+                playing = false;
+                clearInterval(timer);
+            } else {
+                timer = setInterval(updateTime, 100);
+            }
+        }
+    })();
+    /**plays or pauses the audio*/
     const playPause = () => {
         if (!loaded) return;
         toggleTimeRunning();
@@ -128,7 +89,7 @@
         }
         console.log(playing ? 'playing' : 'paused');
     };
-
+    /**seeks the audio*/
     const seek = (() => {
         let seekTimer;
         let mutedBySeek;
@@ -151,14 +112,19 @@
             }
         };
     })();
-
+    /**skips to previous or next chapter if it exists*/
     const skip = (direction) => {
-        console.log(`${direction}: ${JSON.stringify(direction < 0 ? $refs.prev : $refs.next)}`);
+        const switchTo = (direction < 0)? $refs.prev : $refs.next;
+        // if the chapter exists, the book will too, so only need to check chapter
+        if (switchTo.chapter) {
+            $refs = { book: switchTo.book, chapter: switchTo.chapter};
+        }
     };
 </script>
 
 <div class="w-11/12 h-5/6 bg-base-100 mx-auto rounded-full flex items-center flex-col">
     <div class="flex flex-col justify-center w-11/12 flex-grow">
+        <!-- Progress Bar -->
         {#if loaded}
             <progress
                 class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1"
@@ -168,6 +134,7 @@
         {:else}
             <progress class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1" value="0" max="1" />
         {/if}
+        <!-- Controls -->
         <div class="dy-btn-group place-self-center">
             <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
                 <AudioIcon.Prev />
@@ -181,7 +148,6 @@
                 <AudioIcon.RW />
             </button>
             <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
-                <!--{#if audio?.paused}-->
                 {#if !playing}
                     <AudioIcon.Play />
                 {:else}
