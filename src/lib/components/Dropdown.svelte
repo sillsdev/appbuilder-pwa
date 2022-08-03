@@ -1,3 +1,7 @@
+<!--
+@component
+A simple dropdown menu from DaisyUI.
+-->
 <div class="dy-dropdown">
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label tabindex="0" class="dy-btn dy-btn-ghost p-0.5 dy-no-animation">

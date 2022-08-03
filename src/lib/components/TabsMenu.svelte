@@ -1,3 +1,7 @@
+<!--
+@component
+A component to display tabbed menus.
+-->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
 
@@ -13,6 +17,7 @@
         });
     }
 
+    /**sets the active tab*/
     export const setActive = (tab: string) => {
         if (!Object.hasOwn(options, tab)) return;
         active = tab;
