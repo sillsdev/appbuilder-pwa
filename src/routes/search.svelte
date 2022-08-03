@@ -5,6 +5,7 @@
     import { query } from '$lib/scripts/query';
     import { postQueries, queries } from 'proskomma-tools';
     let searchText = '';
+    //TODO: make match whole words setting do something
     let matchWholeWords = true;
     $: specialCharacters = $globalConfig.mainFeatures['input-buttons']
         .split(' ')
@@ -23,7 +24,7 @@
             searching = false;
             return;
         }
-
+        // searches for books in the current collection that match the search text
         const books = postQueries.searchForBookCodesFilter({
             data: (
                 await query(
@@ -37,6 +38,7 @@
 
         passages = [];
 
+        //loops through the list of books to find passages that match the search text
         for (const book of books) {
             passages = passages.concat(
                 postQueries.searchForVersesFilter({

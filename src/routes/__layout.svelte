@@ -11,6 +11,7 @@
 <Sidebar drawerId={drawerName}>
     <div class="navbar">
         <Navbar>
+            <!-- Button to close the drawer/sidebar -->
             <label
                 for={drawerName}
                 slot="drawer-button"
@@ -36,6 +37,7 @@
     .navbar {
         height: 10vh;
     }
+    /*shrink to accomodate the audio bar*/
     .smaller {
         height: 80vh;
     }
