@@ -49,7 +49,7 @@ export class ConvertMedia extends Task {
         super(dataDir);
     }
 
-    public async run(outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
+    public async run(verbose: boolean, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertMedia(this.dataDir);
         return {
             taskName: this.constructor.name,

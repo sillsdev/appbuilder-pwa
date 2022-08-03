@@ -12,7 +12,7 @@ export class ConvertAbout extends Task {
     constructor(dataDir: string) {
         super(dataDir);
     }
-    public run(outputs: Map<string, TaskOutput>): Promisable<AboutTaskOutput> {
+    public run(verbose: boolean, outputs: Map<string, TaskOutput>): Promisable<AboutTaskOutput> {
         // TODO: Once about pages are exported, convert them here
         // Currently does nothing
         return {

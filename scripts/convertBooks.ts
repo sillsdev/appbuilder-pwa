@@ -176,9 +176,9 @@ export class ConvertBooks extends Task {
         super(dataDir);
     }
     public run(
+        verbose: boolean,
         outputs: Map<string, TaskOutput>,
-        modifiedPaths: string[],
-        verbose: boolean
+        modifiedPaths: string[]
     ): Promisable<BooksTaskOutput> {
         // TODO: Once books are exported, convert them here
         // Currently does nothing
