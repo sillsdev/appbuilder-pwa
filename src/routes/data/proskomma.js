@@ -7,7 +7,6 @@ import { collections } from '../../../static/collections';
 const pk = (() => {
     let _val = new SABProskomma();
 
-
     //thaws frozen archives
     const initialized = (async () => {
         //console.log('initializing Proskomma');
