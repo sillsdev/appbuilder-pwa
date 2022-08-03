@@ -1,38 +1,29 @@
-# create-svelte
+# appbuilder-pwa
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+A template for building a Progressive Web App with Scripture App Builder.
 
-## Creating a project
+## Usage
 
-If you're seeing this, you've probably already done this step. Congrats!
+You will need to have Scripture App Builder 10.0.1 or newer to use this project without the provided example data.
 
-```bash
-# create a new project in the current directory
-npm init svelte
+### Develop
 
-# create a new project in my-app
-npm init svelte my-app
-```
+Once you've installed dependencies with `npm install`, you will need to convert data from one of the data folders before you can start a development server.  
+This can be accomplished in two ways:
 
-## Developing
+-   Run `npm run convertExamples` in the console to use the example data folder.
+-   Run `Build PWA Data Files` in Scripture App Builder.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+If you are using the example data, run `npx svelte-kit dev` to start a development server. Otherwise, `npm run dev` will automatically convert the files in the folder copied to by `Build PWA Data Files`.
 
-```bash
-npm run dev
+### Build
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+Run `npm run build` to build an app with the data provided by `Build PWA Data Files`.
 
-## Building
+Run `npm run buildExamples` to build an app with the example data.
 
-To create a production version of your app:
+The production build can be viewed by running `npm run preview`.
 
-```bash
-npm run build
-```
+### Deployment
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+This project is configured by default with the static adaptor, which will allow deployment on any platform that requires a static site.
