@@ -54,7 +54,7 @@ async function fullConvert(printDetails: boolean): Promise<boolean> {
         oldConsoleLog(step.constructor.name + ` (${currentStep + 1}/${stepClasses.length})`);
         try {
             // step may be async, in which case it should be awaited
-            const out = await step.run(outputs, step.triggerFiles, verbose);
+            const out = await step.run(verbose, outputs, step.triggerFiles);
             outputs.set(step.constructor.name, out);
             await Promise.all(
                 out.files.map((f) => new Promise((r) => writeFile(f.path, f.content, r)))
@@ -114,7 +114,7 @@ if (process.argv.includes('--watch')) {
                         ) {
                             try {
                                 oldConsoleLog('Running step ' + step.constructor.name);
-                                const out = await step.run(outputs, paths, verbose);
+                                const out = await step.run(verbose, outputs, paths);
                                 outputs.set(step.constructor.name, out);
                                 // Write all files to disk
                                 await Promise.all(
