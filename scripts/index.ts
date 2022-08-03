@@ -4,7 +4,7 @@ import { ConvertBooks } from './convertBooks';
 import { ConvertAbout } from './convertAbout';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
-import { writeFile, writeFileSync } from 'fs';
+import { writeFile } from 'fs';
 import path from 'path';
 
 // Possible arguments:
@@ -12,6 +12,7 @@ import path from 'path';
 // --examples (convert examples; incompatible with --data-dir)
 // --watch (watch for changes)
 // --watch-timeout=<ms> (time between changes)
+// --verbose (log more messages to console)
 
 const suppliedDataDir = process.argv.find((arg) => arg.includes('--data-dir'));
 const dataDir = suppliedDataDir
@@ -22,6 +23,8 @@ const dataDir = suppliedDataDir
 
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
+
+const verbose = process.argv.find((arg) => arg.includes('--verbose')) ? true : false;
 
 const stepClasses: Task[] = [ConvertConfig, ConvertMedia, ConvertBooks, ConvertAbout].map(
     (x) => new x(dataDir)
@@ -51,7 +54,7 @@ async function fullConvert(printDetails: boolean): Promise<boolean> {
         oldConsoleLog(step.constructor.name + ` (${currentStep + 1}/${stepClasses.length})`);
         try {
             // step may be async, in which case it should be awaited
-            const out = await step.run(outputs, step.triggerFiles);
+            const out = await step.run(outputs, step.triggerFiles, verbose);
             outputs.set(step.constructor.name, out);
             await Promise.all(
                 out.files.map((f) => new Promise((r) => writeFile(f.path, f.content, r)))
@@ -111,7 +114,7 @@ if (process.argv.includes('--watch')) {
                         ) {
                             try {
                                 oldConsoleLog('Running step ' + step.constructor.name);
-                                const out = await step.run(outputs, paths);
+                                const out = await step.run(outputs, paths, verbose);
                                 outputs.set(step.constructor.name, out);
                                 // Write all files to disk
                                 await Promise.all(

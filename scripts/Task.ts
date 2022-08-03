@@ -15,6 +15,7 @@ export abstract class Task {
 
     public abstract run(
         outputs: Map<string, TaskOutput | null>,
-        modifiedPaths: string[]
+        modifiedPaths: string[],
+        verbose: boolean
     ): Promisable<TaskOutput>;
 }
