@@ -1,8 +1,10 @@
 import { writable, derived, get } from 'svelte/store';
 import { catalog } from './catalog';
 
+/**stores references and some useful derived information.*/
 export const referenceStore = () => {
     const internal = writable({ ds: '', b: '', c: '', n: 0 });
+    /**sets internal state based on info available in catalog*/
     const setInternal = ({ docSet, book, chapter }) => {
         const original = get(internal);
         const docSets = catalog.map((ds) => ds.id);
@@ -28,7 +30,7 @@ export const referenceStore = () => {
     };
     setInternal({ docSet: '', book: '', chapter: '' });
     const external = derived(internal, ($internal) => ({
-        reference: `${$internal.b} ${$internal.c}${$internal.n === '' ? '' : ':' + $internal.n}`,
+        reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,
         docSet: $internal.ds,
         book: $internal.b,
         chapter: $internal.c,
@@ -80,6 +82,10 @@ export const referenceStore = () => {
     return { subscribe: external.subscribe, set: setInternal };
 };
 
+/**
+ * a store wrapper for a dynamic list of stores.
+ * behaves like a normal store if the default key is used.
+ */
 export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => {
     /**@type{any}*/ const stores = { default: groupType(props) };
     /**@type{any}*/ const vals = { default: undefined };
@@ -87,13 +93,13 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
     /**@type{any}*/ const unsubs = {
         default: stores.default.subscribe((v) => (vals['default'] = v))
     };
-    /**@type{any}*/ let subs = { default: []};
+    /**@type{any}*/ const subs = { default: []};
 
     const subscribe = (cb, key = 'default') => {
-        if(key !== 'default') {
+        if(!stores.hasOwnProperty(key)) {
             stores[key] = groupType(props);
             unsubs[key] = stores[key].subscribe((v) => (vals[key] = v));
-            if(!subs.hasOwnProperty(key)) subs[key] = [];
+            subs[key] = [];
         }
         subs[key].push(cb);
         cb(vals[key], mods[key]);
