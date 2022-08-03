@@ -1,7 +1,11 @@
+<!--
+@component
+A component to display menu options in a grid.
+-->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     export let options = [''];
-    const cols = 5;
+    export let cols = 5;
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length / cols);
 
@@ -12,12 +16,12 @@
     }
 </script>
 
-<table>
+<table class="bg-base-200">
     {#each Array(rows) as _, ri}
         <tr>
             {#each Array(cols) as _, ci}
                 {#if ri * cols + ci < options.length}
-                    <td
+                    <td class="border-base-200 bg-base-100"
                         ><span
                             on:click={() => handleClick(options[ri * cols + ci])}
                             class="dy-btn dy-btn-square dy-btn-ghost p-0 m-0"
@@ -37,7 +41,6 @@
         margin-right: auto;
         padding: 0px;
         border-collapse: unset;
-        background-color: lightgray;
     }
     tr {
         width: 100%;
@@ -50,9 +53,8 @@
         margin: 0px;
         padding: 0px;
         position: relative;
-        border: 1px solid lightgray;
+        border: 1px solid;
         border-radius: 5px;
-        background-color: white;
     }
     span {
         text-overflow: ''; /* Works on Firefox only */
