@@ -3,6 +3,10 @@
 
 import { Proskomma } from 'proskomma';
 
+/**
+ * a custom extension of Proskomma to use BCP47 language tags instead of ISO 639-3
+ * and whatever else may be needed in the future for use with SAB
+ */
 export class SABProskomma extends Proskomma {
     selectors: { name: string; type: string; regex: string }[];
     filters: any;
@@ -54,10 +58,10 @@ export class SABProskomma extends Proskomma {
             ')';
 
         this.selectors = [
+            //BCP47 language tag
             {
                 name: 'lang',
                 type: 'string',
-                //BCP47 language tag
                 regex: '^(' + grandfathered + '|' + langtag + '|' + '(x(-[A-Za-z0-9]{1,8})+)' + ')$'
             },
             {
