@@ -1,3 +1,8 @@
+<!--
+@component
+A drop-down menu for use in ColorCard, HistoryCard, and IconCard.
+Dispatches a menuaction event when an option is selected from the menu.
+-->
 <script lang="ts">
     import { clickOutside } from '$lib/scripts/click_outside';
     import { createEventDispatcher } from 'svelte';
