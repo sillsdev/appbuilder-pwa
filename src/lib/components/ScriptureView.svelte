@@ -1,3 +1,13 @@
+<!--
+@component
+A component for displaying scripture.  
+TODO:
+- integrate SOFRIA
+- add phrase info for highlight synchronization
+- fully utilize groupStore functionality
+- find a way to scroll smoothly, as CSS only option does not work as expected.
+- change the global stylesheet to have .highlighting
+-->
 <script lang="ts">
     import { query } from '../scripts/query';
     import { onDestroy } from 'svelte';
@@ -5,6 +15,7 @@
     import { inview } from 'svelte-inview';
 
     let container: HTMLElement;
+    /**unique key to use for groupStore modifier*/
     const key = {};
 
     let group = 'default';
@@ -15,13 +26,16 @@
         scrollMod = mod;
     }, group);
 
-    const scrollTo = (id: string, mod: any) => {
+    /**scrolls element with id into view*/
+    const scrollTo = (id: string) => {
         if (scrollMod === key) return;
         container?.getElementsByClassName('scroll-item')?.namedItem(id)?.scrollIntoView();
     };
-    $: scrollTo(scrollId, scrollMod);
+    $: scrollTo(scrollId);
 
+    /**list of verses in view*/
     let verses: string[] = [];
+    /**updates list of verses in view*/
     const handleChange = (() => {
         let changeTimer: NodeJS.Timeout;
 
@@ -38,12 +52,14 @@
             }
             if (verses.length > 0)
                 changeTimer = setTimeout(() => {
-                    $scrolls = { key: 'default', val: verses[0], mod: key };
-                }, 500);
+                    scrolls.set(verses[0], group, key);
+                }, 500); //waits 1/2 second before pushing update
         };
     })();
 
+    /**shorter highlight variable*/
     $: hglt = $playingAudio ? $audioHighlight : '';
+    /**moves highlight*/
     const highlightInView = (id: string) => {
         if (!$playingAudio) return;
         const el = container?.getElementsByClassName('highlighting')?.item(0);
@@ -53,10 +69,12 @@
     };
     $: highlightInView($audioHighlight);
 
+    /**options object for inview action*/
     const options = { threshold: 0.5 };
 
     onDestroy(unSub);
 
+    /**queries SABProskomma instance to get scripture*/
     $: promise = query(`{
         docSet(id:"${$refs.docSet}") {
             book: document(bookCode: "${$refs.book}") {
@@ -85,7 +103,9 @@
     {#await promise}
         <p>loading . . .</p>
     {:then res}
+        <!-- if blocks is not an array it means the query did not return what was expected-->
         {#if Array.isArray(res.data.docSet?.book?.main.blocks)}
+            <!-- create paragraphs from blocks -->
             {#each res.data.docSet?.book?.main.blocks as block, i}
                 <div class={i === 0 ? 'm' : 'p'}>
                     {#each block.items as item}
@@ -99,7 +119,7 @@
                                     >{item.payload.split('/')[1]}</em
                                 ><span>&nbsp;</span>
                             {:else}
-                                <!---->
+                                <!-- does nothing currently -->
                             {/if}
                         {:else if item.type === 'token'}
                             {item.payload}
@@ -108,12 +128,12 @@
                 </div>
             {/each}
         {:else}
-            <p>waiting on Proskomma . . .</p>
+            <p>waiting on SABProskomma . . .</p>
         {/if}
     {:catch err}
         <pre style="color: red">{err.message}</pre>
     {/await}
-    <!--
+    <!-- previous hard coded example that had highlight working
     <p>
         {#each Object.entries(paragraph) as [verse, verseData]}
             <span
