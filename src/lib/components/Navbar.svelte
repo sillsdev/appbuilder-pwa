@@ -1,3 +1,7 @@
+<!--
+@component
+The navbar component.
+-->
 <script>
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
@@ -21,11 +25,15 @@
         nextRef = v;
     }, 'next');
 
+    /**reference to book selector so code can use TabsMenu.setActive*/
     let bookSelector;
+    /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
+    /**
+     * Pushes reference changes to refs['next']. Pushes final change to default reference.
+     */
     function navigateReference(e) {
-        console.log(e.detail);
         if (e.detail.tab === 'Book') {
             bookSelector.setActive('Chapter');
             refs.set({ book: e.detail.text }, 'next');
@@ -37,16 +45,15 @@
             bookSelector.setActive('Book');
             chapterSelector.setActive('Chapter');
             $refs = { book: nextRef.book, chapter: nextRef.chapter };
+            // force closes active dropdown elements
             document.activeElement.blur();
         }
     }
 
-    const docSets = catalog.map((ds) => ds.id);
-    let ds = docSets[0];
-    $: books = catalog.find((d) => d.id === ds).documents;
-    $: b = books[0].bookCode;
-    $: chapters = books.find((d) => d.bookCode === b).versesByChapters;
-    $: c = Object.keys(chapters)[0];
+    /**list of books in current docSet*/
+    $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
+    /**list of chapters in current book*/
+    $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
     onDestroy(unsub);
 </script>
@@ -56,7 +63,7 @@
         <slot name="drawer-button" />
         <!-- Translation/View Selector -->
         <Dropdown>
-            <svelte:fragment slot="label">{ds} <DropdownIcon /></svelte:fragment>
+            <svelte:fragment slot="label">{nextRef.docSet} <DropdownIcon /></svelte:fragment>
             <svelte:fragment slot="content">
                 <TabsMenu
                     options={{
@@ -92,6 +99,10 @@
                     options={{
                         Book: {
                             component: SelectGrid,
+                            /**
+                             * TODO: 
+                             * - add book abbreviations to catalog to be used in UI instead of bookCode
+                             */
                             props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
                         },
                         Chapter: {
@@ -100,7 +111,7 @@
                         },
                         Verse: {
                             component: SelectGrid,
-                            props: { options: Object.keys(chapters[c]) }
+                            props: { options: Object.keys(chapters[nextRef.chapter]) }
                         }
                     }}
                     active="Book"
@@ -124,7 +135,7 @@
                         },
                         Verse: {
                             component: SelectGrid,
-                            props: { options: Object.keys(chapters[c]) }
+                            props: { options: Object.keys(chapters[nextRef.chapter]) }
                         }
                     }}
                     active="Chapter"
@@ -134,6 +145,7 @@
         </Dropdown>
     </div>
     <div class="dy-navbar-end fill-base-content">
+        <!-- Mute/Volume Button -->
         <button class="dy-btn dy-btn-ghost dy-btn-circle">
             <label class="dy-swap">
                 <!-- this hidden checkbox controls the state -->
@@ -146,13 +158,16 @@
                 <AudioIcon.Mute _class="dy-swap-off fill-black-100" />
             </label>
         </button>
+        <!-- Search Button -->
         <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
             <SearchIcon />
         </a>
+        <!-- Text Appearance Options Menu -->
         <Dropdown>
             <svelte:fragment slot="label">
                 <TextAppearanceIcon />
             </svelte:fragment>
+            <!-- TODO: implement text appearance options -->
         </Dropdown>
     </div>
 </div>
