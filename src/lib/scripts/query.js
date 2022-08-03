@@ -1,3 +1,4 @@
+/**queries the proskomma endpoint*/
 export const query = async (query, cb) => {
     const res = await fetch('http://localhost:3000/data/proskomma', {
         method: 'POST',
@@ -14,7 +15,7 @@ export const query = async (query, cb) => {
     return j;
 };
 
-function minifyQuery(query) {
+function minifyQuery(/**@type{string}*/ query) {
     let s = query.replace(/\n/g, ' ');
     return s.replace(/([^\w])(\s+)/g, '$1');
 }
