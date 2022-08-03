@@ -62,7 +62,7 @@ TODO:
         } else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
         $audioHighlight = timing[timeIndex].tag;
         if (audio.ended) toggleTimeRunning();
-    }
+    };
     /**sets an interval for updateTime*/
     const toggleTimeRunning = (() => {
         let timer;
@@ -74,7 +74,7 @@ TODO:
             } else {
                 timer = setInterval(updateTime, 100);
             }
-        }
+        };
     })();
     /**plays or pauses the audio*/
     const playPause = () => {
@@ -114,10 +114,10 @@ TODO:
     })();
     /**skips to previous or next chapter if it exists*/
     const skip = (direction) => {
-        const switchTo = (direction < 0)? $refs.prev : $refs.next;
+        const switchTo = direction < 0 ? $refs.prev : $refs.next;
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
-            $refs = { book: switchTo.book, chapter: switchTo.chapter};
+            $refs = { book: switchTo.book, chapter: switchTo.chapter };
         }
     };
 </script>
