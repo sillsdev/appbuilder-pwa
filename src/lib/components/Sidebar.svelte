@@ -20,7 +20,7 @@ The sidebar/drawer.
     export let drawerId = 'drawer';
     const closeDrawer = () => {
         document.activeElement.blur();
-    }
+    };
     beforeNavigate(closeDrawer);
 </script>
 
