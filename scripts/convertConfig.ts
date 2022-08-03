@@ -28,7 +28,7 @@ type BookCollection = {
         id: string;
         name: string;
         abbreviation: string;
-        testament: string; // TODO: better name for OT/NT
+        testament: string;
         section: string; // Pentateuch
         chapters: number;
         chaptersN: string; // 1-34
