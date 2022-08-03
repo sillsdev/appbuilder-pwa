@@ -1,4 +1,8 @@
-<script lang="ts">
+<!--
+@component
+The sidebar/drawer.
+-->
+<script>
     import {
         BibleIcon,
         SearchIcon,
@@ -12,7 +16,12 @@
         AboutIcon
     } from '$lib/icons';
     import { globalConfig } from '$lib/data/stores';
+    import { beforeNavigate } from '$app/navigation';
     export let drawerId = 'drawer';
+    const closeDrawer = () => {
+        document.activeElement.blur();
+    }
+    beforeNavigate(closeDrawer);
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
@@ -37,7 +46,7 @@
             <div class="dy-divider m-1" />
             <li><a href="/settings"><SettingsIcon />Settings</a></li>
             <!-- svelte-ignore a11y-missing-attribute -->
-            <li><a><TextAppearanceIcon />Text Appearance</a></li>
+            <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
             <li><a href="/about"><AboutIcon />About</a></li>
         </ul>
