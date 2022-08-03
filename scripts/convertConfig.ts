@@ -136,7 +136,7 @@ function parseConfigValue(value: any) {
     return value;
 }
 
-function convertConfig(dataDir: string) {
+function convertConfig(dataDir: string, verbose: boolean) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString());
     const { document } = dom.window;
 
@@ -340,8 +340,8 @@ export interface ConfigTaskOutput extends TaskOutput {
 
 export class ConvertConfig extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
-    public run(): ConfigTaskOutput {
-        const data = convertConfig(this.dataDir);
+    public run(verbose: boolean): ConfigTaskOutput {
+        const data = convertConfig(this.dataDir, verbose);
         return {
             taskName: 'ConvertConfig',
             data,
