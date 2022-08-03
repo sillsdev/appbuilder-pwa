@@ -1,3 +1,9 @@
+<!--
+@component
+Displays the three different layout options.  
+TODO:
+- functionality...
+-->
 <script>
     import { onDestroy } from 'svelte';
     import { catalog } from '$lib/data/catalog';
