@@ -1,4 +1,5 @@
 <script lang="ts">
+    // TODO: link config to settings, make settings actually matter
     let settings: App.Settings = {
         'Text Display': {
             'Show verse numbers': {
@@ -46,9 +47,12 @@
     };
 </script>
 
+<!-- loops through the different settings types -->
 {#each Object.keys(settings) as setting}
     <h1>{setting}</h1>
+    <!-- loops through the settings in the current setting type -->
     {#each Object.keys(settings[setting]) as feature}
+        <!-- on/off setting -->
         {#if settings[setting][feature].type === 'toggle'}
             <div class="dy-form-control w-full max-w-xs">
                 <label class="dy-label cursor-pointer">
@@ -66,6 +70,7 @@
                     </label>
                 {/if}
             </div>
+            <!-- multiple choice setting -->
         {:else if settings[setting][feature].type === 'select'}
             <div class="dy-form-control w-full max-w-xs">
                 <!-- svelte-ignore a11y-label-has-associated-control -->
