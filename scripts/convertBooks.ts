@@ -9,6 +9,12 @@ import { SABProskomma } from '../sab-proskomma';
 import { freeze } from 'proskomma-freeze';
 import { queries, postQueries } from 'proskomma-tools';
 
+/**
+ * Loops through bookCollections property of configData.
+ * Each collection and all associated books are imported into a SABProskomma instance.
+ * Each SABProskomma instance is then compressed using proskomma-freeze and written
+ * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
+ */
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,
@@ -156,6 +162,13 @@ export async function convertBooks(
 export interface BooksTaskOutput extends TaskOutput {
     taskName: 'ConvertBooks';
 }
+/**
+ * Internally calls convertBooks, which
+ * loops through bookCollections property of configData.
+ * Each collection and all associated books are imported into a SABProskomma instance.
+ * Each SABProskomma instance is then compressed using proskomma-freeze and written
+ * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
+ */
 export class ConvertBooks extends Task {
     public triggerFiles: string[] = ['books', 'appdef.xml'];
     public static lastBookCollections: ConfigTaskOutput['data']['bookCollections'];
