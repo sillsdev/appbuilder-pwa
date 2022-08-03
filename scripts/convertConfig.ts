@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
-import { Promisable, Task, TaskOutput } from './Task';
+import { Task, TaskOutput } from './Task';
 
 /**
  * TODO:
@@ -142,7 +142,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
 
     // Name
     data.name = document.getElementsByTagName('app-name')[0].innerHTML;
-    console.log(`Converting ${data.name}...`);
+    if (verbose) console.log(`Converting ${data.name}...`);
 
     // Features
     const mainFeatureTags = document
@@ -163,7 +163,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
             } else throw e;
         }
     }
-    console.log(`Converted ${Object.keys(data.mainFeatures).length} features`);
+    if (verbose) console.log(`Converted ${Object.keys(data.mainFeatures).length} features`);
 
     // Fonts
     const fontTags = document.getElementsByTagName('fonts')[0].getElementsByTagName('font');
@@ -182,7 +182,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
                 .attributes.getNamedItem('value')!.value
         });
     }
-    console.log(`Converted ${data.fonts.length} fonts`);
+    if (verbose) console.log(`Converted ${data.fonts.length} fonts`);
 
     // Color themes
     const colorThemeTags = document
@@ -198,7 +198,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
         if (tag.attributes.getNamedItem('default')?.value === 'true')
             data.defaultTheme = data.themes[data.themes.length - 1].name;
     }
-    console.log(`Converted ${data.themes.length} themes`);
+    if (verbose) console.log(`Converted ${data.themes.length} themes`);
 
     // Traits
     const traitTags = document.getElementsByTagName('traits')[0].getElementsByTagName('trait');
@@ -208,7 +208,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
         data.traits[tag.attributes.getNamedItem('name')!.value] =
             tag.attributes.getNamedItem('value')?.value;
     }
-    console.log(`Converted ${Object.keys(data.traits).length} traits`);
+    if (verbose) console.log(`Converted ${Object.keys(data.traits).length} traits`);
 
     // Book collections
     const booksTags = document.getElementsByTagName('books');
@@ -301,11 +301,12 @@ function convertConfig(dataDir: string, verbose: boolean) {
             }
         });
     }
-    console.log(
-        `Converted ${data.bookCollections.length} book collections with [${data.bookCollections
-            .map((x) => x.books.length)
-            .join(', ')}] books`
-    );
+    if (verbose)
+        console.log(
+            `Converted ${data.bookCollections.length} book collections with [${data.bookCollections
+                .map((x) => x.books.length)
+                .join(', ')}] books`
+        );
 
     // Menu localizations
     data.translationMappings = {};
@@ -321,23 +322,29 @@ function convertConfig(dataDir: string, verbose: boolean) {
         }
         data.translationMappings[tag.id] = localizations;
     }
-    console.log(`Converted ${Object.keys(data.translationMappings).length} translation mappings`);
+    if (verbose)
+        console.log(
+            `Converted ${Object.keys(data.translationMappings).length} translation mappings`
+        );
 
     // Keys
     if (document.getElementsByTagName('keys').length > 0) {
         data.keys = Array.from(
             document.getElementsByTagName('keys')[0].getElementsByTagName('key')
         ).map((key) => key.innerHTML);
-        console.log(`Converted ${data.keys.length} keys`);
+        if (verbose) console.log(`Converted ${data.keys.length} keys`);
     }
     return data;
-    // writeFileSync(path.join('src', 'config.js'), 'export default ' + JSON.stringify(data) + ';');
 }
 
 export interface ConfigTaskOutput extends TaskOutput {
     data: ConfigData;
 }
 
+/**
+ * Converts appdef.xml into a config object which is passed to other conversion functions
+ * and is also written to src/config.js.
+ */
 export class ConvertConfig extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
     public run(verbose: boolean): ConfigTaskOutput {
