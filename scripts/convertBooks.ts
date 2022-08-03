@@ -183,9 +183,8 @@ export class ConvertBooks extends Task {
         outputs: Map<string, TaskOutput>,
         modifiedPaths: string[]
     ): Promisable<BooksTaskOutput> {
-        // TODO: Once books are exported, convert them here
-        // Currently does nothing
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+        // runs step only if necessary, as the step is fairly expensive
         if (
             !modifiedPaths.some((p) => p.startsWith('books')) &&
             deepCompareObjects(
