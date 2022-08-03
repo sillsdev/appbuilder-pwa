@@ -100,7 +100,7 @@ The navbar component.
                         Book: {
                             component: SelectGrid,
                             /**
-                             * TODO: 
+                             * TODO:
                              * - add book abbreviations to catalog to be used in UI instead of bookCode
                              */
                             props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
