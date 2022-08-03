@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
 export async function post({ request }) {
     const body = await request.json();
 
+    //search config for audio on provided collection, book, and chapter
     const audio = config.bookCollections.find((c) => {
         return body.collection.split('_')[0] === c.languageCode && 
         body.collection.split('_')[1] === c.collectionAbbreviation;
@@ -18,8 +19,7 @@ export async function post({ request }) {
         }
     }
 
-    console.log(JSON.stringify(audio));
-
+    //parse timing file
     const timingFile = await readFile(path.join('static', 'timings', audio.timingFile), 'utf8');
     const lines = timingFile.split('separators ')[1].split('\n');
     const timing = [];
@@ -39,6 +39,7 @@ export async function post({ request }) {
 
     return {
         body: {
+            // TODO: handle audio sources other than assets
             source: audio.filename,
             timing: timing
         }
