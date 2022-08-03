@@ -11,7 +11,9 @@ function cpSyncOptional(source: string, destination: string, opts?: CopyOptions)
         return false;
     }
 }
-
+/**
+ * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
+ */
 export function convertMedia(dataDir: string, verbose: boolean) {
     // Copy the css stylesheets
     cpSync(path.join(dataDir, 'styles'), path.join('static', 'styles'), { recursive: true });
@@ -76,7 +78,9 @@ export function convertMedia(dataDir: string, verbose: boolean) {
 export interface MediaTaskOutput extends TaskOutput {
     taskName: 'ConvertMedia';
 }
-
+/**
+ * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
+ */
 export class ConvertMedia extends Task {
     public triggerFiles: string[] = ['images', 'fonts', 'styles', 'illustrations'];
 
