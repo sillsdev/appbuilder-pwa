@@ -3,7 +3,7 @@
 
 import { ConfigTaskOutput } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
-import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFile, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { SABProskomma } from '../sab-proskomma';
 import { freeze } from 'proskomma-freeze';
@@ -11,7 +11,8 @@ import { queries, postQueries } from 'proskomma-tools';
 
 export async function convertBooks(
     dataDir: string,
-    configData: ConfigTaskOutput
+    configData: ConfigTaskOutput,
+    verbose: boolean
 ): Promise<BooksTaskOutput> {
     /**book collections from config*/
     const collections = configData.data.bookCollections;
@@ -25,17 +26,18 @@ export async function convertBooks(
     for (const collection of collections!) {
         const pk = new SABProskomma();
         const lang = collection.languageCode;
-        if (usedLangs.has(lang)) {
+        if (verbose && usedLangs.has(lang)) {
             console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
         }
         usedLangs.add(lang);
         const abbr = collection.collectionAbbreviation;
         const docSet = lang + '_' + abbr;
-        console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
+        if(verbose) console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
         /**array of promises of Proskomma mutations*/
         const docs: Promise<void>[] = [];
         //loop through books in collection
         for (const book of collection.books) {
+            //push new Proskomma mutation to docs array
             docs.push(
                 new Promise<void>((resolve) => {
                     //read usfm file
@@ -44,61 +46,61 @@ export async function convertBooks(
                         'utf8',
                         (err, content) => {
                             if (err) throw err;
-                            //push promise to docs
-                            docs.push(
-                                pk.gqlQuery(
-                                    `
-                        mutation {
-                            addDocument(
-                                selectors: [
-                                    {key: "lang", value: "${lang}"}, 
-                                    {key: "abbr", value: "${abbr}"}
-                                ], 
-                                contentType: "${book.file.split('.').pop()}", 
-                                content: """${content}""",
-                                tags: [
-                                    "sections:${book.section}",
-                                    "testament:${book.testament}"
-                                ]
-                            )
-                        }`,
-                                    (r: any) => {
-                                        //log if document added successfully
-                                        console.log(
-                                            (r.data?.addDocument ? '' : 'failed: ') +
-                                                docSet +
-                                                ' <- ' +
-                                                book.name +
-                                                ': ' +
-                                                path.join(
-                                                    dataDir,
-                                                    'books',
-                                                    collection.id,
-                                                    book.file
-                                                )
-                                        );
-                                        if (!r.data?.addDocument) {
-                                            console.log(JSON.stringify(r));
-                                        }
-                                        resolve();
+                            //query Proskomma with a mutation to add a document
+                            //more efficient than original pk.addDocument call
+                            //as it can be run asynchronously
+                            pk.gqlQuery(`
+                                mutation {
+                                    addDocument(
+                                        selectors: [
+                                            {key: "lang", value: "${lang}"}, 
+                                            {key: "abbr", value: "${abbr}"}
+                                        ], 
+                                        contentType: "${book.file.split('.').pop()}", 
+                                        content: """${content}""",
+                                        tags: [
+                                            "sections:${book.section}",
+                                            "testament:${book.testament}"
+                                        ]
+                                    )
+                                }`,
+                                (r: any) => {
+                                    //log if document added successfully
+                                    if(verbose) console.log(
+                                        (r.data?.addDocument ? '' : 'failed: ') +
+                                            docSet +
+                                            ' <- ' +
+                                            book.name +
+                                            ': ' +
+                                            path.join(
+                                                dataDir,
+                                                'books',
+                                                collection.id,
+                                                book.file
+                                            )
+                                    );
+                                    //if the document is not added successfully, the response returned by Proskomma includes an error message
+                                    if (!r.data?.addDocument) {
+                                        console.log(JSON.stringify(r));
                                     }
-                                )
-                            );
+                                    resolve();
+                                }
+                            )
                         }
                     );
                 })
             );
         }
-        console.time('convert ' + collection.id);
-        //wait for documents to finish being added
+        if(verbose) console.time('convert ' + collection.id);
+        //wait for documents to finish being added to Proskomma
         await Promise.all(docs);
-        console.timeEnd('convert ' + collection.id);
-        //start freezing process
-        freezer.set(docSet.replace(/(-| )+/, '_'), freeze(pk));
+        if(verbose) console.timeEnd('convert ' + collection.id);
+        //start freezing process and map promise to docSet name
+        freezer.set(docSet, freeze(pk));
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
     }
-    //write catalog
+    //write catalog entries
     const entries = await Promise.all(catalogEntries);
 
     writeFile(
@@ -113,9 +115,9 @@ export async function convertBooks(
         )};`,
         () => null
     );
-    console.time('freeze');
+    if(verbose) console.time('freeze');
     if (!existsSync(path.join('static', 'collections'))) {
-        console.log('creating: ' + path.join('static', 'collections'));
+        if(verbose) console.log('creating: ' + path.join('static', 'collections'));
         mkdirSync(path.join('static', 'collections'));
     }
     //write frozen archives for import
@@ -123,22 +125,19 @@ export async function convertBooks(
     //write frozen archives
     const files = [];
     let i = 0;
+    //push files to be written to files array
     for (const k of freezer.keys()) {
         files.push({
             path: path.join('static', 'collections', k + '.pkf'),
             content: `${vals[i]}`
         });
-        // writeFileSync(
-        //     path.join('src', 'lib', 'data', 'book-collections', k + '.js'),
-        //     `const ${k} = '${vals[i]}';\nexport { ${k} };`
-        // );
         i++;
     }
     //write index file
     writeFileSync(
         path.join('static', 'collections', 'index.js'),
         `export const collections = [${(() => {
-            //export collections as array
+            //export collection names as array
             let s = '';
             let i = 0;
             for (const k of freezer.keys()) {
@@ -148,7 +147,7 @@ export async function convertBooks(
             return s;
         })()}];`
     );
-    console.timeEnd('freeze');
+    if(verbose) console.timeEnd('freeze');
     return {
         files,
         taskName: 'ConvertBooks'
@@ -165,7 +164,8 @@ export class ConvertBooks extends Task {
     }
     public run(
         outputs: Map<string, TaskOutput>,
-        modifiedPaths: string[]
+        modifiedPaths: string[],
+        verbose: boolean
     ): Promisable<BooksTaskOutput> {
         // TODO: Once books are exported, convert them here
         // Currently does nothing
@@ -184,11 +184,14 @@ export class ConvertBooks extends Task {
             };
         }
 
-        const ret = convertBooks(this.dataDir, config);
+        const ret = convertBooks(this.dataDir, config, verbose);
         ConvertBooks.lastBookCollections = config.data.bookCollections;
         return ret;
     }
 }
+/**
+ * recursively deep-compares two objects based on properties passed in include.
+ */
 function deepCompareObjects(obj1: any, obj2: any, include: Set<string> = new Set()): boolean {
     if (typeof obj1 !== typeof obj2) return false;
     if (typeof obj1 === 'object') {
