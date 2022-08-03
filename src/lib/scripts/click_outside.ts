@@ -1,3 +1,4 @@
+/**fires an outlick event when a click happens outside the attached node*/
 export function clickOutside(node: HTMLDivElement) {
     const handleClick = (event: { target: any }) => {
         if (!node.contains(event.target)) {
