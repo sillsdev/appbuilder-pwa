@@ -38,7 +38,8 @@ export async function convertBooks(
         usedLangs.add(lang);
         const abbr = collection.collectionAbbreviation;
         const docSet = lang + '_' + abbr;
-        if(verbose) console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
+        if (verbose)
+            console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
         /**array of promises of Proskomma mutations*/
         const docs: Promise<void>[] = [];
         //loop through books in collection
@@ -55,7 +56,8 @@ export async function convertBooks(
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
                             //as it can be run asynchronously
-                            pk.gqlQuery(`
+                            pk.gqlQuery(
+                                `
                                 mutation {
                                     addDocument(
                                         selectors: [
@@ -72,35 +74,36 @@ export async function convertBooks(
                                 }`,
                                 (r: any) => {
                                     //log if document added successfully
-                                    if(verbose) console.log(
-                                        (r.data?.addDocument ? '' : 'failed: ') +
-                                            docSet +
-                                            ' <- ' +
-                                            book.name +
-                                            ': ' +
-                                            path.join(
-                                                dataDir,
-                                                'books',
-                                                collection.id,
-                                                book.file
-                                            )
-                                    );
+                                    if (verbose)
+                                        console.log(
+                                            (r.data?.addDocument ? '' : 'failed: ') +
+                                                docSet +
+                                                ' <- ' +
+                                                book.name +
+                                                ': ' +
+                                                path.join(
+                                                    dataDir,
+                                                    'books',
+                                                    collection.id,
+                                                    book.file
+                                                )
+                                        );
                                     //if the document is not added successfully, the response returned by Proskomma includes an error message
                                     if (!r.data?.addDocument) {
                                         console.log(JSON.stringify(r));
                                     }
                                     resolve();
                                 }
-                            )
+                            );
                         }
                     );
                 })
             );
         }
-        if(verbose) console.time('convert ' + collection.id);
+        if (verbose) console.time('convert ' + collection.id);
         //wait for documents to finish being added to Proskomma
         await Promise.all(docs);
-        if(verbose) console.timeEnd('convert ' + collection.id);
+        if (verbose) console.timeEnd('convert ' + collection.id);
         //start freezing process and map promise to docSet name
         freezer.set(docSet, freeze(pk));
         //start catalog generation process
@@ -121,9 +124,9 @@ export async function convertBooks(
         )};`,
         () => null
     );
-    if(verbose) console.time('freeze');
+    if (verbose) console.time('freeze');
     if (!existsSync(path.join('static', 'collections'))) {
-        if(verbose) console.log('creating: ' + path.join('static', 'collections'));
+        if (verbose) console.log('creating: ' + path.join('static', 'collections'));
         mkdirSync(path.join('static', 'collections'));
     }
     //write frozen archives for import
@@ -153,7 +156,7 @@ export async function convertBooks(
             return s;
         })()}];`
     );
-    if(verbose) console.timeEnd('freeze');
+    if (verbose) console.timeEnd('freeze');
     return {
         files,
         taskName: 'ConvertBooks'
