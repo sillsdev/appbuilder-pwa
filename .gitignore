@@ -16,4 +16,5 @@ static/audio
 static/styles
 static/illustrations
 static/collections
+static/timings
 src/lib/data/catalog.js
