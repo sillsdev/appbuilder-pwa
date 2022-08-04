@@ -23,7 +23,7 @@ TODO:
         duration = NaN;
         progress = 0;
 
-        const res = await fetch('http://localhost:3000/data/audio', {
+        const res = await fetch('/data/audio', {
             method: 'POST',
             body: JSON.stringify({
                 collection: collection,

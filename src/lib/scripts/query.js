@@ -1,6 +1,6 @@
 /**queries the proskomma endpoint*/
 export const query = async (query, cb) => {
-    const res = await fetch('http://localhost:3000/data/proskomma', {
+    const res = await fetch('/data/proskomma', {
         method: 'POST',
         body: JSON.stringify({
             query: minifyQuery(query)
