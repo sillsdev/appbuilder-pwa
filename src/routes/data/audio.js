@@ -19,6 +19,20 @@ export async function post({ request }) {
         }
     }
 
+    const source = config.audio.sources[audio.src];
+
+    if(source.type === "fcbh") {
+        return {
+            body: {
+                error: 'This repository is not currently designed to use audio from FCBH'
+            }
+        }
+    }
+
+    let prefix = '';
+    if (source.type === 'assets') prefix = '/audio';
+    else if (source.type === 'download') prefix = source.address;
+
     //parse timing file
     const timingFile = await readFile(path.join('static', 'timings', audio.timingFile), 'utf8');
     const lines = timingFile.split('separators ')[1].split('\n');
@@ -39,8 +53,7 @@ export async function post({ request }) {
 
     return {
         body: {
-            // TODO: handle audio sources other than assets
-            source: audio.filename,
+            source: prefix + '/' + audio.filename,
             timing: timing
         }
     };
