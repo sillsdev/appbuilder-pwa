@@ -8,7 +8,6 @@ a non-exhaustive list of features and fixes to be implemented.
     -   Layouts?
     -   Colors?
     -   Styles?
--   handle internet-based audio sources
 -   AudioBar:
     -   remove console.log statement from updateTime once synchronized highlighting is fully implemented.
     -   display audio not found message in UI when audio is not found
@@ -26,3 +25,4 @@ a non-exhaustive list of features and fixes to be implemented.
 -   Make settings have an actual effect.
 -   Make the app sharable.
 -   Hide unimplemented and unconfigured features from the end-user of the app.
+-   Implement FCBH audio sources
