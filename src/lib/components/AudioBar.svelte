@@ -41,7 +41,7 @@ TODO:
             return;
         }
 
-        const a = new Audio(`/audio/${j.source}`);
+        const a = new Audio(`${j.source}`);
         a.onloadedmetadata = () => {
             duration = a.duration;
             timeIndex = 0;
