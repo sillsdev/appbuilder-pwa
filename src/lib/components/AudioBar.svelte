@@ -13,12 +13,14 @@ TODO:
     let progress = 0;
     let playing = false;
     let loaded = false;
+    let skipped = false;
     let timeIndex = 0;
     let timing = [];
     /**@type{HTMLAudioElement}*/ let audio;
 
     //get the audio source and timing files, based off the current reference
     const getAudio = async (collection, book, chapter) => {
+        if (playing) playPause();
         loaded = false;
         duration = NaN;
         progress = 0;
@@ -48,6 +50,10 @@ TODO:
             loaded = true;
             audio = a;
             updateTime();
+            if (skipped && !playing) {
+                playPause();
+                skipped = false;
+            } 
         };
         timing = j.timing;
     };
@@ -81,13 +87,12 @@ TODO:
         if (!loaded) return;
         toggleTimeRunning();
         if (playing) {
-            audio.pause();
+            audio?.pause();
             playing = false;
         } else {
             audio.play();
             playing = true;
         }
-        console.log(playing ? 'playing' : 'paused');
     };
     /**seeks the audio*/
     const seek = (() => {
@@ -118,6 +123,7 @@ TODO:
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
             $refs = { book: switchTo.book, chapter: switchTo.chapter };
+            skipped = true;
         }
     };
 </script>
