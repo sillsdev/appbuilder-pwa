@@ -14,6 +14,8 @@ This can be accomplished in two ways:
 -   Run `npm run convertExamples` in the console to use the example data folder.
 -   Run `Build PWA Data Files` in Scripture App Builder.
 
+> Contact [chris_hubbard@sil.org](mailto:chris_hubbard@sil.org) for the feature key to enable `Build PWA Data Files`
+
 If you are using the example data, run `npx svelte-kit dev` to start a development server. Otherwise, `npm run dev` will automatically convert the files in the folder copied to by `Build PWA Data Files`.
 
 > Note: The book conversion step can take up to several minutes depending on the amount of scripture in the project and the speed of your computer's hard drive.
