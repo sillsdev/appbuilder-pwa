@@ -334,6 +334,68 @@ function convertConfig(dataDir: string, verbose: boolean) {
         ).map((key) => key.innerHTML);
         if (verbose) console.log(`Converted ${data.keys.length} keys`);
     }
+
+    /* about?: string; */
+    
+    /*
+    analytics?: {
+        id: string;
+        name: string;
+        type: string;
+    }[];
+    */
+    
+    /*
+    audio?: {
+        sources: {
+            name: string;
+            accessMethods: string[];
+            folder: string;
+            key: string;
+            damId: string;
+        }[];
+    };
+    */
+
+    /*
+    videos?: {
+        id: string;
+        width: number;
+        height: number;
+        title: string;
+        thumbnail: string;
+        onlineUrl: string;
+        placement: {
+            pos: string;
+            ref: string;
+            collection: number;
+        };
+    };
+    */
+    
+    /*
+    layouts?: {
+        mode: string;
+        enabled: boolean;
+        features?: {
+            [key: string]: any;
+        };
+    }[];
+    */
+    
+    /* defaultLayout?: string; */
+    
+    /*
+    security?: {
+        features?: {
+            [key: string]: any;
+        };
+        pin: string;
+        mode: string;
+    };
+    */
+
+
     return data;
 }
 
