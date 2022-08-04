@@ -82,22 +82,28 @@ export type ConfigData = {
         };
     };
     keys?: string[];
-    about?: string; //
+    about?: string; // TODO
     analytics?: {
+        // TODO
         id: string;
         name: string;
         type: string;
     }[];
     audio?: {
         sources: {
-            name: string;
-            accessMethods: string[];
-            folder: string;
-            key: string;
-            damId: string;
-        }[];
+            [key: string]: {
+                type: string;
+                name: string;
+                accessMethods?: string[];
+                folder?: string;
+                key?: string;
+                damId?: string;
+                address?: string;
+            };
+        };
     };
     videos?: {
+        // TODO
         id: string;
         width: number;
         height: number;
@@ -111,14 +117,16 @@ export type ConfigData = {
         };
     };
     layouts?: {
+        // TODO
         mode: string;
         enabled: boolean;
         features?: {
             [key: string]: any;
         };
     }[];
-    defaultLayout?: string;
+    defaultLayout?: string; // TODO
     security?: {
+        // TODO
         features?: {
             [key: string]: any;
         };
@@ -336,7 +344,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
     }
 
     /* about?: string; */
-    
+
     /*
     analytics?: {
         id: string;
@@ -344,18 +352,42 @@ function convertConfig(dataDir: string, verbose: boolean) {
         type: string;
     }[];
     */
-    
-    /*
-    audio?: {
-        sources: {
-            name: string;
-            accessMethods: string[];
-            folder: string;
-            key: string;
-            damId: string;
-        }[];
-    };
-    */
+
+    // Audio Sources
+    const audioSources = document
+        .getElementsByTagName('audio-sources')[0]
+        .getElementsByTagName('audio-source');
+    if (audioSources?.length > 0) {
+        data.audio = { sources: {} };
+        for (const source of audioSources) {
+            const id = source.getAttribute('id')!.toString();
+            const type = source.getAttribute('type')!.toString();
+            const name = source.getElementsByTagName('name')[0].innerHTML;
+            data.audio.sources[id] = {
+                type: type,
+                name: name
+            };
+            if (type === 'assets') continue;
+            else {
+                data.audio.sources[id].accessMethods = source
+                    .getElementsByTagName('access-methods')[0]
+                    .getAttribute('value')!
+                    .toString()
+                    .split('|');
+                data.audio.sources[id].folder = source.getElementsByTagName('folder')[0].innerHTML;
+
+                if (type === 'download')
+                    data.audio.sources[id].address =
+                        source.getElementsByTagName('address')[0].innerHTML;
+                else if (type === 'fcbh') {
+                    data.audio.sources[id].key = source.getElementsByTagName('key')[0].innerHTML;
+                    data.audio.sources[id].damId =
+                        source.getElementsByTagName('dam-id')[0].innerHTML;
+                }
+            }
+        }
+    }
+    if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
     /*
     videos?: {
@@ -372,7 +404,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
         };
     };
     */
-    
+
     /*
     layouts?: {
         mode: string;
@@ -382,9 +414,9 @@ function convertConfig(dataDir: string, verbose: boolean) {
         };
     }[];
     */
-    
+
     /* defaultLayout?: string; */
-    
+
     /*
     security?: {
         features?: {
@@ -394,7 +426,6 @@ function convertConfig(dataDir: string, verbose: boolean) {
         mode: string;
     };
     */
-
 
     return data;
 }
