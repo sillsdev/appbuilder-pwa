@@ -53,7 +53,7 @@ TODO:
             if (skipped && !playing) {
                 playPause();
                 skipped = false;
-            } 
+            }
         };
         timing = j.timing;
     };
