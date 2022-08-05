@@ -66,7 +66,7 @@ export const referenceStore = () => {
             const i = codes.indexOf($internal.b);
             const chapters = Object.keys(books[i].versesByChapters);
             const j = chapters.indexOf($internal.c);
-            if (j - 1 <= 0) {
+            if (j <= 0) {
                 if (i - 1 >= 0) {
                     prevBook = codes[i - 1];
                     const c2 = Object.keys(books[i - 1].versesByChapters);
