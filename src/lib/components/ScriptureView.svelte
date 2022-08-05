@@ -13,8 +13,10 @@ TODO:
     import { onDestroy } from 'svelte';
     import { audioHighlight, refs, scrolls, playingAudio } from '$lib/data/stores';
     import { inview } from 'svelte-inview';
+    import { renderBlocks } from '../scripts/render';
 
     let container: HTMLElement;
+    let blocksRoot: Element;
     /**unique key to use for groupStore modifier*/
     const key = {};
 
@@ -86,7 +88,9 @@ TODO:
                 }
             }
         }
-    }`);
+    }`, (r) => {
+        renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
+    });
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>
@@ -100,14 +104,17 @@ TODO:
         <h1>{$refs.title}</h1>
         <h2>Chapter {$refs.chapter}</h2>
     </div>
+    <div bind:this={blocksRoot}></div>
+    <!--
     {#await promise}
         <p>loading . . .</p>
     {:then res}
-        <!-- if blocks is not an array it means the query did not return what was expected-->
+        <!-- if blocks is not an array it means the query did not return what was expected--
         {#if Array.isArray(res.data.docSet?.book?.main.blocks)}
-            <!-- create paragraphs from blocks -->
+            <!-- create paragraphs from blocks --
             {#each res.data.docSet?.book?.main.blocks as block, i}
-                <div class={i === 0 ? 'm' : 'p'}>
+                
+                    <div class={i === 0 ? 'm' : 'p'}>
                     {#each block.items as item}
                         {#if item.type === 'scope' && item.subType === 'start'}
                             {#if item.payload.split('/')[0] === 'verses'}
@@ -119,13 +126,14 @@ TODO:
                                     >{item.payload.split('/')[1]}</em
                                 ><span>&nbsp;</span>
                             {:else}
-                                <!-- does nothing currently -->
-                            {/if}
-                        {:else if item.type === 'token'}
-                            {item.payload}
-                        {/if}
-                    {/each}
-                </div>
+                                <!-- does nothing currently --
+                                {/if}
+                                {:else if item.type === 'token'}
+                                    {item.payload}
+                                {/if}
+                            {/each}
+                    </div>
+                
             {/each}
         {:else}
             <p>waiting on SABProskomma . . .</p>
@@ -133,6 +141,7 @@ TODO:
     {:catch err}
         <pre style="color: red">{err.message}</pre>
     {/await}
+    -->
     <!-- previous hard coded example that had highlight working
     <p>
         {#each Object.entries(paragraph) as [verse, verseData]}
