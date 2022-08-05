@@ -33,14 +33,12 @@ const renderVerse = (items, verseNum, index) => {
     while (i < items.length) {
         const it = items[i];
         if (it.type === 'scope' && it.subType === 'end' && it.payload.split('/')[0] === 'verses') {
-            i++;
             break;
         } else if (it.type === 'token') {
             const o = renderPhrase(items, i, verseNum);
             phrases.push(o.phrase);
             i = o.i;
-        }
-        i++;
+        } else i++;
     }
 
     if (phrases.length > 1) {
@@ -62,9 +60,20 @@ const renderPhrase = (items, index, id) => {
         if (it.type === 'token') {
             s += it.payload;
             if (it.subType === 'punctuation' && seps.includes(it.payload)) {
-                s += ' ';
+                while (i < items.length) {
+                    if (items[i].type === 'token') {
+                        s += items[i].payload;
+                        i++;
+                    } else break;
+                }
                 break;
             }
+        } else if (
+            it.type === 'scope' &&
+            it.subType === 'end' &&
+            it.payload.split('/')[0] === 'verses'
+        ) {
+            break;
         }
     }
     phrase.append(s);
