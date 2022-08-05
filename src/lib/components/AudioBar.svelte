@@ -13,7 +13,7 @@ TODO:
     let progress = 0;
     let playing = false;
     let loaded = false;
-    let skipped = false;
+    let playAfterSkip = false;
     let timeIndex = 0;
     let timing = [];
     /**@type{HTMLAudioElement}*/ let audio;
@@ -50,9 +50,9 @@ TODO:
             loaded = true;
             audio = a;
             updateTime();
-            if (skipped && !playing) {
+            if (playAfterSkip && !playing) {
                 playPause();
-                skipped = false;
+                playAfterSkip = false;
             }
         };
         timing = j.timing;
@@ -123,7 +123,7 @@ TODO:
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
             $refs = { book: switchTo.book, chapter: switchTo.chapter };
-            skipped = true;
+            playAfterSkip = true && playing;
         }
     };
 </script>
