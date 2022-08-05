@@ -13,3 +13,5 @@ export const viewMode = writable('Single Pane');
 export const playingAudio = writable(true);
 /**which element should be highlighted as the audio is playing*/
 export const audioHighlight = writable('0');
+/**scrollTop of main window*/
+export const mainScroll = writable({ top: 0, height: 0});

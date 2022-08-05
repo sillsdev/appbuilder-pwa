@@ -3,9 +3,24 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode, playingAudio } from '$lib/data/stores';
+    import { viewMode, playingAudio, mainScroll } from '$lib/data/stores';
+    import { onMount } from 'svelte';
     import AudioBar from '$lib/components/AudioBar.svelte';
     let drawerName = 'sidebar';
+    let main: HTMLElement;
+
+    const updateScroll = (() => {
+        let updateTimer: NodeJS.Timeout;
+
+        return () => {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(() => {
+                $mainScroll = { top: main.scrollTop, height: main.clientHeight };
+            }, 50);
+        };
+    })();
+
+    onMount(updateScroll);
 </script>
 
 <Sidebar drawerId={drawerName}>
@@ -23,7 +38,11 @@
             </label>
         </Navbar>
     </div>
-    <main class="p-2 w-full overflow-y-auto {$playingAudio ? 'smaller' : 'larger'}">
+    <main
+        bind:this={main}
+        class="p-2 w-full overflow-y-auto {$playingAudio ? 'smaller' : 'larger'}"
+        on:scroll={updateScroll}
+    >
         <slot />
     </main>
     {#if $playingAudio}

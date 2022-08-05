@@ -11,8 +11,7 @@ TODO:
 <script lang="ts">
     import { query } from '../scripts/query';
     import { onDestroy } from 'svelte';
-    import { audioHighlight, refs, scrolls, playingAudio } from '$lib/data/stores';
-    import { inview } from 'svelte-inview';
+    import { audioHighlight, refs, scrolls, playingAudio, mainScroll } from '$lib/data/stores';
     import { renderBlocks } from '../scripts/render';
 
     let container: HTMLElement;
@@ -35,77 +34,73 @@ TODO:
     };
     $: scrollTo(scrollId);
 
-    /**list of verses in view*/
-    let verses: string[] = [];
-    /**updates list of verses in view*/
-    const handleChange = (() => {
-        let changeTimer: NodeJS.Timeout;
+    let lastVerseInView = '';
 
-        return (e: CustomEvent<ObserverEventDetails>, id: string) => {
-            clearTimeout(changeTimer);
-            if (e.detail.inView) {
-                verses.push(id);
-                verses = verses.sort((a, b) => {
-                    if (a === 'title') return -1;
-                    return parseInt(a) - parseInt(b);
-                });
-            } else {
-                verses = verses.filter((v) => v !== id);
-            }
-            if (verses.length > 0)
-                changeTimer = setTimeout(() => {
-                    scrolls.set(verses[0], group, key);
-                }, 500); //waits 1/2 second before pushing update
+    const handleScroll = (() => {
+        let scrollTimer: NodeJS.Timeout;
+        const t = 0.5; //threshold
+
+        const handle = () => {
+            const items = Array.from(container?.getElementsByClassName('scroll-item'))
+                .filter((it, i) => {
+                    const rect = it.getBoundingClientRect();
+                    const win = container.getBoundingClientRect();
+
+                    return (
+                        rect.top - win.top >= $mainScroll.top &&
+                        rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
+                    );
+                })
+                .map((el) => el.id);
+
+            scrolls.set(items[0], group, key);
+            lastVerseInView = items[items.length - 1];
+        };
+
+        return (trigger) => {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(handle, 500);
         };
     })();
+    $: handleScroll($mainScroll);
 
     /**shorter highlight variable*/
     $: hglt = $playingAudio ? $audioHighlight : '';
-    /**moves highlight*/
-    const highlightInView = (id: string) => {
+    /**updates highlight*/
+    const updateHighlight = (id: string) => {
         if (!$playingAudio) return;
         const el = container?.getElementsByClassName('highlighting')?.item(0);
-        if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) == verses[verses.length - 1]) {
+        if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) === lastVerseInView) {
             el.scrollIntoView();
         }
     };
-    $: highlightInView($audioHighlight);
-
-    /**options object for inview action*/
-    const options = { threshold: 0.5 };
+    $: updateHighlight($audioHighlight);
 
     onDestroy(unSub);
 
-    /**queries SABProskomma instance to get scripture*/
-    $: (() => {
-        query(
-            `{
-            docSet(id:"${$refs.docSet}") {
-                book: document(bookCode: "${$refs.book}") {
-                    main: mainSequence {
-                        blocks(withScriptureCV: "${$refs.chapter}") {
-                            bs { payload }
-                            items { type subType payload }
-                        }
+    //queries SABProskomma instance to get scripture
+    $: query(
+        `{
+        docSet(id:"${$refs.docSet}") {
+            book: document(bookCode: "${$refs.book}") {
+                main: mainSequence {
+                    blocks(withScriptureCV: "${$refs.chapter}") {
+                        bs { payload }
+                        items { type subType payload }
                     }
                 }
             }
-        }`,
-            (r) => {
-                renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
-            }
-        );
-    })();
+        }
+    }`,
+        (r) => {
+            //renders scripture
+            renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
+        }
+    );
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>
-    <div
-        id="title"
-        class="scroll-item"
-        class:highlighting={hglt === 'title'}
-        use:inview={options}
-        on:change={(e) => handleChange(e, 'title')}
-    >
+    <div id="title" class="scroll-item" class:highlighting={hglt === 'title'}>
         <h1>{$refs.title}</h1>
         <h2>Chapter {$refs.chapter}</h2>
     </div>
