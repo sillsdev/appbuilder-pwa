@@ -77,7 +77,8 @@ TODO:
     onDestroy(unSub);
 
     /**queries SABProskomma instance to get scripture*/
-    $: promise = query(`{
+    $: promise = query(
+        `{
         docSet(id:"${$refs.docSet}") {
             book: document(bookCode: "${$refs.book}") {
                 main: mainSequence {
@@ -88,9 +89,11 @@ TODO:
                 }
             }
         }
-    }`, (r) => {
-        renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
-    });
+    }`,
+        (r) => {
+            renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
+        }
+    );
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>
@@ -104,7 +107,7 @@ TODO:
         <h1>{$refs.title}</h1>
         <h2>Chapter {$refs.chapter}</h2>
     </div>
-    <div bind:this={blocksRoot}></div>
+    <div bind:this={blocksRoot} />
     <!--
     {#await promise}
         <p>loading . . .</p>
