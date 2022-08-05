@@ -77,23 +77,25 @@ TODO:
     onDestroy(unSub);
 
     /**queries SABProskomma instance to get scripture*/
-    $: promise = query(
-        `{
-        docSet(id:"${$refs.docSet}") {
-            book: document(bookCode: "${$refs.book}") {
-                main: mainSequence {
-                    blocks(withScriptureCV: "${$refs.chapter}") {
-                        bs { payload }
-                        items { type subType payload }
+    $: (() => {
+        query(
+            `{
+            docSet(id:"${$refs.docSet}") {
+                book: document(bookCode: "${$refs.book}") {
+                    main: mainSequence {
+                        blocks(withScriptureCV: "${$refs.chapter}") {
+                            bs { payload }
+                            items { type subType payload }
+                        }
                     }
                 }
             }
-        }
-    }`,
-        (r) => {
-            renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
-        }
-    );
+        }`,
+            (r) => {
+                renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
+            }
+        );
+    })();
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>
@@ -108,70 +110,6 @@ TODO:
         <h2>Chapter {$refs.chapter}</h2>
     </div>
     <div bind:this={blocksRoot} />
-    <!--
-    {#await promise}
-        <p>loading . . .</p>
-    {:then res}
-        <!-- if blocks is not an array it means the query did not return what was expected--
-        {#if Array.isArray(res.data.docSet?.book?.main.blocks)}
-            <!-- create paragraphs from blocks --
-            {#each res.data.docSet?.book?.main.blocks as block, i}
-                
-                    <div class={i === 0 ? 'm' : 'p'}>
-                    {#each block.items as item}
-                        {#if item.type === 'scope' && item.subType === 'start'}
-                            {#if item.payload.split('/')[0] === 'verses'}
-                                <em
-                                    id={item.payload.split('/')[1]}
-                                    class="scroll-item"
-                                    use:inview={options}
-                                    on:change={(e) => handleChange(e, item.payload.split('/')[1])}
-                                    >{item.payload.split('/')[1]}</em
-                                ><span>&nbsp;</span>
-                            {:else}
-                                <!-- does nothing currently --
-                                {/if}
-                                {:else if item.type === 'token'}
-                                    {item.payload}
-                                {/if}
-                            {/each}
-                    </div>
-                
-            {/each}
-        {:else}
-            <p>waiting on SABProskomma . . .</p>
-        {/if}
-    {:catch err}
-        <pre style="color: red">{err.message}</pre>
-    {/await}
-    -->
-    <!-- previous hard coded example that had highlight working
-    <p>
-        {#each Object.entries(paragraph) as [verse, verseData]}
-            <span
-                id={verse}
-                class="scroll-item"
-                use:inview={options}
-                on:change={(e) => handleChange(e, verse)}
-                ><h4>{verse}</h4>
-                {#if verseData['b']}
-                    {#each Object.entries(verseData) as [versePart, verseText]}
-                        <span
-                            id={verse + versePart}
-                            class:highlighting={hglt === verse + versePart}
-                        >
-                            {verseText + ' '}
-                        </span>
-                    {/each}
-                {:else}
-                    <span id={verse} class:highlighting={hglt === verse}>
-                        {verseData['a'] + ' '}
-                    </span>
-                {/if}
-            </span>
-        {/each}
-    </p>
-    -->
 </article>
 
 <style>
