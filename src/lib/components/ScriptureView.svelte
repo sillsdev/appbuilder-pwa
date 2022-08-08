@@ -38,28 +38,25 @@ TODO:
 
     const handleScroll = (() => {
         let scrollTimer: NodeJS.Timeout;
-        const t = 0.5; //threshold
-
-        const handle = () => {
-            const items = Array.from(container?.getElementsByClassName('scroll-item'))
-                .filter((it, i) => {
-                    const rect = it.getBoundingClientRect();
-                    const win = container.getBoundingClientRect();
-
-                    return (
-                        rect.top - win.top >= $mainScroll.top &&
-                        rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
-                    );
-                })
-                .map((el) => el.id);
-
-            scrolls.set(items[0], group, key);
-            lastVerseInView = items[items.length - 1];
-        };
 
         return (trigger) => {
             clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(handle, 500);
+            scrollTimer = setTimeout(() => {
+                const items = Array.from(container?.getElementsByClassName('scroll-item'))
+                    .filter((it, i) => {
+                        const rect = it.getBoundingClientRect();
+                        const win = container.getBoundingClientRect();
+
+                        return (
+                            rect.top - win.top >= $mainScroll.top &&
+                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
+                        );
+                    })
+                    .map((el) => el.id);
+
+                scrolls.set(items[0], group, key);
+                lastVerseInView = items[items.length - 1];
+            }, 500);
         };
     })();
     $: handleScroll($mainScroll);
@@ -68,8 +65,12 @@ TODO:
     $: hglt = $playingAudio ? $audioHighlight : '';
     /**updates highlight*/
     const updateHighlight = (id: string) => {
+        let el = container?.getElementsByClassName('highlighting')?.item(0);
+        el?.classList.remove('highlighting');
         if (!$playingAudio) return;
-        const el = container?.getElementsByClassName('highlighting')?.item(0);
+        el = document.getElementById(id);
+        console.log(el);
+        el?.classList.add('highlighting');
         if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) === lastVerseInView) {
             el.scrollIntoView();
         }
