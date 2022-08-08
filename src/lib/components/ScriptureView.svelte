@@ -95,7 +95,8 @@ TODO:
     }`,
         (r) => {
             //renders scripture
-            renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
+            const grafts = renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
+            console.log(grafts);
         }
     );
 </script>
