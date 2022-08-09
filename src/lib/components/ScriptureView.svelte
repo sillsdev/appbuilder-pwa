@@ -69,7 +69,6 @@ TODO:
         el?.classList.remove('highlighting');
         if (!$playingAudio) return;
         el = document.getElementById(id);
-        console.log(el);
         el?.classList.add('highlighting');
         if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) === lastVerseInView) {
             el.scrollIntoView();
@@ -89,9 +88,14 @@ TODO:
         }
     }`,
         (r) => {
-            //renders scripture
+            //initial render
             const grafts = renderDoc(JSON.parse(r.data.docSet.book.sofria).sequence, bookRoot);
             //console.log(JSON.stringify(grafts, null, 2)); // handle grafts later
+
+            //post process
+            let firstp = bookRoot.getElementsByClassName('p')?.item(0);
+            firstp.classList.remove('p');
+            firstp.classList.add('m');
         }
     );
 </script>
