@@ -14,6 +14,10 @@ export const renderDoc = (mainSeq, root) => {
                 renderBlock(block, parent);
             }
             // process poetry here, since it spans multiple blocks
+            const poetryBlocks = Array.from(parent.getElementsByTagName('div')).filter(
+                (e) => e.classList.contains('q') || e.classList.contains('q2')
+            );
+            console.log(poetryBlocks.map((e) => e.innerHTML));
         } else {
             const span = document.createElement('span');
             span.id = 'graft-' + grafts.length;
