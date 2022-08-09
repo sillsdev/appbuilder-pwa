@@ -3,7 +3,6 @@
 Based on an audio component found at https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0.
 Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play/Pause, Seek, and Skip functionality.  
 TODO:
-- remove console.log statement from updateTime once synchronized highlighting is fully implemented.
 - display audio not found message in UI when audio is not found
 -->
 <script>
@@ -62,10 +61,8 @@ TODO:
     const updateTime = () => {
         if (!loaded) return;
         progress = audio.currentTime;
-        if (progress >= timing[timeIndex].time) {
-            timeIndex++;
-            console.log('reading phrase: ' + timing[timeIndex].tag);
-        } else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
+        if (progress >= timing[timeIndex].time) timeIndex++;
+        else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
         $audioHighlight = timing[timeIndex].tag;
         if (audio.ended) toggleTimeRunning();
     };

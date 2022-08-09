@@ -9,7 +9,6 @@ a non-exhaustive list of features and fixes to be implemented.
     -   Colors?
     -   Styles?
 -   AudioBar:
-    -   remove console.log statement from updateTime once synchronized highlighting is fully implemented.
     -   display audio not found message in UI when audio is not found
 -   ColorCard, HistoryCard, and IconCard: handle the book and collection specific styles
 -   Allow user to change the layout (LayoutOptions)
