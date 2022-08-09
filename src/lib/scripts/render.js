@@ -1,4 +1,5 @@
 const seps = '.?!:;,';
+const seprgx = /(\.|\?|!|:|;|,|')/g;
 const subc = 'abcdefghijklmnopqrstuvwxyz';
 
 export const renderDoc = (mainSeq, root) => {
@@ -12,10 +13,12 @@ export const renderDoc = (mainSeq, root) => {
             for (const block of seq.blocks) {
                 renderBlock(block, parent);
             }
+            // process poetry here, since it spans multiple blocks
+
         } else {
             const span = document.createElement('span');
             span.id = 'graft-' + grafts.length;
-            span.append(' ['+ span.id +'] ');
+            span.append(' [' + span.id + '] ');
             parent.append(span);
             grafts.push(seq);
         }
@@ -30,9 +33,52 @@ export const renderDoc = (mainSeq, root) => {
             for (const content of block.content) {
                 renderContent(content, div);
             }
+            // process non poetry blocks
+            if (block.subtype.split(':')[1] === 'p') {
+                const content = Array.from(div.getElementsByTagName('div'));
+                div.replaceChildren();
+                for (const el of content) {
+                    const v = el.getElementsByClassName('v')?.item(0)?.innerHTML;
+                    let inner = el.innerHTML.split(seprgx);
+                    el.replaceChildren();
+                    
+                    for (let i = 1; i < inner.length; i += 2) {
+                        inner[i - 1] += inner[i];
+                    }
+                    inner = inner.filter(s => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+
+                    if (inner.length > 2) {
+                        inner[0] += inner[1];
+                        inner.splice(1,1);
+
+                        for (let i = 1; i < inner.length; i++) {
+                            let s = inner[i].split(/(<span id="graft-[0-9]+"> \[graft-[0-9]+\] <\/span>)/);
+                            if (s.length > 1) {
+                                inner[i-1] += s[1];
+                                inner[i] = s[2]; 
+                            }
+                        }
+
+                        for (let i = 0; i < inner.length; i++) {
+                            const phrase = document.createElement('div');
+                            phrase.classList.add('txs', 'seltxt');
+                            phrase.id = v + subc.charAt(i);
+                            phrase.innerHTML = inner[i];
+                            div.append(phrase);
+                        }
+
+                    } else if (inner.length > 1) {
+                        el.innerHTML = inner.join('');
+                        div.append(el);
+                    } else {
+                        el.innerHTML = inner[0];
+                        div.append(el);
+                    }
+                }
+            }
             parent.append(div);
         } else {
-            console.log('unknown block type: '+block.type+' encountered');
+            console.log('unknown block type: ' + block.type + ' encountered');
         }
     };
 
@@ -40,147 +86,46 @@ export const renderDoc = (mainSeq, root) => {
         if (!content.type) {
             parent.append(content);
         } else if (content.type === 'wrapper') {
-            const span = document.createElement('span');
-            if (content.subtype === 'verses') span.id = content.atts.number;
-            for (const c2 of content.content) {
-                renderContent(c2, span);
+            if (content.subtype === 'verses') {
+                const div = document.createElement('div');
+                div.id = content.atts.number;
+                div.classList.add('txs', 'seltxt');
+                for (const c2 of content.content) {
+                    renderContent(c2, div);
+                }
+                parent.append(div);
+            } else {
+                for (const c2 of content.content) {
+                    renderContent(c2, parent);
+                }
             }
-            parent.append(span);
         } else if (content.type === 'mark') {
-
+            if (content.subtype === 'chapter_label') {
+                const div = document.createElement('div');
+                div.classList.add('c-drop');
+                div.append(content.atts.number);
+                parent.append(div);
+            } else if (content.subtype === 'verses_label') {
+                const span = document.createElement('span');
+                span.classList.add('v');
+                span.append(content.atts.number);
+                parent.append(span);
+                
+                const space = document.createElement('span');
+                space.classList.add('vsp');
+                space.innerHTML = '&nbsp;';
+                parent.append(space);
+            } else {
+                console.log('unknown mark subtype: ' + content.subtype + ' encountered');
+            }
         } else if (content.type === 'graft') {
             renderSequence(content.sequence, parent);
         } else {
-            console.log('unknown content type: '+content.type+' encountered');
+            console.log('unknown content type: ' + content.type + ' encountered');
         }
     };
 
     renderSequence(mainSeq, root);
 
-
-    return grafts;
-}
-
-/*
-export const renderBlocks = (root, blocks) => {
-    if (!root || !blocks?.length) return;
-    let grafts = [];
-    root.replaceChildren(); // clear current blocks from root
-    for (const block of blocks) {
-        const bs = block.bs.payload.split('/')[1];
-        const o = renderBlock(block, bs);
-        root.append(o.block);
-        grafts = grafts.concat(o.grafts);
-    }
     return grafts;
 };
-
-const renderBlock = (block, className) => {
-    const div = document.createElement('div');
-    let grafts = [];
-    div.classList.add(className);
-    let i = 0;
-    while (i < block.items.length) {
-        const it = block.items[i];
-        if (it.subType === 'start' && it.payload.split('/')[0] === 'verses') {
-            const o = renderVerse(block.items, block.items[i].payload.split('/')[1], i + 1);
-            div.append(o.verse);
-            i = o.i;
-            grafts = grafts.concat(o.grafts);
-        } else if (it.type === 'graft') {
-            const o = createGraft(it);
-            div.append(o.el);
-            grafts.push(o.id);
-        }
-        i++;
-    }
-    return { block: div, grafts: grafts };
-};
-
-const renderVerse = (items, verseNum, index) => {
-    const verse = document.createElement('span');
-    let grafts = [];
-    //console.log('verse: '+verseNum);
-    verse.append(verseNum + ' ');
-    verse.id = verseNum;
-    verse.classList.add('scroll-item');
-    const phrases = [];
-    let i = index;
-    while (i < items.length) {
-        const it = items[i];
-        if (it.type === 'scope' && it.subType === 'end' && it.payload.split('/')[0] === 'verses') {
-            break;
-        } else if (it.type === 'token') {
-            const o = renderPhrase(items, i, verseNum);
-            phrases.push(o.phrase);
-            grafts = grafts.concat(o.grafts);
-            i = o.i;
-        } else if (it.type === 'graft') {
-            const o = createGraft(it);
-            verse.append(o.el);
-            grafts.push(o.id);
-            i++;
-        } else i++;
-    }
-
-    if (phrases.length > 1) {
-        for (let j = 0; j < phrases.length; j++) phrases[j].id += subc[j];
-    }
-    for (const phrase of phrases) verse.append(phrase);
-
-    return { verse: verse, i: i, grafts: grafts };
-};
-
-const renderPhrase = (items, index, id) => {
-    const phrase = document.createElement('span');
-    phrase.id = id;
-    let s = '';
-    let i = index;
-    const grafts = [];
-    while (i < items.length) {
-        const it = items[i];
-        i++;
-        if (it.type === 'token') {
-            s += it.payload;
-            //console.log(it.payload);
-            if (it.subType === 'punctuation' && seps.includes(it.payload)) {
-                //console.log('found end of phrase marker')
-                while (i < items.length) {
-                    if (items[i].type === 'token' && items[i].subType !== 'wordLike') {
-                        s += items[i].payload;
-                        i++;
-                    } else if (items[i].type !== 'graft') break;
-                    else {
-                        const o = createGraft(items[i]);
-                        phrase.append(o.el);
-                        grafts.push(o.id);
-                        i++;
-                    }
-                }
-                break;
-            }
-        } else if (
-            it.type === 'scope' &&
-            it.subType === 'end' &&
-            it.payload.split('/')[0] === 'verses'
-        ) {
-            break;
-        } else if (it.type === 'graft') {
-            const o = createGraft(it);
-            phrase.append(o.el);
-            grafts.push(o.id);
-        }
-    }
-    //console.log('phrase: '+s)
-    phrase.append(s);
-
-    return { phrase: phrase, i: i, grafts: grafts };
-};
-
-const createGraft = (item) => {
-    const id = item.subType + '-' + item.payload;
-    const ref = document.createElement('span');
-    ref.id = id;
-    return { id: id, el: ref };
-};
-*/
