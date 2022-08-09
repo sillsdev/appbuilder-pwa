@@ -94,8 +94,8 @@ TODO:
 
             //post process
             let firstp = bookRoot.getElementsByClassName('p')?.item(0);
-            firstp.classList.remove('p');
-            firstp.classList.add('m');
+            firstp?.classList.remove('p');
+            firstp?.classList.add('m');
         }
     );
 </script>
