@@ -14,7 +14,6 @@ export const renderDoc = (mainSeq, root) => {
                 renderBlock(block, parent);
             }
             // process poetry here, since it spans multiple blocks
-
         } else {
             const span = document.createElement('span');
             span.id = 'graft-' + grafts.length;
@@ -41,21 +40,23 @@ export const renderDoc = (mainSeq, root) => {
                     const v = el.getElementsByClassName('v')?.item(0)?.innerHTML;
                     let inner = el.innerHTML.split(seprgx);
                     el.replaceChildren();
-                    
+
                     for (let i = 1; i < inner.length; i += 2) {
                         inner[i - 1] += inner[i];
                     }
-                    inner = inner.filter(s => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+                    inner = inner.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
 
                     if (inner.length > 2) {
                         inner[0] += inner[1];
-                        inner.splice(1,1);
+                        inner.splice(1, 1);
 
                         for (let i = 1; i < inner.length; i++) {
-                            let s = inner[i].split(/(<span id="graft-[0-9]+"> \[graft-[0-9]+\] <\/span>)/);
+                            let s = inner[i].split(
+                                /(<span id="graft-[0-9]+"> \[graft-[0-9]+\] <\/span>)/
+                            );
                             if (s.length > 1) {
-                                inner[i-1] += s[1];
-                                inner[i] = s[2]; 
+                                inner[i - 1] += s[1];
+                                inner[i] = s[2];
                             }
                         }
 
@@ -66,7 +67,6 @@ export const renderDoc = (mainSeq, root) => {
                             phrase.innerHTML = inner[i];
                             div.append(phrase);
                         }
-
                     } else if (inner.length > 1) {
                         el.innerHTML = inner.join('');
                         div.append(el);
@@ -110,7 +110,7 @@ export const renderDoc = (mainSeq, root) => {
                 span.classList.add('v');
                 span.append(content.atts.number);
                 parent.append(span);
-                
+
                 const space = document.createElement('span');
                 space.classList.add('vsp');
                 space.innerHTML = '&nbsp;';
