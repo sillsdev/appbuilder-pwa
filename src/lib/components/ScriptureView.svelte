@@ -12,10 +12,10 @@ TODO:
     import { query } from '../scripts/query';
     import { onDestroy } from 'svelte';
     import { audioHighlight, refs, scrolls, playingAudio, mainScroll } from '$lib/data/stores';
-    import { renderBlocks } from '../scripts/render';
+    import { renderDoc } from '../scripts/render';
 
     let container: HTMLElement;
-    let blocksRoot: Element;
+    let bookRoot: Element;
     /**unique key to use for groupStore modifier*/
     const key = {};
 
@@ -84,19 +84,14 @@ TODO:
         `{
         docSet(id:"${$refs.docSet}") {
             book: document(bookCode: "${$refs.book}") {
-                main: mainSequence {
-                    blocks(withScriptureCV: "${$refs.chapter}") {
-                        bs { payload }
-                        items { type subType payload }
-                    }
-                }
+                sofria (indent: 4, chapter: ${$refs.chapter})
             }
         }
     }`,
         (r) => {
             //renders scripture
-            const grafts = renderBlocks(blocksRoot, r.data?.docSet?.book?.main?.blocks);
-            console.log(grafts);
+            const grafts = renderDoc(JSON.parse(r.data.docSet.book.sofria).sequence, bookRoot);
+            //console.log(JSON.stringify(grafts, null, 2)); // handle grafts later
         }
     );
 </script>
@@ -106,7 +101,7 @@ TODO:
         <h1>{$refs.title}</h1>
         <h2>Chapter {$refs.chapter}</h2>
     </div>
-    <div bind:this={blocksRoot} />
+    <div bind:this={bookRoot} />
 </article>
 
 <style>

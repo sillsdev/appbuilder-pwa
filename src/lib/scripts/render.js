@@ -1,6 +1,67 @@
 const seps = '.?!:;,';
 const subc = 'abcdefghijklmnopqrstuvwxyz';
 
+export const renderDoc = (mainSeq, root) => {
+    if (!root || !mainSeq?.blocks?.length) return;
+    root.replaceChildren(); //clear current blocks from root
+
+    const grafts = [];
+
+    const renderSequence = (seq, parent) => {
+        if (seq.type === 'main') {
+            for (const block of seq.blocks) {
+                renderBlock(block, parent);
+            }
+        } else {
+            const span = document.createElement('span');
+            span.id = 'graft-' + grafts.length;
+            span.append(' ['+ span.id +'] ');
+            parent.append(span);
+            grafts.push(seq);
+        }
+    };
+
+    const renderBlock = (block, parent) => {
+        if (block.type === 'graft') {
+            renderSequence(block.sequence, parent);
+        } else if (block.type === 'paragraph') {
+            const div = document.createElement('div');
+            div.classList.add(block.subtype.split(':')[1]);
+            for (const content of block.content) {
+                renderContent(content, div);
+            }
+            parent.append(div);
+        } else {
+            console.log('unknown block type: '+block.type+' encountered');
+        }
+    };
+
+    const renderContent = (content, parent) => {
+        if (!content.type) {
+            parent.append(content);
+        } else if (content.type === 'wrapper') {
+            const span = document.createElement('span');
+            if (content.subtype === 'verses') span.id = content.atts.number;
+            for (const c2 of content.content) {
+                renderContent(c2, span);
+            }
+            parent.append(span);
+        } else if (content.type === 'mark') {
+
+        } else if (content.type === 'graft') {
+            renderSequence(content.sequence, parent);
+        } else {
+            console.log('unknown content type: '+content.type+' encountered');
+        }
+    };
+
+    renderSequence(mainSeq, root);
+
+
+    return grafts;
+}
+
+/*
 export const renderBlocks = (root, blocks) => {
     if (!root || !blocks?.length) return;
     let grafts = [];
@@ -122,3 +183,4 @@ const createGraft = (item) => {
     ref.id = id;
     return { id: id, el: ref };
 };
+*/
