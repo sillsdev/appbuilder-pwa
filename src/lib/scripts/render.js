@@ -44,6 +44,18 @@ export const renderDoc = (mainSeq, root) => {
                 inner = inner.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
             }
 
+            inner = handleOrphanChars(inner);
+
+            for (let j = 1; j < inner.length; j++) {
+                const m = inner[j].match(/^_\{graft-[0-9]\}_/);
+                if (m) {
+                    inner[j - 1] += m[0];
+                    inner[j] = inner[j].replace(m, '');
+                }
+            }
+
+            console.log(inner);
+
             for (let j = 0; j < inner.length; j++) {
                 inner[j] = inner[j].replace(/(_\{graft-[0-9]+\}_)/g, (m) => {
                     return `<span id="${m.replace(/(_|\{|\})/, '')}">${m}</span>`;
@@ -61,6 +73,26 @@ export const renderDoc = (mainSeq, root) => {
     const renderGraft = (graft) => {
         grafts.push(graft);
         return '_{graft-' + (grafts.length - 1) + '}_';
+    };
+
+    const handleOrphanChars = (arr) => {
+        for (let i = 0; i < arr.length - 1; i++) {
+            const next = arr[i + 1].split('');
+            const test = /[^_a-z\s]/i;
+            let c = next.shift();
+            while (c && c.match(test)) {
+                arr[i] += c;
+                c = next.shift();
+            }
+            if (c) {
+                next.unshift(c);
+                arr[i + 1] = next.join('');
+            } else {
+                arr.splice(i + 1, 1);
+                i--;
+            }
+        }
+        return arr;
     };
 
     const renderBlock = (block, parent) => {
@@ -85,7 +117,10 @@ export const renderDoc = (mainSeq, root) => {
                     for (let i = 1; i < inner.length; i += 2) {
                         inner[i - 1] += inner[i];
                     }
+
                     inner = inner.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+
+                    inner = handleOrphanChars(inner);
 
                     let v = inner[0].match(/_\{verse-[0-9]+\}_/);
                     if (v) {
