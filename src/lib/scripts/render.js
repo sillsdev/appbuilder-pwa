@@ -26,20 +26,12 @@ export const renderDoc = (mainSeq, root) => {
                 v = inner[1].replace(/(_|\{|\}|verse-)/g, '');
                 phraseI = 0;
                 const head = [`${inner[0]}<span class="v">${v}</span><span class="vsp"></span>`];
-                let tail = inner[2].split(seprgx);
-                for (let i = 1; i < tail.length; i += 2) {
-                    tail[i - 1] += tail[i];
-                }
-                tail = tail.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+                let tail = parsePhrases(inner[2]);
                 head[0] += tail[0];
                 tail.shift();
                 inner = head.concat(tail);
             } else {
-                inner = inner[0].split(seprgx);
-                for (let i = 1; i < inner.length; i += 2) {
-                    inner[i - 1] += inner[i];
-                }
-                inner = inner.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+                inner = parsePhrases(inner[0]);
             }
 
             inner = handleOrphanChars(inner);
@@ -69,13 +61,8 @@ export const renderDoc = (mainSeq, root) => {
         // handle orphaned blocks
         const orphanedBlocks = Array.from(parent.getElementsByClassName('unprocessed'));
         for (let i = 0; i < orphanedBlocks.length; i++) {
-            let inner = orphanedBlocks[i].innerHTML.split(seprgx);
-            for (let i = 1; i < inner.length; i += 2) {
-                inner[i - 1] += inner[i];
-            }
-            inner = inner.filter(
-                (s) => s.length > 0 && (s.length > 1 || (!s.match(seprgx) && !s.match(/^\s+$/)))
-            );
+            let inner = parsePhrases(orphanedBlocks[i].innerHTML);
+            inner = inner.filter((s) => !s.match(/^\s+$/));
 
             orphanedBlocks[i].replaceChildren();
             orphanedBlocks[i].id = 'current';
@@ -118,6 +105,14 @@ export const renderDoc = (mainSeq, root) => {
         return arr;
     };
 
+    const parsePhrases = (inner) => {
+        let out = inner.split(seprgx);
+        for (let i = 1; i < out.length; i += 2) {
+            out[i - 1] += out[i];
+        }
+        return out.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+    };
+
     const renderPhrases = (phrases, parent, ids) => {
         for (let i = 0; i < phrases.length; i++) {
             const phrase = document.createElement('div');
@@ -151,14 +146,10 @@ export const renderDoc = (mainSeq, root) => {
                 const content = Array.from(div.getElementsByTagName('div'));
                 div.replaceChildren();
                 for (const el of content) {
-                    let inner = el.innerHTML.split(seprgx);
+                    let inner = el.innerHTML;
                     el.replaceChildren();
 
-                    for (let i = 1; i < inner.length; i += 2) {
-                        inner[i - 1] += inner[i];
-                    }
-
-                    inner = inner.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+                    inner = parsePhrases(inner);
 
                     inner = handleOrphanChars(inner);
 
