@@ -93,8 +93,8 @@ TODO:
             //console.log(JSON.stringify(grafts, null, 2)); // handle grafts later
 
             //post process
-            let firstp = bookRoot.getElementsByClassName('p')?.item(0);
-            firstp?.classList.remove('p');
+            let firstp = bookRoot.getElementsByTagName('div')?.item(0);
+            firstp?.classList.remove('p', 'q');
             firstp?.classList.add('m');
         }
     );
