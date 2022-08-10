@@ -16,7 +16,46 @@ export const renderDoc = (mainSeq, root) => {
         const poetryBlocks = Array.from(parent.getElementsByTagName('div')).filter(
             (e) => e.classList.contains('q') || e.classList.contains('q2')
         );
-        console.log(poetryBlocks.map((e) => e.innerHTML));
+        const content = poetryBlocks.map((e) => e.innerHTML);
+        let v = '0';
+        let phraseI = 0;
+        for (let i = 0; i < poetryBlocks.length; i++) {
+            poetryBlocks[i].replaceChildren();
+            let inner = content[i].split(/(_\{verse-[0-9]+\}_)/);
+            if (inner.length === 3) {
+                v = inner[1].replace(/(_|\{|\}|verse-)/g, '');
+                phraseI = 0;
+                const head = [
+                    `${inner[0]}<span class="v">${v}</span><span class="vsp">&nbsp;</span>`
+                ];
+                let tail = inner[2].split(seprgx);
+                for (let i = 1; i < tail.length; i += 2) {
+                    tail[i - 1] += tail[i];
+                }
+                tail = tail.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+                head[0] += tail[0];
+                tail.shift();
+                inner = head.concat(tail);
+            } else {
+                inner = inner[0].split(seprgx);
+                for (let i = 1; i < inner.length; i += 2) {
+                    inner[i - 1] += inner[i];
+                }
+                inner = inner.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+            }
+
+            for (let j = 0; j < inner.length; j++) {
+                inner[j] = inner[j].replace(/(_\{graft-[0-9]+\}_)/g, (m) => {
+                    return `<span id="${m.replace(/(_|\{|\})/, '')}">${m}</span>`;
+                });
+                const div = document.createElement('div');
+                div.id = v + subc.charAt(phraseI);
+                phraseI++;
+                div.classList.add('txs', 'seltxt');
+                div.innerHTML = inner[j];
+                poetryBlocks[i].append(div);
+            }
+        }
     };
 
     const renderGraft = (graft) => {
@@ -73,7 +112,7 @@ export const renderDoc = (mainSeq, root) => {
                             phrase.classList.add('txs', 'seltxt');
                             const sub = inner[i].split(/(_\{graft-[0-9]+\}_)/).map((e) => {
                                 if (e.match(/(_\{graft-[0-9]+\}_)/)) {
-                                    return `<span id="${e.replace(/(_|\{|\})/g, '')}">${e}</span>;`;
+                                    return `<span id="${e.replace(/(_|\{|\})/g, '')}">${e}</span>`;
                                 } else return e;
                             });
                             phrase.innerHTML = sub.join('');
