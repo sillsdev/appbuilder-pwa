@@ -25,9 +25,7 @@ export const renderDoc = (mainSeq, root) => {
             if (inner.length === 3) {
                 v = inner[1].replace(/(_|\{|\}|verse-)/g, '');
                 phraseI = 0;
-                const head = [
-                    `${inner[0]}<span class="v">${v}</span><span class="vsp">&nbsp;</span>`
-                ];
+                const head = [`${inner[0]}<span class="v">${v}</span><span class="vsp"></span>`];
                 let tail = inner[2].split(seprgx);
                 for (let i = 1; i < tail.length; i += 2) {
                     tail[i - 1] += tail[i];
@@ -46,6 +44,7 @@ export const renderDoc = (mainSeq, root) => {
 
             inner = handleOrphanChars(inner);
 
+            // shift grafts at start of phrase to end of next phrase
             for (let j = 1; j < inner.length; j++) {
                 const m = inner[j].match(/^_\{graft-[0-9]\}_/);
                 if (m) {
@@ -56,18 +55,20 @@ export const renderDoc = (mainSeq, root) => {
 
             console.log(inner);
 
-            for (let j = 0; j < inner.length; j++) {
-                inner[j] = inner[j].replace(/(_\{graft-[0-9]+\}_)/g, (m) => {
-                    return `<span id="${m.replace(/(_|\{|\})/, '')}">${m}</span>`;
-                });
-                const div = document.createElement('div');
-                div.id = v + subc.charAt(phraseI);
-                phraseI++;
-                div.classList.add('txs', 'seltxt');
-                div.innerHTML = inner[j];
-                poetryBlocks[i].append(div);
-            }
+            //handle phrases
+            renderPhrases(
+                inner,
+                poetryBlocks[i],
+                inner.map((e) => {
+                    const s = v + subc.charAt(phraseI);
+                    phraseI++;
+                    return s;
+                })
+            );
         }
+        // handle orphaned blocks
+        const orphanedBlocks = Array.from(parent.getElementsByClassName('unprocessed'));
+        console.log(orphanedBlocks.map((e) => e.innerHTML));
     };
 
     const renderGraft = (graft) => {
@@ -93,6 +94,23 @@ export const renderDoc = (mainSeq, root) => {
             }
         }
         return arr;
+    };
+
+    const renderPhrases = (phrases, parent, ids) => {
+        for (let i = 0; i < phrases.length; i++) {
+            const phrase = document.createElement('div');
+            phrase.id = ids[i];
+            phrase.classList.add('txs', 'seltxt');
+
+            phrases[i] = phrases[i].replace(/(_\{graft-[0-9]+\}_)/g, (m) => {
+                return `<span id="${m.replace(/(_|\{|\})/, '')}">${m}</span>`;
+            });
+
+            phrase.innerHTML = phrases[i];
+            phrase.getElementsByClassName('vsp').item(0)?.append('\xA0');
+
+            parent.append(phrase);
+        }
     };
 
     const renderBlock = (block, parent) => {
@@ -141,21 +159,14 @@ export const renderDoc = (mainSeq, root) => {
                             inner[0] = `<span class="v">${v}</span><span class="vsp"></span>${s}`;
                         }
 
-                        for (let i = 0; i < inner.length; i++) {
-                            const phrase = document.createElement('div');
-                            phrase.id = inner.length > 1 ? v + subc.charAt(i) : v;
-                            phrase.classList.add('txs', 'seltxt');
-                            const sub = inner[i].split(/(_\{graft-[0-9]+\}_)/).map((e) => {
-                                if (e.match(/(_\{graft-[0-9]+\}_)/)) {
-                                    return `<span id="${e.replace(/(_|\{|\})/g, '')}">${e}</span>`;
-                                } else return e;
-                            });
-                            phrase.innerHTML = sub.join('');
-                            phrase.getElementsByClassName('vsp').item(0)?.append('\xA0');
-                            div.append(phrase);
-                        }
+                        //handle phrases
+                        renderPhrases(
+                            inner,
+                            div,
+                            inner.length > 1 ? inner.map((e, i) => v + subc.charAt(i)) : [v]
+                        );
                     } else {
-                        el.innerHTML = inner[0];
+                        el.innerHTML = inner.join('');
                         div.append(el);
                     }
                 }
