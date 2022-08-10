@@ -68,7 +68,29 @@ export const renderDoc = (mainSeq, root) => {
         }
         // handle orphaned blocks
         const orphanedBlocks = Array.from(parent.getElementsByClassName('unprocessed'));
-        console.log(orphanedBlocks.map((e) => e.innerHTML));
+        for (let i = 0; i < orphanedBlocks.length; i++) {
+            let inner = orphanedBlocks[i].innerHTML.split(seprgx);
+            for (let i = 1; i < inner.length; i += 2) {
+                inner[i - 1] += inner[i];
+            }
+            inner = inner.filter(
+                (s) => s.length > 0 && (s.length > 1 || (!s.match(seprgx) && !s.match(/^\s+$/)))
+            );
+
+            orphanedBlocks[i].replaceChildren();
+            orphanedBlocks[i].id = 'current';
+
+            const v = Array.from(parent.getElementsByTagName('div')).filter(
+                (e, i, arr) => arr[i + 2]?.id === 'current'
+            )[0].id;
+            const n = v.split(/[a-z]+/)[0];
+            const p = subc.indexOf(v.split(/[0-9]+/)[1]) + 1;
+            renderPhrases(
+                inner,
+                orphanedBlocks[i],
+                inner.map((e, i) => n + subc.charAt(p + i))
+            );
+        }
     };
 
     const renderGraft = (graft) => {
