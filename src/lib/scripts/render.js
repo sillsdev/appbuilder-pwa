@@ -2,7 +2,13 @@ const seps = '.?!:;,';
 const seprgx = /(\.|\?|!|:|;|,|')/g;
 const subc = 'abcdefghijklmnopqrstuvwxyz';
 
-export const renderDoc = (mainSeq, root) => {
+export const renderDoc = (
+    mainSeq,
+    root,
+    /**@type{function(root)}*/ postprocess,
+    /**@type{function(data, element)}*/ graftHandler,
+    /**@type{function(root)}*/ finalprocess
+) => {
     if (!root || !mainSeq?.blocks?.length) return;
     root.replaceChildren(); //clear current blocks from root
 
@@ -238,5 +244,16 @@ export const renderDoc = (mainSeq, root) => {
         orphanedBlocks[i].remove();
     }
 
-    return grafts;
+    postprocess(root);
+
+    if (graftHandler) {
+        grafts.forEach((g, i) => {
+            const el = root.querySelector(`span[data-graft="${i}"]`);
+            graftHandler(g, el);
+        });
+    } else {
+        console.log('No graft handler was provided. Graft placeholders will be left in text.');
+    }
+
+    finalprocess(root);
 };
