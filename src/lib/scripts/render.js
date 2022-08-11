@@ -8,69 +8,6 @@ export const renderDoc = (mainSeq, root) => {
 
     const grafts = [];
 
-    const renderSequence = (seq, parent) => {
-        for (const block of seq.blocks) {
-            renderBlock(block, parent);
-        }
-        // process poetry here, since it spans multiple blocks
-        const poetryBlocks = Array.from(parent.getElementsByTagName('div')).filter(
-            (e) => e.classList.contains('q') || e.classList.contains('q2')
-        );
-        const content = poetryBlocks.map((e) => e.innerHTML);
-        let v = '0';
-        let phraseI = 0;
-        for (let i = 0; i < poetryBlocks.length; i++) {
-            poetryBlocks[i].replaceChildren();
-            let o = parseVerseNumber(content[i]);
-            let inner = o.phrases;
-
-            if (o.v) {
-                v = o.v;
-                phraseI = 0;
-                let tail = parsePhrases(inner[1]);
-                inner[0] += tail[0];
-                tail.shift();
-                inner = [inner[0]].concat(tail);
-            } else {
-                inner = parsePhrases(inner[0]);
-            }
-
-            //handle phrases
-            renderPhrases(
-                inner,
-                poetryBlocks[i],
-                inner.map((e) => {
-                    const s = v + subc.charAt(phraseI);
-                    phraseI++;
-                    return s;
-                })
-            );
-        }
-        // handle orphaned blocks
-        const orphanedBlocks = Array.from(parent.getElementsByClassName('unprocessed'));
-        for (let i = 0; i < orphanedBlocks.length; i++) {
-            let inner = parsePhrases(orphanedBlocks[i].innerHTML);
-            inner = inner.filter((s) => !s.match(/^\s+$/));
-
-            orphanedBlocks[i].replaceChildren();
-            orphanedBlocks[i].id = 'current';
-
-            //grab previous
-            const v = Array.from(parent.getElementsByTagName('div')).filter(
-                (e, i, arr) => arr[i + 2]?.id === 'current'
-            )[0].id;
-            const n = v.split(/[a-z]+/)[0];
-            const p = subc.indexOf(v.split(/[0-9]+/)[1]) + 1;
-            renderPhrases(
-                inner,
-                orphanedBlocks[i],
-                inner.map((e, i) => n + subc.charAt(p + i))
-            );
-            orphanedBlocks[i].id = '';
-            orphanedBlocks[i].classList.remove('unprocessed');
-            orphanedBlocks[i].classList.add('orphaned-block');
-        }
-    };
     /**add graft to array and create placeholder*/
     const renderGraft = (graft) => {
         grafts.push(graft);
@@ -114,14 +51,15 @@ export const renderDoc = (mainSeq, root) => {
         return phrases;
     };
     /**render array of phrases*/
-    const renderPhrases = (phrases, parent, ids) => {
+    const renderPhrases = (phrases, parent, kv) => {
         for (let i = 0; i < phrases.length; i++) {
             const phrase = document.createElement('div');
-            phrase.id = ids[i];
+            phrase.setAttribute('data-verse', kv[i].split('-')[0]);
+            phrase.setAttribute('data-phrase', kv[i].split('-')[1]);
             phrase.classList.add('txs', 'seltxt');
 
             phrases[i] = phrases[i].replace(/(_\{graft-[0-9]+\}_)/g, (m) => {
-                return `<span id="${m.replace(/(_|\{|\})/, '')}">${m}</span>`;
+                return `<span data-graft="${m.match(/[0-9]+/)}">${m}</span>`;
             });
 
             phrase.innerHTML = phrases[i];
@@ -150,7 +88,7 @@ export const renderDoc = (mainSeq, root) => {
     const renderBlock = (block, parent) => {
         if (block.type === 'graft') {
             const s = renderGraft(block.sequence);
-            parent.innerHTML += `<span id="${s.replace(/(_|\{|\})/g, '')}">${s}</span>`;
+            parent.innerHTML += `<span data-graft="${s.match(/[0-9]+/)}">${s}</span>`;
         } else if (block.type === 'paragraph') {
             const div = document.createElement('div');
             const subtype = block.subtype.split(':')[1];
@@ -177,7 +115,7 @@ export const renderDoc = (mainSeq, root) => {
                         renderPhrases(
                             inner,
                             div,
-                            inner.length > 1 ? inner.map((e, i) => v + subc.charAt(i)) : [v]
+                            inner.length > 1 ? inner.map((e, i) => v + '-' + subc.charAt(i)) : [v]
                         );
                     } else {
                         inner = parsePhrases(o.phrases[0]);
@@ -200,6 +138,7 @@ export const renderDoc = (mainSeq, root) => {
                 if (blockType === 'p') {
                     const div = document.createElement('div');
                     div.classList.add('unprocessed');
+                    div.setAttribute('data-number', content.atts.number);
                     for (const c2 of content.content) {
                         renderContent(c2, div, blockType);
                     }
@@ -233,7 +172,71 @@ export const renderDoc = (mainSeq, root) => {
         }
     };
 
-    renderSequence(mainSeq, root);
+    //<<<<< render main sequence >>>>>
+    for (const block of mainSeq.blocks) {
+        renderBlock(block, root);
+    }
+    // process poetry here, since it spans multiple blocks
+    const poetryBlocks = Array.from(root.getElementsByTagName('div')).filter(
+        (e) => e.classList.contains('q') || e.classList.contains('q2')
+    );
+    const content = poetryBlocks.map((e) => e.innerHTML);
+    let v = '0';
+    let phraseI = 0;
+    for (let i = 0; i < poetryBlocks.length; i++) {
+        poetryBlocks[i].replaceChildren();
+        let o = parseVerseNumber(content[i]);
+        let inner = o.phrases;
+
+        if (o.v) {
+            v = o.v;
+            phraseI = 0;
+            let tail = parsePhrases(inner[1]);
+            inner[0] += tail[0];
+            tail.shift();
+            inner = [inner[0]].concat(tail);
+        } else {
+            inner = parsePhrases(inner[0]);
+        }
+
+        //handle phrases
+        renderPhrases(
+            inner,
+            poetryBlocks[i],
+            inner.map((e) => {
+                const s = v + '-' + subc.charAt(phraseI);
+                phraseI++;
+                return s;
+            })
+        );
+    }
+    // handle orphaned blocks
+    const orphanedBlocks = Array.from(root.getElementsByClassName('unprocessed'));
+    for (let i = 0; i < orphanedBlocks.length; i++) {
+        // don't need to handle verse numbers. if it had verse numbers, it wouldn't be orphaned.
+        let inner = parsePhrases(orphanedBlocks[i].innerHTML);
+        inner = inner.filter((s) => !s.match(/^\s+$/));
+
+        orphanedBlocks[i].replaceChildren();
+        orphanedBlocks[i].classList.add('current');
+
+        const n = orphanedBlocks[i].getAttribute('data-number');
+        const p =
+            Array.from(
+                root.querySelectorAll(
+                    `div[data-verse="${orphanedBlocks[i].getAttribute('data-number')}"]`
+                )
+            )
+                .map((el) => subc.indexOf(el.getAttribute('data-phrase')))
+                .sort((a, b) => b - a)[0] + 1;
+        renderPhrases(
+            inner,
+            orphanedBlocks[i],
+            inner.map((e, i) => n + '-' + subc.charAt(p + i))
+        );
+        orphanedBlocks[i].insertAdjacentHTML('afterend', orphanedBlocks[i].innerHTML);
+        orphanedBlocks[i].remove();
+    }
 
     return grafts;
 };

@@ -63,7 +63,17 @@ TODO:
         progress = audio.currentTime;
         if (progress >= timing[timeIndex].time) timeIndex++;
         else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
-        $audioHighlight = timing[timeIndex].tag;
+        $audioHighlight = [
+            $refs.docSet,
+            $refs.book,
+            $refs.chapter,
+            timing[timeIndex].tag.match(/[0-9]+/) ? timing[timeIndex].tag.match(/[0-9]+/) : 'title',
+            timing[timeIndex].tag.match(/[0-9]+/)
+                ? timing[timeIndex].tag.match(/[a-z]/i)
+                    ? timing[timeIndex].tag.match(/[a-z]/i)
+                    : 'undefined'
+                : 'undefined'
+        ].join();
         if (audio.ended) toggleTimeRunning();
     };
     /**sets an interval for updateTime*/
