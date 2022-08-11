@@ -95,28 +95,58 @@ TODO:
         }
     }`,
         (r) => {
+            const fnc = 'abcdefghijklmnopqrstuvwxyz';
+            let fi = 0;
             //initial render
-            const grafts = renderDoc(JSON.parse(r.data.docSet.book.sofria).sequence, bookRoot);
-            //console.log(JSON.stringify(grafts, null, 2)); // handle grafts later
-
-            //post process
-            let firstp = bookRoot.getElementsByTagName('div')?.item(0);
-            firstp?.classList.remove('p', 'q');
-            firstp?.classList.add('m');
+            renderDoc(
+                JSON.parse(r.data.docSet.book.sofria).sequence,
+                bookRoot,
+                (root) => {
+                    let first = root.getElementsByTagName('div')?.item(0);
+                    first?.classList.remove('p', 'q');
+                    first?.classList.add('m');
+                },
+                (graft, el) => {
+                    el.innerHTML = '';
+                    if (graft.type === 'title') {
+                        for (const block of graft.blocks) {
+                            el.innerHTML += `<div class="${block.subtype.split(':')[1]}">${
+                                block.content[0]
+                            }</div>`;
+                        }
+                        el.innerHTML += `<div class="b"></div>`;
+                        el.innerHTML += `<div class="b"></div>`;
+                        el.setAttribute('data-verse', 'title');
+                        el.setAttribute('data-phrase', 'undefined');
+                        el.classList.add('scroll-item');
+                    } else if (graft.type === 'footnote') {
+                        let content = graft.blocks[0].content[0];
+                        if (content.subtype === 'chapter') content = content.content[0];
+                        content = content.content
+                            .map((c) => (c.type === 'wrapper' ? c.content[0] : ''))
+                            .join('');
+                        el.classList.add('footnote');
+                        el.innerHTML += `<a title="${content}"><sup>${fnc.charAt(fi)}</sup></a>`;
+                        fi++;
+                    } else if (graft.type === 'xref') {
+                        let content = graft.blocks[0].content[0];
+                        if (content.subtype === 'chapter') content = content.content[0];
+                        content = content.content
+                            .map((c) => (c.type === 'wrapper' ? c.content[0] : ''))
+                            .join('');
+                        el.classList.add('footnote');
+                        el.innerHTML += `<a title="${content}"><sup>${fnc.charAt(fi)}</sup></a>`;
+                        fi++;
+                    } else {
+                        console.log(`unknown graft type: ${graft.type} encontered`);
+                    }
+                },
+                (root) => {}
+            );
         }
     );
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>
-    <div id="title" class="scroll-item" class:highlighting={hglt === 'title'}>
-        <h1>{$refs.title}</h1>
-        <h2>Chapter {$refs.chapter}</h2>
-    </div>
     <div bind:this={bookRoot} />
 </article>
-
-<style>
-    .highlighting {
-        background-color: #ffff99;
-    }
-</style>
