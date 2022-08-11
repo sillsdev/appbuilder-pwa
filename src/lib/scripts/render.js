@@ -21,31 +21,19 @@ export const renderDoc = (mainSeq, root) => {
         let phraseI = 0;
         for (let i = 0; i < poetryBlocks.length; i++) {
             poetryBlocks[i].replaceChildren();
-            let inner = content[i].split(/(_\{verse-[0-9]+\}_)/);
-            if (inner.length === 3) {
-                v = inner[1].replace(/(_|\{|\}|verse-)/g, '');
+            let o = parseVerseNumber(content[i]);
+            let inner = o.phrases;
+
+            if (o.v) {
+                v = o.v;
                 phraseI = 0;
-                const head = [`${inner[0]}<span class="v">${v}</span><span class="vsp"></span>`];
-                let tail = parsePhrases(inner[2]);
-                head[0] += tail[0];
+                let tail = parsePhrases(inner[1]);
+                inner[0] += tail[0];
                 tail.shift();
-                inner = head.concat(tail);
+                inner = [inner[0]].concat(tail);
             } else {
                 inner = parsePhrases(inner[0]);
             }
-
-            inner = handleOrphanChars(inner);
-
-            // shift grafts at start of phrase to end of next phrase
-            for (let j = 1; j < inner.length; j++) {
-                const m = inner[j].match(/^_\{graft-[0-9]\}_/);
-                if (m) {
-                    inner[j - 1] += m[0];
-                    inner[j] = inner[j].replace(m, '');
-                }
-            }
-
-            console.log(inner);
 
             //handle phrases
             renderPhrases(
@@ -67,6 +55,7 @@ export const renderDoc = (mainSeq, root) => {
             orphanedBlocks[i].replaceChildren();
             orphanedBlocks[i].id = 'current';
 
+            //grab previous
             const v = Array.from(parent.getElementsByTagName('div')).filter(
                 (e, i, arr) => arr[i + 2]?.id === 'current'
             )[0].id;
@@ -77,42 +66,54 @@ export const renderDoc = (mainSeq, root) => {
                 orphanedBlocks[i],
                 inner.map((e, i) => n + subc.charAt(p + i))
             );
+            orphanedBlocks[i].id = '';
+            orphanedBlocks[i].classList.remove('unprocessed');
+            orphanedBlocks[i].classList.add('orphaned-block');
         }
     };
-
+    /**add graft to array and create placeholder*/
     const renderGraft = (graft) => {
         grafts.push(graft);
         return '_{graft-' + (grafts.length - 1) + '}_';
     };
+    /**parse innerHTML into phrases*/
+    const parsePhrases = (/**@type{string}*/ inner) => {
+        /**@type{string[]}*/ let phrases = inner.split(seprgx);
+        for (let i = 1; i < phrases.length; i += 2) {
+            phrases[i - 1] += phrases[i];
+        }
+        phrases = phrases.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
 
-    const handleOrphanChars = (arr) => {
-        for (let i = 0; i < arr.length - 1; i++) {
-            const next = arr[i + 1].split('');
-            const test = /[^_a-z\s]/i;
-            let c = next.shift();
-            while (c && c.match(test)) {
-                arr[i] += c;
-                c = next.shift();
-            }
-            if (c) {
-                next.unshift(c);
-                arr[i + 1] = next.join('');
-            } else {
-                arr.splice(i + 1, 1);
-                i--;
+        //move chars orphaned by phrase parsing to preceding phrase
+        if (phrases.length > 1) {
+            for (let i = 0; i < phrases.length - 1; i++) {
+                const next = phrases[i + 1].split('');
+                let c = next.shift();
+                while (c && c.match(/[^_a-z\s]/i)) {
+                    phrases[i] += c;
+                    c = next.shift();
+                }
+                if (c) {
+                    next.unshift(c);
+                    phrases[i + 1] = next.join('');
+                } else {
+                    phrases.splice(i + 1, 1);
+                    i--;
+                }
             }
         }
-        return arr;
-    };
 
-    const parsePhrases = (inner) => {
-        let out = inner.split(seprgx);
-        for (let i = 1; i < out.length; i += 2) {
-            out[i - 1] += out[i];
+        //shift grafts at start of phrase to end of next phrase
+        for (let i = 1; i < phrases.length; i++) {
+            const m = phrases[i].match(/^_\{graft-[0-9]\}_/);
+            if (m) {
+                phrases[i - 1] += m[0];
+                phrases[i] = phrases[i].replace(m, '');
+            }
         }
-        return out.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
+        return phrases;
     };
-
+    /**render array of phrases*/
     const renderPhrases = (phrases, parent, ids) => {
         for (let i = 0; i < phrases.length; i++) {
             const phrase = document.createElement('div');
@@ -128,6 +129,22 @@ export const renderDoc = (mainSeq, root) => {
 
             parent.append(phrase);
         }
+    };
+    /**parses out verse number*/
+    const parseVerseNumber = (inner) => {
+        let v = null;
+        let phrases = [''];
+
+        inner = inner.split(/(_\{verse-[0-9]+\}_)/);
+        if (inner.length === 3) {
+            v = inner[1].replace(/(_|\{|\}|verse-)/g, '');
+            phrases[0] = `${inner[0]}<span class="v">${v}</span><span class="vsp"></span>`;
+            phrases[1] = inner[2];
+        } else {
+            phrases[0] = inner[0];
+        }
+
+        return { v: v, phrases: phrases };
     };
 
     const renderBlock = (block, parent) => {
@@ -149,28 +166,12 @@ export const renderDoc = (mainSeq, root) => {
                     let inner = el.innerHTML;
                     el.replaceChildren();
 
-                    inner = parsePhrases(inner);
-
-                    inner = handleOrphanChars(inner);
-
-                    let v = inner[0].match(/_\{verse-[0-9]+\}_/);
-                    if (v) {
-                        v = Array.from(v)[0].replace(/(_|\{|\}|verse-)/g, '');
-                    }
+                    let o = parseVerseNumber(inner);
+                    let v = o.v;
 
                     if (v) {
-                        for (let i = 1; i < inner.length; i++) {
-                            let s = inner[i].split(/(_\{graft-[0-9]+\}_)/);
-                            if (s.length > 1) {
-                                inner[i - 1] += `${s[1]}`;
-                                inner[i] = s[2];
-                            }
-                        }
-
-                        if (v) {
-                            const s = inner[0].replace(/_\{verse-[0-9]+\}_/, '');
-                            inner[0] = `<span class="v">${v}</span><span class="vsp"></span>${s}`;
-                        }
+                        inner = parsePhrases(o.phrases[1]);
+                        inner[0] = o.phrases[0] + inner[0];
 
                         //handle phrases
                         renderPhrases(
@@ -179,6 +180,7 @@ export const renderDoc = (mainSeq, root) => {
                             inner.length > 1 ? inner.map((e, i) => v + subc.charAt(i)) : [v]
                         );
                     } else {
+                        inner = parsePhrases(o.phrases[0]);
                         el.innerHTML = inner.join('');
                         div.append(el);
                     }
