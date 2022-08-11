@@ -85,68 +85,84 @@ TODO:
 
     onDestroy(unSub);
 
+    const showFootnote = (type: string, content: string) => {
+        console.log(`${type}: ${content}`);
+    };
+
+    let loading = true;
     //queries SABProskomma instance to get scripture
-    $: query(
-        `{
-        docSet(id:"${$refs.docSet}") {
-            book: document(bookCode: "${$refs.book}") {
-                sofria (indent: 4, chapter: ${$refs.chapter})
+    $: (() => {
+        loading = true;
+        query(
+            `{
+            docSet(id:"${$refs.docSet}") {
+                book: document(bookCode: "${$refs.book}") {
+                    sofria (indent: 4, chapter: ${$refs.chapter})
+                }
             }
-        }
-    }`,
-        (r) => {
-            const fnc = 'abcdefghijklmnopqrstuvwxyz';
-            let fi = 0;
-            //initial render
-            renderDoc(
-                JSON.parse(r.data.docSet.book.sofria).sequence,
-                bookRoot,
-                (root) => {
-                    let first = root.getElementsByTagName('div')?.item(0);
-                    first?.classList.remove('p', 'q');
-                    first?.classList.add('m');
-                },
-                (graft, el) => {
-                    el.innerHTML = '';
-                    if (graft.type === 'title') {
-                        for (const block of graft.blocks) {
-                            el.innerHTML += `<div class="${block.subtype.split(':')[1]}">${
-                                block.content[0]
-                            }</div>`;
+        }`,
+            (r) => {
+                const fnc = 'abcdefghijklmnopqrstuvwxyz';
+                let fi = 0;
+                //initial render
+                renderDoc(
+                    JSON.parse(r.data.docSet.book.sofria).sequence,
+                    bookRoot,
+                    (root) => {
+                        let first = root.getElementsByTagName('div')?.item(0);
+                        first?.classList.remove('p', 'q');
+                        first?.classList.add('m');
+                    },
+                    (graft, el) => {
+                        el.innerHTML = '';
+                        if (graft.type === 'title') {
+                            for (const block of graft.blocks) {
+                                el.innerHTML += `<div class="${block.subtype.split(':')[1]}">${
+                                    block.content[0]
+                                }</div>`;
+                            }
+                            el.innerHTML += `<div class="b"></div>`;
+                            el.innerHTML += `<div class="b"></div>`;
+                            el.setAttribute('data-verse', 'title');
+                            el.setAttribute('data-phrase', 'undefined');
+                            el.classList.add('scroll-item');
+                        } else if (graft.type === 'footnote' || graft.type === 'xref') {
+                            //console.log(JSON.stringify(graft.blocks[0].content, null, 2));
+                            let content = graft.blocks[0].content;
+                            if (content[0].type !== 'graft') content = content[0];
+                            //console.log(JSON.stringify(content, null, 2));
+                            if (content.subtype === 'chapter') content = content.content[0];
+                            //console.log(JSON.stringify(content, null, 2));
+                            if (content.subtype === 'verses') content = content.content;
+                            //console.log(JSON.stringify(content, null, 2));
+                            content = content
+                                .map((c) => (c.type === 'wrapper' ? c.content[0] : ''))
+                                .join('');
+                            console.log(JSON.stringify(content));
+                            el.classList.add('footnote');
+                            const a = document.createElement('a');
+                            a.innerHTML += `<sup>${fnc.charAt(fi)}</sup>`;
+                            a.addEventListener('click', () =>
+                                showFootnote(graft.type, JSON.stringify(content))
+                            );
+                            el.append(a);
+                            fi++;
+                        } else {
+                            console.log(`unknown graft type: ${graft.type} encontered`);
                         }
-                        el.innerHTML += `<div class="b"></div>`;
-                        el.innerHTML += `<div class="b"></div>`;
-                        el.setAttribute('data-verse', 'title');
-                        el.setAttribute('data-phrase', 'undefined');
-                        el.classList.add('scroll-item');
-                    } else if (graft.type === 'footnote') {
-                        let content = graft.blocks[0].content[0];
-                        if (content.subtype === 'chapter') content = content.content[0];
-                        content = content.content
-                            .map((c) => (c.type === 'wrapper' ? c.content[0] : ''))
-                            .join('');
-                        el.classList.add('footnote');
-                        el.innerHTML += `<a title="${content}"><sup>${fnc.charAt(fi)}</sup></a>`;
-                        fi++;
-                    } else if (graft.type === 'xref') {
-                        let content = graft.blocks[0].content[0];
-                        if (content.subtype === 'chapter') content = content.content[0];
-                        content = content.content
-                            .map((c) => (c.type === 'wrapper' ? c.content[0] : ''))
-                            .join('');
-                        el.classList.add('footnote');
-                        el.innerHTML += `<a title="${content}"><sup>${fnc.charAt(fi)}</sup></a>`;
-                        fi++;
-                    } else {
-                        console.log(`unknown graft type: ${graft.type} encontered`);
+                    },
+                    (root) => {
+                        loading = false;
                     }
-                },
-                (root) => {}
-            );
-        }
-    );
+                );
+            }
+        );
+    })();
 </script>
 
 <article class="prose container mx-auto" bind:this={container}>
-    <div bind:this={bookRoot} />
+    {#if loading}
+        <pre>loading . . .</pre>
+    {/if}
+    <div bind:this={bookRoot} class:hidden={loading} />
 </article>
