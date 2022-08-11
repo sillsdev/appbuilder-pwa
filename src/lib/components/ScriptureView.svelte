@@ -64,13 +64,20 @@ TODO:
     /**shorter highlight variable*/
     $: hglt = $playingAudio ? $audioHighlight : '';
     /**updates highlight*/
-    const updateHighlight = (id: string) => {
+    const updateHighlight = (h: string) => {
+        const a = h.split(',');
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         el?.classList.remove('highlighting');
-        if (!$playingAudio) return;
-        el = document.getElementById(id);
+        if (
+            !$playingAudio ||
+            a[0] !== $refs.docSet ||
+            a[1] !== $refs.book ||
+            a[2] !== $refs.chapter
+        )
+            return;
+        el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
         el?.classList.add('highlighting');
-        if (el && (id === 'title' ? id : id.replace(/[a-z]/g, '')) === lastVerseInView) {
+        if (el && (a[3] === 'title' ? a[3] : a[3].replace(/[a-z]/g, '')) === lastVerseInView) {
             el.scrollIntoView();
         }
     };
