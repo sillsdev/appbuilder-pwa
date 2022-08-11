@@ -13,6 +13,7 @@ TODO:
     import { onDestroy } from 'svelte';
     import { audioHighlight, refs, scrolls, playingAudio, mainScroll } from '$lib/data/stores';
     import { renderDoc } from '../scripts/render';
+    import { LoadingIcon } from '../icons';
 
     let container: HTMLElement;
     let bookRoot: Element;
@@ -162,7 +163,7 @@ TODO:
 
 <article class="prose container mx-auto" bind:this={container}>
     {#if loading}
-        <pre>loading . . .</pre>
+        <LoadingIcon />
     {/if}
     <div bind:this={bookRoot} class:hidden={loading} />
 </article>
