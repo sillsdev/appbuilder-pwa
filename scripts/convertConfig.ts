@@ -7,7 +7,6 @@ import { Task, TaskOutput } from './Task';
  * TODO:
  * Backgroud images?
  * Layouts?
- * Colors?
  * Styles?
  */
 type HTML = string;
@@ -72,6 +71,12 @@ export type ConfigData = {
     themes?: {
         name: string;
         enabled: boolean;
+        colorSets: {
+            type: string;
+            colors: {
+                [key: string]: string;
+            };
+        }[];
     }[];
     defaultTheme?: string;
     traits?: any;
@@ -196,12 +201,26 @@ function convertConfig(dataDir: string, verbose: boolean) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
+    const colorSetTags = document.getElementsByTagName('colors');
     data.themes = [];
 
     for (const tag of colorThemeTags) {
+        const theme = tag.attributes.getNamedItem('name')!.value;
         data.themes.push({
-            name: tag.attributes.getNamedItem('name')!.value,
-            enabled: tag.attributes.getNamedItem('enabled')?.value === 'true'
+            name: theme,
+            enabled: tag.attributes.getNamedItem('enabled')?.value === 'true',
+            colorSets: Array.from(colorSetTags).map((cst) => {
+                const colorTags = cst.getElementsByTagName('color');
+                const colors: { [key: string]: string } = {};
+                for (const color of colorTags) {
+                    const cm = color.querySelector(`cm[theme="${theme}"]`);
+                    colors[color.getAttribute('name')!] = cm?.getAttribute('value')!;
+                }
+                return {
+                    type: cst.getAttribute('type')!,
+                    colors: colors
+                };
+            })
         });
         if (tag.attributes.getNamedItem('default')?.value === 'true')
             data.defaultTheme = data.themes[data.themes.length - 1].name;
