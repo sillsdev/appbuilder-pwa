@@ -214,7 +214,9 @@ function convertConfig(dataDir: string, verbose: boolean) {
                 const colors: { [key: string]: string } = {};
                 for (const color of colorTags) {
                     const cm = color.querySelector(`cm[theme="${theme}"]`);
-                    colors[color.getAttribute('name')!] = cm?.getAttribute('value')!;
+                    const name = color.getAttribute('name');
+                    const value = cm?.getAttribute('value');
+                    if (name && value) colors[name] = value;
                 }
                 return {
                     type: cst.getAttribute('type')!,
