@@ -11,7 +11,7 @@ TODO:
 <script lang="ts">
     import { query } from '../scripts/query';
     import { onDestroy } from 'svelte';
-    import { audioHighlight, refs, scrolls, playingAudio, mainScroll } from '$lib/data/stores';
+    import { audioHighlight, refs, scrolls, audioActive, mainScroll } from '$lib/data/stores';
     import { renderDoc } from '../scripts/render';
     import { LoadingIcon } from '../icons';
 
@@ -62,21 +62,16 @@ TODO:
     })();
     $: handleScroll($mainScroll);
 
-    /**shorter highlight variable*/
-    $: hglt = $playingAudio ? $audioHighlight : '';
     /**updates highlight*/
     const updateHighlight = (h: string) => {
         const a = h.split(',');
+        console.log(a);
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         el?.classList.remove('highlighting');
-        if (
-            !$playingAudio ||
-            a[0] !== $refs.docSet ||
-            a[1] !== $refs.book ||
-            a[2] !== $refs.chapter
-        )
+        if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
+        console.log(el);
         el?.classList.add('highlighting');
         if (el && (a[3] === 'title' ? a[3] : a[3].replace(/[a-z]/g, '')) === lastVerseInView) {
             el.scrollIntoView();
@@ -117,16 +112,17 @@ TODO:
                     (graft, el) => {
                         el.innerHTML = '';
                         if (graft.type === 'title') {
+                            const div = document.createElement('div');
                             for (const block of graft.blocks) {
-                                el.innerHTML += `<div class="${block.subtype.split(':')[1]}">${
+                                div.innerHTML += `<div class="${block.subtype.split(':')[1]}">${
                                     block.content[0]
                                 }</div>`;
                             }
-                            el.innerHTML += `<div class="b"></div>`;
-                            el.innerHTML += `<div class="b"></div>`;
-                            el.setAttribute('data-verse', 'title');
-                            el.setAttribute('data-phrase', 'undefined');
-                            el.classList.add('scroll-item');
+                            div.innerHTML += `<div class="b"></div><div class="b"></div>`;
+                            div.setAttribute('data-verse', 'title');
+                            div.setAttribute('data-phrase', 'none');
+                            div.classList.add('scroll-item');
+                            el.append(div);
                         } else if (graft.type === 'footnote' || graft.type === 'xref') {
                             let content = graft.blocks[0].content;
                             if (content[0].type !== 'graft') content = content[0];

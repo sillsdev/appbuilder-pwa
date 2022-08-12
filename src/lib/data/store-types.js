@@ -36,9 +36,10 @@ export const referenceStore = () => {
         chapter: $internal.c,
         chapterVerses: `${$internal.c}:1-${$internal.n}`,
         numVerses: $internal.n,
-        title: catalog
-            .find((ds) => ds.id === $internal.ds)
+        title: catalog.find((ds) => ds.id === $internal.ds)
             .documents.find((b) => b.bookCode === $internal.b).toc,
+        name: catalog.find((ds) => ds.id === $internal.ds)
+            .documents.find((b) => b.bookCode === $internal.b).h,
         next: (() => {
             let nextBook = null;
             let nextChapter = null;
