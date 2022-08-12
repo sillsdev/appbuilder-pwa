@@ -15,8 +15,6 @@ a non-exhaustive list of features and fixes to be implemented.
 -   Add book abbreviations to catalog to be used in UI in place of bookCode
 -   Implement text appearance options
 -   ScriptureView:
-    -   integrate SOFRIA
-    -   add phrase info for highlight synchronization
     -   fully utilize groupStore functionality
     -   find a way to scroll smoothly, as CSS only option does not work as expected.
     -   change the global stylesheet to have .highlighting
