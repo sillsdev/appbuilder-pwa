@@ -4,9 +4,8 @@ a non-exhaustive list of features and fixes to be implemented.
 
 -   Convert about.txt into something routes/about.svelte can use
 -   convertConfig:
-    -   Backgroud images?
+    -   Background images?
     -   Layouts?
-    -   Colors?
     -   Styles?
 -   AudioBar:
     -   display audio not found message in UI when audio is not found
