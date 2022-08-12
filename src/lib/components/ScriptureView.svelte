@@ -128,18 +128,14 @@ TODO:
                             el.setAttribute('data-phrase', 'undefined');
                             el.classList.add('scroll-item');
                         } else if (graft.type === 'footnote' || graft.type === 'xref') {
-                            //console.log(JSON.stringify(graft.blocks[0].content, null, 2));
                             let content = graft.blocks[0].content;
                             if (content[0].type !== 'graft') content = content[0];
-                            //console.log(JSON.stringify(content, null, 2));
                             if (content.subtype === 'chapter') content = content.content[0];
-                            //console.log(JSON.stringify(content, null, 2));
                             if (content.subtype === 'verses') content = content.content;
-                            //console.log(JSON.stringify(content, null, 2));
                             content = content
                                 .map((c) => (c.type === 'wrapper' ? c.content[0] : ''))
                                 .join('');
-                            console.log(JSON.stringify(content));
+                            //console.log(JSON.stringify(content));
                             el.classList.add('footnote');
                             const a = document.createElement('a');
                             a.innerHTML += `<sup>${fnc.charAt(fi)}</sup>`;

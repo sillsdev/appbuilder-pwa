@@ -48,7 +48,7 @@ export const renderDoc = (
 
         //shift grafts at start of phrase to end of next phrase
         for (let i = 1; i < phrases.length; i++) {
-            const m = phrases[i].match(/^\s+_\{graft-[0-9]\}_/);
+            const m = phrases[i].match(/^\s*_\{graft-[0-9]\}_/);
             if (m) {
                 phrases[i - 1] += m[0];
                 phrases[i] = phrases[i].replace(m, '');
