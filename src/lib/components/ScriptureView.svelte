@@ -31,7 +31,11 @@ TODO:
     /**scrolls element with id into view*/
     const scrollTo = (id: string) => {
         if (scrollMod === key) return;
-        container?.getElementsByClassName('scroll-item')?.namedItem(id)?.scrollIntoView();
+        container
+            ?.querySelector(
+                `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
+            )
+            ?.scrollIntoView();
     };
     $: scrollTo(scrollId);
 
@@ -53,29 +57,31 @@ TODO:
                             rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
                         );
                     })
-                    .map((el) => el.id);
+                    .map(
+                        (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
+                    );
 
                 scrolls.set(items[0], group, key);
-                lastVerseInView = items[items.length - 1];
+                lastVerseInView = items.pop();
             }, 500);
         };
     })();
-    $: handleScroll($mainScroll);
+    $: handleScroll([$mainScroll, $refs]);
 
     /**updates highlight*/
     const updateHighlight = (h: string) => {
         const a = h.split(',');
-        console.log(a);
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         el?.classList.remove('highlighting');
         if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
-        console.log(el);
         el?.classList.add('highlighting');
-        if (el && (a[3] === 'title' ? a[3] : a[3].replace(/[a-z]/g, '')) === lastVerseInView) {
-            el.scrollIntoView();
-        }
+        if (
+            `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
+            lastVerseInView
+        )
+            el?.scrollIntoView();
     };
     $: updateHighlight($audioHighlight);
 
@@ -108,6 +114,10 @@ TODO:
                         let first = root.getElementsByTagName('div')?.item(0);
                         first?.classList.remove('p', 'q');
                         first?.classList.add('m');
+
+                        Array.from(root.getElementsByClassName('txs')).forEach((e: Element) =>
+                            e.classList.add('scroll-item')
+                        );
                     },
                     (graft, el) => {
                         el.innerHTML = '';

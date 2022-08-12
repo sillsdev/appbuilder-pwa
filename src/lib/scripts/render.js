@@ -32,7 +32,7 @@ export const renderDoc = (
             for (let i = 0; i < phrases.length - 1; i++) {
                 const next = phrases[i + 1].split('');
                 let c = next.shift();
-                while (c && c.match(/[^_a-z\s]/i)) {
+                while (c && c.match(/[^_a-z]/i)) {
                     phrases[i] += c;
                     c = next.shift();
                 }
@@ -48,7 +48,7 @@ export const renderDoc = (
 
         //shift grafts at start of phrase to end of next phrase
         for (let i = 1; i < phrases.length; i++) {
-            const m = phrases[i].match(/^\s*_\{graft-[0-9]\}_/);
+            const m = phrases[i].match(/^_\{graft-[0-9]\}_/);
             if (m) {
                 phrases[i - 1] += m[0];
                 phrases[i] = phrases[i].replace(m, '');

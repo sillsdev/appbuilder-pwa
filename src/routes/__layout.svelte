@@ -3,7 +3,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode, playingAudio, mainScroll } from '$lib/data/stores';
+    import { viewMode, audioActive, mainScroll } from '$lib/data/stores';
     import { onMount } from 'svelte';
     import AudioBar from '$lib/components/AudioBar.svelte';
     let drawerName = 'sidebar';
@@ -40,12 +40,12 @@
     </div>
     <main
         bind:this={main}
-        class="p-2 w-full overflow-y-auto {$playingAudio ? 'smaller' : 'larger'}"
+        class="p-2 w-full overflow-y-auto {$audioActive ? 'smaller' : 'larger'}"
         on:scroll={updateScroll}
     >
         <slot />
     </main>
-    {#if $playingAudio}
+    {#if $audioActive}
         <div class="audio-bar">
             <AudioBar />
         </div>
