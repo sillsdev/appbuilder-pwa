@@ -1,4 +1,4 @@
-import { readable, writable } from 'svelte/store';
+import { readable, writable, derived } from 'svelte/store';
 import { groupStore, referenceStore } from './store-types';
 import globalConfigJson from '../../config';
 
@@ -10,8 +10,20 @@ export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
 export const viewMode = writable('Single Pane');
 /**is audio active in the app*/
-export const playingAudio = writable(true);
+export const audioActive = writable(true);
 /**which element should be highlighted as the audio is playing*/
-export const audioHighlight = writable('0,0,0,0,0');
+export const audioHighlight = (() => {
+    const listener = derived([refs, audioActive], ([$refs, $audioActive]) => {
+        reset();
+    });
+
+    const reset = () => {
+        external.set('0,0,0,0,0');
+    }
+
+    const external = writable('0,0,0,0,0');
+
+    return { subscribe: external.subscribe, set: external.set };
+})();
 /**scrollTop of main window*/
 export const mainScroll = writable({ top: 0, height: 0});

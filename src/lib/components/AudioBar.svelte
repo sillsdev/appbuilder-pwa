@@ -7,7 +7,7 @@ TODO:
 -->
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs, audioHighlight } from '$lib/data/stores';
+    import { refs, audioHighlight, audioActive } from '$lib/data/stores';
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -57,6 +57,9 @@ TODO:
         timing = j.timing;
     };
     $: getAudio($refs.docSet, $refs.book, $refs.chapter);
+    $: (() => {
+        if (!$audioActive && playing) playPause();
+    })();
     /**updates the progress bar, and if necessary the timeIndex*/
     const updateTime = () => {
         if (!loaded) return;
@@ -71,8 +74,8 @@ TODO:
             timing[timeIndex].tag.match(/[0-9]+/)
                 ? timing[timeIndex].tag.match(/[a-z]/i)
                     ? timing[timeIndex].tag.match(/[a-z]/i)
-                    : 'undefined'
-                : 'undefined'
+                    : 'none'
+                : 'none'
         ].join();
         if (audio.ended) toggleTimeRunning();
     };
@@ -130,6 +133,7 @@ TODO:
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
             $refs = { book: switchTo.book, chapter: switchTo.chapter };
+            refs.set({ book: switchTo.book, chapter: switchTo.chapter }, 'next');
             playAfterSkip = true && playing;
         }
     };

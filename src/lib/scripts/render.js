@@ -61,7 +61,7 @@ export const renderDoc = (
         for (let i = 0; i < phrases.length; i++) {
             const phrase = document.createElement('div');
             phrase.setAttribute('data-verse', kv[i].split('-')[0]);
-            phrase.setAttribute('data-phrase', kv[i].split('-')[1]);
+            phrase.setAttribute('data-phrase', kv[i].split('-')[1] ? kv[i].split('-')[1] : 'none');
             phrase.classList.add('txs', 'seltxt');
 
             phrases[i] = phrases[i].replace(/(_\{graft-[0-9]+\}_)/g, (m) => {
