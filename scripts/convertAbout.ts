@@ -1,22 +1,31 @@
-import { TaskOutput, Task, Promisable } from './Task';
+import { copyFile } from 'fs';
+import path from 'path';
+import { TaskOutput, Task } from './Task';
 
 export interface AboutTaskOutput extends TaskOutput {
     taskName: 'ConvertAbout';
 }
 /**
- * Currently does nothing.
- * Will at some point convert about.txt into something About.svelte can use.
+ * Copies about.partial.html to static folder
  */
+export function convertAbout(dataDir: string, verbose: boolean) {
+    const srcFile = path.join(dataDir, 'about.partial.html');
+    const dstFile = path.join('static', 'about.partial.html');
+    copyFile(srcFile, dstFile, function (err: any) {
+        if (err) throw err;
+        if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
+    });
+}
 export class ConvertAbout extends Task {
-    public triggerFiles: string[] = ['about'];
+    public triggerFiles: string[] = ['about.partial.html'];
+
     constructor(dataDir: string) {
         super(dataDir);
     }
-    public run(verbose: boolean, outputs: Map<string, TaskOutput>): Promisable<AboutTaskOutput> {
-        // TODO: Once about pages are exported, convert them here
-        // Currently does nothing
+    public async run(verbose: boolean, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
+        convertAbout(this.dataDir, verbose);
         return {
-            taskName: 'ConvertAbout',
+            taskName: this.constructor.name,
             files: []
         };
     }
