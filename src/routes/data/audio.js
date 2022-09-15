@@ -2,7 +2,7 @@ import config from '../../config';
 import path from 'path';
 import { readFile } from 'fs/promises';
 
-export async function post({ request }) {
+export async function POST({ request }) {
     const body = await request.json();
 
     //search config for audio on provided collection, book, and chapter

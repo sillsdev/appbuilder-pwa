@@ -29,7 +29,7 @@ const pk = (() => {
     return { query, gqlQuery };
 })();
 
-export async function post({ request }) {
+export async function POST({ request }) {
     const body = await request.json();
     return {
         body: await pk.query(body.query)
