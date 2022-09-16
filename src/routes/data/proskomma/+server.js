@@ -1,8 +1,9 @@
-import { SABProskomma } from '../../../sab-proskomma';
+import { SABProskomma } from '../../../../sab-proskomma';
+import { json } from '@sveltejs/kit';
 import path from 'path';
 import { readFileSync } from 'fs';
 import { thaw } from 'proskomma-freeze';
-import { collections } from '../../../static/collections';
+import { collections } from '../../../../static/collections';
 
 const pk = (() => {
     let _val = new SABProskomma();
@@ -29,9 +30,10 @@ const pk = (() => {
     return { query, gqlQuery };
 })();
 
-export async function post({ request }) {
+export async function POST({ request }) {
     const body = await request.json();
-    return {
-        body: await pk.query(body.query)
-    };
+    //throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
+    // Suggestion (check for correctness before using):
+
+    return json(await pk.query(body.query));
 }

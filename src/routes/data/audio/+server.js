@@ -1,8 +1,9 @@
-import config from '../../config';
+import { json } from '@sveltejs/kit';
+import config from '../../../config';
 import path from 'path';
 import { readFile } from 'fs/promises';
 
-export async function post({ request }) {
+export async function POST({ request }) {
     const body = await request.json();
 
     //search config for audio on provided collection, book, and chapter
@@ -12,21 +13,17 @@ export async function post({ request }) {
     })?.books?.find((b) => (b.id === body.book))?.audio?.find((a) => body.chapter === ''+a.num);
 
     if(!audio) {
-        return {
-            body: {
-                error: `no audio found for ${body.book}:${body.chapter}`
-            }
-        }
+        return json({
+    error: `no audio found for ${body.book}:${body.chapter}`
+})
     }
 
     const source = config.audio.sources[audio.src];
 
     if(source.type === "fcbh") {
-        return {
-            body: {
-                error: 'This repository is not currently designed to use audio from FCBH'
-            }
-        }
+        return json({
+    error: 'This repository is not currently designed to use audio from FCBH'
+})
     }
 
     let prefix = '';
@@ -51,10 +48,8 @@ export async function post({ request }) {
         }
     }
 
-    return {
-        body: {
-            source: prefix + '/' + audio.filename,
-            timing: timing
-        }
-    };
+    return json({
+    source: prefix + '/' + audio.filename,
+    timing: timing
+});
 }
