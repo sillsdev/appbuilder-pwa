@@ -82,7 +82,14 @@ export interface MediaTaskOutput extends TaskOutput {
  * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
  */
 export class ConvertMedia extends Task {
-    public triggerFiles: string[] = ['images', 'fonts', 'styles', 'illustrations'];
+    public triggerFiles: string[] = [
+        'images',
+        'fonts',
+        'styles',
+        'illustrations',
+        'audio',
+        'timings'
+    ];
 
     constructor(dataDir: string) {
         super(dataDir);
