@@ -54,5 +54,8 @@
         "proskomma": "^0.7.9",
         "proskomma-freeze": "^0.7.0",
         "proskomma-tools": "^0.0.5"
+    },
+    "volta": {
+        "node": "16.17.0"
     }
 }
