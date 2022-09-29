@@ -17,7 +17,7 @@ The navbar component.
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, globalConfig } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
 
     let nextRef;
@@ -29,6 +29,9 @@ The navbar component.
     let bookSelector;
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
+
+    let showChapterNumber = $globalConfig.mainFeatures['show-chapter-number-on-app-bar'];
+    let showChapterSelector = $globalConfig.mainFeatures['show-chapter-selector'];
 
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
@@ -55,6 +58,7 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
+    console.log('config', $globalConfig.mainFeatures['show-chapter-number-on-app-bar']);
     onDestroy(unsub);
 </script>
 
@@ -120,29 +124,35 @@ The navbar component.
             </svelte:fragment>
         </Dropdown>
         <!-- Chapter Selector -->
-        <Dropdown>
-            <svelte:fragment slot="label">
-                {nextRef.chapter}
-                <DropdownIcon />
-            </svelte:fragment>
-            <svelte:fragment slot="content">
-                <TabsMenu
-                    bind:this={chapterSelector}
-                    options={{
-                        Chapter: {
-                            component: SelectGrid,
-                            props: { options: Object.keys(chapters) }
-                        },
-                        Verse: {
-                            component: SelectGrid,
-                            props: { options: Object.keys(chapters[nextRef.chapter]) }
-                        }
-                    }}
-                    active="Chapter"
-                    on:menuaction={navigateReference}
-                />
-            </svelte:fragment>
-        </Dropdown>
+        {#if showChapterNumber}
+            <Dropdown>
+                <svelte:fragment slot="label">
+                    {nextRef.chapter}
+                    {#if showChapterSelector}
+                        <DropdownIcon />
+                    {/if}
+                </svelte:fragment>
+                <svelte:fragment slot="content">
+                    {#if showChapterSelector}
+                        <TabsMenu
+                            bind:this={chapterSelector}
+                            options={{
+                                Chapter: {
+                                    component: SelectGrid,
+                                    props: { options: Object.keys(chapters) }
+                                },
+                                Verse: {
+                                    component: SelectGrid,
+                                    props: { options: Object.keys(chapters[nextRef.chapter]) }
+                                }
+                            }}
+                            active="Chapter"
+                            on:menuaction={navigateReference}
+                        />
+                    {/if}
+                </svelte:fragment>
+            </Dropdown>
+        {/if}
     </div>
     <div class="dy-navbar-end fill-base-content">
         <!-- Mute/Volume Button -->
