@@ -22,3 +22,4 @@ a non-exhaustive list of features and fixes to be implemented.
 -   Make the app sharable.
 -   Hide unimplemented and unconfigured features from the end-user of the app.
 -   Implement FCBH audio sources
+-   Add Service Worker
