@@ -294,6 +294,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
         const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbrev');
         const collectionAbbreviation =
             collectionAbbreviationTags.length > 0 ? collectionAbbreviationTags[0].innerHTML : '';
+        console.log(writingSystem.innerHTML);
         data.bookCollections.push({
             id: tag.id,
             collectionName,
@@ -304,7 +305,7 @@ function convertConfig(dataDir: string, verbose: boolean) {
             languageCode: writingSystem.attributes.getNamedItem('code')!.value,
             languageName: writingSystem
                 .getElementsByTagName('display-names')[0]
-                .getElementsByTagName('form')[0].innerHTML,
+                ?.getElementsByTagName('form')[0].innerHTML,
             style: {
                 font: stylesTag
                     .getElementsByTagName('text-font')[0]
