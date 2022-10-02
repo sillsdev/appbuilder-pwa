@@ -244,11 +244,11 @@ function convertConfig(dataDir: string, verbose: number) {
     data.bookCollections = [];
 
     for (const tag of booksTags) {
-        if (verbose > 1) console.log(`Converting Collection: ${tag.id}`);
+        if (verbose >= 2) console.log(`Converting Collection: ${tag.id}`);
         const featuresTags = tag.querySelector('features[type=bc]')?.getElementsByTagName('e');
         if (!featuresTags) throw 'Book collection feature tags missing';
         const features: any = {};
-        if (verbose > 1) console.log(`. features`);
+        if (verbose >= 2) console.log(`. features`);
         for (const feature of featuresTags) {
             features[feature.attributes.getNamedItem('name')!.value] = parseConfigValue(
                 feature.attributes.getNamedItem('value')!.value
@@ -257,14 +257,14 @@ function convertConfig(dataDir: string, verbose: number) {
         const books: BookCollection['books'] = [];
         const bookTags = tag.getElementsByTagName('book');
         for (const book of bookTags) {
-            if (verbose > 1) console.log(`. book: ${book.id}`);
+            if (verbose >= 2) console.log(`. book: ${book.id}`);
             const audio: BookCollectionAudio[] = [];
             for (const page of book.getElementsByTagName('page')) {
-                if (verbose > 1) console.log(`.. page: ${page.attributes[0].value}`);
+                if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
                 const fTag = audioTag.getElementsByTagName('f')[0];
-                if (verbose > 1) console.log(`... audioTag: ${audioTag}, fTag:{fTag}`);
+                if (verbose >= 2) console.log(`... audioTag: ${audioTag}, fTag:{fTag}`);
                 audio.push({
                     num: parseInt(page.attributes.getNamedItem('num')!.value),
                     filename: fTag.innerHTML,
@@ -273,7 +273,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     src: fTag.attributes.getNamedItem('src')!.value,
                     timingFile: audioTag.getElementsByTagName('y')[0].innerHTML
                 });
-                if (verbose > 2) console.log(`.... audio: `, JSON.stringify(audio[0]));
+                if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
             }
             books.push({
                 chapters: parseInt(
@@ -289,19 +289,19 @@ function convertConfig(dataDir: string, verbose: number) {
                 audio,
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm')
             });
-            if (verbose > 2) console.log(`.... book: `, JSON.stringify(books[0]));
+            if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
-        if (verbose > 2) console.log(`.... styles: `, JSON.stringify(stylesTag));
+        if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
-        if (verbose > 2) console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
+        if (verbose >= 3) console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
         const collectionNameTags = tag.getElementsByTagName('book-collection-name');
         const collectionName = collectionNameTags.length > 0 ? collectionNameTags[0].innerHTML : '';
-        if (verbose > 1) console.log(`.. collectionName: `, collectionName);
+        if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
         const collectionDescription =
             collectionDescriptionTags.length > 0 ? collectionDescriptionTags[0].innerHTML : '';
-        if (verbose > 1) console.log(`.. collectionDescription: `, collectionDescription);
+        if (verbose >= 2) console.log(`.. collectionDescription: `, collectionDescription);
         const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbrev');
         const collectionAbbreviation =
             collectionAbbreviationTags.length > 0 ? collectionAbbreviationTags[0].innerHTML : '';
@@ -313,9 +313,12 @@ function convertConfig(dataDir: string, verbose: number) {
             features,
             books,
             languageCode: writingSystem.attributes.getNamedItem('code')!.value,
-            languageName: writingSystem
-                .getElementsByTagName('display-names')[0]
-                .getElementsByTagName('form')[0].innerHTML,
+            languageName:
+                writingSystem.childElementCount > 0
+                    ? writingSystem
+                          .getElementsByTagName('display-names')[0]
+                          .getElementsByTagName('form')[0].innerHTML
+                    : '',
             style: {
                 font: stylesTag
                     .getElementsByTagName('text-font')[0]
@@ -340,7 +343,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     .attributes.getNamedItem('value')!.value
             }
         });
-        if (verbose > 2) console.log(`.... collection: `, JSON.stringify(data.bookCollections[0]));
+        if (verbose >= 3) console.log(`.... collection: `, JSON.stringify(data.bookCollections[0]));
     }
     if (verbose)
         console.log(
@@ -356,13 +359,13 @@ function convertConfig(dataDir: string, verbose: number) {
         .getElementsByTagName('tm');
 
     for (const tag of translationMappingsTags) {
-        if (verbose > 1) console.log(`.. translationMapping: ${tag.id}`);
+        if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
         const localizations: typeof data.translationMappings.key = {};
         for (const localization of tag.getElementsByTagName('t')) {
             localizations[localization.attributes.getNamedItem('lang')!.value] =
                 localization.innerHTML;
         }
-        if (verbose > 2) console.log(`....`, JSON.stringify(localizations));
+        if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
         data.translationMappings[tag.id] = localizations;
     }
     if (verbose)
@@ -396,7 +399,7 @@ function convertConfig(dataDir: string, verbose: number) {
         data.audio = { sources: {} };
         for (const source of audioSources) {
             const id = source.getAttribute('id')!.toString();
-            if (verbose > 1) console.log(`Converting audioSource: ${id}`);
+            if (verbose >= 2) console.log(`Converting audioSource: ${id}`);
             const type = source.getAttribute('type')!.toString();
             const name = source.getElementsByTagName('name')[0].innerHTML;
             data.audio.sources[id] = {
@@ -420,7 +423,7 @@ function convertConfig(dataDir: string, verbose: number) {
                         source.getElementsByTagName('dam-id')[0].innerHTML;
                 }
             }
-            if (verbose > 2) console.log(`....`, JSON.stringify(data.audio.sources[id]));
+            if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
         }
     }
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
