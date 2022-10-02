@@ -14,7 +14,7 @@ function cpSyncOptional(source: string, destination: string, opts?: CopyOptions)
 /**
  * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
  */
-export function convertMedia(dataDir: string, verbose: boolean) {
+export function convertMedia(dataDir: string, verbose: number) {
     // Copy the css stylesheets
     cpSync(path.join(dataDir, 'styles'), path.join('static', 'styles'), { recursive: true });
     if (verbose)
@@ -95,7 +95,7 @@ export class ConvertMedia extends Task {
         super(dataDir);
     }
 
-    public async run(verbose: boolean, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
+    public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertMedia(this.dataDir, verbose);
         return {
             taskName: this.constructor.name,

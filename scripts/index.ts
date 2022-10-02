@@ -24,7 +24,12 @@ const dataDir = suppliedDataDir
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
 
-const verbose = process.argv.find((arg) => arg.includes('--verbose')) ? true : false;
+const verboseLevel = process.argv.find((arg) => arg.includes('--verbose'));
+const verbose: number = verboseLevel
+    ? verboseLevel.includes('=')
+        ? parseInt(verboseLevel.split('=')[1])
+        : 1
+    : 0;
 
 const stepClasses: Task[] = [ConvertConfig, ConvertMedia, ConvertBooks, ConvertAbout].map(
     (x) => new x(dataDir)

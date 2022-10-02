@@ -18,7 +18,7 @@ import { queries, postQueries } from 'proskomma-tools';
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,
-    verbose: boolean
+    verbose: number
 ): Promise<BooksTaskOutput> {
     /**book collections from config*/
     const collections = configData.data.bookCollections;
@@ -179,7 +179,7 @@ export class ConvertBooks extends Task {
         super(dataDir);
     }
     public run(
-        verbose: boolean,
+        verbose: number,
         outputs: Map<string, TaskOutput>,
         modifiedPaths: string[]
     ): Promisable<BooksTaskOutput> {
