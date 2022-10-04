@@ -62,7 +62,7 @@ export type ConfigData = {
     name?: string;
     mainFeatures?: any;
     fonts?: {
-        name: string;
+        name?: string;
         family: string;
         file: string;
         fontWeight: string;
@@ -185,7 +185,7 @@ function convertConfig(dataDir: string, verbose: number) {
     for (const tag of fontTags) {
         data.fonts.push({
             family: tag.attributes.getNamedItem('family')!.value,
-            name: tag.getElementsByTagName('font-name')[0].innerHTML,
+            name: tag.getElementsByTagName('font-name')[0]?.innerHTML,
             file: tag.getElementsByTagName('f')[0].innerHTML,
             fontStyle: tag
                 .querySelector('sd[property=font-style]')!
