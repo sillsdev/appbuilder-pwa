@@ -43,7 +43,7 @@ type BookCollection = {
         verseNumbers: string;
     };
     languageCode: string;
-    languageName: string;
+    languageName?: string;
     footer?: HTML; //
     meta?: {
         [key: string]: string;
@@ -291,13 +291,23 @@ function convertConfig(dataDir: string, verbose: number) {
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }
+        const collectionNameTags = tag.getElementsByTagName('book-collection-name');
+        const collectionName = collectionNameTags.length > 0 ? collectionNameTags[0].innerHTML : '';
+        if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
         if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
         if (verbose >= 3) console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
-        const collectionNameTags = tag.getElementsByTagName('book-collection-name');
-        const collectionName = collectionNameTags.length > 0 ? collectionNameTags[0].innerHTML : '';
-        if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
+        const languageCode = writingSystem.attributes.getNamedItem('code')!.value;
+        if (!languageCode) {
+            console.error(
+                `BookCollection "${collectionName}" missing required language information: languageCode="${languageCode}""`
+            );
+            throw 'Missing languageCode';
+        }
+        const languageName = writingSystem
+            .getElementsByTagName('display-names')[0]
+            ?.getElementsByTagName('form')[0].innerHTML;
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
         const collectionDescription =
             collectionDescriptionTags.length > 0 ? collectionDescriptionTags[0].innerHTML : '';
@@ -312,13 +322,8 @@ function convertConfig(dataDir: string, verbose: number) {
             collectionDescription,
             features,
             books,
-            languageCode: writingSystem.attributes.getNamedItem('code')!.value,
-            languageName:
-                writingSystem.childElementCount > 0
-                    ? writingSystem
-                          .getElementsByTagName('display-names')[0]
-                          .getElementsByTagName('form')[0].innerHTML
-                    : '',
+            languageCode,
+            languageName,
             style: {
                 font: stylesTag
                     .getElementsByTagName('text-font')[0]
@@ -487,7 +492,7 @@ export class ConvertConfig extends Task {
             files: [
                 {
                     path: 'src/config.js',
-                    content: `export default ${JSON.stringify(data)};`
+                    content: `export default ${JSON.stringify(data, null, 2)};`
                 }
             ]
         };
