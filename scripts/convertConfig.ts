@@ -14,8 +14,8 @@ type HTML = string;
 type BookCollectionAudio = {
     num: number;
     src: string;
-    len: number;
-    size: number;
+    len?: number;
+    size?: number;
     filename: string;
     timingFile: string;
 };
@@ -268,8 +268,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 audio.push({
                     num: parseInt(page.attributes.getNamedItem('num')!.value),
                     filename: fTag.innerHTML,
-                    len: parseInt(fTag.attributes.getNamedItem('len')!.value),
-                    size: parseInt(fTag.attributes.getNamedItem('size')!.value),
+                    len: parseInt(fTag.attributes.getNamedItem('len')?.value || ''),
+                    size: parseInt(fTag.attributes.getNamedItem('size')?.value || ''),
                     src: fTag.attributes.getNamedItem('src')!.value,
                     timingFile: audioTag.getElementsByTagName('y')[0].innerHTML
                 });
