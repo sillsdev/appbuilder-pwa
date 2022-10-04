@@ -73,6 +73,21 @@ export function convertMedia(dataDir: string, verbose: number) {
                 `copied ${path.join(dataDir, 'timings')} to ${path.join('static', 'timings')}`
             );
     } else if (verbose) console.log(`no timings found in ${dataDir}`);
+
+    // Copy timing files
+    if (
+        cpSyncOptional(path.join(dataDir, 'backgrounds'), path.join('static', 'backgrounds'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(
+                `copied ${path.join(dataDir, 'backgrounds')} to ${path.join(
+                    'static',
+                    'backgrounds'
+                )}`
+            );
+    } else if (verbose) console.log(`no backgrounds found in ${dataDir}`);
 }
 
 export interface MediaTaskOutput extends TaskOutput {
@@ -88,7 +103,8 @@ export class ConvertMedia extends Task {
         'styles',
         'illustrations',
         'audio',
-        'timings'
+        'timings',
+        'backgrounds'
     ];
 
     constructor(dataDir: string) {

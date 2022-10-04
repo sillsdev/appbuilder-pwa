@@ -17,5 +17,6 @@ static/styles
 static/illustrations
 static/collections
 static/timings
+static/backgrounds
 static/*.partial.html
 src/lib/data/catalog.js
