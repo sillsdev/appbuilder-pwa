@@ -14,7 +14,7 @@ export abstract class Task {
     constructor(protected dataDir: string) {}
 
     public abstract run(
-        verbose: boolean,
+        verbose: number,
         outputs: Map<string, TaskOutput | null>,
         modifiedPaths: string[]
     ): Promisable<TaskOutput>;

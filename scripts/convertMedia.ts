@@ -14,7 +14,7 @@ function cpSyncOptional(source: string, destination: string, opts?: CopyOptions)
 /**
  * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
  */
-export function convertMedia(dataDir: string, verbose: boolean) {
+export function convertMedia(dataDir: string, verbose: number) {
     // Copy the css stylesheets
     cpSync(path.join(dataDir, 'styles'), path.join('static', 'styles'), { recursive: true });
     if (verbose)
@@ -73,6 +73,21 @@ export function convertMedia(dataDir: string, verbose: boolean) {
                 `copied ${path.join(dataDir, 'timings')} to ${path.join('static', 'timings')}`
             );
     } else if (verbose) console.log(`no timings found in ${dataDir}`);
+
+    // Copy timing files
+    if (
+        cpSyncOptional(path.join(dataDir, 'backgrounds'), path.join('static', 'backgrounds'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(
+                `copied ${path.join(dataDir, 'backgrounds')} to ${path.join(
+                    'static',
+                    'backgrounds'
+                )}`
+            );
+    } else if (verbose) console.log(`no backgrounds found in ${dataDir}`);
 }
 
 export interface MediaTaskOutput extends TaskOutput {
@@ -88,14 +103,15 @@ export class ConvertMedia extends Task {
         'styles',
         'illustrations',
         'audio',
-        'timings'
+        'timings',
+        'backgrounds'
     ];
 
     constructor(dataDir: string) {
         super(dataDir);
     }
 
-    public async run(verbose: boolean, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
+    public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertMedia(this.dataDir, verbose);
         return {
             taskName: this.constructor.name,

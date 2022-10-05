@@ -8,7 +8,7 @@ export interface AboutTaskOutput extends TaskOutput {
 /**
  * Copies about.partial.html to static folder
  */
-export function convertAbout(dataDir: string, verbose: boolean) {
+export function convertAbout(dataDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'about.partial.html');
     const dstFile = path.join('static', 'about.partial.html');
     copyFile(srcFile, dstFile, function (err: any) {
@@ -22,7 +22,7 @@ export class ConvertAbout extends Task {
     constructor(dataDir: string) {
         super(dataDir);
     }
-    public async run(verbose: boolean, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
+    public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertAbout(this.dataDir, verbose);
         return {
             taskName: this.constructor.name,
