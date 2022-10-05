@@ -44,7 +44,7 @@ The navbar component.
         } else if (e.detail.tab === 'Verse') {
             bookSelector.setActive('Book');
             chapterSelector.setActive('Chapter');
-            $refs = { book: nextRef.book, chapter: nextRef.chapter };
+            $refs = { book: nextRef.book, chapter: nextRef.chapter }; // include verse here?
             // force closes active dropdown elements
             document.activeElement.blur();
         }
