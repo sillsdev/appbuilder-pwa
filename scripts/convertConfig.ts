@@ -268,10 +268,14 @@ function convertConfig(dataDir: string, verbose: number) {
                 audio.push({
                     num: parseInt(page.attributes.getNamedItem('num')!.value),
                     filename: fTag.innerHTML,
-                    len: parseInt(fTag.attributes.getNamedItem('len')?.value || ''),
-                    size: parseInt(fTag.attributes.getNamedItem('size')?.value || ''),
+                    len: fTag.hasAttribute('len')
+                        ? parseInt(fTag.attributes.getNamedItem('len')!.value)
+                        : undefined,
+                    size: fTag.hasAttribute('size')
+                        ? parseInt(fTag.attributes.getNamedItem('size')!.value)
+                        : undefined,
                     src: fTag.attributes.getNamedItem('src')!.value,
-                    timingFile: audioTag.getElementsByTagName('y')[0].innerHTML
+                    timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
                 });
                 if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
             }
@@ -298,12 +302,12 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
         if (verbose >= 3) console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
+        if (!writingSystem) {
+            throw `BookCollection "${collectionName}" missing writing-system`;
+        }
         const languageCode = writingSystem.attributes.getNamedItem('code')!.value;
         if (!languageCode) {
-            console.error(
-                `BookCollection "${collectionName}" missing required language information: languageCode="${languageCode}""`
-            );
-            throw 'Missing languageCode';
+            throw `BookCollection "${collectionName}" missing required language information: languageCode="${languageCode}"`;
         }
         const languageName = writingSystem
             .getElementsByTagName('display-names')[0]
