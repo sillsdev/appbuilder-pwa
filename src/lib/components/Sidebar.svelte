@@ -56,8 +56,10 @@ The sidebar/drawer.
             {/if}    
             {#if showHighlights}
               <li><a href="/highlights"><HighlightIcon />Highlights</a></li>  
-              <div class="dy-divider m-1" />
-            {/if}    
+            {/if}   
+            {#if showBookmarks || showNotes || showHighlights} 
+            <div class="dy-divider m-1" />
+            {/if}
             <li><a href="/share"><ShareIcon />Share App</a></li>
             <div class="dy-divider m-1" /> 
             <li><a href="/settings"><SettingsIcon />Settings</a></li>
