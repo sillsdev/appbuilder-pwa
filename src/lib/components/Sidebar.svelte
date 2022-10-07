@@ -28,6 +28,9 @@ The sidebar/drawer.
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
     let showNotes = $globalConfig.mainFeatures['annotation-notes'];
     let showHighlights = $globalConfig.mainFeatures['annotation-highlights'];
+    // tentative - how is a PWA distributed?
+    let showShare = $globalConfig.mainFeatures['share-app-link'] ||
+                    $globalConfig.mainFeatures['share-download-app-link'];
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
@@ -58,10 +61,12 @@ The sidebar/drawer.
               <li><a href="/highlights"><HighlightIcon />Highlights</a></li>  
             {/if}   
             {#if showBookmarks || showNotes || showHighlights} 
-            <div class="dy-divider m-1" />
+              <div class="dy-divider m-1" />
             {/if}
-            <li><a href="/share"><ShareIcon />Share App</a></li>
-            <div class="dy-divider m-1" /> 
+            {#if showShare}
+              <li><a href="/share"><ShareIcon />Share App</a></li>
+              <div class="dy-divider m-1" /> 
+            {/if}
             <li><a href="/settings"><SettingsIcon />Settings</a></li>
             <!-- svelte-ignore a11y-missing-attribute -->
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
