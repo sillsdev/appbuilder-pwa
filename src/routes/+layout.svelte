@@ -2,6 +2,7 @@
     import '../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
+    import ShareModal from '$lib/components/ShareModal.svelte';
     import { HamburgerIcon } from '$lib/icons';
     import { viewMode, audioActive, mainScroll } from '$lib/data/stores';
     import { onMount } from 'svelte';
@@ -51,6 +52,8 @@
         </div>
     {/if}
 </Sidebar>
+
+<ShareModal modalId="share-modal" />
 
 <style>
     .navbar {

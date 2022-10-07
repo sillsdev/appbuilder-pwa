@@ -42,7 +42,7 @@ The sidebar/drawer.
             <li><a href="/notes"><NoteIcon />Notes</a></li>
             <li><a href="/highlights"><HighlightIcon />Highlights</a></li>
             <div class="dy-divider m-1" />
-            <li><a href="/share"><ShareIcon />Share App</a></li>
+            <li><a href="#share-modal" class="btn"><ShareIcon />Share App</a></li>
             <div class="dy-divider m-1" />
             <li><a href="/settings"><SettingsIcon />Settings</a></li>
             <!-- svelte-ignore a11y-missing-attribute -->
