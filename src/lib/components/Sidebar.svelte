@@ -28,9 +28,10 @@ The sidebar/drawer.
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
     let showNotes = $globalConfig.mainFeatures['annotation-notes'];
     let showHighlights = $globalConfig.mainFeatures['annotation-highlights'];
-    // tentative - how is a PWA distributed?
     let showShare = $globalConfig.mainFeatures['share-app-link'] ||
-                    $globalConfig.mainFeatures['share-download-app-link'];
+                    $globalConfig.mainFeatures['share-download-app-link'] ||
+                    $globalConfig.mainFeatures['share-apk-file'] ||
+                    $globalConfig.mainFeatures['share-apple-app-link'];
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
@@ -81,3 +82,4 @@ The sidebar/drawer.
         text-decoration: none;
     }
 </style>
+
