@@ -28,10 +28,11 @@ The sidebar/drawer.
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
     let showNotes = $globalConfig.mainFeatures['annotation-notes'];
     let showHighlights = $globalConfig.mainFeatures['annotation-highlights'];
-    let showShare = $globalConfig.mainFeatures['share-app-link'] ||
-                    $globalConfig.mainFeatures['share-download-app-link'] ||
-                    $globalConfig.mainFeatures['share-apk-file'] ||
-                    $globalConfig.mainFeatures['share-apple-app-link'];
+    let showShare =
+        $globalConfig.mainFeatures['share-app-link'] ||
+        $globalConfig.mainFeatures['share-download-app-link'] ||
+        $globalConfig.mainFeatures['share-apk-file'] ||
+        $globalConfig.mainFeatures['share-apple-app-link'];
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
@@ -46,27 +47,27 @@ The sidebar/drawer.
             <!-- Sidebar content here -->
             <li><a href="/"><BibleIcon /><span>{$globalConfig.name}</span></a></li>
             {#if showSearch}
-              <li><a href="/search"><SearchIcon />Search</a></li>
-              <div class="dy-divider m-1" />
-            {/if}      
-            {#if showHistory}  
-              <li><a href="/history"><HistoryIcon />History</a></li>
-            {/if}    
+                <li><a href="/search"><SearchIcon />Search</a></li>
+                <div class="dy-divider m-1" />
+            {/if}
+            {#if showHistory}
+                <li><a href="/history"><HistoryIcon />History</a></li>
+            {/if}
             {#if showBookmarks}
-              <li><a href="/bookmarks"><BookmarkIcon />Bookmarks</a></li>
-            {/if}    
+                <li><a href="/bookmarks"><BookmarkIcon />Bookmarks</a></li>
+            {/if}
             {#if showNotes}
-              <li><a href="/notes"><NoteIcon />Notes</a></li>
-            {/if}    
+                <li><a href="/notes"><NoteIcon />Notes</a></li>
+            {/if}
             {#if showHighlights}
-              <li><a href="/highlights"><HighlightIcon />Highlights</a></li>  
-            {/if}   
-            {#if showBookmarks || showNotes || showHighlights} 
-              <div class="dy-divider m-1" />
+                <li><a href="/highlights"><HighlightIcon />Highlights</a></li>
+            {/if}
+            {#if showBookmarks || showNotes || showHighlights}
+                <div class="dy-divider m-1" />
             {/if}
             {#if showShare}
-              <li><a href="/share"><ShareIcon />Share App</a></li>
-              <div class="dy-divider m-1" /> 
+                <li><a href="/share"><ShareIcon />Share App</a></li>
+                <div class="dy-divider m-1" />
             {/if}
             <li><a href="/settings"><SettingsIcon />Settings</a></li>
             <!-- svelte-ignore a11y-missing-attribute -->
@@ -82,4 +83,3 @@ The sidebar/drawer.
         text-decoration: none;
     }
 </style>
-
