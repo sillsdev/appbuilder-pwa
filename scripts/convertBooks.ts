@@ -36,7 +36,7 @@ export async function convertBooks(
             console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
         }
         usedLangs.add(lang);
-        const abbr = collection.collectionAbbreviation;
+        const abbr = (collection.collectionAbbreviation ?? collection.id).toLowerCase();
         const docSet = lang + '_' + abbr;
         if (verbose)
             console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);

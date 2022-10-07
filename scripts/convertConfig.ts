@@ -53,9 +53,9 @@ type BookCollection = {
             [property: string]: string;
         };
     };
-    collectionName: string;
-    collectionAbbreviation: string;
-    collectionDescription: string;
+    collectionName?: string;
+    collectionAbbreviation?: string;
+    collectionDescription?: string;
 };
 
 export type ConfigData = {
@@ -296,7 +296,9 @@ function convertConfig(dataDir: string, verbose: number) {
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }
         const collectionNameTags = tag.getElementsByTagName('book-collection-name');
-        const collectionName = collectionNameTags.length > 0 ? collectionNameTags[0].innerHTML : '';
+        const collectionName = collectionNameTags[0].innerHTML.length
+            ? collectionNameTags[0].innerHTML
+            : undefined;
         if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
         if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
@@ -313,12 +315,16 @@ function convertConfig(dataDir: string, verbose: number) {
             .getElementsByTagName('display-names')[0]
             ?.getElementsByTagName('form')[0].innerHTML;
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
-        const collectionDescription =
-            collectionDescriptionTags.length > 0 ? collectionDescriptionTags[0].innerHTML : '';
+        const collectionDescription = collectionDescriptionTags[0].innerHTML.length
+            ? collectionDescriptionTags[0].innerHTML
+            : undefined;
         if (verbose >= 2) console.log(`.. collectionDescription: `, collectionDescription);
         const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbrev');
-        const collectionAbbreviation =
-            collectionAbbreviationTags.length > 0 ? collectionAbbreviationTags[0].innerHTML : '';
+        const collectionAbbreviation = collectionAbbreviationTags[0].innerHTML.length
+            ? collectionAbbreviationTags[0].innerHTML
+            : undefined;
+        if (verbose >= 2) console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
+
         data.bookCollections.push({
             id: tag.id,
             collectionName,
