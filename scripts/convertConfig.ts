@@ -493,7 +493,7 @@ function convertConfig(dataDir: string, verbose: number) {
     // Menu Items
     const menuItems = document
         .getElementsByTagName('menu-items')[0]
-        .getElementsByTagName('menu-item');
+        ?.getElementsByTagName('menu-item');
     if (menuItems?.length > 0) {
         data.menuItems = [];
         for (const menuItem of menuItems) {
