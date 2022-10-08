@@ -129,6 +129,23 @@ export type ConfigData = {
             [key: string]: any;
         };
     }[];
+    menuItems?: {
+        type: string;
+        title: {
+            [lang: string]: string;
+        };
+        link?: {
+            [lang: string]: string;
+        };
+        linkId?: {
+            [lang: string]: string;
+        };
+        images?: {
+            width: number;
+            height: number;
+            file: string;
+        }[];
+    }[];
     defaultLayout?: string; // TODO
     security?: {
         // TODO
@@ -150,7 +167,9 @@ function parseConfigValue(value: any) {
 }
 
 function convertConfig(dataDir: string, verbose: number) {
-    const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString());
+    const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
+        contentType: 'text/xml'
+    });
     const { document } = dom.window;
 
     // Name
@@ -470,6 +489,67 @@ function convertConfig(dataDir: string, verbose: number) {
     */
 
     /* defaultLayout?: string; */
+
+    // Menu Items
+    const menuItems = document
+        .getElementsByTagName('menu-items')[0]
+        ?.getElementsByTagName('menu-item');
+    if (menuItems?.length > 0) {
+        data.menuItems = [];
+        for (const menuItem of menuItems) {
+            const type = menuItem.attributes.getNamedItem('type')!.value;
+            if (verbose >= 2) console.log(`.. Converting menuItem: ${type}`);
+            if (verbose >= 3) console.log('.... menuItem:', menuItem.outerHTML);
+
+            const titleTags = menuItem.getElementsByTagName('title')[0].getElementsByTagName('t');
+            const title: { [lang: string]: string } = {};
+            for (const titleTag of titleTags) {
+                title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
+            }
+
+            const linkTags = menuItem.getElementsByTagName('link')[0]?.getElementsByTagName('t');
+            const link: { [lang: string]: string } = {};
+            if (linkTags) {
+                for (const linkTag of linkTags) {
+                    link[linkTag.attributes.getNamedItem('lang')!.value] = linkTag.innerHTML;
+                }
+            }
+
+            const linkIdTags = menuItem
+                .getElementsByTagName('link-id')[0]
+                ?.getElementsByTagName('t');
+            const linkId: { [lang: string]: string } = {};
+            if (linkIdTags) {
+                for (const linkIdTag of linkIdTags) {
+                    linkId[linkIdTag.attributes.getNamedItem('lang')!.value] = linkIdTag.innerHTML;
+                }
+            }
+
+            const imageTags = menuItem
+                .getElementsByTagName('images')[0]
+                ?.getElementsByTagName('image');
+            const images = [];
+            if (imageTags) {
+                for (const imageTag of imageTags) {
+                    images.push({
+                        width: parseInt(imageTag.attributes.getNamedItem('width')!.value),
+                        height: parseInt(imageTag.attributes.getNamedItem('height')!.value),
+                        file: imageTag.innerHTML
+                    });
+                }
+            }
+
+            data.menuItems.push({
+                type,
+                title,
+                link,
+                linkId,
+                images
+            });
+
+            if (verbose >= 3) console.log(`....`, JSON.stringify(data.menuItems));
+        }
+    }
 
     /*
     security?: {
