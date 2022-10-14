@@ -62,7 +62,7 @@ The sidebar/drawer.
             {#if showHighlights}
                 <li><a href="/highlights"><HighlightIcon />Highlights</a></li>
             {/if}
-            {#if showBookmarks || showNotes || showHighlights}
+            {#if history || showBookmarks || showNotes || showHighlights}
                 <div class="dy-divider m-1" />
             {/if}
             {#if showShare}

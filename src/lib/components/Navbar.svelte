@@ -17,6 +17,7 @@ The navbar component.
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
+    import { globalConfig } from '$lib/data/stores';
     import { audioActive, refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
 
