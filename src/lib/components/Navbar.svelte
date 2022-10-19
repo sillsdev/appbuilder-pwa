@@ -50,7 +50,7 @@ The navbar component.
         }
     }
 
-    let actionBarColor = $globalConfig.themes[0].colorSets[0].colors['PrimaryColor'];
+    $: actionBarColor = $globalConfig.themes[0].colorSets[0].colors['PrimaryColor'];
     $: console.log(actionBarColor);
 
     /**list of books in current docSet*/
@@ -66,7 +66,7 @@ The navbar component.
 
 <div
     class="dy-navbar text-white fill-white stroke-white"
-    style="background-color: {{ actionBarColor }}"
+    style="background-color: {actionBarColor};"
 >
     <div class="dy-navbar-start">
         <slot name="drawer-button" />
