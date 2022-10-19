@@ -51,16 +51,23 @@ The navbar component.
     }
 
     let actionBarColor = $globalConfig.themes[0].colorSets[0].colors['PrimaryColor'];
+    $: console.log(actionBarColor);
 
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
-
     onDestroy(unsub);
 </script>
 
-<div class="dy-navbar bg-[{actionBarColor}] text-white fill-white stroke-white">
+<!--
+  see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
+-->
+
+<div
+    class="dy-navbar text-white fill-white stroke-white"
+    style="background-color: {{ actionBarColor }}"
+>
     <div class="dy-navbar-start">
         <slot name="drawer-button" />
         <!-- Translation/View Selector -->
