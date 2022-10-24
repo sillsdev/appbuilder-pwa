@@ -51,7 +51,6 @@ The navbar component.
     }
 
     $: actionBarColor = $globalConfig.themes[0].colorSets[0].colors['PrimaryColor'];
-    $: console.log(actionBarColor);
 
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
