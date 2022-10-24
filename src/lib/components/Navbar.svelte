@@ -17,7 +17,6 @@ The navbar component.
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
-    import { globalConfig } from '$lib/data/stores';
     import { audioActive, refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { globalConfig } from '$lib/data/stores';
@@ -195,7 +194,7 @@ The navbar component.
             </a>
         {/if}
         <!-- Text Appearance Options Menu -->
-        {#if $globalConfig.mainFeatures["text-font-size-slider"] && $globalConfig.mainFeatures["text-line-height-slider"] }
+        {#if $globalConfig.mainFeatures["text-font-size-slider"] && $globalConfig.mainFeatures[ "text-line-height-slider"] }
             <Dropdown>
                 <svelte:fragment slot="label">
                     <TextAppearanceIcon />
