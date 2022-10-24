@@ -50,8 +50,7 @@ The navbar component.
         }
     }
 
-    $: actionBarColor = $globalConfig.themes[0].colorSets[0].colors['PrimaryColor'];
-
+    $: actionBarColor = $globalConfig.themes.find(x => x.name === 'Normal').colorSets.find(x => x.type === 'main').colors['PrimaryColor'];
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
     /**list of chapters in current book*/
