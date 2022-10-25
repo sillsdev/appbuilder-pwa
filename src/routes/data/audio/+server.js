@@ -9,12 +9,12 @@ export async function POST({ request }) {
     //search config for audio on provided collection, book, and chapter
     const audio = config.bookCollections.find((c) => {
         return body.collection.split('_')[0] === c.languageCode && 
-        body.collection.split('_')[1] === c.collectionAbbreviation;
+        body.collection.split('_')[1] === c.id;
     })?.books?.find((b) => (b.id === body.book))?.audio?.find((a) => body.chapter === ''+a.num);
 
     if(!audio) {
         return json({
-    error: `no audio found for ${body.book}:${body.chapter}`
+    error: `no audio found for ${body.collection}:${body.book}:${body.chapter}`
 })
     }
 
