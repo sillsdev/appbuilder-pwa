@@ -36,8 +36,8 @@ export async function convertBooks(
             console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
         }
         usedLangs.add(lang);
-        const abbr = (collection.collectionAbbreviation ?? collection.id).toLowerCase();
-        const docSet = lang + '_' + abbr;
+        const bcid = collection.id;
+        const docSet = lang + '_' + bcid;
         if (verbose)
             console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
         /**array of promises of Proskomma mutations*/
@@ -62,7 +62,7 @@ export async function convertBooks(
                                     addDocument(
                                         selectors: [
                                             {key: "lang", value: "${lang}"}, 
-                                            {key: "abbr", value: "${abbr}"}
+                                            {key: "abbr", value: "${bcid}"}
                                         ], 
                                         contentType: "${book.file.split('.').pop()}", 
                                         content: """${content}""",
@@ -190,7 +190,7 @@ export class ConvertBooks extends Task {
             deepCompareObjects(
                 ConvertBooks.lastBookCollections,
                 config.data.bookCollections,
-                new Set(['id', 'books', 'collectionAbbreviation', 'languageCode'])
+                new Set(['id', 'books', 'languageCode'])
             )
         ) {
             return {
