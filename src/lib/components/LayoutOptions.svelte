@@ -27,6 +27,7 @@ TODO:
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
                         on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
                         class={nextDocSet === d ? 'dy-active' : ''}
@@ -41,6 +42,7 @@ TODO:
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
                         on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
                         class={nextDocSet === d ? 'dy-active' : ''}
@@ -55,6 +57,7 @@ TODO:
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
                         on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
                         class={nextDocSet === d ? 'dy-active' : ''}

@@ -21,8 +21,9 @@ A component to display menu options in a grid.
         <tr>
             {#each Array(cols) as _, ci}
                 {#if ri * cols + ci < options.length}
-                    <td class="border-base-200 bg-base-100"
-                        ><span
+                    <td class="border-base-200 bg-base-100">
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <span
                             on:click={() => handleClick(options[ri * cols + ci])}
                             class="dy-btn dy-btn-square dy-btn-ghost p-0 m-0"
                             >{options[ri * cols + ci]}</span

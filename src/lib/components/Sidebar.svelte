@@ -71,6 +71,7 @@ The sidebar/drawer.
             {/if}
             <li><a href="/settings"><SettingsIcon />Settings</a></li>
             <!-- svelte-ignore a11y-missing-attribute -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
             <li><a href="/about"><AboutIcon />About</a></li>
