@@ -17,9 +17,8 @@ The navbar component.
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, globalConfig } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
-    import { globalConfig } from '$lib/data/stores';
 
     let nextRef;
     const unsub = refs.subscribe((v) => {
@@ -110,7 +109,7 @@ The navbar component.
             </svelte:fragment>
         </Dropdown>
         <!-- Book Selector -->
-        {#if $globalConfig.mainFeatures["book-select"] == "grid" || $globalConfig.mainFeatures["book-select"] =="list" }
+        {#if $globalConfig.mainFeatures['book-select'] === 'grid' || $globalConfig.mainFeatures['book-select'] === 'list'}
             <Dropdown>
                 <svelte:fragment slot="label">
                     {nextRef.book}
@@ -126,7 +125,9 @@ The navbar component.
                                  * TODO:
                                  * - add book abbreviations to catalog to be used in UI instead of bookCode
                                  */
-                                props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
+                                props: {
+                                    options: books.map((b) => b.bookCode) /*bookAbbreviations*/
+                                }
                             },
                             Chapter: {
                                 component: SelectGrid,
@@ -144,7 +145,7 @@ The navbar component.
             </Dropdown>
         {/if}
         <!-- Chapter Selector -->
-        {#if $globalConfig.mainFeatures["show-chapter-numbers"]}
+        {#if $globalConfig.mainFeatures['show-chapter-number-on-app-bar']}
             <Dropdown>
                 <svelte:fragment slot="label">
                     {nextRef.chapter}
@@ -172,7 +173,7 @@ The navbar component.
     </div>
     <div class="dy-navbar-end fill-base-content">
         <!-- Mute/Volume Button -->
-        {#if $globalConfig.mainFeatures["audio-turn-on-at-startup"]} 
+        {#if $audioActive}
             <button class="dy-btn dy-btn-ghost dy-btn-circle">
                 <label class="dy-swap">
                     <!-- this hidden checkbox controls the state -->
@@ -184,17 +185,16 @@ The navbar component.
                     <!-- volume off icon -->
                     <AudioIcon.Mute _class="dy-swap-off fill-black-100" />
                 </label>
-                
             </button>
         {/if}
         <!-- Search Button -->
-        {#if $globalConfig.mainFeatures['search']} 
+        {#if $globalConfig.mainFeatures['search']}
             <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
                 <SearchIcon />
             </a>
         {/if}
         <!-- Text Appearance Options Menu -->
-        {#if $globalConfig.mainFeatures["text-font-size-slider"] && $globalConfig.mainFeatures[ "text-line-height-slider"] }
+        {#if $globalConfig.mainFeatures['text-font-size-slider'] || $globalConfig.mainFeatures['text-line-height-slider']}
             <Dropdown>
                 <svelte:fragment slot="label">
                     <TextAppearanceIcon />

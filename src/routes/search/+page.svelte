@@ -6,8 +6,6 @@
 
     let searchText = '';
 
-
-
     //TODO: make match whole words setting do something
     let matchWholeWords = true;
 
@@ -61,7 +59,6 @@
         console.log(passages.length);
         searching = false;
     }
-
 </script>
 
 <div class="navbar">
