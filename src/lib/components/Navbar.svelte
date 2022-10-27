@@ -51,7 +51,7 @@ The navbar component.
     }
 
     $: actionBarColor = $globalConfig.themes
-        .find((x) => x.name === 'Normal' && x.enabled === true)
+        .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme
         .colorSets.find((x) => x.type === 'main').colors['PrimaryColor'];
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
