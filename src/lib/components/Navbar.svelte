@@ -17,8 +17,7 @@ The navbar component.
         VerseByVerseIcon
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
-    import { globalConfig } from '$lib/data/stores';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, globalConfig } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
 
     let nextRef;
@@ -51,15 +50,21 @@ The navbar component.
         }
     }
 
+    $: actionBarColor = $globalConfig.themes
+        .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme
+        .colorSets.find((x) => x.type === 'main').colors['PrimaryColor'];
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
-
     onDestroy(unsub);
 </script>
 
-<div class="dy-navbar bg-primary h-full">
+<!--
+  see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
+-->
+
+<div class="dy-navbar text-white fill-white stroke-white" style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
         <slot name="drawer-button" />
         <!-- Translation/View Selector -->
