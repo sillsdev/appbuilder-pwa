@@ -283,7 +283,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
                 const fTag = audioTag.getElementsByTagName('f')[0];
-                if (verbose >= 2) console.log(`... audioTag: ${audioTag}, fTag:{fTag}`);
+                if (verbose >= 2)
+                    console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
                 audio.push({
                     num: parseInt(page.attributes.getNamedItem('num')!.value),
                     filename: fTag.innerHTML,
@@ -334,12 +335,12 @@ function convertConfig(dataDir: string, verbose: number) {
             .getElementsByTagName('display-names')[0]
             ?.getElementsByTagName('form')[0].innerHTML;
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
-        const collectionDescription = collectionDescriptionTags[0].innerHTML.length
+        const collectionDescription = collectionDescriptionTags[0]?.innerHTML.length
             ? collectionDescriptionTags[0].innerHTML
             : undefined;
         if (verbose >= 2) console.log(`.. collectionDescription: `, collectionDescription);
         const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbrev');
-        const collectionAbbreviation = collectionAbbreviationTags[0].innerHTML.length
+        const collectionAbbreviation = collectionAbbreviationTags[0]?.innerHTML.length
             ? collectionAbbreviationTags[0].innerHTML
             : undefined;
         if (verbose >= 2) console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
