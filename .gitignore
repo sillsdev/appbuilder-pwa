@@ -18,5 +18,8 @@ static/illustrations
 static/collections
 static/timings
 static/backgrounds
+static/borders
+static/clips
+static/videos
 static/*.partial.html
 src/lib/data/catalog.js

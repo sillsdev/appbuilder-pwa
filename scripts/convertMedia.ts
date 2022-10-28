@@ -74,7 +74,7 @@ export function convertMedia(dataDir: string, verbose: number) {
             );
     } else if (verbose) console.log(`no timings found in ${dataDir}`);
 
-    // Copy timing files
+    // Copy backgrounds files
     if (
         cpSyncOptional(path.join(dataDir, 'backgrounds'), path.join('static', 'backgrounds'), {
             recursive: true
@@ -88,6 +88,52 @@ export function convertMedia(dataDir: string, verbose: number) {
                 )}`
             );
     } else if (verbose) console.log(`no backgrounds found in ${dataDir}`);
+
+    // Copy borders files
+    if (
+        cpSyncOptional(path.join(dataDir, 'borders'), path.join('static', 'borders'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(
+                `copied ${path.join(dataDir, 'borders')} to ${path.join('static', 'borders')}`
+            );
+    } else if (verbose) console.log(`no borders found in ${dataDir}`);
+
+    // Copy images files
+    if (
+        cpSyncOptional(path.join(dataDir, 'images'), path.join('static', 'images'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(
+                `copied ${path.join(dataDir, 'images')} to ${path.join('static', 'images')}`
+            );
+    } else if (verbose) console.log(`no images found in ${dataDir}`);
+
+    // Copy clips files
+    if (
+        cpSyncOptional(path.join(dataDir, 'clips'), path.join('static', 'clips'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(`copied ${path.join(dataDir, 'clips')} to ${path.join('static', 'clips')}`);
+    } else if (verbose) console.log(`no clips found in ${dataDir}`);
+
+    // Copy videos files
+    if (
+        cpSyncOptional(path.join(dataDir, 'videos'), path.join('static', 'videos'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(
+                `copied ${path.join(dataDir, 'videos')} to ${path.join('static', 'videos')}`
+            );
+    } else if (verbose) console.log(`no videos found in ${dataDir}`);
 }
 
 export interface MediaTaskOutput extends TaskOutput {
@@ -104,7 +150,11 @@ export class ConvertMedia extends Task {
         'illustrations',
         'audio',
         'timings',
-        'backgrounds'
+        'backgrounds',
+        'borders',
+        'images',
+        'clips',
+        'videos'
     ];
 
     constructor(dataDir: string) {
