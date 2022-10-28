@@ -1,3 +1,4 @@
+import { Console } from 'console';
 import { readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
@@ -33,6 +34,13 @@ type BookCollection = {
         chaptersN: string; // 1-34
         file: string;
         audio: BookCollectionAudio[];
+        styles?: {
+            name: string;
+            category?: string;
+            properties: {
+                [key: string]: string;
+            };
+        }[];
     }[];
     style?: {
         font: string;
@@ -49,10 +57,12 @@ type BookCollection = {
         [key: string]: string;
     };
     styles?: {
-        [selector: string]: {
-            [property: string]: string;
+        name: string;
+        category?: string;
+        properties: {
+            [key: string]: string;
         };
-    };
+    }[];
     collectionName?: string;
     collectionAbbreviation?: string;
     collectionDescription?: string;
@@ -77,6 +87,13 @@ export type ConfigData = {
                 [key: string]: string;
             };
         }[];
+    }[];
+    styles?: {
+        name: string;
+        category?: string;
+        properties: {
+            [key: string]: string;
+        };
     }[];
     defaultTheme?: string;
     traits?: any;
@@ -166,6 +183,31 @@ function parseConfigValue(value: any) {
     return value;
 }
 
+function parseStyles(stylesTag: Element) {
+    const styles = [];
+    const styleTags = stylesTag?.getElementsByTagName('style');
+    if (!styleTags) throw new Error('Styles tag not found in xml');
+    for (const tag of styleTags) {
+        //console.log(tag.outerHTML);
+        const name = tag.attributes.getNamedItem('name')!.value;
+        const category = tag.attributes.getNamedItem('category')?.value;
+        const properties: { [key: string]: string } = {};
+        const propertyTags = tag.getElementsByTagName('sd');
+        for (const propertyTag of propertyTags) {
+            const propName = propertyTag.getAttribute('property');
+            const propValue = propertyTag.getAttribute('value');
+            if (propName && propValue) properties[propName] = propValue;
+        }
+        styles.push({
+            name,
+            category,
+            properties
+        });
+    }
+
+    return styles;
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
@@ -248,6 +290,10 @@ function convertConfig(dataDir: string, verbose: number) {
     }
     if (verbose) console.log(`Converted ${data.themes.length} themes`);
 
+    // Styles
+    const mainStyles = document.querySelector('styles')!;
+    data.styles = parseStyles(mainStyles);
+
     // Traits
     const traitTags = document.getElementsByTagName('traits')[0].getElementsByTagName('trait');
     data.traits = {};
@@ -299,6 +345,9 @@ function convertConfig(dataDir: string, verbose: number) {
                 });
                 if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
             }
+            const bkStyles = book.querySelector('styles');
+            const styles = bkStyles ? parseStyles(bkStyles) : undefined;
+
             books.push({
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
@@ -311,7 +360,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
-                file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm')
+                file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
+                styles
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }
@@ -345,6 +395,9 @@ function convertConfig(dataDir: string, verbose: number) {
             : undefined;
         if (verbose >= 2) console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
 
+        const bcStyles = tag.querySelector('styles');
+        const styles = bcStyles ? parseStyles(bcStyles) : undefined;
+
         data.bookCollections.push({
             id: tag.id,
             collectionName,
@@ -376,7 +429,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 verseNumbers: stylesTag
                     .getElementsByTagName('verse-number-style')[0]
                     .attributes.getNamedItem('value')!.value
-            }
+            },
+            styles
         });
         if (verbose >= 3) console.log(`.... collection: `, JSON.stringify(data.bookCollections[0]));
     }
