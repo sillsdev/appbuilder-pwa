@@ -28,15 +28,17 @@ A component to display tabbed menus.
     };
 </script>
 
-<div class="dy-tabs" style:background-color={primaryColor} >
+<div class="dy-tabs" style:background-color={primaryColor}>
     {#each Object.keys(options) as opt}
         <!-- svelte-ignore a11y-missing-attribute -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        
+
         <!-- how to set this to white on dy-tab-active???-->
         <a
             on:click={() => (active = opt)}
-            class="dy-tab dy-tab-bordered text-white stroke-white fill-white {active === opt ? 'dy-tab-active' : ''}" 
+            class="dy-tab dy-tab-bordered text-white stroke-white fill-white {active === opt
+                ? 'dy-tab-active'
+                : ''}"
         >
             {#if options[opt].tab}
                 <svelte:component this={options[opt].tab?.component} {...options[opt].tab?.props} />
