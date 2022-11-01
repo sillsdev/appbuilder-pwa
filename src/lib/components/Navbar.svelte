@@ -72,6 +72,15 @@ The navbar component.
         }
     }
 
+    /** Checks if normal is enabled*/
+    $: countThemesNormal = $globalConfig.themes.find((x) => x.name === 'Normal').enabled;
+
+    /** Checks if sepia is enabled*/
+    $: countThemesSepia = $globalConfig.themes.find((x) => x.name === 'Sepia').enabled;
+
+    /** Checks if dark is enabled*/
+    $: countThemesDark = $globalConfig.themes.find((x) => x.name === 'Dark').enabled;
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
     /**list of chapters in current book*/
@@ -109,7 +118,7 @@ The navbar component.
             </svelte:fragment>
         </Dropdown>
         <!-- Book Selector -->
-        {#if $globalConfig.mainFeatures['book-select'] === 'grid' || $globalConfig.mainFeatures['book-select'] === 'list'}
+        {#if $globalConfig.mainFeatures['book-select'] === 'grid'}
             <Dropdown>
                 <svelte:fragment slot="label">
                     {nextRef.book}
@@ -143,6 +152,8 @@ The navbar component.
                     />
                 </svelte:fragment>
             </Dropdown>
+        {:else if $globalConfig.mainFeatures['book-select'] === 'list'}
+            <!--TODO: Add List selector -->
         {/if}
         <!-- Chapter Selector -->
         {#if $globalConfig.mainFeatures['show-chapter-number-on-app-bar']}
@@ -194,7 +205,7 @@ The navbar component.
             </a>
         {/if}
         <!-- Text Appearance Options Menu -->
-        {#if $globalConfig.mainFeatures['text-font-size-slider'] || $globalConfig.mainFeatures['text-line-height-slider']}
+        {#if $globalConfig.mainFeatures['text-font-size-slider'] || $globalConfig.mainFeatures['text-line-height-slider'] || countThemesNormal || countThemesDark || countThemesSepia}
             <Dropdown>
                 <svelte:fragment slot="label">
                     <TextAppearanceIcon />
