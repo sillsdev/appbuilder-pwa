@@ -6,20 +6,31 @@ A component to display menu options in a grid.
     import { createEventDispatcher } from 'svelte';
     import { globalConfig } from '$lib/data/stores';
     export let options = [''];
-    export let cols = 5;
+    export let cols = 6;
 
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length / cols);
 
-    // TODO: Change handling for chapters/verses
     function bookCollectionColor(bookAbbr: string) {
+        let section = $globalConfig.bookCollections
+            .find((x) => x.id === 'C01')
+            .books.find((x) => x.id === bookAbbr)?.section;
+
         let color = $globalConfig.themes
             .find((x) => x.name === 'Normal')
-            .colorSets.find((x) => x.type === 'books').colors[
-            $globalConfig.bookCollections
-                .find((x) => x.id === 'C01')
-                .books.find((x) => x.id === 'GEN').section
-        ];
+            .colorSets.find((x) => x.type === 'main').colors['ChapterButtonColor'];
+
+        console.log('Color: ', color);
+
+        if (section) {
+            let colorSection = $globalConfig.themes
+                .find((x) => x.name === 'Normal')
+                .colorSets.find((x) => x.type === 'books')?.colors[section];
+            console.log('Color Section: ', colorSection);
+            if (colorSection) {
+                color = colorSection;
+            }
+        }
         return color;
     }
 
