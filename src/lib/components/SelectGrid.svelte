@@ -11,6 +11,10 @@ A component to display menu options in a grid.
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length / cols);
 
+    let textColor = $globalConfig.themes
+        .find((x) => x.name === 'Normal')
+        .colorSets.find((x) => x.type === 'main')?.colors['ChapterButtonTextColor'];
+
     function bookCollectionColor(bookAbbr: string) {
         let section = $globalConfig.bookCollections
             .find((x) => x.id === 'C01')
@@ -20,13 +24,10 @@ A component to display menu options in a grid.
             .find((x) => x.name === 'Normal')
             .colorSets.find((x) => x.type === 'main').colors['ChapterButtonColor'];
 
-        console.log('Color: ', color);
-
         if (section) {
             let colorSection = $globalConfig.themes
                 .find((x) => x.name === 'Normal')
                 .colorSets.find((x) => x.type === 'books')?.colors[section];
-            console.log('Color Section: ', colorSection);
             if (colorSection) {
                 color = colorSection;
             }
@@ -50,9 +51,9 @@ A component to display menu options in a grid.
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <span
                             on:click={() => handleClick(options[ri * cols + ci])}
-                            class="dy-btn dy-btn-square dy-btn-ghost p-0 m-0"
+                            class="dy-btn dy-btn-square dy-btn-ghost p-0 "
                             style:background-color={bookCollectionColor(options[ri * cols + ci])}
-                            >{options[ri * cols + ci]}</span
+                            style:color={textColor}>{options[ri * cols + ci]}</span
                         ></td
                     >
                 {/if}
