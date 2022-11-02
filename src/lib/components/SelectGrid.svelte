@@ -11,27 +11,23 @@ A component to display menu options in a grid.
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length / cols);
 
-    let textColor = $globalConfig.themes
+    let colors = (type, key) => $globalConfig.themes
         .find((x) => x.name === 'Normal')
-        .colorSets.find((x) => x.type === 'main')?.colors['ChapterButtonTextColor'];
+        .colorSets.find((x) => x.type === type)?.colors[key];
 
-    let tableColor = $globalConfig.themes
-        .find((x) => x.name === 'Normal')
-        .colorSets.find((x) => x.type === 'main')?.colors['BackgroundColor'];
+    let textColor = colors('main', 'ChapterButtonTextColor');
+
+    let tableColor = colors('main', 'BackgroundColor');
 
     function bookCollectionColor(bookAbbr: string) {
         let section = $globalConfig.bookCollections
             .find((x) => x.id === 'C01')
             .books.find((x) => x.id === bookAbbr)?.section;
 
-        let color = $globalConfig.themes
-            .find((x) => x.name === 'Normal')
-            .colorSets.find((x) => x.type === 'main').colors['ChapterButtonColor'];
+        let color = colors('main', 'ChapterButtonColor');
 
         if (section) {
-            let colorSection = $globalConfig.themes
-                .find((x) => x.name === 'Normal')
-                .colorSets.find((x) => x.type === 'books')?.colors[section];
+            let colorSection = colors('main', section);
             if (colorSection) {
                 color = colorSection;
             }

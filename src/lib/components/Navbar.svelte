@@ -112,7 +112,7 @@ The navbar component.
                              */
                             props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
                         },
-                        // 
+                        // Should remove?
                         Chapter: {
                             component: SelectGrid,
                             props: { options: Object.keys(chapters) }
