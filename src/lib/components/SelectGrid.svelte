@@ -10,7 +10,7 @@ A component to display menu options in a grid.
 
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length / cols);
-    
+
     let colors = (type: string, key: string) =>
         $globalConfig.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
             ?.colors[key];
