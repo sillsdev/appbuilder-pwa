@@ -36,9 +36,10 @@ A component to display tabbed menus.
         <!-- how to set this to white on dy-tab-active???-->
         <a
             on:click={() => (active = opt)}
-            class="dy-tab dy-tab-bordered text-white stroke-white fill-white {active === opt
+            class="dy-tab dy-tab-bordered text-white active:color=white {active === opt
                 ? 'dy-tab-active'
                 : ''}"
+            style:background=none
         >
             {#if options[opt].tab}
                 <svelte:component this={options[opt].tab?.component} {...options[opt].tab?.props} />

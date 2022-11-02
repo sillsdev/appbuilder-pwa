@@ -14,6 +14,10 @@ A component to display menu options in a grid.
     let textColor = $globalConfig.themes
         .find((x) => x.name === 'Normal')
         .colorSets.find((x) => x.type === 'main')?.colors['ChapterButtonTextColor'];
+    
+    let tableColor = $globalConfig.themes
+        .find((x) => x.name === 'Normal')
+        .colorSets.find((x) => x.type === 'main')?.colors['BackgroundColor'];
 
     function bookCollectionColor(bookAbbr: string) {
         let section = $globalConfig.bookCollections
@@ -42,17 +46,18 @@ A component to display menu options in a grid.
     }
 </script>
 
-<table class="bg-base-200">
+<table style:background-color={tableColor} style:border-spacing="5px">
     {#each Array(rows) as _, ri}
         <tr>
             {#each Array(cols) as _, ci}
                 {#if ri * cols + ci < options.length}
-                    <td class="border-base-200 bg-base-100">
+                    <td style:background-color={tableColor} style:border=none style:border-radius="0px">
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <span
                             on:click={() => handleClick(options[ri * cols + ci])}
-                            class="dy-btn dy-btn-square dy-btn-ghost p-0 "
+                            class="dy-btn dy-btn-square dy-btn-ghost p-0"
                             style:background-color={bookCollectionColor(options[ri * cols + ci])}
+                            style:border-radius="0px"
                             style:color={textColor}>{options[ri * cols + ci]}</span
                         ></td
                     >
