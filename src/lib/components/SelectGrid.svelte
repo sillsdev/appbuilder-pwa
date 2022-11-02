@@ -10,7 +10,6 @@ A component to display menu options in a grid.
 
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length / cols);
-
     let colors = (type: string, key: string) =>
         $globalConfig.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
             ?.colors[key];
@@ -23,7 +22,7 @@ A component to display menu options in a grid.
             .books.find((x) => x.id === bookAbbr)?.section;
         let color = colors('main', 'ChapterButtonColor');
         if (section) {
-            let colorSection = colors('main', section);
+            let colorSection = colors('books', section);
             if (colorSection) {
                 color = colorSection;
             }
