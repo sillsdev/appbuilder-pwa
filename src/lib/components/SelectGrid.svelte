@@ -14,7 +14,7 @@ A component to display menu options in a grid.
     let textColor = $globalConfig.themes
         .find((x) => x.name === 'Normal')
         .colorSets.find((x) => x.type === 'main')?.colors['ChapterButtonTextColor'];
-    
+
     let tableColor = $globalConfig.themes
         .find((x) => x.name === 'Normal')
         .colorSets.find((x) => x.type === 'main')?.colors['BackgroundColor'];
@@ -51,7 +51,11 @@ A component to display menu options in a grid.
         <tr>
             {#each Array(cols) as _, ci}
                 {#if ri * cols + ci < options.length}
-                    <td style:background-color={tableColor} style:border=none style:border-radius="0px">
+                    <td
+                        style:background-color={tableColor}
+                        style:border="none"
+                        style:border-radius="0px"
+                    >
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <span
                             on:click={() => handleClick(options[ri * cols + ci])}
