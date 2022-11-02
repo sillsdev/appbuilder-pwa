@@ -112,6 +112,7 @@ The navbar component.
                              */
                             props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
                         },
+                        // 
                         Chapter: {
                             component: SelectGrid,
                             props: { options: Object.keys(chapters) }
