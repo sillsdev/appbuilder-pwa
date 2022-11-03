@@ -49,6 +49,7 @@ The navbar component.
             document.activeElement.blur();
         }
     }
+    
 
     $: actionBarColor = $globalConfig.themes
         .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme

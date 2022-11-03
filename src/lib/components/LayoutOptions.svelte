@@ -7,9 +7,14 @@ TODO:
 <script>
     import { onDestroy } from 'svelte';
     import { catalog } from '$lib/data/catalog';
-    import { refs, viewMode } from '$lib/data/stores';
+    import { refs, viewMode, globalConfig } from '$lib/data/stores';
 
     export let layoutOption = '';
+    let colors = (type, key) =>
+        $globalConfig.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
+            ?.colors[key];
+    let textColor = colors('main', 'LayoutItemNameColor');
+    let blockSelected = colors('main', 'LayoutItemSelectedBackgroundColor');
 
     let nextDocSet;
     let docSetList = catalog.map((ds) => ds.id);
@@ -52,7 +57,7 @@ TODO:
             {/each}
         </ul>
     {:else if layoutOption === 'Single Pane'}
-        <p><strong>Single Pane</strong></p>
+        <p style:color={textColor}><strong>Single Pane</strong></p>
         <ul class="dy-menu mx-auto">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
@@ -61,6 +66,8 @@ TODO:
                     <a
                         on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
                         class={nextDocSet === d ? 'dy-active' : ''}
+                        style:color={textColor}
+                        style:background-color={nextDocSet === d ? blockSelected : ''}
                         >{d}
                     </a>
                 </li>
