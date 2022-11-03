@@ -36,6 +36,8 @@ TODO:
                     <a
                         on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
                         class={nextDocSet === d ? 'dy-active' : ''}
+                        style:color={textColor}
+                        style:background-color={nextDocSet === d ? blockSelected : ''}
                         >{d}
                     </a>
                 </li>
@@ -51,6 +53,8 @@ TODO:
                     <a
                         on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
                         class={nextDocSet === d ? 'dy-active' : ''}
+                        style:color={textColor}
+                        style:background-color={nextDocSet === d ? blockSelected : ''}
                         >{d}
                     </a>
                 </li>
