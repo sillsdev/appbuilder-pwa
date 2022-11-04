@@ -5,6 +5,12 @@ import globalConfigJson from '../../config';
 export const globalConfig = readable(globalConfigJson);
 /**a group of reference stores*/
 export const refs = groupStore(referenceStore);
+/**writable store of the current theme and a function to access color attributes of an associated theme*/
+export const theme = (() => {
+  const theme = writable('Normal');
+  return {subscribe: theme.subscribe, set: theme.set};
+})();
+
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/

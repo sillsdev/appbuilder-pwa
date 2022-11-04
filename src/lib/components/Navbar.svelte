@@ -18,7 +18,7 @@ The navbar component.
     } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import { globalConfig } from '$lib/data/stores';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, theme } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
 
     let nextRef;
@@ -73,6 +73,8 @@ The navbar component.
         }
     }
 
+    console.log($theme.color("PrimaryColor"));
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
     /**list of chapters in current book*/
@@ -80,7 +82,7 @@ The navbar component.
     onDestroy(unsub);
 </script>
 
-<div class="dy-navbar bg-primary h-full">
+<div class="dy-navbar h-full">
     <div class="dy-navbar-start">
         <slot name="drawer-button" />
         <!-- Translation/View Selector -->
