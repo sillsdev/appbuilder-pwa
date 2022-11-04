@@ -37,7 +37,7 @@ The sidebar/drawer.
 
 <div class="dy-drawer dy-drawer-mobile">
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
-    <div class="dy-drawer-content bg-gray-200">
+    <div class="dy-drawer-content flex flex-col bg-gray-200">
         <!-- Page content here -->
         <slot />
     </div>

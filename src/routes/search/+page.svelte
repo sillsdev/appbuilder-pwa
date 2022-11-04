@@ -1,9 +1,15 @@
 <script lang="ts">
-    import { SearchIcon } from '$lib/icons';
     import { globalConfig } from '$lib/data/stores';
     import { refs } from '$lib/data/stores';
     import { query } from '$lib/scripts/query';
     import { postQueries, queries } from 'proskomma-tools';
+    import '../../tailwind.css';
+    import { SearchIcon } from '$lib/icons';
+    import Navbar from '$lib/components/Navbar.svelte';
+    import { HamburgerIcon } from '$lib/icons';
+    import { viewMode } from '$lib/data/stores';
+    let drawerName = 'sidebar';
+
     let searchText = '';
     //TODO: make match whole words setting do something
     let matchWholeWords = true;
@@ -58,8 +64,37 @@
         searching = false;
     }
 </script>
+<div class="navbar">
+    <Navbar>
+        <!-- Button to close the drawer/sidebar -->
+        <label
+            for={drawerName}
+            slot="drawer-button"
+            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
+                ? ''
+                : 'lg:hidden'}"
+        >
+            <HamburgerIcon />
+        </label>
+        <label
+            for={drawerName}
+            slot="left-buttons"
+        >
 
-<h1>Search</h1>
+        </label>
+        <label
+            for={drawerName}
+            slot="center"
+        >
+            <div class="btn btn-ghost normal-case text-xl">Search</div>
+        </label>
+        <label
+            for={drawerName}
+            slot="right-buttons"
+        >
+        </label>
+    </Navbar>
+</div>
 <form>
     <div class="dy-form-control">
         <label class="dy-input-group">
@@ -88,6 +123,7 @@
                 <div class="">Special characters</div>
                 <div class="special-characters">
                     {#each specialCharacters as character}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <div
                             class="special-character bg-primary"
                             on:click={() => (searchText += character)}
@@ -125,5 +161,11 @@
         border-radius: 5px;
         display: inline-block;
         user-select: none;
+    }
+    .navbar {
+        height: 10vh;
+    }
+    .larger {
+        height: 90vh;
     }
 </style>

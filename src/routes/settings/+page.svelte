@@ -1,4 +1,17 @@
 <script lang="ts">
+    import Dropdown from '$lib/components/Dropdown.svelte';
+    import '../../tailwind.css';
+    import { audioActive } from '$lib/data/stores';
+    import {
+        AudioIcon,
+        SearchIcon,
+        TextAppearanceIcon
+    } from '$lib/icons';
+    import Navbar from '$lib/components/Navbar.svelte';
+    import { HamburgerIcon } from '$lib/icons';
+    import { viewMode } from '$lib/data/stores';
+    import ScrolledContent from '$lib/components/ScrolledContent.svelte';
+    let drawerName = 'sidebar';
     // TODO: link config to settings, make settings actually matter
     let settings: App.Settings = {
         'Text Display': {
@@ -46,53 +59,95 @@
         }
     };
 </script>
+<div class="navbar">
+    <Navbar>
+        <!-- Button to close the drawer/sidebar -->
+        <label
+            for={drawerName}
+            slot="drawer-button"
+            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
+                ? ''
+                : 'lg:hidden'}"
+        >
+            <HamburgerIcon />
+        </label>
+        <label
+            for={drawerName}
+            slot="left-buttons"
+        >
 
-<!-- loops through the different settings types -->
-{#each Object.keys(settings) as setting}
-    <h1>{setting}</h1>
-    <!-- loops through the settings in the current setting type -->
-    {#each Object.keys(settings[setting]) as feature}
-        <!-- on/off setting -->
-        {#if settings[setting][feature].type === 'toggle'}
-            <div class="dy-form-control w-full max-w-xs">
-                <label class="dy-label cursor-pointer">
-                    <span class="dy-label-text">{feature}</span>
-                    <input
-                        type="checkbox"
-                        class="dy-toggle"
-                        bind:checked={settings[setting][feature].value}
-                    />
-                </label>
-                {#if settings[setting][feature].subtitle}
-                    <!-- svelte-ignore a11y-label-has-associated-control -->
-                    <label class="dy-label">
-                        <span class="dy-label-text-alt">{settings[setting][feature].subtitle}</span>
-                    </label>
+        </label>
+        <label
+        for={drawerName}
+        slot="center"
+        >
+        <div class="btn btn-ghost normal-case text-xl">Settings</div>
+    </label>
+        <label
+            for={drawerName}
+            slot="right-buttons"
+        >
+        </label>
+    </Navbar>
+</div>
+<ScrolledContent>
+    <div class="larger" slot="scrolled-content">
+        <!-- loops through the different settings types -->
+        {#each Object.keys(settings) as setting}
+            <h1>{setting}</h1>
+            <!-- loops through the settings in the current setting type -->
+            {#each Object.keys(settings[setting]) as feature}
+                <!-- on/off setting -->
+                {#if settings[setting][feature].type === 'toggle'}
+                    <div class="dy-form-control w-full max-w-xs">
+                        <label class="dy-label cursor-pointer">
+                            <span class="dy-label-text">{feature}</span>
+                            <input
+                                type="checkbox"
+                                class="dy-toggle"
+                                bind:checked={settings[setting][feature].value}
+                            />
+                        </label>
+                        {#if settings[setting][feature].subtitle}
+                            <!-- svelte-ignore a11y-label-has-associated-control -->
+                            <label class="dy-label">
+                                <span class="dy-label-text-alt">{settings[setting][feature].subtitle}</span>
+                            </label>
+                        {/if}
+                    </div>
+                    <!-- multiple choice setting -->
+                {:else if settings[setting][feature].type === 'select'}
+                    <div class="dy-form-control w-full max-w-xs">
+                        <!-- svelte-ignore a11y-label-has-associated-control -->
+                        <label class="dy-label">
+                            <span class="dy-label-text">{feature}</span>
+                        </label>
+                        <select
+                            class="dy-select dy-select-bordered"
+                            bind:value={settings[setting][feature].value}
+                        >
+                            {#each settings[setting][feature].options ?? [] as opt}
+                                <option value={opt}>{opt}</option>
+                            {/each}
+                        </select>
+                        {#if settings[setting][feature].subtitle}
+                            <!-- svelte-ignore a11y-label-has-associated-control -->
+                            <label class="dy-label">
+                                <span class="dy-label-text-alt">{settings[setting][feature].subtitle}</span>
+                            </label>
+                        {/if}
+                    </div>
                 {/if}
-            </div>
-            <!-- multiple choice setting -->
-        {:else if settings[setting][feature].type === 'select'}
-            <div class="dy-form-control w-full max-w-xs">
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label class="dy-label">
-                    <span class="dy-label-text">{feature}</span>
-                </label>
-                <select
-                    class="dy-select dy-select-bordered"
-                    bind:value={settings[setting][feature].value}
-                >
-                    {#each settings[setting][feature].options ?? [] as opt}
-                        <option value={opt}>{opt}</option>
-                    {/each}
-                </select>
-                {#if settings[setting][feature].subtitle}
-                    <!-- svelte-ignore a11y-label-has-associated-control -->
-                    <label class="dy-label">
-                        <span class="dy-label-text-alt">{settings[setting][feature].subtitle}</span>
-                    </label>
-                {/if}
-            </div>
-        {/if}
-        <div class="dy-divider my-1" />
-    {/each}
-{/each}
+                <div class="dy-divider my-1" />
+            {/each}
+        {/each}
+    </div>
+</ScrolledContent>
+<style>
+    .navbar {
+        height: 10vh;
+    }
+    .larger {
+        height: 90vh;
+    }
+</style>

@@ -6,6 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import CardMenu from './CardMenu.svelte';
+    export let id = '';
     export let reference = '';
     export let text = '';
     export let date = '';
