@@ -15,7 +15,6 @@ A component to display tabbed menus.
         .colorSets.find((x) => x.type === 'main').colors['PrimaryColor'];
 
     function handleMenuaction({ detail }: CustomEvent) {
-        console.log("TabsMenu handleMenuAction: " + detail);
         dispatch('menuaction', {
             text: detail.text,
             tab: active
