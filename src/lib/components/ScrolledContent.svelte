@@ -1,6 +1,6 @@
 <script lang="ts">
     import '../../tailwind.css';
-    import { audioActive, mainScroll } from '$lib/data/stores';
+    import { mainScroll } from '$lib/data/stores';
     import { onMount } from 'svelte';
     let main: HTMLElement;
 

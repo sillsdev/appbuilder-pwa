@@ -1,12 +1,5 @@
 <script lang="ts">
-    import Dropdown from '$lib/components/Dropdown.svelte';
     import '../../tailwind.css';
-    import { audioActive } from '$lib/data/stores';
-    import {
-        AudioIcon,
-        SearchIcon,
-        TextAppearanceIcon
-    } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import { HamburgerIcon } from '$lib/icons';
     import { viewMode } from '$lib/data/stores';

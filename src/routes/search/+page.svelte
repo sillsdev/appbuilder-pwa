@@ -165,7 +165,4 @@
     .navbar {
         height: 10vh;
     }
-    .larger {
-        height: 90vh;
-    }
 </style>

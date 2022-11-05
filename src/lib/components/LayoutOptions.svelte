@@ -7,7 +7,7 @@ TODO:
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
-    import { refs, viewMode, globalConfig } from '$lib/data/stores';
+    import { refs, globalConfig } from '$lib/data/stores';
 
     export let layoutOption = '';
     let colors = (type, key) =>
