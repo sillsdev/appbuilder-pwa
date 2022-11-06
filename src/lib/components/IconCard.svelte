@@ -12,7 +12,6 @@ TODO:
     export let actions = [''];
     export let src = '';
     export let alt = '';
-    export let id = '0';
 </script>
 
 <div class="annotation-item-block">

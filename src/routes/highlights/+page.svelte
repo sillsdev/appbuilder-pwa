@@ -7,7 +7,6 @@
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
 
     let drawerName = 'sidebar';
-
     let highlights: App.Highlight[] = [
         {
             id: '7',
@@ -113,7 +112,15 @@
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each highlights as h}
-            <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...h} />
+            {  @const colorCard = {
+                reference: h.reference,
+                text: h.text,
+                date: h.date,
+                actions: h.actions,
+                highlight_color: h.highlight_color
+              }
+            }
+            <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...colorCard} />
         {/each}
     </div>
 </ScrolledContent>

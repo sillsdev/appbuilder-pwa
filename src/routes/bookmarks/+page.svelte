@@ -136,7 +136,14 @@
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each bookmarks as b}
-            <IconCard on:menuaction={(e) => handleMenuaction(e, b.id)} {...b}>
+            {  @const iconCard = {
+                reference: b.reference,
+                text: b.text,
+                date: b.date,
+                actions: b.actions,
+                }
+            }
+            <IconCard on:menuaction={(e) => handleMenuaction(e, b.id)} {...iconCard}>
                 <BookmarkIcon slot="icon" _class="fill-red-700" />
             </IconCard>
         {/each}

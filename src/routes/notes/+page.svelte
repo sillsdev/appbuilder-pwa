@@ -64,7 +64,14 @@
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each notes as n}
-            <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...n}>
+            {  @const iconCard = {
+                reference: n.reference,
+                text: n.text,
+                date: n.date,
+                actions: n.actions,
+               }
+            }
+            <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...iconCard}>
                 <NoteIcon slot="icon" />
             </IconCard>
         {/each}
