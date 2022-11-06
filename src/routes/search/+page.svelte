@@ -64,6 +64,7 @@
         searching = false;
     }
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -76,23 +77,11 @@
         >
             <HamburgerIcon />
         </label>
-        <label
-            for={drawerName}
-            slot="left-buttons"
-        >
-
-        </label>
-        <label
-            for={drawerName}
-            slot="center"
-        >
+        <label for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
             <div class="btn btn-ghost normal-case text-xl">Search</div>
         </label>
-        <label
-            for={drawerName}
-            slot="right-buttons"
-        >
-        </label>
+        <label for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
 <form>

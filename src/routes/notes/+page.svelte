@@ -28,6 +28,7 @@
         console.log(event.detail.text + '-' + id);
     }
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -40,49 +41,35 @@
         >
             <HamburgerIcon />
         </label>
-        <label
-            for={drawerName}
-            slot="left-buttons"
-        >
-
-        </label>
-        <label
-            for={drawerName}
-            slot="center"
-            >
+        <label for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
             <div class="btn btn-ghost normal-case text-xl">Notes</div>
         </label>
-        <label
-            for={drawerName}
-            slot="right-buttons"
-        >
-
-        </label>
+        <label for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each notes as n}
-            {  @const iconCard = {
+            {@const iconCard = {
                 reference: n.reference,
                 text: n.text,
                 date: n.date,
-                actions: n.actions,
-               }
-            }
+                actions: n.actions
+            }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...iconCard}>
                 <NoteIcon slot="icon" />
             </IconCard>
         {/each}
     </div>
 </ScrolledContent>
+
 <style>
     .navbar {
         height: 10vh;
     }
     .larger {
         height: 90vh;
-
     }
 </style>

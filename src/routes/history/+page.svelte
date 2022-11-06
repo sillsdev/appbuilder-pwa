@@ -25,6 +25,7 @@
         { book: 'World English Bible', reference: 'John 1', date: '22 May 2022 | 13:39' }
     ];
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -37,39 +38,27 @@
         >
             <HamburgerIcon />
         </label>
-        <label
-            for={drawerName}
-            slot="left-buttons"
-        >
-
-        </label>
-        <label
-            for={drawerName}
-            slot="center"
-            >
+        <label for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
             <div class="btn btn-ghost normal-case text-xl">History</div>
         </label>
-        <label
-            for={drawerName}
-            slot="right-buttons"
-        >
-        </label>
+        <label for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each history as h}
-        <HistoryCard {...h} />
-    {/each}
+            <HistoryCard {...h} />
+        {/each}
     </div>
 </ScrolledContent>
+
 <style>
     .navbar {
         height: 10vh;
     }
     .larger {
         height: 90vh;
-
     }
 </style>

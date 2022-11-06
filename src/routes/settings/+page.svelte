@@ -52,6 +52,7 @@
         }
     };
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -64,23 +65,11 @@
         >
             <HamburgerIcon />
         </label>
-        <label
-            for={drawerName}
-            slot="left-buttons"
-        >
-
+        <label for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
+            <div class="btn btn-ghost normal-case text-xl">Settings</div>
         </label>
-        <label
-        for={drawerName}
-        slot="center"
-        >
-        <div class="btn btn-ghost normal-case text-xl">Settings</div>
-    </label>
-        <label
-            for={drawerName}
-            slot="right-buttons"
-        >
-        </label>
+        <label for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
 <ScrolledContent>
@@ -104,7 +93,9 @@
                         {#if settings[setting][feature].subtitle}
                             <!-- svelte-ignore a11y-label-has-associated-control -->
                             <label class="dy-label">
-                                <span class="dy-label-text-alt">{settings[setting][feature].subtitle}</span>
+                                <span class="dy-label-text-alt"
+                                    >{settings[setting][feature].subtitle}</span
+                                >
                             </label>
                         {/if}
                     </div>
@@ -126,7 +117,9 @@
                         {#if settings[setting][feature].subtitle}
                             <!-- svelte-ignore a11y-label-has-associated-control -->
                             <label class="dy-label">
-                                <span class="dy-label-text-alt">{settings[setting][feature].subtitle}</span>
+                                <span class="dy-label-text-alt"
+                                    >{settings[setting][feature].subtitle}</span
+                                >
                             </label>
                         {/if}
                     </div>
@@ -136,6 +129,7 @@
         {/each}
     </div>
 </ScrolledContent>
+
 <style>
     .navbar {
         height: 10vh;

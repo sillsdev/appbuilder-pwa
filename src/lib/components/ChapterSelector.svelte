@@ -11,30 +11,30 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
 
-     /**reference to chapter selector so code can use TabsMenu.setActive*/
-     let chapterSelector;
+    /**reference to chapter selector so code can use TabsMenu.setActive*/
+    let chapterSelector;
 
     let nextRef;
     const unsub = refs.subscribe((v) => {
         nextRef = v;
     }, 'next');
-     /**
+    /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
-     function navigateReference(e) {
-        switch( e.detail.tab ) {
+    function navigateReference(e) {
+        switch (e.detail.tab) {
             case 'Chapter':
                 chapterSelector.setActive('Verse');
                 refs.set({ chapter: e.detail.text }, 'next');
                 break;
-            case ('Verse'):
+            case 'Verse':
                 chapterSelector.setActive('Chapter');
                 $refs = { book: nextRef.book, chapter: nextRef.chapter };
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
             default:
-                console.log("Chapter navigateReference: Default");
+                console.log('Chapter navigateReference: Default');
                 break;
         }
     }
@@ -46,6 +46,7 @@ The navbar component.
 
     onDestroy(unsub);
 </script>
+
 <!-- Chapter Selector -->
 <Dropdown>
     <svelte:fragment slot="label">

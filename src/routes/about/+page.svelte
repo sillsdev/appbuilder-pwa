@@ -9,6 +9,7 @@
     import { viewMode } from '$lib/data/stores';
     let drawerName = 'sidebar';
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -21,24 +22,11 @@
         >
             <HamburgerIcon />
         </label>
-        <div
-            for={drawerName}
-            slot="left-buttons"
-        >
-
-        </div>
-        <label
-            for={drawerName}
-            slot="center"
-        >
-           <div class="btn btn-ghost normal-case text-xl">About</div>
+        <div for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
+            <div class="btn btn-ghost normal-case text-xl">About</div>
         </label>
-        <div
-            for={drawerName}
-            slot="right-buttons"
-        >
-
-        </div>
+        <div for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
 <ScrolledContent>
@@ -46,12 +34,12 @@
         {@html partial}
     </div>
 </ScrolledContent>
+
 <style>
     .navbar {
         height: 10vh;
     }
     .larger {
         height: 90vh;
-
     }
 </style>

@@ -92,14 +92,13 @@
             date: '21 May 2022',
             actions: ['View', 'Share', 'Delete']
         }
-
-
     ];
 
     function handleMenuaction(event: CustomEvent, id: string) {
         console.log(event.detail.text + '-' + id);
     }
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -112,49 +111,35 @@
         >
             <HamburgerIcon />
         </label>
-        <label
-            for={drawerName}
-            slot="left-buttons"
-        >
-
-        </label>
-        <label
-            for={drawerName}
-            slot="center"
-            >
+        <label for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
             <div class="btn btn-ghost normal-case text-xl">Bookmarks</div>
         </label>
-        <label
-            for={drawerName}
-            slot="right-buttons"
-        >
-        </label>
+        <label for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
-
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each bookmarks as b}
-            {  @const iconCard = {
+            {@const iconCard = {
                 reference: b.reference,
                 text: b.text,
                 date: b.date,
-                actions: b.actions,
-                }
-            }
+                actions: b.actions
+            }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, b.id)} {...iconCard}>
                 <BookmarkIcon slot="icon" _class="fill-red-700" />
             </IconCard>
         {/each}
     </div>
 </ScrolledContent>
+
 <style>
     .navbar {
         height: 10vh;
     }
     .larger {
         height: 90vh;
-
     }
 </style>

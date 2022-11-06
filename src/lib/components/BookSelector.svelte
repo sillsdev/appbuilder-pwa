@@ -17,11 +17,11 @@ The navbar component.
     const unsub = refs.subscribe((v) => {
         nextRef = v;
     }, 'next');
-     /**
+    /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
     function navigateReference(e) {
-        switch( e.detail.tab ) {
+        switch (e.detail.tab) {
             case 'Book':
                 bookSelector.setActive('Chapter');
                 refs.set({ book: e.detail.text }, 'next');
@@ -30,14 +30,14 @@ The navbar component.
                 bookSelector.setActive('Verse');
                 refs.set({ chapter: e.detail.text }, 'next');
                 break;
-            case ('Verse'):
+            case 'Verse':
                 bookSelector.setActive('Book');
                 $refs = { book: nextRef.book, chapter: nextRef.chapter };
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
             default:
-                console.log("Book navigateReference: Default");
+                console.log('Book navigateReference: Default');
                 break;
         }
     }

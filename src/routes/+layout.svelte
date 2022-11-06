@@ -6,5 +6,3 @@
 <Sidebar drawerId={drawerName}>
     <slot />
 </Sidebar>
-
-

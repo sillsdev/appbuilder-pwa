@@ -78,6 +78,7 @@
         console.log(event.detail.text + '-' + id);
     }
 </script>
+
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
@@ -90,46 +91,34 @@
         >
             <HamburgerIcon />
         </label>
-        <label
-            for={drawerName}
-            slot="left-buttons"
-        >
-        </label>
-        <label
-            for={drawerName}
-            slot="center"
-            >
+        <label for={drawerName} slot="left-buttons" />
+        <label for={drawerName} slot="center">
             <div class="btn btn-ghost normal-case text-xl">Highlights</div>
         </label>
-        <label
-            for={drawerName}
-            slot="right-buttons"
-        >
-        </label>
+        <label for={drawerName} slot="right-buttons" />
     </Navbar>
 </div>
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
         {#each highlights as h}
-            {  @const colorCard = {
+            {@const colorCard = {
                 reference: h.reference,
                 text: h.text,
                 date: h.date,
                 actions: h.actions,
                 highlight_color: h.highlight_color
-              }
-            }
+            }}
             <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...colorCard} />
         {/each}
     </div>
 </ScrolledContent>
+
 <style>
     .navbar {
         height: 10vh;
     }
     .larger {
         height: 90vh;
-
     }
 </style>
