@@ -176,6 +176,9 @@ The navbar component.
                 <TextAppearanceIcon />
             </svelte:fragment>
             <!-- TODO: implement text appearance options -->
+            <svelte:fragment slot="content">
+                <TabsMenu />
+            </svelte:fragment>
         </Dropdown>
     </div>
 </div>
