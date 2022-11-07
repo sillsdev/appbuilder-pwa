@@ -3,9 +3,6 @@
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { HamburgerIcon } from '$lib/icons';
-    import { viewMode } from '$lib/data/stores';
-    let drawerName = 'sidebar';
     let history = [
         { book: 'World English Bible', reference: 'Genesis 1', date: 'Today | 14:49' },
         { book: 'World English Bible', reference: 'Genesis 1:1', date: 'Today | 14:48' },
@@ -29,20 +26,11 @@
 <div class="navbar">
     <Navbar>
         <!-- Button to close the drawer/sidebar -->
-        <label
-            for={drawerName}
-            slot="drawer-button"
-            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
-                ? ''
-                : 'lg:hidden'}"
-        >
-            <HamburgerIcon />
-        </label>
-        <label for={drawerName} slot="left-buttons" />
-        <label for={drawerName} slot="center">
+        <!-- <div slot="left-buttons" /> -->
+        <label for="sidebar" slot="center">
             <div class="btn btn-ghost normal-case text-xl">History</div>
         </label>
-        <label for={drawerName} slot="right-buttons" />
+        <!-- <div slot="right-buttons" /> -->
     </Navbar>
 </div>
 

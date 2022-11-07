@@ -10,30 +10,16 @@
     import { audioActive } from '$lib/data/stores';
     import { AudioIcon, SearchIcon, TextAppearanceIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { HamburgerIcon } from '$lib/icons';
-    import { viewMode } from '$lib/data/stores';
-
-    let drawerName = 'sidebar';
 </script>
 
 <div class="navbar">
     <Navbar>
-        <!-- Button to close the drawer/sidebar -->
-        <label
-            for={drawerName}
-            slot="drawer-button"
-            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
-                ? ''
-                : 'lg:hidden'}"
-        >
-            <HamburgerIcon />
-        </label>
-        <div for={drawerName} slot="left-buttons">
+        <div slot="left-buttons">
             <CollectionSelector />
             <BookSelector />
             <ChapterSelector />
         </div>
-        <div for={drawerName} slot="right-buttons">
+        <div slot="right-buttons">
             <!-- Mute/Volume Button -->
             <button class="dy-btn dy-btn-ghost dy-btn-circle">
                 <label class="dy-swap">
