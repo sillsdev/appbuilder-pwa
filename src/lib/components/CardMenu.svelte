@@ -22,12 +22,14 @@ Dispatches a menuaction event when an option is selected from the menu.
     on:outclick={() => (showMenu = false)}
     class="annotation-item-menu annotation-float-right"
 >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <span on:click={() => (showMenu = !showMenu)} class="dropbtn">
         <img class="dropbtn-image" src="icons/ic_more_vert_black_24dp.png" alt="vertical dots" />
     </span>
     <div class="dropdown-content {showMenu ? 'show' : 'hidden'}">
         {#each actions as a}
             <!-- svelte-ignore a11y-missing-attribute-->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <a on:click={() => handleAction(a)}>{a}</a>
         {/each}
     </div>

@@ -4,10 +4,10 @@ Displays the three different layout options.
 TODO:
 - functionality...
 -->
-<script>
-    import { onDestroy } from 'svelte';
+<script lang="ts">
+    import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
-    import { refs, viewMode, globalConfig } from '$lib/data/stores';
+    import { refs, globalConfig } from '$lib/data/stores';
 
     export let layoutOption = '';
     let colors = (type, key) =>
@@ -16,12 +16,20 @@ TODO:
     let textColor = colors('main', 'LayoutItemNameColor');
     let blockSelected = colors('main', 'LayoutItemSelectedBackgroundColor');
 
+    const dispatch = createEventDispatcher();
     let nextDocSet;
     let docSetList = catalog.map((ds) => ds.id);
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
     }, 'next');
     onDestroy(removeKey);
+    function handleClick(opt) {
+        refs.set({ docSet: opt }, 'next');
+        nextDocSet = opt;
+        dispatch('menuaction', {
+            text: opt
+        });
+    }
 </script>
 
 <!-- Identical for now -->
@@ -34,7 +42,7 @@ TODO:
                 <li>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
-                        on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
+                        on:click={() => handleClick(d)}
                         class={nextDocSet === d ? 'dy-active' : ''}
                         style:color={textColor}
                         style:background-color={nextDocSet === d ? blockSelected : ''}
@@ -68,7 +76,7 @@ TODO:
                 <li>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
-                        on:click={() => refs.set({ docSet: nextDocSet }, 'next')}
+                        on:click={() => handleClick(d)}
                         class={nextDocSet === d ? 'dy-active' : ''}
                         style:color={textColor}
                         style:background-color={nextDocSet === d ? blockSelected : ''}
