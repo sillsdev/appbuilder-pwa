@@ -4,6 +4,8 @@ The navbar component.
 -->
 <script>
     import { globalConfig } from '$lib/data/stores';
+    import { HamburgerIcon } from '$lib/icons';
+    import { viewMode } from '$lib/data/stores';
 
     $: actionBarColor = $globalConfig.themes
         .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme
@@ -15,7 +17,14 @@ The navbar component.
 -->
 <div class="dy-navbar text-white fill-white stroke-white" style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
-        <slot name="drawer-button" />
+        <label
+            for="sidebar"
+            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
+                ? ''
+                : 'lg:hidden'}"
+        >
+            <HamburgerIcon />
+        </label>
         <slot name="left-buttons" />
     </div>
     <div class="dy-navbar-center">

@@ -6,9 +6,6 @@
     import '../../tailwind.css';
     import { SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { HamburgerIcon } from '$lib/icons';
-    import { viewMode } from '$lib/data/stores';
-    let drawerName = 'sidebar';
 
     let searchText = '';
     //TODO: make match whole words setting do something
@@ -67,21 +64,11 @@
 
 <div class="navbar">
     <Navbar>
-        <!-- Button to close the drawer/sidebar -->
-        <label
-            for={drawerName}
-            slot="drawer-button"
-            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
-                ? ''
-                : 'lg:hidden'}"
-        >
-            <HamburgerIcon />
-        </label>
-        <label for={drawerName} slot="left-buttons" />
-        <label for={drawerName} slot="center">
+        <!-- <div slot="left-buttons" /> -->
+        <label for="sidebar" slot="center">
             <div class="btn btn-ghost normal-case text-xl">Search</div>
         </label>
-        <label for={drawerName} slot="right-buttons" />
+        <!-- <div slot="right-buttons" /> -->
     </Navbar>
 </div>
 <form>

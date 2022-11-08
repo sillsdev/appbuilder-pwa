@@ -17,7 +17,7 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { globalConfig } from '$lib/data/stores';
     import { beforeNavigate } from '$app/navigation';
-    export let drawerId = 'drawer';
+    let drawerId = 'sidebar';
     const closeDrawer = () => {
         document.activeElement.blur();
     };
