@@ -80,7 +80,7 @@ The sidebar/drawer.
               {#each menuItems as item}
                   <li>
                       <a href={item.link['default']}>
-                          <img src="$lib/icons/{item.images[0].file}" alt="">
+                          <img src="../../static/icons/{item.images[0].file}" alt="">
                           {item.title['en']}
                       </a>
                   </li>
