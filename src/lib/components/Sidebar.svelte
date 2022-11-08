@@ -15,6 +15,7 @@ The sidebar/drawer.
         TextAppearanceIcon,
         AboutIcon
     } from '$lib/icons';
+    import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import { globalConfig } from '$lib/data/stores';
     import { beforeNavigate } from '$app/navigation';
     let drawerId = 'sidebar';
@@ -23,8 +24,7 @@ The sidebar/drawer.
     };
     beforeNavigate(closeDrawer);
 
-    let menuItems = $globalConfig.menuItems;
-
+    let menuItems = $globalConfig?.menuItems;
     let showSearch = $globalConfig.mainFeatures['search'];
     let showHistory = $globalConfig.mainFeatures['history'];
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
@@ -76,16 +76,17 @@ The sidebar/drawer.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
+            {#if menuItems}
+              {#each menuItems as item}
+                  <li>
+                      <a href={item.link['default']}>
+                          <img src="$lib/icons/{item.images[0].file}" alt="">
+                          {item.title['en']}
+                      </a>
+                  </li>
+              {/each}
+            {/if}  
             <li><a href="/about"><AboutIcon />About</a></li>
-
-            <div class="dy-divider m-1" />
-            {#each menuItems as item}
-              <li>
-                <a href={item.link["default"]}>
-                  {item.title["en"]}
-                </a>
-              </li>
-            {/each}
         </ul>
     </div>
 </div>
