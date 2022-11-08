@@ -23,6 +23,8 @@ The sidebar/drawer.
     };
     beforeNavigate(closeDrawer);
 
+    let menuItems = $globalConfig.menuItems;
+
     let showSearch = $globalConfig.mainFeatures['search'];
     let showHistory = $globalConfig.mainFeatures['history'];
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
@@ -75,6 +77,15 @@ The sidebar/drawer.
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
             <li><a href="/about"><AboutIcon />About</a></li>
+
+            <div class="dy-divider m-1" />
+            {#each menuItems as item}
+              <li>
+                <a href={item.link["default"]}>
+                  {item.title["en"]}
+                </a>
+              </li>
+            {/each}
         </ul>
     </div>
 </div>
