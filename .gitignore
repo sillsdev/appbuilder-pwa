@@ -21,5 +21,6 @@ static/backgrounds
 static/borders
 static/clips
 static/videos
+static/icons
 static/*.partial.html
 src/lib/data/catalog.js
