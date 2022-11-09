@@ -134,6 +134,16 @@ export function convertMedia(dataDir: string, verbose: number) {
                 `copied ${path.join(dataDir, 'videos')} to ${path.join('static', 'videos')}`
             );
     } else if (verbose) console.log(`no videos found in ${dataDir}`);
+
+    // Copy icons files
+    if (
+        cpSyncOptional(path.join(dataDir, 'icons'), path.join('static', 'icons'), {
+            recursive: true
+        })
+    ) {
+        if (verbose)
+            console.log(`copied ${path.join(dataDir, 'icons')} to ${path.join('static', 'icons')}`);
+    } else if (verbose) console.log(`no icons found in ${dataDir}`);
 }
 
 export interface MediaTaskOutput extends TaskOutput {
@@ -154,7 +164,8 @@ export class ConvertMedia extends Task {
         'borders',
         'images',
         'clips',
-        'videos'
+        'videos',
+        'icons'
     ];
 
     constructor(dataDir: string) {
