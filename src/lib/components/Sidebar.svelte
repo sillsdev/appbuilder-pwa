@@ -77,15 +77,20 @@ The sidebar/drawer.
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
             {#if menuItems}
-              {#each menuItems as item}
-                  <li>
-                      <a href={item.link['default']}>
-                          <img src="icons/{item.images[2].file}" height={item.images[0].height} width={item.images[0].width - 4} alt="">
-                          {item.title['en']}
-                      </a>
-                  </li>
-              {/each}
-            {/if}  
+                {#each menuItems as item}
+                    <li>
+                        <a href={item.link['default']}>
+                            <img
+                                src="icons/{item.images[2].file}"
+                                height={item.images[0].height}
+                                width={item.images[0].width - 4}
+                                alt=""
+                            />
+                            {item.title['en']}
+                        </a>
+                    </li>
+                {/each}
+            {/if}
             <li><a href="/about"><AboutIcon />About</a></li>
         </ul>
     </div>
