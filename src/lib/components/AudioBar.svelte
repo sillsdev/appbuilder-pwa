@@ -152,6 +152,7 @@ TODO:
             <progress class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1" value="0" max="1" />
         {/if}
         <!-- Controls -->
+        {#if $audioActive}
         <div class="dy-btn-group place-self-center">
             <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
                 <AudioIcon.Prev />
@@ -183,5 +184,6 @@ TODO:
                 <AudioIcon.Skip />
             </button>
         </div>
+        {/if}
     </div>
 </div>

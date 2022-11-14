@@ -6,7 +6,7 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs } from '$lib/data/stores';
+    import { refs, globalConfig } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
@@ -51,6 +51,7 @@ The navbar component.
 </script>
 
 <!-- Book Selector -->
+{#if $globalConfig.mainFeatures['book-select'] === 'grid'}
 <Dropdown>
     <svelte:fragment slot="label">
         {$refs.book}
@@ -82,3 +83,7 @@ The navbar component.
         />
     </svelte:fragment>
 </Dropdown>
+
+{:else if $globalConfig.mainFeatures['book-select'] === 'list'}
+<!--TODO: Add List selector -->
+{/if}
