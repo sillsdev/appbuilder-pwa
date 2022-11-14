@@ -49,27 +49,27 @@ The navbar component.
 
 <!-- Chapter Selector -->
 {#if $globalConfig.mainFeatures['show-chapter-number-on-app-bar']}
-<Dropdown>
-    <svelte:fragment slot="label">
-        {$refs.chapter}
-        <DropdownIcon _class="fill-white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <TabsMenu
-            bind:this={chapterSelector}
-            options={{
-                Chapter: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters) }
-                },
-                Verse: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters[nextRef.chapter]) }
-                }
-            }}
-            active="Chapter"
-            on:menuaction={navigateReference}
-        />
-    </svelte:fragment>
-</Dropdown>
+    <Dropdown>
+        <svelte:fragment slot="label">
+            {$refs.chapter}
+            <DropdownIcon _class="fill-white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                bind:this={chapterSelector}
+                options={{
+                    Chapter: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters) }
+                    },
+                    Verse: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                    }
+                }}
+                active="Chapter"
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
 {/if}

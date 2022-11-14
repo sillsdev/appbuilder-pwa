@@ -20,13 +20,12 @@
     $: countThemesDark = $globalConfig.themes.find((x) => x.name === 'Dark').enabled;
 
     let showSearch = $globalConfig.mainFeatures['search'];
-    let showTextAppearnce =  
+    let showTextAppearnce =
         $globalConfig.mainFeatures['text-font-size-slider'] ||
         $globalConfig.mainFeatures['text-line-height-slider'] ||
-        countThemesDark || 
+        countThemesDark ||
         countThemesNormal ||
         countThemesSepia;
-
 </script>
 
 <div class="navbar">
@@ -51,19 +50,19 @@
                 </label>
             </button>
             {#if showSearch}
-            <!-- Search Button -->
-            <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                <SearchIcon _class="fill-white" />
-            </a>
+                <!-- Search Button -->
+                <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                    <SearchIcon _class="fill-white" />
+                </a>
             {/if}
             <!-- Text Appearance Options Menu -->
             {#if showTextAppearnce}
-            <Dropdown>
-                <svelte:fragment slot="label">
-                    <TextAppearanceIcon _class="fill-white" />
-                </svelte:fragment>
-                <!-- TODO: implement text appearance options -->
-            </Dropdown>
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <TextAppearanceIcon _class="fill-white" />
+                    </svelte:fragment>
+                    <!-- TODO: implement text appearance options -->
+                </Dropdown>
             {/if}
         </div>
     </Navbar>

@@ -52,38 +52,38 @@ The navbar component.
 
 <!-- Book Selector -->
 {#if $globalConfig.mainFeatures['book-select'] === 'grid'}
-<Dropdown>
-    <svelte:fragment slot="label">
-        {$refs.book}
-        <DropdownIcon _class="fill-white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <TabsMenu
-            bind:this={bookSelector}
-            options={{
-                Book: {
-                    component: SelectGrid,
-                    /**
-                     * TODO:
-                     * - add book abbreviations to catalog to be used in UI instead of bookCode
-                     */
-                    props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
-                },
-                Chapter: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters) }
-                },
-                Verse: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters[nextRef.chapter]) }
-                }
-            }}
-            active="Book"
-            on:menuaction={navigateReference}
-        />
-    </svelte:fragment>
-</Dropdown>
+    <Dropdown>
+        <svelte:fragment slot="label">
+            {$refs.book}
+            <DropdownIcon _class="fill-white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    Book: {
+                        component: SelectGrid,
+                        /**
+                         * TODO:
+                         * - add book abbreviations to catalog to be used in UI instead of bookCode
+                         */
+                        props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
+                    },
+                    Chapter: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters) }
+                    },
+                    Verse: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                    }
+                }}
+                active="Book"
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
 
 {:else if $globalConfig.mainFeatures['book-select'] === 'list'}
-<!--TODO: Add List selector -->
+    <!--TODO: Add List selector -->
 {/if}
