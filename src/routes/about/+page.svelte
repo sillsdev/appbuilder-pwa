@@ -1,10 +1,16 @@
 <script lang="ts">
     // Mark this as prerender?
     // Check kit.svelte.dev docs (Language Forge examples)
-    import partial from '../../../static/about.partial.html?raw';
+    import { onMount } from 'svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
+
+    var partial: string;
+    onMount(async function () {
+        const response = await fetch('about.partial.html?raw');
+        partial = await response.text();
+    });
 </script>
 
 <div class="navbar">
