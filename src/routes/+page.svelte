@@ -9,23 +9,9 @@
     import { audioActive } from '$lib/data/stores';
     import { AudioIcon, SearchIcon, TextAppearanceIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-
-    /** Checks if normal is enabled*/
-    $: countThemesNormal = $globalConfig.themes.find((x) => x.name === 'Normal').enabled;
-
-    /** Checks if sepia is enabled*/
-    $: countThemesSepia = $globalConfig.themes.find((x) => x.name === 'Sepia').enabled;
-
-    /** Checks if dark is enabled*/
-    $: countThemesDark = $globalConfig.themes.find((x) => x.name === 'Dark').enabled;
+    import TextAppearenceSelector from '$lib/components/TextAppearenceSelector.svelte';
 
     let showSearch = $globalConfig.mainFeatures['search'];
-    let showTextAppearnce =
-        $globalConfig.mainFeatures['text-font-size-slider'] ||
-        $globalConfig.mainFeatures['text-line-height-slider'] ||
-        countThemesDark ||
-        countThemesNormal ||
-        countThemesSepia;
 </script>
 
 <div class="navbar">
@@ -56,14 +42,7 @@
                 </a>
             {/if}
             <!-- Text Appearance Options Menu -->
-            {#if showTextAppearnce}
-                <Dropdown>
-                    <svelte:fragment slot="label">
-                        <TextAppearanceIcon _class="fill-white" />
-                    </svelte:fragment>
-                    <!-- TODO: implement text appearance options -->
-                </Dropdown>
-            {/if}
+            <TextAppearenceSelector />
         </div>
     </Navbar>
 </div>
