@@ -76,17 +76,15 @@ The sidebar/drawer.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
+            <!--TODO Update -->
             {#if menuItems}
                 {#each menuItems as item}
                     <li>
                         <a href={item.link['default']}>
-                            <img
-                                src="icons/{item.images[2].file}"
-                                height={item.images[0].height}
-                                width={item.images[0].width - 4}
-                                alt=""
-                            />
-                            {item.title['en']}
+                          <picture>
+                            <source srcset="icons/{item.images[1].file} 2x, icons/{item.images[2].file} 3x" />
+                              <img src="icons/{item.images[0].file}" height="20" width="20" alt={item.title['en']}/>
+                          </picture>{item.title['en']}
                         </a>
                     </li>
                 {/each}
