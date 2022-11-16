@@ -81,10 +81,18 @@ The sidebar/drawer.
                 {#each menuItems as item}
                     <li>
                         <a href={item.link['default']}>
-                          <picture>
-                            <source srcset="icons/{item.images[1].file} 2x, icons/{item.images[2].file} 3x" />
-                              <img src="icons/{item.images[0].file}" height="20" width="20" alt={item.title['en']}/>
-                          </picture>{item.title['en']}
+                            <picture>
+                                <source
+                                    srcset="icons/{item.images[1].file} 2x, icons/{item.images[2]
+                                        .file} 3x"
+                                />
+                                <img
+                                    src="icons/{item.images[0].file}"
+                                    height="20"
+                                    width="20"
+                                    alt={item.title['en']}
+                                />
+                            </picture>{item.title['en']}
                         </a>
                     </li>
                 {/each}
