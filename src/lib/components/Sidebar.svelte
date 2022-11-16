@@ -23,6 +23,8 @@ The sidebar/drawer.
     };
     beforeNavigate(closeDrawer);
 
+    const fs = require("fs"); // Or `import fs from "fs";` with ESM
+
     let showSearch = $globalConfig.mainFeatures['search'];
     let showHistory = $globalConfig.mainFeatures['history'];
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
@@ -39,16 +41,22 @@ The sidebar/drawer.
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
     <div class="dy-drawer-content flex flex-col bg-gray-200">
         <!-- Page content here -->
-        <slot />
+        <slot d/>
     </div>
     <div class="dy-drawer-side">
         <label for={drawerId} class="dy-drawer-overlay" />
         <ul class="dy-menu p-1 overflow-y-auto w-3/4 sm:w-80 bg-base-100 text-base-content">
             <!-- Sidebar content here -->
-            <a class="fill" href="/">
-                <source src="images/nav_drawer.png" srcset="images/nav_drawer@2x.png 2x" />
-                <img src="images/nav_drawer.png" alt="Drawer Header" style="width:auto;" />
-            </a>
+            {#if fs.existsSync('images/nav_drawer.png')}
+              <a class="fill" href="/">
+                <picture>
+                  <source src="images/nav_drawer.png" srcset="images/nav_drawer@2x.png 2x" />
+                  <img src="images/nav_drawer.png" alt="Drawer Header" style="width:auto;" />
+                </picture>
+              </a>
+            {:else}
+              <li><a href="/"><BibleIcon /><span>{$globalConfig.name}</span></a></li>
+            {/if}
             {#if showSearch}
                 <li><a href="/search"><SearchIcon />Search</a></li>
                 <div class="dy-divider m-1" />
