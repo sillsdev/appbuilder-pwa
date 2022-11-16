@@ -50,7 +50,7 @@ The sidebar/drawer.
             {#if fs.existsSync('images/nav_drawer.png')}
               <a class="fill" href="/">
                 <picture>
-                  <source src="images/nav_drawer.png" srcset="images/nav_drawer@2x.png 2x" />
+                  <source srcset="images/nav_drawer@2x.png 2x" />
                   <img src="images/nav_drawer.png" alt="Drawer Header" style="width:auto;" />
                 </picture>
               </a>
