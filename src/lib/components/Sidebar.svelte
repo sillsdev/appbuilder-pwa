@@ -23,6 +23,7 @@ The sidebar/drawer.
     };
     beforeNavigate(closeDrawer);
 
+    let menuItems = $globalConfig?.menuItems;
     let showSearch = $globalConfig.mainFeatures['search'];
     let showHistory = $globalConfig.mainFeatures['history'];
     let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
@@ -74,6 +75,27 @@ The sidebar/drawer.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
             <div class="dy-divider m-1" />
+            <!--TODO update based on language-->
+            {#if menuItems}
+                {#each menuItems as item}
+                    <li>
+                        <a href={item.link['default']}>
+                            <picture>
+                                <source
+                                    srcset="icons/menu-items/{item.images[1]
+                                        .file} 2x, icons/menu-items/{item.images[2].file} 3x"
+                                />
+                                <img
+                                    src="icons/menu-items/{item.images[0].file}"
+                                    height="20"
+                                    width="20"
+                                    alt={item.title['en']}
+                                />
+                            </picture>{item.title['en']}
+                        </a>
+                    </li>
+                {/each}
+            {/if}
             <li><a href="/about"><AboutIcon />About</a></li>
         </ul>
     </div>
