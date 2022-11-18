@@ -46,7 +46,12 @@ The sidebar/drawer.
         <label for={drawerId} class="dy-drawer-overlay" />
         <ul class="dy-menu p-1 overflow-y-auto w-3/4 sm:w-80 bg-base-100 text-base-content">
             <!-- Sidebar content here -->
-            <li><a href="/"><BibleIcon /><span>{$globalConfig.name}</span></a></li>
+            <a class="fill" href="/">
+                <picture>
+                    <source srcset="images/nav_drawer@2x.png 2x" />
+                    <img src="images/nav_drawer.png" alt="Drawer Header" style="width:auto;" />
+                </picture>
+            </a>
             {#if showSearch}
                 <li><a href="/search"><SearchIcon />Search</a></li>
                 <div class="dy-divider m-1" />
@@ -104,5 +109,16 @@ The sidebar/drawer.
 <style>
     a {
         text-decoration: none;
+    }
+    .fill {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .fill img {
+        flex-shrink: 0;
+        min-width: 100%;
+        min-height: 100%;
     }
 </style>
