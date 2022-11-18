@@ -15,7 +15,6 @@ The sidebar/drawer.
         TextAppearanceIcon,
         AboutIcon
     } from '$lib/icons';
-    import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import { globalConfig } from '$lib/data/stores';
     import { beforeNavigate } from '$app/navigation';
     let drawerId = 'sidebar';
