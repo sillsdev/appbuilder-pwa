@@ -83,8 +83,8 @@ The sidebar/drawer.
                         <a href={item.link['default']}>
                             <picture>
                                 <source
-                                    srcset="icons/menu-items/{item.images[1].file} 2x, icons/menu-items/{item.images[2]
-                                        .file} 3x"
+                                    srcset="icons/menu-items/{item.images[1]
+                                        .file} 2x, icons/menu-items/{item.images[2].file} 3x"
                                 />
                                 <img
                                     src="icons/menu-items/{item.images[0].file}"
