@@ -39,7 +39,7 @@ The sidebar/drawer.
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
     <div class="dy-drawer-content flex flex-col bg-gray-200">
         <!-- Page content here -->
-        <slot d />
+        <slot />
     </div>
     <div class="dy-drawer-side">
         <label for={drawerId} class="dy-drawer-overlay" />
