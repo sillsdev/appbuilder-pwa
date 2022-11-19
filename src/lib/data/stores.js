@@ -27,3 +27,7 @@ export const audioHighlight = (() => {
 })();
 /**scrollTop of main window*/
 export const mainScroll = writable({ top: 0, height: 0});
+/**Font size of body elements */
+export const bodyFontSize = writable('17px');
+/**line height of body elements */
+export const bodyLineHeight = writable('175%');
