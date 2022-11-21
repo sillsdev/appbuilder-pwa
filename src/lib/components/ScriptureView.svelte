@@ -11,7 +11,15 @@ TODO:
 <script lang="ts">
     import { query } from '../scripts/query';
     import { onDestroy } from 'svelte';
-    import { audioHighlight, refs, scrolls, audioActive, mainScroll } from '$lib/data/stores';
+    import {
+        audioHighlight,
+        refs,
+        scrolls,
+        audioActive,
+        mainScroll,
+        bodyFontSize,
+        bodyLineHeight
+    } from '$lib/data/stores';
     import { renderDoc } from '../scripts/render';
     import { LoadingIcon } from '../icons';
 
@@ -84,6 +92,10 @@ TODO:
             el?.scrollIntoView();
     };
     $: updateHighlight($audioHighlight);
+
+    $: fontSize = $bodyFontSize + 'px';
+
+    $: lineHeight = $bodyLineHeight + '%';
 
     onDestroy(unSub);
 
@@ -167,5 +179,10 @@ TODO:
     {#if loading}
         <LoadingIcon />
     {/if}
-    <div bind:this={bookRoot} class:hidden={loading} />
+    <div
+        bind:this={bookRoot}
+        class:hidden={loading}
+        style:font-size={fontSize}
+        style:line-height={lineHeight}
+    />
 </article>
