@@ -4,12 +4,11 @@
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
-    import Dropdown from '$lib/components/Dropdown.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import { audioActive } from '$lib/data/stores';
-    import { AudioIcon, SearchIcon, TextAppearanceIcon } from '$lib/icons';
+    import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import TextAppearenceSelector from '$lib/components/TextAppearenceSelector.svelte';
+    import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
 
     let showSearch = $globalConfig.mainFeatures['search'];
 </script>
@@ -42,7 +41,7 @@
                 </a>
             {/if}
             <!-- Text Appearance Options Menu -->
-            <TextAppearenceSelector />
+            <TextAppearanceSelector />
         </div>
     </Navbar>
 </div>
