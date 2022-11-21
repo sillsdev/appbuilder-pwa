@@ -19,55 +19,51 @@ The navbar component.
     /**  Gets the count of enabled themes by comparison*/
     function simpleCount() {
         /** If all 3 themes are enabled*/
-      if (countThemesNormal && countThemesSepia && countThemesDark){
-        return true; 
-      }
-      /** 2 theme are enabled*/
-      /** If Normal and Sepia are enabled*/
-      else if (countThemesNormal && countThemesSepia){
-        return true; 
-      }
-      /** If Normal and Dark are enabled*/
-      else if (countThemesNormal && countThemesDark){
-        return true; 
-      }
-      /** If Dark and Sepia are enabled*/
-      else if (countThemesDark && countThemesSepia){
-        return true; 
-      } 
-      /** If 1 or less themes are enabled*/
-      else return false;
+        if (countThemesNormal && countThemesSepia && countThemesDark) {
+            return true;
+        } else if (countThemesNormal && countThemesSepia) {
+        /** 2 theme are enabled*/
+        /** If Normal and Sepia are enabled*/
+            return true;
+        } else if (countThemesNormal && countThemesDark) {
+        /** If Normal and Dark are enabled*/
+            return true;
+        } else if (countThemesDark && countThemesSepia) {
+        /** If Dark and Sepia are enabled*/
+            return true;
+        } else return false;
+        /** If 1 or less themes are enabled*/
     }
 
     /**  Gets the count of enabled themes by comparison*/
     function countTheme() {
         /** If all 3 themes are enabled*/
-      if ($globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
-      $globalConfig.themes.find((x) => x.name === 'Sepia').enabled &&
-      $globalConfig.themes.find((x) => x.name === 'Dark').enabled
-      ){
-        return true; 
-      }
-      /** 2 theme are enabled*/
-      /** If Normal and Sepia are enabled*/
-      else if ($globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
-      $globalConfig.themes.find((x) => x.name === 'Sepia').enabled 
-      ){
-        return true; 
-      }
-      /** If Normal and Dark are enabled*/
-      else if ($globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
-      $globalConfig.themes.find((x) => x.name === 'Dark').enabled 
-      ){
-        return true; 
-      }
-      /** If Dark and Sepia are enabled*/
-      else if ($globalConfig.themes.find((x) => x.name === 'Dark').enabled &&
-      $globalConfig.themes.find((x) => x.name === 'Sepia').enabled 
-      ){
-        return true; 
-      } /** If 1 or less themes are enabled*/
-      else return false;
+        if (
+            $globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
+            $globalConfig.themes.find((x) => x.name === 'Sepia').enabled &&
+            $globalConfig.themes.find((x) => x.name === 'Dark').enabled
+        ) {
+            return true;
+        } else if (
+        /** 2 theme are enabled*/
+        /** If Normal and Sepia are enabled*/
+            $globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
+            $globalConfig.themes.find((x) => x.name === 'Sepia').enabled
+        ) {
+            return true;
+        } else if (
+        /** If Normal and Dark are enabled*/
+            $globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
+            $globalConfig.themes.find((x) => x.name === 'Dark').enabled
+        ) {
+            return true;
+        } else if (
+        /** If Dark and Sepia are enabled*/
+            $globalConfig.themes.find((x) => x.name === 'Dark').enabled &&
+            $globalConfig.themes.find((x) => x.name === 'Sepia').enabled
+        ) {
+            return true;
+        } /** If 1 or less themes are enabled*/ else return false;
     }
 
     let showTextAppearence =
