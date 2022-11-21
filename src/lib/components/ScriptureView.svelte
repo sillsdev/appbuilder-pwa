@@ -94,10 +94,10 @@ TODO:
     $: updateHighlight($audioHighlight);
 
     let fontSize = '17px';
-    $: fontSize = $bodyFontSize;
+    $: fontSize = $bodyFontSize + 'px';
 
     let lineHeight = '175%';
-    $: lineHeight = $bodyLineHeight;
+    $: lineHeight = $bodyLineHeight + '%';
 
     onDestroy(unSub);
 
