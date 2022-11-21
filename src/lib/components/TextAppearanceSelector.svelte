@@ -22,14 +22,14 @@ The navbar component.
         if (countThemesNormal && countThemesSepia && countThemesDark) {
             return true;
         } else if (countThemesNormal && countThemesSepia) {
-        /** 2 theme are enabled*/
-        /** If Normal and Sepia are enabled*/
+            /** 2 theme are enabled*/
+            /** If Normal and Sepia are enabled*/
             return true;
         } else if (countThemesNormal && countThemesDark) {
-        /** If Normal and Dark are enabled*/
+            /** If Normal and Dark are enabled*/
             return true;
         } else if (countThemesDark && countThemesSepia) {
-        /** If Dark and Sepia are enabled*/
+            /** If Dark and Sepia are enabled*/
             return true;
         } else return false;
         /** If 1 or less themes are enabled*/
@@ -45,20 +45,20 @@ The navbar component.
         ) {
             return true;
         } else if (
-        /** 2 theme are enabled*/
-        /** If Normal and Sepia are enabled*/
+            /** 2 theme are enabled*/
+            /** If Normal and Sepia are enabled*/
             $globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
             $globalConfig.themes.find((x) => x.name === 'Sepia').enabled
         ) {
             return true;
         } else if (
-        /** If Normal and Dark are enabled*/
+            /** If Normal and Dark are enabled*/
             $globalConfig.themes.find((x) => x.name === 'Normal').enabled &&
             $globalConfig.themes.find((x) => x.name === 'Dark').enabled
         ) {
             return true;
         } else if (
-        /** If Dark and Sepia are enabled*/
+            /** If Dark and Sepia are enabled*/
             $globalConfig.themes.find((x) => x.name === 'Dark').enabled &&
             $globalConfig.themes.find((x) => x.name === 'Sepia').enabled
         ) {
