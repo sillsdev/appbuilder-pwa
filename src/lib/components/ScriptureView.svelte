@@ -93,10 +93,8 @@ TODO:
     };
     $: updateHighlight($audioHighlight);
 
-    let fontSize = '17px';
     $: fontSize = $bodyFontSize + 'px';
 
-    let lineHeight = '175%';
     $: lineHeight = $bodyLineHeight + '%';
 
     onDestroy(unSub);
