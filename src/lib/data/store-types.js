@@ -28,7 +28,14 @@ export const referenceStore = () => {
             n: Object.keys(versesByChapters[chapter]).length
         });
     };
-    setInternal({ docSet: '', book: '', chapter: '' });
+    let bookInit = ''; 
+    let chapterInit = '';
+    if (localStorage.refs) {
+      [bookInit, chapterInit] = localStorage.refs.split('.');
+    }
+    setInternal({ docSet: '', book: bookInit, chapter: chapterInit });
+    internal.subscribe((value) => localStorage.refs = value.b + "." + value.c)
+
     const external = derived(internal, ($internal) => ({
         reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,
         docSet: $internal.ds,
