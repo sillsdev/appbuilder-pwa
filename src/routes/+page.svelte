@@ -10,7 +10,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
 
-    let showSearch = $globalConfig.mainFeatures['search'];
+    const showSearch = $globalConfig.mainFeatures['search'];
 </script>
 
 <div class="navbar">
@@ -50,11 +50,9 @@
         <ScriptureView />
     </div>
 </ScrolledContent>
-{#if $audioActive}
-    <div class="audio-bar">
-        <AudioBar />
-    </div>
-{/if}
+<div class="audio-bar">
+    <AudioBar />
+</div>
 
 <style>
     .navbar {

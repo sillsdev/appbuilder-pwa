@@ -152,38 +152,36 @@ TODO:
             <progress class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1" value="0" max="1" />
         {/if}
         <!-- Controls -->
-        {#if $audioActive}
-            <div class="dy-btn-group place-self-center">
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
-                    <AudioIcon.Prev />
-                </button>
-                <button
-                    class="dy-btn-sm dy-btn-ghost"
-                    on:pointerdown={() => seek(-1)}
-                    on:pointerup={() => seek(0)}
-                    on:pointercancel={() => seek(0)}
-                >
-                    <AudioIcon.RW />
-                </button>
-                <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
-                    {#if !playing}
-                        <AudioIcon.Play />
-                    {:else}
-                        <AudioIcon.Pause />
-                    {/if}
-                </button>
-                <button
-                    class="dy-btn-sm dy-btn-ghost"
-                    on:pointerdown={() => seek(4)}
-                    on:pointerup={() => seek(0)}
-                    on:pointercancel={() => seek(0)}
-                >
-                    <AudioIcon.FF />
-                </button>
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(1)}>
-                    <AudioIcon.Skip />
-                </button>
-            </div>
-        {/if}
+        <div class="dy-btn-group place-self-center">
+            <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
+                <AudioIcon.Prev />
+            </button>
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:pointerdown={() => seek(-1)}
+                on:pointerup={() => seek(0)}
+                on:pointercancel={() => seek(0)}
+            >
+                <AudioIcon.RW />
+            </button>
+            <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
+                {#if !playing}
+                    <AudioIcon.Play />
+                {:else}
+                    <AudioIcon.Pause />
+                {/if}
+            </button>
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:pointerdown={() => seek(4)}
+                on:pointerup={() => seek(0)}
+                on:pointercancel={() => seek(0)}
+            >
+                <AudioIcon.FF />
+            </button>
+            <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(1)}>
+                <AudioIcon.Skip />
+            </button>
+        </div>
     </div>
 </div>
