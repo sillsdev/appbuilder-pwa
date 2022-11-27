@@ -11,6 +11,8 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
 
+    const chapterAfterBookSelector = config.mainfeatures['show-chapter-selector-after-book'];
+
     let bookSelector;
 
     let nextRef;
@@ -70,7 +72,7 @@ The navbar component.
                 },
                 Chapter: {
                     component: SelectGrid,
-                    props: { options: Object.keys(chapters) }
+                    props: {  options: Object.keys(chapters) }
                 },
                 Verse: {
                     component: SelectGrid,
