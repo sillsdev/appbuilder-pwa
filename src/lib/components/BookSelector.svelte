@@ -72,7 +72,7 @@ The navbar component.
                 },
                 Chapter: {
                     component: SelectGrid,
-                    props: {  options: Object.keys(chapters) }
+                    props: { options: Object.keys(chapters) }
                 },
                 Verse: {
                     component: SelectGrid,
