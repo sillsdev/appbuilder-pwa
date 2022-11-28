@@ -3,5 +3,5 @@
 </script>
 
 <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"
-    ><path d="M14 19V5h4v14Zm-8 0V5h4v14Z" /></svg
+    ><path d="M13 19V5h6v14Zm-8 0V5h6v14Z" /></svg
 >
