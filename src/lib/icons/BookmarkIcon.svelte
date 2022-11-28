@@ -2,8 +2,8 @@
     export let _class = 'fill-black-100';
 </script>
 
-<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="20" width="20"
+<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"
     ><path
-        d="M4.167 17.5V4.25Q4.167 3.521 4.677 3.01Q5.188 2.5 5.917 2.5H14.083Q14.812 2.5 15.323 3.01Q15.833 3.521 15.833 4.25V17.5L10 14.979Z"
+        d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Zm2-3.05 5-2.15 5 2.15V5H7ZM7 5h10-5Z"
     /></svg
 >
