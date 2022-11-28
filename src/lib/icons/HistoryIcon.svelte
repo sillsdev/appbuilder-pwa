@@ -1,4 +1,9 @@
 <script lang="ts">
+    // History from https://fonts.google.com/icons
+    // Filled = 1
+    // Weight = 400
+    // Grade = 0
+    // Optical size = 24px
     export let _class = 'fill-black-100';
 </script>
 
