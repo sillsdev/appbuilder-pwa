@@ -15,7 +15,7 @@ The navbar component.
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div class="dy-navbar text-white fill-white stroke-white" style:background-color={actionBarColor}>
+<div class="dy-navbar text-white" style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
         <label
             for="sidebar"

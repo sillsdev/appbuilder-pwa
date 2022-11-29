@@ -27,20 +27,20 @@
                     <input type="checkbox" bind:checked={$audioActive} />
 
                     <!-- volume on icon -->
-                    <AudioIcon.Volume _class="dy-swap-on fill-black-100" />
+                    <AudioIcon.Volume _class="dy-swap-on fill-white" />
 
                     <!-- volume off icon -->
-                    <AudioIcon.Mute _class="dy-swap-off fill-black-100" />
+                    <AudioIcon.Mute _class="dy-swap-off fill-white" />
                 </label>
             </button>
             <!-- Search Button -->
             <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                <SearchIcon />
+                <SearchIcon _class="fill-white" />
             </a>
             <!-- Text Appearance Options Menu -->
             <Dropdown>
                 <svelte:fragment slot="label">
-                    <TextAppearanceIcon />
+                    <TextAppearanceIcon _class="fill-white" />
                 </svelte:fragment>
                 <!-- TODO: implement text appearance options -->
             </Dropdown>

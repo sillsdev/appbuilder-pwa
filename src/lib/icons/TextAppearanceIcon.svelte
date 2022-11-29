@@ -1,12 +1,16 @@
 <script lang="ts">
-    // Text Fields from https://fonts.google.com/icons
-    // Filled = 1
-    // Weight = 400
-    // Grade = 0
-    // Optical size = 24px
+    // Hand drawn by Aidan Jones using InkScape
     export let _class = 'fill-black-100';
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"
-    ><path d="M14 20V7H9V4h13v3h-5v13Zm-9 0v-8H2V9h9v3H8v8Z" /></svg
+<svg
+    class={_class}
+    width="24"
+    height="24"
+    viewBox="0 0 15.24 15.24"
+    xmlns="http://www.w3.org/2000/svg"
 >
+    <path
+        d="M 5.868047,8.2723157 C 5.6387459,8.8545984 5.1837812,10.022093 4.982454,10.547663 l -2.4158346,0.02059 -0.5109765,1.493243 H 0.13576 L 2.8642756,4.674661 H 5.05701 Z M 4.8436898,9.2139188 3.9358382,6.5647783 3.0279866,9.2139188 Z M 15.073332,12.052526 H 12.447339 L 11.766036,10.061534 H 8.1147819 L 7.4334791,12.052526 H 4.8736328 L 8.5116573,2.203401 h 2.9236487 z m -3.922453,-3.7967751 -1.2104703,-3.532191 -1.21047,3.532191 z"
+    />
+</svg>
