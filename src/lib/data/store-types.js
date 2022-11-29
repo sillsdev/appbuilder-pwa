@@ -28,11 +28,7 @@ export const referenceStore = () => {
             n: Object.keys(versesByChapters[chapter]).length
         });
     };
-    let bookInit = ''; 
-    let chapterInit = '';
-    if (localStorage.refs) {
-      [bookInit, chapterInit] = localStorage.refs.split('.');
-    }
+    const [bookInit, chapterInit] = (localStorage.refs) ? localStorage.refs.split('.') : ['','']; 
     setInternal({ docSet: '', book: bookInit, chapter: chapterInit });
     internal.subscribe((value) => localStorage.refs = value.b + "." + value.c)
 
