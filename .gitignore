@@ -24,3 +24,4 @@ static/videos
 static/icons
 static/*.partial.html
 src/lib/data/catalog.js
+src/lib/data/firebase-config.js

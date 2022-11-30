@@ -2,6 +2,7 @@ import { ConvertConfig } from './convertConfig';
 import { ConvertMedia } from './convertMedia';
 import { ConvertBooks } from './convertBooks';
 import { ConvertAbout } from './convertAbout';
+import { ConvertFirebase } from './convertFirebase';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
@@ -31,9 +32,13 @@ const verbose: number = verboseLevel
         : 1
     : 0;
 
-const stepClasses: Task[] = [ConvertConfig, ConvertMedia, ConvertBooks, ConvertAbout].map(
-    (x) => new x(dataDir)
-);
+const stepClasses: Task[] = [
+    ConvertConfig,
+    ConvertMedia,
+    ConvertBooks,
+    ConvertFirebase,
+    ConvertAbout
+].map((x) => new x(dataDir));
 const allPaths = new Set(
     stepClasses.reduce((acc, step) => acc.concat(step.triggerFiles), [] as string[])
 );
