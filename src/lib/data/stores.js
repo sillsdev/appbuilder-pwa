@@ -1,4 +1,4 @@
-import { readable, writable, derived } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { groupStore, referenceStore } from './store-types';
 import config from './config';
 
