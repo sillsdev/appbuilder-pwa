@@ -5,6 +5,7 @@ The sidebar/drawer.
 <script>
     import {
         BibleIcon,
+        AccountIcon,
         SearchIcon,
         HistoryIcon,
         BookmarkIcon,
@@ -17,6 +18,7 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { globalConfig } from '$lib/data/stores';
     import { beforeNavigate } from '$app/navigation';
+    import { firebaseConfig } from '$lib/data/firebase-config';
     let drawerId = 'sidebar';
     const closeDrawer = () => {
         document.activeElement.blur();
@@ -34,6 +36,7 @@ The sidebar/drawer.
         $globalConfig.mainFeatures['share-download-app-link'] ||
         $globalConfig.mainFeatures['share-apk-file'] ||
         $globalConfig.mainFeatures['share-apple-app-link'];
+    const showAccount = firebaseConfig && $globalConfig.mainFeatures['user-accounts'];
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
@@ -52,6 +55,10 @@ The sidebar/drawer.
                     <img src="images/nav_drawer.png" alt="Drawer Header" style="width:auto;" />
                 </picture>
             </a>
+            {#if showAccount}
+                <li><a href="/account"><AccountIcon />My Account</a></li>
+                <div class="dy-divider m-1" />
+            {/if}
             {#if showSearch}
                 <li><a href="/search"><SearchIcon />Search</a></li>
                 <div class="dy-divider m-1" />
