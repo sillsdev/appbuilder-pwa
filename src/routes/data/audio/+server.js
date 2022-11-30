@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import config from '../../../config';
+import config from '$lib/data/config';
 import path from 'path';
 import { readFile } from 'fs/promises';
 

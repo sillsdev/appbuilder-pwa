@@ -636,7 +636,7 @@ export class ConvertConfig extends Task {
             data,
             files: [
                 {
-                    path: 'src/config.js',
+                    path: 'src/lib/data/config.js',
                     content: `export default ${JSON.stringify(data, null, 2)};`
                 }
             ]
