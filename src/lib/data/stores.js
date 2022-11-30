@@ -1,13 +1,11 @@
-import { readable, writable, derived } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { groupStore, referenceStore } from './store-types';
-import globalConfigJson from './config';
+import config from './config';
 
-export const globalConfig = readable(globalConfigJson);
 /**a group of reference stores*/
-if (!localStorage.refs && globalConfigJson.mainFeatures['start-at-reference']) {
-  localStorage.refs = globalConfigJson.mainFeatures['start-at-reference'];
+if (!localStorage.refs && config.mainFeatures['start-at-reference']) {
+  localStorage.refs = config.mainFeatures['start-at-reference'];
 }
-
 export const refs = groupStore(referenceStore);
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');

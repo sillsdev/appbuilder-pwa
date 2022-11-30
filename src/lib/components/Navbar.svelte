@@ -3,11 +3,11 @@
 The navbar component.
 -->
 <script>
-    import { globalConfig } from '$lib/data/stores';
+    import config from '$lib/data/config';
     import { HamburgerIcon } from '$lib/icons';
     import { viewMode } from '$lib/data/stores';
 
-    $: actionBarColor = $globalConfig.themes
+    const actionBarColor = config.themes
         .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme
         .colorSets.find((x) => x.type === 'main').colors['PrimaryColor'];
 </script>

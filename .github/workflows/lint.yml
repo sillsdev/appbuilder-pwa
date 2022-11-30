@@ -20,7 +20,7 @@ jobs:
                   npm i
 
             - name: Add config
-              run: echo "export default {};" > src/config.js
+              run: echo "export default {};" > src/lib/data/config.js
 
             - name: Add catalog
               run: echo "export const catalog = [];" > src/lib/data/catalog.js
