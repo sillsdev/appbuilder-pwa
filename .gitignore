@@ -6,7 +6,6 @@ node_modules
 .env
 .env.*
 !.env.example
-src/config.js
 data/*
 !data/.empty
 static/sab-stylesheet.css
@@ -25,3 +24,4 @@ static/icons
 static/*.partial.html
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
+src/lib/data/config.js

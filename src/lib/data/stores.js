@@ -1,6 +1,6 @@
 import { readable, writable, derived } from 'svelte/store';
 import { groupStore, referenceStore } from './store-types';
-import globalConfigJson from '../../config';
+import globalConfigJson from './config';
 
 export const globalConfig = readable(globalConfigJson);
 /**a group of reference stores*/
