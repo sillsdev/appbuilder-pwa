@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { globalConfig } from '$lib/data/stores';
+    import config from '$lib/data/config';
     import { refs } from '$lib/data/stores';
     import { query } from '$lib/scripts/query';
     import { postQueries, queries } from 'proskomma-tools';
@@ -10,7 +10,7 @@
     let searchText = '';
     //TODO: make match whole words setting do something
     let matchWholeWords = true;
-    $: specialCharacters = $globalConfig.mainFeatures['input-buttons']
+    const specialCharacters = config.mainFeatures['input-buttons']
         .split(' ')
         .filter((x) => x !== '');
     function submit() {
@@ -93,7 +93,7 @@
             <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
         </label>
     </div>
-    {#if $globalConfig.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
+    {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
         <div class="dy-form-control">
             <div class="cursor-pointer">
                 <div class="">Special characters</div>

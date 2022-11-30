@@ -16,27 +16,27 @@ The sidebar/drawer.
         TextAppearanceIcon,
         AboutIcon
     } from '$lib/icons';
-    import { globalConfig } from '$lib/data/stores';
+    import config from '$lib/data/config';
     import { beforeNavigate } from '$app/navigation';
     import { firebaseConfig } from '$lib/data/firebase-config';
-    let drawerId = 'sidebar';
+    const drawerId = 'sidebar';
     const closeDrawer = () => {
         document.activeElement.blur();
     };
     beforeNavigate(closeDrawer);
 
-    let menuItems = $globalConfig?.menuItems;
-    let showSearch = $globalConfig.mainFeatures['search'];
-    let showHistory = $globalConfig.mainFeatures['history'];
-    let showBookmarks = $globalConfig.mainFeatures['annotation-bookmarks'];
-    let showNotes = $globalConfig.mainFeatures['annotation-notes'];
-    let showHighlights = $globalConfig.mainFeatures['annotation-highlights'];
-    let showShare =
-        $globalConfig.mainFeatures['share-app-link'] ||
-        $globalConfig.mainFeatures['share-download-app-link'] ||
-        $globalConfig.mainFeatures['share-apk-file'] ||
-        $globalConfig.mainFeatures['share-apple-app-link'];
-    const showAccount = firebaseConfig && $globalConfig.mainFeatures['user-accounts'];
+    const menuItems = config?.menuItems;
+    const showSearch = config.mainFeatures['search'];
+    const showHistory = config.mainFeatures['history'];
+    const showBookmarks = config.mainFeatures['annotation-bookmarks'];
+    const showNotes = config.mainFeatures['annotation-notes'];
+    const showHighlights = config.mainFeatures['annotation-highlights'];
+    const showShare =
+        config.mainFeatures['share-app-link'] ||
+        config.mainFeatures['share-download-app-link'] ||
+        config.mainFeatures['share-apk-file'] ||
+        config.mainFeatures['share-apple-app-link'];
+    const showAccount = firebaseConfig && config.mainFeatures['user-accounts'];
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">

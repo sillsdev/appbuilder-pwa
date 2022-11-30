@@ -7,18 +7,19 @@ TODO:
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
-    import { refs, globalConfig } from '$lib/data/stores';
+    import { refs } from '$lib/data/stores';
+    import config from '$lib/data/config';
 
     export let layoutOption = '';
-    let colors = (type, key) =>
-        $globalConfig.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
+    const colors = (type, key) =>
+        config.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
             ?.colors[key];
-    let textColor = colors('main', 'LayoutItemNameColor');
-    let blockSelected = colors('main', 'LayoutItemSelectedBackgroundColor');
+    const textColor = colors('main', 'LayoutItemNameColor');
+    const blockSelected = colors('main', 'LayoutItemSelectedBackgroundColor');
 
     const dispatch = createEventDispatcher();
     let nextDocSet;
-    let docSetList = catalog.map((ds) => ds.id);
+    const docSetList = catalog.map((ds) => ds.id);
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
     }, 'next');

@@ -4,13 +4,13 @@ A component to display tabbed menus.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { globalConfig } from '$lib/data/stores';
+    import config from '$lib/data/config';
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {} } };
     export let active = '';
     const dispatch = createEventDispatcher();
 
-    $: primaryColor = $globalConfig.themes
+    const primaryColor = config.themes
         .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme
         .colorSets.find((x) => x.type === 'main').colors['PrimaryColor'];
 
