@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     // TODO: link config to settings, make settings actually matter

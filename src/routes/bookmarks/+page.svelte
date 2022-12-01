@@ -1,7 +1,6 @@
 <script lang="ts">
     import IconCard from '$lib/components/IconCard.svelte';
     import { BookmarkIcon } from '$lib/icons';
-    import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     let bookmarks = [

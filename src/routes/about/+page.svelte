@@ -3,7 +3,6 @@
     // Check kit.svelte.dev docs (Language Forge examples)
     import { onMount } from 'svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
 
     var partial: string;

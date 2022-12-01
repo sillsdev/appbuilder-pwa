@@ -2,7 +2,6 @@
     import IconCard from '$lib/components/IconCard.svelte';
     import { NoteIcon } from '$lib/icons';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     let notes = [
         {

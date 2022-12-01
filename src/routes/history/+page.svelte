@@ -1,7 +1,6 @@
 <script lang="ts">
     import HistoryCard from '$lib/components/HistoryCard.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     let history = [
         { book: 'World English Bible', reference: 'Genesis 1', date: 'Today | 14:49' },
