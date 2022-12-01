@@ -7,6 +7,6 @@
     export let _class = 'fill-black-100';
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"
+<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="24" width="24"
     ><path d="M13 19V5h6v14Zm-8 0V5h6v14Z" /></svg
 >
