@@ -98,9 +98,24 @@ export type ConfigData = {
     defaultTheme?: string;
     traits?: any;
     bookCollections?: BookCollection[];
+    interfaceLanguages?: {
+        useSystemLanguage: boolean;
+        writingSystems: {
+            [key: string]: {
+                displayNames: {
+                    [key: string]: string;
+                };
+                fontFamily: string;
+                textDirection: string;
+            };
+        };
+    };
     translationMappings?: {
-        [key: string]: {
-            [lang: string]: string;
+        defaultLang: string;
+        mappings: {
+            [key: string]: {
+                [lang: string]: string;
+            };
         };
     };
     keys?: string[];
@@ -206,6 +221,16 @@ function parseStyles(stylesTag: Element) {
     }
 
     return styles;
+}
+
+function parseTrait(tag: Element, name: string): string {
+    const traitTags = tag.getElementsByTagName('trait');
+    for (const tag of traitTags) {
+        if (tag.attributes.getNamedItem('name')!.value === name) {
+            return tag.attributes.getNamedItem('value')!.value;
+        }
+    }
+    return '';
 }
 
 function convertConfig(dataDir: string, verbose: number) {
@@ -441,25 +466,49 @@ function convertConfig(dataDir: string, verbose: number) {
                 .join(', ')}] books`
         );
 
+    // Inteface Languages
+    const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
+    const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
+
+    data.interfaceLanguages = { useSystemLanguage, writingSystems: {} };
+    const writingSystemsTags = interfaceLanguagesTag
+        .getElementsByTagName('writing-systems')[0]
+        .getElementsByTagName('writing-system');
+    for (const tag of writingSystemsTags) {
+        const code: string = tag.attributes.getNamedItem('code')!.value;
+        const fontFamily = tag.getElementsByTagName('font-family')[0].innerHTML;
+        const textDirection = parseTrait(tag, 'text-direction');
+        if (verbose >= 2) console.log(`.. writingSystem: ${code}`);
+        const displaynamesTag = tag.getElementsByTagName('display-names')[0];
+        const displayNames: typeof data.interfaceLanguages.writingSystems.displayNames.displayNames =
+            {};
+        for (const form of displaynamesTag.getElementsByTagName('form')) {
+            displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
+        }
+        data.interfaceLanguages.writingSystems[code] = { fontFamily, textDirection, displayNames };
+    }
+
     // Menu localizations
-    data.translationMappings = {};
-    const translationMappingsTags = document
-        .getElementsByTagName('translation-mappings')[0]
-        .getElementsByTagName('tm');
+    const translationMappingsTag = document.getElementsByTagName('translation-mappings')[0];
+    const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
+    data.translationMappings = { defaultLang, mappings: {} };
+    const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
 
     for (const tag of translationMappingsTags) {
         if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
-        const localizations: typeof data.translationMappings.key = {};
+        const localizations: typeof data.translationMappings.mappings.key = {};
         for (const localization of tag.getElementsByTagName('t')) {
             localizations[localization.attributes.getNamedItem('lang')!.value] =
                 localization.innerHTML;
         }
         if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
-        data.translationMappings[tag.id] = localizations;
+        data.translationMappings.mappings[tag.id] = localizations;
     }
     if (verbose)
         console.log(
-            `Converted ${Object.keys(data.translationMappings).length} translation mappings`
+            `Converted ${
+                Object.keys(data.translationMappings.mappings).length
+            } translation mappings`
         );
 
     // Keys
