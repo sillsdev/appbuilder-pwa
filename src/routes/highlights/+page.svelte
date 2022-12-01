@@ -1,6 +1,5 @@
 <script lang="ts">
     import ColorCard from '$lib/components/ColorCard.svelte';
-    import '../../tailwind.css';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
 

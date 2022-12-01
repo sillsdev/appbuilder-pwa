@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '../../tailwind.css';
     import { mainScroll } from '$lib/data/stores';
     import { onMount } from 'svelte';
     let main: HTMLElement;

@@ -6,7 +6,6 @@
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import Dropdown from '$lib/components/Dropdown.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import '../tailwind.css';
     import { audioActive } from '$lib/data/stores';
     import { AudioIcon, SearchIcon, TextAppearanceIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';

@@ -3,7 +3,6 @@
     import { refs } from '$lib/data/stores';
     import { query } from '$lib/scripts/query';
     import { postQueries, queries } from 'proskomma-tools';
-    import '../../tailwind.css';
     import { SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
 
