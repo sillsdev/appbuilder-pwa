@@ -19,6 +19,7 @@ The sidebar/drawer.
     import config from '$lib/data/config';
     import { beforeNavigate } from '$app/navigation';
     import { firebaseConfig } from '$lib/data/firebase-config';
+    import { t } from '$lib/data/stores';
     const drawerId = 'sidebar';
     const closeDrawer = () => {
         document.activeElement.blur();
@@ -37,6 +38,8 @@ The sidebar/drawer.
         config.mainFeatures['share-apk-file'] ||
         config.mainFeatures['share-apple-app-link'];
     const showAccount = firebaseConfig && config.mainFeatures['user-accounts'];
+
+    console.log($t['Menu_Search']);
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
@@ -56,36 +59,38 @@ The sidebar/drawer.
                 </picture>
             </a>
             {#if showAccount}
-                <li><a href="/account"><AccountIcon />My Account</a></li>
+                <li><a href="/account"><AccountIcon />{$t.Account_Page_Title}</a></li>
                 <div class="dy-divider m-1" />
             {/if}
             {#if showSearch}
-                <li><a href="/search"><SearchIcon />Search</a></li>
+                <li><a href="/search"><SearchIcon />{$t.Menu_Search}</a></li>
                 <div class="dy-divider m-1" />
             {/if}
             {#if showHistory}
-                <li><a href="/history"><HistoryIcon />History</a></li>
+                <li><a href="/history"><HistoryIcon />{$t.Menu_History}</a></li>
             {/if}
             {#if showBookmarks}
-                <li><a href="/bookmarks"><BookmarkIcon />Bookmarks</a></li>
+                <li><a href="/bookmarks"><BookmarkIcon />{$t.Annotation_Bookmarks}</a></li>
             {/if}
             {#if showNotes}
-                <li><a href="/notes"><NoteIcon />Notes</a></li>
+                <li><a href="/notes"><NoteIcon />{$t.Annotation_Notes}</a></li>
             {/if}
             {#if showHighlights}
-                <li><a href="/highlights"><HighlightIcon />Highlights</a></li>
+                <li><a href="/highlights"><HighlightIcon />{$t.Annotation_Highlights}</a></li>
             {/if}
             {#if showHistory || showBookmarks || showNotes || showHighlights}
                 <div class="dy-divider m-1" />
             {/if}
             {#if showShare}
-                <li><a href="/share"><ShareIcon />Share App</a></li>
+                <li><a href="/share"><ShareIcon />{$t.Menu_Share_App}</a></li>
                 <div class="dy-divider m-1" />
             {/if}
-            <li><a href="/settings"><SettingsIcon />Settings</a></li>
+            <li><a href="/settings"><SettingsIcon />{$t.Menu_Settings}</a></li>
             <!-- svelte-ignore a11y-missing-attribute -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <li><a on:click={closeDrawer}><TextAppearanceIcon />Text Appearance</a></li>
+            <li>
+                <a on:click={closeDrawer}><TextAppearanceIcon />{$t.Menu_Text_Appearance}</a>
+            </li>
             <div class="dy-divider m-1" />
             <!--TODO update based on language-->
             {#if menuItems}
@@ -108,7 +113,7 @@ The sidebar/drawer.
                     </li>
                 {/each}
             {/if}
-            <li><a href="/about"><AboutIcon />About</a></li>
+            <li><a href="/about"><AboutIcon />{$t.Menu_About}</a></li>
         </ul>
     </div>
 </div>

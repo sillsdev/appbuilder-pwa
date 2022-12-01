@@ -2,11 +2,28 @@ import { writable, derived } from 'svelte/store';
 import { groupStore, referenceStore } from './store-types';
 import config from './config';
 
-/**a group of reference stores*/
-if (!localStorage.refs && config.mainFeatures['start-at-reference']) {
-  localStorage.refs = config.mainFeatures['start-at-reference'];
+const setDefaultStorage = (name, value) => {
+    if (!localStorage.getItem(name) && value) {
+        localStorage.setItem(name, value)
+    }
 }
+
+/** current reference */
+setDefaultStorage('refs', config.mainFeatures['start-at-reference']);
 export const refs = groupStore(referenceStore);
+
+/** localization */
+setDefaultStorage('language', config.translationMappings.defaultLang);
+export const language = writable(localStorage.getItem('language'));
+language.subscribe((value) => localStorage.language = value);
+
+export const t = derived(language, lang => {
+    return Object.keys(config.translationMappings.mappings).reduce((mappings, key) => {
+        mappings[key] = config.translationMappings.mappings[key][lang] || config.translationMappings.mappings[key][config.translationMappings.defaultLang];
+        return mappings;
+    }, {})
+});
+
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
