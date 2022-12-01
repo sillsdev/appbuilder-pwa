@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "dev": "concurrently --restart-tries -1 --restart-after 10 -t HH:mm:ss -p \"[{time} {name}]\" -n Converter,Svelte \"ts-node scripts/index.ts --watch\" \"vite dev\"",
+        "dev": "concurrently --restart-tries -1 --restart-after 10 -t HH:mm:ss -p \"[{time} {name}]\" -n Converter,Svelte \"ts-node scripts/index.ts --watch\" \"vite dev --host\"",
         "build": "ts-node scripts/index.ts && vite build",
         "buildExamples": "ts-node scripts/index.ts --examples && vite build",
         "package": "vite package",
