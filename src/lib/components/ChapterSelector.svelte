@@ -10,6 +10,7 @@ The navbar component.
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
+    import config from '$lib/data/config';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -48,26 +49,28 @@ The navbar component.
 </script>
 
 <!-- Chapter Selector -->
-<Dropdown>
-    <svelte:fragment slot="label">
-        {$refs.chapter}
-        <DropdownIcon _class="fill-white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <TabsMenu
-            bind:this={chapterSelector}
-            options={{
-                Chapter: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters) }
-                },
-                Verse: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters[nextRef.chapter]) }
-                }
-            }}
-            active="Chapter"
-            on:menuaction={navigateReference}
-        />
-    </svelte:fragment>
-</Dropdown>
+{#if config.mainFeatures['show-chapter-number-on-app-bar']}
+    <Dropdown>
+        <svelte:fragment slot="label">
+            {$refs.chapter}
+            <DropdownIcon _class="fill-white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                bind:this={chapterSelector}
+                options={{
+                    Chapter: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters) }
+                    },
+                    Verse: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                    }
+                }}
+                active="Chapter"
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
+{/if}

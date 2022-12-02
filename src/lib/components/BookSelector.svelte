@@ -10,6 +10,7 @@ The navbar component.
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
+    import config from '$lib/data/config';
 
     let bookSelector;
 
@@ -51,34 +52,38 @@ The navbar component.
 </script>
 
 <!-- Book Selector -->
-<Dropdown>
-    <svelte:fragment slot="label">
-        {$refs.book}
-        <DropdownIcon _class="fill-white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <TabsMenu
-            bind:this={bookSelector}
-            options={{
-                Book: {
-                    component: SelectGrid,
-                    /**
-                     * TODO:
-                     * - add book abbreviations to catalog to be used in UI instead of bookCode
-                     */
-                    props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
-                },
-                Chapter: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters) }
-                },
-                Verse: {
-                    component: SelectGrid,
-                    props: { options: Object.keys(chapters[nextRef.chapter]) }
-                }
-            }}
-            active="Book"
-            on:menuaction={navigateReference}
-        />
-    </svelte:fragment>
-</Dropdown>
+{#if config.mainFeatures['book-select'] === 'grid'}
+    <Dropdown>
+        <svelte:fragment slot="label">
+            {$refs.book}
+            <DropdownIcon _class="fill-white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    Book: {
+                        component: SelectGrid,
+                        /**
+                         * TODO:
+                         * - add book abbreviations to catalog to be used in UI instead of bookCode
+                         */
+                        props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
+                    },
+                    Chapter: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters) }
+                    },
+                    Verse: {
+                        component: SelectGrid,
+                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                    }
+                }}
+                active="Book"
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
+{:else if config.mainFeatures['book-select'] === 'list'}
+    <!--TODO: Add List selector -->
+{/if}

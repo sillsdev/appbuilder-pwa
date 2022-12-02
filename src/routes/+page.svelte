@@ -4,11 +4,14 @@
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
-    import Dropdown from '$lib/components/Dropdown.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive } from '$lib/data/stores';
-    import { AudioIcon, SearchIcon, TextAppearanceIcon } from '$lib/icons';
+    import { audioActive, refs } from '$lib/data/stores';
+    import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
+    import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
+    import config from '$lib/data/config';
+
+    const showSearch = config.mainFeatures['search'];
 </script>
 
 <div class="navbar">
@@ -19,39 +22,38 @@
             <ChapterSelector />
         </div>
         <div slot="right-buttons">
-            <!-- Mute/Volume Button -->
-            <button class="dy-btn dy-btn-ghost dy-btn-circle">
-                <label class="dy-swap">
-                    <!-- this hidden checkbox controls the state -->
-                    <input type="checkbox" bind:checked={$audioActive} />
+            {#if $refs.hasAudio}
+                <!-- Mute/Volume Button -->
+                <button class="dy-btn dy-btn-ghost dy-btn-circle">
+                    <label class="dy-swap">
+                        <!-- this hidden checkbox controls the state -->
+                        <input type="checkbox" bind:checked={$audioActive} />
 
-                    <!-- volume on icon -->
-                    <AudioIcon.Volume _class="dy-swap-on fill-white" />
+                        <!-- volume on icon -->
+                        <AudioIcon.Volume _class="dy-swap-on fill-white" />
 
-                    <!-- volume off icon -->
-                    <AudioIcon.Mute _class="dy-swap-off fill-white" />
-                </label>
-            </button>
-            <!-- Search Button -->
-            <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                <SearchIcon _class="fill-white" />
-            </a>
+                        <!-- volume off icon -->
+                        <AudioIcon.Mute _class="dy-swap-off fill-white" />
+                    </label>
+                </button>
+            {/if}
+            {#if showSearch}
+                <!-- Search Button -->
+                <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                    <SearchIcon _class="fill-white" />
+                </a>
+            {/if}
             <!-- Text Appearance Options Menu -->
-            <Dropdown>
-                <svelte:fragment slot="label">
-                    <TextAppearanceIcon _class="fill-white" />
-                </svelte:fragment>
-                <!-- TODO: implement text appearance options -->
-            </Dropdown>
+            <TextAppearanceSelector />
         </div>
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class={$audioActive ? 'smaller' : 'larger'} slot="scrolled-content">
+    <div class={$refs.hasAudio && $audioActive ? 'smaller' : 'larger'} slot="scrolled-content">
         <ScriptureView />
     </div>
 </ScrolledContent>
-{#if $audioActive}
+{#if $refs.hasAudio && $audioActive}
     <div class="audio-bar">
         <AudioBar />
     </div>

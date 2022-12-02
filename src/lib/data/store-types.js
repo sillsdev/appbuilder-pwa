@@ -1,5 +1,6 @@
 import { writable, derived, get } from 'svelte/store';
 import { catalog } from './catalog';
+import config from './config';
 
 /**stores references and some useful derived information.*/
 export const referenceStore = () => {
@@ -39,6 +40,12 @@ export const referenceStore = () => {
         chapter: $internal.c,
         chapterVerses: `${$internal.c}:1-${$internal.n}`,
         numVerses: $internal.n,
+        hasAudio:config.traits['has-audio'] && config.bookCollections
+        .find((x) => x.id === $internal.ds.split('_')[1]).books
+        .find((x) => x.id === $internal.b).audio
+        .find((x) => x.num == $internal.c),
+
+
         title: catalog.find((ds) => ds.id === $internal.ds)
             .documents.find((b) => b.bookCode === $internal.b).toc,
         name: catalog.find((ds) => ds.id === $internal.ds)
