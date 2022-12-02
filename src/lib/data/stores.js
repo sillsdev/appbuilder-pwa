@@ -14,7 +14,7 @@ export const refs = groupStore(referenceStore);
 
 /** localization */
 setDefaultStorage('language', config.translationMappings.defaultLang);
-export const language = writable(localStorage.getItem('language'));
+export const language = writable(localStorage.language);
 language.subscribe((value) => localStorage.language = value);
 
 export const t = derived(language, lang => {
