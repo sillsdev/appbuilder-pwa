@@ -54,7 +54,7 @@ The navbar component.
 <Dropdown>
     <svelte:fragment slot="label">
         {$refs.book}
-        <DropdownIcon />
+        <DropdownIcon _class="fill-white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
         <TabsMenu

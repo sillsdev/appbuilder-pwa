@@ -1,9 +1,14 @@
 <script lang="ts">
+    // Highlight from https://fonts.google.com/icons
+    // Filled = 1
+    // Weight = 400
+    // Grade = 0
+    // Optical size = 24px
     export let _class = 'fill-black-100';
 </script>
 
-<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="20" width="20"
+<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="24" width="24"
     ><path
-        d="M1.667 20V16.5H18.333V20ZM3.667 14.979V11.708L10.938 4.438L14.208 7.708L6.938 14.979ZM15.271 6.646 12 3.375 13.458 1.917Q13.708 1.667 14.104 1.667Q14.5 1.667 14.75 1.917L16.833 4Q17.062 4.229 17.01 4.594Q16.958 4.958 16.729 5.188Z"
+        d="M2 24v-4h20v4Zm1.5-6 3.15-3.15-.05-.05q-.6-.6-.6-1.4 0-.8.6-1.4l4.275-4.275 5.4 5.4L12 17.4q-.6.6-1.4.6-.8 0-1.4-.6l-.05-.05-.65.65Zm14.2-6.3-5.4-5.4L16 2.6q.6-.6 1.4-.6.8 0 1.4.6l2.6 2.6q.6.6.6 1.4 0 .8-.6 1.4Z"
     /></svg
 >

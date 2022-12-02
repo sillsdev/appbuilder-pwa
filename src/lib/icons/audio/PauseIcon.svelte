@@ -1,7 +1,12 @@
 <script lang="ts">
+    // Pause from https://fonts.google.com/icons
+    // Filled = 1
+    // Weight = 400
+    // Grade = 0
+    // Optical size = 24px
     export let _class = 'fill-black-100';
 </script>
 
-<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="20" width="20"
-    ><path d="M10.75 15.833V4.167h5.083v11.666Zm-6.583 0V4.167H9.25v11.666Z" /></svg
+<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="24" width="24"
+    ><path d="M13 19V5h6v14Zm-8 0V5h6v14Z" /></svg
 >
