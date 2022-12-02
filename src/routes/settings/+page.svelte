@@ -1,6 +1,8 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
+    import { t } from '$lib/data/stores';
+
     // TODO: link config to settings, make settings actually matter
     let settings: App.Settings = {
         'Text Display': {
@@ -53,7 +55,7 @@
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">Settings</div>
+            <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
         </label>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>

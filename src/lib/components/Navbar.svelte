@@ -19,11 +19,12 @@ The navbar component.
     <div class="dy-navbar-start">
         <label
             for="sidebar"
-            class="dy-btn dy-btn-ghost p-1 dy-drawer-button {$viewMode === 'Side By Side'
+            class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button {$viewMode ===
+            'Side By Side'
                 ? ''
                 : 'lg:hidden'}"
         >
-            <HamburgerIcon />
+            <HamburgerIcon _class="fill-white" />
         </label>
         <slot name="left-buttons" />
     </div>

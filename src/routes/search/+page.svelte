@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { refs } from '$lib/data/stores';
+    import { refs, t } from '$lib/data/stores';
     import { query } from '$lib/scripts/query';
     import { postQueries, queries } from 'proskomma-tools';
     import { SearchIcon } from '$lib/icons';
@@ -65,7 +65,7 @@
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">Search</div>
+            <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
         </label>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>
@@ -77,7 +77,7 @@
             <input
                 autofocus
                 type="text"
-                placeholder="Search"
+                placeholder={$t['Search']}
                 class="dy-input dy-input-bordered"
                 bind:value={searchText}
             />
@@ -88,7 +88,7 @@
     </div>
     <div class="dy-form-control w-full max-w-xs">
         <label class="dy-label cursor-pointer">
-            <span class="dy-label-text">Match whole words</span>
+            <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
             <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
         </label>
     </div>

@@ -2,6 +2,7 @@
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
+    import { t } from '$lib/data/stores';
 
     let highlights: App.Highlight[] = [
         {
@@ -79,7 +80,7 @@
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">Highlights</div>
+            <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Highlights']}</div>
         </label>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>
