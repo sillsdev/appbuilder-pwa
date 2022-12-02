@@ -3,6 +3,7 @@
     import { BookmarkIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
+    import { t } from '$lib/data/stores';
     let bookmarks = [
         {
             id: '1',
@@ -99,7 +100,7 @@
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">Bookmarks</div>
+            <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Bookmarks']}</div>
         </label>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>

@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import { t } from '$lib/data/stores';
 
     var partial: string;
     onMount(async function () {
@@ -16,7 +17,7 @@
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">About</div>
+            <div class="btn btn-ghost normal-case text-xl">{$t['Menu_About']}</div>
         </label>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>

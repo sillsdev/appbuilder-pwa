@@ -2,6 +2,7 @@
     import HistoryCard from '$lib/components/HistoryCard.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import { t } from '$lib/data/stores';
     let history = [
         { book: 'World English Bible', reference: 'Genesis 1', date: 'Today | 14:49' },
         { book: 'World English Bible', reference: 'Genesis 1:1', date: 'Today | 14:48' },
@@ -27,7 +28,7 @@
         <!-- Button to close the drawer/sidebar -->
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">History</div>
+            <div class="btn btn-ghost normal-case text-xl">{$t['Menu_History']}</div>
         </label>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>
