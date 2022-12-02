@@ -5,7 +5,7 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive } from '$lib/data/stores';
+    import { audioActive, refs } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -22,19 +22,21 @@
             <ChapterSelector />
         </div>
         <div slot="right-buttons">
-            <!-- Mute/Volume Button -->
-            <button class="dy-btn dy-btn-ghost dy-btn-circle">
-                <label class="dy-swap">
-                    <!-- this hidden checkbox controls the state -->
-                    <input type="checkbox" bind:checked={$audioActive} />
+            {#if $refs.hasAudio}
+                <!-- Mute/Volume Button -->
+                <button class="dy-btn dy-btn-ghost dy-btn-circle">
+                    <label class="dy-swap">
+                        <!-- this hidden checkbox controls the state -->
+                        <input type="checkbox" bind:checked={$audioActive} />
 
-                    <!-- volume on icon -->
-                    <AudioIcon.Volume _class="dy-swap-on fill-white" />
+                        <!-- volume on icon -->
+                        <AudioIcon.Volume _class="dy-swap-on fill-white" />
 
-                    <!-- volume off icon -->
-                    <AudioIcon.Mute _class="dy-swap-off fill-white" />
-                </label>
-            </button>
+                        <!-- volume off icon -->
+                        <AudioIcon.Mute _class="dy-swap-off fill-white" />
+                    </label>
+                </button>
+            {/if}
             {#if showSearch}
                 <!-- Search Button -->
                 <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
@@ -47,13 +49,15 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class={$audioActive ? 'smaller' : 'larger'} slot="scrolled-content">
+    <div class={$refs.hasAudio && $audioActive ? 'smaller' : 'larger'} slot="scrolled-content">
         <ScriptureView />
     </div>
 </ScrolledContent>
-<div class="audio-bar">
-    <AudioBar />
-</div>
+{#if $refs.hasAudio && $audioActive}
+    <div class="audio-bar">
+        <AudioBar />
+    </div>
+{/if}
 
 <style>
     .navbar {
