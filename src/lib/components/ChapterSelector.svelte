@@ -6,10 +6,11 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, globalConfig } from '$lib/data/stores';
+    import { refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
+    import config from '$lib/data/config';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -48,7 +49,7 @@ The navbar component.
 </script>
 
 <!-- Chapter Selector -->
-{#if $globalConfig.mainFeatures['show-chapter-number-on-app-bar']}
+{#if config.mainFeatures['show-chapter-number-on-app-bar']}
     <Dropdown>
         <svelte:fragment slot="label">
             {$refs.chapter}

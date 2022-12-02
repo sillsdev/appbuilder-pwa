@@ -9,8 +9,9 @@
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
+    import config from '$lib/data/config';
 
-    const showSearch = $globalConfig.mainFeatures['search'];
+    const showSearch = config.mainFeatures['search'];
 </script>
 
 <div class="navbar">
