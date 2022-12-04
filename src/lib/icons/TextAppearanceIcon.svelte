@@ -1,10 +1,10 @@
 <script lang="ts">
     // Hand drawn by Aidan Jones using InkScape
-    export let _class = 'fill-black-100';
+    export let color = 'black';
 </script>
 
 <svg
-    class={_class}
+    fill={color}
     width="24"
     height="24"
     viewBox="0 0 15.24 15.24"

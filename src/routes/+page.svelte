@@ -5,7 +5,7 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, themeColors } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -30,17 +30,17 @@
                         <input type="checkbox" bind:checked={$audioActive} />
 
                         <!-- volume on icon -->
-                        <AudioIcon.Volume _class="dy-swap-on fill-white" />
+                        <AudioIcon.Volume _class="dy-swap-on" color="white" />
 
                         <!-- volume off icon -->
-                        <AudioIcon.Mute _class="dy-swap-off fill-white" />
+                        <AudioIcon.Mute _class="dy-swap-off" color="white" />
                     </label>
                 </button>
             {/if}
             {#if showSearch}
                 <!-- Search Button -->
                 <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                    <SearchIcon _class="fill-white" />
+                    <SearchIcon color="white" />
                 </a>
             {/if}
             <!-- Text Appearance Options Menu -->

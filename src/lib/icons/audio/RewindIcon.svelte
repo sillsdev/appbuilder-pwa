@@ -4,9 +4,9 @@
     // Weight = 400
     // Grade = 0
     // Optical size = 24px
-    export let _class = 'fill-black-100';
+    export let color = 'black';
 </script>
 
-<svg class={_class} xmlns="http://www.w3.org/2000/svg" height="24" width="24"
+<svg fill={color} xmlns="http://www.w3.org/2000/svg" height="24" width="24"
     ><path d="m21.5 18-9-6 9-6Zm-10 0-9-6 9-6Z" /></svg
 >

@@ -2,6 +2,7 @@ import { Console } from 'console';
 import { readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
+import { config } from 'process';
 import { Task, TaskOutput } from './Task';
 
 /**
@@ -304,6 +305,12 @@ function convertConfig(dataDir: string, verbose: number) {
                     const value = cm?.getAttribute('value');
                     if (name && value) colors[name] = value;
                 }
+                Object.keys(colors).forEach((x) => {
+                    while (!colors[x].startsWith('#')) {
+                        const value = colors[x];
+                        colors[x] = colors[value];
+                    }
+                });
                 return {
                     type: cst.getAttribute('type')!,
                     colors: colors

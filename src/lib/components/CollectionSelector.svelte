@@ -34,9 +34,7 @@ The navbar component.
 </script>
 
 <Dropdown>
-    <svelte:fragment slot="label"
-        >{nextRef.docSet} <DropdownIcon _class="fill-white" /></svelte:fragment
-    >
+    <svelte:fragment slot="label">{nextRef.docSet} <DropdownIcon color="white" /></svelte:fragment>
     <svelte:fragment slot="content">
         <TabsMenu
             options={{
