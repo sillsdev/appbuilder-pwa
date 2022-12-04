@@ -12,6 +12,9 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
 
+    const chapterAfterBookSelector = config.mainFeatures['show-chapter-selector-after-book'];
+    const verseAfterChapter = config.mainFeatures['show-verse-selector'];
+
     let bookSelector;
 
     let nextRef;
@@ -24,19 +27,56 @@ The navbar component.
     function navigateReference(e) {
         switch (e.detail.tab) {
             case 'Book':
-                bookSelector.setActive('Chapter');
-                refs.set({ book: e.detail.text }, 'next');
-                break;
+                // Chapter after book selector False
+                if (!chapterAfterBookSelector) {
+                    bookSelector.setActive('Book');
+                    refs.set({ book: e.detail.text }, 'next');
+                    $refs = { book: nextRef.book, chapter: '1' };
+                    document.activeElement.blur();
+                    break;
+                }
+                // Verse after chapter selector False
+                else if (!verseAfterChapter) {
+                    bookSelector.setActive('Chapter');
+                    refs.set({ book: e.detail.text }, 'next');
+                    break;
+                } else {
+                    bookSelector.setActive('Chapter');
+                    refs.set({ book: e.detail.text }, 'next');
+                    break;
+                }
+
             case 'Chapter':
-                bookSelector.setActive('Verse');
-                refs.set({ chapter: e.detail.text }, 'next');
-                break;
+                // Chapter after book selector False
+                if (!chapterAfterBookSelector) {
+                    break;
+                }
+                // Verse after chapter selector False
+                else if (!verseAfterChapter) {
+                    bookSelector.setActive('Chapter');
+                    refs.set({ chapter: e.detail.text }, 'next');
+                    $refs = { book: nextRef.book, chapter: nextRef.chapter };
+                    document.activeElement.blur();
+                    break;
+                } else {
+                    bookSelector.setActive('Verse');
+                    refs.set({ chapter: e.detail.text }, 'next');
+                    break;
+                }
+
             case 'Verse':
-                bookSelector.setActive('Book');
-                $refs = { book: nextRef.book, chapter: nextRef.chapter };
-                // force closes active dropdown elements
-                document.activeElement.blur();
-                break;
+                if (!chapterAfterBookSelector) {
+                    break;
+                } else if (!verseAfterChapter) {
+                    break;
+                } else {
+                    bookSelector.setActive('Book');
+                    $refs = { book: nextRef.book, chapter: nextRef.chapter };
+                    // force closes active dropdown elements
+                    document.activeElement.blur();
+                    break;
+                }
+
             default:
                 console.log('Book navigateReference: Default');
                 break;
