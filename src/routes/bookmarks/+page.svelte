@@ -116,7 +116,7 @@
                 actions: b.actions
             }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, b.id)} {...iconCard}>
-                <BookmarkIcon slot="icon" _class="fill-red-700" />
+                <BookmarkIcon slot="icon" color="red" />
             </IconCard>
         {/each}
     </div>
