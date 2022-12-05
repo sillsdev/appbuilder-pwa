@@ -175,7 +175,7 @@ TODO:
     })();
 </script>
 
-<article class="prose container mx-auto" bind:this={container}>
+<article bind:this={container}>
     {#if loading}
         <LoadingIcon />
     {/if}
@@ -186,3 +186,10 @@ TODO:
         style:line-height={lineHeight}
     />
 </article>
+
+<style>
+    article {
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+</style>

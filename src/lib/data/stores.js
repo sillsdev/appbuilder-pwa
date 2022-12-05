@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { groupStore, referenceStore } from './store-types';
 import config from './config';
 
@@ -19,9 +19,9 @@ export const languages = Object.keys(config.interfaceLanguages.writingSystems);
 export const language = writable(localStorage.language);
 language.subscribe(value => localStorage.language = value);
 
-export const t = derived(language, lang => {
+export const t = derived(language, $language => {
     return Object.keys(config.translationMappings.mappings).reduce((mappings, key) => {
-        mappings[key] = config.translationMappings.mappings[key][lang] || config.translationMappings.mappings[key][config.translationMappings.defaultLang];
+        mappings[key] = config.translationMappings.mappings[key][$language] || config.translationMappings.mappings[key][config.translationMappings.defaultLang];
         return mappings;
     }, {})
 });
@@ -36,74 +36,42 @@ setDefaultStorage('theme', themeDefault);
 export const theme = writable(localStorage.theme);
 theme.subscribe(value => localStorage.theme = value);
 
-export const themeColors = derived(theme, themeName => {
-    const theme = config.themes.find(x => x.name == themeName);
+export const themeColors = derived(theme, $theme => {
+    const theme = config.themes.find(x => x.name == $theme);
     const colorSet = theme.colorSets.find(x => x.type === 'main');
     return colorSet.colors;
 });
 
+export const themeBookColors = derived(theme, $theme => {
+    const theme = config.themes.find(x => x.name == $theme);
+    const colorSet = theme.colorSets.find(x => x.type === 'books');
+    return colorSet.colors;    
+})
+
 const resolveColor = (colorValue, colors) => {
-    let done = false;
-    while (!done) {
-        if (colorValue.startsWith('#')) {
-            done = true;
-        } else if (colors.hasOwnProperty(colorValue)) {
-            colorValue = colors[colorValue];
-        } else {
-            done=true;
-        }
-    }
+    if (colorValue.startsWith('#')) {
+        return colorValue;
+    } else if (colors[colorValue]) {
+        return colors[colorValue];
+    } 
+
+    // color not in colors map (e.g. 'white' )
     return colorValue;
 }
-export const s = derived(themeColors, colors => {
-    const newStyleProperties = 
-    config.styles.reduce((styleProperties, style) => {
-        console.log(style);
-        if (style.properties.hasOwnProperty('background-color')) {
-            style.properties['background-color'] = resolveColor(style.properties['background-color'],colors);
+export const s = derived(themeColors, $themeColors => {
+    return config.styles.reduce((styleProperties, style) => {
+        const properties = style.properties;
+        let newProperties = {...properties};
+        if (newProperties.hasOwnProperty('background-color')) {
+            newProperties['background-color'] = resolveColor(newProperties['background-color'],$themeColors);
         }
-        if (style.properties.hasOwnProperty('color')) {
-            style.properties['color'] = resolveColor(style.properties['color'],colors);
+        if (newProperties.hasOwnProperty('color')) {
+            newProperties['color'] = resolveColor(newProperties['color'],$themeColors);
         }
-        styleProperties[style.name] = style.properties;
+        styleProperties[style.name] = newProperties;
         return styleProperties;
     }, {});
-    console.log("NEW STYLE PROPERTIES:", newStyleProperties);
-    return newStyleProperties;
 });
-
-export const s2 = derived(themeColors, colors => {
-    const newStyleProperties = 
-    config.styles.reduce((styleProperties, style) => {
-        console.log(style);
-        if (style.properties.hasOwnProperty('background-color')) {
-            style.properties['background-color'] = resolveColor(style.properties['background-color'],colors);
-        }
-        if (style.properties.hasOwnProperty('color')) {
-            style.properties['color'] = resolveColor(style.properties['color'],colors);
-        }
-        for (const key in style.properties) {
-            styleProperties[style.name + "_" + key] = style.properties[key];
-        }
-        return styleProperties;
-    }, {});
-    console.log("NEW STYLE PROPERTIES:", newStyleProperties);
-    return newStyleProperties;
-});
-// export const styles = (name) => {
-//     const style = config.styles.find(x => x.name === name);
-//     if (style) {
-//         if (style.properties.hasOwnProperty('background-color')) {
-//             style.properties['background-color'] = themeColors.get(style.properties['background-color']);
-//         }
-//         if (style.properties.hasOwnProperty('color')) {
-//             style.properties['color'] = themeColors.get(style.properties['color']);
-//         } 
-//         return style.properties;   
-//     }
-//     return {};
-// }
-
 
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
