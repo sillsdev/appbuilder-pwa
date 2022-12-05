@@ -4,7 +4,6 @@ The sidebar/drawer.
 -->
 <script>
     import {
-        BibleIcon,
         AccountIcon,
         SearchIcon,
         HistoryIcon,
@@ -19,7 +18,7 @@ The sidebar/drawer.
     import config from '$lib/data/config';
     import { beforeNavigate } from '$app/navigation';
     import { firebaseConfig } from '$lib/data/firebase-config';
-    import { t, language, languageDefault, languages } from '$lib/data/stores';
+    import { s, t, themeColors, language, languageDefault } from '$lib/data/stores';
     const drawerId = 'sidebar';
     const closeDrawer = () => {
         document.activeElement.blur();
@@ -38,20 +37,30 @@ The sidebar/drawer.
         config.mainFeatures['share-apk-file'] ||
         config.mainFeatures['share-apple-app-link'];
     const showAccount = firebaseConfig && config.mainFeatures['user-accounts'];
-    $: console.log('LANGUAGES:', languages);
-    $: console.log('LANGUAGE DEFAULT:', languageDefault);
-    $: console.log('LANGUAGE:', $language);
+
+    $: textColor = $s['ui.drawer.item.text']['color'];
+    $: iconColor = $s['ui.drawer.item.icon']['color'];
+    $: contentBackgroundColor = $s['ui.background']['background-color'];
+    $: drawerBackgroundColor = $s['ui.drawer']['background-color'];
+    $: contentTextColor = $themeColors['TextColor'];
 </script>
 
 <div class="dy-drawer dy-drawer-mobile">
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
-    <div class="dy-drawer-content flex flex-col bg-gray-200">
+    <div
+        class="dy-drawer-content flex flex-col"
+        style:background-color={contentBackgroundColor}
+        style:color={contentTextColor}
+    >
         <!-- Page content here -->
         <slot />
     </div>
     <div class="dy-drawer-side">
         <label for={drawerId} class="dy-drawer-overlay" />
-        <ul class="dy-menu p-1 overflow-y-auto w-3/4 sm:w-80 bg-base-100 text-base-content">
+        <ul
+            class="dy-menu p-1  w-3/4 sm:w-80 text-base-content"
+            style:background-color={drawerBackgroundColor}
+        >
             <!-- Sidebar content here -->
             <a class="fill" href="/">
                 <picture>
@@ -60,49 +69,89 @@ The sidebar/drawer.
                 </picture>
             </a>
             {#if showAccount}
-                <li><a href="/account"><AccountIcon />{$t['Account_Page_Title']}</a></li>
+                <li>
+                    <a href="/account" style:color={textColor}>
+                        <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
+                    </a>
+                </li>
                 <div class="dy-divider m-1" />
             {/if}
             {#if showSearch}
-                <li><a href="/search"><SearchIcon />{$t['Menu_Search']}</a></li>
+                <li>
+                    <a href="/search" style:color={textColor}>
+                        <SearchIcon color={iconColor} />{$t['Menu_Search']}
+                    </a>
+                </li>
                 <div class="dy-divider m-1" />
             {/if}
             {#if showHistory}
-                <li><a href="/history"><HistoryIcon />{$t['Menu_History']}</a></li>
+                <li>
+                    <a href="/history" style:color={textColor}>
+                        <HistoryIcon color={iconColor} />{$t['Menu_History']}
+                    </a>
+                </li>
             {/if}
             {#if showBookmarks}
-                <li><a href="/bookmarks"><BookmarkIcon />{$t['Annotation_Bookmarks']}</a></li>
+                <li>
+                    <a href="/bookmarks" style:color={textColor}>
+                        <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
+                    </a>
+                </li>
             {/if}
             {#if showNotes}
-                <li><a href="/notes"><NoteIcon />{$t['Annotation_Notes']}</a></li>
+                <li>
+                    <a href="/notes" style:color={textColor}>
+                        <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
+                    </a>
+                </li>
             {/if}
             {#if showHighlights}
-                <li><a href="/highlights"><HighlightIcon />{$t['Annotation_Highlights']}</a></li>
+                <li>
+                    <a href="/highlights" style:color={textColor}>
+                        <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
+                    </a>
+                </li>
             {/if}
             {#if showHistory || showBookmarks || showNotes || showHighlights}
                 <div class="dy-divider m-1" />
             {/if}
             {#if showShare}
-                <li><a href="/share"><ShareIcon />{$t['Menu_Share_App']}</a></li>
+                <li>
+                    <a href="/share" style:color={textColor}>
+                        <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
+                    </a>
+                </li>
                 <div class="dy-divider m-1" />
             {/if}
-            <li><a href="/settings"><SettingsIcon />{$t['Menu_Settings']}</a></li>
+            <li>
+                <a href="/settings" style:color={textColor}>
+                    <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
+                </a>
+            </li>
             <!-- svelte-ignore a11y-missing-attribute -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li>
-                <a on:click={closeDrawer}><TextAppearanceIcon />{$t['Menu_Text_Appearance']}</a>
+                <a on:click={closeDrawer} style:color={textColor}>
+                    <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
+                </a>
             </li>
             <div class="dy-divider m-1" />
             {#if menuItems}
                 {#each menuItems as item}
                     <li>
-                        <a href={item.link['default']} target="_blank" rel="noreferrer">
+                        <a
+                            href={item.link['default']}
+                            style:color={textColor}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
                             <picture>
                                 <source
                                     srcset="icons/menu-items/{item.images[1]
                                         .file} 2x, icons/menu-items/{item.images[2].file} 3x"
                                 />
                                 <img
+                                    style:fill={iconColor}
                                     src="icons/menu-items/{item.images[0].file}"
                                     height="24"
                                     width="24"
@@ -113,7 +162,11 @@ The sidebar/drawer.
                     </li>
                 {/each}
             {/if}
-            <li><a href="/about"><AboutIcon />{$t['Menu_About']}</a></li>
+            <li>
+                <a href="/about" style:color={textColor}>
+                    <AboutIcon color={iconColor} />{$t['Menu_About']}
+                </a>
+            </li>
         </ul>
     </div>
 </div>

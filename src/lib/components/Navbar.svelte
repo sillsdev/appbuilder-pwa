@@ -3,13 +3,9 @@
 The navbar component.
 -->
 <script>
-    import config from '$lib/data/config';
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode } from '$lib/data/stores';
-
-    const actionBarColor = config.themes
-        .find((x) => x.name === 'Normal') // TODO: change to fetch the current theme
-        .colorSets.find((x) => x.type === 'main').colors['PrimaryColor'];
+    import { viewMode, themeColors } from '$lib/data/stores';
+    $: actionBarColor = $themeColors['ActionBarColor'];
 </script>
 
 <!--
@@ -24,7 +20,7 @@ The navbar component.
                 ? ''
                 : 'lg:hidden'}"
         >
-            <HamburgerIcon _class="fill-white" />
+            <HamburgerIcon color="white" />
         </label>
         <slot name="left-buttons" />
     </div>
