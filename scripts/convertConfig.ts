@@ -1,8 +1,6 @@
-import { Console } from 'console';
 import { readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
-import { config } from 'process';
 import { Task, TaskOutput } from './Task';
 
 /**
