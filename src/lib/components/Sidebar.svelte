@@ -151,7 +151,6 @@ The sidebar/drawer.
                                         .file} 2x, icons/menu-items/{item.images[2].file} 3x"
                                 />
                                 <img
-                                    style:fill={iconColor}
                                     src="icons/menu-items/{item.images[0].file}"
                                     height="24"
                                     width="24"
