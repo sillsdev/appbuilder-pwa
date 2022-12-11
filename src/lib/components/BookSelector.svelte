@@ -11,6 +11,11 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+    import SelectList from './SelectList.svelte';
+
+    const selectionPopupNone = config.mainFeatures['book-select'] === 'none';
+    const selectionGrid = config.mainFeatures['book-select'] === 'grid';
+    const selectionList = config.mainFeatures['book-select'] === 'list';
 
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
@@ -73,7 +78,7 @@ The navbar component.
 </script>
 
 <!-- Book Selector -->
-{#if config.mainFeatures['book-select'] === 'grid'}
+{#if selectionGrid}
     <Dropdown>
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
@@ -118,6 +123,36 @@ The navbar component.
             />
         </svelte:fragment>
     </Dropdown>
-{:else if config.mainFeatures['book-select'] === 'list'}
-    <!--TODO: Add List selector -->
+{:else if selectionList}
+<Dropdown>
+    <svelte:fragment slot="label">
+        {$refs.book}
+        <DropdownIcon _class="fill-white" />
+    </svelte:fragment>
+    <svelte:fragment slot="content">
+        <TabsMenu
+            bind:this={bookSelector}
+            options={{
+                Book: {
+                    component: SelectList,
+                    /**
+                     * TODO:
+                     * - add book abbreviations to catalog to be used in UI instead of bookCode
+                     */
+                    props: { options: books.map((b) => b.bookCode) }
+                },
+                Chapter: {
+                    component: SelectList,
+                    props: { options: Object.keys(chapters) }
+                },
+                Verse: {
+                    component: SelectList,
+                    props: { options: Object.keys(chapters[nextRef.chapter]) }
+                }
+            }}
+            active="Book"
+            on:menuaction={navigateReference}
+        />
+    </svelte:fragment>
+</Dropdown>
 {/if}
