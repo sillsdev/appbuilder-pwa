@@ -7,7 +7,7 @@ TODO:
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
-    import { refs, themeColors, s } from '$lib/data/stores';
+    import { refs, themeColors, s, convertStyle } from '$lib/data/stores';
 
     export let layoutOption = '';
     console.log($s);
@@ -78,7 +78,7 @@ TODO:
                     <a
                         on:click={() => handleClick(d)}
                         class={nextDocSet === d ? 'dy-active' : ''}
-                        style:color={$themeColors['LayoutNameColor']}
+                        style={convertStyle($s["ui.layouts.selector"])}
                         style:background-color={nextDocSet === d
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
                             : $themeColors['LayoutBackgroundColor']}
