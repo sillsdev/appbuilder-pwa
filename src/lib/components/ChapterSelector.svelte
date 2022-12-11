@@ -61,6 +61,7 @@ The navbar component.
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
+          <div style:background-color="white">
             <TabsMenu
                 bind:this={chapterSelector}
                 options={{
@@ -76,6 +77,7 @@ The navbar component.
                 active={c}
                 on:menuaction={navigateReference}
             />
+          </div>
         </svelte:fragment>
     </Dropdown>
 {/if}
