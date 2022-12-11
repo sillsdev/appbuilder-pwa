@@ -5,13 +5,13 @@ The navbar component.
 <script>
     import { HamburgerIcon } from '$lib/icons';
     import { viewMode, themeColors } from '$lib/data/stores';
-    $: actionBarColor = $themeColors['ActionBarColor'];
+    $: actionBarColor = $themeColors['PrimaryColor']; // needs to be changed back to ActionBarColor but that isn't working
 </script>
 
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div class="dy-navbar text-white" style:background-color={actionBarColor}>
+<div class="dy-navbar" style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
         <label
             for="sidebar"

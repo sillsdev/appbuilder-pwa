@@ -1,6 +1,6 @@
 <!--
 @component
-The navbar component.
+Book Collection Selector component.
 -->
 <script>
     import Dropdown from './Dropdown.svelte';
@@ -8,7 +8,7 @@ The navbar component.
     import TabsMenu from './TabsMenu.svelte';
     import { refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
-    import { DropdownIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+    import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
     let nextRef;
     const unsub = refs.subscribe((v) => {
@@ -29,12 +29,13 @@ The navbar component.
                 break;
         }
     }
-
     onDestroy(unsub);
 </script>
 
 <Dropdown>
-    <svelte:fragment slot="label">{nextRef.docSet} <DropdownIcon color="white" /></svelte:fragment>
+    <svelte:fragment slot="label">
+        <BibleIcon color="white" />
+    </svelte:fragment>
     <svelte:fragment slot="content">
         <TabsMenu
             options={{
