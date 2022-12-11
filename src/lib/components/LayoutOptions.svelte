@@ -8,7 +8,6 @@ TODO:
     import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
     import { refs, themeColors, s } from '$lib/data/stores';
-    import config from '$lib/data/config';
 
     export let layoutOption = '';
     console.log($s);
@@ -42,7 +41,9 @@ TODO:
                         on:click={() => handleClick(d)}
                         class={nextDocSet === d ? 'dy-active' : ''}
                         style:color={$themeColors['LayoutNameColor']}
-                        style:background-color={nextDocSet === d ? $themeColors['LayoutItemSelectedBackgroundColor'] : ''}
+                        style:background-color={nextDocSet === d
+                            ? $themeColors['LayoutItemSelectedBackgroundColor']
+                            : ''}
                         >{d}
                     </a>
                 </li>
@@ -54,15 +55,17 @@ TODO:
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <a
-                      on:click={() => handleClick(d)}
-                      class={nextDocSet === d ? 'dy-active' : ''}
-                      style:color={$themeColors['LayoutNameColor']}
-                      style:background-color={nextDocSet === d ? $themeColors['LayoutItemSelectedBackgroundColor'] : $themeColors['LayoutBackgroundColor']}
-                      >{d}
-                  </a>
-              </li>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <a
+                        on:click={() => handleClick(d)}
+                        class={nextDocSet === d ? 'dy-active' : ''}
+                        style:color={$themeColors['LayoutNameColor']}
+                        style:background-color={nextDocSet === d
+                            ? $themeColors['LayoutItemSelectedBackgroundColor']
+                            : $themeColors['LayoutBackgroundColor']}
+                        >{d}
+                    </a>
+                </li>
             {/each}
         </ul>
     {:else if layoutOption === 'Single Pane'}
@@ -71,15 +74,17 @@ TODO:
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <a
-                      on:click={() => handleClick(d)}
-                      class={nextDocSet === d ? 'dy-active' : ''}
-                      style:color={$themeColors['LayoutNameColor']}
-                      style:background-color={nextDocSet === d ? $themeColors['LayoutItemSelectedBackgroundColor'] : $themeColors['LayoutBackgroundColor']}
-                      >{d}
-                  </a>
-              </li>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <a
+                        on:click={() => handleClick(d)}
+                        class={nextDocSet === d ? 'dy-active' : ''}
+                        style:color={$themeColors['LayoutNameColor']}
+                        style:background-color={nextDocSet === d
+                            ? $themeColors['LayoutItemSelectedBackgroundColor']
+                            : $themeColors['LayoutBackgroundColor']}
+                        >{d}
+                    </a>
+                </li>
             {/each}
         </ul>
     {/if}
