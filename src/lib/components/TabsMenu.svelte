@@ -4,13 +4,11 @@ A component to display tabbed menus.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { themeColors, s } from '$lib/data/stores';
+    import { s, convertStyle } from '$lib/data/stores';
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {} } };
     export let active = '';
     const dispatch = createEventDispatcher();
-
-    $: primaryColor = $themeColors[$s['ui.book.tabs']['color']];
 
     function handleMenuaction({ detail }: CustomEvent) {
         dispatch('menuaction', {
@@ -26,7 +24,7 @@ A component to display tabbed menus.
     };
 </script>
 
-<div class="dy-tabs" style:background-color={primaryColor}>
+<div class="dy-tabs" style={convertStyle($s['ui.selector.tabs'])}>
     {#each Object.keys(options) as opt}
         <!-- svelte-ignore a11y-missing-attribute -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -44,7 +42,7 @@ A component to display tabbed menus.
         </a>
     {/each}
 </div>
-<div class="tabs-content">
+<div class="tabs-content" style:background-color={$s['ui.background']['background-color']}>
     <svelte:component
         this={options[active].component}
         on:menuaction={handleMenuaction}

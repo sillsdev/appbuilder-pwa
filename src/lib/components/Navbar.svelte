@@ -4,14 +4,13 @@ The navbar component.
 -->
 <script>
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode, themeColors } from '$lib/data/stores';
-    $: actionBarColor = $themeColors['PrimaryColor']; // needs to be changed back to ActionBarColor but that isn't working
+    import { viewMode, s, convertStyle } from '$lib/data/stores';
 </script>
 
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div class="dy-navbar" style:background-color={actionBarColor}>
+<div class="dy-navbar" style={convertStyle($s['ui.bar.action'])}>
     <div class="dy-navbar-start">
         <label
             for="sidebar"
