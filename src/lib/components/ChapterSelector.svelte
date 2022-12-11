@@ -61,23 +61,23 @@ The navbar component.
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
-          <div style:background-color="white">
-            <TabsMenu
-                bind:this={chapterSelector}
-                options={{
-                    [c]: {
-                        component: SelectGrid,
-                        props: { options: Object.keys(chapters) }
-                    },
-                    [v]: {
-                        component: SelectGrid,
-                        props: { options: Object.keys(chapters[nextRef.chapter]) }
-                    }
-                }}
-                active={c}
-                on:menuaction={navigateReference}
-            />
-          </div>
+            <div style:background-color="white">
+                <TabsMenu
+                    bind:this={chapterSelector}
+                    options={{
+                        [c]: {
+                            component: SelectGrid,
+                            props: { options: Object.keys(chapters) }
+                        },
+                        [v]: {
+                            component: SelectGrid,
+                            props: { options: Object.keys(chapters[nextRef.chapter]) }
+                        }
+                    }}
+                    active={c}
+                    on:menuaction={navigateReference}
+                />
+            </div>
         </svelte:fragment>
     </Dropdown>
 {/if}
