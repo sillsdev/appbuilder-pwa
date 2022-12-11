@@ -16,7 +16,7 @@ TODO:
     let nextDocSet;
 
     const docSetList = catalog.map((ds) => ds.id);
-    
+
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
     }, 'next');
@@ -33,8 +33,10 @@ TODO:
 
 <!-- Identical for now -->
 <div class="w-60 p-2">
-    {#if layoutOption === 'Side By Side'}
-        <p><strong>{$t['Layout_Two_Pane']}</strong></p>
+    {#if layoutOption === 'Single Pane'}
+        <p style:color={$themeColors['LayoutTitleColor']}>
+            <strong>{$t['Layout_Single_Pane']}</strong>
+        </p>
         <ul class="dy-menu mx-auto">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
@@ -43,36 +45,44 @@ TODO:
                     <a
                         on:click={() => handleClick(d)}
                         class={nextDocSet === d ? 'dy-active' : ''}
-                        style:color={$themeColors['LayoutNameColor']}
+                        style={convertStyle($s['ui.layouts.selector'])}
                         style:background-color={nextDocSet === d
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
-                            : ''}
-                        >{d}
+                            : $themeColors['LayoutBackgroundColor']}
+                        >{config.bookCollections.find(
+                            (x) => x.id === catalog.find((x) => x.id === d).selectors.abbr
+                        ).collectionName}
+                    </a>
+                </li>
+            {/each}
+        </ul>
+    {:else if layoutOption === 'Side By Side'}
+        <p style:color={$themeColors['LayoutTitleColor']}>
+            <strong>{$t['Layout_Two_Pane']}</strong>
+        </p>
+        <ul class="dy-menu mx-auto">
+            {#each docSetList as d}
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <a
+                        on:click={() => handleClick(d)}
+                        class={nextDocSet === d ? 'dy-active' : ''}
+                        style={convertStyle($s['ui.layouts.selector'])}
+                        style:background-color={nextDocSet === d
+                            ? $themeColors['LayoutItemSelectedBackgroundColor']
+                            : $themeColors['LayoutBackgroundColor']}
+                        >{config.bookCollections.find(
+                            (x) => x.id === catalog.find((x) => x.id === d).selectors.abbr
+                        ).collectionName}
                     </a>
                 </li>
             {/each}
         </ul>
     {:else if layoutOption === 'Verse By Verse'}
-        <p><strong>{$t['Layout_Interlinear']}</strong></p>
-        <ul class="dy-menu mx-auto">
-            {#each docSetList as d}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <li>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <a
-                        on:click={() => handleClick(d)}
-                        class={nextDocSet === d ? 'dy-active' : ''}
-                        style:color={$themeColors['LayoutNameColor']}
-                        style:background-color={nextDocSet === d
-                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                            : $themeColors['LayoutBackgroundColor']}
-                        >{d}
-                    </a>
-                </li>
-            {/each}
-        </ul>
-    {:else if layoutOption === 'Single Pane'}
-        <p style:color={$themeColors['LayoutTitleColor']}><strong>{$t['Layout_Single_Pane']}</strong></p>
+        <p style:color={$themeColors['LayoutTitleColor']}>
+            <strong>{$t['Layout_Interlinear']}</strong>
+        </p>
         <ul class="dy-menu mx-auto">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
