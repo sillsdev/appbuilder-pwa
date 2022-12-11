@@ -5,6 +5,7 @@ The navbar component.
 <script>
     import { HamburgerIcon } from '$lib/icons';
     import { viewMode, s, convertStyle } from '$lib/data/stores';
+    console.log($s);
 </script>
 
 <!--
@@ -23,7 +24,7 @@ The navbar component.
         </label>
         <slot name="left-buttons" />
     </div>
-    <div class="dy-navbar-center">
+    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
         <slot name="center" />
     </div>
     <div class="dy-navbar-end fill-base-content">
