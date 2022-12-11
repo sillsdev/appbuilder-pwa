@@ -33,32 +33,32 @@ Book Collection Selector component.
 </script>
 
 <div class="dy-dropdown dy-dropdown-end">
-<Dropdown>
-    <svelte:fragment slot="label">
-        <BibleIcon color="white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <TabsMenu
-            options={{
-                'Single Pane': {
-                    tab: { component: SinglePaneIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: 'Single Pane' }
-                },
-                'Side By Side': {
-                    tab: { component: SideBySideIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: 'Side By Side' }
-                },
-                'Verse By Verse': {
-                    tab: { component: VerseByVerseIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: 'Verse By Verse' }
-                }
-            }}
-            active="Single Pane"
-            on:menuaction={navigateReference}
-        />
-    </svelte:fragment>
-</Dropdown>
+    <Dropdown>
+        <svelte:fragment slot="label">
+            <BibleIcon color="white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                options={{
+                    'Single Pane': {
+                        tab: { component: SinglePaneIcon },
+                        component: LayoutOptions,
+                        props: { layoutOption: 'Single Pane' }
+                    },
+                    'Side By Side': {
+                        tab: { component: SideBySideIcon },
+                        component: LayoutOptions,
+                        props: { layoutOption: 'Side By Side' }
+                    },
+                    'Verse By Verse': {
+                        tab: { component: VerseByVerseIcon },
+                        component: LayoutOptions,
+                        props: { layoutOption: 'Verse By Verse' }
+                    }
+                }}
+                active="Single Pane"
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
 </div>
