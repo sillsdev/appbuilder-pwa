@@ -47,7 +47,7 @@
             <TextAppearanceSelector />
             {#if showCollections}
                 <!-- Book Collection Menu Button -->
-                  <CollectionSelector />
+                <CollectionSelector />
             {/if}
         </div>
     </Navbar>

@@ -78,7 +78,7 @@ TODO:
                     <a
                         on:click={() => handleClick(d)}
                         class={nextDocSet === d ? 'dy-active' : ''}
-                        style={convertStyle($s["ui.layouts.selector"])}
+                        style={convertStyle($s['ui.layouts.selector'])}
                         style:background-color={nextDocSet === d
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
                             : $themeColors['LayoutBackgroundColor']}
