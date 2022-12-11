@@ -53,8 +53,8 @@ The navbar component.
     <Dropdown>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>
-              {$refs.chapter}
-            </div>  
+                {$refs.chapter}
+            </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">

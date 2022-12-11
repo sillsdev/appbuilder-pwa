@@ -54,9 +54,9 @@ The navbar component.
 {#if config.mainFeatures['book-select'] === 'grid'}
     <Dropdown>
         <svelte:fragment slot="label">
-            <div style={convertStyle($s["ui.selector.book"])}>
-              {$refs.book}
-            </div>  
+            <div style={convertStyle($s['ui.selector.book'])}>
+                {$refs.book}
+            </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
