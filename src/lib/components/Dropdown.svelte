@@ -3,7 +3,7 @@
 A simple dropdown menu from DaisyUI.
 -->
 <script>
-  import { s, convertStyle } from '$lib/data/stores.js';
+    import { s, convertStyle } from '$lib/data/stores.js';
 </script>
 
 <div class="dy-dropdown">
@@ -12,7 +12,11 @@ A simple dropdown menu from DaisyUI.
         <slot name="label" />
     </label>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <div tabindex="0" class="dy-dropdown-content dy-menu dy-shadow bg-base-100 shadow-lg" style={convertStyle($s['ui.background'])}>
+    <div
+        tabindex="0"
+        class="dy-dropdown-content dy-menu dy-shadow bg-base-100 shadow-lg"
+        style={convertStyle($s['ui.background'])}
+    >
         <slot name="content" />
     </div>
 </div>
