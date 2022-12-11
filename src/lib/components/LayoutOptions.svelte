@@ -7,14 +7,15 @@ TODO:
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
+    import config from '$lib/data/config';
     import { refs, themeColors, s, convertStyle } from '$lib/data/stores';
 
     export let layoutOption = '';
-    console.log($s);
 
     const dispatch = createEventDispatcher();
     let nextDocSet;
     const docSetList = catalog.map((ds) => ds.id);
+    console.log(docSetList);
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
     }, 'next');
@@ -82,7 +83,9 @@ TODO:
                         style:background-color={nextDocSet === d
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
                             : $themeColors['LayoutBackgroundColor']}
-                        >{d}
+                        >{config.bookCollections.find(
+                            (x) => x.id === catalog.find((x) => x.id === d).selectors.abbr
+                        ).collectionName}
                     </a>
                 </li>
             {/each}
