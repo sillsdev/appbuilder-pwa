@@ -11,11 +11,9 @@ TODO:
     import { refs, themeColors, s, convertStyle } from '$lib/data/stores';
 
     export let layoutOption = '';
-
     const dispatch = createEventDispatcher();
     let nextDocSet;
     const docSetList = catalog.map((ds) => ds.id);
-    console.log(docSetList);
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
     }, 'next');
