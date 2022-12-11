@@ -6,11 +6,15 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, s, convertStyle } from '$lib/data/stores';
+    import { refs, s, t, convertStyle } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+
+    $: b = $t.Selector_Book;
+    $: c = $t.Selector_Chapter;
+    $: v = $t.Selector_Verse;
 
     let bookSelector;
     let nextRef;
@@ -22,16 +26,16 @@ The navbar component.
      */
     function navigateReference(e) {
         switch (e.detail.tab) {
-            case 'Book':
-                bookSelector.setActive('Chapter');
+            case b:
+                bookSelector.setActive(c);
                 refs.set({ book: e.detail.text }, 'next');
                 break;
-            case 'Chapter':
-                bookSelector.setActive('Verse');
+            case c:
+                bookSelector.setActive(v);
                 refs.set({ chapter: e.detail.text }, 'next');
                 break;
-            case 'Verse':
-                bookSelector.setActive('Book');
+            case v:
+                bookSelector.setActive(b);
                 $refs = { book: nextRef.book, chapter: nextRef.chapter };
                 // force closes active dropdown elements
                 document.activeElement.blur();
@@ -63,7 +67,7 @@ The navbar component.
             <TabsMenu
                 bind:this={bookSelector}
                 options={{
-                    Book: {
+                    [b]: {
                         component: SelectGrid,
                         /**
                          * TODO:
@@ -71,16 +75,16 @@ The navbar component.
                          */
                         props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
                     },
-                    Chapter: {
+                    [c]: {
                         component: SelectGrid,
                         props: { options: Object.keys(chapters) }
                     },
-                    Verse: {
+                    [v]: {
                         component: SelectGrid,
                         props: { options: Object.keys(chapters[nextRef.chapter]) }
                     }
                 }}
-                active="Book"
+                active={b}
                 on:menuaction={navigateReference}
             />
         </svelte:fragment>
