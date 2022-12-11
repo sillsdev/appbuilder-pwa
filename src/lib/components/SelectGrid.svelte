@@ -4,6 +4,7 @@ A component to display menu options in a grid.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
+    import { s } from '$lib/data/stores.js'
     import config from '$lib/data/config';
     export let options = [''];
     export let cols = 6;
@@ -37,8 +38,7 @@ A component to display menu options in a grid.
     }
 </script>
 
-<!-- needs new colors from $s store -->
-<table style:background-color={tableColor} style:border-spacing="5px">
+<table style:background-color={$s['ui.background']['background-color']} style:border-spacing="5px">
     {#each Array(rows) as _, ri}
         <tr>
             {#each Array(cols) as _, ci}
