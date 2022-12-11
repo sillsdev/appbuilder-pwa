@@ -17,7 +17,6 @@
 <div class="navbar">
     <Navbar>
         <div slot="left-buttons">
-            <CollectionSelector />
             <BookSelector />
             <ChapterSelector />
         </div>
@@ -45,6 +44,10 @@
             {/if}
             <!-- Text Appearance Options Menu -->
             <TextAppearanceSelector />
+            </Dropdown>
+            <a href="/layout" class="dy-btn dy-btn-ghost dy-btn-circle">
+                <BibleIcon _class="fill-white" />
+            </a>
         </div>
     </Navbar>
 </div>
