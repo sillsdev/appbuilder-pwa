@@ -37,6 +37,7 @@ A component to display menu options in a grid.
     }
 </script>
 
+<!-- needs new colors from $s store -->
 <table style:background-color={tableColor} style:border-spacing="5px">
     {#each Array(rows) as _, ri}
         <tr>

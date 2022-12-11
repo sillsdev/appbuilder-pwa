@@ -6,7 +6,7 @@ Book Collection Selector component.
     import Dropdown from './Dropdown.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, s, convertStyle } from '$lib/data/stores';
+    import { refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
