@@ -124,35 +124,35 @@ The navbar component.
         </svelte:fragment>
     </Dropdown>
 {:else if selectionList}
-<Dropdown>
-    <svelte:fragment slot="label">
-        {$refs.book}
-        <DropdownIcon _class="fill-white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <TabsMenu
-            bind:this={bookSelector}
-            options={{
-                Book: {
-                    component: SelectList,
-                    /**
-                     * TODO:
-                     * - add book abbreviations to catalog to be used in UI instead of bookCode
-                     */
-                    props: { options: books.map((b) => b.bookCode) }
-                },
-                Chapter: {
-                    component: SelectList,
-                    props: { options: Object.keys(chapters) }
-                },
-                Verse: {
-                    component: SelectList,
-                    props: { options: Object.keys(chapters[nextRef.chapter]) }
-                }
-            }}
-            active="Book"
-            on:menuaction={navigateReference}
-        />
-    </svelte:fragment>
-</Dropdown>
+    <Dropdown>
+        <svelte:fragment slot="label">
+            {$refs.book}
+            <DropdownIcon _class="fill-white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    Book: {
+                        component: SelectList,
+                        /**
+                         * TODO:
+                         * - add book abbreviations to catalog to be used in UI instead of bookCode
+                         */
+                        props: { options: books.map((b) => b.bookCode) }
+                    },
+                    Chapter: {
+                        component: SelectList,
+                        props: { options: Object.keys(chapters) }
+                    },
+                    Verse: {
+                        component: SelectList,
+                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                    }
+                }}
+                active="Book"
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
 {/if}
