@@ -32,6 +32,7 @@ Book Collection Selector component.
     onDestroy(unsub);
 </script>
 
+<div class="dy-dropdown dy-dropdown-end">
 <Dropdown>
     <svelte:fragment slot="label">
         <BibleIcon color="white" />
@@ -60,3 +61,4 @@ Book Collection Selector component.
         />
     </svelte:fragment>
 </Dropdown>
+</div>

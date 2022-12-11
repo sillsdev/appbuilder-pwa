@@ -70,7 +70,7 @@ TODO:
         </ul>
     {:else if layoutOption === 'Single Pane'}
         <p style:color={$themeColors['LayoutTitleColor']}><strong>Single Pane</strong></p>
-        <ul class="dy-menu mx-auto">
+        <ul class="dy-menu mx-auto pull-left">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
