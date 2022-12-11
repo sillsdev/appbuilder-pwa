@@ -6,14 +6,13 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs } from '$lib/data/stores';
+    import { refs, s, convertStyle } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
 
     let bookSelector;
-
     let nextRef;
     const unsub = refs.subscribe((v) => {
         nextRef = v;
@@ -55,7 +54,9 @@ The navbar component.
 {#if config.mainFeatures['book-select'] === 'grid'}
     <Dropdown>
         <svelte:fragment slot="label">
-            {$refs.book}
+            <div style={convertStyle($s["ui.selector.book"])}>
+              {$refs.book}
+            </div>  
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">

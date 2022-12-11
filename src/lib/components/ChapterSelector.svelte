@@ -6,7 +6,7 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs } from '$lib/data/stores';
+    import { refs, s, convertStyle } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
@@ -52,7 +52,9 @@ The navbar component.
 {#if config.mainFeatures['show-chapter-number-on-app-bar']}
     <Dropdown>
         <svelte:fragment slot="label">
-            {$refs.chapter}
+            <div style={convertStyle($s['ui.selector.chapter'])}>
+              {$refs.chapter}
+            </div>  
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
