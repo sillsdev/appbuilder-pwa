@@ -6,6 +6,7 @@ A component to display tabbed menus.
     import { createEventDispatcher } from 'svelte';
     import { s, convertStyle } from '$lib/data/stores';
 
+    console.log($s);
     export let options: App.TabMenuOptions = { '': { component: '', props: {} } };
     export let active = '';
     const dispatch = createEventDispatcher();
