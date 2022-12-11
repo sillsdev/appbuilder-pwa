@@ -8,16 +8,20 @@ TODO:
     import { onDestroy, createEventDispatcher } from 'svelte';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
-    import { refs, themeColors, s, convertStyle } from '$lib/data/stores';
+    import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
 
     export let layoutOption = '';
     const dispatch = createEventDispatcher();
+
     let nextDocSet;
+
     const docSetList = catalog.map((ds) => ds.id);
+    
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
     }, 'next');
     onDestroy(removeKey);
+
     function handleClick(opt) {
         refs.set({ docSet: opt }, 'next');
         nextDocSet = opt;
@@ -30,7 +34,7 @@ TODO:
 <!-- Identical for now -->
 <div class="w-60 p-2">
     {#if layoutOption === 'Side By Side'}
-        <p><strong>Side By Side</strong></p>
+        <p><strong>{$t['Layout_Two_Pane']}</strong></p>
         <ul class="dy-menu mx-auto">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
@@ -49,7 +53,7 @@ TODO:
             {/each}
         </ul>
     {:else if layoutOption === 'Verse By Verse'}
-        <p><strong>Verse By Verse</strong></p>
+        <p><strong>{$t['Layout_Interlinear']}</strong></p>
         <ul class="dy-menu mx-auto">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
@@ -68,7 +72,7 @@ TODO:
             {/each}
         </ul>
     {:else if layoutOption === 'Single Pane'}
-        <p style:color={$themeColors['LayoutTitleColor']}><strong>Single Pane</strong></p>
+        <p style:color={$themeColors['LayoutTitleColor']}><strong>{$t['Layout_Single_Pane']}</strong></p>
         <ul class="dy-menu mx-auto">
             {#each docSetList as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
