@@ -4,7 +4,7 @@ The navbar component.
 -->
 <script>
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode, s } from '$lib/data/stores';
+    import { viewMode, convertStyle, s } from '$lib/data/stores';
     $: actionBarColor = $s['ui.bar.action']['background-color'];
 </script>
 
