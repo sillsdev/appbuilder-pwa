@@ -31,7 +31,6 @@ TODO:
     }
 </script>
 
-
 <div class="w-60 p-2">
     <!-- Single Pane -->
     {#if layoutOption === 'Single Pane'}
@@ -57,7 +56,7 @@ TODO:
                 </li>
             {/each}
         </ul>
-    <!-- Side by Side -->
+        <!-- Side by Side -->
     {:else if layoutOption === 'Side By Side'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Two_Pane']}</strong>
@@ -81,7 +80,7 @@ TODO:
                 </li>
             {/each}
         </ul>
-    <!-- Verse By Verse -->
+        <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Interlinear']}</strong>

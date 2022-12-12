@@ -14,11 +14,13 @@ A component to display menu options in a grid.
 
     $: bookCollectionColor = (bookAbbr: string) => {
         const section = config.bookCollections
-            .find((x) => x.id === $refs.docSet.split("_")[1])
+            .find((x) => x.id === $refs.docSet.split('_')[1])
             .books.find((x) => x.id === bookAbbr)?.section;
-        let color = Object.keys($themeBookColors).includes(section) ? $themeBookColors[section] : $s['ui.button.book-grid']['background-color'];
+        let color = Object.keys($themeBookColors).includes(section)
+            ? $themeBookColors[section]
+            : $s['ui.button.book-grid']['background-color'];
         return color;
-    }
+    };
 
     function handleClick(opt: string) {
         dispatch('menuaction', {
@@ -32,20 +34,22 @@ A component to display menu options in a grid.
         <tr>
             {#each Array(cols) as _, ci}
                 {#if ri * cols + ci < options.length}
-                    <td
-                        
-                        style:border="none"
-                        style:border-radius="0px"
-                    >
+                    <td style:border="none" style:border-radius="0px">
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <span
                             on:click={() => handleClick(options[ri * cols + ci])}
                             class="dy-btn dy-btn-square dy-btn-ghost p-0"
-                            style={convertStyle(Object.fromEntries(Object.entries($s['ui.button.book-grid']).filter(([key]) => key != 'background-color')))}
-                            style:background-color={bookCollectionColor(options[ri * cols + ci])}>
+                            style={convertStyle(
+                                Object.fromEntries(
+                                    Object.entries($s['ui.button.book-grid']).filter(
+                                        ([key]) => key != 'background-color'
+                                    )
+                                )
+                            )}
+                            style:background-color={bookCollectionColor(options[ri * cols + ci])}
+                        >
                             {options[ri * cols + ci]}
-                        </span
-                        ></td
+                        </span></td
                     >
                 {/if}
             {/each}
