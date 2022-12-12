@@ -8,7 +8,7 @@ A simple dropdown menu from DaisyUI.
         <slot name="label" />
     </label>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <div tabindex="0" class="dy-dropdown-content dy-menu dy-shadow bg-base-100">
+    <div tabindex="0" class="dy-dropdown-content dy-menu dy-shadow bg-base-100 shadow-lg">
         <slot name="content" />
     </div>
 </div>
