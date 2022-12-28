@@ -10,6 +10,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
+    import { swipe } from 'svelte-gestures';
 
     const showSearch = config.mainFeatures['search'];
 </script>
