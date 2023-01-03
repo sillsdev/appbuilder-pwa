@@ -10,6 +10,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
+    import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
 
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
@@ -54,7 +55,7 @@
 </div>
 <ScrolledContent>
     <div class={$refs.hasAudio && $audioActive ? 'smaller' : 'larger'} slot="scrolled-content">
-        <ScriptureView />
+        <ScriptureViewSofria />
     </div>
 </ScrolledContent>
 {#if $refs.hasAudio && $audioActive}
