@@ -28,7 +28,7 @@
     </Navbar>
 </div>
 
-<div style="margin-left:auto;margin-right:auto;">
+<div style:margin-left="auto" style:margin-right="auto">
     <TabsMenu
         options={{
             'Single Pane': {
@@ -50,6 +50,7 @@
         active="Single Pane"
         on:menuaction={navigateReference}
     />
+<<<<<<< HEAD
     <div style="padding-top:50px; float: right;"><a href="/">Cancel</a> <button>Ok</button></div>
 </div>
 
@@ -59,3 +60,6 @@
         margin-right: 15px;
     }
 </style>
+=======
+</div>
+>>>>>>> 6ffc21c (Format Checkpoint)
