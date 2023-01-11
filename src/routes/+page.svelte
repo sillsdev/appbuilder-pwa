@@ -3,7 +3,6 @@
     import ScriptureView from '$lib/components/ScriptureView.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import { audioActive, refs, themeColors } from '$lib/data/stores';
     import { AudioIcon, BibleIcon, SearchIcon } from '$lib/icons';
