@@ -28,7 +28,7 @@
     </Navbar>
 </div>
 
-<div style:margin-left="auto" style:margin-right="auto">
+<div style="margin-left:auto;margin-right:auto;">
     <TabsMenu
         options={{
             'Single Pane': {
@@ -50,4 +50,12 @@
         active="Single Pane"
         on:menuaction={navigateReference}
     />
+    <div style="padding-top:50px; float: right;"><a href="/">Cancel</a> <button>Ok</button></div>
 </div>
+
+<style>
+    a {
+        text-decoration: none;
+        margin-right: 15px;
+    }
+</style>
