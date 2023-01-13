@@ -77,7 +77,7 @@ The navbar component.
                          * TODO:
                          * - add book abbreviations to catalog to be used in UI instead of bookCode
                          */
-                        props: { options: books.map((b) => b.toc3) /*bookAbbreviations*/ }
+                        props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
                     },
                     [c]: {
                         component: SelectGrid,
