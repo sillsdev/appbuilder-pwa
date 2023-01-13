@@ -52,9 +52,21 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
-    /**
-     * Return a dictionary of book group abbreviations and respective translated titles
-     */
+    let groups = () => {
+      const colId = nextRef.docSet.split("_")[1];
+      let groups = config.bookCollections
+        .find((x)=> x.id === colId).books
+        .map((x)=>x.testament)
+        .reduce((acc,curr) => {
+          if (!acc.includes(curr))
+            acc.push(curr);
+          return acc;
+          }, []);
+      return groups;
+    }
+
+    console.log("Group", groups());
+
     onDestroy(unsub);
 </script>
 
