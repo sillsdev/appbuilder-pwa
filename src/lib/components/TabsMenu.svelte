@@ -29,7 +29,7 @@ A component to display tabbed menus.
         <!-- svelte-ignore a11y-missing-attribute -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <a
-            on:click={() => (active = opt)}
+            on:click={() => setActive(opt)}
             style:border-color={active === opt ? '#FFFFFF' : ''}
             class="dy-tab dy-tab-bordered text-white {active === opt ? 'dy-tab-active' : ''}"
             style:background="none"

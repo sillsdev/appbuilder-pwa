@@ -25,6 +25,7 @@ The navbar component.
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
     function navigateReference(e) {
+        console.log("Book Selector");
         switch (e.detail.tab) {
             case b:
                 bookSelector.setActive(c);
@@ -51,6 +52,9 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
+    /**
+     * Return a dictionary of book group abbreviations and respective translated titles
+     */
     onDestroy(unsub);
 </script>
 
@@ -73,7 +77,7 @@ The navbar component.
                          * TODO:
                          * - add book abbreviations to catalog to be used in UI instead of bookCode
                          */
-                        props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
+                        props: { options: books.map((b) => b.toc3) /*bookAbbreviations*/ }
                     },
                     [c]: {
                         component: SelectGrid,

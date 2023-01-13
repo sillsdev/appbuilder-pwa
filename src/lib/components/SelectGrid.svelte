@@ -29,6 +29,11 @@ A component to display menu options in a grid.
     }
 </script>
 
+<!--
+  ri - row index
+  ci - column index
+  see https://svelte.dev/tutorial/each-blocks
+-->
 <table style:border-spacing="5px">
     {#each Array(rows) as _, ri}
         <tr>
