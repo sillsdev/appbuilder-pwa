@@ -6,7 +6,7 @@ A component to display menu options in a grid.
     import { createEventDispatcher } from 'svelte';
     import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores.js';
     import config from '$lib/data/config';
-    export let options = [];
+    export let options: App.GridGroup[] = [];
     export let cols = 6;
 
     const dispatch = createEventDispatcher();
@@ -35,33 +35,40 @@ A component to display menu options in a grid.
   see https://svelte.dev/tutorial/each-blocks
 -->
 
-  <table style:border-spacing="5px">
-      {#each Array(rows) as _, ri}
-          <tr>
-              {#each Array(cols) as _, ci}
-                  {#if ri * cols + ci < options.length}
-                      <td style:border="none" style:border-radius="0px">
-                          <!-- svelte-ignore a11y-click-events-have-key-events -->
-                          <span
-                              on:click={() => handleClick(options[ri * cols + ci])}
-                              class="dy-btn dy-btn-square dy-btn-ghost p-0"
-                              style={convertStyle(
-                                  Object.fromEntries(
-                                      Object.entries($s['ui.button.book-grid']).filter(
-                                          ([key]) => key != 'background-color'
-                                      )
-                                  )
-                              )}
-                              style:background-color={bookCollectionColor(options[ri * cols + ci])}
-                          >
-                              {options[ri * cols + ci]}
-                          </span></td
-                      >
-                  {/if}
-              {/each}
-          </tr>
-      {/each}
+{console.log(Object.values(options))}
+{#each Object.values(options) as group}
+  {#if group.header}
+    <div>{console.log("Header:", group.header)}</div>
+  {/if}
+  <table>
+    {#each Array(rows) as _, ri}
+        <tr>
+            {#each group.cells as cell, ci}
+                {#if ri * cols + ci < group.cells.length}
+                    <td>
+                        {console.log("cell", cell, ci)}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <span
+                            on:click={() => handleClick(cell.id)}
+                            class="dy-btn dy-btn-square dy-btn-ghost p-0"
+                            style={convertStyle(
+                                Object.fromEntries(
+                                    Object.entries($s['ui.button.book-grid']).filter(
+                                        ([key]) => key != 'background-color'
+                                    )
+                                )
+                            )}
+                            style:background-color={bookCollectionColor(cell.id)}
+                        >
+                            {cell.label}
+                        </span></td
+                    >
+                {/if}
+            {/each}
+        </tr>
+    {/each}
   </table>
+{/each}
 
 <style>
     table {
@@ -70,6 +77,7 @@ A component to display menu options in a grid.
         margin-right: auto;
         padding: 0px;
         border-collapse: unset;
+        border-spacing: 5px;
     }
     tr {
         width: 100%;
@@ -82,7 +90,7 @@ A component to display menu options in a grid.
         margin: 0px;
         padding: 0px;
         position: relative;
-        border: 1px solid;
+        border: none;
         border-radius: 0px;
     }
     span {

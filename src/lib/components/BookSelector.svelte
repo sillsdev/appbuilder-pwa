@@ -85,19 +85,15 @@ The navbar component.
                 options={{
                     [b]: {
                         component: SelectGrid,
-                        /**
-                         * TODO:
-                         * - add book abbreviations to catalog to be used in UI instead of bookCode
-                         */
-                        props: { options: books.map((b) => b.bookCode) /*bookAbbreviations*/ }
+                        props: { options: {cells: {id: "ID", label: "label"}} }
                     },
                     [c]: {
                         component: SelectGrid,
-                        props: { options: Object.keys(chapters) }
+                        props: { options: {rows: Object.keys(chapters)} }
                     },
                     [v]: {
                         component: SelectGrid,
-                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                        props: { options: {rows: Object.keys(chapters[nextRef.chapter])} }
                     }
                 }}
                 active={b}
