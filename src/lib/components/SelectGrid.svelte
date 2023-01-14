@@ -10,7 +10,6 @@ A component to display menu options in a grid.
     export let cols = 6;
 
     const dispatch = createEventDispatcher();
-    $: rows = Math.ceil(options.length / cols);
 
     $: bookCollectionColor = (id: string) => {
         const section = config.bookCollections
@@ -35,39 +34,37 @@ A component to display menu options in a grid.
   see https://svelte.dev/tutorial/each-blocks
 -->
 
-{console.log(Object.values(options))}
-{#each Object.values(options) as group}
-  {#if group.header}
-    <div>{console.log("Header:", group.header)}</div>
-  {/if}
-  <table>
-    {#each Array(rows) as _, ri}
-        <tr>
-            {#each group.cells as cell, ci}
-                {#if ri * cols + ci < group.cells.length}
-                    <td>
-                        {console.log("cell", cell, ci)}
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <span
-                            on:click={() => handleClick(cell.id)}
-                            class="dy-btn dy-btn-square dy-btn-ghost p-0"
-                            style={convertStyle(
-                                Object.fromEntries(
-                                    Object.entries($s['ui.button.book-grid']).filter(
-                                        ([key]) => key != 'background-color'
+{#each options as group}
+    {#if group.header}
+        <div>{group.header}</div>
+    {/if}
+    <table>
+        {#each Array(2) as _, ri}
+            <tr>
+                {#each group.cells as cell, ci}
+                    {#if ci < cols}
+                        <td>
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <span
+                                on:click={() => handleClick(cell.id)}
+                                class="dy-btn dy-btn-square dy-btn-ghost p-0"
+                                style={convertStyle(
+                                    Object.fromEntries(
+                                        Object.entries($s['ui.button.book-grid']).filter(
+                                            ([key]) => key != 'background-color'
+                                        )
                                     )
-                                )
-                            )}
-                            style:background-color={bookCollectionColor(cell.id)}
+                                )}
+                                style:background-color={bookCollectionColor(cell.id)}
+                            >
+                                {cell.label}
+                            </span></td
                         >
-                            {cell.label}
-                        </span></td
-                    >
-                {/if}
-            {/each}
-        </tr>
-    {/each}
-  </table>
+                    {/if}
+                {/each}
+            </tr>
+        {/each}
+    </table>
 {/each}
 
 <style>

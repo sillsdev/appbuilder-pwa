@@ -25,7 +25,6 @@ The navbar component.
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
     function navigateReference(e) {
-        console.log("Book Selector");
         switch (e.detail.tab) {
             case b:
                 bookSelector.setActive(c);
@@ -65,8 +64,6 @@ The navbar component.
       return groups;
     }
 
-    console.log("Group", groups());
-
     onDestroy(unsub);
 </script>
 
@@ -85,17 +82,38 @@ The navbar component.
                 options={{
                     [b]: {
                         component: SelectGrid,
-                        props: { options: {cells: {id: "ID", label: "label"}} }
-                    },
+                        props: { options: [{ "header": "Old Testament", "cells": [{ 
+                          "label": "Gen",
+                          "id": "GEN"
+                        }, { 
+                          "label": "Exo",
+                          "id": "EXO"
+                        }]
+                      }] 
+                    }},
                     [c]: {
                         component: SelectGrid,
-                        props: { options: {rows: Object.keys(chapters)} }
-                    },
+                        props: { options: [{ "cells": [{ 
+                          "label": "1",
+                          "id": "1"
+                        }, { 
+                          "label": "1",
+                          "id": "1"
+                        }]
+                      }] 
+                    }},
                     [v]: {
                         component: SelectGrid,
-                        props: { options: {rows: Object.keys(chapters[nextRef.chapter])} }
-                    }
-                }}
+                        props: { options: [{ "cells": [{ 
+                          "label": "1",
+                          "id": "1"
+                        }, { 
+                          "label": "1",
+                          "id": "1"
+                        }]
+                      }] 
+                    }}
+                }}  
                 active={b}
                 on:menuaction={navigateReference}
             />

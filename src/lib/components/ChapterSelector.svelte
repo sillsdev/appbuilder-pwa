@@ -66,13 +66,27 @@ The navbar component.
                     bind:this={chapterSelector}
                     options={{
                         [c]: {
-                            component: SelectGrid,
-                            props: { options: Object.keys(chapters) }
-                        },
+                        component: SelectGrid,
+                        props: { options: [{ "cells": [{ 
+                          "label": "1",
+                          "id": "1"
+                        }, { 
+                          "label": "1",
+                          "id": "1"
+                        }]
+                      }] 
+                    }},
                         [v]: {
-                            component: SelectGrid,
-                            props: { options: Object.keys(chapters[nextRef.chapter]) }
-                        }
+                        component: SelectGrid,
+                        props: { options: [{ "cells": [{ 
+                          "label": "1",
+                          "id": "1"
+                        }, { 
+                          "label": "1",
+                          "id": "1"
+                        }]
+                      }] 
+                    }}
                     }}
                     active={c}
                     on:menuaction={navigateReference}
