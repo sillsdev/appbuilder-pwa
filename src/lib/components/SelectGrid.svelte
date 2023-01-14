@@ -39,7 +39,7 @@ A component to display menu options in a grid.
         <div>{group.header}</div>
     {/if}
     <table>
-        {#each Array(2) as _, ri}
+        {#each Array(Math.ceil(group.cells.length/cols)) as _, ri}
             <tr>
                 {#each group.cells as cell, ci}
                     {#if ci < cols}
