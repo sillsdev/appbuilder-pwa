@@ -51,7 +51,7 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
-    let generateBookGridGroup = () => {
+    let bookGridGroup = () => {
         const colId = nextRef.docSet.split('_')[1];
         let groups = config.bookCollections
             .find((x) => x.id === colId)
@@ -87,7 +87,7 @@ The navbar component.
                 options={{
                     [b]: {
                         component: SelectGrid,
-                        props: { options: generateBookGridGroup() }
+                        props: { options: bookGridGroup() }
                     },
                     [c]: {
                         component: SelectGrid,
@@ -102,16 +102,10 @@ The navbar component.
                         props: {
                             options: [
                                 {
-                                    cells: [
-                                        {
-                                            label: '1',
-                                            id: '1'
-                                        },
-                                        {
-                                            label: '1',
-                                            id: '1'
-                                        }
-                                    ]
+                                    cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
                                 }
                             ]
                         }
