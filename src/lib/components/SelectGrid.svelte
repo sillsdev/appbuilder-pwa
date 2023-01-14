@@ -36,17 +36,17 @@ A component to display menu options in a grid.
 
 {#each options as group}
     {#if group.header}
-        <div>{group.header}</div>
+        <div style={convertStyle($s['ui.text.book-group-title'])}>{group.header}</div>
     {/if}
     <table>
-        {#each Array(Math.ceil(group.cells.length/cols)) as _, ri}
+        {#each Array(Math.ceil(group.cells.length / cols)) as _, ri}
             <tr>
-                {#each group.cells as cell, ci}
-                    {#if ci < cols}
+                {#each Array(cols) as _, ci}
+                    {#if ri * cols + ci < group.cells.length}
                         <td>
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <span
-                                on:click={() => handleClick(cell.id)}
+                                on:click={() => handleClick(group.cells[ri * cols + ci].id)}
                                 class="dy-btn dy-btn-square dy-btn-ghost p-0"
                                 style={convertStyle(
                                     Object.fromEntries(
@@ -55,9 +55,11 @@ A component to display menu options in a grid.
                                         )
                                     )
                                 )}
-                                style:background-color={bookCollectionColor(cell.id)}
+                                style:background-color={bookCollectionColor(
+                                    group.cells[ri * cols + ci].id
+                                )}
                             >
-                                {cell.label}
+                                {group.cells[ri * cols + ci].label}
                             </span></td
                         >
                     {/if}
@@ -68,6 +70,9 @@ A component to display menu options in a grid.
 {/each}
 
 <style>
+    div {
+        padding: 5px;
+    }
     table {
         width: 100%;
         margin-left: auto;

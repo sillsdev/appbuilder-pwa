@@ -51,18 +51,23 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
-    let groups = () => {
-      const colId = nextRef.docSet.split("_")[1];
-      let groups = config.bookCollections
-        .find((x)=> x.id === colId).books
-        .map((x)=>x.testament)
-        .reduce((acc,curr) => {
-          if (!acc.includes(curr))
-            acc.push(curr);
-          return acc;
-          }, []);
-      return groups;
-    }
+    let generateBookGridGroup = () => {
+        const colId = nextRef.docSet.split('_')[1];
+        let groups = config.bookCollections
+            .find((x) => x.id === colId)
+            .books.map((x) => x.testament)
+            .reduce((acc, curr) => {
+                if (!acc.includes(curr)) acc.push(curr);
+                return acc;
+            }, []);
+        return groups.map((_, i) => ({
+            header: $t['Book_Group_' + groups[i]],
+            cells: config.bookCollections
+                .find((x) => x.id === colId)
+                .books.filter((x) => x.testament === groups[i])
+                .map((x) => ({ label: x.abbreviation, id: x.id }))
+        }));
+    };
 
     onDestroy(unsub);
 </script>
@@ -82,38 +87,36 @@ The navbar component.
                 options={{
                     [b]: {
                         component: SelectGrid,
-                        props: { options: [{ "header": "Old Testament", "cells": [{ 
-                          "label": "Gen",
-                          "id": "GEN"
-                        }, { 
-                          "label": "Exo",
-                          "id": "EXO"
-                        }]
-                      }] 
-                    }},
+                        props: { options: generateBookGridGroup() }
+                    },
                     [c]: {
                         component: SelectGrid,
-                        props: { options: [{ "cells": [{ 
-                          "label": "1",
-                          "id": "1"
-                        }, { 
-                          "label": "1",
-                          "id": "1"
-                        }]
-                      }] 
-                    }},
+                        props: {
+                            options: [
+                                { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
+                            ]
+                        }
+                    },
                     [v]: {
                         component: SelectGrid,
-                        props: { options: [{ "cells": [{ 
-                          "label": "1",
-                          "id": "1"
-                        }, { 
-                          "label": "1",
-                          "id": "1"
-                        }]
-                      }] 
-                    }}
-                }}  
+                        props: {
+                            options: [
+                                {
+                                    cells: [
+                                        {
+                                            label: '1',
+                                            id: '1'
+                                        },
+                                        {
+                                            label: '1',
+                                            id: '1'
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }}
                 active={b}
                 on:menuaction={navigateReference}
             />

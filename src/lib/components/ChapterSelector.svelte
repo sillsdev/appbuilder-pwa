@@ -66,27 +66,43 @@ The navbar component.
                     bind:this={chapterSelector}
                     options={{
                         [c]: {
-                        component: SelectGrid,
-                        props: { options: [{ "cells": [{ 
-                          "label": "1",
-                          "id": "1"
-                        }, { 
-                          "label": "1",
-                          "id": "1"
-                        }]
-                      }] 
-                    }},
+                            component: SelectGrid,
+                            props: {
+                                options: [
+                                    {
+                                        cells: [
+                                            {
+                                                label: '1',
+                                                id: '1'
+                                            },
+                                            {
+                                                label: '1',
+                                                id: '1'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
                         [v]: {
-                        component: SelectGrid,
-                        props: { options: [{ "cells": [{ 
-                          "label": "1",
-                          "id": "1"
-                        }, { 
-                          "label": "1",
-                          "id": "1"
-                        }]
-                      }] 
-                    }}
+                            component: SelectGrid,
+                            props: {
+                                options: [
+                                    {
+                                        cells: [
+                                            {
+                                                label: '1',
+                                                id: '1'
+                                            },
+                                            {
+                                                label: '1',
+                                                id: '1'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     }}
                     active={c}
                     on:menuaction={navigateReference}
