@@ -15,6 +15,7 @@ TODO:
     let playAfterSkip = false;
     let timeIndex = 0;
     let timing = [];
+
     /**@type{HTMLAudioElement}*/ let audio;
 
     //get the audio source and timing files, based off the current reference
@@ -77,12 +78,19 @@ TODO:
                     : 'none'
                 : 'none'
         ].join();
-        if (audio.ended) toggleTimeRunning();
+        if (audio.ended) {
+            toggleTimeRunning();
+            if ($refs.next.chapter == null) {
+                currentChapter++;
+                getAudio($refs.docSet, $refs.book, chapter);
+                playAfterSkip = true;
+            }
+        }
     };
+
     /**sets an interval for updateTime*/
     const toggleTimeRunning = (() => {
         let timer;
-
         return () => {
             if (audio.ended) {
                 playing = false;
@@ -135,6 +143,18 @@ TODO:
             $refs = { book: switchTo.book, chapter: switchTo.chapter };
             refs.set({ book: switchTo.book, chapter: switchTo.chapter }, 'next');
             playAfterSkip = true && playing;
+        }
+    };
+    // Note to self:
+    // If audio ends and playPause button is still active, then skip to next chapter
+    const handleAudioEnd = (getAudio) => {
+        getAudio($refs.docSet, $refs.book, $refs.chapter);
+        // navigate to the next chapter
+        if (audio.ended) {
+            skip;
+            // start playing the audio
+            audio.play();
+            // update the audio file to play the next chapter
         }
     };
 </script>
