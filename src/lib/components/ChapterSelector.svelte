@@ -70,16 +70,10 @@ The navbar component.
                             props: {
                                 options: [
                                     {
-                                        cells: [
-                                            {
-                                                label: '1',
-                                                id: '1'
-                                            },
-                                            {
-                                                label: '1',
-                                                id: '1'
-                                            }
-                                        ]
+                                        cells: Object.keys(chapters).map((x) => ({
+                                            label: x,
+                                            id: x
+                                        }))
                                     }
                                 ]
                             }
@@ -89,16 +83,10 @@ The navbar component.
                             props: {
                                 options: [
                                     {
-                                        cells: [
-                                            {
-                                                label: '1',
-                                                id: '1'
-                                            },
-                                            {
-                                                label: '1',
-                                                id: '1'
-                                            }
-                                        ]
+                                        cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                            label: x,
+                                            id: x
+                                        }))
                                     }
                                 ]
                             }
