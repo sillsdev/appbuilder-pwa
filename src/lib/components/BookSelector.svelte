@@ -68,7 +68,6 @@ The navbar component.
                 .map((x) => ({ label: x.abbreviation, id: x.id }))
         }));
     };
-
     onDestroy(unsub);
 </script>
 
