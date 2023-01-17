@@ -97,6 +97,7 @@ A component to display menu options in a grid.
     }
     span {
         text-overflow: ''; /* Works on Firefox only */
+        text-transform: capitalize;
         overflow: hidden;
         display: inline-block;
         border-radius: 0px;
