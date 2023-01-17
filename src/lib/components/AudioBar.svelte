@@ -78,14 +78,7 @@ TODO:
                     : 'none'
                 : 'none'
         ].join();
-        if (audio.ended) {
-            toggleTimeRunning();
-            if ($refs.next.chapter == null) {
-                currentChapter++;
-                getAudio($refs.docSet, $refs.book, chapter);
-                playAfterSkip = true;
-            }
-        }
+        if (audio.ended) toggleTimeRunning();
     };
 
     /**sets an interval for updateTime*/
@@ -95,6 +88,12 @@ TODO:
             if (audio.ended) {
                 playing = false;
                 clearInterval(timer);
+                if ($refs.next.chapter != null) {
+                    getAudio($refs.docSet, $refs.next.book, $refs.next.chapter);
+                    playAfterSkip = true;
+                    audio.play();
+                    playing = true;
+                }
             } else {
                 timer = setInterval(updateTime, 100);
             }
@@ -143,18 +142,6 @@ TODO:
             $refs = { book: switchTo.book, chapter: switchTo.chapter };
             refs.set({ book: switchTo.book, chapter: switchTo.chapter }, 'next');
             playAfterSkip = true && playing;
-        }
-    };
-    // Note to self:
-    // If audio ends and playPause button is still active, then skip to next chapter
-    const handleAudioEnd = (getAudio) => {
-        getAudio($refs.docSet, $refs.book, $refs.chapter);
-        // navigate to the next chapter
-        if (audio.ended) {
-            skip;
-            // start playing the audio
-            audio.play();
-            // update the audio file to play the next chapter
         }
     };
 </script>
