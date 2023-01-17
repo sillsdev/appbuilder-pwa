@@ -69,14 +69,17 @@ The navbar component.
         }));
     };
     onDestroy(unsub);
+    console.log($s);
 </script>
 
 <!-- Book Selector -->
 {#if config.mainFeatures['book-select'] === 'grid'}
     <Dropdown>
         <svelte:fragment slot="label">
-            <div style={convertStyle($s['ui.selector.book'])}>
-                {$refs.book}
+            <div style={convertStyle($s['ui.selector.book']) + `text-transform: capitalize;`}>
+                {config.bookCollections
+                    .find((x) => x.id === nextRef.docSet.split('_')[1])
+                    .books.find((x) => (x) => x.id == $refs.book).name}
             </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
