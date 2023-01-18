@@ -47,7 +47,7 @@ A component to display menu options in a grid.
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <span
                                 on:click={() => handleClick(group.cells[ri * cols + ci].id)}
-                                class="dy-btn dy-btn-square dy-btn-ghost p-0"
+                                class="dy-btn dy-btn-square dy-btn-ghost p-0 normal-case truncate text-clip"
                                 style={convertStyle(
                                     Object.fromEntries(
                                         Object.entries($s['ui.button.book-grid']).filter(
@@ -97,7 +97,6 @@ A component to display menu options in a grid.
     }
     span {
         text-overflow: ''; /* Works on Firefox only */
-        text-transform: capitalize;
         overflow: hidden;
         display: inline-block;
         border-radius: 0px;

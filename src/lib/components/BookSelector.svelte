@@ -76,7 +76,7 @@ The navbar component.
 {#if config.mainFeatures['book-select'] === 'grid'}
     <Dropdown>
         <svelte:fragment slot="label">
-            <div style={convertStyle($s['ui.selector.book']) + `text-transform: capitalize;`}>
+            <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
                 {config.bookCollections
                     .find((x) => x.id === nextRef.docSet.split('_')[1])
                     .books.find((x) => (x) => x.id == $refs.book).name}
