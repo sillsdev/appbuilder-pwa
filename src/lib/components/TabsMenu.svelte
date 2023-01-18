@@ -31,7 +31,9 @@ A component to display tabbed menus.
         <a
             on:click|preventDefault={() => setActive(opt)}
             style:border-color={active === opt ? '#FFFFFF' : ''}
-            class="dy-tab dy-tab-bordered text-white normal-case {active === opt ? 'dy-tab-active' : ''}"
+            class="dy-tab dy-tab-bordered text-white normal-case {active === opt
+                ? 'dy-tab-active'
+                : ''}"
             style:background="none"
         >
             {#if options[opt].tab}
