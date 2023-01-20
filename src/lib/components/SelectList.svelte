@@ -35,7 +35,7 @@ A component to display menu options in a list.
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <span
                             on:click={() => handleClick(options[ri * rows + ci])}
-                            class="dy-btn dy-btn-ghost p-0"
+                            class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem] "
                             style:color={textColor}>{options[ri * rows + ci]}</span
                         ></td
                     >
@@ -61,13 +61,13 @@ A component to display menu options in a list.
     td {
         margin: 0px;
         position: relative;
-        border: 1px solid;
         border-radius: 2px;
     }
     span {
         text-overflow: ''; /* Works on Firefox only */
         overflow: hidden;
-        padding: 1px;
+        display: inline-block;
         vertical-align: middle;
+        padding: 0.5em 0;
     }
 </style>
