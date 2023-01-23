@@ -7,7 +7,7 @@ import { readFile, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { SABProskomma } from '../sab-proskomma';
 import { freeze } from 'proskomma-freeze';
-import { queries, postQueries } from 'proskomma-tools';
+import { queries, postQueries } from '../sab-proskomma-tools';
 
 /**
  * Loops through bookCollections property of configData.
