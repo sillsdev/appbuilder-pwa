@@ -78,7 +78,6 @@ TODO:
                     : 'none'
                 : 'none'
         ].join();
-        if (audio.ended) toggleTimeRunning();
     };
 
     /**sets an interval for updateTime*/
@@ -88,12 +87,6 @@ TODO:
             if (audio.ended) {
                 playing = false;
                 clearInterval(timer);
-                if ($refs.next.chapter != null) {
-                    getAudio($refs.docSet, $refs.next.book, $refs.next.chapter);
-                    playAfterSkip = true;
-                    audio.play();
-                    playing = true;
-                }
             } else {
                 timer = setInterval(updateTime, 100);
             }
@@ -111,6 +104,7 @@ TODO:
             playing = true;
         }
     };
+
     /**seeks the audio*/
     const seek = (() => {
         let seekTimer;
@@ -144,13 +138,25 @@ TODO:
             playAfterSkip = true && playing;
         }
     };
+
+    function seekAudio(event) {
+        if (!loaded) return;
+        // Calculate the percentage of the progress bar that was clicked
+        const progressBar = document.getElementById('progress-bar');
+        const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
+        // Set the current time of the audio element to the corresponding time based on the percent
+        audio.currentTime = duration * percent;
+    }
 </script>
 
 <div class="w-11/12 h-5/6 bg-base-100 mx-auto rounded-full flex items-center flex-col">
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Progress Bar -->
         {#if loaded}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <progress
+                id="progress-bar"
+                on:click={seekAudio}
                 class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1"
                 value={progress}
                 max={duration}
