@@ -1,6 +1,6 @@
-import parseChapterVerseMapInDocSets from "./catalog";
+import parseChapterVerseMapInDocSets from './catalog';
 
-const postQueries = { 
+const postQueries = {
     parseChapterVerseMapInDocSets
-}
+};
 export default postQueries;

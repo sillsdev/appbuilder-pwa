@@ -1,4 +1,4 @@
-import catalogQuery from "./catalog";
+import catalogQuery from './catalog';
 
 const queries = {
     catalogQuery
