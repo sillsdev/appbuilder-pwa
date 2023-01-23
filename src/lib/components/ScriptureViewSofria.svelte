@@ -9,6 +9,7 @@ TODO:
 - change the global stylesheet to have .highlighting
 -->
 <script lang="ts">
+    import { onDestroy } from 'svelte';
     import { Proskomma } from 'proskomma';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from 'proskomma-freeze';
@@ -30,9 +31,85 @@ TODO:
     let container: HTMLElement;
     const seprgx = /(\.|\?|!|:|;|,|')/g;
 
+    /**unique key to use for groupStore modifier*/
+    const key = {};
+
+    let group = 'default';
+    let scrollId: string;
+    let scrollMod: any;
+    const unSub = scrolls.subscribe((val, mod) => {
+        scrollId = val;
+        scrollMod = mod;
+    }, group);
+
+    /**scrolls element with id into view*/
+    const scrollTo = (id: string) => {
+        if (scrollMod === key) return;
+        container
+            ?.querySelector(
+                `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
+            )
+            ?.scrollIntoView();
+    };
+    $: scrollTo(scrollId);
+
     const onlySpaces = (str) => {
         return str.trim().length === 0;
     };
+
+    let lastVerseInView = '';
+
+    const handleScroll = (() => {
+        let scrollTimer: NodeJS.Timeout;
+
+        return (trigger) => {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                const items = Array.from(container?.getElementsByClassName('scroll-item'))
+                    .filter((it, i) => {
+                        const rect = it.getBoundingClientRect();
+                        const win = container.getBoundingClientRect();
+
+                        return (
+                            rect.top - win.top >= $mainScroll.top &&
+                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
+                        );
+                    })
+                    .map(
+                        (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
+                    );
+
+                scrolls.set(items[0], group, key);
+                lastVerseInView = items.pop();
+            }, 500);
+        };
+    })();
+    $: handleScroll([$mainScroll, $refs]);
+
+    /**updates highlight*/
+    const updateHighlight = (h: string) => {
+        const a = h.split(',');
+        let el = container?.getElementsByClassName('highlighting')?.item(0);
+        el?.classList.remove('highlighting');
+        if (
+            !$audioActive ||
+            a[0] !== $refs.docSet ||
+            a[1] !== $refs.book ||
+            a[2] !== $refs.chapter
+        ) {
+            console.log('returning');
+            return;
+        }
+        el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
+        console.log('el %o', el);
+        el?.classList.add('highlighting');
+        if (
+            `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
+            lastVerseInView
+        )
+            el?.scrollIntoView();
+    };
+    $: updateHighlight($audioHighlight);
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
         let result = 0;
@@ -518,6 +595,8 @@ TODO:
     $: fontSize = $bodyFontSize + 'px';
 
     $: lineHeight = $bodyLineHeight + '%';
+
+    onDestroy(unSub);
 
     $: (() => {
         const bookCode = $refs.book;
