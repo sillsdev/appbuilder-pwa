@@ -1,0 +1,13 @@
+{
+    "name": "sab-proskomma-tools",
+    "version": "1.0.0",
+    "description": "",
+    "module": "index.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "dependencies": {
+        "proskomma": "^0.7.7"
+    }
+}
