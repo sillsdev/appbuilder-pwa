@@ -65,16 +65,22 @@
 
 <style>
     .navbar {
-        height: 10vh;
+        height: 5rem;
     }
     /*shrink to accomodate the audio bar*/
     .smaller {
-        height: 80vh;
+        /*height: 80vh;*/
+        margin-block-end: 3.8rem;
     }
     .larger {
-        height: 90vh;
+        /*height: 90vh;*/
+        margin-block-end: 0;
     }
     .audio-bar {
-        height: 10vh;
+        box-sizing: border-box;
+        /*height: 10vh;*/
+        position: fixed;
+        bottom: 0;
+        height: 3.5rem;
     }
 </style>
