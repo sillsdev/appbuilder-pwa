@@ -139,20 +139,19 @@ TODO:
     };
 </script>
 
-<div class="grid grid-cols-5 grid-rows-3  bg-base-100">
+<!-- grid grid-cols-5 grid-rows-3  -->
+<div class="audio-bar bg-base-100">
     <!-- Progress Bar -->
     {#if loaded}
-        <progress
-            class="dy-progress row-start-2 col-start-2 col-end-5"
-            value={progress}
-            max={duration}
-        />
+        <!-- row-start-2 col-start-2 col-end-5 -->
+        <progress class="dy-progress audio-progress" value={progress} max={duration} />
     {:else}
-        <progress class="dy-progress row-start-2" value="0" max="1" />
+        <progress class="dy-progress audio-progress" value="0" max="1" />
     {/if}
     <!-- Controls -->
-    <div class="dy-btn-group row-start-4 col-start-3 place-self-center">
-        <button class="dy-btn-sm dy-btn-ghost col-start" on:click={() => skip(-1)}>
+    <!-- row-start-4 col-start-3 place-self-center -->
+    <div class="dy-btn-group audio-controls ">
+        <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
             <AudioIcon.Prev />
         </button>
         <button
@@ -183,3 +182,23 @@ TODO:
         </button>
     </div>
 </div>
+
+<style>
+    .audio-bar {
+        padding-block-start: 1rem;
+        padding-block-end: 0.5rem;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: auto auto;
+        grid-row-gap: 0.5rem;
+    }
+    .audio-progress {
+        grid-row: 1;
+        grid-column: 2/5;
+    }
+    .audio-controls {
+        grid-row: 2;
+        grid-column: 3;
+        place-self: center;
+    }
+</style>

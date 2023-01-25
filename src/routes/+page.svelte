@@ -68,19 +68,16 @@
         height: 5rem;
     }
     /*shrink to accomodate the audio bar*/
-    .smaller {
-        /*height: 80vh;*/
-        margin-block-end: 3.8rem;
+    .content-with-bar {
+        margin-block-end: 4.5rem;
     }
-    .larger {
-        /*height: 90vh;*/
+    .content-full {
         margin-block-end: 0;
     }
     .audio-bar {
-        box-sizing: border-box;
-        /*height: 10vh;*/
+        /* box-sizing: border-box; */
         position: fixed;
         bottom: 0;
-        height: 3.5rem;
+        height: 4.5rem;
     }
 </style>
