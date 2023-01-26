@@ -36,6 +36,7 @@ export const referenceStore = () => {
     const external = derived(internal, ($internal) => ({
         reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,
         docSet: $internal.ds,
+        collection: $internal.ds.split('_')[1],
         book: $internal.b,
         chapter: $internal.c,
         chapterVerses: `${$internal.c}:1-${$internal.n}`,
