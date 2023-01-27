@@ -4,15 +4,16 @@ A component to display menu options in a list.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, themeBookColors, refs} from '$lib/data/stores.js';
+    import { s, convertStyle } from '$lib/data/stores.js';
     import config from '$lib/data/config';
-    export let options = [''];
+    export let options: App.GridGroup[] = [];
 
     const dispatch = createEventDispatcher();
     $: rows = Math.ceil(options.length);
     const colors = (type: string, key: string) =>
         config.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
             ?.colors[key];
+
     const textColor = colors('main', 'ChapterButtonTextColor');
     let tableColor = colors('main', 'BackgroundColor');
 
@@ -22,28 +23,29 @@ A component to display menu options in a list.
         });
     }
 
-    
+    // class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
 </script>
 
-{#each Array(rows) as _, ri}
-    <table style:background-color={tableColor} style:border-spacing="5px">
-        {#each Array(rows) as _, ci}
+{#each options as group}
+    {#if group.header}
+        <div style={convertStyle($s['ui.text.book-group-title'])}>{group.header}</div>
+    {/if}
+    <table>
+        {#each Array(rows) as _, ri}
             <tr>
-                {#if ri * rows + ci < options.length}
-                    <td
-                        style:background-color={tableColor}
-                        style:border="none"
-                        style:border-radius="0px"
-                    >
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <span
-                            on:click={() => handleClick(options[ri * rows + ci])}
-                            class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
-
-                            style:color={textColor}>{options[ri * rows + ci]}</span
-                        ></td
-                    >
-                {/if}
+                {#each Array(rows) as _, ci}
+                    {#if ri * rows + ci < group.cells.length}
+                        <td style:background-color={tableColor}>
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <span
+                                on:click={() => handleClick(group.cells[ri * rows + ci].id)}
+                                class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
+                                style:color={textColor}
+                                >{group.cells[ri * rows + ci].id}
+                            </span></td
+                        >
+                    {/if}
+                {/each}
             </tr>
         {/each}
     </table>

@@ -133,20 +133,29 @@ The navbar component.
                 bind:this={bookSelector}
                 options={{
                     Book: {
-                        component: SelectList,
-                        /**
-                         * TODO:
-                         * - add book abbreviations to catalog to be used in UI instead of bookCode
-                         */
-                        props: { options: books.map((b) => b.h) }
+                        component: selectionGrid ? SelectGrid : SelectList,
+                        props: { options: bookGridGroup() }
                     },
                     Chapter: {
                         component: SelectGrid,
-                        props: { options: Object.keys(chapters) }
+                        props: {
+                            options: [
+                                { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
+                            ]
+                        }
                     },
                     Verse: {
                         component: SelectGrid,
-                        props: { options: Object.keys(chapters[nextRef.chapter]) }
+                        props: {
+                            options: [
+                                {
+                                    cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
+                                }
+                            ]
+                        }
                     }
                 }}
                 active="Book"
