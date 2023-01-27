@@ -52,7 +52,7 @@ The navbar component.
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
     let bookGridGroup = () => {
-        const colId = nextRef.docSet.split('_')[1];
+        const colId = $refs.collection;
         let groups = config.bookCollections
             .find((x) => x.id === colId)
             .books.map((x) => x.testament)
@@ -78,7 +78,7 @@ The navbar component.
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
                 {config.bookCollections
-                    .find((x) => x.id === nextRef.docSet.split('_')[1])
+                    .find((x) => x.id === $refs.collection)
                     .books.find((x) => (x) => x.id == $refs.book).name}
             </div>
             <DropdownIcon color="white" />

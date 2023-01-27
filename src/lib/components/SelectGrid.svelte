@@ -13,7 +13,7 @@ A component to display menu options in a grid.
 
     $: bookCollectionColor = (id: string) => {
         const section = config.bookCollections
-            .find((x) => x.id === $refs.docSet.split('_')[1])
+            .find((x) => x.id === $refs.collection)
             .books.find((x) => x.id === id)?.section;
         let color = Object.keys($themeBookColors).includes(section)
             ? $themeBookColors[section]
