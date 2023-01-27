@@ -1036,6 +1036,11 @@ div.hlp5 {
     color: #000000;
 }
 
+div.selected {
+     border-bottom: 1px dotted; 
+     text-decoration: none; 
+}
+
 div.footer {
     margin-top: 1.5em;
     padding-top: 12px;

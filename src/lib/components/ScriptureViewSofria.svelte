@@ -21,8 +21,9 @@ TODO:
         mainScroll,
         bodyFontSize,
         bodyLineHeight,
-        loadedDocsets
+        s
     } from '$lib/data/stores';
+    import { onClickText } from '../scripts/verseSelectUtil';
 
     import { LoadingIcon } from '../icons';
     import { root } from 'postcss';
@@ -91,17 +92,9 @@ TODO:
         const a = h.split(',');
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         el?.classList.remove('highlighting');
-        if (
-            !$audioActive ||
-            a[0] !== $refs.docSet ||
-            a[1] !== $refs.book ||
-            a[2] !== $refs.chapter
-        ) {
-            console.log('returning');
+        if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
-        }
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
-        console.log('el %o', el);
         el?.classList.add('highlighting');
         if (
             `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
@@ -147,7 +140,9 @@ TODO:
         console.log('parsePhrase %o %o', inner, phrases);
         return phrases;
     };
+
     const startPhrase = (workspace, indexOption = 'advance') => {
+        console.log('Start phrase!!!');
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         switch (indexOption) {
             case 'reset':
@@ -190,9 +185,9 @@ TODO:
     let bookRoot = document.createElement('div');
     console.log('START: %o', bookRoot);
     let loading = true;
+
     const output = {};
     const query = async (docSet: string, bookCode: string, chapter: string) => {
-        loading = true;
         console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         const docslist = await pk.gqlQuery('{docSets { id } }');
         console.log('LIST %o', docslist);
@@ -205,12 +200,14 @@ TODO:
                 break;
             }
         }
-        if (!$loadedDocsets.includes(docSet)) {
-            $loadedDocsets.push(docSet);
+
+        if (!found) {
+            console.log('fetch %o pkf', docSet);
             const res = await fetch(`collections/${docSet}.pkf`).then((r) => {
                 return r.text();
             });
             if (res.length) {
+                console.log('awaiting thaw');
                 await thaw(pk, res);
             }
         }
@@ -405,6 +402,12 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace, output }) => {
                             console.log('End Document');
+                            var els = document.getElementsByTagName('div');
+                            for (var i = 0; i < els.length; i++) {
+                                if (els[i].className.indexOf('seltxt') >= 0 && els[i].id != '') {
+                                    els[i].addEventListener('click', onClickText, false);
+                                }
+                            }
                         }
                     }
                 ],
