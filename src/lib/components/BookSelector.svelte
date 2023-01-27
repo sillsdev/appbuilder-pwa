@@ -69,7 +69,6 @@ The navbar component.
         }));
     };
     onDestroy(unsub);
-    console.log($s);
 </script>
 
 <!-- Book Selector -->
@@ -79,7 +78,7 @@ The navbar component.
             <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
                 {config.bookCollections
                     .find((x) => x.id === $refs.collection)
-                    .books.find((x) => (x) => x.id == $refs.book).name}
+                    .books.find((x) => x.id == $refs.book).name}
             </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
