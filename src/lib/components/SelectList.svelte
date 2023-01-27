@@ -4,6 +4,7 @@ A component to display menu options in a list.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
+    import { s, themeBookColors, refs} from '$lib/data/stores.js';
     import config from '$lib/data/config';
     export let options = [''];
 
@@ -20,6 +21,8 @@ A component to display menu options in a list.
             text: opt
         });
     }
+
+    
 </script>
 
 {#each Array(rows) as _, ri}
@@ -35,7 +38,8 @@ A component to display menu options in a list.
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <span
                             on:click={() => handleClick(options[ri * rows + ci])}
-                            class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem] "
+                            class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
+
                             style:color={textColor}>{options[ri * rows + ci]}</span
                         ></td
                     >
