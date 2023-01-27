@@ -13,7 +13,6 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
 
-    const selectionPopupNone = config.mainFeatures['book-select'] === 'none';
     const selectionGrid = config.mainFeatures['book-select'] === 'grid';
     const selectionList = config.mainFeatures['book-select'] === 'list';
 
