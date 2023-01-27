@@ -139,14 +139,14 @@ The navbar component.
                          * TODO:
                          * - add book abbreviations to catalog to be used in UI instead of bookCode
                          */
-                        props: { options: books.map((b) => b.bookCode) }
+                        props: { options: books.map((b) => b.h) }
                     },
                     Chapter: {
-                        component: SelectList,
+                        component: SelectGrid,
                         props: { options: Object.keys(chapters) }
                     },
                     Verse: {
-                        component: SelectList,
+                        component: SelectGrid,
                         props: { options: Object.keys(chapters[nextRef.chapter]) }
                     }
                 }}
