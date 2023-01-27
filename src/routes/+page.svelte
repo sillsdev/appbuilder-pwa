@@ -6,18 +6,18 @@
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import { audioActive, refs, themeColors } from '$lib/data/stores';
-    import { AudioIcon, SearchIcon } from '$lib/icons';
+    import { AudioIcon, SearchIcon, BibleIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
 
     const showSearch = config.mainFeatures['search'];
+    const showCollections = config.bookCollections.length > 1;
 </script>
 
 <div class="navbar">
     <Navbar>
         <div slot="left-buttons">
-            <CollectionSelector />
             <BookSelector />
             <ChapterSelector />
         </div>
@@ -45,6 +45,10 @@
             {/if}
             <!-- Text Appearance Options Menu -->
             <TextAppearanceSelector />
+            {#if showCollections}
+                <!-- Book Collection Menu Button -->
+                <CollectionSelector />
+            {/if}
         </div>
     </Navbar>
 </div>

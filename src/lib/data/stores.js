@@ -58,6 +58,16 @@ const resolveColor = (colorValue, colors) => {
     // color not in colors map (e.g. 'white' )
     return colorValue;
 }
+
+// Convert style to string format for inline styling 
+export const convertStyle = (style) => {
+  let result = "";
+  for(const x in style){
+    result += `${x}:${style[x]};`
+  }
+  return result;
+}
+
 export const s = derived(themeColors, $themeColors => {
     return config.styles.reduce((styleProperties, style) => {
         const properties = style.properties;

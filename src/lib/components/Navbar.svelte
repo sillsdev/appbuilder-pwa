@@ -4,14 +4,14 @@ The navbar component.
 -->
 <script>
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode, s } from '$lib/data/stores';
+    import { viewMode, convertStyle, s } from '$lib/data/stores';
     $: actionBarColor = $s['ui.bar.action']['background-color'];
 </script>
 
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div class="dy-navbar text-white" style:background-color={actionBarColor}>
+<div class="dy-navbar" style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
         <label
             for="sidebar"
@@ -24,7 +24,7 @@ The navbar component.
         </label>
         <slot name="left-buttons" />
     </div>
-    <div class="dy-navbar-center">
+    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
         <slot name="center" />
     </div>
     <div class="dy-navbar-end fill-base-content">

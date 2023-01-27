@@ -6,7 +6,7 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs } from '$lib/data/stores';
+    import { refs, s, t, convertStyle } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
@@ -14,6 +14,9 @@ The navbar component.
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
+
+    $: c = $t.Selector_Chapter;
+    $: v = $t.Selector_Verse;
 
     let nextRef;
     const unsub = refs.subscribe((v) => {
@@ -24,12 +27,12 @@ The navbar component.
      */
     function navigateReference(e) {
         switch (e.detail.tab) {
-            case 'Chapter':
-                chapterSelector.setActive('Verse');
+            case c:
+                chapterSelector.setActive(v);
                 refs.set({ chapter: e.detail.text }, 'next');
                 break;
-            case 'Verse':
-                chapterSelector.setActive('Chapter');
+            case v:
+                chapterSelector.setActive(c);
                 $refs = { book: nextRef.book, chapter: nextRef.chapter };
                 // force closes active dropdown elements
                 document.activeElement.blur();
@@ -52,25 +55,47 @@ The navbar component.
 {#if config.mainFeatures['show-chapter-number-on-app-bar']}
     <Dropdown>
         <svelte:fragment slot="label">
-            {$refs.chapter}
+            <div style={convertStyle($s['ui.selector.chapter'])}>
+                {$refs.chapter}
+            </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
-            <TabsMenu
-                bind:this={chapterSelector}
-                options={{
-                    Chapter: {
-                        component: SelectGrid,
-                        props: { options: Object.keys(chapters) }
-                    },
-                    Verse: {
-                        component: SelectGrid,
-                        props: { options: Object.keys(chapters[nextRef.chapter]) }
-                    }
-                }}
-                active="Chapter"
-                on:menuaction={navigateReference}
-            />
+            <div style:background-color="white">
+                <TabsMenu
+                    bind:this={chapterSelector}
+                    options={{
+                        [c]: {
+                            component: SelectGrid,
+                            props: {
+                                options: [
+                                    {
+                                        cells: Object.keys(chapters).map((x) => ({
+                                            label: x,
+                                            id: x
+                                        }))
+                                    }
+                                ]
+                            }
+                        },
+                        [v]: {
+                            component: SelectGrid,
+                            props: {
+                                options: [
+                                    {
+                                        cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                            label: x,
+                                            id: x
+                                        }))
+                                    }
+                                ]
+                            }
+                        }
+                    }}
+                    active={c}
+                    on:menuaction={navigateReference}
+                />
+            </div>
         </svelte:fragment>
     </Dropdown>
 {/if}

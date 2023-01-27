@@ -2,13 +2,21 @@
 @component
 A simple dropdown menu from DaisyUI.
 -->
+<script>
+    import { s, convertStyle } from '$lib/data/stores.js';
+</script>
+
 <div class="dy-dropdown">
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <label tabindex="0" class="dy-btn dy-btn-ghost p-0.5 dy-no-animation">
         <slot name="label" />
     </label>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <div tabindex="0" class="dy-dropdown-content dy-menu dy-shadow bg-base-100">
+    <div
+        tabindex="0"
+        class="dy-dropdown-content dy-menu dy-shadow bg-base-100 shadow-lg"
+        style={convertStyle($s['ui.background'])}
+    >
         <slot name="content" />
     </div>
 </div>

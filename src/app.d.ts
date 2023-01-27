@@ -39,6 +39,17 @@ declare namespace App {
         };
     }
 
+    interface GridEntry {
+        id: string;
+        label: string;
+    }
+
+    interface GridGroup {
+        header?: string;
+        rows?: GridEntry[];
+        cells?: GridEntry[];
+    }
+
     interface Settings {
         [category: string]: {
             [setting: string]: {
