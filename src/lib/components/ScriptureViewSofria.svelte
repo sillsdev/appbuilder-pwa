@@ -316,11 +316,11 @@ TODO:
                                 } else if (sequenceType == 'heading') {
                                     console.log('Header text: ' + workspace.text);
                                     const div = document.createElement('div');
-                                    var paraClass =
+                                    var headingParaClass =
                                         context.sequences[0].block.subType.split(':')[1] ||
                                         context.sequences[0].block.subType;
-                                    div.classList.add(paraClass);
-                                    const prefix = paraClass.replaceAll(/[0-9]/g, '');
+                                    div.classList.add(headingParaClass);
+                                    const prefix = headingParaClass.replaceAll(/[0-9]/g, '');
                                     workspace.subheaders.push(prefix);
                                     const count = countSubheadingPrefixes(
                                         workspace.subheaders,
@@ -425,7 +425,6 @@ TODO:
                                     div.setAttribute('data-phrase', 'none');
                                     div.classList.add('scroll-item');
                                     workspace.titleBlockDiv = div;
-                                } else if (sequenceType === 'heading') {
                                 }
                             }
                         }
