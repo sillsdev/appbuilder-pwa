@@ -2,9 +2,9 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 // polyfill code sourced from: https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
 // yarn add --dev @esbuild-plugins/node-globals-polyfill
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 // yarn add --dev @esbuild-plugins/node-modules-polyfill
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
 /** @type {import('vite').UserConfig} */
 const config = {
@@ -23,23 +23,18 @@ const config = {
             querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
             punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
             url: 'rollup-plugin-node-polyfills/polyfills/url',
-            string_decoder:
-                'rollup-plugin-node-polyfills/polyfills/string-decoder',
+            string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
             http: 'rollup-plugin-node-polyfills/polyfills/http',
             https: 'rollup-plugin-node-polyfills/polyfills/http',
             os: 'rollup-plugin-node-polyfills/polyfills/os',
             assert: 'rollup-plugin-node-polyfills/polyfills/assert',
             constants: 'rollup-plugin-node-polyfills/polyfills/constants',
-            _stream_duplex:
-                'rollup-plugin-node-polyfills/polyfills/readable-stream/duplex',
+            _stream_duplex: 'rollup-plugin-node-polyfills/polyfills/readable-stream/duplex',
             _stream_passthrough:
                 'rollup-plugin-node-polyfills/polyfills/readable-stream/passthrough',
-            _stream_readable:
-                'rollup-plugin-node-polyfills/polyfills/readable-stream/readable',
-            _stream_writable:
-                'rollup-plugin-node-polyfills/polyfills/readable-stream/writable',
-            _stream_transform:
-                'rollup-plugin-node-polyfills/polyfills/readable-stream/transform',
+            _stream_readable: 'rollup-plugin-node-polyfills/polyfills/readable-stream/readable',
+            _stream_writable: 'rollup-plugin-node-polyfills/polyfills/readable-stream/writable',
+            _stream_transform: 'rollup-plugin-node-polyfills/polyfills/readable-stream/transform',
             timers: 'rollup-plugin-node-polyfills/polyfills/timers',
             console: 'rollup-plugin-node-polyfills/polyfills/console',
             vm: 'rollup-plugin-node-polyfills/polyfills/vm',
@@ -48,7 +43,7 @@ const config = {
             domain: 'rollup-plugin-node-polyfills/polyfills/domain'
         }
     },
-	optimizeDeps: {
+    optimizeDeps: {
         esbuildOptions: {
             // Node.js global to browser globalThis
             define: {
@@ -63,6 +58,6 @@ const config = {
                 NodeModulesPolyfillPlugin()
             ]
         }
-    },
+    }
 };
 export default config;
