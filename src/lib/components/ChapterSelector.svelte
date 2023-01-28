@@ -47,55 +47,63 @@ The navbar component.
     $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
+    const showSelector = config.mainFeatures['show-chapter-number-on-app-bar'];
+    const canSelect = config.mainFeatures['show-chapter-selector'];
 
     onDestroy(unsub);
 </script>
 
 <!-- Chapter Selector -->
-{#if config.mainFeatures['show-chapter-number-on-app-bar']}
+{#if showSelector}
     <Dropdown>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>
                 {$refs.chapter}
             </div>
-            <DropdownIcon color="white" />
+            {#if canSelect}
+                <DropdownIcon color="white" />
+            {/if}
         </svelte:fragment>
         <svelte:fragment slot="content">
-            <div style:background-color="white">
-                <TabsMenu
-                    bind:this={chapterSelector}
-                    options={{
-                        [c]: {
-                            component: SelectGrid,
-                            props: {
-                                options: [
-                                    {
-                                        cells: Object.keys(chapters).map((x) => ({
-                                            label: x,
-                                            id: x
-                                        }))
-                                    }
-                                ]
+            {#if canSelect}
+                <div style:background-color="white">
+                    <TabsMenu
+                        bind:this={chapterSelector}
+                        options={{
+                            [c]: {
+                                component: SelectGrid,
+                                props: {
+                                    options: [
+                                        {
+                                            cells: Object.keys(chapters).map((x) => ({
+                                                label: x,
+                                                id: x
+                                            }))
+                                        }
+                                    ]
+                                }
+                            },
+                            [v]: {
+                                component: SelectGrid,
+                                props: {
+                                    options: [
+                                        {
+                                            cells: Object.keys(chapters[nextRef.chapter]).map(
+                                                (x) => ({
+                                                    label: x,
+                                                    id: x
+                                                })
+                                            )
+                                        }
+                                    ]
+                                }
                             }
-                        },
-                        [v]: {
-                            component: SelectGrid,
-                            props: {
-                                options: [
-                                    {
-                                        cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
-                                            label: x,
-                                            id: x
-                                        }))
-                                    }
-                                ]
-                            }
-                        }
-                    }}
-                    active={c}
-                    on:menuaction={navigateReference}
-                />
-            </div>
+                        }}
+                        active={c}
+                        on:menuaction={navigateReference}
+                    />
+                </div>
+            {/if}
         </svelte:fragment>
     </Dropdown>
 {/if}
