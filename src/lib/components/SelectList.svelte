@@ -4,18 +4,10 @@ A component to display menu options in a list.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, convertStyle } from '$lib/data/stores.js';
-    import config from '$lib/data/config';
+    import { s, themeColors, convertStyle } from '$lib/data/stores.js';
     export let options: App.GridGroup[] = [];
 
     const dispatch = createEventDispatcher();
-    $: rows = Math.ceil(options.length);
-    const colors = (type: string, key: string) =>
-        config.themes.find((x) => x.name === 'Normal').colorSets.find((x) => x.type === type)
-            ?.colors[key];
-
-    const textColor = colors('main', 'ChapterButtonTextColor');
-    let tableColor = colors('main', 'BackgroundColor');
 
     function handleClick(opt: string) {
         dispatch('menuaction', {
@@ -31,27 +23,31 @@ A component to display menu options in a list.
         <div style={convertStyle($s['ui.text.book-group-title'])}>{group.header}</div>
     {/if}
     <table>
-        {#each Array(rows) as _, ri}
-            <tr>
-                {#each Array(rows) as _, ci}
-                    {#if ri * rows + ci < group.cells.length}
-                        <td style:background-color={tableColor}>
+        {#each Array(group.cells.length) as _, ri}
+            <td>
+                {#each Array(group.cells.length) as _, ci}
+                    {#if ri * group.cells.length + ci < group.cells.length}
+                        <tr>
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <span
-                                on:click={() => handleClick(group.cells[ri * rows + ci].id)}
-                                class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
-                                style:color={textColor}
-                                >{group.cells[ri * rows + ci].id}
-                            </span></td
+                                on:click={() =>
+                                    handleClick(group.cells[ri * group.cells.length + ci].id)}
+                                class="menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
+                            >
+                                {group.cells[ri * group.cells.length + ci].label}
+                            </span></tr
                         >
                     {/if}
                 {/each}
-            </tr>
+            </td>
         {/each}
     </table>
 {/each}
 
 <style>
+    div {
+        padding: 5px;
+    }
     table {
         width: 100%;
         margin-left: auto;

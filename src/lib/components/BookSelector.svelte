@@ -125,7 +125,11 @@ The navbar component.
 {:else if selectionList}
     <Dropdown>
         <svelte:fragment slot="label">
-            {$refs.book}
+            <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
+                {config.bookCollections
+                    .find((x) => x.id === $refs.collection)
+                    .books.find((x) => (x) => x.id == $refs.book).name}
+            </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
