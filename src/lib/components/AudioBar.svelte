@@ -8,6 +8,8 @@ TODO:
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive } from '$lib/data/stores';
+    import { catalog } from '$lib/data/catalog';
+    import SkipPreviousIcon from '$lib/icons/audio/SkipPreviousIcon.svelte';
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -43,7 +45,72 @@ TODO:
             return;
         }
 
+        let nextRef;
+        const unsub = refs.subscribe((v) => {
+            nextRef = v;
+        }, 'next');
+
+        function getNextChapter() {
+            console.log('getNextChapter() starting');
+            let nextCollection = $refs.docSet + 1;
+            let nextBook = $refs.book + 1;
+            console.log('getNextChapter() 2');
+            let origBook = nextBook;
+            let nextChapter = $refs.chapter + 1;
+            console.log('getNextChapter() 3');
+
+            /**list of books in current docSet*/
+            let books = catalog.find((d) => d.id === nextRef.docSet).documents;
+            /**list of chapters in current book*/
+            let chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
+            /**Number of chapters in current book*/
+            let numChapters = Object.keys(chapters).length;
+            console.log('getNextChapter() 4');
+            console.log(numChapters);
+            //let numBooks = catalog.find((d) => d.id === nextRef.docSet).documents.length;
+
+            console.log(origBook);
+            console.log(books);
+            console.log(numChapters);
+            let nextAudio = getAudio(nextCollection, nextBook, nextChapter);
+            console.log('getNextChapter: before first if');
+            if (nextChapter > numChapters) {
+                nextChapter = 1;
+                nextBook++;
+            }
+            if (nextBook > books) {
+                nextBook = 1;
+                nextCollection++;
+            }
+            console.log('nextChapter: ', nextChapter);
+            //return { nextCollection, nextBook, nextChapter };
+            return { nextCollection, origBook, nextChapter };
+        }
+
         const a = new Audio(`${j.source}`);
+        a.addEventListener('ended', () => {
+            console.log('Got to end of audio');
+            let { nextCollection, nextBook, nextChapter } = getNextChapter();
+            console.log(
+                'after getNextChapter(), nextBook: ',
+                nextBook,
+                ' nextChapter: ',
+                nextChapter
+            );
+
+            console.log('after getAudio');
+            if (playing) {
+                skip();
+                getAudio;
+                playPause();
+                //updateTime();
+                console.log('paused');
+                //playAfterSkip = true;
+                //playPause();
+                console.log('after playAfterSkip = true');
+            }
+        });
+
         a.onloadedmetadata = () => {
             duration = a.duration;
             timeIndex = 0;
@@ -86,7 +153,8 @@ TODO:
         return () => {
             if (audio.ended) {
                 playing = false;
-                clearInterval(timer);
+                audio.pause();
+                progress = 0;
             } else {
                 timer = setInterval(updateTime, 100);
             }
@@ -177,7 +245,7 @@ TODO:
             >
                 <AudioIcon.RW />
             </button>
-            <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
+            <button id="play-pause" class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
                 {#if !playing}
                     <AudioIcon.Play />
                 {:else}

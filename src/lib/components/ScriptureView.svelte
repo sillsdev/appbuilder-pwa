@@ -10,7 +10,7 @@ TODO:
 -->
 <script lang="ts">
     import { query } from '../scripts/query';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy } from 'svelte';
     import {
         audioHighlight,
         refs,
@@ -22,7 +22,6 @@ TODO:
     } from '$lib/data/stores';
     import { renderDoc } from '../scripts/render';
     import { LoadingIcon } from '../icons';
-    import Hammer from 'hammerjs';
 
     let container: HTMLElement;
     let bookRoot: Element;
