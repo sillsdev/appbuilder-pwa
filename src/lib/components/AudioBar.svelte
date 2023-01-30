@@ -121,7 +121,7 @@ TODO:
         const a = new Audio(`${j.source}`);
         a.addEventListener('ended', () => {
             console.log('Got to end of audio');
-            let { nextCollection, nextBook, nextChapter } = getNextChapter();
+            let { nextBook, nextChapter } = getNextChapter();
             console.log(
                 'after getNextChapter(), nextBook: ',
                 nextBook,
@@ -133,7 +133,8 @@ TODO:
             if (playing) {
                 skip();
                 getAudio;
-                playPause();
+                audio.play();
+                //playPause();
                 //updateTime();
                 console.log('paused');
                 //playAfterSkip = true;
@@ -150,7 +151,7 @@ TODO:
             updateTime();
             if (playAfterSkip && !playing) {
                 playPause();
-                playAfterSkip = false;
+                //playAfterSkip = false;
             }
         };
         timing = j.timing;
