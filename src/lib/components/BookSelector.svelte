@@ -128,7 +128,7 @@ The navbar component.
             <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
                 {config.bookCollections
                     .find((x) => x.id === $refs.collection)
-                    .books.find((x) => (x) => x.id == $refs.book).name}
+                    .books.find((x) => x.id == $refs.book).name}
             </div>
             <DropdownIcon color="white" />
         </svelte:fragment>
@@ -136,11 +136,11 @@ The navbar component.
             <TabsMenu
                 bind:this={bookSelector}
                 options={{
-                    Book: {
+                    [b]: {
                         component: selectionGrid ? SelectGrid : SelectList,
                         props: { options: bookGridGroup() }
                     },
-                    Chapter: {
+                    [c]: {
                         component: SelectGrid,
                         props: {
                             options: [
@@ -148,7 +148,7 @@ The navbar component.
                             ]
                         }
                     },
-                    Verse: {
+                    [v]: {
                         component: SelectGrid,
                         props: {
                             options: [
@@ -162,7 +162,7 @@ The navbar component.
                         }
                     }
                 }}
-                active="Book"
+                active={b}
                 on:menuaction={navigateReference}
             />
         </svelte:fragment>
