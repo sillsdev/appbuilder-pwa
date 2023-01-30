@@ -50,6 +50,37 @@ TODO:
             nextRef = v;
         }, 'next');
 
+        // Fetch audio source and timing for next chapter
+        const getAudio = async (nextCollection, nextBook, nextChapter) => {
+            const res = await fetch('/data/audio', {
+                method: 'POST',
+                body: JSON.stringify({
+                    collection: nextCollection,
+                    book: nextBook,
+                    chapter: nextChapter
+                }),
+                headers: {
+                    'content-type': 'application/json',
+                    accept: 'application/json'
+                }
+            });
+
+            const j = await res.json();
+            if (j.error) {
+                console.error(j.error);
+                return;
+            }
+            const a = new Audio(`${j.source}`);
+            a.addEventListener('ended', () => {
+                if (playing) {
+                    audio.pause();
+                    audio = getAudio(nextCollection, nextBook, nextChapter);
+                    audio.play();
+                }
+            });
+            return a;
+        };
+
         function getNextChapter() {
             console.log('getNextChapter() starting');
             let nextCollection = $refs.docSet + 1;
