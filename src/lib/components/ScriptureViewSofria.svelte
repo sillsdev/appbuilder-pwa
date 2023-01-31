@@ -21,9 +21,9 @@ TODO:
         mainScroll,
         bodyFontSize,
         bodyLineHeight,
-        s
+        themeColors
     } from '$lib/data/stores';
-    import { onClickText } from '../scripts/verseSelectUtil';
+    import { onClickText, deselectAllElements } from '../scripts/verseSelectUtil';
 
     import { LoadingIcon } from '../icons';
     import { root } from 'postcss';
@@ -91,10 +91,13 @@ TODO:
     const updateHighlight = (h: string) => {
         const a = h.split(',');
         let el = container?.getElementsByClassName('highlighting')?.item(0);
+        let node = el?.getAttributeNode('style');
+        el?.removeAttributeNode(node);
         el?.classList.remove('highlighting');
         if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
+        el?.setAttribute('style', 'background-color: ' + highlightColor + ';');
         el?.classList.add('highlighting');
         if (
             `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
@@ -238,6 +241,7 @@ TODO:
                             workspace.titleBlockDiv = document.createElement('div');
                             workspace.phraseDiv = document.createElement('div');
                             workspace.subheaders = [];
+                            deselectAllElements();
                         }
                     }
                 ],
@@ -597,7 +601,7 @@ TODO:
     $: fontSize = $bodyFontSize + 'px';
 
     $: lineHeight = $bodyLineHeight + '%';
-
+    $: highlightColor = $themeColors['TextHighlightColor'];
     onDestroy(unSub);
 
     $: (() => {
@@ -608,7 +612,7 @@ TODO:
     })();
 </script>
 
-<article class="prose container mx-auto" bind:this={container}>
+<article class="container" bind:this={container}>
     {#if loading}
         <LoadingIcon />
     {/if}

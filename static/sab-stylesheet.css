@@ -1798,13 +1798,6 @@ body {
 .selectable {
     cursor: pointer;
 }
-.txs.selected:hover {
-    background-color: #ffff20;
-    cursor: pointer;
-}
-.txs.selected {
-    background-color: #ffff99;
-}
 .txs:hover {
     background-color: #eeeeee;
     cursor: pointer;
