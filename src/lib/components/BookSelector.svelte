@@ -55,7 +55,7 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
-    let bookGridGroup = () => {
+    let bookGridGroup = (useBookName) => {
         const colId = $refs.collection;
         let groups = config.bookCollections
             .find((x) => x.id === colId)
@@ -69,7 +69,7 @@ The navbar component.
             cells: config.bookCollections
                 .find((x) => x.id === colId)
                 .books.filter((x) => x.testament === groups[i])
-                .map((x) => ({ label: x.abbreviation, id: x.id }))
+                .map((x) => ({ label: useBookName ? x.name : x.abbreviation, id: x.id }))
         }));
     };
     onDestroy(unsub);
@@ -93,7 +93,7 @@ The navbar component.
                 options={{
                     [b]: {
                         component: SelectGrid,
-                        props: { options: bookGridGroup() }
+                        props: { options: bookGridGroup(false) }
                     },
                     [c]: {
                         component: SelectGrid,
@@ -138,7 +138,7 @@ The navbar component.
                 options={{
                     [b]: {
                         component: selectionGrid ? SelectGrid : SelectList,
-                        props: { options: bookGridGroup() }
+                        props: { options: bookGridGroup(true) }
                     },
                     [c]: {
                         component: SelectGrid,
