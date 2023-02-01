@@ -19,14 +19,18 @@ export const referenceStore = () => {
         const versesByChapters = catalog
             .find((ds) => docSet === ds.id)
             .documents.find((b) => book === b.bookCode).versesByChapters;
-        if (!chapter || !Object.keys(versesByChapters).includes(chapter))
+        if (!chapter || (!Object.keys(versesByChapters).includes(chapter) && chapter != 'i'))
             chapter = Object.keys(versesByChapters).includes(original.c) ? original.c : '1';
 
+        let length = 1;
+        if (chapter != 'i') {
+            length = Object.keys(versesByChapters[chapter]).length;
+        }
         internal.set({
             ds: docSet,
             b: book,
             c: chapter,
-            n: Object.keys(versesByChapters[chapter]).length
+            n: length
         });
     };
     const [bookInit, chapterInit] = (localStorage.refs) ? localStorage.refs.split('.') : ['','']; 
