@@ -137,7 +137,7 @@ The navbar component.
                 bind:this={bookSelector}
                 options={{
                     [b]: {
-                        component: selectionGrid ? SelectGrid : SelectList,
+                        component: SelectList,
                         props: { options: bookGridGroup({ bookLabel: 'name' }) }
                     },
                     [c]: {
