@@ -9,7 +9,6 @@ TODO:
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive } from '$lib/data/stores';
     import { catalog } from '$lib/data/catalog';
-    import SkipPreviousIcon from '$lib/icons/audio/SkipPreviousIcon.svelte';
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -51,7 +50,7 @@ TODO:
         }, 'next');
 
         // Fetch audio source and timing for next chapter
-        const getAudio = async (nextCollection, nextBook, nextChapter) => {
+        const getNextAudio = async (nextCollection, nextBook, nextChapter) => {
             const res = await fetch('/data/audio', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -82,13 +81,10 @@ TODO:
         };
 
         function getNextChapter() {
-            console.log('getNextChapter() starting');
             let nextCollection = $refs.docSet + 1;
             let nextBook = $refs.book + 1;
-            console.log('getNextChapter() 2');
             let origBook = nextBook;
             let nextChapter = $refs.chapter + 1;
-            console.log('getNextChapter() 3');
 
             /**list of books in current docSet*/
             let books = catalog.find((d) => d.id === nextRef.docSet).documents;
@@ -96,15 +92,7 @@ TODO:
             let chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
             /**Number of chapters in current book*/
             let numChapters = Object.keys(chapters).length;
-            console.log('getNextChapter() 4');
-            console.log(numChapters);
-            //let numBooks = catalog.find((d) => d.id === nextRef.docSet).documents.length;
 
-            console.log(origBook);
-            console.log(books);
-            console.log(numChapters);
-            let nextAudio = getAudio(nextCollection, nextBook, nextChapter);
-            console.log('getNextChapter: before first if');
             if (nextChapter > numChapters) {
                 nextChapter = 1;
                 nextBook++;
@@ -113,33 +101,18 @@ TODO:
                 nextBook = 1;
                 nextCollection++;
             }
-            console.log('nextChapter: ', nextChapter);
-            //return { nextCollection, nextBook, nextChapter };
+
             return { nextCollection, origBook, nextChapter };
         }
 
         const a = new Audio(`${j.source}`);
         a.addEventListener('ended', () => {
-            console.log('Got to end of audio');
-            let { nextBook, nextChapter } = getNextChapter();
-            console.log(
-                'after getNextChapter(), nextBook: ',
-                nextBook,
-                ' nextChapter: ',
-                nextChapter
-            );
+            getNextChapter();
 
-            console.log('after getAudio');
             if (playing) {
                 skip();
-                getAudio;
+                getNextAudio;
                 audio.play();
-                //playPause();
-                //updateTime();
-                console.log('paused');
-                //playAfterSkip = true;
-                //playPause();
-                console.log('after playAfterSkip = true');
             }
         });
 
@@ -151,7 +124,6 @@ TODO:
             updateTime();
             if (playAfterSkip && !playing) {
                 playPause();
-                //playAfterSkip = false;
             }
         };
         timing = j.timing;
@@ -248,6 +220,10 @@ TODO:
         audio.currentTime = duration * percent;
     }
 </script>
+
+<div id="progress-bar-cont">
+    <span id="bar" style="width: {progress}%" />
+</div>
 
 <div class="w-11/12 h-5/6 bg-base-100 mx-auto rounded-full flex items-center flex-col">
     <div class="flex flex-col justify-center w-11/12 flex-grow">
