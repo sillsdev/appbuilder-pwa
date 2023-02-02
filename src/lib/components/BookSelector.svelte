@@ -11,6 +11,10 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+    import SelectList from './SelectList.svelte';
+
+    const selectionGrid = config.mainFeatures['book-select'] === 'grid';
+    const selectionList = config.mainFeatures['book-select'] === 'list';
 
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
@@ -51,7 +55,7 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
 
-    let bookGridGroup = () => {
+    let bookGridGroup = ({ bookLabel = 'abbreviation' }) => {
         const colId = $refs.collection;
         let groups = config.bookCollections
             .find((x) => x.id === colId)
@@ -65,14 +69,14 @@ The navbar component.
             cells: config.bookCollections
                 .find((x) => x.id === colId)
                 .books.filter((x) => x.testament === groups[i])
-                .map((x) => ({ label: x.abbreviation, id: x.id }))
+                .map((x) => ({ label: x[bookLabel], id: x.id }))
         }));
     };
     onDestroy(unsub);
 </script>
 
 <!-- Book Selector -->
-{#if config.mainFeatures['book-select'] === 'grid'}
+{#if selectionGrid}
     <Dropdown>
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
@@ -88,7 +92,7 @@ The navbar component.
                 options={{
                     [b]: {
                         component: SelectGrid,
-                        props: { options: bookGridGroup() }
+                        props: { options: bookGridGroup({}) }
                     },
                     [c]: {
                         component: SelectGrid,
@@ -117,6 +121,49 @@ The navbar component.
             />
         </svelte:fragment>
     </Dropdown>
-{:else if config.mainFeatures['book-select'] === 'list'}
-    <!--TODO: Add List selector -->
+{:else if selectionList}
+    <Dropdown>
+        <svelte:fragment slot="label">
+            <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
+                {config.bookCollections
+                    .find((x) => x.id === $refs.collection)
+                    .books.find((x) => x.id == $refs.book).name}
+            </div>
+            <DropdownIcon color="white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    [b]: {
+                        component: SelectList,
+                        props: { options: bookGridGroup({ bookLabel: 'name' }) }
+                    },
+                    [c]: {
+                        component: SelectGrid,
+                        props: {
+                            options: [
+                                { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
+                            ]
+                        }
+                    },
+                    [v]: {
+                        component: SelectGrid,
+                        props: {
+                            options: [
+                                {
+                                    cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
+                                }
+                            ]
+                        }
+                    }
+                }}
+                active={b}
+                on:menuaction={navigateReference}
+            />
+        </svelte:fragment>
+    </Dropdown>
 {/if}
