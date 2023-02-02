@@ -10,7 +10,7 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import { Proskomma } from 'proskomma';
+    import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from 'proskomma-freeze';
     import {
@@ -141,12 +141,12 @@ TODO:
                 }
             }
         }
-        console.log('parsePhrase %o %o', inner, phrases);
+        // console.log('parsePhrase %o %o', inner, phrases);
         return phrases;
     };
 
     const startPhrase = (workspace, indexOption = 'advance') => {
-        console.log('Start phrase!!!');
+        // console.log('Start phrase!!!');
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const div = document.createElement('div');
         if (!workspace.introductionGraft) {
@@ -207,32 +207,32 @@ TODO:
         return returnValue;
     };
     let bookRoot = document.createElement('div');
-    console.log('START: %o', bookRoot);
+    // console.log('START: %o', bookRoot);
     let loading = true;
 
     const output = {};
     const query = async (docSet: string, bookCode: string, chapter: string) => {
-        console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
+        // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         const docslist = await pk.gqlQuery('{docSets { id } }');
-        console.log('LIST %o', docslist);
-        console.log('Displaying Introduction %o', displayingIntroduction);
+        // console.log('LIST %o', docslist);
+        // console.log('Displaying Introduction %o', displayingIntroduction);
         let found = false;
         for (const doc of docslist.data.docSets) {
-            console.log('ID: %o', doc.id);
+            // console.log('ID: %o', doc.id);
             if (doc.id === docSet) {
-                console.log('Found');
+                // console.log('Found');
                 found = true;
                 break;
             }
         }
 
         if (!found) {
-            console.log('fetch %o pkf', docSet);
+            // console.log('fetch %o pkf', docSet);
             const res = await fetch(`collections/${docSet}.pkf`).then((r) => {
                 return r.text();
             });
             if (res.length) {
-                console.log('awaiting thaw');
+                // console.log('awaiting thaw');
                 await thaw(pk, res);
             }
         }
@@ -246,11 +246,11 @@ TODO:
                         description: 'Set up; Book heading',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
+                            /* console.log(
                                 'Start Document: %o, %o',
                                 context,
                                 context.document.metadata.document
-                            );
+                            );*/
                             bookRoot.replaceChildren();
                             workspace.root = bookRoot;
                             workspace.text = '';
@@ -274,11 +274,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
+                            /* console.log(
                                 'Start Paragraph %o %o',
                                 context.sequences[0].block,
                                 context.sequences[0].type
-                            );
+                            ); */
                             const sequenceType = context.sequences[0].type;
                             if (
                                 processText(
@@ -299,10 +299,10 @@ TODO:
                                     workspace.paragraphDiv.classList.add(paraClass);
                                     if (workspace.currentVerse != 'none') {
                                         workspace.phraseDiv = startPhrase(workspace, 'keep');
-                                        console.log(
+                                        /* console.log(
                                             'Paragraph Start phrase: %o',
                                             workspace.phraseDiv
-                                        );
+                                        );*/
                                     }
                                 } else if (sequenceType == 'introduction') {
                                     workspace.paragraphDiv = document.createElement('div');
@@ -323,12 +323,12 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('End paragraph: Sequence type ' + sequenceType);
-                            console.log(
+                            // console.log('End paragraph: Sequence type ' + sequenceType);
+                            /* console.log(
                                 'End Paragraph %o %o',
                                 context.sequences[0].block,
                                 context.sequences[0].type
-                            );
+                            );*/
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -338,16 +338,16 @@ TODO:
                             ) {
                                 if (sequenceType == 'main') {
                                     // Build div
-                                    console.log('End Paragaph text:' + workspace.text);
+                                    // console.log('End Paragaph text:' + workspace.text);
                                     if (workspace.currentVerse != 'none') {
-                                        console.log('END PHRASE: P');
-                                        console.log('PHRASE: ' + workspace.text);
+                                        // console.log('END PHRASE: P');
+                                        // console.log('PHRASE: ' + workspace.text);
                                         addText(workspace);
-                                        console.log('OUT: %o ', workspace.paragraphDiv);
+                                        // console.log('OUT: %o ', workspace.paragraphDiv);
                                     }
                                     workspace.root.appendChild(workspace.paragraphDiv);
                                 } else if (sequenceType == 'title') {
-                                    console.log('End paragraph title text:' + workspace.text);
+                                    // console.log('End paragraph title text:' + workspace.text);
                                     const div = document.createElement('div');
                                     var paraClass =
                                         context.sequences[0].block.subType.split(':')[1] ||
@@ -360,7 +360,7 @@ TODO:
                                     workspace.titleBlockDiv.appendChild(div);
                                     workspace.text = '';
                                 } else if (sequenceType == 'heading') {
-                                    console.log('Header text: ' + workspace.text);
+                                    // console.log('Header text: ' + workspace.text);
                                     const div = document.createElement('div');
                                     var headingParaClass =
                                         context.sequences[0].block.subType.split(':')[1] ||
@@ -379,7 +379,7 @@ TODO:
                                     workspace.root.appendChild(div);
                                     workspace.text = '';
                                 } else if (sequenceType == 'introduction') {
-                                    console.log('End Paragaph text:' + workspace.text);
+                                    // console.log('End Paragaph text:' + workspace.text);
                                     addText(workspace);
                                     workspace.root.appendChild(workspace.paragraphDiv);
                                 }
@@ -392,12 +392,12 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
+                            /* console.log(
                                 'Text element: %o %o %o',
                                 context.sequences[0].element.type,
                                 context.sequences[0].element.text,
                                 context.sequences[0].block
-                            );
+                            );*/
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -424,11 +424,11 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log(
+                            /* console.log(
                                 'Mark: SubType %o, Atts: %o',
                                 element.subType,
                                 element.atts
-                            );
+                            ); */
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -452,7 +452,7 @@ TODO:
                                     var div = workspace.phraseDiv.cloneNode(true);
                                     div.appendChild(spanV.cloneNode(true));
                                     div.appendChild(spanVsp.cloneNode(true));
-                                    console.log('OUT: %o %o %o', div, spanV, spanVsp);
+                                    // console.log('OUT: %o %o %o', div, spanV, spanVsp);
                                     workspace.phraseDiv = div.cloneNode(true);
                                 }
                             }
@@ -464,7 +464,7 @@ TODO:
                         description: 'Set up',
                         test: () => true,
                         action: ({ context, workspace, output }) => {
-                            console.log('End Document');
+                            // console.log('End Document');
                             var els = document.getElementsByTagName('div');
                             for (var i = 0; i < els.length; i++) {
                                 if (els[i].className.indexOf('seltxt') >= 0 && els[i].id != '') {
@@ -480,7 +480,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('start sequence %o', sequenceType);
+                            // console.log('start sequence %o', sequenceType);
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -505,7 +505,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('End sequence |%o|', sequenceType);
+                            // console.log('End sequence |%o|', sequenceType);
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -516,7 +516,7 @@ TODO:
                                 if (sequenceType === 'title') {
                                     const div = workspace.titleBlockDiv;
                                     div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                                    console.log('TITLE DIV %o', div);
+                                    // console.log('TITLE DIV %o', div);
                                     workspace.root.append(div);
                                 }
                             }
@@ -528,14 +528,14 @@ TODO:
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            console.log('Block Graft %o', environment.context.sequences[0].block);
+                            // console.log('Block Graft %o', environment.context.sequences[0].block);
                             const currentBlock = environment.context.sequences[0].block;
                             const graftRecord = {
                                 type: currentBlock.type,
                                 sequence: {}
                             };
                             if (currentBlock.subType === 'introduction') {
-                                console.log('*** START INTRODUCTION ***');
+                                // console.log('*** START INTRODUCTION ***');
                                 environment.workspace.introductionGraft = true;
                                 environment.workspace.introductionIndex = 1;
                             } else if (currentBlock.subType === 'title') {
@@ -551,12 +551,12 @@ TODO:
                                 //                                environment.workspace.htmlBits.push(`</span>`);
                             }
                             if (currentBlock.subType === 'introduction') {
-                                console.log('*** END INTRODUCTION');
+                                // console.log('*** END INTRODUCTION');
                                 environment.workspace.introductionGraft = false;
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
                         }
                     }
                 ],
@@ -567,23 +567,23 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            console.log(
+                            /* console.log(
                                 'Inline Graft Type: %o, Subtype: %o, id: %o %o',
                                 element.type,
                                 element.subType,
                                 element.sequence.id,
                                 environment.context.sequences[0].element
-                            );
+                            );*/
                             const graftRecord = {
                                 type: element.type,
                                 subtype: element.subType,
                                 sequence: {}
                             };
                             if (element.subType === 'xref' || element.subType === 'footnote') {
-                                console.log('PHRASE G: ' + workspace.text);
+                                // console.log('PHRASE G: ' + workspace.text);
                                 addText(workspace, false);
                                 const div = workspace.phraseDiv.cloneNode(true);
-                                console.log('Footnote or xref');
+                                // console.log('Footnote or xref');
                                 const span = document.createElement('span');
                                 span.setAttribute('data-graft', `X-${workspace.footnoteIndex + 1}`);
                                 span.classList.add('footnote');
@@ -601,7 +601,7 @@ TODO:
                             workspace.currentSequence = graftRecord.sequence;
                             environment.context.renderer.renderSequence(environment);
                             workspace.currentSequence = cachedSequencePointer;
-                            console.log('Inline Graft End');
+                            // console.log('Inline Graft End');
                         }
                     }
                 ],
@@ -610,12 +610,12 @@ TODO:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Start Wrapper %o', context.sequences[0].element);
+                            // console.log('Start Wrapper %o', context.sequences[0].element);
                             let element = context.sequences[0].element;
                             if (element.subType === 'verses') {
                                 workspace.currentVerse = element.atts.number;
                                 workspace.phraseDiv = startPhrase(workspace, 'reset');
-                                console.log('IN: %o', workspace.phraseDiv);
+                                // console.log('IN: %o', workspace.phraseDiv);
                             }
                         }
                     }
@@ -625,15 +625,15 @@ TODO:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('End Wrapper %o', context.sequences[0].element);
+                            // console.log('End Wrapper %o', context.sequences[0].element);
                             let element = context.sequences[0].element;
                             if (element.subType === 'verses') {
                                 if (!onlySpaces(workspace.text)) {
-                                    console.log('PHRASE: ' + workspace.text);
+                                    // console.log('PHRASE: ' + workspace.text);
                                     addText(workspace);
-                                    console.log('OUT: %o ', workspace.paragraphDiv);
+                                    // console.log('OUT: %o ', workspace.paragraphDiv);
                                 }
-                                console.log('END PHRASE: V');
+                                // console.log('END PHRASE: V');
                                 workspace.currentVerse = 'none';
                             }
                         }
@@ -644,7 +644,7 @@ TODO:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context }) => {
-                            console.log('Start Milestone: %o', context.sequences[0].element);
+                            // console.log('Start Milestone: %o', context.sequences[0].element);
                         }
                     }
                 ],
@@ -653,7 +653,7 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context }) => {
-                            console.log('End Milestone %o', context.sequences[0].element);
+                            // console.log('End Milestone %o', context.sequences[0].element);
                         }
                     }
                 ]
@@ -663,7 +663,7 @@ TODO:
         const docsResult = pk.gqlQuerySync(
             '{documents { docSetId id bookCode: header(id: "bookCode")} }'
         );
-        console.log('docsResult %o', docsResult);
+        // console.log('docsResult %o', docsResult);
         const bookLookup = {};
         for (const docRecord of docsResult.data.documents) {
             if (docRecord.docSetId === docSet) {
@@ -673,7 +673,7 @@ TODO:
         const docId = bookLookup[bookCode];
         cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
         loading = false;
-        console.log('DONE %o', root);
+        // console.log('DONE %o', root);
     };
 
     $: fontSize = $bodyFontSize + 'px';
@@ -685,7 +685,7 @@ TODO:
     $: (() => {
         let chapterToDisplay = $refs.chapter;
         if (chapterToDisplay == 'i') {
-            console.log('Displaying introduction');
+            // console.log('Displaying introduction');
             chapterToDisplay = '1';
             displayingIntroduction = true;
         } else {

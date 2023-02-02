@@ -53,10 +53,10 @@
         "chokidar": "^3.5.3",
         "concurrently": "^7.2.2",
         "eslint-plugin-prettier": "^4.0.0",
-        "proskomma": "^0.8.0",
+        "proskomma-core": "^0.9.14",
         "proskomma-freeze": "^0.7.0",
-        "proskomma-tools": "^0.0.5",
-        "proskomma-json-tools": "^0.5.7"
+        "proskomma-json-tools": "^0.5.7",
+	    "proskomma-tools": "^0.0.5"
     },
     "volta": {
         "node": "16.17.0"

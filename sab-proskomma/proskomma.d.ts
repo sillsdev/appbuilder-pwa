@@ -1,4 +1,4 @@
-declare module 'proskomma' {
+declare module 'proskomma-core' {
     export class Proskomma {
         gqlQuerySync(query: string, callback?: (r: any) => void): any;
         gqlQuery(query: string, callback?: (r: any) => void): Promise<any>;

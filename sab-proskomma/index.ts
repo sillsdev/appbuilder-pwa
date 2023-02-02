@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import { Proskomma } from 'proskomma';
+import { Proskomma } from 'proskomma-core';
 
 /**
  * a custom extension of Proskomma to use BCP47 language tags instead of ISO 639-3
