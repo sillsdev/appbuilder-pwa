@@ -56,7 +56,7 @@
         "proskomma-core": "^0.9.14",
         "proskomma-freeze": "^0.7.0",
         "proskomma-json-tools": "^0.5.7",
-	    "proskomma-tools": "^0.0.5"
+        "proskomma-tools": "^0.0.5"
     },
     "volta": {
         "node": "16.17.0"
