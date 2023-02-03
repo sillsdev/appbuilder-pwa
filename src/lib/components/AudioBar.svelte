@@ -9,6 +9,7 @@ TODO:
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive } from '$lib/data/stores';
     import { catalog } from '$lib/data/catalog';
+    import config from '../data/config';
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -70,6 +71,7 @@ TODO:
                 return;
             }
             const a = new Audio(`${j.source}`);
+
             a.addEventListener('ended', () => {
                 if (playing) {
                     audio.pause();
@@ -106,15 +108,17 @@ TODO:
         }
 
         const a = new Audio(`${j.source}`);
-        a.addEventListener('ended', () => {
-            getNextChapter();
+        if (config.mainFeatures['audio-goto-next-chapter']) {
+            a.addEventListener('ended', () => {
+                getNextChapter();
 
-            if (playing) {
-                skip();
-                getNextAudio;
-                audio.play();
-            }
-        });
+                if (playing) {
+                    skip();
+                    getNextAudio;
+                    audio.play();
+                }
+            });
+        }
 
         a.onloadedmetadata = () => {
             duration = a.duration;
