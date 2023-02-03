@@ -1,6 +1,5 @@
 <script lang="ts">
     import AudioBar from '$lib/components/AudioBar.svelte';
-    import ScriptureView from '$lib/components/ScriptureView.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
