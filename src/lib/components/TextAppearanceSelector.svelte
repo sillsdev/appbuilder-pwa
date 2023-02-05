@@ -3,9 +3,11 @@
 The navbar component.
 -->
 <script>
+    import Dropdown from './Dropdown.svelte';
     import { TextAppearanceIcon } from '$lib/icons';
     import { language, languages, theme, themes } from '$lib/data/stores';
     import config from '$lib/data/config';
+    import TabsMenu from './TabsMenu.svelte';
 
     const countThemes = config.themes.filter((x) => x.enabled).length;
 
@@ -43,12 +45,18 @@ The navbar component.
     const rotateThemes = () => {
         $theme = rotate(themes, $theme);
     };
-</script>
+
+    // <button class="dy-btn dy-btn-ghost dy-btn-circle">
+</script> 
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
-    <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={handleClick}>
-        <TextAppearanceIcon color="white" />
-        <!-- TODO: implement text appearance options -->
-    </button>
+    <Dropdown>
+        <svelte:fragment slot="label">
+            <TextAppearanceIcon color="white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <TabsMenu></TabsMenu>
+        </svelte:fragment>
+    </Dropdown>
 {/if}
