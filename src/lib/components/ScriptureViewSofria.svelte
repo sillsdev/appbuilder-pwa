@@ -2,11 +2,9 @@
 @component
 A component for displaying scripture.  
 TODO:
-- integrate SOFRIA
-- add phrase info for highlight synchronization
-- fully utilize groupStore functionality
 - find a way to scroll smoothly, as CSS only option does not work as expected.
-- change the global stylesheet to have .highlighting
+- save graft info so that references can be handled
+- parse introduction for references
 -->
 <script lang="ts">
     import { onDestroy } from 'svelte';
@@ -23,10 +21,9 @@ TODO:
         bodyLineHeight,
         themeColors
     } from '$lib/data/stores';
-    import { onClickText, deselectAllElements } from '../scripts/verseSelectUtil';
+    import { onClickText, deselectAllElements } from '$lib/scripts/verseSelectUtil';
 
-    import { LoadingIcon } from '../icons';
-    import { root } from 'postcss';
+    import { LoadingIcon } from '$lib/icons';
 
     const pk = new Proskomma();
     let container: HTMLElement;
@@ -467,7 +464,7 @@ TODO:
                             // console.log('End Document');
                             var els = document.getElementsByTagName('div');
                             for (var i = 0; i < els.length; i++) {
-                                if (els[i].className.indexOf('seltxt') >= 0 && els[i].id != '') {
+                                if (els[i].classList.contains('seltxt') && els[i].id != '') {
                                     els[i].addEventListener('click', onClickText, false);
                                 }
                             }
@@ -680,7 +677,6 @@ TODO:
 
     $: lineHeight = $bodyLineHeight + '%';
     $: highlightColor = $themeColors['TextHighlightColor'];
-    onDestroy(unSub);
 
     $: (() => {
         let chapterToDisplay = $refs.chapter;
@@ -696,6 +692,7 @@ TODO:
         const docSet = $refs.docSet;
         query(docSet, bookCode, chapter);
     })();
+    onDestroy(unSub);
 </script>
 
 <article class="container" bind:this={container}>

@@ -7,7 +7,7 @@ export type SelectedReference = {
     chapter: string;
     verse: string;
 };
-export function onClickText(e) {
+export function onClickText(e: any) {
     let target = e.target;
 
     while (!isSelectableText(target) && !isClickable(target) && !isMain(target)) {
@@ -15,7 +15,7 @@ export function onClickText(e) {
     }
     if (isSelectableText(target)) {
         const id = removeIdSuffixes(target.id);
-        if (target.className.indexOf('selected') < 0) {
+        if (!target.classList.contains('selected')) {
             const maxSelections = config.mainFeatures['annotation-max-select'];
             const currentLength = selectedVerses.length();
             if (currentLength < maxSelections) {
@@ -33,7 +33,7 @@ export function deselectAllElements() {
     const els = document.getElementsByTagName('div');
     for (let i = 0; i < els.length; i++) {
         if (els[i].id != '') {
-            els[i].className = els[i].className.replace('selected', '');
+            els[i].classList.remove('selected');
         }
     }
     selectedVerses.reset();
@@ -60,15 +60,15 @@ function removeIdSuffixes(id) {
     return id;
 }
 function isSelectableText(target) {
-    return target.className.indexOf('seltxt') >= 0;
+    return target.classList.contains('seltxt');
 }
 
 function isClickable(target) {
-    return target.tagName == 'A';
+    return target.tagName === 'A';
 }
 
 function isMain(target) {
-    return target.tagName == 'MAIN';
+    return target.tagName === 'MAIN';
 }
 // Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
 function modifyClassOfElements(id, clsName, select) {
@@ -90,11 +90,11 @@ function modifyClassOfElement(id, clsName, select) {
 
     while (el) {
         if (select) {
-            if (el.className.indexOf(clsName) < 0) {
-                el.className = clsName + ' ' + el.className;
+            if (!el.classList.contains(clsName)) {
+                el.classList.add(clsName);
             }
         } else {
-            el.className = el.className.replace(clsName, '');
+            el.classList.remove(clsName);
         }
         i++;
         el = document.getElementById(id + '+' + i);
