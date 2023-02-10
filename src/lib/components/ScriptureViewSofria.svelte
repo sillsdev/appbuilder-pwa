@@ -10,7 +10,7 @@ TODO:
     import { onDestroy } from 'svelte';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { thaw } from 'proskomma-freeze';
+    import { thaw } from '../scripts/thaw';
     import {
         audioHighlight,
         refs,
@@ -226,11 +226,12 @@ TODO:
         if (!found) {
             // console.log('fetch %o pkf', docSet);
             const res = await fetch(`collections/${docSet}.pkf`).then((r) => {
-                return r.text();
+                return r.arrayBuffer();
             });
-            if (res.length) {
+            if (res.byteLength) {
                 // console.log('awaiting thaw');
-                await thaw(pk, res);
+                const uint8res = new Uint8Array(res);
+                thaw(pk, uint8res);
             }
         }
 

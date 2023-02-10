@@ -19,7 +19,7 @@ const config = {
             sys: 'util',
             events: 'rollup-plugin-node-polyfills/polyfills/events',
             stream: 'rollup-plugin-node-polyfills/polyfills/stream',
-            path: 'rollup-plugin-node-polyfills/polyfills/path',
+            //path: 'rollup-plugin-node-polyfills/polyfills/path',
             querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
             punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
             url: 'rollup-plugin-node-polyfills/polyfills/url',
@@ -40,7 +40,8 @@ const config = {
             vm: 'rollup-plugin-node-polyfills/polyfills/vm',
             zlib: 'rollup-plugin-node-polyfills/polyfills/zlib',
             tty: 'rollup-plugin-node-polyfills/polyfills/tty',
-            domain: 'rollup-plugin-node-polyfills/polyfills/domain'
+            domain: 'rollup-plugin-node-polyfills/polyfills/domain',
+            buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6'
         }
     },
     optimizeDeps: {

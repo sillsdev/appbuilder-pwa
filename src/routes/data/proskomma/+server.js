@@ -2,7 +2,7 @@ import { SABProskomma } from '../../../../sab-proskomma';
 import { json } from '@sveltejs/kit';
 import path from 'path';
 import { readFileSync } from 'fs';
-import { thaw } from 'proskomma-freeze';
+//import { thaw } from 'proskomma-freeze';
 import { collections } from '../../../../static/collections';
 
 const pk = (() => {
@@ -13,7 +13,7 @@ const pk = (() => {
         //console.log('initializing Proskomma');
         const promises = [];
         for (const c of collections) {
-            promises.push(thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkf'),'utf8')));
+//            promises.push(thaw(_val, readFileSync(path.join('static', 'collections', c+'.pkf'),'utf8')));
         }
         return Promise.all(promises);
     })();

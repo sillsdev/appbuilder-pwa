@@ -97,4 +97,8 @@ export class SABProskomma extends Proskomma {
     gqlQuery(query: string, callback?: (r: any) => void) {
         return super.gqlQuery(query, callback);
     }
+
+    loadSuccinctDocSet(succinctOb: any) {
+        return super.loadSuccinctDocSet(succinctOb);
+    }
 }

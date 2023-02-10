@@ -67,7 +67,14 @@ async function fullConvert(printDetails: boolean): Promise<boolean> {
             const out = await step.run(verbose, outputs, step.triggerFiles);
             outputs.set(step.constructor.name, out);
             /*await*/ // We don't need to await the file writes; next steps can continue running while writes occur
-            Promise.all(out.files.map((f) => new Promise((r) => writeFile(f.path, f.content, r))));
+            Promise.all(
+                out.files.map(
+                    (f) =>
+                        new Promise((r) => {
+                            writeFile(f.path, f.content, r);
+                        })
+                )
+            );
         } catch (e) {
             oldConsoleLog(lastStepOutput);
             oldConsoleLog(e);

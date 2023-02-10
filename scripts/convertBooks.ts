@@ -6,8 +6,7 @@ import { TaskOutput, Task, Promisable } from './Task';
 import { readFile, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { SABProskomma } from '../sab-proskomma';
-import { freeze } from 'proskomma-freeze';
-import { queries, postQueries } from '../sab-proskomma-tools';
+import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 
 /**
  * Loops through bookCollections property of configData.
@@ -15,6 +14,7 @@ import { queries, postQueries } from '../sab-proskomma-tools';
  * Each SABProskomma instance is then compressed using proskomma-freeze and written
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
+
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,
@@ -22,8 +22,8 @@ export async function convertBooks(
 ): Promise<BooksTaskOutput> {
     /**book collections from config*/
     const collections = configData.data.bookCollections;
-    /**map of docSets and promised frozen archives*/
-    const freezer = new Map<string, Promise<string>>();
+    /**map of docSets and frozen archives*/
+    const freezer = new Map<string, any>();
     /**array of catalog query promises*/
     const catalogEntries: Promise<any>[] = [];
 
@@ -105,14 +105,14 @@ export async function convertBooks(
         await Promise.all(docs);
         if (verbose) console.timeEnd('convert ' + collection.id);
         //start freezing process and map promise to docSet name
-        freezer.set(docSet, freeze(pk));
+        const frozen = freeze(pk);
+        freezer.set(docSet, frozen[docSet]);
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-
-    writeFile(
+    writeFileSync(
         path.join('src', 'lib', 'data', 'catalog.js'),
         `export const catalog = ${JSON.stringify(
             entries.map(
@@ -121,8 +121,7 @@ export async function convertBooks(
                         docSets: entry.data.docSets
                     })[0]
             )
-        )};`,
-        () => null
+        )};`
     );
     if (verbose) console.time('freeze');
     if (!existsSync(path.join('static', 'collections'))) {
@@ -130,18 +129,18 @@ export async function convertBooks(
         mkdirSync(path.join('static', 'collections'));
     }
     //write frozen archives for import
-    const vals = await Promise.all(freezer.values());
+    //const vals = await Promise.all(freezer.values());
     //write frozen archives
-    const files = [];
-    let i = 0;
+    const files: any[] = [];
+
     //push files to be written to files array
-    for (const k of freezer.keys()) {
+    freezer.forEach((value, key) =>
         files.push({
-            path: path.join('static', 'collections', k + '.pkf'),
-            content: `${vals[i]}`
-        });
-        i++;
-    }
+            path: path.join('static', 'collections', key + '.pkf'),
+            content: value
+        })
+    );
+
     //write index file
     writeFileSync(
         path.join('static', 'collections', 'index.js'),
@@ -162,6 +161,7 @@ export async function convertBooks(
         taskName: 'ConvertBooks'
     };
 }
+
 export interface BooksTaskOutput extends TaskOutput {
     taskName: 'ConvertBooks';
 }

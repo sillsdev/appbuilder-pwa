@@ -3,7 +3,7 @@ declare module 'proskomma-core' {
         gqlQuerySync(query: string, callback?: (r: any) => void): any;
         gqlQuery(query: string, callback?: (r: any) => void): Promise<any>;
         validateSelectors(): void;
-        loadSuccinctDocSet(succinctOb: any): any;
+        loadSuccinctDocSet(succinctOb: string): any;
         docSets: [];
         serializeSuccinct(document: any): any;
     }
