@@ -1,4 +1,4 @@
 import queries from './queries/index';
 import postQueries from './post-query/index';
-
-export { queries, postQueries };
+import { freeze } from './freeze/index';
+export { queries, postQueries, freeze };

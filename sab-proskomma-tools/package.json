@@ -8,6 +8,6 @@
     },
     "author": "",
     "dependencies": {
-        "proskomma": "^0.7.7"
+        "proskomma-core": "^0.9.14"
     }
 }

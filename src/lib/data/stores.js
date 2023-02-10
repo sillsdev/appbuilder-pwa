@@ -109,3 +109,86 @@ export const mainScroll = writable({ top: 0, height: 0});
 export const bodyFontSize = writable('17');
 /**line height of body elements */
 export const bodyLineHeight = writable('175');
+/**list of selected verses */
+function findIndex(id) {
+    let references = get(selectedVerses);
+    for (let i = 0; i < references.length; i++) {
+        const entry = references[i];
+        if ((entry.verse == id)) {
+            return i;
+        }
+    }
+    return -1;
+}
+function createSelectedVerses()  {
+    const external = writable([]);
+    
+    return {
+        subscribe: external.subscribe,
+        addVerse: (id) => {
+            const currentRefs = get(refs);
+            const reference = {
+               docSet: currentRefs.docSet,
+               book: currentRefs.book,
+               chapter: currentRefs.chapter,
+               verse: id
+            }
+            let references = get(external);
+            references.push(reference);
+            external.set(references);
+        },
+        removeVerse: (id) => {
+            const currentRefs = get(refs);
+            const reference = {
+                docSet: currentRefs.docSet,
+                book: currentRefs.book,
+                chapter: currentRefs.chapter,
+                verse: id
+            }
+            let references = get(external);
+            const index = findIndex(id);
+            if (index > -1) {
+                references.splice(index, 1);
+                external.set(references);
+            }
+        },
+        reset: () => {
+            external.set([]);
+        },
+        length: () => {
+            let references = get(external);
+            return references.length;
+        },
+        getFirstVerseIndex: () => {
+            let references = get(external);
+            let first = -1;
+            let index = -1;
+            for (let i = 0; i < references.length; i++) {
+                if (first == -1 || Number(references[i].verse) < first) {
+                    index = i;
+                    first = Number(references[i].verse)
+                }
+            }
+            return(index);
+        },
+        getVerseByIndex: (i) => {
+            let references = get(external);
+            const index = Number(i);
+            console.log("Index: %o", index);
+            if (index > -1 && index < references.length) {
+                console.log("Return");
+                return(references[index])
+            } else {
+                const reference = {
+                    docSet: "",
+                    book: "",
+                    chapter: "",
+                    verse: ""
+                 }
+                return(reference)
+            }
+        }
+    }
+}
+export const selectedVerses  = createSelectedVerses();
+

@@ -1036,6 +1036,11 @@ div.hlp5 {
     color: #000000;
 }
 
+div.selected {
+     border-bottom: 1px dotted; 
+     text-decoration: none; 
+}
+
 div.footer {
     margin-top: 1.5em;
     padding-top: 12px;
@@ -1792,13 +1797,6 @@ body {
 }
 .selectable {
     cursor: pointer;
-}
-.txs.selected:hover {
-    background-color: #ffff20;
-    cursor: pointer;
-}
-.txs.selected {
-    background-color: #ffff99;
 }
 .txs:hover {
     background-color: #eeeeee;

@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import { Proskomma } from 'proskomma';
+import { Proskomma } from 'proskomma-core';
 
 /**
  * a custom extension of Proskomma to use BCP47 language tags instead of ISO 639-3
@@ -96,5 +96,9 @@ export class SABProskomma extends Proskomma {
 
     gqlQuery(query: string, callback?: (r: any) => void) {
         return super.gqlQuery(query, callback);
+    }
+
+    loadSuccinctDocSet(succinctOb: any) {
+        return super.loadSuccinctDocSet(succinctOb);
     }
 }
