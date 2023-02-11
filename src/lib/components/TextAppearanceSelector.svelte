@@ -47,7 +47,7 @@ The navbar component.
     };
 
     // <button class="dy-btn dy-btn-ghost dy-btn-circle">
-</script> 
+</script>
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
@@ -56,7 +56,10 @@ The navbar component.
             <TextAppearanceIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
-            <TabsMenu></TabsMenu>
+            <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
+            <input type="range" min="0" max="100" value="60" class="dy-range dy-range-xs" />
+            <input type="range" min="0" max="100" value="60" class="dy-range dy-range-xs" />
+            <!-- Theme Selction buttons-->
         </svelte:fragment>
     </Dropdown>
 {/if}
