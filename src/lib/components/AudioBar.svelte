@@ -75,8 +75,6 @@ TODO:
             a.addEventListener('ended', () => {
                 if (playing) {
                     audio.pause();
-                    audio = getAudio(nextCollection, nextBook, nextChapter);
-                    audio.play();
                 }
             });
             return a;
