@@ -90,7 +90,9 @@ The navbar component.
             options={{
                 [b]: {
                     component: listView ? SelectList : SelectGrid,
-                    props: { options: bookGridGroup({ bookLabel: listView ? 'name' : 'abbreviation' }) }
+                    props: {
+                        options: bookGridGroup({ bookLabel: listView ? 'name' : 'abbreviation' })
+                    }
                 },
                 [c]: {
                     component: SelectGrid,
