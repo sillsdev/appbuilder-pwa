@@ -11,6 +11,7 @@ const setDefaultStorage = (name, value) => {
 /** current reference */
 setDefaultStorage('refs', config.mainFeatures['start-at-reference']);
 export const refs = groupStore(referenceStore);
+export const nextRef = referenceStore;
 
 /** localization */
 export const languageDefault = config.translationMappings.defaultLang;
