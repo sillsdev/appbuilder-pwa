@@ -13,8 +13,7 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
 
-    const selectionGrid = config.mainFeatures['book-select'] === 'grid';
-    const selectionList = config.mainFeatures['book-select'] === 'list';
+    const listView = config.mainFeatures['book-select'] === 'list'; // make grid default unless using list
 
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
@@ -76,94 +75,47 @@ The navbar component.
 </script>
 
 <!-- Book Selector -->
-{#if selectionGrid}
-    <Dropdown>
-        <svelte:fragment slot="label">
-            <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
-                {config.bookCollections
-                    .find((x) => x.id === $refs.collection)
-                    .books.find((x) => x.id == $refs.book).name}
-            </div>
-            <DropdownIcon color="white" />
-        </svelte:fragment>
-        <svelte:fragment slot="content">
-            <TabsMenu
-                bind:this={bookSelector}
-                options={{
-                    [b]: {
-                        component: SelectGrid,
-                        props: { options: bookGridGroup({}) }
-                    },
-                    [c]: {
-                        component: SelectGrid,
-                        props: {
-                            options: [
-                                { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
-                            ]
-                        }
-                    },
-                    [v]: {
-                        component: SelectGrid,
-                        props: {
-                            options: [
-                                {
-                                    cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
-                                }
-                            ]
-                        }
+<Dropdown>
+    <svelte:fragment slot="label">
+        <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
+            {config.bookCollections
+                .find((x) => x.id === $refs.collection)
+                .books.find((x) => x.id == $refs.book).name}
+        </div>
+        <DropdownIcon color="white" />
+    </svelte:fragment>
+    <svelte:fragment slot="content">
+        <TabsMenu
+            bind:this={bookSelector}
+            options={{
+                [b]: {
+                    component: listView ? SelectList : SelectGrid,
+                    props: { options: bookGridGroup({}) }
+                },
+                [c]: {
+                    component: SelectGrid,
+                    props: {
+                        options: [
+                            { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
+                        ]
                     }
-                }}
-                active={b}
-                on:menuaction={navigateReference}
-            />
-        </svelte:fragment>
-    </Dropdown>
-{:else if selectionList}
-    <Dropdown>
-        <svelte:fragment slot="label">
-            <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
-                {config.bookCollections
-                    .find((x) => x.id === $refs.collection)
-                    .books.find((x) => x.id == $refs.book).name}
-            </div>
-            <DropdownIcon color="white" />
-        </svelte:fragment>
-        <svelte:fragment slot="content">
-            <TabsMenu
-                bind:this={bookSelector}
-                options={{
-                    [b]: {
-                        component: SelectList,
-                        props: { options: bookGridGroup({ bookLabel: 'name' }) }
-                    },
-                    [c]: {
-                        component: SelectGrid,
-                        props: {
-                            options: [
-                                { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
-                            ]
-                        }
-                    },
-                    [v]: {
-                        component: SelectGrid,
-                        props: {
-                            options: [
-                                {
-                                    cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
-                                }
-                            ]
-                        }
+                },
+                [v]: {
+                    component: SelectGrid,
+                    props: {
+                        options: [
+                            {
+                                cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                    label: x,
+                                    id: x
+                                }))
+                            }
+                        ]
                     }
-                }}
-                active={b}
-                on:menuaction={navigateReference}
-            />
-        </svelte:fragment>
-    </Dropdown>
-{/if}
+                }
+            }}
+            active={b}
+            on:menuaction={navigateReference}
+        />
+    </svelte:fragment>
+</Dropdown>
