@@ -202,7 +202,6 @@ TODO:
             }
         };
     })();
-
     /**skips to previous or next chapter if it exists*/
     const skip = (direction) => {
         const switchTo = direction < 0 ? $refs.prev : $refs.next;
