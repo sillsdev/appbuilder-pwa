@@ -11,6 +11,7 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+    import { clickOutside } from '$lib/scripts/click_outside';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -58,7 +59,7 @@ The navbar component.
     <Dropdown>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>
-                {$refs.chapter}
+                {nextRef.chapter}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
@@ -66,7 +67,13 @@ The navbar component.
         </svelte:fragment>
         <svelte:fragment slot="content">
             {#if canSelect}
-                <div style:background-color="white">
+                <div use:clickOutside
+                on:outclick={() => {
+                    chapterSelector.setActive(c);
+                    refs.set({ chapter: $refs.chapter }, 'next');
+                }}
+                style:background-color="white"
+            >
                     <TabsMenu
                         bind:this={chapterSelector}
                         options={{

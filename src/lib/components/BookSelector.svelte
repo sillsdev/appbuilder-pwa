@@ -12,6 +12,7 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
+    import { clickOutside } from '$lib/scripts/click_outside';
 
     const listView = config.mainFeatures['book-select'] === 'list'; // make grid default unless using list
 
@@ -32,10 +33,12 @@ The navbar component.
             case b:
                 bookSelector.setActive(c);
                 refs.set({ book: e.detail.text }, 'next');
+                // hide chapter
                 break;
             case c:
                 bookSelector.setActive(v);
                 refs.set({ chapter: e.detail.text }, 'next');
+                // show chapter
                 break;
             case v:
                 bookSelector.setActive(b);
@@ -79,45 +82,56 @@ The navbar component.
     <svelte:fragment slot="label">
         <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
             {config.bookCollections
-                .find((x) => x.id === $refs.collection)
-                .books.find((x) => x.id == $refs.book).name}
+                .find((x) => x.id === nextRef.docSet.split('_')[1])
+                .books.find((x) => x.id == nextRef.book).name}
         </div>
         <DropdownIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
-        <TabsMenu
-            bind:this={bookSelector}
-            options={{
-                [b]: {
-                    component: listView ? SelectList : SelectGrid,
-                    props: {
-                        options: bookGridGroup({ bookLabel: listView ? 'name' : 'abbreviation' })
-                    }
-                },
-                [c]: {
-                    component: SelectGrid,
-                    props: {
-                        options: [
-                            { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
-                        ]
-                    }
-                },
-                [v]: {
-                    component: SelectGrid,
-                    props: {
-                        options: [
-                            {
-                                cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
-                                    label: x,
-                                    id: x
-                                }))
-                            }
-                        ]
-                    }
-                }
+        <div
+            use:clickOutside
+            on:outclick={() => {
+                bookSelector.setActive(b);
+                refs.set({ book: $refs.book }, 'next');
             }}
-            active={b}
-            on:menuaction={navigateReference}
-        />
+            style:background-color="white"
+        >
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    [b]: {
+                        component: listView ? SelectList : SelectGrid,
+                        props: {
+                            options: bookGridGroup({
+                                bookLabel: listView ? 'name' : 'abbreviation'
+                            })
+                        }
+                    },
+                    [c]: {
+                        component: SelectGrid,
+                        props: {
+                            options: [
+                                { cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }
+                            ]
+                        }
+                    },
+                    [v]: {
+                        component: SelectGrid,
+                        props: {
+                            options: [
+                                {
+                                    cells: Object.keys(chapters[nextRef.chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
+                                }
+                            ]
+                        }
+                    }
+                }}
+                active={b}
+                on:menuaction={navigateReference}
+            />
+        </div>
     </svelte:fragment>
 </Dropdown>
