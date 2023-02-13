@@ -31,10 +31,12 @@ The navbar component.
             case c:
                 chapterSelector.setActive(v);
                 refs.set({ chapter: e.detail.text }, 'next');
+                console.log("Chapter set chapter to: ", e.detail.text);
                 break;
             case v:
                 chapterSelector.setActive(c);
-                $refs = { book: nextRef.book, chapter: nextRef.chapter };
+                $refs = { chapter: nextRef.chapter };
+                console.log("But in chapter its really", nextRef.chapter);
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;

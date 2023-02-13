@@ -33,16 +33,18 @@ The navbar component.
             case b:
                 bookSelector.setActive(c);
                 refs.set({ book: e.detail.text }, 'next');
-                // hide chapter
+                // TODO: hide chapter
                 break;
             case c:
                 bookSelector.setActive(v);
                 refs.set({ chapter: e.detail.text }, 'next');
-                // show chapter
+                console.log("Book set chapter to: ", e.detail.text);
+                // TODO: show chapter
                 break;
             case v:
                 bookSelector.setActive(b);
                 $refs = { book: nextRef.book, chapter: nextRef.chapter };
+                console.log("But in book its really", nextRef.chapter);
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
