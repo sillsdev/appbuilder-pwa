@@ -53,13 +53,18 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class={$refs.hasAudio && $audioActive ? 'smaller' : 'larger'} slot="scrolled-content">
+    <div
+        class={$refs.hasAudio && $audioActive ? 'content-with-bar' : 'content-full'}
+        slot="scrolled-content"
+    >
         <ScriptureViewSofria />
     </div>
 </ScrolledContent>
 {#if $refs.hasAudio && $audioActive}
-    <div class="audio-bar">
-        <AudioBar />
+    <div class="footer bg-base-100">
+        <div class="audio-bar">
+            <AudioBar />
+        </div>
     </div>
 {/if}
 
@@ -69,15 +74,25 @@
     }
     /*shrink to accomodate the audio bar*/
     .content-with-bar {
-        margin-block-end: 4.5rem;
+        height: calc(100vh - 10.5rem);
+        height: calc(100dvh - 10.5rem);
     }
     .content-full {
         margin-block-end: 0;
     }
     .audio-bar {
-        /* box-sizing: border-box; */
-        position: fixed;
+        height: 4rem;
+    }
+    .footer {
+        padding: 0 0 12px 0;
+        position: absolute;
         bottom: 0;
-        height: 4.5rem;
+        right: 0;
+        left: 0;
+    }
+    @media (min-width: 1024px) {
+        .footer {
+            left: 320px;
+        }
     }
 </style>

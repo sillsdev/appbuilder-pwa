@@ -8,6 +8,7 @@ TODO:
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive } from '$lib/data/stores';
+    import RepeatOffIcon from '$lib/icons/audio/RepeatOffIcon.svelte';
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -139,17 +140,19 @@ TODO:
     };
 </script>
 
-<!-- grid grid-cols-5 grid-rows-3  -->
 <div class="audio-bar bg-base-100">
     <!-- Progress Bar -->
     {#if loaded}
-        <!-- row-start-2 col-start-2 col-end-5 -->
         <progress class="dy-progress audio-progress" value={progress} max={duration} />
     {:else}
         <progress class="dy-progress audio-progress" value="0" max="1" />
     {/if}
+    <div class="dy-button-group audio-repeat">
+        <button class="dy-btn-sm dy-btn-ghost">
+            <AudioIcon.RepeatOff />
+        </button>
+    </div>
     <!-- Controls -->
-    <!-- row-start-4 col-start-3 place-self-center -->
     <div class="dy-btn-group audio-controls ">
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
             <AudioIcon.Prev />
@@ -181,22 +184,40 @@ TODO:
             <AudioIcon.Skip />
         </button>
     </div>
+    <div class="dy-button-group audio-speed">
+        <button class="dy-btn-sm dy-btn-ghost">
+            <AudioIcon.Speed />
+        </button>
+    </div>
 </div>
 
 <style>
     .audio-bar {
-        padding-block-start: 1rem;
-        padding-block-end: 0.5rem;
+        /* padding-block-start: 1rem;
+        padding-block-end: 0.5rem; */
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: auto auto;
-        grid-row-gap: 0.5rem;
+        /* grid-template-columns: repeat(5, 1fr); */
+        grid-auto-columns: 50px auto 50px;
+        grid-auto-rows: 25px 50px;
+        /* grid-row-gap: 0.5rem; */
     }
     .audio-progress {
         grid-row: 1;
-        grid-column: 2/5;
+        grid-column: 2;
+        place-self: center;
     }
+    .audio-repeat {
+        grid-row: 2;
+        grid-column: 1;
+        place-self: center;
+    }
+
     .audio-controls {
+        grid-row: 2;
+        grid-column: 2;
+        place-self: center;
+    }
+    .audio-speed {
         grid-row: 2;
         grid-column: 3;
         place-self: center;
