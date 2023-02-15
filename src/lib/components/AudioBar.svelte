@@ -66,19 +66,23 @@ TODO:
     const updateTime = () => {
         if (!loaded) return;
         progress = audio.currentTime;
-        if (progress >= timing[timeIndex].time) timeIndex++;
-        else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
-        $audioHighlight = [
-            $refs.docSet,
-            $refs.book,
-            $refs.chapter,
-            timing[timeIndex].tag.match(/[0-9]+/) ? timing[timeIndex].tag.match(/[0-9]+/) : 'title',
-            timing[timeIndex].tag.match(/[0-9]+/)
-                ? timing[timeIndex].tag.match(/[a-z]/i)
+        if (timing) {
+            if (progress >= timing[timeIndex].time) timeIndex++;
+            else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
+            $audioHighlight = [
+                $refs.docSet,
+                $refs.book,
+                $refs.chapter,
+                timing[timeIndex].tag.match(/[0-9]+/)
+                    ? timing[timeIndex].tag.match(/[0-9]+/)
+                    : 'title',
+                timing[timeIndex].tag.match(/[0-9]+/)
                     ? timing[timeIndex].tag.match(/[a-z]/i)
+                        ? timing[timeIndex].tag.match(/[a-z]/i)
+                        : 'none'
                     : 'none'
-                : 'none'
-        ].join();
+            ].join();
+        }
         if (audio.ended) toggleTimeRunning();
     };
     /**sets an interval for updateTime*/
@@ -154,7 +158,7 @@ TODO:
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
-    $: audioBarClass = $audioActive.timingFile ? 'audio-bar-progress' : 'audio-bar';
+    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
 </script>
 
 <div class={audioBarClass} style:background-color={backgroundColor}>
