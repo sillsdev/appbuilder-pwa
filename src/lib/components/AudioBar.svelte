@@ -7,8 +7,9 @@ TODO:
 -->
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs, audioHighlight, audioActive } from '$lib/data/stores';
-    import RepeatOffIcon from '$lib/icons/audio/RepeatOffIcon.svelte';
+    import { refs, audioHighlight, audioActive, s } from '$lib/data/stores';
+    import config from '$lib/data/config';
+
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -138,24 +139,36 @@ TODO:
             playAfterSkip = true && playing;
         }
     };
+
+    function format(seconds) {
+        if (isNaN(seconds)) return '...';
+
+        const minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        if (seconds < 10) seconds = '0' + seconds;
+
+        return `${minutes}:${seconds}`;
+    }
+
+    const showSpeed = config.mainFeatures['settings-audio-speed'];
+    const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
+    $: iconColor = $s['ui.bar.audio.icon']['color'];
+    $: backgroundColor = $s['ui.bar.audio']['background-color'];
+    $: audioBarClass = $audioActive.timingFile ? 'audio-bar-progress' : 'audio-bar';
 </script>
 
-<div class="audio-bar bg-base-100">
-    <!-- Progress Bar -->
-    {#if loaded}
-        <progress class="dy-progress audio-progress" value={progress} max={duration} />
-    {:else}
-        <progress class="dy-progress audio-progress" value="0" max="1" />
-    {/if}
+<div class={audioBarClass} style:background-color={backgroundColor}>
     <div class="dy-button-group audio-repeat">
-        <button class="dy-btn-sm dy-btn-ghost">
-            <AudioIcon.RepeatOff />
-        </button>
+        {#if showRepeatMode}
+            <button class="dy-btn-sm dy-btn-ghost">
+                <AudioIcon.RepeatOff color={iconColor} />
+            </button>
+        {/if}
     </div>
-    <!-- Controls -->
+    <!-- Play Controls -->
     <div class="dy-btn-group audio-controls ">
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
-            <AudioIcon.Prev />
+            <AudioIcon.Prev color={iconColor} />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
@@ -163,13 +176,13 @@ TODO:
             on:pointerup={() => seek(0)}
             on:pointercancel={() => seek(0)}
         >
-            <AudioIcon.RW />
+            <AudioIcon.RW color={iconColor} />
         </button>
         <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
             {#if !playing}
-                <AudioIcon.Play />
+                <AudioIcon.Play color={iconColor} />
             {:else}
-                <AudioIcon.Pause />
+                <AudioIcon.Pause color={iconColor} />
             {/if}
         </button>
         <button
@@ -178,47 +191,70 @@ TODO:
             on:pointerup={() => seek(0)}
             on:pointercancel={() => seek(0)}
         >
-            <AudioIcon.FF />
+            <AudioIcon.FF color={iconColor} />
         </button>
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(1)}>
-            <AudioIcon.Skip />
+            <AudioIcon.Skip color={iconColor} />
         </button>
     </div>
     <div class="dy-button-group audio-speed">
-        <button class="dy-btn-sm dy-btn-ghost">
-            <AudioIcon.Speed />
-        </button>
+        {#if showSpeed}
+            <button class="dy-btn-sm dy-btn-ghost">
+                <AudioIcon.Speed color={iconColor} />
+            </button>
+        {/if}
     </div>
+    {#if !$refs.hasAudio.timingFile}
+        <!-- Progress Bar -->
+        <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
+        {#if loaded}
+            <progress class="dy-progress audio-progress" value={progress} max={duration} />
+        {:else}
+            <progress class="dy-progress audio-progress" value="0" max="1" />
+        {/if}
+        <div class="audio-progress-duration">{duration ? format(duration) : ''}</div>
+    {/if}
 </div>
 
 <style>
     .audio-bar {
-        /* padding-block-start: 1rem;
-        padding-block-end: 0.5rem; */
         display: grid;
-        /* grid-template-columns: repeat(5, 1fr); */
         grid-auto-columns: 50px auto 50px;
-        grid-auto-rows: 25px 50px;
-        /* grid-row-gap: 0.5rem; */
+        grid-auto-rows: 50px;
+    }
+    .audio-bar-progress {
+        display: grid;
+        grid-auto-columns: 50px auto 50px;
+        grid-auto-rows: 50px 50px;
+    }
+    .audio-progress-value {
+        grid-row: 2;
+        grid-column: 1;
+        place-self: center;
+    }
+    .audio-progress-duration {
+        grid-row: 2;
+        grid-column: 3;
+        place-self: center;
     }
     .audio-progress {
-        grid-row: 1;
+        grid-row: 2;
         grid-column: 2;
         place-self: center;
     }
     .audio-repeat {
-        grid-row: 2;
+        grid-row: 1;
         grid-column: 1;
         place-self: center;
     }
 
     .audio-controls {
-        grid-row: 2;
+        grid-row: 1;
         grid-column: 2;
         place-self: center;
     }
     .audio-speed {
-        grid-row: 2;
+        grid-row: 1;
         grid-column: 3;
         place-self: center;
     }
