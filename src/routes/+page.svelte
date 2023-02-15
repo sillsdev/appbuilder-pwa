@@ -31,17 +31,15 @@
         <div slot="right-buttons">
             {#if $refs.hasAudio}
                 <!-- Mute/Volume Button -->
-                <button class="dy-btn dy-btn-ghost dy-btn-circle">
-                    <label class="dy-swap">
-                        <!-- this hidden checkbox controls the state -->
-                        <input type="checkbox" bind:checked={$audioActive} />
-
-                        <!-- volume on icon -->
-                        <AudioIcon.Volume _class="dy-swap-on" color="white" />
-
-                        <!-- volume off icon -->
-                        <AudioIcon.Mute _class="dy-swap-off" color="white" />
-                    </label>
+                <button
+                    class="dy-btn dy-btn-ghost dy-btn-circle"
+                    on:click={() => ($audioActive = !$audioActive)}
+                >
+                    {#if $audioActive}
+                        <AudioIcon.Volume color="white" />
+                    {:else}
+                        <AudioIcon.Mute color="white" />
+                    {/if}
                 </button>
             {/if}
             {#if showSearch}
