@@ -26,6 +26,7 @@ export const t = derived(language, $language => {
     }, {})
 });
 
+
 //** themes */
 export const themes = config.themes.filter(x => x.enabled).reduce((themeNames, theme) => {
     themeNames.push(theme.name);
