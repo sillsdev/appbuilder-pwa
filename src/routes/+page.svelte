@@ -79,8 +79,8 @@
     }
     /*shrink to accomodate the audio bar*/
     .content-with-bar-progress {
-        height: calc(100vh - 11.5rem);
-        height: calc(100dvh - 11.5rem);
+        height: calc(100vh - 10rem);
+        height: calc(100dvh - 10rem);
     }
     .content-with-bar {
         height: calc(100vh - 8rem);
@@ -100,7 +100,7 @@
         left: 0;
     }
     .footer-progress {
-        padding: 0 0 5.5rem 0;
+        padding: 0 0 4rem 0;
         position: absolute;
         bottom: 0;
         right: 0;

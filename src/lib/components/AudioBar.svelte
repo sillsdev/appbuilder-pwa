@@ -174,14 +174,17 @@ TODO:
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
             <AudioIcon.Prev color={iconColor} />
         </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            on:pointerdown={() => seek(-1)}
-            on:pointerup={() => seek(0)}
-            on:pointercancel={() => seek(0)}
-        >
-            <AudioIcon.RW color={iconColor} />
-        </button>
+
+        {#if $refs.hasAudio?.timingFile}
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:pointerdown={() => seek(-1)}
+                on:pointerup={() => seek(0)}
+                on:pointercancel={() => seek(0)}
+            >
+                <AudioIcon.RW color={iconColor} />
+            </button>
+        {/if}
         <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
             {#if !playing}
                 <AudioIcon.Play color={iconColor} />
@@ -189,14 +192,16 @@ TODO:
                 <AudioIcon.Pause color={iconColor} />
             {/if}
         </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            on:pointerdown={() => seek(4)}
-            on:pointerup={() => seek(0)}
-            on:pointercancel={() => seek(0)}
-        >
-            <AudioIcon.FF color={iconColor} />
-        </button>
+        {#if $refs.hasAudio?.timingFile}
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:pointerdown={() => seek(4)}
+                on:pointerup={() => seek(0)}
+                on:pointercancel={() => seek(0)}
+            >
+                <AudioIcon.FF color={iconColor} />
+            </button>
+        {/if}
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(1)}>
             <AudioIcon.Skip color={iconColor} />
         </button>
@@ -229,7 +234,7 @@ TODO:
     .audio-bar-progress {
         display: grid;
         grid-auto-columns: 50px auto 50px;
-        grid-auto-rows: 50px 50px;
+        grid-auto-rows: 50px 30px;
     }
     .audio-progress-value {
         grid-row: 2;
