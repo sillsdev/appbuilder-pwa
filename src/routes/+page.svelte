@@ -13,6 +13,7 @@
 
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
+    const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: barClass =
         $refs.hasAudio && $audioActive
             ? $refs.hasAudio.timingFile
@@ -29,7 +30,7 @@
             <ChapterSelector />
         </div>
         <div slot="right-buttons">
-            {#if $refs.hasAudio}
+            {#if $refs.hasAudio && showAudio}
                 <!-- Mute/Volume Button -->
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
