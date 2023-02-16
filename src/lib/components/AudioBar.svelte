@@ -7,7 +7,7 @@ TODO:
 -->
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs, audioHighlight, audioActive, s } from '$lib/data/stores';
+    import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
     import config from '$lib/data/config';
 
     let duration = NaN;
@@ -154,10 +154,25 @@ TODO:
         return `${minutes}:${seconds}`;
     }
 
+    function mayResetPlayMode(hasTiming) {
+        // If the current mode is repeatSelection and the reference is changed to something without timing
+        // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
+        if (!hasTiming && $playMode === 'repeatSelection') {
+            playMode.reset();
+        }
+    }
+
     const playIconOptons = {
         arrow: AudioIcon.Play,
         'filled-circle': AudioIcon.PlayFillCircle,
         'outline-circle': AudioIcon.PlayOutlineCircle
+    };
+
+    const playModeIconOptions = {
+        continue: AudioIcon.RepeatOff,
+        stop: AudioIcon.RepeatOffStop,
+        repeatPage: AudioIcon.Repeat,
+        repeatSelection: AudioIcon.RepeatOne
     };
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
@@ -167,13 +182,22 @@ TODO:
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
+    $: mayResetPlayMode($refs.hasAudio?.timing);
 </script>
 
+{(console.log(`PLAYMODE: ${$playMode}`), '')}
 <div class={audioBarClass} style:background-color={backgroundColor}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
-            <button class="dy-btn-sm dy-btn-ghost">
-                <AudioIcon.RepeatOff color={iconColor} />
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:click={() => {
+                    console.log(`PLAYMODE: ${$playMode}, timing=${$refs.hasAudio?.timingFile}`);
+                    playMode.next($refs.hasAudio?.timingFile);
+                    console.log(`PLAYMODE CHANGED: ${playMode}`);
+                }}
+            >
+                <svelte:component this={playModeIconOptions[$playMode]} color={iconColor} />
             </button>
         {/if}
     </div>
