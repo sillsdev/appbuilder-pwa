@@ -14,13 +14,13 @@
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
-    $: barClass =
+    $: contentClass =
         $refs.hasAudio && $audioActive
             ? $refs.hasAudio.timingFile
                 ? 'content-with-bar'
                 : 'content-with-bar-progress'
             : '';
-    $: footerClass = $refs.hasAudio?.timingFile ? 'footer' : 'footer-progress';
+    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
 </script>
 
 <div class="navbar">
@@ -59,14 +59,14 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class={barClass} slot="scrolled-content">
+    <div class={contentClass} slot="scrolled-content">
         <ScriptureViewSofria />
     </div>
 </ScrolledContent>
 {(console.log('HasAudio', $refs.hasAudio), '')}
 {#if $refs.hasAudio && $audioActive}
-    <div class={footerClass}>
-        <div class="audio-bar">
+    <div class="footer">
+        <div class={audioBarClass}>
             <AudioBar />
         </div>
     </div>
@@ -82,24 +82,17 @@
         height: calc(100dvh - 10rem);
     }
     .content-with-bar {
-        height: calc(100vh - 8rem);
-        height: calc(100dvh - 8rem);
+        height: calc(100vh - 9rem);
+        height: calc(100dvh - 9rem);
     }
     .audio-bar-with-progress {
-        height: 4rem;
+        height: 5rem;
     }
     .audio-bar {
-        height: 1rem;
+        height: 4rem;
     }
     .footer {
-        padding: 0 0 2.1rem 0;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        left: 0;
-    }
-    .footer-progress {
-        padding: 0 0 4rem 0;
+        padding: 0 0 0 0;
         position: absolute;
         bottom: 0;
         right: 0;

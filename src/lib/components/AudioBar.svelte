@@ -154,8 +154,16 @@ TODO:
         return `${minutes}:${seconds}`;
     }
 
+    const playIconOptons = {
+        arrow: AudioIcon.Play,
+        'filled-circle': AudioIcon.PlayFillCircle,
+        'outline-circle': AudioIcon.PlayOutlineCircle
+    };
+
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
+    const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
+    const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
@@ -170,7 +178,7 @@ TODO:
         {/if}
     </div>
     <!-- Play Controls -->
-    <div class="dy-btn-group audio-controls ">
+    <div class="dy-btn-group audio-controls">
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
             <AudioIcon.Prev color={iconColor} />
         </button>
@@ -185,11 +193,15 @@ TODO:
                 <AudioIcon.RW color={iconColor} />
             </button>
         {/if}
-        <button class="dy-btn-sm dy-btn-ghost" on:click={playPause}>
+        <button
+            class="dy-btn-sm dy-btn-ghost"
+            class:dy-btn-lg={config.mainFeatures['audio-play-button-size'] === 'large'}
+            on:click={playPause}
+        >
             {#if !playing}
-                <AudioIcon.Play color={iconColor} />
+                <svelte:component this={playIcon} color={iconColor} size={playIconSize} />
             {:else}
-                <AudioIcon.Pause color={iconColor} />
+                <AudioIcon.Pause color={iconColor} size={playIconSize} />
             {/if}
         </button>
         {#if $refs.hasAudio?.timingFile}
@@ -228,13 +240,13 @@ TODO:
 <style>
     .audio-bar {
         display: grid;
-        grid-auto-columns: 50px auto 50px;
-        grid-auto-rows: 50px;
+        grid-auto-columns: 3.125rem auto 3.125rem;
+        grid-auto-rows: 4rem;
     }
     .audio-bar-progress {
         display: grid;
-        grid-auto-columns: 50px auto 50px;
-        grid-auto-rows: 50px 30px;
+        grid-auto-columns: 3.125rem auto 3.125rem;
+        grid-auto-rows: 3.125rem 1.875rem;
     }
     .audio-progress-value {
         grid-row: 2;
@@ -261,6 +273,7 @@ TODO:
         grid-row: 1;
         grid-column: 2;
         place-self: center;
+        align-items: center;
     }
     .audio-speed {
         grid-row: 1;
