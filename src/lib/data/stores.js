@@ -90,7 +90,7 @@ export const scrolls = groupStore(writable, 'title');
 export const viewMode = writable('Single Pane');
 /**is audio active in the app*/
 setDefaultStorage('audioActive', config.mainFeatures['audio-turn-on-at-startup']);
-export const audioActive = writable(localStorage.audioActive === 'false');
+export const audioActive = writable(localStorage.audioActive === 'true');
 audioActive.subscribe(value => localStorage.audioActive = value);
 /**which element should be highlighted as the audio is playing*/
 export const audioHighlight = (() => {
