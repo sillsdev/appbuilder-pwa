@@ -185,17 +185,12 @@ TODO:
     $: mayResetPlayMode($refs.hasAudio?.timing);
 </script>
 
-{(console.log(`PLAYMODE: ${$playMode}`), '')}
 <div class={audioBarClass} style:background-color={backgroundColor}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
             <button
                 class="dy-btn-sm dy-btn-ghost"
-                on:click={() => {
-                    console.log(`PLAYMODE: ${$playMode}, timing=${$refs.hasAudio?.timingFile}`);
-                    playMode.next($refs.hasAudio?.timingFile);
-                    console.log(`PLAYMODE CHANGED: ${playMode}`);
-                }}
+                on:click={() => playMode.next($refs.hasAudio?.timingFile)}
             >
                 <svelte:component this={playModeIconOptions[$playMode]} color={iconColor} />
             </button>

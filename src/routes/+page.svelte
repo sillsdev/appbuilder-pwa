@@ -63,7 +63,6 @@
         <ScriptureViewSofria />
     </div>
 </ScrolledContent>
-{(console.log('HasAudio', $refs.hasAudio), '')}
 {#if $refs.hasAudio && $audioActive}
     <div class="footer">
         <div class={audioBarClass}>
