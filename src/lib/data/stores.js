@@ -193,3 +193,25 @@ function createSelectedVerses()  {
     }
 }
 export const selectedVerses  = createSelectedVerses();
+
+function createPlayMode() {
+    const external = writable(config.mainFeatures['audio-goto-next-chapter'] ? 'continue' : 'stop');
+    return {
+        subscribe: external.subscribe,
+        next: (hasTiming) => {
+            const cur = get(external);
+            let next = cur;
+            switch (cur) {
+                case 'continue': next = 'stop'; break;
+                case 'stop': next = 'repeatPage'; break;
+                case 'repeatPage': next = hasTiming ? 'repeatSelection' : 'continue'; break;
+                case 'repeatSelection': next = 'continue'; break;
+            }
+            external.set(next);
+        },
+        reset: () => {
+            external.set('continue');
+        }
+    }
+}
+export const playMode = createPlayMode();
