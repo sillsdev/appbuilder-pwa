@@ -9,8 +9,12 @@ const setDefaultStorage = (name, value) => {
 }
 
 /** current reference */
-setDefaultStorage('refs', config.mainFeatures['start-at-reference']);
-export const refs = groupStore(referenceStore);
+const initReference = config.bookCollections[0].languageCode + "_" + config.bookCollections[0].id + "." + config.mainFeatures['start-at-reference']
+setDefaultStorage('refs', initReference);
+export const refs = groupStore(referenceStore, localStorage.refs);
+refs.subscribe((value) => {
+    localStorage.refs = value.docSet + "." + value.book + "." + value.chapter;
+});
 
 /** localization */
 export const languageDefault = config.translationMappings.defaultLang;
