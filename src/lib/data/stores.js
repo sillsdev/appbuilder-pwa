@@ -200,12 +200,14 @@ function createPlayMode() {
         subscribe: external.subscribe,
         next: (hasTiming) => {
             const cur = get(external);
+            let next = cur;
             switch (cur) {
-                case 'continue': external.set('stop'); break;
-                case 'stop': external.set('repeatPage'); break;
-                case 'repeatPage': external.set(hasTiming ? 'repeatSelection' : 'continue'); break;
-                case 'repeatSelection': external.set('continue'); break;
+                case 'continue': next = 'stop'; break;
+                case 'stop': next = 'repeatPage'; break;
+                case 'repeatPage': next = hasTiming ? 'repeatSelection' : 'continue'; break;
+                case 'repeatSelection': next = 'continue'; break;
             }
+            external.set(next);
         },
         reset: () => {
             external.set('continue');
