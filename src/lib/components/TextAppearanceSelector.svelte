@@ -51,6 +51,7 @@ The navbar component.
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
+<div class="dy-dropdown dy-dropdown-end">
     <Dropdown>
         <svelte:fragment slot="label">
             <TextAppearanceIcon color="white" />
@@ -62,4 +63,5 @@ The navbar component.
             <!-- Theme Selction buttons-->
         </svelte:fragment>
     </Dropdown>
+</div>
 {/if}
