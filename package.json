@@ -46,13 +46,13 @@
         "svelte": "^3",
         "svelte-check": "^3",
         "svelte-eslint-parser": "^0.16.3",
+        "svelte-gestures": "^1.4.1",
         "svelte-preprocess": "^4.10.6",
         "tailwindcss": "^3.0.24",
         "ts-node": "^10.8.1",
         "typescript": "^4",
         "vite": "^4"
     },
-    "dependencies": {},
     "volta": {
         "node": "16.17.0"
     }
