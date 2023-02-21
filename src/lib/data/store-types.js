@@ -161,11 +161,14 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
         subs[key].forEach((sub) => sub(vals[key], mods[key]));
     };
 
-    const skip = (val, key = 'default', mod = undefined) => {
-        stores[key].skip(val);
-        mods[key] = mod;
-        subs[key].forEach((sub) => sub(vals[key], mods[key]));
-    }
+    const extras = Object.fromEntries(Object.entries(stores["default"]).filter((kv) => kv[0] !== "subscribe" && kv[0] !== "set" && typeof(kv[1]) === 'function').map((kv) => [
+        kv[0], 
+        (val, key = 'default', mod = undefined) => {
+            stores[key][kv[0]](val);
+            mods[key] = mod;
+            subs[key].forEach((sub) => sub(vals[key], mods[key]));
+        }
+    ]));
 
-    return { subscribe, set, skip };
+    return {subscribe, set, ...extras};
 };
