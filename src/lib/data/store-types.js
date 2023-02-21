@@ -107,10 +107,7 @@ export const referenceStore = (initReference) => {
 
     const skip = ((direction) => {
         const ref = get(external);
-        console.log("PREV:", ref.prev);
-        console.log("NEXT:", ref.next);
         const switchTo = direction < 0 ? ref.prev : ref.next;
-        console.log(`SKIP: direction=${direction}, switchTo=`,switchTo);
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
             setInternal({book: switchTo.book, chapter: switchTo.chapter});
