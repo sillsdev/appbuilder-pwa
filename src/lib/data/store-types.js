@@ -104,7 +104,18 @@ export const referenceStore = (initReference) => {
             return { book: prevBook, chapter: prevChapter };
         })()
     }));
-    return { subscribe: external.subscribe, set: setInternal };
+
+    const skip = ((direction) => {
+        const ref = get(external);
+        const switchTo = direction < 0 ? ref.prev : ref.next;
+        // if the chapter exists, the book will too, so only need to check chapter
+        if (switchTo.chapter) {
+            setInternal({book: switchTo.book, chapter: switchTo.chapter});
+            return true;
+        }
+        return false;
+    });
+    return { subscribe: external.subscribe, set: setInternal, skip };
 };
 
 /**
@@ -147,5 +158,14 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
         subs[key].forEach((sub) => sub(vals[key], mods[key]));
     };
 
-    return { subscribe, set };
+    const extras = Object.fromEntries(Object.entries(stores["default"]).filter((kv) => kv[0] !== "subscribe" && kv[0] !== "set" && typeof(kv[1]) === 'function').map((kv) => [
+        kv[0], 
+        (val, key = 'default', mod = undefined) => {
+            stores[key][kv[0]](val);
+            mods[key] = mod;
+            subs[key].forEach((sub) => sub(vals[key], mods[key]));
+        }
+    ]));
+
+    return {subscribe, set, ...extras};
 };
