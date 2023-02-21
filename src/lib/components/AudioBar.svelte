@@ -135,11 +135,7 @@ TODO:
     })();
     /**skips to previous or next chapter if it exists*/
     const skip = (direction) => {
-        const switchTo = direction < 0 ? $refs.prev : $refs.next;
-        // if the chapter exists, the book will too, so only need to check chapter
-        if (switchTo.chapter) {
-            $refs = { book: switchTo.book, chapter: switchTo.chapter };
-            refs.set({ book: switchTo.book, chapter: switchTo.chapter }, 'next');
+        if (refs.skip(direction)) {
             playAfterSkip = true && playing;
         }
     };
