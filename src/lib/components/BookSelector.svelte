@@ -13,13 +13,13 @@ The navbar component.
     import SelectList from './SelectList.svelte';
     import { clickOutside } from '$lib/scripts/click_outside';
 
-    $: console.log("Next reference:", $nextRef);
+    $: console.log('Next reference:', $nextRef);
 
-    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab? 
-    $: book = $nextRef.book === "" ? $refs.book : $nextRef.book;
-    $: chapter = $nextRef.chapter === "" ? $refs.chapter : $nextRef.chapter;
+    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
+    $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
+    $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
 
-    const listView = config.mainFeatures['book-select'] === 'list'; 
+    const listView = config.mainFeatures['book-select'] === 'list';
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -28,9 +28,9 @@ The navbar component.
 
     let bookSelector;
     $: label = config.bookCollections
-                .find((x) => x.id === $refs.docSet.split('_')[1])
-                .books.find((x) => x.id == book).name;
- 
+        .find((x) => x.id === $refs.docSet.split('_')[1])
+        .books.find((x) => x.id == book).name;
+
     /**
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */

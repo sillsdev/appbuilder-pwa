@@ -15,9 +15,9 @@ The navbar component.
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
-    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab? 
-    $: book = $nextRef.book === "" ? $refs.book : $nextRef.book;
-    $: chapter = $nextRef.chapter === "" ? $refs.chapter : $nextRef.chapter;
+    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
+    $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
+    $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -33,7 +33,7 @@ The navbar component.
                 break;
             case v:
                 chapterSelector.setActive(c);
-                $refs.chapter=chapter;
+                $refs.chapter = chapter;
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -65,12 +65,13 @@ The navbar component.
         <svelte:fragment slot="content">
             {#if canSelect}
                 <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
-                <div use:clickOutside
-                on:outclick={() => {
-                    chapterSelector.setActive(c);
-                }}
-                style:background-color="white"
-            >
+                <div
+                    use:clickOutside
+                    on:outclick={() => {
+                        chapterSelector.setActive(c);
+                    }}
+                    style:background-color="white"
+                >
                     <TabsMenu
                         bind:this={chapterSelector}
                         options={{
@@ -92,12 +93,10 @@ The navbar component.
                                 props: {
                                     options: [
                                         {
-                                            cells: Object.keys(chapters[chapter]).map(
-                                                (x) => ({
-                                                    label: x,
-                                                    id: x
-                                                })
-                                            )
+                                            cells: Object.keys(chapters[chapter]).map((x) => ({
+                                                label: x,
+                                                id: x
+                                            }))
                                         }
                                     ]
                                 }
