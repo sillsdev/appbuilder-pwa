@@ -18,8 +18,7 @@
             target: EventTarget;
         }>
     ) {
-        // @ts-ignore
-        refs.skip(event.detail.direction === 'right' ? -1 : 1);
+        (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
 
     const showSearch = config.mainFeatures['search'];
