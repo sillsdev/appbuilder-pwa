@@ -49,7 +49,7 @@ export const themeColors = derived(theme, $theme => {
 export const themeBookColors = derived(theme, $theme => {
     const theme = config.themes.find(x => x.name == $theme);
     const colorSet = theme.colorSets.find(x => x.type === 'books');
-    return colorSet.colors;    
+    return colorSet.colors;
 })
 
 const resolveColor = (colorValue, colors) => {
@@ -57,7 +57,7 @@ const resolveColor = (colorValue, colors) => {
         return colorValue;
     } else if (colors[colorValue]) {
         return colors[colorValue];
-    } 
+    }
 
     // color not in colors map (e.g. 'white' )
     return colorValue;
@@ -65,22 +65,22 @@ const resolveColor = (colorValue, colors) => {
 
 // Convert style to string format for inline styling 
 export const convertStyle = (style) => {
-  let result = "";
-  for(const x in style){
-    result += `${x}:${style[x]};`
-  }
-  return result;
+    let result = "";
+    for (const x in style) {
+        result += `${x}:${style[x]};`
+    }
+    return result;
 }
 
 export const s = derived(themeColors, $themeColors => {
     return config.styles.reduce((styleProperties, style) => {
         const properties = style.properties;
-        let newProperties = {...properties};
+        let newProperties = { ...properties };
         if (newProperties.hasOwnProperty('background-color')) {
-            newProperties['background-color'] = resolveColor(newProperties['background-color'],$themeColors);
+            newProperties['background-color'] = resolveColor(newProperties['background-color'], $themeColors);
         }
         if (newProperties.hasOwnProperty('color')) {
-            newProperties['color'] = resolveColor(newProperties['color'],$themeColors);
+            newProperties['color'] = resolveColor(newProperties['color'], $themeColors);
         }
         styleProperties[style.name] = newProperties;
         return styleProperties;
@@ -110,11 +110,25 @@ export const audioHighlight = (() => {
     return { subscribe: external.subscribe, set: external.set };
 })();
 /**scrollTop of main window*/
-export const mainScroll = writable({ top: 0, height: 0});
+export const mainScroll = writable({ top: 0, height: 0 });
 /**Font size of body elements */
 export const bodyFontSize = writable('17');
 /**line height of body elements */
 export const bodyLineHeight = writable('175');
+/* list of bookmarks */
+export const bookmarks = writable([{
+    id: '1',
+    reference: 'John 1:5',
+    text: "The light shines in the darkness and the darkness hasn't overcome it.",
+    date: '22 May 2022',
+    actions: ['View', 'Share', 'Delete']
+},]);
+
+bookmarks.subscribe(value => {
+    localStorage.bookmarks = JSON.stringify(value);
+    console.log(value);
+});
+
 /**list of selected verses */
 function findIndex(id) {
     let references = get(selectedVerses);
@@ -126,18 +140,19 @@ function findIndex(id) {
     }
     return -1;
 }
-function createSelectedVerses()  {
+
+function createSelectedVerses() {
     const external = writable([]);
-    
+
     return {
         subscribe: external.subscribe,
         addVerse: (id) => {
             const currentRefs = get(refs);
             const reference = {
-               docSet: currentRefs.docSet,
-               book: currentRefs.book,
-               chapter: currentRefs.chapter,
-               verse: id
+                docSet: currentRefs.docSet,
+                book: currentRefs.book,
+                chapter: currentRefs.chapter,
+                verse: id
             }
             let references = get(external);
             references.push(reference);
@@ -175,7 +190,7 @@ function createSelectedVerses()  {
                     first = Number(references[i].verse)
                 }
             }
-            return(index);
+            return (index);
         },
         getVerseByIndex: (i) => {
             let references = get(external);
@@ -183,20 +198,20 @@ function createSelectedVerses()  {
             console.log("Index: %o", index);
             if (index > -1 && index < references.length) {
                 console.log("Return");
-                return(references[index])
+                return (references[index])
             } else {
                 const reference = {
                     docSet: "",
                     book: "",
                     chapter: "",
                     verse: ""
-                 }
-                return(reference)
+                }
+                return (reference)
             }
         }
     }
 }
-export const selectedVerses  = createSelectedVerses();
+export const selectedVerses = createSelectedVerses();
 
 function createPlayMode() {
     const external = writable(config.mainFeatures['audio-goto-next-chapter'] ? 'continue' : 'stop');

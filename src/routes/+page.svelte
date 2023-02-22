@@ -4,13 +4,14 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, selectedVerses } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
+    import OnTextSelectionToolbar from '$lib/components/OnTextSelectionToolbar.svelte';
 
     function doSwipe(
         event: CustomEvent<{
@@ -78,7 +79,11 @@
         <ScriptureViewSofria />
     </div>
 </ScrolledContent>
-{#if $refs.hasAudio && $audioActive}
+{#if $selectedVerses.length > 0}
+    <div class="footer">
+        <OnTextSelectionToolbar />
+    </div>
+{:else if $refs.hasAudio && $audioActive}
     <div class="footer">
         <div class={audioBarClass}>
             <AudioBar />
