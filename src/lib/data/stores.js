@@ -63,6 +63,7 @@ export const themeBookColors = derived(theme, $theme => {
     const theme = config.themes.find(x => x.name == $theme);
     const colorSet = theme.colorSets.find(x => x.type === 'books');
     return colorSet.colors;
+    return colorSet.colors;
 })
 
 const resolveColor = (colorValue, colors) => {
@@ -167,7 +168,19 @@ function createSelectedVerses() {
 
     return {
         subscribe: external.subscribe,
-        addVerse: (id, text) => {
+        addVerse: (id) => {
+            const currentRefs = get(refs);
+            const reference = {
+                docSet: currentRefs.docSet,
+                book: currentRefs.book,
+                chapter: currentRefs.chapter,
+                verse: id
+            }
+            let references = get(external);
+            references.push(reference);
+            external.set(references);
+        },
+        removeVerse: (id) => {
             const currentRefs = get(refs);
             const reference = {
                 docSet: currentRefs.docSet,
