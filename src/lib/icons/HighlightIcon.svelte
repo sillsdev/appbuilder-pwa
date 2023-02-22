@@ -1,5 +1,5 @@
 <script lang="ts">
-    // Highlight from https://fonts.google.com/icons
+    // Border Color from https://fonts.google.com/icons
     // Filled = 1
     // Weight = 400
     // Grade = 0
@@ -9,6 +9,6 @@
 
 <svg fill={color} xmlns="http://www.w3.org/2000/svg" height="24" width="24"
     ><path
-        d="M2 24v-4h20v4Zm1.5-6 3.15-3.15-.05-.05q-.6-.6-.6-1.4 0-.8.6-1.4l4.275-4.275 5.4 5.4L12 17.4q-.6.6-1.4.6-.8 0-1.4-.6l-.05-.05-.65.65Zm14.2-6.3-5.4-5.4L16 2.6q.6-.6 1.4-.6.8 0 1.4.6l2.6 2.6q.6.6.6 1.4 0 .8-.6 1.4Z"
+        d="M2 24v-4h20v4Zm2-6v-3.75l9.05-9.05 3.75 3.75L7.75 18ZM17.925 7.85l-3.75-3.75 1.8-1.8q.275-.3.7-.288.425.013.7.288l2.35 2.35q.275.275.275.688 0 .412-.275.712Z"
     /></svg
 >
