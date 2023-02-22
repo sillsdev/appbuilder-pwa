@@ -86,7 +86,7 @@ TODO:
     $: handleScroll([$mainScroll, $refs]);
 
     /**updates highlight*/
-    const updateHighlight = (h: string) => {
+    const updateHighlight = (h: string, color: string) => {
         const a = h.split(',');
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         let node = el?.getAttributeNode('style');
@@ -95,7 +95,7 @@ TODO:
         if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
-        el?.setAttribute('style', 'background-color: ' + highlightColor + ';');
+        el?.setAttribute('style', 'background-color: ' + color + ';');
         el?.classList.add('highlighting');
         if (
             `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
@@ -103,7 +103,7 @@ TODO:
         )
             el?.scrollIntoView();
     };
-    $: updateHighlight($audioHighlight);
+    $: updateHighlight($audioHighlight, highlightColor);
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
         let result = 0;

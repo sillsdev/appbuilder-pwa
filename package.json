@@ -7,7 +7,7 @@
         "build": "ts-node scripts/index.ts && vite build",
         "buildExamples": "ts-node scripts/index.ts --examples && vite build",
         "package": "vite package",
-        "preview": "vite preview",
+        "preview": "vite preview --host",
         "check": "svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
         "lint": "prettier --check --plugin-search-dir=. . && eslint .",
@@ -39,20 +39,20 @@
         "postcss": "^8.4.14",
         "prettier": "^2.5.1",
         "prettier-plugin-svelte": "^2.5.0",
-        "proskomma-core": "^0.9.14",
+        "proskomma-core": "0.9.14",
         "proskomma-json-tools": "^0.5.7",
         "proskomma-tools": "^0.0.5",
         "rimraf": "^4",
         "svelte": "^3",
         "svelte-check": "^3",
         "svelte-eslint-parser": "^0.16.3",
+        "svelte-gestures": "^1.4.1",
         "svelte-preprocess": "^4.10.6",
         "tailwindcss": "^3.0.24",
         "ts-node": "^10.8.1",
         "typescript": "^4",
         "vite": "^4"
     },
-    "dependencies": {},
     "volta": {
         "node": "16.17.0"
     }

@@ -4,3 +4,12 @@
 
 @layer base {
 }
+
+/* https://github.com/saadeghi/daisyui/issues/1450 */
+/* When tapping on the appbar buttons, the hover state sticks sometimes */
+@media (hover: none) {
+    .btn.btn-outline:hover {
+        background-color: transparent;
+        color: inherit;
+    }
+}

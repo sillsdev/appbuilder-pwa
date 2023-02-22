@@ -19,6 +19,7 @@ import SinglePaneIcon from './SinglePaneIcon.svelte';
 import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import VerseByVerseIcon from './VerseByVerseIcon.svelte';
 import { AudioIcon } from './audio';
+import { ImageIcon } from './image';
 import LoadingIcon from './LoadingIcon.svelte';
 
 export {
@@ -32,6 +33,7 @@ export {
     HamburgerIcon,
     HighlightIcon,
     HistoryIcon,
+    ImageIcon,
     LaunchIcon,
     MoreVertIcon,
     NoteIcon,

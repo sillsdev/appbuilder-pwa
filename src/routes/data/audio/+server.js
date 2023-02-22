@@ -31,25 +31,27 @@ export async function POST({ request }) {
     else if (source.type === 'download') prefix = source.address;
 
     //parse timing file
-    const timingFile = await readFile(path.join('static', 'timings', audio.timingFile), 'utf8');
-    const lines = timingFile.split('separators ')[1].split('\n');
     const timing = [];
-    timing.push({ 
-        time: parseFloat(lines[1].split('\t')[0]), 
-        tag: 'title'
-    });
+    if (audio.timingFile) {
+        const timingFile = await readFile(path.join('static', 'timings', audio.timingFile), 'utf8');
+        const lines = timingFile.split('separators ')[1].split('\n');
+        timing.push({ 
+            time: parseFloat(lines[1].split('\t')[0]), 
+            tag: 'title'
+        });
 
-    for(let i = 1; i < lines.length; i++) {
-        if(lines[i]) {
-            timing.push({ 
-                time: parseFloat(lines[i].split('\t')[1]), 
-                tag: lines[i].split('\t')[2]
-            });
+        for(let i = 1; i < lines.length; i++) {
+            if(lines[i]) {
+                timing.push({ 
+                    time: parseFloat(lines[i].split('\t')[1]), 
+                    tag: lines[i].split('\t')[2]
+                });
+            }
         }
     }
 
     return json({
-    source: prefix + '/' + audio.filename,
-    timing: timing
-});
+        source: prefix + '/' + audio.filename,
+        timing: timing.length > 0 ? timing : null
+    });
 }

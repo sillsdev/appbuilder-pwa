@@ -3,7 +3,7 @@ import { catalog } from './catalog';
 import config from './config';
 
 /**stores references and some useful derived information.*/
-export const referenceStore = () => {
+export const referenceStore = (initReference) => {
     const internal = writable({ ds: '', b: '', c: '', n: 0 });
     /**sets internal state based on info available in catalog*/
     const setInternal = ({ docSet, book, chapter }) => {
@@ -33,9 +33,18 @@ export const referenceStore = () => {
             n: length
         });
     };
-    const [bookInit, chapterInit] = (localStorage.refs) ? localStorage.refs.split('.') : ['','']; 
-    setInternal({ docSet: '', book: bookInit, chapter: chapterInit });
-    internal.subscribe((value) => localStorage.refs = value.b + "." + value.c)
+    function parseReference(ref) {
+        if (!ref) return ['','',''];
+        const parts = ref.split('.');
+        if (parts.length === 2) {
+            // After everyone has converted to full references, remove this check
+            const defaultDocSet = config.bookCollections[0].languageCode + "_" + config.bookCollections[0].id;
+            return [defaultDocSet, ...parts];
+        }
+        return parts;
+    }
+    const [docSetInit, bookInit, chapterInit] = parseReference(initReference);
+    setInternal({ docSet: docSetInit, book: bookInit, chapter: chapterInit });
 
     const external = derived(internal, ($internal) => ({
         reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,
@@ -95,7 +104,18 @@ export const referenceStore = () => {
             return { book: prevBook, chapter: prevChapter };
         })()
     }));
-    return { subscribe: external.subscribe, set: setInternal };
+
+    const skip = ((direction) => {
+        const ref = get(external);
+        const switchTo = direction < 0 ? ref.prev : ref.next;
+        // if the chapter exists, the book will too, so only need to check chapter
+        if (switchTo.chapter) {
+            setInternal({book: switchTo.book, chapter: switchTo.chapter});
+            return true;
+        }
+        return false;
+    });
+    return { subscribe: external.subscribe, set: setInternal, skip };
 };
 
 /**
@@ -138,5 +158,14 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
         subs[key].forEach((sub) => sub(vals[key], mods[key]));
     };
 
-    return { subscribe, set };
+    const extras = Object.fromEntries(Object.entries(stores["default"]).filter((kv) => kv[0] !== "subscribe" && kv[0] !== "set" && typeof(kv[1]) === 'function').map((kv) => [
+        kv[0], 
+        (val, key = 'default', mod = undefined) => {
+            stores[key][kv[0]](val);
+            mods[key] = mod;
+            subs[key].forEach((sub) => sub(vals[key], mods[key]));
+        }
+    ]));
+
+    return {subscribe, set, ...extras};
 };

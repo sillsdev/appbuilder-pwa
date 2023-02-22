@@ -9,8 +9,13 @@ const setDefaultStorage = (name, value) => {
 }
 
 /** current reference */
-setDefaultStorage('refs', config.mainFeatures['start-at-reference']);
-export const refs = groupStore(referenceStore);
+const initReference = config.bookCollections[0].languageCode + "_" + config.bookCollections[0].id + "." + config.mainFeatures['start-at-reference']
+setDefaultStorage('refs', initReference);
+export const refs = groupStore(referenceStore, localStorage.refs);
+refs.subscribe((value) => {
+    localStorage.refs = value.docSet + "." + value.book + "." + value.chapter;
+});
+
 export const nextRef = writable({book: '', chapter: ''});
 
 /** localization */
@@ -89,7 +94,9 @@ export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
 export const viewMode = writable('Single Pane');
 /**is audio active in the app*/
-export const audioActive = writable(true);
+setDefaultStorage('audioActive', config.mainFeatures['audio-turn-on-at-startup']);
+export const audioActive = writable(localStorage.audioActive === 'true');
+audioActive.subscribe(value => localStorage.audioActive = value);
 /**which element should be highlighted as the audio is playing*/
 export const audioHighlight = (() => {
     const listener = derived([refs, audioActive], ([$refs, $audioActive]) => {
@@ -193,3 +200,24 @@ function createSelectedVerses()  {
 }
 export const selectedVerses  = createSelectedVerses();
 
+function createPlayMode() {
+    const external = writable(config.mainFeatures['audio-goto-next-chapter'] ? 'continue' : 'stop');
+    return {
+        subscribe: external.subscribe,
+        next: (hasTiming) => {
+            const cur = get(external);
+            let next = cur;
+            switch (cur) {
+                case 'continue': next = 'stop'; break;
+                case 'stop': next = 'repeatPage'; break;
+                case 'repeatPage': next = hasTiming ? 'repeatSelection' : 'continue'; break;
+                case 'repeatSelection': next = 'continue'; break;
+            }
+            external.set(next);
+        },
+        reset: () => {
+            external.set('continue');
+        }
+    }
+}
+export const playMode = createPlayMode();
