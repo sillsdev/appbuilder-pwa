@@ -10,6 +10,16 @@
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
+    import { swipe } from 'svelte-gestures';
+
+    function doSwipe(
+        event: CustomEvent<{
+            direction: 'left' | 'top' | 'right' | 'bottom';
+            target: EventTarget;
+        }>
+    ) {
+        (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
+    }
 
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
@@ -59,7 +69,12 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class={contentClass} slot="scrolled-content">
+    <div
+        class={contentClass}
+        slot="scrolled-content"
+        use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+        on:swipe={doSwipe}
+    >
         <ScriptureViewSofria />
     </div>
 </ScrolledContent>
