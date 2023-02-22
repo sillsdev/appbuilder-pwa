@@ -12,7 +12,6 @@ TODO
     import config from '$lib/data/config';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
 
-
     const showFontSize = config.mainFeatures['text-font-size-slider'];
     const showLineHeight = config.mainFeatures['text-line-height-slider'];
     const showThemes = themes.length > 1;
@@ -44,16 +43,23 @@ TODO
     };
 
     const buttonBackground = (theme) => {
-        const backgroundColor = config.styles.find((x) => x.name === "ui.background").properties["background-color"];
+        const backgroundColor = config.styles.find((x) => x.name === 'ui.background').properties[
+            'background-color'
+        ];
         if (backgroundColor.startsWith('#')) {
-            return backgroundColor
+            return backgroundColor;
         }
-        return config.themes.find((x) => x.name === theme ).colorSets.find((c) => c.type === 'main' ).colors[backgroundColor];
-    }
+        return config.themes.find((x) => x.name === theme).colorSets.find((c) => c.type === 'main')
+            .colors[backgroundColor];
+    };
 
     const buttonBorder = (theme, currentTheme) => {
-        return (theme === currentTheme ? '3px' : '1px' ) + ' solid ' + (theme === 'Dark' ? '#FFFFFF' : '#888888')
-    }
+        return (
+            (theme === currentTheme ? '3px' : '1px') +
+            ' solid ' +
+            (theme === 'Dark' ? '#FFFFFF' : '#888888')
+        );
+    };
 </script>
 
 <!-- TextAppearanceSelector -->
@@ -66,45 +72,65 @@ TODO
             <svelte:fragment slot="content">
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
-                <div class = "grid gap-4 items-center range-row">
-                <TextAppearanceIcon color = {$theme === "Dark" ? 'white' : 'black'} size = "1rem"  />
-                <input type="range" min="0" max="100" value="60" class="dy-range dy-range-xs" />
-                <div>20</div>
-                </div>
+                    <div class="grid gap-4 items-center range-row">
+                        <TextAppearanceIcon
+                            color={$theme === 'Dark' ? 'white' : 'black'}
+                            size="1rem"
+                        />
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="60"
+                            class="dy-range dy-range-xs"
+                        />
+                        <div>20</div>
+                    </div>
                 {/if}
                 {#if showLineHeight}
-                <div class = "grid gap-4 items-center range-row">
-                <ImageIcon.FormatLineSpacing color = {$theme === "Dark" ? 'white' : 'black'} size = "1rem"/>
-                <input type="range" min="0" max="100" value="60" class="dy-range dy-range-xs" />
-                <div>20</div>
-            </div>
+                    <div class="grid gap-4 items-center range-row">
+                        <ImageIcon.FormatLineSpacing
+                            color={$theme === 'Dark' ? 'white' : 'black'}
+                            size="1rem"
+                        />
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="60"
+                            class="dy-range dy-range-xs"
+                        />
+                        <div>20</div>
+                    </div>
                 {/if}
                 <!-- Theme Selction buttons-->
                 {#if showThemes}
-                <div class="grid gap-2 m-2"
-                class:grid-cols-2={themes.length === 2}
-                class:grid-cols-3={themes.length === 3}>
-                {#if themes.includes('Normal')}
-                    <button
-                        class="dy-btn-sm"
-                        style:background-color = {buttonBackground('Normal')}
-                        style:border = {buttonBorder('Normal', $theme)}
-                        on:click={() => $theme = 'Normal'}
-                    />
-                {/if}
-                    <button
-                        class="dy-btn-sm"
-                        style:background-color = {buttonBackground('Sepia')}
-                        style:border = {buttonBorder('Sepia', $theme)}
-                        on:click={() => $theme = 'Sepia'}
-                    />
-                    <button
-                        class="dy-btn-sm"
-                        style:background-color = {buttonBackground('Dark')}
-                        style:border = {buttonBorder('Dark', $theme)}
-                        on:click={() => $theme = 'Dark'}
-                    />
-                </div>
+                    <div
+                        class="grid gap-2 m-2"
+                        class:grid-cols-2={themes.length === 2}
+                        class:grid-cols-3={themes.length === 3}
+                    >
+                        {#if themes.includes('Normal')}
+                            <button
+                                class="dy-btn-sm"
+                                style:background-color={buttonBackground('Normal')}
+                                style:border={buttonBorder('Normal', $theme)}
+                                on:click={() => ($theme = 'Normal')}
+                            />
+                        {/if}
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={buttonBackground('Sepia')}
+                            style:border={buttonBorder('Sepia', $theme)}
+                            on:click={() => ($theme = 'Sepia')}
+                        />
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={buttonBackground('Dark')}
+                            style:border={buttonBorder('Dark', $theme)}
+                            on:click={() => ($theme = 'Dark')}
+                        />
+                    </div>
                 {/if}
             </svelte:fragment>
         </Dropdown>
@@ -112,7 +138,7 @@ TODO
 {/if}
 
 <style>
-    .range-row{
+    .range-row {
         grid-template-columns: 1rem auto 1rem;
     }
 </style>
