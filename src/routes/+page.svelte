@@ -7,6 +7,7 @@
     import {
         audioActive,
         refs,
+        selectedVerses,
         showDesktopSidebar,
         bodyFontSize,
         bodyLineHeight,
@@ -18,6 +19,7 @@
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
+    import OnTextSelectionToolbar from '$lib/components/OnTextSelectionToolbar.svelte';
 
     function doSwipe(
         event: CustomEvent<{
