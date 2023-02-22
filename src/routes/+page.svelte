@@ -94,7 +94,11 @@
         </div>
     </ScrolledContent>
 </div>
-{#if $refs.hasAudio && $audioActive}
+{#if $selectedVerses.length > 0}
+    <div class="footer">
+        <TextSelectionToolbar />
+    </div>
+{:else if $refs.hasAudio && $audioActive}
     <div
         class="audio-bar p-0 left-0 right-0 bottom-0 absolute"
         class:audio-bar-desktop={$showDesktopSidebar}

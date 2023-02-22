@@ -63,7 +63,6 @@ export const themeBookColors = derived(theme, $theme => {
     const theme = config.themes.find(x => x.name == $theme);
     const colorSet = theme.colorSets.find(x => x.type === 'books');
     return colorSet.colors;
-    return colorSet.colors;
 })
 
 const resolveColor = (colorValue, colors) => {
