@@ -7,16 +7,16 @@ TODO
 -->
 <script>
     import Dropdown from './Dropdown.svelte';
-    import { TextAppearanceIcon } from '$lib/icons';
+    import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
     import { language, languages, theme, themes, s, convertStyle } from '$lib/data/stores';
     import config from '$lib/data/config';
+    import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
 
-    const countThemes = config.themes.filter((x) => x.enabled).length;
 
-    const showTextAppearence =
-        config.mainFeatures['text-font-size-slider'] ||
-        config.mainFeatures['text-line-height-slider'] ||
-        countThemes > 1;
+    const showFontSize = config.mainFeatures['text-font-size-slider'];
+    const showLineHeight = config.mainFeatures['text-line-height-slider'];
+    const showThemes = themes.length > 1;
+    const showTextAppearence = showFontSize || showLineHeight || showThemes;
 
     // TEMP: Use TextAppearance button to rotate through languages to test i18n
     const arrayRotate = (arr) => {
@@ -43,17 +43,17 @@ TODO
         $language = rotate(languages, $language);
     };
 
-    const handleNormalClick = () => {
-        $theme = themes[0];
-    };
+    const buttonBackground = (theme) => {
+        const backgroundColor = config.styles.find((x) => x.name === "ui.background").properties["background-color"];
+        if (backgroundColor.startsWith('#')) {
+            return backgroundColor
+        }
+        return config.themes.find((x) => x.name === theme ).colorSets.find((c) => c.type === 'main' ).colors[backgroundColor];
+    }
 
-    const handleSepiaClick = () => {
-        $theme = themes[1];
-    };
-
-    const handleDarkClick = () => {
-        $theme = themes[2];
-    };
+    const buttonBorder = (theme, currentTheme) => {
+        return (theme === currentTheme ? '3px' : '1px' ) + ' solid ' + (theme === 'Dark' ? '#FFFFFF' : '#888888')
+    }
 </script>
 
 <!-- TextAppearanceSelector -->
@@ -65,38 +65,54 @@ TODO
             </svelte:fragment>
             <svelte:fragment slot="content">
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
+                {#if showFontSize}
+                <div class = "grid gap-4 items-center range-row">
+                <TextAppearanceIcon color = {$theme === "Dark" ? 'white' : 'black'} size = "1rem"  />
                 <input type="range" min="0" max="100" value="60" class="dy-range dy-range-xs" />
+                <div>20</div>
+                </div>
+                {/if}
+                {#if showLineHeight}
+                <div class = "grid gap-4 items-center range-row">
+                <ImageIcon.FormatLineSpacing color = {$theme === "Dark" ? 'white' : 'black'} size = "1rem"/>
                 <input type="range" min="0" max="100" value="60" class="dy-range dy-range-xs" />
+                <div>20</div>
+            </div>
+                {/if}
                 <!-- Theme Selction buttons-->
-                <div class="wrapper">
+                {#if showThemes}
+                <div class="grid gap-2 m-2"
+                class:grid-cols-2={themes.length === 2}
+                class:grid-cols-3={themes.length === 3}>
+                {#if themes.includes('Normal')}
                     <button
-                        class="dy-btn "
-                        style={convertStyle($s['ui.primarycolor'])}
-                        on:click={handleNormalClick}
+                        class="dy-btn-sm"
+                        style:background-color = {buttonBackground('Normal')}
+                        style:border = {buttonBorder('Normal', $theme)}
+                        on:click={() => $theme = 'Normal'}
+                    />
+                {/if}
+                    <button
+                        class="dy-btn-sm"
+                        style:background-color = {buttonBackground('Sepia')}
+                        style:border = {buttonBorder('Sepia', $theme)}
+                        on:click={() => $theme = 'Sepia'}
                     />
                     <button
-                        class="dy-btn "
-                        style={convertStyle($s['ui.'])}
-                        on:click={handleSepiaClick}
-                    />
-                    <button
-                        class="dy-btn "
-                        style={convertStyle($s['ui.'])}
-                        on:click={handleDarkClick}
+                        class="dy-btn-sm"
+                        style:background-color = {buttonBackground('Dark')}
+                        style:border = {buttonBorder('Dark', $theme)}
+                        on:click={() => $theme = 'Dark'}
                     />
                 </div>
+                {/if}
             </svelte:fragment>
         </Dropdown>
     </div>
 {/if}
 
 <style>
-    div.wrapper {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        padding: 0.5em 0;
-        margin-left: 8px;
-        margin-right: 8px;
+    .range-row{
+        grid-template-columns: 1rem auto 1rem;
     }
 </style>
