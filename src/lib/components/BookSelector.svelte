@@ -12,10 +12,16 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import { clickOutside } from '$lib/scripts/click_outside';
-    $: console.log($nextRef);
+
+    $: console.log("Next reference:", $nextRef);
+
+    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab? 
+    $: book = $nextRef.book === "" ? $refs.book : $nextRef.book;
+    $: chapter = $nextRef.chapter === "" ? $refs.chapter : $nextRef.chapter;
 
     const listView = config.mainFeatures['book-select'] === 'list'; 
 
+    // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -23,10 +29,10 @@ The navbar component.
     let bookSelector;
     $: label = config.bookCollections
                 .find((x) => x.id === $refs.docSet.split('_')[1])
-                .books.find((x) => x.id == ($nextRef.book)).name;
+                .books.find((x) => x.id == book).name;
  
     /**
-     * Pushes reference changes to refs['next']. Pushes final change to default reference.
+     * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
     function navigateReference(e) {
         switch (e.detail.tab) {
@@ -42,7 +48,8 @@ The navbar component.
                 break;
             case v:
                 bookSelector.setActive(b);
-                $refs = { book: $nextRef.book, chapter: $nextRef.chapter };
+                $refs.book = book;
+                $refs.chapter = chapter;
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -53,9 +60,9 @@ The navbar component.
     }
 
     /**list of books in current docSet*/
-    $: books = catalog.find((d) => d.id === $nextRef.docSet).documents;
+    $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === $nextRef.book).versesByChapters;
+    $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
     let bookGridGroup = ({ bookLabel = 'abbreviation' }) => {
         const colId = $refs.collection;
@@ -85,11 +92,11 @@ The navbar component.
         <DropdownIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
+        <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
         <div
             use:clickOutside
             on:outclick={() => {
                 bookSelector.setActive(b);
-                nextRef.set({book: $refs.book, chapter: $refs.chapter})
             }}
             style:background-color="white"
         >
@@ -117,7 +124,7 @@ The navbar component.
                         props: {
                             options: [
                                 {
-                                    cells: Object.keys(chapters[$nextRef.chapter]).map((x) => ({
+                                    cells: Object.keys(chapters[chapter]).map((x) => ({
                                         label: x,
                                         id: x
                                     }))

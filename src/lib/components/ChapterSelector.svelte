@@ -7,7 +7,6 @@ The navbar component.
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import { refs, nextRef, s, t, convertStyle } from '$lib/data/stores';
-    import { onDestroy } from 'svelte';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
@@ -16,10 +15,12 @@ The navbar component.
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
+    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab? 
+    $: book = $nextRef.book === "" ? $refs.book : $nextRef.book;
+    $: chapter = $nextRef.chapter === "" ? $refs.chapter : $nextRef.chapter;
+
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
-
-    $: label = $nextRef.chapter ? $nextRef.chapter : $refs.chapter;
 
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
@@ -32,7 +33,7 @@ The navbar component.
                 break;
             case v:
                 chapterSelector.setActive(c);
-                $refs = { chapter: $nextRef.chapter };
+                $refs.chapter=chapter;
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -45,7 +46,7 @@ The navbar component.
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === $refs.book).versesByChapters;
+    $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     const showSelector = config.mainFeatures['show-chapter-number-on-app-bar'];
     const canSelect = config.mainFeatures['show-chapter-selector'];
 </script>
@@ -55,7 +56,7 @@ The navbar component.
     <Dropdown>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>
-                {label}
+                {chapter}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
@@ -63,10 +64,10 @@ The navbar component.
         </svelte:fragment>
         <svelte:fragment slot="content">
             {#if canSelect}
+                <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
                 <div use:clickOutside
                 on:outclick={() => {
                     chapterSelector.setActive(c);
-                    $nextRef.chapter = "";
                 }}
                 style:background-color="white"
             >
@@ -91,7 +92,7 @@ The navbar component.
                                 props: {
                                     options: [
                                         {
-                                            cells: Object.keys(chapters[$refs.chapter]).map(
+                                            cells: Object.keys(chapters[chapter]).map(
                                                 (x) => ({
                                                     label: x,
                                                     id: x
