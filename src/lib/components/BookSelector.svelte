@@ -97,8 +97,8 @@ The navbar component.
             use:clickOutside
             on:outclick|self={() => {
                 bookSelector.setActive(b);
-                $nextRef.book = "";
-                $nextRef.chapter = "";
+                // $nextRef.book = "";
+                // $nextRef.chapter = "";
             }}
             style:background-color="white"
         >
