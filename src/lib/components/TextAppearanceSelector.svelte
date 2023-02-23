@@ -8,7 +8,14 @@ TODO
 <script>
     import Dropdown from './Dropdown.svelte';
     import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
-    import { language, languages, theme, themes, s, convertStyle } from '$lib/data/stores';
+    import {
+        language,
+        languages,
+        theme,
+        themes,
+        bodyFontSize,
+        bodyLineHeight
+    } from '$lib/data/stores';
     import config from '$lib/data/config';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
 
@@ -60,6 +67,13 @@ TODO
             (theme === 'Dark' ? '#FFFFFF' : '#888888')
         );
     };
+
+    const formatLineHeight = (lineHeight) => {
+        const displayValue = (lineHeight / 100).toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
+        return displayValue;
+    };
 </script>
 
 <!-- TextAppearanceSelector -->
@@ -72,35 +86,37 @@ TODO
             <svelte:fragment slot="content">
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
-                    <div class="grid gap-4 items-center range-row">
+                    <div class="grid gap-4 items-center range-row m-2 ">
                         <TextAppearanceIcon
                             color={$theme === 'Dark' ? 'white' : 'black'}
                             size="1rem"
                         />
                         <input
                             type="range"
-                            min="0"
-                            max="100"
-                            value="60"
+                            min={config.mainFeatures['text-size-min']}
+                            max={config.mainFeatures['text-size-max']}
+                            bind:value={$bodyFontSize}
                             class="dy-range dy-range-xs"
                         />
-                        <div>20</div>
+                        <div class="text-sm place-self-end">{$bodyFontSize}</div>
                     </div>
                 {/if}
                 {#if showLineHeight}
-                    <div class="grid gap-4 items-center range-row">
+                    <div class="grid gap-4 items-center range-row m-2 ">
                         <ImageIcon.FormatLineSpacing
                             color={$theme === 'Dark' ? 'white' : 'black'}
                             size="1rem"
                         />
                         <input
                             type="range"
-                            min="0"
-                            max="100"
-                            value="60"
+                            min="100"
+                            max="250"
+                            bind:value={$bodyLineHeight}
                             class="dy-range dy-range-xs"
                         />
-                        <div>20</div>
+                        <div class="text-sm place-self-end ">
+                            {formatLineHeight($bodyLineHeight)}
+                        </div>
                     </div>
                 {/if}
                 <!-- Theme Selction buttons-->

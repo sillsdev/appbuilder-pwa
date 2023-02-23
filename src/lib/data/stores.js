@@ -112,9 +112,13 @@ export const audioHighlight = (() => {
 /**scrollTop of main window*/
 export const mainScroll = writable({ top: 0, height: 0});
 /**Font size of body elements */
-export const bodyFontSize = writable('17');
+setDefaultStorage('bodyFontSize', '17');
+export const bodyFontSize = writable(localStorage.bodyFontSize);
+bodyFontSize.subscribe((fontSize)  => localStorage.bodyFontSize = fontSize);
 /**line height of body elements */
-export const bodyLineHeight = writable('175');
+setDefaultStorage('bodyLineHeight', '175');
+export const bodyLineHeight = writable(localStorage.bodyLineHeight);
+bodyLineHeight.subscribe((lineHeight)=> localStorage.bodyLineHeight = lineHeight);
 /**list of selected verses */
 function findIndex(id) {
     let references = get(selectedVerses);
