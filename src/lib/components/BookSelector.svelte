@@ -11,7 +11,6 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
-    import { clickOutside } from '$lib/scripts/click_outside';
 
     $: console.log('Next reference:', $nextRef);
 
@@ -81,10 +80,16 @@ The navbar component.
                 .map((x) => ({ label: x[bookLabel], id: x.id }))
         }));
     };
+
+    function resetNavigation() {
+        bookSelector.setActive(b);
+        $nextRef.book = '';
+        $nextRef.chapter = '';
+    }
 </script>
 
 <!-- Book Selector -->
-<Dropdown>
+<Dropdown on:nav-end={resetNavigation}>
     <svelte:fragment slot="label">
         <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
             {label}
@@ -93,15 +98,7 @@ The navbar component.
     </svelte:fragment>
     <svelte:fragment slot="content">
         <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
-        <div
-            use:clickOutside
-            on:outclick|self={() => {
-                bookSelector.setActive(b);
-                $nextRef.book = "";
-                $nextRef.chapter = "";
-            }}
-            style:background-color="white"
-        >
+        <div style:background-color="white">
             <TabsMenu
                 bind:this={bookSelector}
                 options={{
