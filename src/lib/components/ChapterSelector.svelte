@@ -67,7 +67,7 @@ The navbar component.
                 <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
                 <div
                     use:clickOutside
-                    on:outclick|self={() => {
+                    on:outclick={() => {
                         chapterSelector.setActive(c);
                         // $nextRef.chapter = "";
                     }}
