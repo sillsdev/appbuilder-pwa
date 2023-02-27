@@ -3,8 +3,8 @@
     import { BookmarkIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { t } from '$lib/data/stores';
-    let bookmarks = [
+    import { t, bookmarks } from '$lib/data/stores';
+    let staticbookmarks = [
         {
             id: '1',
             reference: 'John 1:5',
@@ -108,12 +108,16 @@
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
-        {#each bookmarks as b}
+        {#each $bookmarks as b}
             {@const iconCard = {
                 reference: b.reference,
                 text: b.text,
                 date: b.date,
-                actions: b.actions
+                actions: [
+                    $t['Annotation_Menu_View'],
+                    $t['Annotation_Menu_Share'],
+                    $t['Annotation_Menu_Delete']
+                ]
             }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, b.id)} {...iconCard}>
                 <BookmarkIcon slot="icon" color="red" />
