@@ -3,9 +3,9 @@
     import { NoteIcon } from '$lib/icons';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
+    import { t, notes } from '$lib/data/stores';
 
-    let notes = [
+    let staticnotes = [
         {
             id: '1',
             reference: 'John 1:9',
@@ -39,12 +39,17 @@
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
-        {#each notes as n}
+        {#each $notes as n}
             {@const iconCard = {
                 reference: n.reference,
                 text: n.text,
                 date: n.date,
-                actions: n.actions
+                actions: [
+                    $t['Annotation_Menu_View'],
+                    $t['Annotation_Menu_Edit'],
+                    $t['Annotation_Menu_Share'],
+                    $t['Annotation_Menu_Delete']
+                ]
             }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...iconCard}>
                 <NoteIcon slot="icon" />
