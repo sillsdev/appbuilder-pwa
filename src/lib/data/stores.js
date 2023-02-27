@@ -116,33 +116,14 @@ export const bodyFontSize = writable('17');
 /**line height of body elements */
 export const bodyLineHeight = writable('175');
 /* list of bookmarks */
-export const bookmarks = writable([{
-    id: '1',
-    reference: 'John 1:5',
-    text: "The light shines in the darkness and the darkness hasn't overcome it.",
-    date: '22 May 2022',
-    actions: ['View', 'Share', 'Delete']
-},]);
+export const bookmarks = writable([]);
 
 bookmarks.subscribe(value => {
     localStorage.bookmarks = JSON.stringify(value);
     console.log(value);
 });
 
-export const notes = writable([{
-    id: '1',
-    reference: 'John 1:9',
-    text: 'He is the light',
-    date: '23 May 2022',
-    actions: ['View', 'Edit', 'Share', 'Delete']
-},
-{
-    id: '0',
-    reference: 'John 1:1',
-    text: 'Similar to Genesis 1:1',
-    date: '23 May 2022',
-    actions: ['View', 'Edit', 'Share', 'Delete']
-},]);
+export const notes = writable([]);
 
 notes.subscribe(value => {
     localStorage.notes = JSON.stringify(value);
