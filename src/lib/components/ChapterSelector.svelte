@@ -44,7 +44,7 @@ The navbar component.
 
     function resetNavigation() {
         chapterSelector.setActive(c);
-        $nextRef.chapter = '';
+        nextRef.reset();
     }
 
     /**list of books in current docSet*/
@@ -56,7 +56,7 @@ The navbar component.
 </script>
 
 <!-- Chapter Selector -->
-{#if showSelector}
+{#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
     <Dropdown on:nav-end={resetNavigation}>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>

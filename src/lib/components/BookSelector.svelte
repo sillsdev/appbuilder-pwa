@@ -12,8 +12,6 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
 
-    $: console.log('Next reference:', $nextRef);
-
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
@@ -47,8 +45,7 @@ The navbar component.
                 break;
             case v:
                 bookSelector.setActive(b);
-                $refs.book = book;
-                $refs.chapter = chapter;
+                $refs = { book: $nextRef.book, chapter: $nextRef.chapter };
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -83,8 +80,7 @@ The navbar component.
 
     function resetNavigation() {
         bookSelector.setActive(b);
-        $nextRef.book = '';
-        $nextRef.chapter = '';
+        nextRef.reset();
     }
 </script>
 
