@@ -129,6 +129,26 @@ bookmarks.subscribe(value => {
     console.log(value);
 });
 
+export const notes = writable([{
+    id: '1',
+    reference: 'John 1:9',
+    text: 'He is the light',
+    date: '23 May 2022',
+    actions: ['View', 'Edit', 'Share', 'Delete']
+},
+{
+    id: '0',
+    reference: 'John 1:1',
+    text: 'Similar to Genesis 1:1',
+    date: '23 May 2022',
+    actions: ['View', 'Edit', 'Share', 'Delete']
+},]);
+
+notes.subscribe(value => {
+    localStorage.notes = JSON.stringify(value);
+    console.log(value);
+})
+
 /**list of selected verses */
 function findIndex(id) {
     let references = get(selectedVerses);

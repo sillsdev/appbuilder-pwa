@@ -8,9 +8,6 @@ TODO:
 - Attach functionality to each of the buttons [Decomp this]
 - Make play button connected to existence of audio
 
-CURRENT: Can make it so that clicking on bookmark adds hardcoded bookmarked text
-NEXT: Can make it so that clicking on highlight adds random highlighted text
-NEXT: Can make it so that clciking on copy copies random text
 
 -->
 <script>
@@ -23,7 +20,8 @@ NEXT: Can make it so that clciking on copy copies random text
     import ImageIcon from '$lib/icons/image/ImageSingleIcon.svelte';
     import PlayRepeatIcon from '$lib/icons/audio/PlayRepeatIcon.svelte';
     import config from '$lib/data/config.js';
-    import { refs, bookmarks } from '$lib/data/stores';
+    import { refs, bookmarks, notes } from '$lib/data/stores';
+    import toast, { Toaster } from 'svelte-french-toast';
     //use $refs.collection as needed
 
     //Appears dependent on settings
@@ -55,6 +53,21 @@ NEXT: Can make it so that clciking on copy copies random text
             text: 'This is a verse placeholder text',
             date: '31 February 2024'
         });
+        toast.success('Bookmarked!', {
+            position: 'bottom-center'
+        });
+    }
+
+    function addNote() {
+        $notes.push({
+            id: $notes.size + 1,
+            reference: 'John 11:35',
+            text: 'This makes me sad',
+            date: '32 February 2025'
+        });
+        toast.success('Noted!', {
+            position: 'bottom-center'
+        });
     }
 
     //Hardcoded copy function for now
@@ -65,10 +78,13 @@ NEXT: Can make it so that clciking on copy copies random text
         navigator.clipboard.writeText(copyText);
 
         // Alert the copied text
-        alert('Copied the text: ' + copyText);
+        toast.success('Copied!', {
+            position: 'bottom-center'
+        });
     }
 </script>
 
+<Toaster />
 <div class="h-5/6 bg-base-100 mx-auto flex items-center flex-col">
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
@@ -94,7 +110,7 @@ NEXT: Can make it so that clciking on copy copies random text
                 </button>
             {/if}
             {#if isNotesEnabled}
-                <button class="dy-btn-sm dy-btn-ghost">
+                <button class="dy-btn-sm dy-btn-ghost" on:click={() => addNote()}>
                     <NoteIcon />
                 </button>
             {/if}
@@ -104,7 +120,7 @@ NEXT: Can make it so that clciking on copy copies random text
                 </button>
             {/if}
             {#if isCopyEnabled}
-                <button on:click={() => copy()} class="dy-btn-sm dy-btn-ghost">
+                <button class="dy-btn-sm dy-btn-ghost" on:click={() => copy()}>
                     <CopyContentIcon />
                 </button>
             {/if}
