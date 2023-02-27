@@ -20,7 +20,7 @@ TODO:
     import ImageIcon from '$lib/icons/image/ImageSingleIcon.svelte';
     import PlayRepeatIcon from '$lib/icons/audio/PlayRepeatIcon.svelte';
     import config from '$lib/data/config.js';
-    import { refs, bookmarks, notes } from '$lib/data/stores';
+    import { t, refs, bookmarks, notes } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     //use $refs.collection as needed
 
@@ -33,11 +33,6 @@ TODO:
 
     //Appears regardless of settings (Hardcoded)
     const isPlayable = true;
-    // const isCopyEnabled = true;
-    // const isShareEnabled = true;
-
-    // Below two (isCopyEnabled and isShareEnabled) are not functioning yet
-    // NOTE: isShareEnabled breaks the code for some reason
 
     $: isCopyEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-copy-text'
@@ -53,8 +48,8 @@ TODO:
             text: 'This is a verse placeholder text',
             date: '31 February 2024'
         });
-        toast.success('Bookmarked!', {
-            position: 'bottom-center'
+        toast('Bookmarked!', {
+            position: 'bottom-right'
         });
     }
 
@@ -65,7 +60,7 @@ TODO:
             text: 'This makes me sad',
             date: '32 February 2025'
         });
-        toast.success('Noted!', {
+        toast('Noted!', {
             position: 'bottom-center'
         });
     }
@@ -78,7 +73,7 @@ TODO:
         navigator.clipboard.writeText(copyText);
 
         // Alert the copied text
-        toast.success('Copied!', {
+        toast($t['Text_Copied'], {
             position: 'bottom-center'
         });
     }

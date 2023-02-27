@@ -11,7 +11,7 @@
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
-    import OnTextSelectionToolbar from '$lib/components/OnTextSelectionToolbar.svelte';
+    import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
 
     function doSwipe(
         event: CustomEvent<{
@@ -81,7 +81,7 @@
 </ScrolledContent>
 {#if $selectedVerses.length > 0}
     <div class="footer">
-        <OnTextSelectionToolbar />
+        <TextSelectionToolbar />
     </div>
 {:else if $refs.hasAudio && $audioActive}
     <div class="footer">
