@@ -80,7 +80,7 @@ TODO:
 </script>
 
 <Toaster />
-<div class="h-5/6 bg-base-100 mx-auto flex items-center flex-col">
+<div class="h-8 bg-base-100 mx-auto flex items-center flex-col">
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">

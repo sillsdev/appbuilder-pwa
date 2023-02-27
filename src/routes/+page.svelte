@@ -106,6 +106,35 @@
 {/if}
 
 <style>
+    .navbar {
+        height: 4rem;
+    }
+    /*shrink to accomodate the audio bar*/
+    .content-selected {
+        height: calc(100vh - 7rem);
+        height: calc(100dvh - 7rem);
+    }
+    .content-with-bar-progress {
+        height: calc(100vh - 10rem);
+        height: calc(100dvh - 10rem);
+    }
+    .content-with-bar {
+        height: calc(100vh - 9rem);
+        height: calc(100dvh - 9rem);
+    }
+    .audio-bar-with-progress {
+        height: 5rem;
+    }
+    .audio-bar {
+        height: 4rem;
+    }
+    .footer {
+        padding: 0 0 0 0;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+    }
     @media (min-width: 1024px) {
         .audio-bar-desktop {
             left: 320px;
