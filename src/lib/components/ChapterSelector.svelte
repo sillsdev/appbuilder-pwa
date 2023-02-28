@@ -6,8 +6,7 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, s, t, convertStyle } from '$lib/data/stores';
-    import { onDestroy } from 'svelte';
+    import { refs, nextRef, s, t, convertStyle } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
@@ -15,13 +14,13 @@ The navbar component.
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
+    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
+    $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
+    $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
+
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
 
-    let nextRef;
-    const unsub = refs.subscribe((v) => {
-        nextRef = v;
-    }, 'next');
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
@@ -29,11 +28,11 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 chapterSelector.setActive(v);
-                refs.set({ chapter: e.detail.text }, 'next');
+                $nextRef.chapter = e.detail.text;
                 break;
             case v:
                 chapterSelector.setActive(c);
-                $refs = { book: nextRef.book, chapter: nextRef.chapter };
+                $refs.chapter = chapter;
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -43,22 +42,25 @@ The navbar component.
         }
     }
 
+    function resetNavigation() {
+        chapterSelector.setActive(c);
+        nextRef.reset();
+    }
+
     /**list of books in current docSet*/
-    $: books = catalog.find((d) => d.id === nextRef.docSet).documents;
+    $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === nextRef.book).versesByChapters;
+    $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     const showSelector = config.mainFeatures['show-chapter-number-on-app-bar'];
     const canSelect = config.mainFeatures['show-chapter-selector'];
-
-    onDestroy(unsub);
 </script>
 
 <!-- Chapter Selector -->
-{#if showSelector}
-    <Dropdown>
+{#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
+    <Dropdown on:nav-end={resetNavigation}>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>
-                {$refs.chapter}
+                {chapter}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
@@ -88,12 +90,10 @@ The navbar component.
                                 props: {
                                     options: [
                                         {
-                                            cells: Object.keys(chapters[nextRef.chapter]).map(
-                                                (x) => ({
-                                                    label: x,
-                                                    id: x
-                                                })
-                                            )
+                                            cells: Object.keys(chapters[chapter]).map((x) => ({
+                                                label: x,
+                                                id: x
+                                            }))
                                         }
                                     ]
                                 }
