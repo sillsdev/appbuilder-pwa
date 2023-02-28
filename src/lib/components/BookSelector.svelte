@@ -93,7 +93,6 @@ The navbar component.
         <DropdownIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
-        <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
         <div style:background-color="white">
             <TabsMenu
                 bind:this={bookSelector}

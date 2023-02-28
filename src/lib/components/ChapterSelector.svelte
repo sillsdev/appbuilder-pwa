@@ -68,7 +68,6 @@ The navbar component.
         </svelte:fragment>
         <svelte:fragment slot="content">
             {#if canSelect}
-                <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
                 <div style:background-color="white">
                     <TabsMenu
                         bind:this={chapterSelector}
