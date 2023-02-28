@@ -154,7 +154,6 @@ function createSelectedVerses()  {
             let selections = get(external);
             const newVerseNumber = Number(id);
             const newIndex = getInsertIndex(newVerseNumber, selections);
-            console.log("Index: %o", newIndex);
             selections.splice(newIndex, 0, selection);
             external.set(selections);
         },
