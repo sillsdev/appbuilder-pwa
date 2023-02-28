@@ -11,9 +11,6 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
-    import { clickOutside } from '$lib/scripts/click_outside';
-
-    $: console.log('Next reference:', $nextRef);
 
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
@@ -48,8 +45,7 @@ The navbar component.
                 break;
             case v:
                 bookSelector.setActive(b);
-                $refs.book = book;
-                $refs.chapter = chapter;
+                $refs = { book: $nextRef.book, chapter: $nextRef.chapter };
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -81,10 +77,15 @@ The navbar component.
                 .map((x) => ({ label: x[bookLabel], id: x.id }))
         }));
     };
+
+    function resetNavigation() {
+        bookSelector.setActive(b);
+        nextRef.reset();
+    }
 </script>
 
 <!-- Book Selector -->
-<Dropdown>
+<Dropdown on:nav-end={resetNavigation}>
     <svelte:fragment slot="label">
         <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
             {label}
@@ -92,16 +93,7 @@ The navbar component.
         <DropdownIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
-        <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
-        <div
-            use:clickOutside
-            on:outclick={() => {
-                bookSelector.setActive(b);
-                // $nextRef.book = "";
-                // $nextRef.chapter = "";
-            }}
-            style:background-color="white"
-        >
+        <div style:background-color="white">
             <TabsMenu
                 bind:this={bookSelector}
                 options={{

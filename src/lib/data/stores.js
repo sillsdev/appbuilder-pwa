@@ -16,7 +16,18 @@ refs.subscribe((value) => {
     localStorage.refs = value.docSet + "." + value.book + "." + value.chapter;
 });
 
-export const nextRef = writable({book: '', chapter: ''});
+function createNextRef() {
+    const external = writable({book: '', chapter: ''});
+
+    return {
+        subscribe: external.subscribe,
+        set: external.set,
+        reset: () => {
+            external.set({book: '', chapter: ''});
+        }
+    }
+}
+export const nextRef = createNextRef();
 
 /** localization */
 export const languageDefault = config.translationMappings.defaultLang;

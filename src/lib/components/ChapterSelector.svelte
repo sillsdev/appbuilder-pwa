@@ -10,7 +10,6 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
-    import { clickOutside } from '$lib/scripts/click_outside';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -43,6 +42,11 @@ The navbar component.
         }
     }
 
+    function resetNavigation() {
+        chapterSelector.setActive(c);
+        nextRef.reset();
+    }
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
@@ -52,8 +56,8 @@ The navbar component.
 </script>
 
 <!-- Chapter Selector -->
-{#if showSelector}
-    <Dropdown>
+{#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
+    <Dropdown on:nav-end={resetNavigation}>
         <svelte:fragment slot="label">
             <div style={convertStyle($s['ui.selector.chapter'])}>
                 {chapter}
@@ -64,15 +68,7 @@ The navbar component.
         </svelte:fragment>
         <svelte:fragment slot="content">
             {#if canSelect}
-                <!--The on:outclick function overwrites chapter and book, setting them black before navigation.-->
-                <div
-                    use:clickOutside
-                    on:outclick={() => {
-                        chapterSelector.setActive(c);
-                        // $nextRef.chapter = "";
-                    }}
-                    style:background-color="white"
-                >
+                <div style:background-color="white">
                     <TabsMenu
                         bind:this={chapterSelector}
                         options={{
