@@ -126,6 +126,17 @@ function findIndex(id) {
     }
     return -1;
 }
+function getInsertIndex(newVerseNumber, selections) {
+    let index = 0;
+    for (let i = 0; i < selections.length; i++) {
+        const verseNumber = Number(selections[i].verse);
+        if (verseNumber > newVerseNumber) {
+            break;
+        }
+        index = i + 1;
+    }
+    return index;
+}
 function createSelectedVerses()  {
     const external = writable([]);
     
@@ -141,17 +152,13 @@ function createSelectedVerses()  {
                text: text
             }
             let selections = get(external);
-            selections.push(selection);
+            const newVerseNumber = Number(id);
+            const newIndex = getInsertIndex(newVerseNumber, selections);
+            console.log("Index: %o", newIndex);
+            selections.splice(newIndex, 0, selection);
             external.set(selections);
         },
         removeVerse: (id) => {
-            const currentRefs = get(refs);
-            const selection = {
-                docSet: currentRefs.docSet,
-                book: currentRefs.book,
-                chapter: currentRefs.chapter,
-                verse: id
-            }
             let selections = get(external);
             const index = findIndex(id);
             if (index > -1) {
@@ -165,20 +172,6 @@ function createSelectedVerses()  {
         length: () => {
             let selections = get(external);
             return selections.length;
-        },
-        getNextVerseIndex: (start = -1 ) => {
-            let selections = get(external);
-            let first = -1;
-            const last = Number(start);
-            let index = -1;
-            for (let i = 0; i < selections.length; i++) {
-                const verseNumber = Number(selections[i].verse);
-                if (((first == -1) || (verseNumber < first)) && (verseNumber > last)) {
-                    index = i;
-                    first = verseNumber;
-                }
-            }
-            return(index);
         },
         getVerseByIndex: (i) => {
             let selections = get(external);

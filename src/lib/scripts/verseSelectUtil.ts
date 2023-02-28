@@ -24,11 +24,9 @@ export function onClickText(e: any) {
             }
             /*
             // Display all selected entries in order
-            let nextIndex = selectedVerses.getNextVerseIndex();
-            while (nextIndex != -1)  {
-                const selected = selectedVerses.getVerseByIndex(nextIndex);
-                console.log("Selection %o: verse: %o, text: %o", nextIndex, selected.verse, selected.text);
-                nextIndex = selectedVerses.getNextVerseIndex(selected.verse);
+            for (let i = 0; i < selectedVerses.length(); i++)  {
+                const selected = selectedVerses.getVerseByIndex(i);
+                console.log("Selection %o: verse: %o, text: %o", i, selected.verse, selected.text);
             }
             */
         } else {
