@@ -131,67 +131,69 @@ function createSelectedVerses()  {
     
     return {
         subscribe: external.subscribe,
-        addVerse: (id) => {
+        addVerse: (id, text) => {
             const currentRefs = get(refs);
-            const reference = {
+            const selection = {
                docSet: currentRefs.docSet,
                book: currentRefs.book,
                chapter: currentRefs.chapter,
-               verse: id
+               verse: id,
+               text: text
             }
-            let references = get(external);
-            references.push(reference);
-            external.set(references);
+            let selections = get(external);
+            selections.push(selection);
+            external.set(selections);
         },
         removeVerse: (id) => {
             const currentRefs = get(refs);
-            const reference = {
+            const selection = {
                 docSet: currentRefs.docSet,
                 book: currentRefs.book,
                 chapter: currentRefs.chapter,
                 verse: id
             }
-            let references = get(external);
+            let selections = get(external);
             const index = findIndex(id);
             if (index > -1) {
-                references.splice(index, 1);
-                external.set(references);
+                selections.splice(index, 1);
+                external.set(selections);
             }
         },
         reset: () => {
             external.set([]);
         },
         length: () => {
-            let references = get(external);
-            return references.length;
+            let selections = get(external);
+            return selections.length;
         },
-        getFirstVerseIndex: () => {
-            let references = get(external);
+        getNextVerseIndex: (start = -1 ) => {
+            let selections = get(external);
             let first = -1;
+            const last = Number(start);
             let index = -1;
-            for (let i = 0; i < references.length; i++) {
-                if (first == -1 || Number(references[i].verse) < first) {
+            for (let i = 0; i < selections.length; i++) {
+                const verseNumber = Number(selections[i].verse);
+                if (((first == -1) || (verseNumber < first)) && (verseNumber > last)) {
                     index = i;
-                    first = Number(references[i].verse)
+                    first = verseNumber;
                 }
             }
             return(index);
         },
         getVerseByIndex: (i) => {
-            let references = get(external);
+            let selections = get(external);
             const index = Number(i);
-            console.log("Index: %o", index);
-            if (index > -1 && index < references.length) {
-                console.log("Return");
-                return(references[index])
+            if (index > -1 && index < selections.length) {
+                return(selections[index])
             } else {
-                const reference = {
+                const selection = {
                     docSet: "",
                     book: "",
                     chapter: "",
-                    verse: ""
+                    verse: "",
+                    text: ""
                  }
-                return(reference)
+                return(selection)
             }
         }
     }
