@@ -36,14 +36,14 @@ TODO:
             'content-type': 'application/json',
             accept: 'application/json'
         };
-        console.log(`AudioBar: request: body=`, body);
+        //console.log(`AudioBar: request: body=`, body);
         const res = await fetch('/data/audio', { method, body, headers });
         const j = await res.json();
         if (j.error) {
             console.error(j.error);
             return;
         }
-        console.log(`AudioBar: result=`, j.source);
+        //console.log(`AudioBar: result=`, j.source);
 
         const a = new Audio(`${j.source}`);
         a.onloadedmetadata = () => {
