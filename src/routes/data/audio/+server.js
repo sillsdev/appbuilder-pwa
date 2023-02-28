@@ -7,28 +7,40 @@ export async function POST({ request }) {
     const body = await request.json();
 
     //search config for audio on provided collection, book, and chapter
-    const audio = config.bookCollections.find((c) => {
-        return body.collection.split('_')[0] === c.languageCode && 
-        body.collection.split('_')[1] === c.id;
-    })?.books?.find((b) => (b.id === body.book))?.audio?.find((a) => body.chapter === ''+a.num);
+    const audio = config.bookCollections.find((c) => body.collection === c.id)?.books?.find((b) => (b.id === body.book))?.audio?.find((a) => body.chapter === ''+a.num);
 
     if(!audio) {
-        return json({
-    error: `no audio found for ${body.collection}:${body.book}:${body.chapter}`
-})
+        return json({error: `no audio found for ${body.collection}:${body.book}:${body.chapter}`})
     }
 
-    const source = config.audio.sources[audio.src];
+    const audioSource = config.audio.sources[audio.src];
+    let audioPath = null;
 
-    if(source.type === "fcbh") {
-        return json({
-    error: 'This repository is not currently designed to use audio from FCBH'
-})
+    if(audioSource.type === "fcbh") {
+        const dbp4 = audioSource.address ? audioSource.address : 'https://4.dbt.io';
+        // if (source.accessMethods.includes('download')) {
+        //    // TODO: Figure out how to use Cache API to download audio to PWA
+        // }
+        const request = `${dbp4}/api/bibles/filesets/${audioSource.damId}/${body.book}/${body.chapter}?v=4&key=${audioSource.key}`;
+        const response = await fetch(request, {
+            method: 'GET',
+            headers: {
+                accept: 'application/json'
+            }
+        });
+        const result = await response.json();
+        if (result.error) {
+            return json({ error: `Failed to connect to BibleBrain: ${result.error}`});
+        }
+    
+        audioPath = result.data[0].path;
     }
-
-    let prefix = '';
-    if (source.type === 'assets') prefix = '/audio';
-    else if (source.type === 'download') prefix = source.address;
+    if (audioSource.type === 'assets') {
+        audioPath = '/audio/' + audio.filename;
+    }
+    else if (audioSource.type === 'download') {
+        audioPath = audioSource.address + '/' + audio.filename;
+    }
 
     //parse timing file
     const timing = [];
@@ -51,7 +63,7 @@ export async function POST({ request }) {
     }
 
     return json({
-        source: prefix + '/' + audio.filename,
+        source: audioPath,
         timing: timing.length > 0 ? timing : null
     });
 }

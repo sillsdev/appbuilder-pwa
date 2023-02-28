@@ -26,23 +26,24 @@ TODO:
         duration = NaN;
         progress = 0;
 
-        const res = await fetch('/data/audio', {
-            method: 'POST',
-            body: JSON.stringify({
-                collection: collection,
-                book: book,
-                chapter: chapter
-            }),
-            headers: {
-                'content-type': 'application/json',
-                accept: 'application/json'
-            }
+        const method = 'POST';
+        const body = JSON.stringify({
+            collection: collection,
+            book: book,
+            chapter: chapter
         });
+        const headers = {
+            'content-type': 'application/json',
+            accept: 'application/json'
+        };
+        console.log(`AudioBar: request: body=`, body);
+        const res = await fetch('/data/audio', { method, body, headers });
         const j = await res.json();
         if (j.error) {
             console.error(j.error);
             return;
         }
+        console.log(`AudioBar: result=`, j.source);
 
         const a = new Audio(`${j.source}`);
         a.onloadedmetadata = () => {
@@ -58,7 +59,7 @@ TODO:
         };
         timing = j.timing;
     };
-    $: getAudio($refs.docSet, $refs.book, $refs.chapter);
+    $: getAudio($refs.collection, $refs.book, $refs.chapter);
     $: (() => {
         if (!$audioActive && playing) playPause();
     })();
