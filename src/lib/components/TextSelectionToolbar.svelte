@@ -7,8 +7,6 @@ TODO:
 - Check platform to change to iOS style if MacOS (?)
 - Attach functionality to each of the buttons [Decomp this]
 - Make play button connected to existence of audio
-
-
 -->
 <script>
     import CopyContentIcon from '$lib/icons/CopyContentIcon.svelte';
@@ -20,7 +18,7 @@ TODO:
     import ImageIcon from '$lib/icons/image/ImageSingleIcon.svelte';
     import PlayRepeatIcon from '$lib/icons/audio/PlayRepeatIcon.svelte';
     import config from '$lib/data/config.js';
-    import { t, refs, bookmarks, notes } from '$lib/data/stores';
+    import { t, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     //use $refs.collection as needed
 
@@ -41,13 +39,21 @@ TODO:
         'bc-allow-share-text'
     ];
 
+    function getDate() {
+        let yourDate = new Date();
+        return yourDate.toISOString().split('T')[0];
+    }
+
     function addBookmark() {
+        var todaysDate = getDate();
+
         $bookmarks.push({
             id: $bookmarks.size + 1,
             reference: 'TestBook 10:4',
             text: 'This is a verse placeholder text',
-            date: '31 February 2024'
+            date: Date.prototype.toString()
         });
+        selectedVerses.reset();
         toast('Bookmarked!', {
             position: 'bottom-right'
         });
@@ -60,8 +66,23 @@ TODO:
             text: 'This makes me sad',
             date: '32 February 2025'
         });
+        selectedVerses.reset();
         toast('Noted!', {
             position: 'bottom-center'
+        });
+    }
+
+    function addHighlight() {
+        $highlights.push({
+            id: $highlights.size + 1,
+            reference: 'TestBook 10:5',
+            text: 'This is where the verse would go',
+            date: '38 February 2026',
+            highlight_color: '2'
+        });
+        selectedVerses.reset();
+        toast('Highlighted!', {
+            position: 'bottom-right'
         });
     }
 
@@ -71,11 +92,11 @@ TODO:
 
         // Copy the text inside the text field
         navigator.clipboard.writeText(copyText);
-
         // Alert the copied text
         toast($t['Text_Copied'], {
             position: 'bottom-center'
         });
+        selectedVerses.reset();
     }
 </script>
 
@@ -100,7 +121,7 @@ TODO:
                 </button>
             {/if}
             {#if isHighlightEnabled}
-                <button class="dy-btn-sm dy-btn-ghost">
+                <button class="dy-btn-sm dy-btn-ghost" on:click={() => addHighlight()}>
                     <HighlightIcon />
                 </button>
             {/if}
