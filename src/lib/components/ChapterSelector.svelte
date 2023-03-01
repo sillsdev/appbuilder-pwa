@@ -11,6 +11,8 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
 
+    const showVerseSelector = config.mainFeatures['show-verse-selector'];
+
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
@@ -27,19 +29,25 @@ The navbar component.
     function navigateReference(e) {
         switch (e.detail.tab) {
             case c:
-                chapterSelector.setActive(v);
                 $nextRef.chapter = e.detail.text;
+                if (showVerseSelector) {
+                    chapterSelector.setActive(v);
+                } else {
+                    completeNavigation();
+                }
                 break;
             case v:
-                chapterSelector.setActive(c);
-                $refs.chapter = chapter;
-                // force closes active dropdown elements
-                document.activeElement.blur();
+                completeNavigation();
                 break;
             default:
                 console.log('Chapter navigateReference: Default');
                 break;
         }
+    }
+
+    function completeNavigation() {
+        $refs.chapter = $nextRef.chapter;
+        document.activeElement.blur();
     }
 
     function resetNavigation() {
@@ -53,6 +61,38 @@ The navbar component.
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     const showSelector = config.mainFeatures['show-chapter-number-on-app-bar'];
     const canSelect = config.mainFeatures['show-chapter-selector'];
+
+    function chaptersContent(chapters) {
+        return {
+            component: SelectGrid,
+            props: {
+                options: [
+                    {
+                        cells: Object.keys(chapters).map((x) => ({
+                            label: x,
+                            id: x
+                        }))
+                    }
+                ]
+            }
+        };
+    }
+
+    function versesContent(chapters, chapter) {
+        return {
+            component: SelectGrid,
+            props: {
+                options: [
+                    {
+                        cells: Object.keys(chapters[chapter]).map((x) => ({
+                            label: x,
+                            id: x
+                        }))
+                    }
+                ]
+            }
+        };
+    }
 </script>
 
 <!-- Chapter Selector -->
@@ -68,40 +108,27 @@ The navbar component.
         </svelte:fragment>
         <svelte:fragment slot="content">
             {#if canSelect}
-                <div style:background-color="white">
-                    <TabsMenu
-                        bind:this={chapterSelector}
-                        options={{
-                            [c]: {
-                                component: SelectGrid,
-                                props: {
-                                    options: [
-                                        {
-                                            cells: Object.keys(chapters).map((x) => ({
-                                                label: x,
-                                                id: x
-                                            }))
-                                        }
-                                    ]
-                                }
-                            },
-                            [v]: {
-                                component: SelectGrid,
-                                props: {
-                                    options: [
-                                        {
-                                            cells: Object.keys(chapters[chapter]).map((x) => ({
-                                                label: x,
-                                                id: x
-                                            }))
-                                        }
-                                    ]
-                                }
-                            }
-                        }}
-                        active={c}
-                        on:menuaction={navigateReference}
-                    />
+                <div>
+                    {#if showVerseSelector}
+                        <TabsMenu
+                            bind:this={chapterSelector}
+                            options={{
+                                [c]: chaptersContent(chapters),
+                                [v]: versesContent(chapters, chapter)
+                            }}
+                            active={c}
+                            on:menuaction={navigateReference}
+                        />
+                    {:else}
+                        <TabsMenu
+                            bind:this={chapterSelector}
+                            options={{
+                                [c]: chaptersContent(chapters)
+                            }}
+                            active={c}
+                            on:menuaction={navigateReference}
+                        />
+                    {/if}
                 </div>
             {/if}
         </svelte:fragment>
