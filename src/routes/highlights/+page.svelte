@@ -2,9 +2,9 @@
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { t } from '$lib/data/stores';
+    import { t, highlights } from '$lib/data/stores';
 
-    let highlights: App.Highlight[] = [
+    let statichighlights: App.Highlight[] = [
         {
             id: '7',
             reference: 'John 1:7',
@@ -88,12 +88,16 @@
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
-        {#each highlights as h}
+        {#each $highlights as h}
             {@const colorCard = {
                 reference: h.reference,
                 text: h.text,
                 date: h.date,
-                actions: h.actions,
+                actions: [
+                    $t['Annotation_Menu_View'],
+                    $t['Annotation_Menu_Share'],
+                    $t['Annotation_Menu_Delete']
+                ],
                 highlight_color: h.highlight_color
             }}
             <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...colorCard} />
