@@ -34,7 +34,7 @@ export function onClickText(e: any) {
         }
     }
 }
-selectedVerses.subscribe((o) => {
+export function updateSelections() {
     const items = Array.from(document.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
@@ -53,7 +53,7 @@ selectedVerses.subscribe((o) => {
         const selectedVerse = selectedVerses.getVerseByIndex(i).verse;
         modifyClassOfElements(selectedVerse, 'selected', true);
     }
-});
+}
 // Deselect all elements
 export function deselectAllElements() {
     const els = document.getElementsByTagName('div');

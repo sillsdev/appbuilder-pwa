@@ -19,9 +19,14 @@ TODO:
         mainScroll,
         bodyFontSize,
         bodyLineHeight,
-        themeColors
+        themeColors,
+        selectedVerses
     } from '$lib/data/stores';
-    import { onClickText, deselectAllElements } from '$lib/scripts/verseSelectUtil';
+    import {
+        onClickText,
+        deselectAllElements,
+        updateSelections
+    } from '$lib/scripts/verseSelectUtil';
 
     import { LoadingIcon } from '$lib/icons';
 
@@ -84,6 +89,8 @@ TODO:
         };
     })();
     $: handleScroll([$mainScroll, $refs]);
+
+    $: $selectedVerses, updateSelections();
 
     /**updates highlight*/
     const updateHighlight = (h: string, color: string) => {
