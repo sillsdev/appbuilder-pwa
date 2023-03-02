@@ -34,7 +34,7 @@ export function onClickText(e: any) {
         }
     }
 }
-selectedVerses.subscribe(o => {
+selectedVerses.subscribe((o) => {
     const items = Array.from(document.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
