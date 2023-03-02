@@ -19,7 +19,7 @@ export function onClickText(e: any) {
             const maxSelections = config.mainFeatures['annotation-max-select'];
             const currentLength = selectedVerses.length();
             if (currentLength < maxSelections) {
-                const selectedText = modifyClassOfElements(id, 'selected', true);
+                const selectedText = getTextOfSelectedElements(id);
                 selectedVerses.addVerse(id, selectedText);
             }
             /*
@@ -30,11 +30,30 @@ export function onClickText(e: any) {
             }
             */
         } else {
-            modifyClassOfElements(id, 'selected', false);
             selectedVerses.removeVerse(id);
         }
     }
 }
+selectedVerses.subscribe((o) => {
+    const items = Array.from(document.getElementsByClassName('selected'));
+    let lastId = '';
+    // Deselect entries not in the selected verses array
+    for (let i = 0; i < items.length; i++) {
+        const id = removeIdSuffixes(items[i].id);
+        if (id !== lastId) {
+            lastId = id;
+            const verse = selectedVerses.getVerseByVerseNumber(id);
+            if (verse.verse === '') {
+                modifyClassOfElements(id, 'selected', false);
+            }
+        }
+    }
+    // Select items in list
+    for (let i = 0; i < selectedVerses.length(); i++) {
+        const selectedVerse = selectedVerses.getVerseByIndex(i).verse;
+        modifyClassOfElements(selectedVerse, 'selected', true);
+    }
+});
 // Deselect all elements
 export function deselectAllElements() {
     const els = document.getElementsByTagName('div');
@@ -78,12 +97,45 @@ function isMain(target) {
     return target.tagName === 'MAIN';
 }
 // Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function modifyClassOfElements(id, clsName, select): string {
-    let [success, selectedText] = modifyClassOfElement(id, clsName, select);
+function modifyClassOfElements(id, clsName, select) {
+    let success = modifyClassOfElement(id, clsName, select);
+    for (let i = 97; i <= 122; i++) {
+        const letter = String.fromCharCode(i);
+        success = modifyClassOfElement(id + letter, clsName, select);
+        if (!success) {
+            break;
+        }
+    }
+}
+
+// Modify class name of elements id, id+1, id+2, etc.
+function modifyClassOfElement(id: string, clsName: string, select: boolean): boolean {
+    let found = false;
+    let i = 0;
+    let el = document.getElementById(id);
+
+    while (el) {
+        if (select) {
+            if (!el.classList.contains(clsName)) {
+                el.classList.add(clsName);
+            }
+        } else {
+            el.classList.remove(clsName);
+        }
+        i++;
+        el = document.getElementById(id + '+' + i);
+        found = true;
+    }
+
+    return found;
+}
+// Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
+function getTextOfSelectedElements(id): string {
+    let [success, selectedText] = getTextOfElement(id);
     let text = selectedText;
     for (let i = 97; i <= 122; i++) {
         const letter = String.fromCharCode(i);
-        [success, selectedText] = modifyClassOfElement(id + letter, clsName, select);
+        [success, selectedText] = getTextOfElement(id + letter);
         if (!success) {
             break;
         }
@@ -93,21 +145,14 @@ function modifyClassOfElements(id, clsName, select): string {
 }
 
 // Modify class name of elements id, id+1, id+2, etc.
-function modifyClassOfElement(id: string, clsName: string, select: boolean): [boolean, string] {
+function getTextOfElement(id: string): [boolean, string] {
     let found = false;
     let selectedText = '';
     let i = 0;
     let el = document.getElementById(id);
 
     while (el) {
-        if (select) {
-            selectedText = selectedText.concat(el.textContent);
-            if (!el.classList.contains(clsName)) {
-                el.classList.add(clsName);
-            }
-        } else {
-            el.classList.remove(clsName);
-        }
+        selectedText = selectedText.concat(el.textContent);
         i++;
         el = document.getElementById(id + '+' + i);
         found = true;

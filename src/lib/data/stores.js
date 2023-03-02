@@ -189,7 +189,7 @@ function createSelectedVerses()  {
             let selections = get(external);
             const index = Number(i);
             if (index > -1 && index < selections.length) {
-                return(selections[index])
+                return(selections[index]);
             } else {
                 const selection = {
                     docSet: "",
@@ -198,7 +198,23 @@ function createSelectedVerses()  {
                     verse: "",
                     text: ""
                  }
-                return(selection)
+                return(selection);
+            }
+        },
+        getVerseByVerseNumber: (i) => {
+            let selections = get(external);
+            const index = findIndex(i);
+            if (index > -1) {
+                return(selections[index]);
+            } else {
+                const selection = {
+                    docSet: "",
+                    book: "",
+                    chapter: "",
+                    verse: "",
+                    text: ""
+                 }
+                return(selection);
             }
         }
     }
