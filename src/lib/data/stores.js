@@ -18,11 +18,13 @@ refs.subscribe((value) => {
 
 function createNextRef() {
     const external = writable({ book: '', chapter: '' });
+    const external = writable({ book: '', chapter: '' });
 
     return {
         subscribe: external.subscribe,
         set: external.set,
         reset: () => {
+            external.set({ book: '', chapter: '' });
             external.set({ book: '', chapter: '' });
         }
     }
