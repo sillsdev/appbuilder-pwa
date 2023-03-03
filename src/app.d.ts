@@ -51,15 +51,16 @@ declare namespace App {
         cells?: GridEntry[];
     }
 
-    interface Settings {
-        [category: string]: {
-            [setting: string]: {
-                type: string;
-                value: any;
-                options?: string[];
-                subtitle?: string;
-            };
-        };
+    interface UserPreferenceSetting {
+        type: 'checkbox' | 'list' | 'time';
+        category: string;
+        title: string;
+        summary?: string;
+        key: string;
+        defaultValue: string | boolean;
+        entries?: string[];
+        values?: string[];
+        value?: string | boolean;
     }
 }
 
