@@ -19,9 +19,16 @@ export function onClickText(e: any) {
             const maxSelections = config.mainFeatures['annotation-max-select'];
             const currentLength = selectedVerses.length();
             if (currentLength < maxSelections) {
-                modifyClassOfElements(id, 'selected', true);
-                selectedVerses.addVerse(id);
+                const selectedText = modifyClassOfElements(id, 'selected', true);
+                selectedVerses.addVerse(id, selectedText);
             }
+            /*
+            // Display all selected entries in order
+            for (let i = 0; i < selectedVerses.length(); i++)  {
+                const selected = selectedVerses.getVerseByIndex(i);
+                console.log("Selection %o: verse: %o, text: %o", i, selected.verse, selected.text);
+            }
+            */
         } else {
             modifyClassOfElements(id, 'selected', false);
             selectedVerses.removeVerse(id);
@@ -40,12 +47,12 @@ export function deselectAllElements() {
 }
 
 // Deselect elements
-export function deselectElements(id) {
+export function deselectElements(id: string) {
     modifyClassOfElements(id, 'selected', false);
     selectedVerses.removeVerse(id);
 }
 
-function removeIdSuffixes(id) {
+function removeIdSuffixes(id: string) {
     // Remove +n suffix of id
     if (id.indexOf('+') > 0) {
         id = id.substring(0, id.indexOf('+'));
@@ -71,25 +78,30 @@ function isMain(target) {
     return target.tagName === 'MAIN';
 }
 // Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function modifyClassOfElements(id, clsName, select) {
-    modifyClassOfElement(id, clsName, select);
-
+function modifyClassOfElements(id, clsName, select): string {
+    let [success, selectedText] = modifyClassOfElement(id, clsName, select);
+    let text = selectedText;
     for (let i = 97; i <= 122; i++) {
         const letter = String.fromCharCode(i);
-        if (!modifyClassOfElement(id + letter, clsName, select)) {
+        [success, selectedText] = modifyClassOfElement(id + letter, clsName, select);
+        if (!success) {
             break;
         }
+        text = text.concat(selectedText);
     }
+    return text;
 }
 
 // Modify class name of elements id, id+1, id+2, etc.
-function modifyClassOfElement(id, clsName, select) {
+function modifyClassOfElement(id: string, clsName: string, select: boolean): [boolean, string] {
     let found = false;
+    let selectedText = '';
     let i = 0;
     let el = document.getElementById(id);
 
     while (el) {
         if (select) {
+            selectedText = selectedText.concat(el.textContent);
             if (!el.classList.contains(clsName)) {
                 el.classList.add(clsName);
             }
@@ -101,5 +113,5 @@ function modifyClassOfElement(id, clsName, select) {
         found = true;
     }
 
-    return found;
+    return [found, selectedText];
 }

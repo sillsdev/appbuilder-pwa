@@ -4,6 +4,9 @@ A simple dropdown menu from DaisyUI.
 -->
 <script>
     import { s, convertStyle } from '$lib/data/stores.js';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 </script>
 
 <div class="dy-dropdown">
@@ -16,6 +19,7 @@ A simple dropdown menu from DaisyUI.
         tabindex="0"
         class="dy-dropdown-content dy-menu drop-shadow-lg mt-2.5 bg-base-100 min-w-[21rem]"
         style={convertStyle($s['ui.background'])}
+        on:blur={() => dispatch('nav-end')}
     >
         <slot name="content" />
     </div>
