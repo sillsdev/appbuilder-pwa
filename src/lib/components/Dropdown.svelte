@@ -9,7 +9,7 @@ A simple dropdown menu from DaisyUI.
     const dispatch = createEventDispatcher();
 </script>
 
-<div class="dy-dropdown">
+<div class="dy-dropdown ">
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <label tabindex="0" class="dy-btn dy-btn-ghost p-0.5 dy-no-animation">
         <slot name="label" />
