@@ -25,35 +25,21 @@ export function convertMedia(dataDir: string, verbose: number) {
     if (verbose)
         console.log(`copied ${path.join(dataDir, 'fonts')} to ${path.join('static', 'fonts')}`);
 
-    // Copy the images
-    doCopyForRoute(path.join(dataDir, 'images'), path.join('static', 'images'), verbose);
-
-    // Copy the illustrations
-    doCopyForRoute(path.join(dataDir, 'illustrations'), path.join('static', 'illustrations'), verbose);
-
-    // Copy local audio files
-    doCopyForRoute(path.join(dataDir, 'audio'), path.join('static', 'audio'), verbose);
-
-    // Copy timing files
-    doCopyForRoute(path.join(dataDir, 'timings'), path.join('static', 'timings'), verbose);
-
-    // Copy backgrounds files
-    doCopyForRoute(path.join(dataDir, 'backgrounds'), path.join('static', 'backgrounds'), verbose);
-
-    // Copy borders files
-    doCopyForRoute(path.join(dataDir, 'borders'), path.join('static', 'borders'), verbose);
-
-    // Copy images files
-    doCopyForRoute(path.join(dataDir, 'images'), path.join('static', 'images'), verbose);
-
-    // Copy clips files
-    doCopyForRoute(path.join(dataDir, 'clips'), path.join('static', 'clips'), verbose);
-
-    // Copy videos files
-    doCopyForRoute(path.join(dataDir, 'videos'), path.join('static', 'videos'), verbose);
-
-    // Copy icons files
-    doCopyForRoute(path.join(dataDir, 'icons'), path.join('static', 'icons'), verbose);
+    const paths = [
+        'images',
+        'illustrations',
+        'audio',
+        'timings',
+        'backgrounds',
+        'borders',
+        'images',
+        'clips',
+        'videos',
+        'icons'
+    ];
+    for (const p of paths) {
+        doCopyForRoute(path.join(dataDir, p), path.join('static', p), verbose);
+    }
 }
 
 function doCopyForRoute(from: string, to: string, verbose: number) {
