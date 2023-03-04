@@ -26,124 +26,40 @@ export function convertMedia(dataDir: string, verbose: number) {
         console.log(`copied ${path.join(dataDir, 'fonts')} to ${path.join('static', 'fonts')}`);
 
     // Copy the images
-    if (
-        cpSyncOptional(path.join(dataDir, 'images'), path.join('static', 'images'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'images')} to ${path.join('static', 'images')}`
-            );
-    } else if (verbose) console.log(`no images found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'images'), path.join('static', 'images'), verbose);
 
     // Copy the illustrations
-    if (
-        cpSyncOptional(path.join(dataDir, 'illustrations'), path.join('static', 'illustrations'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'illustrations')} to ${path.join(
-                    'static',
-                    'illustrations'
-                )}`
-            );
-    } else if (verbose) console.log(`no illustrations found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'illustrations'), path.join('static', 'illustrations'), verbose);
 
     // Copy local audio files
-    if (
-        cpSyncOptional(path.join(dataDir, 'audio'), path.join('static', 'audio'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(`copied ${path.join(dataDir, 'audio')} to ${path.join('static', 'audio')}`);
-    } else if (verbose) console.log(`no audio found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'audio'), path.join('static', 'audio'), verbose);
 
     // Copy timing files
-    if (
-        cpSyncOptional(path.join(dataDir, 'timings'), path.join('static', 'timings'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'timings')} to ${path.join('static', 'timings')}`
-            );
-    } else if (verbose) console.log(`no timings found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'timings'), path.join('static', 'timings'), verbose);
 
     // Copy backgrounds files
-    if (
-        cpSyncOptional(path.join(dataDir, 'backgrounds'), path.join('static', 'backgrounds'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'backgrounds')} to ${path.join(
-                    'static',
-                    'backgrounds'
-                )}`
-            );
-    } else if (verbose) console.log(`no backgrounds found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'backgrounds'), path.join('static', 'backgrounds'), verbose);
 
     // Copy borders files
-    if (
-        cpSyncOptional(path.join(dataDir, 'borders'), path.join('static', 'borders'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'borders')} to ${path.join('static', 'borders')}`
-            );
-    } else if (verbose) console.log(`no borders found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'borders'), path.join('static', 'borders'), verbose);
 
     // Copy images files
-    if (
-        cpSyncOptional(path.join(dataDir, 'images'), path.join('static', 'images'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'images')} to ${path.join('static', 'images')}`
-            );
-    } else if (verbose) console.log(`no images found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'images'), path.join('static', 'images'), verbose);
 
     // Copy clips files
-    if (
-        cpSyncOptional(path.join(dataDir, 'clips'), path.join('static', 'clips'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(`copied ${path.join(dataDir, 'clips')} to ${path.join('static', 'clips')}`);
-    } else if (verbose) console.log(`no clips found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'clips'), path.join('static', 'clips'), verbose);
 
     // Copy videos files
-    if (
-        cpSyncOptional(path.join(dataDir, 'videos'), path.join('static', 'videos'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(
-                `copied ${path.join(dataDir, 'videos')} to ${path.join('static', 'videos')}`
-            );
-    } else if (verbose) console.log(`no videos found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'videos'), path.join('static', 'videos'), verbose);
 
     // Copy icons files
-    if (
-        cpSyncOptional(path.join(dataDir, 'icons'), path.join('static', 'icons'), {
-            recursive: true
-        })
-    ) {
-        if (verbose)
-            console.log(`copied ${path.join(dataDir, 'icons')} to ${path.join('static', 'icons')}`);
-    } else if (verbose) console.log(`no icons found in ${dataDir}`);
+    doCopyForRoute(path.join(dataDir, 'icons'), path.join('static', 'icons'), verbose);
+}
+
+function doCopyForRoute(from: string, to: string, verbose: number) {
+    if(cpSyncOptional(from, to, { recursive: true })) {
+        if (verbose) console.log(`copied ${from} to ${to}`);
+    } else if (verbose) console.log(`no files found in ${from}`);
 }
 
 export interface MediaTaskOutput extends TaskOutput {
