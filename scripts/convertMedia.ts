@@ -1,4 +1,5 @@
-import { CopyOptions, cpSync, rmdirSync } from 'fs';
+import { CopyOptions, cpSync } from 'fs';
+import rmDir from 'rimraf';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
@@ -12,9 +13,9 @@ function cpSyncOptional(source: string, destination: string, opts?: CopyOptions)
     }
 }
 /**
- * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
+ * Copies a directory from supplied data folder to a target
  */
-function copyDirectory(from: string, to: string, verbose: number, optional: boolean) {
+function cloneDirectory(from: string, to: string, verbose: number, optional: boolean = false) {
     if(optional) {
         if(cpSyncOptional(from, to, { recursive: true })) {
             if (verbose) console.log(`copied ${from} to ${to}`);
@@ -51,48 +52,30 @@ export class ConvertMedia extends Task {
         super(dataDir);
     }
 
-    public async run(verbose: number, outputs: Map<string, TaskOutput>, modifiedPaths?: string[]): Promise<TaskOutput> {
-        if(!modifiedPaths) {
-            // It's a full run, so delete everything in static/{triggerFiles}
-            // We can't delete the whole folder, because other steps may have created files in there (eg. ConvertBooks)
-            for(let p of this.triggerFiles) {
-                rmdirSync(path.join('static', p), { recursive: true });
-            }
-            this.convertMedia(this.dataDir, verbose);
-        } else {
-            // It's a partial run, so only copy the files that were modified
-            let modifiedDirectories = this.triggerFiles.filter((p) => modifiedPaths.some((mp) => mp.startsWith(p) + path.sep || mp === p));
-            this.convertMedia(this.dataDir, verbose, modifiedDirectories);
+    public async run(verbose: number, outputs: Map<string, TaskOutput>, modifiedPaths: string[]): Promise<TaskOutput> {
+        let modifiedDirectories = new Set<string>();
+        for (const p of modifiedPaths) {
+            modifiedDirectories.add(p.split(path.sep)[0]);
         }
-
+        await this.convertMedia(this.dataDir, verbose, [...modifiedDirectories]);
         return {
             taskName: this.constructor.name,
             files: []
         };
     }
-    convertMedia(dataDir: string, verbose: number, modifiedDirectories?: string[]) {
-        const requiredPaths = [
-            'styles',
-            'fonts'
-        ];
-        for(let p of requiredPaths) {
-            copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, false);
-        }
-    
-        const optionalPaths = [
-            'images',
-            'illustrations',
-            'audio',
-            'timings',
-            'backgrounds',
-            'borders',
-            'images',
-            'clips',
-            'videos',
-            'icons'
-        ];
-        for (const p of optionalPaths) {
-            copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, true);
+    async convertMedia(dataDir: string, verbose: number, modifiedDirectories: string[]) {
+        const required = ['styles', 'fonts'];
+
+        // FIXME: about 1/5 times the copy fails because of EPERM
+        // I suspect this is because of my filesystem. If you also encounter this
+        // error there will need to be a delay between the removal and the copy.
+        await Promise.all(modifiedDirectories.map(p => rmDir(path.join('static', p)).then(() => {
+            if (verbose) console.log(`removed ${path.join('static', p)}`);
+            return p;
+        })));
+
+        for (const p of modifiedDirectories) {
+            cloneDirectory(path.join(dataDir, p), path.join('static', p), verbose, !required.includes(p));
         }
     }
 }
