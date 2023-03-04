@@ -15,17 +15,15 @@ function cpSyncOptional(source: string, destination: string, opts?: CopyOptions)
  * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
  */
 export function convertMedia(dataDir: string, verbose: number) {
-    // Copy the css stylesheets
-    cpSync(path.join(dataDir, 'styles'), path.join('static', 'styles'), { recursive: true });
-    if (verbose)
-        console.log(`copied ${path.join(dataDir, 'styles')} to ${path.join('static', 'styles')}`);
+    const requiredPaths = [
+        'styles',
+        'fonts'
+    ];
+    for(let p of requiredPaths) {
+        copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, false);
+    }
 
-    // Copy the font files
-    cpSync(path.join(dataDir, 'fonts'), path.join('static', 'fonts'), { recursive: true });
-    if (verbose)
-        console.log(`copied ${path.join(dataDir, 'fonts')} to ${path.join('static', 'fonts')}`);
-
-    const paths = [
+    const optionalPaths = [
         'images',
         'illustrations',
         'audio',
@@ -37,15 +35,20 @@ export function convertMedia(dataDir: string, verbose: number) {
         'videos',
         'icons'
     ];
-    for (const p of paths) {
-        doCopyForRoute(path.join(dataDir, p), path.join('static', p), verbose);
+    for (const p of optionalPaths) {
+        copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, true);
     }
 }
 
-function doCopyForRoute(from: string, to: string, verbose: number) {
-    if(cpSyncOptional(from, to, { recursive: true })) {
+function copyDirectory(from: string, to: string, verbose: number, optional: boolean) {
+    if(optional) {
+        if(cpSyncOptional(from, to, { recursive: true })) {
+            if (verbose) console.log(`copied ${from} to ${to}`);
+        } else if (verbose) console.log(`no files found in ${from}`);
+    } else {
+        cpSync(from, to, { recursive: true });
         if (verbose) console.log(`copied ${from} to ${to}`);
-    } else if (verbose) console.log(`no files found in ${from}`);
+    }
 }
 
 export interface MediaTaskOutput extends TaskOutput {
