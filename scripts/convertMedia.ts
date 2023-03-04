@@ -1,4 +1,4 @@
-import { CopyOptions, cpSync } from 'fs';
+import { CopyOptions, cpSync, rmdirSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
@@ -14,32 +14,6 @@ function cpSyncOptional(source: string, destination: string, opts?: CopyOptions)
 /**
  * Copies styles, fonts, images, illustrations, audio, and timings from supplied data folder to static.
  */
-export function convertMedia(dataDir: string, verbose: number) {
-    const requiredPaths = [
-        'styles',
-        'fonts'
-    ];
-    for(let p of requiredPaths) {
-        copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, false);
-    }
-
-    const optionalPaths = [
-        'images',
-        'illustrations',
-        'audio',
-        'timings',
-        'backgrounds',
-        'borders',
-        'images',
-        'clips',
-        'videos',
-        'icons'
-    ];
-    for (const p of optionalPaths) {
-        copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, true);
-    }
-}
-
 function copyDirectory(from: string, to: string, verbose: number, optional: boolean) {
     if(optional) {
         if(cpSyncOptional(from, to, { recursive: true })) {
@@ -77,11 +51,48 @@ export class ConvertMedia extends Task {
         super(dataDir);
     }
 
-    public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
-        convertMedia(this.dataDir, verbose);
+    public async run(verbose: number, outputs: Map<string, TaskOutput>, modifiedPaths?: string[]): Promise<TaskOutput> {
+        if(!modifiedPaths) {
+            // It's a full run, so delete everything in static/{triggerFiles}
+            // We can't delete the whole folder, because other steps may have created files in there (eg. ConvertBooks)
+            for(let p of this.triggerFiles) {
+                rmdirSync(path.join('static', p), { recursive: true });
+            }
+            this.convertMedia(this.dataDir, verbose);
+        } else {
+            // It's a partial run, so only copy the files that were modified
+            let modifiedDirectories = this.triggerFiles.filter((p) => modifiedPaths.some((mp) => mp.startsWith(p) + path.sep || mp === p));
+            this.convertMedia(this.dataDir, verbose, modifiedDirectories);
+        }
+
         return {
             taskName: this.constructor.name,
             files: []
         };
+    }
+    convertMedia(dataDir: string, verbose: number, modifiedDirectories?: string[]) {
+        const requiredPaths = [
+            'styles',
+            'fonts'
+        ];
+        for(let p of requiredPaths) {
+            copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, false);
+        }
+    
+        const optionalPaths = [
+            'images',
+            'illustrations',
+            'audio',
+            'timings',
+            'backgrounds',
+            'borders',
+            'images',
+            'clips',
+            'videos',
+            'icons'
+        ];
+        for (const p of optionalPaths) {
+            copyDirectory(path.join(dataDir, p), path.join('static', p), verbose, true);
+        }
     }
 }
