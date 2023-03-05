@@ -9,6 +9,28 @@ TODO:
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
     import config from '$lib/data/config';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
+
+    function close() {
+        dispatch('close');
+    }
+
+    let isPopupOpen = false;
+
+    function openPopup() {
+        isPopupOpen = true;
+    }
+
+    function closePopup() {
+        isPopupOpen = false;
+    }
+
+    function handleSpeedChange(event) {
+        const speed = parseFloat(event.target.value);
+        dispatch('speedchange', { speed });
+    }
 
     let duration = NaN;
     let progress = 0;
@@ -236,9 +258,58 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <button class="dy-btn-sm dy-btn-ghost">
+            <button class="dy-btn-sm dy-btn-ghost" on:click={openPopup}>
                 <AudioIcon.Speed color={iconColor} />
             </button>
+        {/if}
+        {#if isPopupOpen}
+            <div class="popup">
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div class="overlay" on:click={closePopup} />
+                <div class="content">
+                    <slot />
+                    <div class="speed-controls">
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="0.5"
+                                on:change={handleSpeedChange}
+                                checked
+                            />
+                            0.5x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="1"
+                                on:change={handleSpeedChange}
+                            />
+                            1x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="1.5"
+                                on:change={handleSpeedChange}
+                            />
+                            1.5x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="2"
+                                on:change={handleSpeedChange}
+                            />
+                            2x
+                        </label>
+                    </div>
+                    <button on:click={closePopup}>Close</button>
+                </div>
+            </div>
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
@@ -295,5 +366,46 @@ TODO:
         grid-row: 1;
         grid-column: 3;
         place-self: center;
+    }
+    .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .speed-controls {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+    }
+
+    label {
+        margin-right: 0px;
     }
 </style>
