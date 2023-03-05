@@ -285,16 +285,44 @@ TODO:
                 <div class="overlay" on:click={closePopup} />
                 <div class="content">
                     <slot />
+                    <h1><b>Playback Speed</b></h1>
                     <div class="speed-controls">
                         <label>
                             <input
                                 type="radio"
                                 name="speed"
-                                value="0.5"
+                                value="0.4"
                                 on:change={handleSpeedChange}
                                 checked
                             />
-                            0.5x
+                            0.4x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="0.6"
+                                on:change={handleSpeedChange}
+                            />
+                            0.6x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="0.7"
+                                on:change={handleSpeedChange}
+                            />
+                            0.7x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="0.8"
+                                on:change={handleSpeedChange}
+                            />
+                            0.8x
                         </label>
                         <label>
                             <input
@@ -303,25 +331,34 @@ TODO:
                                 value="1"
                                 on:change={handleSpeedChange}
                             />
-                            1x
+                            Normal
                         </label>
                         <label>
                             <input
                                 type="radio"
                                 name="speed"
-                                value="1.5"
+                                value="1.2"
                                 on:change={handleSpeedChange}
                             />
-                            1.5x
+                            1.2x
                         </label>
                         <label>
                             <input
                                 type="radio"
                                 name="speed"
-                                value="2"
+                                value="1.4"
                                 on:change={handleSpeedChange}
                             />
-                            2x
+                            1.4x
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="speed"
+                                value="1.6"
+                                on:change={handleSpeedChange}
+                            />
+                            1.6x
                         </label>
                     </div>
                     <button on:click={closePopup}>Close</button>
@@ -406,22 +443,28 @@ TODO:
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+        width: 90%;
+        height: 90%;
+        max-width: 700px;
+        max-height: 500px;
         background-color: white;
         padding: 20px;
         border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .speed-controls {
-        display: flex;
-        align-items: center;
+        align-items: left;
         margin-top: 10px;
-
         display: flex;
         flex-direction: column;
-        margin-top: 10px;
     }
 
     label {
         margin-right: 0px;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 </style>
