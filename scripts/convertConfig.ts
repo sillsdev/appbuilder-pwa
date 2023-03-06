@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, PathLike, readdir } from 'fs';
+import { readFileSync, existsSync, PathLike, readdirSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
@@ -235,13 +235,7 @@ function parseTrait(tag: Element, name: string): string {
 function dirEmpty(path: PathLike): boolean {
     let empty = true;
     if (existsSync(path)) {
-        readdir(path, (err, list) => {
-            if (err) return;
-            if (list) {
-                empty = false;
-                return;
-            }
-        });
+        empty = readdirSync(path).length == 0;
     }
     return empty;
 }
@@ -610,7 +604,7 @@ function convertConfig(dataDir: string, verbose: number) {
     };
     */
 
-    const videoTags = document.getElementsByTagName('videos')[0].getElementsByTagName('video');
+    const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
     if (videoTags?.length > 0) {
         data.videos = [];
 
