@@ -24,16 +24,13 @@
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
-    $: contentClass =
-        $refs.hasAudio && $audioActive
-            ? $refs.hasAudio.timingFile
-                ? 'content-with-bar'
-                : 'content-with-bar-progress'
-            : '';
-    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
+    // Border Subtraction
+    $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
+    // Content Subtarction
+    $: cs = 1 + bs + (config.traits['has-borders'] ? 3.5 : 0);
 </script>
 
-<div class="navbar">
+<div class="navbar h-16">
     <Navbar>
         <div slot="left-buttons">
             <BookSelector />
@@ -68,43 +65,30 @@
         </div>
     </Navbar>
 </div>
-<ScrolledContent>
-    <div
-        class={contentClass}
-        slot="scrolled-content"
-        use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-        on:swipe={doSwipe}
-    >
-        <ScriptureViewSofria />
-    </div>
-</ScrolledContent>
+<div
+    class:borderimg={config.traits['has-borders']}
+    style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
+>
+    <ScrolledContent>
+        <div
+            style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
+            slot="scrolled-content"
+            use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+            on:swipe={doSwipe}
+        >
+            <ScriptureViewSofria />
+        </div>
+    </ScrolledContent>
+</div>
 {#if $refs.hasAudio && $audioActive}
     <div class="footer">
-        <div class={audioBarClass}>
+        <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
             <AudioBar />
         </div>
     </div>
 {/if}
 
 <style>
-    .navbar {
-        height: 4rem;
-    }
-    /*shrink to accomodate the audio bar*/
-    .content-with-bar-progress {
-        height: calc(100vh - 10rem);
-        height: calc(100dvh - 10rem);
-    }
-    .content-with-bar {
-        height: calc(100vh - 9rem);
-        height: calc(100dvh - 9rem);
-    }
-    .audio-bar-with-progress {
-        height: 5rem;
-    }
-    .audio-bar {
-        height: 4rem;
-    }
     .footer {
         padding: 0 0 0 0;
         position: absolute;
@@ -119,5 +103,11 @@
         .footer-progress {
             left: 320px;
         }
+    }
+    .borderimg {
+        border: 30px solid transparent;
+        padding: 15;
+        border-image: url(/borders/border.png);
+        border-image-slice: 100;
     }
 </style>
