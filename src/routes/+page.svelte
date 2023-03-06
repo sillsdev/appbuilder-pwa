@@ -81,7 +81,7 @@
     </ScrolledContent>
 </div>
 {#if $refs.hasAudio && $audioActive}
-    <div class="footer">
+    <div class="audio-bar p-0 left-0 right-0 bottom-0 absolute">
         <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
             <AudioBar />
         </div>
@@ -89,25 +89,14 @@
 {/if}
 
 <style>
-    .footer {
-        padding: 0 0 0 0;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        left: 0;
-    }
     @media (min-width: 1024px) {
-        .footer {
-            left: 320px;
-        }
-        .footer-progress {
+        .audio-bar {
             left: 320px;
         }
     }
     .borderimg {
         border: 30px solid transparent;
-        padding: 15;
-        border-image: url(/borders/border.png);
+        border-image-source: url(/borders/border.png);
         border-image-slice: 100;
     }
 </style>
