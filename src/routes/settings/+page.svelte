@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { s, t, userSettings } from '$lib/data/stores';
+    import { t, userSettings, theme } from '$lib/data/stores';
     import config from '$lib/data/config';
 
     const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
@@ -92,7 +92,7 @@
 
         if (
             config.mainFeatures['settings-display-videos-in-bible-text'] &&
-            config.videos.length > 0
+            config.traits['has-video']
         ) {
             // Videos in Bible Text
             settings.push({
@@ -146,7 +146,7 @@
 
         const hasAudioSourceWithAccessModeChoice =
             Object.keys(config.audio.sources).filter(
-                (key) => config.audio.sources[key].accessMethods.length > 1
+                (key) => config.audio.sources[key].accessMethods?.length > 1
             ).length > 0;
         if (
             config.mainFeatures['settings-audio-access-method'] &&
@@ -168,7 +168,7 @@
 
         const hasAudioSourceWitbDownload =
             Object.keys(config.audio.sources).filter((key) =>
-                config.audio.sources[key].accessMethods.includes('download')
+                config.audio.sources[key].accessMethods?.includes('download')
             ).length > 0;
         if (config.mainFeatures['settings-audio-download-mode'] && hasAudioSourceWitbDownload) {
             settings.push({
@@ -425,7 +425,8 @@
     <div class="larger" slot="scrolled-content">
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
-            <div class="settings-category">
+            {(console.log(`THEME:`, $theme), '')}
+            <div class="settings-category" class:dark={$theme === 'Dark'}>
                 {$t[category]}
             </div>
             {#each categories[category] as setting, i}
@@ -435,7 +436,9 @@
                         class:settings-separator={i > 0}
                     >
                         <label class="dy-label py-0 cursor-pointer">
-                            <div class="settings-title">{$t[setting.title]}</div>
+                            <div class="settings-title" class:dark={$theme === 'Dark'}>
+                                {$t[setting.title]}
+                            </div>
                             <input
                                 type="checkbox"
                                 class="dy-checkbox"
@@ -454,7 +457,9 @@
                         class="dy-form-control settings-item w-full max-w-lg"
                         class:settings-separator={i > 0}
                     >
-                        <div class="settings-title py-0">{$t[setting.title]}</div>
+                        <div class="settings-title py-0" class:dark={$theme === 'Dark'}>
+                            {$t[setting.title]}
+                        </div>
                         <select
                             class="dy-select dy-select-ghost dy-select-sm px-0"
                             bind:value={setting.value}
@@ -474,7 +479,9 @@
                         class="dy-form-control settings-item w-full max-w-lg"
                         class:settings-separator={i > 0}
                     >
-                        <div class="settings-title py-0">{$t[setting.title]}</div>
+                        <div class="settings-title py-0" class:dark={$theme === 'Dark'}>
+                            {$t[setting.title]}
+                        </div>
                         <!-- TODO: Time Control -->
                         <div class="settings-summary py-0">{setting.defaultValue}</div>
                         {#if setting.summary}
@@ -488,6 +495,9 @@
 </ScrolledContent>
 
 <style>
+    div.dark {
+        color: #e0e0e0;
+    }
     .navbar {
         height: 10vh;
     }
