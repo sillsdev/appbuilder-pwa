@@ -27,9 +27,9 @@ TODO:
         isPopupOpen = false;
     }
 
-    function handleSpeedChange(event) {
+    function setPlaySpeed(event) {
         const speed = parseFloat(event.target.value);
-        dispatch('speedchange', { speed });
+        audio.playbackRate = speed;
     }
 
     let duration = NaN;
@@ -198,6 +198,7 @@ TODO:
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
+    $: themeColor = $s['ui.bar.action']['background-color'];
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
@@ -268,43 +269,22 @@ TODO:
                 <div class="overlay" on:click={closePopup} />
                 <div class="content">
                     <slot />
-                    <h1><b>Playback Speed</b></h1>
+                    <h1 style="color:{themeColor}"><b>Playback Speed</b></h1>
                     <div class="speed-controls">
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="0.4"
-                                on:change={handleSpeedChange}
-                                checked
-                            />
+                            <input type="radio" name="speed" value="0.4" on:click={setPlaySpeed} />
                             0.4x
                         </label>
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="0.6"
-                                on:change={handleSpeedChange}
-                            />
+                            <input type="radio" name="speed" value="0.6" on:change={setPlaySpeed} />
                             0.6x
                         </label>
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="0.7"
-                                on:change={handleSpeedChange}
-                            />
+                            <input type="radio" name="speed" value="0.7" on:click={setPlaySpeed} />
                             0.7x
                         </label>
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="0.8"
-                                on:change={handleSpeedChange}
-                            />
+                            <input type="radio" name="speed" value="0.8" on:click={setPlaySpeed} />
                             0.8x
                         </label>
                         <label>
@@ -312,35 +292,21 @@ TODO:
                                 type="radio"
                                 name="speed"
                                 value="1"
-                                on:change={handleSpeedChange}
+                                on:click={setPlaySpeed}
+                                checked
                             />
                             Normal
                         </label>
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="1.2"
-                                on:change={handleSpeedChange}
-                            />
+                            <input type="radio" name="speed" value="1.2" on:click={setPlaySpeed} />
                             1.2x
                         </label>
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="1.4"
-                                on:change={handleSpeedChange}
-                            />
+                            <input type="radio" name="speed" value="1.4" on:click={setPlaySpeed} />
                             1.4x
                         </label>
                         <label>
-                            <input
-                                type="radio"
-                                name="speed"
-                                value="1.6"
-                                on:change={handleSpeedChange}
-                            />
+                            <input type="radio" name="speed" value="1.6" on:click={setPlaySpeed} />
                             1.6x
                         </label>
                     </div>
