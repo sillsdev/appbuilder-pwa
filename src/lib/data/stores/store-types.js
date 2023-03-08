@@ -1,6 +1,6 @@
 import { writable, derived, get } from 'svelte/store';
-import { catalog } from './catalog';
-import config from './config';
+import { catalog } from '../catalog';
+import config from '../config';
 
 /**stores references and some useful derived information.*/
 export const referenceStore = (initReference) => {

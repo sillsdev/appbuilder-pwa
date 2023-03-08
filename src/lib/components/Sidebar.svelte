@@ -18,7 +18,14 @@ The sidebar/drawer.
     import config from '$lib/data/config';
     import { beforeNavigate } from '$app/navigation';
     import { firebaseConfig } from '$lib/data/firebase-config';
-    import { s, t, themeColors, language, languageDefault } from '$lib/data/stores';
+    import {
+        s,
+        t,
+        themeColors,
+        language,
+        languageDefault,
+        showDesktopSidebar
+    } from '$lib/data/stores';
     const drawerId = 'sidebar';
     const closeDrawer = () => {
         document.activeElement.blur();
@@ -45,7 +52,7 @@ The sidebar/drawer.
     $: contentTextColor = $themeColors['TextColor'];
 </script>
 
-<div class="dy-drawer dy-drawer-mobile">
+<div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar}>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
     <div
         class="dy-drawer-content flex flex-col"

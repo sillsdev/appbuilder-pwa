@@ -4,7 +4,7 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, refs, showDesktopSidebar } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -81,7 +81,10 @@
     </ScrolledContent>
 </div>
 {#if $refs.hasAudio && $audioActive}
-    <div class="audio-bar p-0 left-0 right-0 bottom-0 absolute">
+    <div
+        class="audio-bar p-0 left-0 right-0 bottom-0 absolute"
+        class:audio-bar-desktop={$showDesktopSidebar}
+    >
         <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
             <AudioBar />
         </div>
@@ -90,7 +93,7 @@
 
 <style>
     @media (min-width: 1024px) {
-        .audio-bar {
+        .audio-bar-desktop {
             left: 320px;
         }
     }
