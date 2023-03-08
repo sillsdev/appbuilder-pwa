@@ -3,7 +3,7 @@
 A simple dropdown menu from DaisyUI.
 -->
 <script>
-    import { s, convertStyle } from '$lib/data/stores.js';
+    import { s, convertStyle } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();

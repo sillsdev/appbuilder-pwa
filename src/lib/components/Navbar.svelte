@@ -4,7 +4,7 @@ The navbar component.
 -->
 <script>
     import { HamburgerIcon } from '$lib/icons';
-    import { viewMode, convertStyle, s } from '$lib/data/stores';
+    import { viewMode, convertStyle, s, showDesktopSidebar } from '$lib/data/stores';
     $: actionBarColor = $s['ui.bar.action']['background-color'];
 </script>
 
@@ -15,10 +15,8 @@ The navbar component.
     <div class="dy-navbar-start">
         <label
             for="sidebar"
-            class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button {$viewMode ===
-            'Side By Side'
-                ? ''
-                : 'lg:hidden'}"
+            class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
+            class:lg:hidden={$showDesktopSidebar && $viewMode !== 'Side By Side'}
         >
             <HamburgerIcon color="white" />
         </label>
