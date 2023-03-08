@@ -6,7 +6,7 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, nextRef, s, t, convertStyle } from '$lib/data/stores';
+    import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
@@ -16,9 +16,9 @@ The navbar component.
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
 
-    const listView = config.mainFeatures['book-select'] === 'list';
+    const listView = $userSettings['book-selection'] === 'list';
     const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = config.mainFeatures['show-verse-selector'];
+    const showVerseSelector = $userSettings['verse-selection'];
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
