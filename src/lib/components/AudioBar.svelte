@@ -10,12 +10,16 @@ TODO:
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
     import config from '$lib/data/config';
     import { createEventDispatcher } from 'svelte';
+    import {
+        language,
+        languages,
+        theme,
+        themes,
+        bodyFontSize,
+        bodyLineHeight
+    } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
-
-    function close() {
-        dispatch('close');
-    }
 
     let isPopupOpen = false;
 
@@ -201,6 +205,7 @@ TODO:
     $: themeColor = $s['ui.bar.action']['background-color'];
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
+    $: dialogBackgroundColor = $s['ui.dialog']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     $: mayResetPlayMode($refs.hasAudio?.timing);
 </script>
@@ -267,16 +272,18 @@ TODO:
             <div class="popup">
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="overlay" on:click={closePopup} />
-                <div class="content">
+                <div class="popup-content" style="background-color:{dialogBackgroundColor};">
                     <slot />
-                    <h1 style="color:{themeColor}"><b>Playback Speed</b></h1>
+                    <h1 style="color:{themeColor}">
+                        <b>Playback Speed</b>
+                    </h1>
                     <div class="speed-controls">
                         <label>
                             <input type="radio" name="speed" value="0.4" on:click={setPlaySpeed} />
                             0.4x
                         </label>
                         <label>
-                            <input type="radio" name="speed" value="0.6" on:change={setPlaySpeed} />
+                            <input type="radio" name="speed" value="0.6" on:click={setPlaySpeed} />
                             0.6x
                         </label>
                         <label>
@@ -388,7 +395,7 @@ TODO:
         background-color: rgba(0, 0, 0, 0.5);
     }
 
-    .content {
+    .popup-content {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -397,7 +404,6 @@ TODO:
         height: 90%;
         max-width: 700px;
         max-height: 500px;
-        background-color: white;
         padding: 20px;
         border-radius: 5px;
         display: flex;
