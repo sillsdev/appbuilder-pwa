@@ -176,11 +176,3 @@ The navbar component.
         </div>
     </svelte:fragment>
 </Dropdown>
-
-<style>
-    .book-only-content {
-        padding: 0.2rem;
-        max-height: 50vh;
-        overflow-y: auto;
-    }
-</style>
