@@ -17,8 +17,6 @@ TODO:
         scrolls,
         audioActive,
         mainScroll,
-        bodyFontSize,
-        bodyLineHeight,
         themeColors,
         selectedVerses
     } from '$lib/data/stores';
@@ -30,6 +28,9 @@ TODO:
 
     import { LoadingIcon } from '$lib/icons';
 
+    export let bodyFontSize: any;
+    export let bodyLineHeight: any;
+    export let viewShowVerses: boolean;
     const pk = new Proskomma();
     let container: HTMLElement;
     const seprgx = /(\.|\?|!|:|;|,|')/g;
@@ -202,7 +203,6 @@ TODO:
         workspace.text = '';
         return;
     };
-
     const processText = (introductionGraft, showIntroduction, titleGraft) => {
         let returnValue = false;
         if (introductionGraft == showIntroduction || (titleGraft && showIntroduction)) {
@@ -210,12 +210,31 @@ TODO:
         }
         return returnValue;
     };
+    function handleVerseLabel(element, showVerseNumbers, workspace) {
+        if (showVerseNumbers === true) {
+            var spanV = document.createElement('span');
+            spanV.classList.add('v');
+            spanV.innerText = element.atts['number'];
+            var spanVsp = document.createElement('span');
+            spanVsp.classList.add('vsp');
+            spanVsp.innerText = '\u00A0'; // &nbsp
+            var div = workspace.phraseDiv.cloneNode(true);
+            div.appendChild(spanV.cloneNode(true));
+            div.appendChild(spanVsp.cloneNode(true));
+            workspace.phraseDiv = div.cloneNode(true);
+        }
+    }
     let bookRoot = document.createElement('div');
     // console.log('START: %o', bookRoot);
     let loading = true;
 
     const output = {};
-    const query = async (docSet: string, bookCode: string, chapter: string) => {
+    const query = async (
+        docSet: string,
+        bookCode: string,
+        chapter: string,
+        showVerses: boolean
+    ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         const docslist = await pk.gqlQuery('{docSets { id } }');
         // console.log('LIST %o', docslist);
@@ -448,17 +467,7 @@ TODO:
                                     workspace.paragraphDiv.appendChild(div);
                                     //                                    workspace.htmlBits.push(`<div class="c-drop"> ${element.atts['number']}</div>\n`);
                                 } else if (element.subType === 'verses_label') {
-                                    var spanV = document.createElement('span');
-                                    spanV.classList.add('v');
-                                    spanV.innerText = element.atts['number'];
-                                    var spanVsp = document.createElement('span');
-                                    spanVsp.classList.add('vsp');
-                                    spanVsp.innerText = '\u00A0'; // &nbsp
-                                    var div = workspace.phraseDiv.cloneNode(true);
-                                    div.appendChild(spanV.cloneNode(true));
-                                    div.appendChild(spanVsp.cloneNode(true));
-                                    // console.log('OUT: %o %o %o', div, spanV, spanVsp);
-                                    workspace.phraseDiv = div.cloneNode(true);
+                                    handleVerseLabel(element, showVerses, workspace);
                                 }
                             }
                         }
@@ -681,9 +690,10 @@ TODO:
         // console.log('DONE %o', root);
     };
 
-    $: fontSize = $bodyFontSize + 'px';
+    $: fontSize = bodyFontSize + 'px';
 
-    $: lineHeight = $bodyLineHeight + '%';
+    $: lineHeight = bodyLineHeight + '%';
+
     $: highlightColor = $themeColors['TextHighlightColor'];
 
     $: (() => {
@@ -698,7 +708,7 @@ TODO:
         const bookCode = $refs.book;
         const chapter = chapterToDisplay;
         const docSet = $refs.docSet;
-        query(docSet, bookCode, chapter);
+        query(docSet, bookCode, chapter, viewShowVerses);
     })();
     onDestroy(unSub);
 </script>

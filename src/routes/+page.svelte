@@ -4,7 +4,14 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive, refs, showDesktopSidebar } from '$lib/data/stores';
+    import {
+        audioActive,
+        refs,
+        showDesktopSidebar,
+        bodyFontSize,
+        bodyLineHeight,
+        userSettings
+    } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -24,6 +31,11 @@
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
+    $: viewSettings = {
+        bodyFontSize: $bodyFontSize,
+        bodyLineHeight: $bodyLineHeight,
+        viewShowVerses: $userSettings['verse-numbers']
+    };
     // Border Subtraction
     $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
     // Content Subtarction
@@ -76,7 +88,7 @@
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
             on:swipe={doSwipe}
         >
-            <ScriptureViewSofria />
+            <ScriptureViewSofria {...viewSettings} />
         </div>
     </ScrolledContent>
 </div>
