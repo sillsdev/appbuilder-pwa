@@ -20,14 +20,6 @@ TODO:
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { createEventDispatcher } from 'svelte';
-    import {
-        language,
-        languages,
-        theme,
-        themes,
-        bodyFontSize,
-        bodyLineHeight
-    } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
 
