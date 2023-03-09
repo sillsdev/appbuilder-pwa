@@ -10,14 +10,6 @@ TODO:
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
     import config from '$lib/data/config';
     import { createEventDispatcher } from 'svelte';
-    import {
-        language,
-        languages,
-        theme,
-        themes,
-        bodyFontSize,
-        bodyLineHeight
-    } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
 
