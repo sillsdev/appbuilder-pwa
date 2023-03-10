@@ -21,9 +21,10 @@
 
 <style>
     .navbar {
-        height: 10vh;
+        height: 4em;
     }
     .larger {
-        height: 90vh;
+        height: calc (100vh - 4em);
+        height: calc (100dvh - 4em);
     }
 </style>
