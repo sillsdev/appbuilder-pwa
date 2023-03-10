@@ -1,6 +1,7 @@
 import { groupStore } from './store-types';
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import { setDefaultStorage } from './storage';
+import { userSettings } from './setting';
 
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
@@ -18,4 +19,4 @@ setDefaultStorage('bodyLineHeight', '175');
 export const bodyLineHeight = writable(localStorage.bodyLineHeight);
 bodyLineHeight.subscribe((lineHeight)=> localStorage.bodyLineHeight = lineHeight);
 
-export const showDesktopSidebar = writable(true);
+export const showDesktopSidebar = derived(userSettings, $userSettings => $userSettings['desktop-sidebar']);
