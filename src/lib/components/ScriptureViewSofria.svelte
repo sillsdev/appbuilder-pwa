@@ -31,6 +31,8 @@ TODO:
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let viewShowVerses: boolean;
+    export let redLetters: boolean;
+
     const pk = new Proskomma();
     let container: HTMLElement;
     const seprgx = /(\.|\?|!|:|;|,|')/g;
@@ -188,10 +190,9 @@ TODO:
                 phrases[0] = workspace.text;
             }
             for (let i = 0; i < phrases.length; i++) {
-                const div = workspace.phraseDiv.cloneNode(true);
+                let div = workspace.phraseDiv.cloneNode(true);
                 const phrase = phrases[i];
-                const textNode = document.createTextNode(phrase);
-                div.appendChild(textNode);
+                div = addTextNode(div, phrase, workspace.wordsOfJesus, workspace.showWordsOfJesus);
                 if (append || i < phrases.length - 1) {
                     workspace.paragraphDiv.appendChild(div.cloneNode(true));
                     workspace.phraseDiv = startPhrase(workspace);
@@ -202,6 +203,18 @@ TODO:
         }
         workspace.text = '';
         return;
+    };
+    const addTextNode = (div, phrase, wordsOfJesus, showWordsOfJesus) => {
+        const textNode = document.createTextNode(phrase);
+        if (wordsOfJesus && showWordsOfJesus) {
+            var spanWJ = document.createElement('span');
+            spanWJ.classList.add('wj');
+            spanWJ.appendChild(textNode);
+            div.appendChild(spanWJ);
+        } else {
+            div.appendChild(textNode);
+        }
+        return div;
     };
     const processText = (introductionGraft, showIntroduction, titleGraft) => {
         let returnValue = false;
@@ -233,7 +246,8 @@ TODO:
         docSet: string,
         bookCode: string,
         chapter: string,
-        showVerses: boolean
+        showVerses: boolean,
+        showRedLetters: boolean
     ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         const docslist = await pk.gqlQuery('{docSets { id } }');
@@ -289,6 +303,8 @@ TODO:
                             workspace.titleBlockDiv = document.createElement('div');
                             workspace.phraseDiv = document.createElement('div');
                             workspace.subheaders = [];
+                            workspace.wordsOfJesus = false;
+                            workspace.showWordsOfJesus = showRedLetters;
                             deselectAllElements();
                         }
                     }
@@ -298,11 +314,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            /* console.log(
-                                'Start Paragraph %o %o',
-                                context.sequences[0].block,
-                                context.sequences[0].type
-                            ); */
+                            // console.log(
+                            //     'Start Paragraph %o %o',
+                            //     context.sequences[0].block,
+                            //     context.sequences[0].type
+                            // );
                             const sequenceType = context.sequences[0].type;
                             if (
                                 processText(
@@ -416,12 +432,12 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            /* console.log(
-                                'Text element: %o %o %o',
-                                context.sequences[0].element.type,
-                                context.sequences[0].element.text,
-                                context.sequences[0].block
-                            );*/
+                            // console.log(
+                            //     'Text element: %o %o %o',
+                            //     context.sequences[0].element.type,
+                            //     context.sequences[0].element.text,
+                            //     context.sequences[0].block
+                            // );
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -626,10 +642,23 @@ TODO:
                         action: ({ context, workspace }) => {
                             // console.log('Start Wrapper %o', context.sequences[0].element);
                             let element = context.sequences[0].element;
-                            if (element.subType === 'verses') {
-                                workspace.currentVerse = element.atts.number;
-                                workspace.phraseDiv = startPhrase(workspace, 'reset');
-                                // console.log('IN: %o', workspace.phraseDiv);
+
+                            switch (element.subType) {
+                                case 'verses':
+                                    workspace.currentVerse = element.atts.number;
+                                    workspace.phraseDiv = startPhrase(workspace, 'reset');
+                                    // console.log('IN: %o', workspace.phraseDiv);
+                                    break;
+                                case 'usfm:wj':
+                                    // console.log('WJ Wrapper');
+                                    if (!onlySpaces(workspace.text)) {
+                                        addText(workspace);
+                                        workspace.phraseDiv = startPhrase(workspace, 'keep');
+                                    }
+                                    workspace.wordsOfJesus = true;
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -641,14 +670,25 @@ TODO:
                         action: ({ context, workspace }) => {
                             // console.log('End Wrapper %o', context.sequences[0].element);
                             let element = context.sequences[0].element;
-                            if (element.subType === 'verses') {
-                                if (!onlySpaces(workspace.text)) {
-                                    // console.log('PHRASE: ' + workspace.text);
-                                    addText(workspace);
-                                    // console.log('OUT: %o ', workspace.paragraphDiv);
-                                }
-                                // console.log('END PHRASE: V');
-                                workspace.currentVerse = 'none';
+                            switch (element.subType) {
+                                case 'verses':
+                                    if (!onlySpaces(workspace.text)) {
+                                        // console.log('PHRASE: ' + workspace.text);
+                                        addText(workspace);
+                                        // console.log('OUT: %o ', workspace.paragraphDiv);
+                                    }
+                                    // console.log('END PHRASE: V');
+                                    workspace.currentVerse = 'none';
+                                    break;
+                                case 'usfm:wj':
+                                    // console.log('WJ Wrapper End');
+                                    if (!onlySpaces(workspace.text)) {
+                                        addText(workspace);
+                                    }
+                                    workspace.wordsOfJesus = false;
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -708,7 +748,7 @@ TODO:
         const bookCode = $refs.book;
         const chapter = chapterToDisplay;
         const docSet = $refs.docSet;
-        query(docSet, bookCode, chapter, viewShowVerses);
+        query(docSet, bookCode, chapter, viewShowVerses, redLetters);
     })();
     onDestroy(unSub);
 </script>
