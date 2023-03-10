@@ -16,7 +16,6 @@ The sidebar/drawer.
         AboutIcon
     } from '$lib/icons';
     import config from '$lib/data/config';
-    import { beforeNavigate } from '$app/navigation';
     import { firebaseConfig } from '$lib/data/firebase-config';
     import {
         s,
@@ -27,10 +26,14 @@ The sidebar/drawer.
         showDesktopSidebar
     } from '$lib/data/stores';
     const drawerId = 'sidebar';
-    const closeDrawer = () => {
-        document.activeElement.blur();
-    };
-    beforeNavigate(closeDrawer);
+    let menuToggle = false;
+
+    function closeDrawer() {
+        menuToggle = false;
+    }
+    function closeOnEscape(event) {
+        event.key === 'Escape' && closeDrawer();
+    }
 
     const menuItems = config?.menuItems;
     const showSearch = config.mainFeatures['search'];
@@ -52,8 +55,10 @@ The sidebar/drawer.
     $: contentTextColor = $themeColors['TextColor'];
 </script>
 
+<svelte:window on:keydown={closeOnEscape} />
+
 <div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar}>
-    <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
+    <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div
         class="dy-drawer-content flex flex-col"
         style:background-color={contentBackgroundColor}
@@ -62,7 +67,7 @@ The sidebar/drawer.
         <!-- Page content here -->
         <slot />
     </div>
-    <div class="dy-drawer-side">
+    <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer}>
         <label for={drawerId} class="dy-drawer-overlay" />
         <ul
             class="dy-menu p-1  w-3/4 sm:w-80 text-base-content"
@@ -136,9 +141,8 @@ The sidebar/drawer.
                 </a>
             </li>
             <!-- svelte-ignore a11y-missing-attribute -->
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li>
-                <a on:click={closeDrawer} style:color={textColor}>
+                <a style:color={textColor}>
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </a>
             </li>
