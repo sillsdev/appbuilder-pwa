@@ -76,7 +76,7 @@ TODO:
                 $refs.chapter,
                 timing[timeIndex].tag.match(/[0-9]+/)
                     ? timing[timeIndex].tag.match(/[0-9]+/)
-                    : 'title',
+                    : 'none',
                 timing[timeIndex].tag.match(/[0-9]+/)
                     ? timing[timeIndex].tag.match(/[a-z]/i)
                         ? timing[timeIndex].tag.match(/[a-z]/i)
