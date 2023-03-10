@@ -43,7 +43,7 @@
                     >
                         <label class="dy-label py-0 cursor-pointer">
                             <div class="settings-title" class:dark={$theme === 'Dark'}>
-                                {$t[setting.title]}
+                                {$t[setting.title] || setting.title}
                             </div>
                             <input
                                 type="checkbox"
@@ -64,7 +64,7 @@
                         class:settings-separator={i > 0}
                     >
                         <div class="settings-title py-0" class:dark={$theme === 'Dark'}>
-                            {$t[setting.title]}
+                            {$t[setting.title] || setting.title}
                         </div>
                         <select
                             class="dy-select dy-select-ghost dy-select-sm px-0"
@@ -105,9 +105,10 @@
         color: #e0e0e0;
     }
     .navbar {
-        height: 10vh;
+        height: 4em;
     }
     .larger {
-        height: 90vh;
+        height: calc (100vh - 4em);
+        height: calc (100dvh - 4em);
     }
 </style>

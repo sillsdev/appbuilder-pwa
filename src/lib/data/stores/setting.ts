@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
-import { mergeDefaultStorage } from './storage';
+import { writable, readable, get } from 'svelte/store';
+import { setDefaultStorage, mergeDefaultStorage } from './storage';
 import config from '../config';
 
 export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
@@ -7,6 +7,9 @@ export const SETTINGS_CATEGORY_NAVIGATION = 'Settings_Category_Navigation';
 export const SETTINGS_CATEGORY_NOTIFICATIONS = 'Settings_Category_Notifications';
 export const SETTINGS_CATEGORY_AUDIO = 'Settings_Category_Audio';
 export const SETTINGS_CATEGORY_TEXT_DISPLAY = 'Settings_Category_Text_Display';
+
+setDefaultStorage('development', 'false');
+export const development = readable(localStorage.development === 'true');
 
 export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     const hasVerses = config.traits['has-verse-numbers'];
@@ -341,6 +344,16 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
                 'Settings_Layout_Direction_Text'
             ],
             values: ['ltr', 'rtl', 'interface-language', 'text']
+        });
+    }
+
+    if (get(development)) {
+        settings.push({
+            type: 'checkbox',
+            category: SETTINGS_CATEGORY_INTERFACE,
+            title: "Desktop Sidebar",
+            key: 'desktop-sidebar',
+            defaultValue: false
         });
     }
     return settings;
