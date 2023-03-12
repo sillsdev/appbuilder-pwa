@@ -10,7 +10,7 @@
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
-    import { swipe } from 'svelte-gestures';
+    import { pinch, swipe } from 'svelte-gestures';
 
     function doSwipe(
         event: CustomEvent<{
@@ -21,6 +21,12 @@
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
 
+    function doPinch(
+        event: CustomEvent<{
+            direction: 'left' | 'top' | 'right' | 'bottom';
+            target: EventTarget;
+        }>
+    ) {}
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
@@ -75,6 +81,7 @@
             slot="scrolled-content"
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
             on:swipe={doSwipe}
+            use:pinch
         >
             <ScriptureViewSofria />
         </div>
