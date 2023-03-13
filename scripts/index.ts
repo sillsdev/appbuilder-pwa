@@ -1,4 +1,5 @@
 import { ConvertConfig } from './convertConfig';
+import { ConvertManifest } from './convertManifest';
 import { ConvertMedia } from './convertMedia';
 import { ConvertBooks } from './convertBooks';
 import { ConvertAbout } from './convertAbout';
@@ -34,6 +35,7 @@ const verbose: number = verboseLevel
 
 const stepClasses: Task[] = [
     ConvertConfig,
+    ConvertManifest,
     ConvertMedia,
     ConvertBooks,
     ConvertFirebase,
