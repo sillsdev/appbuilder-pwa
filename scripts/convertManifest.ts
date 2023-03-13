@@ -1,4 +1,4 @@
-import { copyFile } from 'fs';
+import { copyFile, existsSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 
@@ -11,10 +11,12 @@ export interface ManifestTaskOutput extends TaskOutput {
 export function convertManifest(dataDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'manifest.webmanifest');
     const dstFile = path.join('static', 'manifest.webmanifest');
-    copyFile(srcFile, dstFile, function (err: any) {
-        if (err) throw err;
-        if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
-    });
+    if (existsSync(srcFile)) {
+        copyFile(srcFile, dstFile, function (err: any) {
+            if (err) throw err;
+            if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
+        });
+    }
 }
 export class ConvertManifest extends Task {
     public triggerFiles: string[] = ['manifest.webmanifest'];
