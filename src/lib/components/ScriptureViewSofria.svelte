@@ -688,7 +688,9 @@ TODO:
                                 workspace.phraseDiv = div.cloneNode(true);
                                 //workspace.paragraphDiv.appendChild(div.cloneNode(true));
                                 workspace.footnoteIndex++;
-                                workspace.phraseDiv = startPhrase(workspace);
+                                if (workspace.lastPhraseTerminated === true) {
+                                    workspace.phraseDiv = startPhrase(workspace);
+                                }
                             }
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;
@@ -725,10 +727,10 @@ TODO:
                                     // console.log('WJ Wrapper');
                                     workspace.textType.push('wj');
                                     if (!onlySpaces(workspace.text)) {
-                                        if (workspace.lastPhraseTerminated === true) {
-                                            startPhrase(workspace);
-                                        }
                                         addText(workspace);
+                                        if (workspace.lastPhraseTerminated === true) {
+                                            workspace.phraseDiv = startPhrase(workspace);
+                                        }
                                     }
                                     workspace.wordsOfJesus = true;
                                     break;
