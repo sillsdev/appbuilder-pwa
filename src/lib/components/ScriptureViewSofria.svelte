@@ -575,6 +575,7 @@ TODO:
                                         break;
                                     case 'introduction':
                                         workspace.textType.push('introduction');
+                                        break;
                                     default:
                                         break;
                                 }
