@@ -474,13 +474,15 @@ TODO:
                             ) {
                                 const text = context.sequences[0].element.text;
                                 switch (currentTextType(workspace)) {
-                                    case 'title':
+                                    case 'title': {
                                         workspace.titleText += text;
                                         break;
-                                    case 'heading':
+                                    }
+                                    case 'heading': {
                                         workspace.headerText += text;
                                         break;
-                                    default:
+                                    }
+                                    default: {
                                         const blockType = context.sequences[0].block.subType;
                                         if (
                                             blockType.includes('usfm:x') ||
@@ -494,6 +496,7 @@ TODO:
                                             addText(workspace, text);
                                         }
                                         break;
+                                    }
                                 }
                             }
                         }
@@ -559,7 +562,7 @@ TODO:
                                 )
                             ) {
                                 switch (sequenceType) {
-                                    case 'title':
+                                    case 'title': {
                                         workspace.textType.push('title');
                                         const div = document.createElement('div');
                                         div.setAttribute('data-verse', 'title');
@@ -567,17 +570,22 @@ TODO:
                                         div.classList.add('scroll-item');
                                         workspace.titleBlockDiv = div;
                                         break;
-                                    case 'heading':
+                                    }
+                                    case 'heading': {
                                         workspace.textType.push('heading');
                                         break;
-                                    case 'main':
+                                    }
+                                    case 'main': {
                                         workspace.textType.push('main');
                                         break;
-                                    case 'introduction':
+                                    }
+                                    case 'introduction': {
                                         workspace.textType.push('introduction');
                                         break;
-                                    default:
+                                    }
+                                    default: {
                                         break;
+                                    }
                                 }
                                 // console.log('Processed: %o', workspace.textType);
                             }
@@ -599,42 +607,52 @@ TODO:
                                 )
                             ) {
                                 switch (sequenceType) {
-                                    case 'title':
-                                        const textTypeT = workspace.textType.pop();
-                                        // if (textTypeT != 'title') {
-                                        //     console.log('Title texttype mismatch!!! %o', textTypeT);
+                                    case 'title': {
+                                        //const textType = workspace.textType.pop();
+                                        // if (textType != 'title') {
+                                        //     console.log('Title texttype mismatch!!! %o', textType);
                                         // }
+                                        workspace.textType.pop();
                                         const div = workspace.titleBlockDiv;
                                         div.innerHTML += `<div class="b"></div><div class="b"></div>`;
                                         // console.log('TITLE DIV %o', div);
                                         workspace.root.append(div);
                                         break;
-                                    case 'heading':
-                                        const textTypeH = workspace.textType.pop();
+                                    }
+                                    case 'heading': {
+                                        //const textTypeH = workspace.textType.pop();
                                         // if (textTypeH != 'heading') {
                                         //     console.log(
                                         //         'Heading texttype mismatch!!! %o',
                                         //         textTypeH
                                         //     );
                                         // }
+                                        workspace.textType.pop();
                                         break;
-                                    case 'main':
-                                        const textTypeM = workspace.textType.pop();
+                                    }
+                                    case 'main': {
+                                        //const textTypeM = workspace.textType.pop();
                                         // if (textTypeM != 'main') {
                                         //     console.log('Main texttype mismatch!!! %o', textTypeM);
                                         // }
+                                        workspace.textType.pop();
                                         break;
+                                    }
                                     case 'introduction':
-                                        const textTypeI = workspace.textType.pop();
-                                        // if (textTypeH != 'introduction') {
-                                        //     console.log(
-                                        //         'Introduction texttype mismatch!!! %o',
-                                        //         textTypeI
-                                        //     );
-                                        // }
+                                        {
+                                            // const textTypeI = workspace.textType.pop();
+                                            // if (textTypeH != 'introduction') {
+                                            //     console.log(
+                                            //         'Introduction texttype mismatch!!! %o',
+                                            //         textTypeI
+                                            //     );
+                                            // }
+                                            workspace.textType.pop();
+                                        }
                                         break;
-                                    default:
+                                    default: {
                                         break;
+                                    }
                                 }
                             }
                         }
@@ -743,7 +761,7 @@ TODO:
                             }
 
                             switch (subType) {
-                                case 'verses':
+                                case 'verses': {
                                     workspace.lastPhraseTerminated = false;
                                     workspace.textType.push('verses');
                                     workspace.currentVerse = element.atts.number;
@@ -751,7 +769,8 @@ TODO:
                                     workspace.phraseDiv = startPhrase(workspace, 'reset');
                                     // console.log('IN: %o', workspace.phraseDiv);
                                     break;
-                                case 'usfm':
+                                }
+                                case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
                                     workspace.textType.push('usfm');
@@ -760,8 +779,10 @@ TODO:
                                     }
                                     workspace.usfmWrapperType = usfmType;
                                     break;
-                                default:
+                                }
+                                default: {
                                     break;
+                                }
                             }
                         }
                     }
@@ -778,11 +799,12 @@ TODO:
                                 subType = 'usfm';
                             }
                             switch (subType) {
-                                case 'verses':
-                                    const textTypeV = workspace.textType.pop();
+                                case 'verses': {
+                                    /*const textTypeV = workspace.textType.pop(); */
                                     // if (textTypeV != 'verses') {
                                     //     console.log('Verses texttype mismatch!!! %o', textTypeV);
                                     // }
+                                    workspace.textType.pop();
                                     if (
                                         workspace.phraseDiv != null &&
                                         workspace.phraseDiv.innerText !== ''
@@ -794,12 +816,15 @@ TODO:
                                     workspace.phraseDiv = null;
                                     workspace.currentVerse = 'none';
                                     break;
-                                case 'usfm':
-                                    const textTypeW = workspace.textType.pop();
+                                }
+                                case 'usfm': {
+                                    workspace.textType.pop();
                                     workspace.usfmWrapperType = '';
                                     break;
-                                default:
+                                }
+                                default: {
                                     break;
+                                }
                             }
                         }
                     }
