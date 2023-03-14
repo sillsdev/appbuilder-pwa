@@ -98,13 +98,21 @@ TODO:
     /**updates highlight*/
     const updateHighlight = (h: string, color: string) => {
         const a = h.split(',');
+        // Remove highlighting for currently highlighted verses
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         let node = el?.getAttributeNode('style');
         el?.removeAttributeNode(node);
         el?.classList.remove('highlighting');
+        // If audio off or if not in the right chapter, return
         if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
+        // Try to get verse for timing
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
+        // If failed to get 'verse #, none' then try for 'verse # a' instead
+        if (el == null && a[4] == 'none') {
+            el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="a"]`);
+        }
+        // Highlight verse if found
         el?.setAttribute('style', 'background-color: ' + color + ';');
         el?.classList.add('highlighting');
         if (
