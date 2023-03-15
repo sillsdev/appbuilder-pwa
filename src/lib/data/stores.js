@@ -24,6 +24,7 @@ function createNextRef() {
         set: external.set,
         reset: () => {
             external.set({ book: '', chapter: '' });
+            external.set({ book: '', chapter: '' });
         }
     }
 }

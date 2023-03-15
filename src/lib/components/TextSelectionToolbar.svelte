@@ -39,62 +39,60 @@ TODO:
         'bc-allow-share-text'
     ];
 
-    function getDate() {
-        let yourDate = new Date();
-        return yourDate.toISOString().split('T')[0];
+    function selectedText() {
+        console.log($selectedVerses);
+        var someText = $selectedVerses.reduce((text, v) => (text += v.text), '');
+        console.log(someText);
+        return someText;
     }
 
     function addBookmark() {
-        var todaysDate = getDate();
+        const timeElapsed = Date.now();
+        const today = new Date(timeElapsed);
 
         $bookmarks.push({
             id: $bookmarks.size + 1,
             reference: 'TestBook 10:4',
-            text: 'This is a verse placeholder text',
-            date: Date.prototype.toString()
+            text: selectedText(),
+            //text: selectedText()) || 'selectedText.toString() did not work',
+            date: today.toDateString()
         });
         selectedVerses.reset();
-        toast('Bookmarked!', {
-            position: 'bottom-right'
-        });
     }
 
     function addNote() {
+        const timeElapsed = Date.now();
+        const today = new Date(timeElapsed);
+
         $notes.push({
             id: $notes.size + 1,
             reference: 'John 11:35',
             text: 'This makes me sad',
-            date: '32 February 2025'
+            date: today.toDateString()
         });
         selectedVerses.reset();
-        toast('Noted!', {
-            position: 'bottom-center'
-        });
     }
 
     function addHighlight() {
+        const timeElapsed = Date.now();
+        const today = new Date(timeElapsed);
+
         $highlights.push({
             id: $highlights.size + 1,
             reference: 'TestBook 10:5',
-            text: 'This is where the verse would go',
-            date: '38 February 2026',
+            text: selectedText(),
+            date: today.toDateString(),
             highlight_color: '2'
         });
         selectedVerses.reset();
-        toast('Highlighted!', {
-            position: 'bottom-right'
-        });
     }
 
     //Hardcoded copy function for now
     function copy() {
         var copyText = 'He must increase, but I must decrease.\n\nJohn 3:30';
-
-        // Copy the text inside the text field
         navigator.clipboard.writeText(copyText);
-        // Alert the copied text
         toast($t['Text_Copied'], {
-            position: 'bottom-center'
+            position: 'bottom-right'
         });
         selectedVerses.reset();
     }
