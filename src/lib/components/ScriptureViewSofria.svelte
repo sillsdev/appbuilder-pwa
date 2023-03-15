@@ -199,11 +199,11 @@ TODO:
         // console.log('Adding text:', text);
         if (!onlySpaces(text)) {
             let phrases = [];
-            if (!workspace.introductionGraft) {
+            if (!workspace.introductionGraft && $refs.hasAudio) {
                 phrases = parsePhrase(text);
             } else {
-                // Don't parse introduction text.  Each paragraph
-                // is a single div.
+                // Don't parse introduction or if there is no audio.
+                // Each paragraph is a single div.
                 phrases[0] = text;
             }
             for (let i = 0; i < phrases.length; i++) {
@@ -770,6 +770,8 @@ TODO:
                                     // console.log('IN: %o', workspace.phraseDiv);
                                     break;
                                 }
+                                // Various types appear under the usfm:xx wrapper
+                                // Words of Jesus is one as usfm:wj
                                 case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
