@@ -168,6 +168,8 @@ TODO:
     const startPhrase = (workspace, indexOption = 'advance') => {
         // console.log('Start phrase!!!');
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
+        // Add pending phrase to the paragraph before starting
+        // new ones
         if (workspace.phraseDiv != null) {
             workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
         }
@@ -776,8 +778,10 @@ TODO:
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
                                     workspace.textType.push('usfm');
-                                    if (workspace.lastPhraseTerminated === true) {
-                                        workspace.phraseDiv = startPhrase(workspace);
+                                    if (!workspace.textType.includes('footnote')) {
+                                        if (workspace.lastPhraseTerminated === true) {
+                                            workspace.phraseDiv = startPhrase(workspace);
+                                        }
                                     }
                                     workspace.usfmWrapperType = usfmType;
                                     break;
