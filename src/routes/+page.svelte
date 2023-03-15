@@ -34,7 +34,8 @@
     $: viewSettings = {
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
-        viewShowVerses: $userSettings['verse-numbers']
+        viewShowVerses: $userSettings['verse-numbers'],
+        redLetters: $userSettings['red-letters']
     };
     // Border Subtraction
     $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
