@@ -8,6 +8,7 @@ TODO:
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
+    import { base } from '$app/paths';
     import config from '$lib/data/config';
 
     let duration = NaN;
@@ -37,7 +38,7 @@ TODO:
             accept: 'application/json'
         };
         //console.log(`AudioBar: request: body=`, body);
-        const res = await fetch('/data/audio', { method, body, headers });
+        const res = await fetch(`${base}/data/audio`, { method, body, headers });
         const j = await res.json();
         if (j.error) {
             console.error(j.error);

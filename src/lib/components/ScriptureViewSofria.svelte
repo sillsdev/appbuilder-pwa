@@ -8,6 +8,7 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy } from 'svelte';
+    import { base } from '$app/paths';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from '../scripts/thaw';
@@ -251,7 +252,7 @@ TODO:
 
         if (!found) {
             // console.log('fetch %o pkf', docSet);
-            const res = await fetch(`collections/${docSet}.pkf`).then((r) => {
+            const res = await fetch(`${base}/collections/${docSet}.pkf`).then((r) => {
                 return r.arrayBuffer();
             });
             if (res.byteLength) {
