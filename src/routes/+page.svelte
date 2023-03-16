@@ -6,10 +6,15 @@
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioActive,
-        refs,
-        showDesktopSidebar,
+        audioHighlight,
         bodyFontSize,
         bodyLineHeight,
+        mainScroll,
+        refs,
+        scrolls,
+        selectedVerses,
+        showDesktopSidebar,
+        themeColors,
         userSettings
     } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
@@ -34,11 +39,20 @@
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
+        audioActive: $audioActive,
+        audioHighlight: $audioHighlight,
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
-        viewShowVerses: $userSettings['verse-numbers'],
-        redLetters: $userSettings['red-letters']
+        mainScroll: $mainScroll,
+        maxSelections: config.mainFeatures['annotation-max-select'],
+        redLetters: $userSettings['red-letters'],
+        references: $refs,
+        scrolls: scrolls,
+        selectedVerses: selectedVerses,
+        themeColors: $themeColors,
+        viewShowVerses: $userSettings['verse-numbers']
     };
+
     // Border Subtraction
     $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
     // Content Subtarction
