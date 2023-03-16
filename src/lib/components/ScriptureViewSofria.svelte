@@ -12,15 +12,7 @@ TODO:
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from '../scripts/thaw';
-    import {
-        audioHighlight,
-        refs,
-        scrolls,
-        audioActive,
-        mainScroll,
-        themeColors,
-        selectedVerses
-    } from '$lib/data/stores';
+    import { refs } from '$lib/data/stores';
     import {
         onClickText,
         deselectAllElements,
@@ -29,10 +21,18 @@ TODO:
 
     import { LoadingIcon } from '$lib/icons';
 
+    export let audioActive: any;
+    export let audioHighlight: any;
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
-    export let viewShowVerses: boolean;
+    export let mainScroll: any;
+    export let maxSelections: any;
     export let redLetters: boolean;
+    export let references: any;
+    export let scrolls: any;
+    export let selectedVerses: any;
+    export let themeColors: any;
+    export let viewShowVerses: boolean;
 
     const pk = new Proskomma();
     let container: HTMLElement;
@@ -45,6 +45,7 @@ TODO:
     let scrollId: string;
     let scrollMod: any;
     const unSub = scrolls.subscribe((val, mod) => {
+        console.log("scrolls unsub");
         scrollId = val;
         scrollMod = mod;
     }, group);
@@ -69,7 +70,6 @@ TODO:
 
     const handleScroll = (() => {
         let scrollTimer: NodeJS.Timeout;
-
         return (trigger) => {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -79,8 +79,8 @@ TODO:
                         const win = container.getBoundingClientRect();
 
                         return (
-                            rect.top - win.top >= $mainScroll.top &&
-                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
+                            rect.top - win.top >= mainScroll.top &&
+                            rect.bottom - win.top <= mainScroll.height + mainScroll.top
                         );
                     })
                     .map(
@@ -92,12 +92,15 @@ TODO:
             }, 500);
         };
     })();
-    $: handleScroll([$mainScroll, $refs]);
+    $: handleScroll([mainScroll, $refs]);
 
-    $: $selectedVerses, updateSelections();
+    $: $selectedVerses, updateSelections(selectedVerses);
 
     /**updates highlight*/
-    const updateHighlight = (h: string, color: string) => {
+    const updateHighlight = (h: string, color: string, timing: any) => {
+        if (!timing) {
+            return;
+        }
         const a = h.split(',');
         // Remove highlighting for currently highlighted verses
         let el = container?.getElementsByClassName('highlighting')?.item(0);
@@ -105,7 +108,12 @@ TODO:
         el?.removeAttributeNode(node);
         el?.classList.remove('highlighting');
         // If audio off or if not in the right chapter, return
-        if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
+        if (
+            !audioActive ||
+            a[0] !== currentDocSet ||
+            a[1] !== currentBook ||
+            a[2] !== currentChapter
+        )
             return;
         // Try to get verse for timing
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
@@ -116,13 +124,14 @@ TODO:
         // Highlight verse if found
         el?.setAttribute('style', 'background-color: ' + color + ';');
         el?.classList.add('highlighting');
+        console.log('el %o lastVerseInView %o', el, lastVerseInView);
         if (
             `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
             lastVerseInView
         )
             el?.scrollIntoView();
     };
-    $: updateHighlight($audioHighlight, highlightColor);
+    $: updateHighlight(audioHighlight, highlightColor, references.hasAudio?.timingFile);
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
         let result = 0;
@@ -273,6 +282,9 @@ TODO:
             workspace.phraseDiv = div.cloneNode(true);
         }
     }
+    function onClick(e: any) {
+        onClickText(e, selectedVerses, maxSelections);
+    }
     let bookRoot = document.createElement('div');
     // console.log('START: %o', bookRoot);
     let loading = true;
@@ -344,7 +356,7 @@ TODO:
                             workspace.usfmWrapperType = '';
                             workspace.showWordsOfJesus = showRedLetters;
                             workspace.lastPhraseTerminated = false;
-                            deselectAllElements();
+                            deselectAllElements(selectedVerses);
                         }
                     }
                 ],
@@ -544,7 +556,7 @@ TODO:
                             var els = document.getElementsByTagName('div');
                             for (var i = 0; i < els.length; i++) {
                                 if (els[i].classList.contains('seltxt') && els[i].id != '') {
-                                    els[i].addEventListener('click', onClickText, false);
+                                    els[i].addEventListener('click', onClick, false);
                                 }
                             }
                         }
@@ -877,10 +889,17 @@ TODO:
 
     $: lineHeight = bodyLineHeight + '%';
 
-    $: highlightColor = $themeColors['TextHighlightColor'];
+    $: highlightColor = themeColors['TextHighlightColor'];
+
+    $: currentChapter = references.chapter;
+
+    $: currentBook = references.book;
+
+    $: currentDocSet = references.docSet;
 
     $: (() => {
-        let chapterToDisplay = $refs.chapter;
+        console.log("running");
+        let chapterToDisplay = currentChapter;
         if (chapterToDisplay == 'i') {
             // console.log('Displaying introduction');
             chapterToDisplay = '1';
@@ -888,9 +907,9 @@ TODO:
         } else {
             displayingIntroduction = false;
         }
-        const bookCode = $refs.book;
+        const bookCode = currentBook;
         const chapter = chapterToDisplay;
-        const docSet = $refs.docSet;
+        const docSet = currentDocSet;
         query(docSet, bookCode, chapter, viewShowVerses, redLetters);
     })();
     onDestroy(unSub);
