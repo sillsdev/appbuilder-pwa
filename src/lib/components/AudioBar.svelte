@@ -93,7 +93,7 @@ TODO:
         let timer;
 
         return () => {
-            if (audio.ended) {
+            if (audio.ended || !playing) {
                 playing = false;
                 clearInterval(timer);
             } else {
@@ -104,7 +104,6 @@ TODO:
     /**plays or pauses the audio*/
     const playPause = () => {
         if (!loaded) return;
-        toggleTimeRunning();
         if (playing) {
             audio?.pause();
             playing = false;
@@ -112,6 +111,7 @@ TODO:
             audio.play();
             playing = true;
         }
+        toggleTimeRunning();
     };
     /**seeks the audio*/
     const seek = (() => {

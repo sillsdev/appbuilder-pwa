@@ -45,7 +45,6 @@ TODO:
     let scrollId: string;
     let scrollMod: any;
     const unSub = scrolls.subscribe((val, mod) => {
-        console.log("scrolls unsub");
         scrollId = val;
         scrollMod = mod;
     }, group);
@@ -124,7 +123,6 @@ TODO:
         // Highlight verse if found
         el?.setAttribute('style', 'background-color: ' + color + ';');
         el?.classList.add('highlighting');
-        console.log('el %o lastVerseInView %o', el, lastVerseInView);
         if (
             `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
             lastVerseInView
@@ -898,7 +896,6 @@ TODO:
     $: currentDocSet = references.docSet;
 
     $: (() => {
-        console.log("running");
         let chapterToDisplay = currentChapter;
         if (chapterToDisplay == 'i') {
             // console.log('Displaying introduction');
