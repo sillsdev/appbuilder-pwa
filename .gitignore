@@ -22,7 +22,7 @@ static/clips
 static/videos
 static/icons
 static/*.partial.html
-static/manifest.webmanifest
+static/manifest.json
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js

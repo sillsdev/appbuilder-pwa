@@ -9,8 +9,8 @@ export interface ManifestTaskOutput extends TaskOutput {
  * Copies manifest.webmanifest to static folder
  */
 export function convertManifest(dataDir: string, verbose: number) {
-    const srcFile = path.join(dataDir, 'manifest.webmanifest');
-    const dstFile = path.join('static', 'manifest.webmanifest');
+    const srcFile = path.join(dataDir, 'manifest.json');
+    const dstFile = path.join('static', 'manifest.json');
     if (existsSync(srcFile)) {
         copyFile(srcFile, dstFile, function (err: any) {
             if (err) throw err;
@@ -19,7 +19,7 @@ export function convertManifest(dataDir: string, verbose: number) {
     }
 }
 export class ConvertManifest extends Task {
-    public triggerFiles: string[] = ['manifest.webmanifest'];
+    public triggerFiles: string[] = ['manifest.json'];
 
     constructor(dataDir: string) {
         super(dataDir);
