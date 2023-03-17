@@ -7,12 +7,12 @@
     import {
         audioActive,
         refs,
-        selectedVerses,
+        showDesktopSidebar,
         bodyFontSize,
-        bodyLineHeight
+        bodyLineHeight,
+        selectedVerses,
+        userSettings
     } from '$lib/data/stores';
-    import { showDesktopSidebar } from '$lib/data/stores/view.js';
-    import { userSettings } from '$lib/data/stores/setting';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -40,8 +40,16 @@
         viewShowVerses: $userSettings['verse-numbers']
     };
     // Border Subtraction
-    $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
-    // Content Subtarction
+    $: bs =
+        4 +
+        ($selectedVerses.length > 0
+            ? 2
+            : $refs.hasAudio && $audioActive
+            ? $refs.hasAudio.timingFile
+                ? 4
+                : 5
+            : 0);
+    // Content Subtraction
     $: cs = 1 + bs + (config.traits['has-borders'] ? 3.5 : 0);
 </script>
 
@@ -96,7 +104,7 @@
     </ScrolledContent>
 </div>
 {#if $selectedVerses.length > 0}
-    <div class="footer">
+    <div class="left-0 right-0 bottom-0 absolute">
         <TextSelectionToolbar />
     </div>
 {:else if $refs.hasAudio && $audioActive}
@@ -111,35 +119,6 @@
 {/if}
 
 <style>
-    .navbar {
-        height: 4rem;
-    }
-    /*shrink to accomodate the audio bar*/
-    .content-selected {
-        height: calc(100vh - 7rem);
-        height: calc(100dvh - 7rem);
-    }
-    .content-with-bar-progress {
-        height: calc(100vh - 10rem);
-        height: calc(100dvh - 10rem);
-    }
-    .content-with-bar {
-        height: calc(100vh - 9rem);
-        height: calc(100dvh - 9rem);
-    }
-    .audio-bar-with-progress {
-        height: 5rem;
-    }
-    .audio-bar {
-        height: 4rem;
-    }
-    .footer {
-        padding: 0 0 0 0;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        left: 0;
-    }
     @media (min-width: 1024px) {
         .audio-bar-desktop {
             left: 320px;

@@ -1,3 +1,4 @@
+export * from './annotation';
 export * from './audio';
 export * from './localization';
 export * from './scripture';
