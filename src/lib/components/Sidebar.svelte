@@ -75,7 +75,7 @@ The sidebar/drawer.
             style:background-color={drawerBackgroundColor}
         >
             <!-- Sidebar content here -->
-            <a class="fill" href="/">
+            <a class="fill" href="{base}/">
                 <picture>
                     <source srcset="{base}/images/nav_drawer@2x.png 2x" />
                     <img
