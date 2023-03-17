@@ -8,11 +8,11 @@
         audioActive,
         refs,
         selectedVerses,
-        showDesktopSidebar,
         bodyFontSize,
-        bodyLineHeight,
-        userSettings
+        bodyLineHeight
     } from '$lib/data/stores';
+    import { showDesktopSidebar } from '$lib/data/stores/view.js';
+    import { userSettings } from '$lib/data/stores/setting';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -20,6 +20,7 @@
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
+    //import type { FPS_BROWSER_APP_PROFILE_STRING } from '$env/static/private';
 
     function doSwipe(
         event: CustomEvent<{
