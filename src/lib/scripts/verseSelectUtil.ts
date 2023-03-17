@@ -25,7 +25,6 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
     }
 }
 export function updateSelections(selections: any) {
-    console.log('Updating selections');
     const items = Array.from(document.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
