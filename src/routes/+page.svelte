@@ -4,7 +4,7 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive, refs } from '$lib/data/stores';
+    import { audioActive, bodyFontSize, refs } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -26,7 +26,9 @@
             direction: 'left' | 'top' | 'right' | 'bottom';
             target: EventTarget;
         }>
-    ) {}
+    ) {
+        bodyFontSize.update($bodyFontSize);
+    }
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
