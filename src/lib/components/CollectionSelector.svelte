@@ -34,7 +34,6 @@ Book Collection Selector component.
     onDestroy(unsub);
 </script>
 
-<div class="dy-dropdown dy-dropdown-end">
     <Modal id={modalId}>
         <svelte:fragment slot="label">
             <BibleIcon color="white" />
@@ -46,4 +45,3 @@ Book Collection Selector component.
             </div>
         </svelte:fragment>
     </Modal>
-</div>
