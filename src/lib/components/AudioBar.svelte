@@ -7,7 +7,7 @@ TODO:
 -->
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
+    import { refs, audioHighlight, audioActive, s, playMode, theme } from '$lib/data/stores';
     import config from '$lib/data/config';
     import { createEventDispatcher } from 'svelte';
 
@@ -264,10 +264,14 @@ TODO:
             <div class="popup">
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="overlay" on:click={closePopup} />
-                <div class="popup-content" style="background-color:{dialogBackgroundColor};">
+                <div
+                    class="popup-content"
+                    class:dark={$theme === 'Dark'}
+                    style="background-color:{dialogBackgroundColor};"
+                >
                     <slot />
-                    <h1 style="color:{themeColor}">
-                        <b>Playback Speed</b>
+                    <h1>
+                        <b style="">Playback Speed</b>
                     </h1>
                     <div class="speed-controls">
                         <label>
@@ -327,6 +331,9 @@ TODO:
 </div>
 
 <style>
+    div.dark {
+        color: #e0e0e0;
+    }
     .audio-bar {
         display: grid;
         grid-auto-columns: 3.125rem auto 3.125rem;
