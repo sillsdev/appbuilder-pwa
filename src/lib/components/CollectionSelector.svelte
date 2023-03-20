@@ -3,12 +3,14 @@
 Book Collection Selector component.
 -->
 <script>
-    import Dropdown from './Dropdown.svelte';
+    import Modal from './Modal.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import { refs } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+
+    let modalId = 'collectionSelector';
 
     let nextRef;
     const unsub = refs.subscribe((v) => {
@@ -33,32 +35,15 @@ Book Collection Selector component.
 </script>
 
 <div class="dy-dropdown dy-dropdown-end">
-    <Dropdown>
+    <Modal id={modalId}>
         <svelte:fragment slot="label">
             <BibleIcon color="white" />
         </svelte:fragment>
         <svelte:fragment slot="content">
-            <TabsMenu
-                options={{
-                    'Single Pane': {
-                        tab: { component: SinglePaneIcon },
-                        component: LayoutOptions,
-                        props: { layoutOption: 'Single Pane' }
-                    },
-                    'Side By Side': {
-                        tab: { component: SideBySideIcon },
-                        component: LayoutOptions,
-                        props: { layoutOption: 'Side By Side' }
-                    },
-                    'Verse By Verse': {
-                        tab: { component: VerseByVerseIcon },
-                        component: LayoutOptions,
-                        props: { layoutOption: 'Verse By Verse' }
-                    }
-                }}
-                active="Single Pane"
-                on:menuaction={navigateReference}
-            />
+            <p>Isn't this cool?</p>
+            <div class="dy-modal-action">
+                <label for={modalId} class="dy-btn dy-btn-ghost">Very cool</label>
+            </div>
         </svelte:fragment>
-    </Dropdown>
+    </Modal>
 </div>
