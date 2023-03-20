@@ -72,10 +72,9 @@
             {/if}
             <!-- Text Appearance Options Menu -->
             <TextAppearanceSelector />
-            {#if showCollections}
-                <!-- Book Collection Menu Button -->
+            <!-- {#if showCollections}
                 <CollectionSelector />
-            {/if}
+            {/if} -->
         </div>
     </Navbar>
 </div>
