@@ -2,6 +2,7 @@
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
+    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioActive,
@@ -129,9 +130,9 @@
             {/if}
             <!-- Text Appearance Options Menu -->
             <TextAppearanceSelector />
-            <!-- {#if showCollections}
+            {#if showCollections}
                 <CollectionSelector />
-            {/if} -->
+            {/if}
         </div>
     </Navbar>
 </div>
