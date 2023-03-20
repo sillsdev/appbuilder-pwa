@@ -1,4 +1,4 @@
-import { copyFile, existsSync } from 'fs';
+import { copyFile, existsSync, writeFileSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 
@@ -16,6 +16,16 @@ export function convertManifest(dataDir: string, verbose: number) {
             if (err) throw err;
             if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
         });
+    } else {
+        // If no manifest exists, we need to at least have a minimum manifest to build.
+        const manifest = {
+            name: 'Temp PWA',
+            start_url: './',
+            display: 'standalone',
+            background_color: '#000000',
+            theme_color: '#000000'
+        };
+        writeFileSync(dstFile, JSON.stringify(manifest));
     }
 }
 export class ConvertManifest extends Task {
