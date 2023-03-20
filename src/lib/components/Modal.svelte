@@ -12,7 +12,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"><slot name="label" /></label>
 
 <!-- Put this part before </body> tag -->
-<input type="checkbox" {id} class="dy-modal-toggle" />
+<input type="checkbox" id={id} class="dy-modal-toggle" />
 <label for={id} class="dy-modal cursor-pointer">
     <label class="dy-modal-box relative" for="">
         <slot name="content" />
