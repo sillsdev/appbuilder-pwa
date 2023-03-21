@@ -15,7 +15,7 @@
         "convert": "ts-node scripts/index.ts",
         "convert:watch": "ts-node scripts/index.ts --watch",
         "convertExamples": "ts-node scripts/index.ts --examples",
-        "clean": "rimraf .svelte-kit build src/lib/data/book-collections src/config.js static/about.partial.html static/collections static/images static/fonts static/styles static/illustrations static/audio static/timings static/backgrounds static/icons && echo 🔔 Reminder: The project cannot be built until the conversion scripts are run again."
+        "clean": "rimraf .svelte-kit build src/lib/data/book-collections src/config.js static/about.partial.html static/collections static/images static/fonts static/styles static/illustrations static/audio static/timings static/backgrounds static/icons static/borders static/manifest.json && echo 🔔 Reminder: The project cannot be built until the conversion scripts are run again."
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

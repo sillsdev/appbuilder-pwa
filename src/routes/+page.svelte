@@ -18,6 +18,7 @@
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
+    import { base } from '$app/paths';
 
     function doSwipe(
         event: CustomEvent<{
@@ -31,6 +32,7 @@
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
+    $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
@@ -40,7 +42,7 @@
     // Border Subtraction
     $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
     // Content Subtarction
-    $: cs = 1 + bs + (config.traits['has-borders'] ? 3.5 : 0);
+    $: cs = 1 + bs + (showBorder ? 3.5 : 0);
 </script>
 
 <div class="navbar h-16">
@@ -65,7 +67,7 @@
             {/if}
             {#if showSearch}
                 <!-- Search Button -->
-                <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
                     <SearchIcon color="white" />
                 </a>
             {/if}
@@ -79,7 +81,7 @@
     </Navbar>
 </div>
 <div
-    class:borderimg={config.traits['has-borders']}
+    class:borderimg={showBorder}
     style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
 >
     <ScrolledContent>
