@@ -6,10 +6,12 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
+    import Dropdown from './Dropdown.svelte';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
 
+    $: console.log($t);
     export let layoutOption = '';
     const dispatch = createEventDispatcher();
 
@@ -62,23 +64,20 @@ TODO:
             <strong>{$t['Layout_Two_Pane']}</strong>
         </p>
         <ul class="dy-menu mx-auto">
-            {#each docSetList as d}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <li>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <a
-                        on:click={() => handleClick(d)}
-                        class={nextDocSet === d ? 'dy-active' : ''}
-                        style={convertStyle($s['ui.layouts.selector'])}
-                        style:background-color={nextDocSet === d
-                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                            : $themeColors['LayoutBackgroundColor']}
-                        >{config.bookCollections.find(
-                            (x) => x.id === catalog.find((x) => x.id === d).selectors.abbr
-                        ).collectionName}
-                    </a>
-                </li>
-            {/each}
+            <div class="flex w-full">
+                <div class="dy-dropdown dy-dropdown-end">
+                    <Dropdown>
+                        <svelte:fragment slot="label">Choose</svelte:fragment>
+                        <svelte:fragment slot="content">
+                            <h1>HI</h1>
+                        </svelte:fragment>
+                    </Dropdown>
+                </div>
+                <div class="dy-divider dy-divider-horizontal" />
+                <div>b</div>
+                <div class="dy-divider dy-divider-horizontal" />
+                <button class="dy-btn dy-btn-ghost dy-btn-sm dy-btn-circle">+</button>
+            </div>
         </ul>
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}

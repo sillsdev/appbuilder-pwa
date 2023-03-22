@@ -6,9 +6,11 @@ Book Collection Selector component.
     import Modal from './Modal.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs } from '$lib/data/stores';
+    import { convertStyle, refs, s } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+
+    $: console.log($s);
 
     let modalId = 'collectionSelector';
 
@@ -39,9 +41,36 @@ Book Collection Selector component.
         <BibleIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
-        <p>Isn't this cool?</p>
-        <div class="dy-modal-action">
-            <label for={modalId} class="dy-btn dy-btn-ghost">Very cool</label>
-        </div>
+        <TabsMenu
+            options={{
+                'Single Pane': {
+                    tab: { component: SinglePaneIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Single Pane' }
+                },
+                'Side By Side': {
+                    tab: { component: SideBySideIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Side By Side' }
+                },
+                'Verse By Verse': {
+                    tab: { component: VerseByVerseIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Verse By Verse' }
+                }
+            }}
+            active="Single Pane"
+            on:menuaction={navigateReference}
+        />
+        <label
+            for={modalId}
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation">Cancel</label
+        >
+        <label
+            for={modalId}
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation">Ok</label
+        >
     </svelte:fragment>
 </Modal>
