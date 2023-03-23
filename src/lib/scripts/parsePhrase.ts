@@ -1,6 +1,6 @@
-const closingSpeechChars = "\u2019\u201D\u00BB\u203A\""; // end of speech chars, including "
-const closingSpeechCharsAfterSpace = "\u2019\u201D\u00BB\u203A";   // end of speech chars after space, not including "
-const closingParenthesisChars = ")]";
+const closingSpeechChars = '\u2019\u201D\u00BB\u203A"'; // end of speech chars, including "
+const closingSpeechCharsAfterSpace = '\u2019\u201D\u00BB\u203A'; // end of speech chars after space, not including "
+const closingParenthesisChars = ')]';
 
 export const parsePhrase = (inner: any, seprgx: RegExp) => {
     const phrases = [];
@@ -39,20 +39,22 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
                 // Collect up more letters until we reach a word break
                 // TODO: this needs to be checked at some point. I'm not sure if the letter check
                 // here is sufficiently the same as the Character.isAlphabetic in the java code
-                while ((pos < len - 1) && (char_is_letter(inner.charAt(pos + 1)))) {
+                while (pos < len - 1 && char_is_letter(inner.charAt(pos + 1))) {
                     phrase += inner.charAt(pos + 1);
                     pos++;
                 }
             }
 
             if (pos < len - 1) {
-                let nextChar1 = (pos < len - 1) ? inner.charAt(pos + 1) : 0;
-                let nextChar2 = (pos < len - 2) ? inner.charAt(pos + 2) : 0;
-                while (isClosingSpeechChar(nextChar1) ||
-                       isClosingSpeechCharAfterSpace(nextChar1) ||
-                       ((nextChar1 !== ' ') && isPhraseEndingChar(nextChar1, seprgx)) ||
-                       ((nextChar1 === ' ') && (isClosingSpeechCharAfterSpace(nextChar2) || 
-                                                isClosingParenthesisChar(nextChar2)))
+                let nextChar1 = pos < len - 1 ? inner.charAt(pos + 1) : 0;
+                let nextChar2 = pos < len - 2 ? inner.charAt(pos + 2) : 0;
+                while (
+                    isClosingSpeechChar(nextChar1) ||
+                    isClosingSpeechCharAfterSpace(nextChar1) ||
+                    (nextChar1 !== ' ' && isPhraseEndingChar(nextChar1, seprgx)) ||
+                    (nextChar1 === ' ' &&
+                        (isClosingSpeechCharAfterSpace(nextChar2) ||
+                            isClosingParenthesisChar(nextChar2)))
                 ) {
                     if (nextChar1 === ' ') {
                         // Next string was a space and then a closing speech character or closing parenthesis
@@ -61,15 +63,14 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
                         pos += 2;
                     } else {
                         phrase += nextChar1;
-                        pos ++
+                        pos++;
                     }
                     if (pos < len - 1) {
-                        nextChar1 = (pos < len - 1) ? inner.charAt(pos + 1) : 0;
-                        nextChar2 = (pos < len - 2) ? inner.charAt(pos + 2) : 0;
+                        nextChar1 = pos < len - 1 ? inner.charAt(pos + 1) : 0;
+                        nextChar2 = pos < len - 2 ? inner.charAt(pos + 2) : 0;
                     } else {
                         break;
                     }
-
                 }
             }
             // If there are 3 or fewer characters left in the phrase, collect them up
@@ -77,9 +78,9 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
                 phrase += inner.substring(pos + 1);
                 pos = len - 1;
             }
-            
-            // Collect up any spaces. 
-            while ((pos < len -1) && (inner.charAt(pos + 1) === ' ')) {
+
+            // Collect up any spaces.
+            while (pos < len - 1 && inner.charAt(pos + 1) === ' ') {
                 phrase += ' ';
                 pos++;
             }
@@ -140,14 +141,14 @@ function convertCharCodesToString(inputChars: string) {
 }
 const char_is_numeric = (c: string) => {
     return /^\d$/.test(c);
-}
+};
 const char_is_letter = (c: string) => {
-    return RegExp(/^\p{L}/,'u').test(c);
-}
+    return RegExp(/^\p{L}/, 'u').test(c);
+};
 const char_is_number_separator = (text: string, pos: number) => {
     let isNumberSeparator = false;
-    const numberMedialPunctuation = ".,:-;";
-    if ((pos > 0) && (pos < text.length - 4)) {
+    const numberMedialPunctuation = '.,:-;';
+    if (pos > 0 && pos < text.length - 4) {
         // 1. Comma is being used as a thousands separator in a number e.g. 200,000
         // 2. Full stop is being used as a decimal marker, e.g. 1.2
         // 3. Colon is being used to separate chapter and verse in a Scripture reference, e.g. 5:2
@@ -158,14 +159,14 @@ const char_is_number_separator = (text: string, pos: number) => {
             if (char_is_numeric(prevc)) {
                 const nextc = text.charAt(pos + 1);
                 const nextc1 = text.charAt(pos + 2);
-                if (char_is_numeric(nextc) || ((nextc == ' ') && char_is_numeric(nextc1) )) {
-                    isNumberSeparator = true
+                if (char_is_numeric(nextc) || (nextc == ' ' && char_is_numeric(nextc1))) {
+                    isNumberSeparator = true;
                 }
             }
         }
     }
     return isNumberSeparator;
-}
+};
 const char_starts_phrase = (text: string, pos: number) => {
     // In the Solomon Islands, ? and ! can mark the start of a phrase.
     // e.g. “!Yu stanap, tekem bed blong yu an wakabaot gobaek long haos blong yu!”
@@ -173,7 +174,7 @@ const char_starts_phrase = (text: string, pos: number) => {
     let startsPhrase = false;
     const c = text.charAt(pos);
     if (pos < text.length - 2) {
-        if ((c === '!') || (c === '?')) {
+        if (c === '!' || c === '?') {
             const nextChar = text.charAt(pos + 1);
             if (char_is_letter(nextChar)) {
                 startsPhrase = true;
@@ -181,7 +182,7 @@ const char_starts_phrase = (text: string, pos: number) => {
         }
     }
     return startsPhrase;
-}
+};
 
 const char_ends_html = (phrase: string, pos: number) => {
     // If char is a semi-colon, make sure it is not an HTML code such as &nbsp; &lt; &gt;
@@ -192,23 +193,23 @@ const char_ends_html = (phrase: string, pos: number) => {
         if (ampPos >= 0) {
             if (phrase.length - ampPos < 8) {
                 const seq = phrase.slice(ampPos);
-                if ((seq === '&nbsp;') || (seq === '&lt;') || (seq === '&gt;')) {
+                if (seq === '&nbsp;' || seq === '&lt;' || seq === '&gt;') {
                     endsHtml = true;
                 }
             }
         }
     }
     return endsHtml;
-}
+};
 const isClosingSpeechChar = (c: string) => {
     return closingSpeechChars.indexOf(c) >= 0;
-}
+};
 const isClosingSpeechCharAfterSpace = (c: string) => {
     return closingSpeechCharsAfterSpace.indexOf(c) >= 0;
-}
+};
 const isClosingParenthesisChar = (c: string) => {
     return closingParenthesisChars.indexOf(c) >= 0;
-}
+};
 const isPhraseEndingChar = (c: string, seprgx: RegExp) => {
-    return c.match(seprgx) != null
-}
+    return c.match(seprgx) != null;
+};
