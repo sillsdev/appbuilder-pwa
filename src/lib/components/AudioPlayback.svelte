@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { AudioIcon } from '$lib/icons';
-    import { theme, s } from '$lib/data/stores';
+    import { s } from '$lib/data/stores';
     import config from '$lib/data/config';
     import AudioBar from './AudioBar.svelte';
 
