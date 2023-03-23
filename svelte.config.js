@@ -14,7 +14,10 @@ const config = {
     kit: {
         adapter: adapter({
             fallback: 'index.html'
-        })
+        }),
+        paths: {
+            base: process.env.BUILD_BASE_PATH
+        }
     }
 };
 

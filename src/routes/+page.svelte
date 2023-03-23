@@ -4,13 +4,21 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { audioActive, refs } from '$lib/data/stores';
+    import {
+        audioActive,
+        refs,
+        showDesktopSidebar,
+        bodyFontSize,
+        bodyLineHeight,
+        userSettings
+    } from '$lib/data/stores';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
+    import { base } from '$app/paths';
 
     function doSwipe(
         event: CustomEvent<{
@@ -24,16 +32,20 @@
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
-    $: contentClass =
-        $refs.hasAudio && $audioActive
-            ? $refs.hasAudio.timingFile
-                ? 'content-with-bar'
-                : 'content-with-bar-progress'
-            : '';
-    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
+    $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
+    $: viewSettings = {
+        bodyFontSize: $bodyFontSize,
+        bodyLineHeight: $bodyLineHeight,
+        viewShowVerses: $userSettings['verse-numbers'],
+        redLetters: $userSettings['red-letters']
+    };
+    // Border Subtraction
+    $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
+    // Content Subtarction
+    $: cs = 1 + bs + (showBorder ? 3.5 : 0);
 </script>
 
-<div class="navbar">
+<div class="navbar h-16">
     <Navbar>
         <div slot="left-buttons">
             <BookSelector />
@@ -55,69 +67,53 @@
             {/if}
             {#if showSearch}
                 <!-- Search Button -->
-                <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
                     <SearchIcon color="white" />
                 </a>
             {/if}
             <!-- Text Appearance Options Menu -->
             <TextAppearanceSelector />
-            {#if showCollections}
-                <!-- Book Collection Menu Button -->
+            <!-- {#if showCollections}
                 <CollectionSelector />
-            {/if}
+            {/if} -->
         </div>
     </Navbar>
 </div>
-<ScrolledContent>
-    <div
-        class={contentClass}
-        slot="scrolled-content"
-        use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-        on:swipe={doSwipe}
-    >
-        <ScriptureViewSofria />
-    </div>
-</ScrolledContent>
+<div
+    class:borderimg={showBorder}
+    style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
+>
+    <ScrolledContent>
+        <div
+            style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
+            slot="scrolled-content"
+            use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+            on:swipe={doSwipe}
+        >
+            <ScriptureViewSofria {...viewSettings} />
+        </div>
+    </ScrolledContent>
+</div>
 {#if $refs.hasAudio && $audioActive}
-    <div class="footer">
-        <div class={audioBarClass}>
+    <div
+        class="audio-bar p-0 left-0 right-0 bottom-0 absolute"
+        class:audio-bar-desktop={$showDesktopSidebar}
+    >
+        <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
             <AudioBar />
         </div>
     </div>
 {/if}
 
 <style>
-    .navbar {
-        height: 4rem;
-    }
-    /*shrink to accomodate the audio bar*/
-    .content-with-bar-progress {
-        height: calc(100vh - 10rem);
-        height: calc(100dvh - 10rem);
-    }
-    .content-with-bar {
-        height: calc(100vh - 9rem);
-        height: calc(100dvh - 9rem);
-    }
-    .audio-bar-with-progress {
-        height: 5rem;
-    }
-    .audio-bar {
-        height: 4rem;
-    }
-    .footer {
-        padding: 0 0 0 0;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        left: 0;
-    }
     @media (min-width: 1024px) {
-        .footer {
+        .audio-bar-desktop {
             left: 320px;
         }
-        .footer-progress {
-            left: 320px;
-        }
+    }
+    .borderimg {
+        border: 30px solid transparent;
+        border-image-source: url(/borders/border.png);
+        border-image-slice: 100;
     }
 </style>

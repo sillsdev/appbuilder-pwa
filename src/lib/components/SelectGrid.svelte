@@ -4,7 +4,7 @@ A component to display menu options in a grid.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores.js';
+    import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores';
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
     export let cols = 6;
