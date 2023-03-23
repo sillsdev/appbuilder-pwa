@@ -81,7 +81,7 @@
 {#if $refs.hasAudio && $audioActive}
     <div class="footer">
         <div class={audioBarClass}>
-            <AudioBar />
+            <AudioBar audio={$refs.hasAudio?.audio} />
         </div>
     </div>
 {/if}
