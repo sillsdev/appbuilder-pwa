@@ -57,6 +57,7 @@
         scrolls: scrolls,
         selectedVerses: selectedVerses,
         themeColors: $themeColors,
+        verseLayout: $userSettings['verse-layout'],
         viewShowVerses: $userSettings['verse-numbers']
     };
 
