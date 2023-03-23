@@ -93,12 +93,7 @@
         use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
         on:swipe={doSwipe}
     >
-        <ScriptureViewSofria
-            bodyFontSize={16}
-            bodyLineHeight={1.5}
-            viewShowVerses={true}
-            redLetters={false}
-        />
+        <ScriptureViewSofria bodyFontSize bodyLineHeight viewShowVerses redLetters />
     </div>
 </ScrolledContent>
 {#if $refs.hasAudio && $audioActive}
