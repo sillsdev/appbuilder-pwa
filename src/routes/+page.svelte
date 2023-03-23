@@ -19,7 +19,6 @@
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
     import { base } from '$app/paths';
-
     function doSwipe(
         event: CustomEvent<{
             direction: 'left' | 'top' | 'right' | 'bottom';
@@ -28,7 +27,6 @@
     ) {
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
-
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
@@ -39,13 +37,6 @@
         viewShowVerses: $userSettings['verse-numbers'],
         redLetters: $userSettings['red-letters']
     };
-    $: contentClass =
-        $refs.hasAudio && $audioActive
-            ? $refs.hasAudio.timingFile
-                ? 'content-with-bar'
-                : 'content-with-bar-progress'
-            : '';
-    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     // Border Subtraction
     $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
     // Content Subtarction
@@ -74,7 +65,7 @@
             {/if}
             {#if showSearch}
                 <!-- Search Button -->
-                <a href="/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
                     <SearchIcon color="white" />
                 </a>
             {/if}
@@ -86,23 +77,32 @@
         </div>
     </Navbar>
 </div>
-<ScrolledContent>
-    <div
-        class={contentClass}
-        slot="scrolled-content"
-        use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-        on:swipe={doSwipe}
-    >
-        <ScriptureViewSofria bodyFontSize bodyLineHeight viewShowVerses redLetters />
-    </div>
-</ScrolledContent>
+<div
+    class:borderimg={showBorder}
+    style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
+>
+    <ScrolledContent>
+        <div
+            style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
+            slot="scrolled-content"
+            use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+            on:swipe={doSwipe}
+        >
+            <ScriptureViewSofria {...viewSettings} />
+        </div>
+    </ScrolledContent>
+</div>
 {#if $refs.hasAudio && $audioActive}
-    <div class="footer">
-        <div class={audioBarClass}>
+    <div
+        class="audio-bar p-0 left-0 right-0 bottom-0 absolute"
+        class:audio-bar-desktop={$showDesktopSidebar}
+    >
+        <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
             <AudioBar audio={$refs.hasAudio?.audio} />
         </div>
     </div>
 {/if}
+Footer
 
 <style>
     @media (min-width: 1024px) {
