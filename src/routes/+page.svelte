@@ -26,6 +26,7 @@
     import { pinch, swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
+
     function doSwipe(
         event: CustomEvent<{
             direction: 'left' | 'top' | 'right' | 'bottom';
@@ -170,7 +171,6 @@
         </div>
     </div>
 {/if}
-Footer
 
 <style>
     @media (min-width: 1024px) {
