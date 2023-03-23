@@ -33,6 +33,7 @@ TODO:
     export let scrolls: any;
     export let selectedVerses: any;
     export let themeColors: any;
+    export let verseLayout: any;
     export let viewShowVerses: boolean;
 
     const pk = new Proskomma();
@@ -170,7 +171,7 @@ TODO:
         // Add pending phrase to the paragraph before starting
         // new ones
         if (workspace.phraseDiv != null) {
-            workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+            appendPhrase(workspace);
         }
         const div = document.createElement('div');
         if (!workspace.introductionGraft) {
@@ -257,6 +258,13 @@ TODO:
         }
         return returnValue;
     };
+    function appendPhrase(workspace) {
+        if (versePerLine) {
+            workspace.verseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+        } else {
+            workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+        }
+    }
     function handleVerseLabel(element, showVerseNumbers, workspace) {
         if (showVerseNumbers === true) {
             var spanV = document.createElement('span');
@@ -284,7 +292,8 @@ TODO:
         bookCode: string,
         chapter: string,
         showVerses: boolean,
-        showRedLetters: boolean
+        showRedLetters: boolean,
+        versePerLine: boolean
     ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         const docslist = await pk.gqlQuery('{docSets { id } }');
@@ -337,6 +346,7 @@ TODO:
                             workspace.titleGraft = false;
                             workspace.paragraphDiv = document.createElement('div');
                             workspace.titleBlockDiv = document.createElement('div');
+                            workspace.verseDiv = null;
                             workspace.phraseDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
@@ -418,6 +428,22 @@ TODO:
                                 )
                             ) {
                                 if (sequenceType == 'main') {
+                                    // console.log("End main paragraph");
+                                    if (
+                                        workspace.phraseDiv != null &&
+                                        workspace.phraseDiv.innerText !== ''
+                                    ) {
+                                        appendPhrase(workspace);
+                                        workspace.phraseDiv = null;
+                                    }
+                                    if (versePerLine) {
+                                        if (workspace.verseDiv !== null) {
+                                            workspace.paragraphDiv.appendChild(
+                                                workspace.verseDiv.cloneNode(true)
+                                            );
+                                            workspace.verseDiv = document.createElement('div');
+                                        }
+                                    }
                                     // Build div
                                     workspace.root.appendChild(workspace.paragraphDiv);
                                 } else if (sequenceType == 'title') {
@@ -765,8 +791,12 @@ TODO:
                                     workspace.lastPhraseTerminated = false;
                                     workspace.textType.push('verses');
                                     workspace.currentVerse = element.atts.number;
-                                    // console.log('verses start phrase');
+                                    // console.log('verses %o start phrase', element.atts.number);
                                     workspace.phraseDiv = startPhrase(workspace, 'reset');
+                                    if (versePerLine) {
+                                        workspace.verseDiv = document.createElement('div');
+                                        workspace.verseDiv.classList.add('verse-block');
+                                    }
                                     // console.log('IN: %o', workspace.phraseDiv);
                                     break;
                                 }
@@ -813,9 +843,13 @@ TODO:
                                         workspace.phraseDiv != null &&
                                         workspace.phraseDiv.innerText !== ''
                                     ) {
+                                        appendPhrase(workspace);
+                                    }
+                                    if (versePerLine) {
                                         workspace.paragraphDiv.appendChild(
-                                            workspace.phraseDiv.cloneNode(true)
+                                            workspace.verseDiv.cloneNode(true)
                                         );
+                                        workspace.verseDiv = null;
                                     }
                                     workspace.phraseDiv = null;
                                     workspace.currentVerse = 'none';
@@ -882,6 +916,8 @@ TODO:
 
     $: currentDocSet = references.docSet;
 
+    $: versePerLine = verseLayout === 'one-per-line';
+
     $: (() => {
         let chapterToDisplay = currentChapter;
         if (chapterToDisplay == 'i') {
@@ -894,7 +930,7 @@ TODO:
         const bookCode = currentBook;
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
-        query(docSet, bookCode, chapter, viewShowVerses, redLetters);
+        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine);
     })();
     onDestroy(unSub);
 </script>
