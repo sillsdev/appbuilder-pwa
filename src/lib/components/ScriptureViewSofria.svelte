@@ -18,11 +18,12 @@ TODO:
         deselectAllElements,
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
-
+    import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { LoadingIcon } from '$lib/icons';
 
     export let audioActive: any;
     export let audioHighlight: any;
+    export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let mainScroll: any;
@@ -36,7 +37,23 @@ TODO:
 
     const pk = new Proskomma();
     let container: HTMLElement;
-    const seprgx = /(\.|\?|!|:|;|,|')/g;
+    function escapeSpecialChars(separators: string) {
+        return separators.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+    const seprgx2 = (inputChars: string) => {
+        let separators = prepareAudioPhraseEndChars(inputChars);
+        let result = '(';
+        for (let i = 0; i < separators.length; i++) {
+            if (i > 0) {
+                result += '|';
+            }
+            result += escapeSpecialChars(separators[i]);
+        }
+        result += ')';
+        const regEx = new RegExp(result, 'g');
+        return regEx;
+    };
+    $: seprgx = seprgx2(audioPhraseEndChars);
 
     /**unique key to use for groupStore modifier*/
     const key = {};
@@ -140,33 +157,7 @@ TODO:
         }
         return result;
     };
-    const parsePhrase = (inner) => {
-        let phrases = inner.split(seprgx);
-        for (let i = 1; i < phrases.length; i += 2) {
-            phrases[i - 1] += phrases[i];
-        }
-        phrases = phrases.filter((s) => s.length > 0 && (s.length > 1 || !s.match(seprgx)));
-        //move chars orphaned by phrase parsing to preceding phrase
-        if (phrases.length > 1) {
-            for (let i = 0; i < phrases.length - 1; i++) {
-                const next = phrases[i + 1].split('');
-                let c = next.shift();
-                while (c && c.match(/[^_a-z]/i)) {
-                    phrases[i] += c;
-                    c = next.shift();
-                }
-                if (c) {
-                    next.unshift(c);
-                    phrases[i + 1] = next.join('');
-                } else {
-                    phrases.splice(i + 1, 1);
-                    i--;
-                }
-            }
-        }
-        // console.log('parsePhrase %o %o', inner, phrases);
-        return phrases;
-    };
+
     const phraseTerminated = (phrase) => {
         return phrase.match(seprgx) != null;
     };
@@ -210,7 +201,7 @@ TODO:
         if (!onlySpaces(text)) {
             let phrases = [];
             if (!workspace.introductionGraft && $refs.hasAudio) {
-                phrases = parsePhrase(text);
+                phrases = parsePhrase(text, seprgx);
             } else {
                 // Don't parse introduction or if there is no audio.
                 // Each paragraph is a single div.
@@ -741,11 +732,7 @@ TODO:
                                 span.appendChild(a);
                                 div.appendChild(span);
                                 workspace.phraseDiv = div.cloneNode(true);
-                                //workspace.paragraphDiv.appendChild(div.cloneNode(true));
                                 workspace.footnoteIndex++;
-                                if (workspace.lastPhraseTerminated === true) {
-                                    workspace.phraseDiv = startPhrase(workspace);
-                                }
                             }
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;

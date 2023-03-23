@@ -22,6 +22,7 @@
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
+    import { getFeatureValueString } from '$lib/scripts/configUtils';
     import { swipe } from 'svelte-gestures';
     import { base } from '$app/paths';
 
@@ -34,6 +35,11 @@
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
 
+    $: audioPhraseEndChars = getFeatureValueString(
+        'audio-phrase-end-chars',
+        $refs.docSet.split('_')[1],
+        $refs.book
+    );
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
@@ -41,6 +47,7 @@
     $: viewSettings = {
         audioActive: $audioActive,
         audioHighlight: $audioHighlight,
+        audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
         mainScroll: $mainScroll,
