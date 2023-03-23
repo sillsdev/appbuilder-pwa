@@ -1,7 +1,6 @@
 <!--
 @component
 A simple modal component from DaisyUI. Closes when clicked outside of.
-
 See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 -->
 <script>
