@@ -1,12 +1,9 @@
 <script>
-    import { onMount } from 'svelte';
     import { AudioIcon } from '$lib/icons';
     import { s } from '$lib/data/stores';
-    import config from '$lib/data/config';
-    import AudioBar from './AudioBar.svelte';
-
     import Modal from './Modal.svelte';
     export let audio;
+
     let modalId = 'playback';
 
     function setPlaySpeed(event) {
