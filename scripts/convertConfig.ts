@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, PathLike, readdirSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
@@ -25,6 +25,7 @@ type BookCollection = {
     features: any;
     books: {
         id: string;
+        type?: string;
         name: string;
         abbreviation: string;
         testament: string;
@@ -139,19 +140,18 @@ export type ConfigData = {
         };
     };
     videos?: {
-        // TODO
         id: string;
         width: number;
         height: number;
-        title: string;
+        title?: string;
         thumbnail: string;
         onlineUrl: string;
-        placement: {
+        placement?: {
             pos: string;
             ref: string;
-            collection: number;
+            collection: string;
         };
-    };
+    }[];
     layouts?: {
         // TODO
         mode: string;
@@ -230,6 +230,14 @@ function parseTrait(tag: Element, name: string): string {
         }
     }
     return '';
+}
+
+function dirEmpty(path: PathLike): boolean {
+    let empty = true;
+    if (existsSync(path)) {
+        empty = readdirSync(path).length == 0;
+    }
+    return empty;
 }
 
 function convertConfig(dataDir: string, verbose: number) {
@@ -330,8 +338,12 @@ function convertConfig(dataDir: string, verbose: number) {
 
     for (const tag of traitTags) {
         data.traits[tag.attributes.getNamedItem('name')!.value] =
-            tag.attributes.getNamedItem('value')?.value;
+            tag.attributes.getNamedItem('value')?.value === 'true';
     }
+    // Add traits
+    data.traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
+    data.traits['has-illustrations'] = !dirEmpty(path.join(dataDir, 'illustrations'));
+
     if (verbose) console.log(`Converted ${Object.keys(data.traits).length} traits`);
 
     // Book collections
@@ -385,6 +397,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 chaptersN: book.getElementsByTagName('cn')[0].attributes.getNamedItem('value')!
                     .value,
                 id: book.attributes.getNamedItem('id')!.value,
+                type: book.attributes.getNamedItem('type')?.value,
                 name: book.getElementsByTagName('n')[0]?.innerHTML,
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
@@ -400,6 +413,10 @@ function convertConfig(dataDir: string, verbose: number) {
             ? collectionNameTags[0].innerHTML
             : undefined;
         if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
+        data.traits['has-glossary'] =
+            data.bookCollections.filter(
+                (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
+            ).length > 0;
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
         if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -586,6 +603,34 @@ function convertConfig(dataDir: string, verbose: number) {
         };
     };
     */
+
+    const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
+    if (videoTags?.length > 0) {
+        data.videos = [];
+
+        for (const tag of videoTags) {
+            const placementTag = tag.getElementsByTagName('placement')[0];
+            const placement =
+                placementTag == undefined
+                    ? undefined
+                    : {
+                          pos: placementTag.attributes.getNamedItem('pos')!.value,
+                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                          collection: placementTag.attributes
+                              .getNamedItem('ref')!
+                              .value.split('|')[0]
+                      };
+            data.videos.push({
+                id: tag.attributes.getNamedItem('id')!.value,
+                width: parseInt(tag.attributes.getNamedItem('width')!.value),
+                height: parseInt(tag.attributes.getNamedItem('height')!.value),
+                title: tag.getElementsByTagName('title')[0]?.innerHTML,
+                thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
+                onlineUrl: tag.getElementsByTagName('online-url')[0]?.innerHTML,
+                placement
+            });
+        }
+    }
 
     /*
     layouts?: {

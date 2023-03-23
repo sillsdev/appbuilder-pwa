@@ -8,6 +8,7 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy } from 'svelte';
+    import { base } from '$app/paths';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from '../scripts/thaw';
@@ -17,8 +18,6 @@ TODO:
         scrolls,
         audioActive,
         mainScroll,
-        bodyFontSize,
-        bodyLineHeight,
         themeColors,
         selectedVerses
     } from '$lib/data/stores';
@@ -29,6 +28,11 @@ TODO:
     } from '$lib/scripts/verseSelectUtil';
 
     import { LoadingIcon } from '$lib/icons';
+
+    export let bodyFontSize: any;
+    export let bodyLineHeight: any;
+    export let viewShowVerses: boolean;
+    export let redLetters: boolean;
 
     const pk = new Proskomma();
     let container: HTMLElement;
@@ -95,13 +99,21 @@ TODO:
     /**updates highlight*/
     const updateHighlight = (h: string, color: string) => {
         const a = h.split(',');
+        // Remove highlighting for currently highlighted verses
         let el = container?.getElementsByClassName('highlighting')?.item(0);
         let node = el?.getAttributeNode('style');
         el?.removeAttributeNode(node);
         el?.classList.remove('highlighting');
+        // If audio off or if not in the right chapter, return
         if (!$audioActive || a[0] !== $refs.docSet || a[1] !== $refs.book || a[2] !== $refs.chapter)
             return;
+        // Try to get verse for timing
         el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
+        // If failed to get 'verse #, none' then try for 'verse # a' instead
+        if (el == null && a[4] == 'none') {
+            el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="a"]`);
+        }
+        // Highlight verse if found
         el?.setAttribute('style', 'background-color: ' + color + ';');
         el?.classList.add('highlighting');
         if (
@@ -148,10 +160,20 @@ TODO:
         // console.log('parsePhrase %o %o', inner, phrases);
         return phrases;
     };
-
+    const phraseTerminated = (phrase) => {
+        return phrase.match(seprgx) != null;
+    };
+    const currentTextType = (workspace) => {
+        return workspace.textType[workspace.textType.length - 1];
+    };
     const startPhrase = (workspace, indexOption = 'advance') => {
         // console.log('Start phrase!!!');
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
+        // Add pending phrase to the paragraph before starting
+        // new ones
+        if (workspace.phraseDiv != null) {
+            workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+        }
         const div = document.createElement('div');
         if (!workspace.introductionGraft) {
             switch (indexOption) {
@@ -176,33 +198,60 @@ TODO:
         }
         return div.cloneNode(true);
     };
-    const addText = (workspace, append = true) => {
-        if (!onlySpaces(workspace.text)) {
+    const addText = (workspace, text) => {
+        // console.log('Adding text:', text);
+        if (!onlySpaces(text)) {
             let phrases = [];
-            if (!workspace.introductionGraft) {
-                phrases = parsePhrase(workspace.text);
+            if (!workspace.introductionGraft && $refs.hasAudio) {
+                phrases = parsePhrase(text);
             } else {
-                // Don't parse introduction text.  Each paragraph
-                // is a single div.
-                phrases[0] = workspace.text;
+                // Don't parse introduction or if there is no audio.
+                // Each paragraph is a single div.
+                phrases[0] = text;
             }
             for (let i = 0; i < phrases.length; i++) {
-                const div = workspace.phraseDiv.cloneNode(true);
+                let div = workspace.phraseDiv.cloneNode(true);
                 const phrase = phrases[i];
-                const textNode = document.createTextNode(phrase);
-                div.appendChild(textNode);
-                if (append || i < phrases.length - 1) {
-                    workspace.paragraphDiv.appendChild(div.cloneNode(true));
+                const spanRequired = usfmSpanRequired(
+                    workspace.usfmWrapperType,
+                    workspace.showWordsOfJesus
+                );
+                div = addTextNode(div, phrase, workspace.usfmWrapperType, spanRequired);
+                if (i < phrases.length - 1) {
+                    workspace.phraseDiv = div.cloneNode(true);
                     workspace.phraseDiv = startPhrase(workspace);
                 } else {
                     workspace.phraseDiv = div;
                 }
             }
+            workspace.lastPhraseTerminated =
+                phrases.length > 0 ? phraseTerminated(phrases[phrases.length - 1]) : false;
         }
-        workspace.text = '';
         return;
     };
-
+    const usfmSpanRequired = (usfmWrapperType: string, showWordsOfJesus: boolean) => {
+        let required = false;
+        if (usfmWrapperType === 'wj') {
+            if (showWordsOfJesus) {
+                required = true;
+            }
+        } else if (usfmWrapperType) {
+            required = true;
+        }
+        return required;
+    };
+    const addTextNode = (div, phrase, usfmWrapperType: string, wrapperRequired: boolean) => {
+        const textNode = document.createTextNode(phrase);
+        if (wrapperRequired) {
+            var spanUsfm = document.createElement('span');
+            spanUsfm.classList.add(usfmWrapperType);
+            spanUsfm.appendChild(textNode);
+            div.appendChild(spanUsfm);
+        } else {
+            div.appendChild(textNode);
+        }
+        return div;
+    };
     const processText = (introductionGraft, showIntroduction, titleGraft) => {
         let returnValue = false;
         if (introductionGraft == showIntroduction || (titleGraft && showIntroduction)) {
@@ -210,12 +259,32 @@ TODO:
         }
         return returnValue;
     };
+    function handleVerseLabel(element, showVerseNumbers, workspace) {
+        if (showVerseNumbers === true) {
+            var spanV = document.createElement('span');
+            spanV.classList.add('v');
+            spanV.innerText = element.atts['number'];
+            var spanVsp = document.createElement('span');
+            spanVsp.classList.add('vsp');
+            spanVsp.innerText = '\u00A0'; // &nbsp
+            var div = workspace.phraseDiv.cloneNode(true);
+            div.appendChild(spanV.cloneNode(true));
+            div.appendChild(spanVsp.cloneNode(true));
+            workspace.phraseDiv = div.cloneNode(true);
+        }
+    }
     let bookRoot = document.createElement('div');
     // console.log('START: %o', bookRoot);
     let loading = true;
 
     const output = {};
-    const query = async (docSet: string, bookCode: string, chapter: string) => {
+    const query = async (
+        docSet: string,
+        bookCode: string,
+        chapter: string,
+        showVerses: boolean,
+        showRedLetters: boolean
+    ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         const docslist = await pk.gqlQuery('{docSets { id } }');
         // console.log('LIST %o', docslist);
@@ -232,7 +301,7 @@ TODO:
 
         if (!found) {
             // console.log('fetch %o pkf', docSet);
-            const res = await fetch(`collections/${docSet}.pkf`).then((r) => {
+            const res = await fetch(`${base}/collections/${docSet}.pkf`).then((r) => {
                 return r.arrayBuffer();
             });
             if (res.byteLength) {
@@ -258,7 +327,6 @@ TODO:
                             );*/
                             bookRoot.replaceChildren();
                             workspace.root = bookRoot;
-                            workspace.text = '';
                             workspace.footnoteIndex = 0;
                             workspace.introductionIndex = 0;
                             workspace.firstVerse = true;
@@ -268,8 +336,14 @@ TODO:
                             workspace.titleGraft = false;
                             workspace.paragraphDiv = document.createElement('div');
                             workspace.titleBlockDiv = document.createElement('div');
-                            workspace.phraseDiv = document.createElement('div');
+                            workspace.phraseDiv = null;
                             workspace.subheaders = [];
+                            workspace.textType = [];
+                            workspace.titleText = [];
+                            workspace.headerText = [];
+                            workspace.usfmWrapperType = '';
+                            workspace.showWordsOfJesus = showRedLetters;
+                            workspace.lastPhraseTerminated = false;
                             deselectAllElements();
                         }
                     }
@@ -279,11 +353,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            /* console.log(
-                                'Start Paragraph %o %o',
-                                context.sequences[0].block,
-                                context.sequences[0].type
-                            ); */
+                            // console.log(
+                            //     'Start Paragraph %o %o',
+                            //     context.sequences[0].block,
+                            //     context.sequences[0].type
+                            // );
                             const sequenceType = context.sequences[0].type;
                             if (
                                 processText(
@@ -296,27 +370,28 @@ TODO:
                                     context.sequences[0].block.subType.split(':')[1] ||
                                     context.sequences[0].block.subType;
                                 if (sequenceType === 'main' && !displayingIntroduction) {
+                                    workspace.lastPhraseTerminated = false;
                                     if (workspace.firstVerse == true) {
                                         paraClass = 'm';
                                         workspace.firstVerse = false;
                                     }
+
+                                    if (workspace.currentVerse != 'none') {
+                                        workspace.phraseDiv = startPhrase(workspace);
+                                        // console.log(
+                                        //     'Paragraph Start phrase: %o',
+                                        //     workspace.phraseDiv
+                                        // );
+                                    }
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
-                                    if (workspace.currentVerse != 'none') {
-                                        workspace.phraseDiv = startPhrase(workspace, 'keep');
-                                        /* console.log(
-                                            'Paragraph Start phrase: %o',
-                                            workspace.phraseDiv
-                                        );*/
-                                    }
                                 } else if (sequenceType == 'introduction') {
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
                                     if (workspace.introductionIndex == 1) {
+                                        // console.log('Introduction start phrase');
                                         workspace.phraseDiv = startPhrase(workspace, 'keep');
                                     }
-                                } else {
-                                    //NO workspace.htmlBits.push(`<div class="${paraClass}">`)
                                 }
                             }
                         }
@@ -329,11 +404,11 @@ TODO:
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
                             // console.log('End paragraph: Sequence type ' + sequenceType);
-                            /* console.log(
-                                'End Paragraph %o %o',
-                                context.sequences[0].block,
-                                context.sequences[0].type
-                            );*/
+                            // console.log(
+                            //     'End Paragraph %o %o',
+                            //     context.sequences[0].block,
+                            //     context.sequences[0].type
+                            // );
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -343,16 +418,8 @@ TODO:
                             ) {
                                 if (sequenceType == 'main') {
                                     // Build div
-                                    // console.log('End Paragaph text:' + workspace.text);
-                                    if (workspace.currentVerse != 'none') {
-                                        // console.log('END PHRASE: P');
-                                        // console.log('PHRASE: ' + workspace.text);
-                                        addText(workspace);
-                                        // console.log('OUT: %o ', workspace.paragraphDiv);
-                                    }
                                     workspace.root.appendChild(workspace.paragraphDiv);
                                 } else if (sequenceType == 'title') {
-                                    // console.log('End paragraph title text:' + workspace.text);
                                     const div = document.createElement('div');
                                     var paraClass =
                                         context.sequences[0].block.subType.split(':')[1] ||
@@ -360,12 +427,11 @@ TODO:
                                     div.classList.add(paraClass);
                                     const span = document.createElement('span');
                                     span.classList.add(paraClass);
-                                    span.innerText = workspace.text;
+                                    span.innerText = workspace.titleText;
                                     div.appendChild(span);
                                     workspace.titleBlockDiv.appendChild(div);
-                                    workspace.text = '';
+                                    workspace.titleText = '';
                                 } else if (sequenceType == 'heading') {
-                                    // console.log('Header text: ' + workspace.text);
                                     const div = document.createElement('div');
                                     var headingParaClass =
                                         context.sequences[0].block.subType.split(':')[1] ||
@@ -379,13 +445,11 @@ TODO:
                                     );
                                     const innerDiv = document.createElement('div');
                                     innerDiv.id = prefix + count;
-                                    innerDiv.innerText = workspace.text;
+                                    innerDiv.innerText = workspace.headerText;
                                     div.appendChild(innerDiv);
                                     workspace.root.appendChild(div);
-                                    workspace.text = '';
+                                    workspace.headerText = '';
                                 } else if (sequenceType == 'introduction') {
-                                    // console.log('End Paragaph text:' + workspace.text);
-                                    addText(workspace);
                                     workspace.root.appendChild(workspace.paragraphDiv);
                                 }
                             }
@@ -397,12 +461,13 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            /* console.log(
-                                'Text element: %o %o %o',
-                                context.sequences[0].element.type,
-                                context.sequences[0].element.text,
-                                context.sequences[0].block
-                            );*/
+                            // console.log(
+                            //     'Text element: %o %o %o',
+                            //     context.sequences[0].element.type,
+                            //     context.sequences[0].element.text,
+                            //     context.sequences[0].block
+                            // );
+                            // console.log('Text Type: %o', currentTextType(workspace));
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -410,14 +475,31 @@ TODO:
                                     workspace.titleGraft
                                 )
                             ) {
-                                const blockType = context.sequences[0].block.subType;
-                                if (blockType.includes('usfm:x') || blockType.includes('usfm:f')) {
-                                    // Graft Text
-                                } else if (blockType.includes('usfm:ip')) {
-                                    // Introduction
-                                    workspace.text += context.sequences[0].element.text;
-                                } else {
-                                    workspace.text += context.sequences[0].element.text;
+                                const text = context.sequences[0].element.text;
+                                switch (currentTextType(workspace)) {
+                                    case 'title': {
+                                        workspace.titleText += text;
+                                        break;
+                                    }
+                                    case 'heading': {
+                                        workspace.headerText += text;
+                                        break;
+                                    }
+                                    default: {
+                                        const blockType = context.sequences[0].block.subType;
+                                        if (
+                                            blockType.includes('usfm:x') ||
+                                            blockType.includes('usfm:f')
+                                        ) {
+                                            // Graft Text
+                                        } else if (blockType.includes('usfm:ip')) {
+                                            // Introduction
+                                            addText(workspace, text);
+                                        } else {
+                                            addText(workspace, text);
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -429,11 +511,11 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            /* console.log(
-                                'Mark: SubType %o, Atts: %o',
-                                element.subType,
-                                element.atts
-                            ); */
+                            // console.log(
+                            //     'Mark: SubType %o, Atts: %o',
+                            //     element.subType,
+                            //     element.atts
+                            // );
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -446,19 +528,8 @@ TODO:
                                     div.classList.add('c-drop');
                                     div.innerText = element.atts['number'];
                                     workspace.paragraphDiv.appendChild(div);
-                                    //                                    workspace.htmlBits.push(`<div class="c-drop"> ${element.atts['number']}</div>\n`);
                                 } else if (element.subType === 'verses_label') {
-                                    var spanV = document.createElement('span');
-                                    spanV.classList.add('v');
-                                    spanV.innerText = element.atts['number'];
-                                    var spanVsp = document.createElement('span');
-                                    spanVsp.classList.add('vsp');
-                                    spanVsp.innerText = '\u00A0'; // &nbsp
-                                    var div = workspace.phraseDiv.cloneNode(true);
-                                    div.appendChild(spanV.cloneNode(true));
-                                    div.appendChild(spanVsp.cloneNode(true));
-                                    // console.log('OUT: %o %o %o', div, spanV, spanVsp);
-                                    workspace.phraseDiv = div.cloneNode(true);
+                                    handleVerseLabel(element, showVerses, workspace);
                                 }
                             }
                         }
@@ -493,13 +564,33 @@ TODO:
                                     workspace.titleGraft
                                 )
                             ) {
-                                if (sequenceType === 'title') {
-                                    const div = document.createElement('div');
-                                    div.setAttribute('data-verse', 'title');
-                                    div.setAttribute('data-phrase', 'none');
-                                    div.classList.add('scroll-item');
-                                    workspace.titleBlockDiv = div;
+                                switch (sequenceType) {
+                                    case 'title': {
+                                        workspace.textType.push('title');
+                                        const div = document.createElement('div');
+                                        div.setAttribute('data-verse', 'title');
+                                        div.setAttribute('data-phrase', 'none');
+                                        div.classList.add('scroll-item');
+                                        workspace.titleBlockDiv = div;
+                                        break;
+                                    }
+                                    case 'heading': {
+                                        workspace.textType.push('heading');
+                                        break;
+                                    }
+                                    case 'main': {
+                                        workspace.textType.push('main');
+                                        break;
+                                    }
+                                    case 'introduction': {
+                                        workspace.textType.push('introduction');
+                                        break;
+                                    }
+                                    default: {
+                                        break;
+                                    }
                                 }
+                                // console.log('Processed: %o', workspace.textType);
                             }
                         }
                     }
@@ -518,11 +609,53 @@ TODO:
                                     workspace.titleGraft
                                 )
                             ) {
-                                if (sequenceType === 'title') {
-                                    const div = workspace.titleBlockDiv;
-                                    div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                                    // console.log('TITLE DIV %o', div);
-                                    workspace.root.append(div);
+                                switch (sequenceType) {
+                                    case 'title': {
+                                        //const textType = workspace.textType.pop();
+                                        // if (textType != 'title') {
+                                        //     console.log('Title texttype mismatch!!! %o', textType);
+                                        // }
+                                        workspace.textType.pop();
+                                        const div = workspace.titleBlockDiv;
+                                        div.innerHTML += `<div class="b"></div><div class="b"></div>`;
+                                        // console.log('TITLE DIV %o', div);
+                                        workspace.root.append(div);
+                                        break;
+                                    }
+                                    case 'heading': {
+                                        //const textTypeH = workspace.textType.pop();
+                                        // if (textTypeH != 'heading') {
+                                        //     console.log(
+                                        //         'Heading texttype mismatch!!! %o',
+                                        //         textTypeH
+                                        //     );
+                                        // }
+                                        workspace.textType.pop();
+                                        break;
+                                    }
+                                    case 'main': {
+                                        //const textTypeM = workspace.textType.pop();
+                                        // if (textTypeM != 'main') {
+                                        //     console.log('Main texttype mismatch!!! %o', textTypeM);
+                                        // }
+                                        workspace.textType.pop();
+                                        break;
+                                    }
+                                    case 'introduction':
+                                        {
+                                            // const textTypeI = workspace.textType.pop();
+                                            // if (textTypeH != 'introduction') {
+                                            //     console.log(
+                                            //         'Introduction texttype mismatch!!! %o',
+                                            //         textTypeI
+                                            //     );
+                                            // }
+                                            workspace.textType.pop();
+                                        }
+                                        break;
+                                    default: {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -572,21 +705,20 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            /* console.log(
-                                'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                                element.type,
-                                element.subType,
-                                element.sequence.id,
-                                environment.context.sequences[0].element
-                            );*/
+                            // console.log(
+                            //     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
+                            //     element.type,
+                            //     element.subType,
+                            //     element.sequence.id,
+                            //     environment.context.sequences[0].element
+                            // );
                             const graftRecord = {
                                 type: element.type,
                                 subtype: element.subType,
                                 sequence: {}
                             };
                             if (element.subType === 'xref' || element.subType === 'footnote') {
-                                // console.log('PHRASE G: ' + workspace.text);
-                                addText(workspace, false);
+                                workspace.textType.push('footnote');
                                 const div = workspace.phraseDiv.cloneNode(true);
                                 // console.log('Footnote or xref');
                                 const span = document.createElement('span');
@@ -598,14 +730,23 @@ TODO:
                                 a.appendChild(sup);
                                 span.appendChild(a);
                                 div.appendChild(span);
-                                workspace.paragraphDiv.appendChild(div.cloneNode(true));
+                                workspace.phraseDiv = div.cloneNode(true);
+                                //workspace.paragraphDiv.appendChild(div.cloneNode(true));
                                 workspace.footnoteIndex++;
-                                workspace.phraseDiv = startPhrase(workspace);
+                                if (workspace.lastPhraseTerminated === true) {
+                                    workspace.phraseDiv = startPhrase(workspace);
+                                }
                             }
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;
                             environment.context.renderer.renderSequence(environment);
                             workspace.currentSequence = cachedSequencePointer;
+                            if (element.subType === 'xref' || element.subType === 'footnote') {
+                                const textTypeF = workspace.textType.pop();
+                                // if (textTypeF != 'footnote') {
+                                //     console.log('Footnote text type mismatch!!! %o', textTypeF);
+                                // }
+                            }
                             // console.log('Inline Graft End');
                         }
                     }
@@ -617,10 +758,38 @@ TODO:
                         action: ({ context, workspace }) => {
                             // console.log('Start Wrapper %o', context.sequences[0].element);
                             let element = context.sequences[0].element;
-                            if (element.subType === 'verses') {
-                                workspace.currentVerse = element.atts.number;
-                                workspace.phraseDiv = startPhrase(workspace, 'reset');
-                                // console.log('IN: %o', workspace.phraseDiv);
+                            let subType = element.subType;
+                            if (element.subType.startsWith('usfm:')) {
+                                subType = 'usfm';
+                            }
+
+                            switch (subType) {
+                                case 'verses': {
+                                    workspace.lastPhraseTerminated = false;
+                                    workspace.textType.push('verses');
+                                    workspace.currentVerse = element.atts.number;
+                                    // console.log('verses start phrase');
+                                    workspace.phraseDiv = startPhrase(workspace, 'reset');
+                                    // console.log('IN: %o', workspace.phraseDiv);
+                                    break;
+                                }
+                                // Various types appear under the usfm:xx wrapper
+                                // Words of Jesus is one as usfm:wj
+                                case 'usfm': {
+                                    // console.log('usfm Wrapper');
+                                    let usfmType = element.subType.split(':')[1];
+                                    workspace.textType.push('usfm');
+                                    if (!workspace.textType.includes('footnote')) {
+                                        if (workspace.lastPhraseTerminated === true) {
+                                            workspace.phraseDiv = startPhrase(workspace);
+                                        }
+                                    }
+                                    workspace.usfmWrapperType = usfmType;
+                                    break;
+                                }
+                                default: {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -632,14 +801,37 @@ TODO:
                         action: ({ context, workspace }) => {
                             // console.log('End Wrapper %o', context.sequences[0].element);
                             let element = context.sequences[0].element;
-                            if (element.subType === 'verses') {
-                                if (!onlySpaces(workspace.text)) {
-                                    // console.log('PHRASE: ' + workspace.text);
-                                    addText(workspace);
-                                    // console.log('OUT: %o ', workspace.paragraphDiv);
+                            let subType = element.subType;
+                            if (element.subType.startsWith('usfm:')) {
+                                subType = 'usfm';
+                            }
+                            switch (subType) {
+                                case 'verses': {
+                                    /*const textTypeV = workspace.textType.pop(); */
+                                    // if (textTypeV != 'verses') {
+                                    //     console.log('Verses texttype mismatch!!! %o', textTypeV);
+                                    // }
+                                    workspace.textType.pop();
+                                    if (
+                                        workspace.phraseDiv != null &&
+                                        workspace.phraseDiv.innerText !== ''
+                                    ) {
+                                        workspace.paragraphDiv.appendChild(
+                                            workspace.phraseDiv.cloneNode(true)
+                                        );
+                                    }
+                                    workspace.phraseDiv = null;
+                                    workspace.currentVerse = 'none';
+                                    break;
                                 }
-                                // console.log('END PHRASE: V');
-                                workspace.currentVerse = 'none';
+                                case 'usfm': {
+                                    workspace.textType.pop();
+                                    workspace.usfmWrapperType = '';
+                                    break;
+                                }
+                                default: {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -681,9 +873,10 @@ TODO:
         // console.log('DONE %o', root);
     };
 
-    $: fontSize = $bodyFontSize + 'px';
+    $: fontSize = bodyFontSize + 'px';
 
-    $: lineHeight = $bodyLineHeight + '%';
+    $: lineHeight = bodyLineHeight + '%';
+
     $: highlightColor = $themeColors['TextHighlightColor'];
 
     $: (() => {
@@ -698,7 +891,7 @@ TODO:
         const bookCode = $refs.book;
         const chapter = chapterToDisplay;
         const docSet = $refs.docSet;
-        query(docSet, bookCode, chapter);
+        query(docSet, bookCode, chapter, viewShowVerses, redLetters);
     })();
     onDestroy(unSub);
 </script>
