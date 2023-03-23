@@ -19,6 +19,7 @@
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
     import { base } from '$app/paths';
+
     function doSwipe(
         event: CustomEvent<{
             direction: 'left' | 'top' | 'right' | 'bottom';
@@ -27,6 +28,7 @@
     ) {
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
+
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
@@ -102,7 +104,6 @@
         </div>
     </div>
 {/if}
-Footer
 
 <style>
     @media (min-width: 1024px) {
