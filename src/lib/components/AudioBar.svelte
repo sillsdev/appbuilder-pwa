@@ -8,7 +8,7 @@ TODO:
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
-    import AudioPlayback from './AudioPlayback.svelte';
+    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
 
@@ -241,7 +241,7 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <AudioPlayback {...audioPlaybackProps} />
+            <AudioPlaybackSpeed {...audioPlaybackProps} />
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
