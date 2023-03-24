@@ -255,7 +255,7 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <AudioPlayback {...audioPlaybackProps} />
+            <AudioPlaybackSpeed {...audioPlaybackProps} />
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
