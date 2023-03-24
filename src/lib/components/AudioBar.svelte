@@ -136,6 +136,15 @@ TODO:
             }
         };
     })();
+
+    function seekAudio(event) {
+        if (!loaded) return;
+        // Calculate the percentage of the progress bar that was clicked
+        const progressBar = document.getElementById('progress-bar');
+        const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
+        // Set the current time of the audio element to the corresponding time based on the percent
+        audio.currentTime = duration * percent;
+    }
     /**skips to previous or next chapter if it exists*/
     const skip = (direction) => {
         if (refs.skip(direction)) {
@@ -187,6 +196,12 @@ TODO:
     let audioPlaybackProps = {};
 </script>
 
+<div class="dy-button-group progress-bar">
+    <div
+        class="dy-button-group progress-bar-position"
+        style="width: {(progress / duration) * 100}%;"
+    />
+</div>
 <div class={audioBarClass} style:background-color={backgroundColor}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
@@ -281,6 +296,19 @@ TODO:
         grid-row: 2;
         grid-column: 2;
         place-self: center;
+    }
+    .progress-bar {
+        position: relative;
+        width: 100%;
+        height: 5px;
+        background-color: white;
+    }
+    .progress-bar-position {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background-color: #06c;
     }
     .audio-repeat {
         grid-row: 1;
