@@ -210,7 +210,8 @@ TODO:
     $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
-<div class="dy-button-group progress-bar">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div id="progress-bar" class="dy-button-group progress-bar" on:click={seekAudio}>
     <div
         class="dy-button-group progress-bar-position"
         style="width: {(progress / duration) * 100}%;"
