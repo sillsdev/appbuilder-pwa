@@ -23,12 +23,20 @@
 
     function doPinch(
         event: CustomEvent<{
-            direction: 'left' | 'top' | 'right' | 'bottom';
-            target: EventTarget;
+            scale: number;
+            center: {
+                x: number;
+                y: number;
+            };
         }>
     ) {
-        bodyFontSize.update($bodyFontSize);
-    }
+        const pinchFactor = event.detail.scale;
+        bodyFontSize.update((fontSize) => {
+        const newFontSize = fontSize * pinchFactor;
+            return newFontSize.toFixed(2);
+        });
+    }   
+
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
@@ -84,6 +92,7 @@
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
             on:swipe={doSwipe}
             use:pinch
+            on:pinch={doPinch}
         >
             <ScriptureViewSofria />
         </div>

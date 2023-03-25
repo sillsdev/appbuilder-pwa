@@ -1,9 +1,8 @@
 <!--
 @component
-The navbar component.
+The navbar component. We have sliders that update reactively to both font size and line height.
+3 buttons to change the style from normal, sepia and dark.
 TODO
-- Add functionality to sliders
-- Add icons to sliders as well and a font size on the end.
 -->
 <script>
     import Dropdown from './Dropdown.svelte';
@@ -17,7 +16,6 @@ TODO
         bodyLineHeight
     } from '$lib/data/stores';
     import config from '$lib/data/config';
-    import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
 
     const showFontSize = config.mainFeatures['text-font-size-slider'];
     const showLineHeight = config.mainFeatures['text-line-height-slider'];
