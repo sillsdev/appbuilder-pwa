@@ -32,10 +32,10 @@
     ) {
         const pinchFactor = event.detail.scale;
         bodyFontSize.update((fontSize) => {
-        const newFontSize = fontSize * pinchFactor;
+            const newFontSize = fontSize * pinchFactor;
             return newFontSize.toFixed(2);
         });
-    }   
+    }
 
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
