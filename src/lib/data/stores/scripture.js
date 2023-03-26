@@ -60,6 +60,7 @@ function createSelectedVerses() {
             const currentRefs = get(refs);
             const selection = {
                 docSet: currentRefs.docSet,
+                collection: currentRefs.collection,
                 book: currentRefs.book,
                 chapter: currentRefs.chapter,
                 verse: id,
@@ -94,6 +95,7 @@ function createSelectedVerses() {
             } else {
                 const selection = {
                     docSet: '',
+                    collection: '',
                     book: '',
                     chapter: '',
                     verse: '',
@@ -110,12 +112,60 @@ function createSelectedVerses() {
             } else {
                 const selection = {
                     docSet: '',
+                    collection: '',
                     book: '',
                     chapter: '',
                     verse: '',
                     text: ''
                 };
                 return selection;
+            }
+        },
+        getReference: (i) => {
+            let selections = get(external);
+            const index = Number(i);
+            if (index > -1 && index < selections.length) {
+                const selection = selections[index];
+                const separator = config.bookCollections.find((x) => x.id === selection.collection).features["ref-chapter-verse-separator"];
+                return selection.book + " " + selection.chapter + separator + selection.verse;
+            } else {
+                return '';
+            }
+        },
+
+        getCompositeReference: () => {
+            let selections = get(external);
+            if (selectedVerses.length <= 1) {
+                return selectedVerses.getReference(0);
+            } else {
+                const selectionStart = selections[0];
+                const verseSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-chapter-verse-separator"];
+                const rangeSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-verse-range-separator"];
+                const verseListSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-verse-list-separator"];
+                const reference = selectionStart.book + " " + selectionStart.chapter + verseSeparator + selectionStart.verse;
+                var lastVerse = selectionStart.verse;
+                var currVerse = selectionStart.verse;
+                for (var i = 1; i < length; i++) {
+                    //Move old curr to last
+                    lastVerse = currVerse;
+                    //Update curr
+                    currVerse = selections[i].verse;
+                    if (currVerse - lastVerse > 1) {// if they are not consecutive
+                        reference += lastVerse + verseListSeparator + currVerse;
+                    } else {
+                        //if doesn't have - as last element
+                        if (reference.charAt(reference.length - 1) != rangeSeparator) {
+                            reference += rangeSeparator;
+                        }
+                        //else 
+                        //still a continuation
+                        //do nothing
+                    }
+                }
+                if (reference.charAt(reference.length - 1) == rangeSeparator) {
+                    reference += currVerse;
+                }
+                return reference;
             }
         }
     };

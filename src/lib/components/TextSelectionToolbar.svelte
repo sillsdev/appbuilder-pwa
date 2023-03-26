@@ -40,10 +40,27 @@ TODO:
     ];
 
     function selectedText() {
-        console.log($selectedVerses);
         var someText = $selectedVerses.reduce((text, v) => (text += v.text), '');
-        console.log(someText);
         return someText;
+    }
+
+    function selectedTextReference() {
+        // grab starting verse
+        var scriptureReference =
+            $selectedVerses[0]['book'] +
+            ' ' +
+            $selectedVerses[0]['chapter'] +
+            ':' +
+            $selectedVerses[0]['verse'];
+        // loop to put in references
+        var extraVerses = '';
+        //var verseCount = Object.keys($selectedVerses).length;
+        for (var i = 1; i < $selectedVerses.size; i++) {
+            extraVerses = extraVerses.concat(', ' + $selectedVerses[i]['verse']);
+        }
+        scriptureReference.concat(extraVerses);
+
+        return scriptureReference;
     }
 
     function addBookmark() {
@@ -52,9 +69,8 @@ TODO:
 
         $bookmarks.push({
             id: $bookmarks.size + 1,
-            reference: 'TestBook 10:4',
+            reference: selectedVerses.getReference(0),
             text: selectedText(),
-            //text: selectedText()) || 'selectedText.toString() did not work',
             date: today.toDateString()
         });
         selectedVerses.reset();
@@ -66,8 +82,8 @@ TODO:
 
         $notes.push({
             id: $notes.size + 1,
-            reference: 'John 11:35',
-            text: 'This makes me sad',
+            reference: selectedVerses.getReference(0),
+            text: selectedText(),
             date: today.toDateString()
         });
         selectedVerses.reset();
@@ -76,20 +92,23 @@ TODO:
     function addHighlight() {
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
+        const verseCount = $selectedVerses.length;
 
-        $highlights.push({
-            id: $highlights.size + 1,
-            reference: 'TestBook 10:5',
-            text: selectedText(),
-            date: today.toDateString(),
-            highlight_color: '2'
-        });
+        for (var i = 0; i < verseCount; i++) {
+            $highlights.push({
+                id: $highlights.size + 1,
+                reference: selectedVerses.getReference(i),
+                text: selectedVerses.getVerseByIndex(i)['text'],
+                date: today.toDateString(),
+                highlight_color: '2'
+            });
+            selectedVerses.removeVerse(0);
+        }
         selectedVerses.reset();
     }
 
-    //Hardcoded copy function for now
     function copy() {
-        var copyText = 'He must increase, but I must decrease.\n\nJohn 3:30';
+        var copyText = selectedText() + '\n' + selectedVerses.getCompositeReference();
         navigator.clipboard.writeText(copyText);
         toast($t['Text_Copied'], {
             position: 'bottom-right'
