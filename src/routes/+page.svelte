@@ -100,7 +100,7 @@
         class:audio-bar-desktop={$showDesktopSidebar}
     >
         <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
-            <AudioBar />
+            <AudioBar audio={$refs.hasAudio?.audio} />
         </div>
     </div>
 {/if}

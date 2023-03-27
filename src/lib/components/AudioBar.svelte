@@ -8,6 +8,7 @@ TODO:
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
+    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
 
@@ -18,7 +19,7 @@ TODO:
     let playAfterSkip = false;
     let timeIndex = 0;
     let timing = [];
-    /**@type{HTMLAudioElement}*/ let audio;
+    /**@type{HTMLAudioElement}*/ export let audio;
 
     //get the audio source and timing files, based off the current reference
     const getAudio = async (collection, book, chapter) => {
@@ -181,6 +182,9 @@ TODO:
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     $: mayResetPlayMode($refs.hasAudio?.timing);
+    $: audioPlaybackProps = { audio };
+
+    let audioPlaybackProps = {};
 </script>
 
 <div class={audioBarClass} style:background-color={backgroundColor}>
@@ -237,9 +241,7 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <button class="dy-btn-sm dy-btn-ghost">
-                <AudioIcon.Speed color={iconColor} />
-            </button>
+            <AudioPlaybackSpeed {...audioPlaybackProps} />
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
@@ -285,7 +287,6 @@ TODO:
         grid-column: 1;
         place-self: center;
     }
-
     .audio-controls {
         grid-row: 1;
         grid-column: 2;
