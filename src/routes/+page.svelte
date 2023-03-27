@@ -28,12 +28,15 @@
                 x: number;
                 y: number;
             };
-        }>
+        }>,
+        minFontSize: number,
+        maxFontSize: number
     ) {
         const pinchFactor = event.detail.scale;
         bodyFontSize.update((fontSize) => {
             const newFontSize = fontSize * pinchFactor;
-            return newFontSize.toFixed(2);
+            const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
+            return clampedFontSize;
         });
     }
 
@@ -92,7 +95,12 @@
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
             on:swipe={doSwipe}
             use:pinch
-            on:pinch={doPinch}
+            on:pinch={(event) =>
+                doPinch(
+                    event,
+                    config.mainFeatures['text-size-min'],
+                    config.mainFeatures['text-size-max']
+                )}
         >
             <ScriptureViewSofria />
         </div>
