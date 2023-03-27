@@ -37,7 +37,7 @@
 
     $: audioPhraseEndChars = getFeatureValueString(
         'audio-phrase-end-chars',
-        $refs.docSet.split('_')[1],
+        $refs.collection,
         $refs.book
     );
     const showSearch = config.mainFeatures['search'];

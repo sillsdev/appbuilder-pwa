@@ -40,7 +40,6 @@ TODO:
     let container: HTMLElement;
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
-        //return separators.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     }
     const seprgx2 = (inputChars: string) => {
         let separators = prepareAudioPhraseEndChars(inputChars);
