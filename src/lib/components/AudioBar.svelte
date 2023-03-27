@@ -316,7 +316,8 @@ TODO:
         position: relative;
         width: 100%;
         height: 5px;
-        background-color: white;
+        /* opacity: 0.5; */
+        background-color: gray;
     }
     .progress-bar-position {
         position: absolute;
