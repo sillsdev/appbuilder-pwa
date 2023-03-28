@@ -21,6 +21,7 @@
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
 
+    var lastPinch = 1.0;
     function doPinch(
         event: CustomEvent<{
             scale: number;
@@ -32,9 +33,10 @@
         minFontSize: number,
         maxFontSize: number
     ) {
-        const pinchFactor = event.detail.scale;
+        const currPinch = event.detail.scale;
         bodyFontSize.update((fontSize) => {
-            const newFontSize = fontSize * pinchFactor;
+            const newFontSize = currPinch > lastPinch ? fontSize + 1 : fontSize - 1;
+            lastPinch = currPinch;
             const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
             return clampedFontSize;
         });
