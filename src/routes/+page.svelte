@@ -49,7 +49,7 @@
     ) {
         const currPinch = event.detail.scale;
         bodyFontSize.update((fontSize) => {
-            const newFontSize = currPinch > lastPinch ? fontSize + 1 : fontSize - 1;
+            const newFontSize = currPinch > lastPinch ? fontSize + 1.0 : fontSize - 1.0;
             lastPinch = currPinch;
             const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
             return clampedFontSize;
