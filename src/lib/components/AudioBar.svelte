@@ -278,26 +278,7 @@ TODO:
         grid-auto-columns: 3.125rem auto 3.125rem;
         grid-auto-rows: 4rem;
     }
-    .audio-bar-progress {
-        display: grid;
-        grid-auto-columns: 3.125rem auto 3.125rem;
-        grid-auto-rows: 3.125rem 1.875rem;
-    }
-    .audio-progress-value {
-        grid-row: 2;
-        grid-column: 1;
-        place-self: center;
-    }
-    .audio-progress-duration {
-        grid-row: 2;
-        grid-column: 3;
-        place-self: center;
-    }
-    .audio-progress {
-        grid-row: 2;
-        grid-column: 2;
-        place-self: center;
-    }
+
     .progress-bar {
         position: relative;
         width: 100%;
