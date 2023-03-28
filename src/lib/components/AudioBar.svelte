@@ -8,6 +8,8 @@ TODO:
 <script>
     import { AudioIcon } from '$lib/icons';
     import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
+    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
+    import { base } from '$app/paths';
     import config from '$lib/data/config';
 
     let duration = NaN;
@@ -17,7 +19,7 @@ TODO:
     let playAfterSkip = false;
     let timeIndex = 0;
     let timing = [];
-    /**@type{HTMLAudioElement}*/ let audio;
+    /**@type{HTMLAudioElement}*/ export let audio;
 
     //get the audio source and timing files, based off the current reference
     const getAudio = async (collection, book, chapter) => {
@@ -37,7 +39,7 @@ TODO:
             accept: 'application/json'
         };
         //console.log(`AudioBar: request: body=`, body);
-        const res = await fetch('/data/audio', { method, body, headers });
+        const res = await fetch(`${base}/data/audio`, { method, body, headers });
         const j = await res.json();
         if (j.error) {
             console.error(j.error);
@@ -76,7 +78,7 @@ TODO:
                 $refs.chapter,
                 timing[timeIndex].tag.match(/[0-9]+/)
                     ? timing[timeIndex].tag.match(/[0-9]+/)
-                    : 'title',
+                    : 'none',
                 timing[timeIndex].tag.match(/[0-9]+/)
                     ? timing[timeIndex].tag.match(/[a-z]/i)
                         ? timing[timeIndex].tag.match(/[a-z]/i)
@@ -91,7 +93,7 @@ TODO:
         let timer;
 
         return () => {
-            if (audio.ended) {
+            if (audio.ended || !playing) {
                 playing = false;
                 clearInterval(timer);
             } else {
@@ -102,7 +104,6 @@ TODO:
     /**plays or pauses the audio*/
     const playPause = () => {
         if (!loaded) return;
-        toggleTimeRunning();
         if (playing) {
             audio?.pause();
             playing = false;
@@ -110,6 +111,7 @@ TODO:
             audio.play();
             playing = true;
         }
+        toggleTimeRunning();
     };
     /**seeks the audio*/
     const seek = (() => {
@@ -180,6 +182,9 @@ TODO:
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     $: mayResetPlayMode($refs.hasAudio?.timing);
+    $: audioPlaybackProps = { audio };
+
+    let audioPlaybackProps = {};
 </script>
 
 <div class={audioBarClass} style:background-color={backgroundColor}>
@@ -236,9 +241,7 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <button class="dy-btn-sm dy-btn-ghost">
-                <AudioIcon.Speed color={iconColor} />
-            </button>
+            <AudioPlaybackSpeed {...audioPlaybackProps} />
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
@@ -284,7 +287,6 @@ TODO:
         grid-column: 1;
         place-self: center;
     }
-
     .audio-controls {
         grid-row: 1;
         grid-column: 2;

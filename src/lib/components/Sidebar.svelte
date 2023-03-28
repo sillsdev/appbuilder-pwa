@@ -15,15 +15,26 @@ The sidebar/drawer.
         TextAppearanceIcon,
         AboutIcon
     } from '$lib/icons';
+    import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { beforeNavigate } from '$app/navigation';
     import { firebaseConfig } from '$lib/data/firebase-config';
-    import { s, t, themeColors, language, languageDefault } from '$lib/data/stores';
+    import {
+        s,
+        t,
+        themeColors,
+        language,
+        languageDefault,
+        showDesktopSidebar
+    } from '$lib/data/stores';
     const drawerId = 'sidebar';
-    const closeDrawer = () => {
-        document.activeElement.blur();
-    };
-    beforeNavigate(closeDrawer);
+    let menuToggle = false;
+
+    function closeDrawer() {
+        menuToggle = false;
+    }
+    function closeOnEscape(event) {
+        event.key === 'Escape' && closeDrawer();
+    }
 
     const menuItems = config?.menuItems;
     const showSearch = config.mainFeatures['search'];
@@ -45,8 +56,10 @@ The sidebar/drawer.
     $: contentTextColor = $themeColors['TextColor'];
 </script>
 
-<div class="dy-drawer dy-drawer-mobile">
-    <input id={drawerId} type="checkbox" class="dy-drawer-toggle" />
+<svelte:window on:keydown={closeOnEscape} />
+
+<div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar}>
+    <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div
         class="dy-drawer-content flex flex-col"
         style:background-color={contentBackgroundColor}
@@ -55,22 +68,26 @@ The sidebar/drawer.
         <!-- Page content here -->
         <slot />
     </div>
-    <div class="dy-drawer-side">
+    <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer}>
         <label for={drawerId} class="dy-drawer-overlay" />
         <ul
             class="dy-menu p-1  w-3/4 sm:w-80 text-base-content"
             style:background-color={drawerBackgroundColor}
         >
             <!-- Sidebar content here -->
-            <a class="fill" href="/">
+            <a class="fill" href="{base}/">
                 <picture>
-                    <source srcset="images/nav_drawer@2x.png 2x" />
-                    <img src="images/nav_drawer.png" alt="Drawer Header" style="width:auto;" />
+                    <source srcset="{base}/images/nav_drawer@2x.png 2x" />
+                    <img
+                        src="{base}/images/nav_drawer.png"
+                        alt="Drawer Header"
+                        style="width:auto;"
+                    />
                 </picture>
             </a>
             {#if showAccount}
                 <li>
-                    <a href="/account" style:color={textColor}>
+                    <a href="{base}/account" style:color={textColor}>
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </a>
                 </li>
@@ -78,7 +95,7 @@ The sidebar/drawer.
             {/if}
             {#if showSearch}
                 <li>
-                    <a href="/search" style:color={textColor}>
+                    <a href="{base}/search" style:color={textColor}>
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </a>
                 </li>
@@ -86,28 +103,28 @@ The sidebar/drawer.
             {/if}
             {#if showHistory}
                 <li>
-                    <a href="/history" style:color={textColor}>
+                    <a href="{base}/history" style:color={textColor}>
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </a>
                 </li>
             {/if}
             {#if showBookmarks}
                 <li>
-                    <a href="/bookmarks" style:color={textColor}>
+                    <a href="{base}/bookmarks" style:color={textColor}>
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </a>
                 </li>
             {/if}
             {#if showNotes}
                 <li>
-                    <a href="/notes" style:color={textColor}>
+                    <a href="{base}/notes" style:color={textColor}>
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </a>
                 </li>
             {/if}
             {#if showHighlights}
                 <li>
-                    <a href="/highlights" style:color={textColor}>
+                    <a href="{base}/highlights" style:color={textColor}>
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </a>
                 </li>
@@ -117,21 +134,20 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <a href="/share" style:color={textColor}>
+                    <a href="{base}/share" style:color={textColor}>
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </a>
                 </li>
                 <div class="dy-divider m-1" />
             {/if}
             <li>
-                <a href="/settings" style:color={textColor}>
+                <a href="{base}/settings" style:color={textColor}>
                     <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                 </a>
             </li>
             <!-- svelte-ignore a11y-missing-attribute -->
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li>
-                <a on:click={closeDrawer} style:color={textColor}>
+                <a style:color={textColor}>
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </a>
             </li>
@@ -147,11 +163,11 @@ The sidebar/drawer.
                         >
                             <picture>
                                 <source
-                                    srcset="icons/menu-items/{item.images[1]
-                                        .file} 2x, icons/menu-items/{item.images[2].file} 3x"
+                                    srcset="{base}/icons/menu-items/{item.images[1]
+                                        .file} 2x, {base}/icons/menu-items/{item.images[2].file} 3x"
                                 />
                                 <img
-                                    src="icons/menu-items/{item.images[0].file}"
+                                    src="{base}/icons/menu-items/{item.images[0].file}"
                                     height="24"
                                     width="24"
                                     alt={item.title[$language] || item.title[languageDefault]}
@@ -162,7 +178,7 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <a href="/about" style:color={textColor}>
+                <a href="{base}/about" style:color={textColor}>
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </a>
             </li>

@@ -1,40 +1,30 @@
-import { selectedVerses } from '$lib/data/stores';
-import config from '$lib/data/config';
-
-export type SelectedReference = {
-    docSet: string;
-    book: string;
-    chapter: string;
-    verse: string;
-};
-export function onClickText(e: any) {
+export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
     let target = e.target;
 
-    while (!isSelectableText(target) && !isClickable(target) && !isMain(target)) {
+    while (!isSelectableText(target) && !isClickableText(target) && !isMain(target)) {
         target = target.parentNode;
     }
     if (isSelectableText(target)) {
         const id = removeIdSuffixes(target.id);
         if (!target.classList.contains('selected')) {
-            const maxSelections = config.mainFeatures['annotation-max-select'];
             const currentLength = selectedVerses.length();
             if (currentLength < maxSelections) {
                 const selectedText = getTextOfSelectedElements(id);
                 selectedVerses.addVerse(id, selectedText);
             }
-            /*
+
             // Display all selected entries in order
-            for (let i = 0; i < selectedVerses.length(); i++)  {
-                const selected = selectedVerses.getVerseByIndex(i);
-                console.log("Selection %o: verse: %o, text: %o", i, selected.verse, selected.text);
-            }
-            */
+            // for (let i = 0; i < selectedVerses.length(); i++)  {
+            //     const selected = selectedVerses.getVerseByIndex(i);
+            //     console.log("Selection %o: verse: %o, text: %o", i, selected.verse, selected.text);
+            // }
         } else {
+            console.log('Remove Verse ', id);
             selectedVerses.removeVerse(id);
         }
     }
 }
-export function updateSelections() {
+export function updateSelections(selections: any) {
     const items = Array.from(document.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
@@ -42,33 +32,33 @@ export function updateSelections() {
         const id = removeIdSuffixes(items[i].id);
         if (id !== lastId) {
             lastId = id;
-            const verse = selectedVerses.getVerseByVerseNumber(id);
+            const verse = selections.getVerseByVerseNumber(id);
             if (verse.verse === '') {
                 modifyClassOfElements(id, 'selected', false);
             }
         }
     }
     // Select items in list
-    for (let i = 0; i < selectedVerses.length(); i++) {
-        const selectedVerse = selectedVerses.getVerseByIndex(i).verse;
+    for (let i = 0; i < selections.length(); i++) {
+        const selectedVerse = selections.getVerseByIndex(i).verse;
         modifyClassOfElements(selectedVerse, 'selected', true);
     }
 }
 // Deselect all elements
-export function deselectAllElements() {
+export function deselectAllElements(selections: any) {
     const els = document.getElementsByTagName('div');
     for (let i = 0; i < els.length; i++) {
         if (els[i].id != '') {
             els[i].classList.remove('selected');
         }
     }
-    selectedVerses.reset();
+    selections.reset();
 }
 
 // Deselect elements
-export function deselectElements(id: string) {
+export function deselectElements(id: string, selections: any) {
     modifyClassOfElements(id, 'selected', false);
-    selectedVerses.removeVerse(id);
+    selections.removeVerse(id);
 }
 
 function removeIdSuffixes(id: string) {
@@ -89,7 +79,7 @@ function isSelectableText(target) {
     return target.classList.contains('seltxt');
 }
 
-function isClickable(target) {
+function isClickableText(target) {
     return target.tagName === 'A';
 }
 

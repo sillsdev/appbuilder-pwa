@@ -4,7 +4,7 @@ A component to display menu options in a list.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, convertStyle } from '$lib/data/stores.js';
+    import { s, convertStyle } from '$lib/data/stores';
     export let options: App.GridGroup[] = [];
 
     const dispatch = createEventDispatcher();

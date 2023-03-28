@@ -71,7 +71,7 @@
     </Navbar>
 </div>
 <form>
-    <div class="dy-form-control">
+    <div class="dy-form-control m-4">
         <label class="dy-input-group">
             <!-- svelte-ignore a11y-autofocus -->
             <input
@@ -86,7 +86,7 @@
             </button>
         </label>
     </div>
-    <div class="dy-form-control w-full max-w-xs">
+    <div class="dy-form-control w-full max-w-xs m-4">
         <label class="dy-label cursor-pointer">
             <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
             <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
@@ -138,6 +138,6 @@
         user-select: none;
     }
     .navbar {
-        height: 10vh;
+        height: 4rem;
     }
 </style>
