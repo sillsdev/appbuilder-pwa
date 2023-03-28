@@ -108,7 +108,7 @@ export function prepareAudioPhraseEndChars(inputChars: string) {
 function convertCharCodesToString(inputChars: string) {
     let chars = inputChars;
     // \uABCD format
-    const regxuABCD = new RegExp('(?<!\\\\)\\\\u([0-9a-fA-F]+)', 'g');
+    const regxuABCD = new RegExp('\\\\u([0-9a-fA-F]+)', 'g');
     let match = regxuABCD.exec(chars);
     let matches = [];
     while (match) {
