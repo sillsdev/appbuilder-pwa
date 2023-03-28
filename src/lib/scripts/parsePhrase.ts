@@ -108,6 +108,13 @@ export function prepareAudioPhraseEndChars(inputChars: string) {
 function convertCharCodesToString(inputChars: string) {
     let chars = inputChars;
     // \uABCD format
+    // The line below was:
+    // const regxuABCD = new RegExp('(?<!\\\\)\\\\u([0-9a-fA-F]+)', 'g');
+    // The negative look behind in the expression was not supported by Safari
+    // until 2 days ago so we removed it for now.  It should not cause
+    // a significant issue with the config lines we are parsing now, but
+    // it may be a good idea to put this back in in the future to catch
+    // entries starting with a double back slash.
     const regxuABCD = new RegExp('\\\\u([0-9a-fA-F]+)', 'g');
     let match = regxuABCD.exec(chars);
     let matches = [];
