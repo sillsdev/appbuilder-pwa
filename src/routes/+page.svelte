@@ -23,7 +23,7 @@
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { getFeatureValueString } from '$lib/scripts/configUtils';
-    import { swipe } from 'svelte-gestures';
+    import { pinch, swipe } from 'svelte-gestures';
     import { base } from '$app/paths';
 
     function doSwipe(
@@ -35,11 +35,33 @@
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
 
+    var lastPinch = 1.0;
+    function doPinch(
+        event: CustomEvent<{
+            scale: number;
+            center: {
+                x: number;
+                y: number;
+            };
+        }>,
+        minFontSize: number,
+        maxFontSize: number
+    ) {
+        const currPinch = event.detail.scale;
+        bodyFontSize.update((fontSize) => {
+            const newFontSize = currPinch > lastPinch ? fontSize + 1 : fontSize - 1;
+            lastPinch = currPinch;
+            const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
+            return clampedFontSize;
+        });
+    }
+
     $: audioPhraseEndChars = getFeatureValueString(
         'audio-phrase-end-chars',
         $refs.collection,
         $refs.book
     );
+
     const showSearch = config.mainFeatures['search'];
     const showCollections = config.bookCollections.length > 1;
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
@@ -111,6 +133,13 @@
             slot="scrolled-content"
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
             on:swipe={doSwipe}
+            use:pinch
+            on:pinch={(event) =>
+                doPinch(
+                    event,
+                    config.mainFeatures['text-size-min'],
+                    config.mainFeatures['text-size-max']
+                )}
         >
             <ScriptureViewSofria {...viewSettings} />
         </div>
