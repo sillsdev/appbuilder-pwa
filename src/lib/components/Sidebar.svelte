@@ -69,7 +69,7 @@ The sidebar/drawer.
         <slot />
     </div>
     <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer}>
-        <label for={drawerId} class="dy-drawer-overlay" />
+        <div class="dy-drawer-overlay" />
         <ul
             class="dy-menu p-1  w-3/4 sm:w-80 text-base-content"
             style:background-color={drawerBackgroundColor}
