@@ -1,6 +1,7 @@
 //exporting object with all the icons to make icon imports "cleaner" elsewhere
 import AboutIcon from './AboutIcon.svelte';
 import AccountIcon from './AccountIcon.svelte';
+import ArrowBackIcon from './ArrowBackIcon.svelte';
 import BibleIcon from './BibleIcon.svelte';
 import BookmarkIcon from './BookmarkIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
@@ -25,6 +26,7 @@ import LoadingIcon from './LoadingIcon.svelte';
 export {
     AboutIcon,
     AccountIcon,
+    ArrowBackIcon,
     AudioIcon,
     BibleIcon,
     BookmarkIcon,
