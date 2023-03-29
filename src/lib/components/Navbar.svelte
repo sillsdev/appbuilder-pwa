@@ -3,8 +3,11 @@
 The navbar component.
 -->
 <script>
-    import { HamburgerIcon } from '$lib/icons';
+    import { HamburgerIcon, ArrowBackIcon } from '$lib/icons';
     import { viewMode, convertStyle, s, showDesktopSidebar } from '$lib/data/stores';
+    import { page } from '$app/stores';
+    import { base } from '$app/paths';
+
     $: actionBarColor = $s['ui.bar.action']['background-color'];
 </script>
 
@@ -13,13 +16,19 @@ The navbar component.
 -->
 <div class="dy-navbar" style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
-        <label
-            for="sidebar"
-            class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
-            class:lg:hidden={$showDesktopSidebar && $viewMode !== 'Side By Side'}
-        >
-            <HamburgerIcon color="white" />
-        </label>
+        {#if $page.route.id === '/'}
+            <label
+                for="sidebar"
+                class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
+                class:lg:hidden={$showDesktopSidebar && $viewMode !== 'Side By Side'}
+            >
+                <HamburgerIcon color="white" />
+            </label>
+        {:else}
+            <a href="{base}/" class="dy-btn dy-btn-ghost dy-btn-circle">
+                <ArrowBackIcon color="white" />
+            </a>
+        {/if}
         <slot name="left-buttons" />
     </div>
     <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
