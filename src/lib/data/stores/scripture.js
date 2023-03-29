@@ -135,31 +135,31 @@ function createSelectedVerses() {
 
         getCompositeReference: () => {
             let selections = get(external);
-            if (selectedVerses.length <= 1) {
+            if (selections.length <= 1) {
                 return selectedVerses.getReference(0);
             } else {
                 const selectionStart = selections[0];
                 const verseSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-chapter-verse-separator"];
                 const rangeSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-verse-range-separator"];
                 const verseListSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-verse-list-separator"];
-                const reference = selectionStart.book + " " + selectionStart.chapter + verseSeparator + selectionStart.verse;
+                var reference = selectionStart.book + " " + selectionStart.chapter + verseSeparator + selectionStart.verse;
+                var wasConsecutive = false;
                 var lastVerse = selectionStart.verse;
                 var currVerse = selectionStart.verse;
-                for (var i = 1; i < length; i++) {
-                    //Move old curr to last
+                for (var i = 1; i < selections.length; i++) {
                     lastVerse = currVerse;
-                    //Update curr
                     currVerse = selections[i].verse;
                     if (currVerse - lastVerse > 1) {// if they are not consecutive
-                        reference += lastVerse + verseListSeparator + currVerse;
+                        if (wasConsecutive) {
+                            reference += lastVerse;
+                            wasConsecutive = false;
+                        }
+                        reference += verseListSeparator + " " + currVerse;
                     } else {
-                        //if doesn't have - as last element
                         if (reference.charAt(reference.length - 1) != rangeSeparator) {
                             reference += rangeSeparator;
+                            wasConsecutive = true;
                         }
-                        //else 
-                        //still a continuation
-                        //do nothing
                     }
                 }
                 if (reference.charAt(reference.length - 1) == rangeSeparator) {
