@@ -3,7 +3,20 @@
     import { s, t, userSettings } from '$lib/data/stores';
     import Modal from './Modal.svelte';
 
+    import { onMount } from 'svelte';
+    import { setDefaultStorage } from '../data/stores/storage';
+    //import { mergeDefaultStorage } from '/data/stores/storage';
+    export let audio;
+    let playbackSpeed = 1;
     let modalId = 'playback';
+
+    onMount(() => {
+        const storedSpeed = localStorage.getItem('playbackSpeed');
+        if (storedSpeed !== null) {
+            playbackSpeed = parseFloat(storedSpeed);
+            audio.playbackRate = playbackSpeed;
+        }
+    });
 
     function setPlaySpeed(event) {
         $userSettings['audio-speed'] = event.target.value;
