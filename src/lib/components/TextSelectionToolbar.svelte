@@ -2,11 +2,14 @@
 @component
 Taken from modifying a copy of the AudioBar.svelte file
 Enables users to copy, highlight, bookmark, share, and annotate selected verses.
-TODO:
-- Enable/Disable copy and share button
-- Check platform to change to iOS style if MacOS (?)
-- Attach functionality to each of the buttons [Decomp this]
-- Make play button connected to existence of audio
+TODO: 
+- Implement functionality for
+ -> Share
+ -> Play
+ -> Play Repeat
+ -> Verse On Image
+- Add note dialog
+- Add highlight colors
 -->
 <script>
     import CopyContentIcon from '$lib/icons/CopyContentIcon.svelte';
@@ -20,17 +23,13 @@ TODO:
     import config from '$lib/data/config.js';
     import { t, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
-    //use $refs.collection as needed
 
-    //Appears dependent on settings
-    const isTextOnImageVideoEnabled = config?.mainFeatures['text-on-image-video'];
+    const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
+    const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
     const isBookmarkEnabled = config?.mainFeatures['annotation-bookmarks'];
     const isHighlightEnabled = config?.mainFeatures['annotation-highlights'];
     const isNotesEnabled = config?.mainFeatures['annotation-notes'];
-
-    //Appears regardless of settings (Hardcoded)
-    const isPlayable = true;
 
     $: isCopyEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-copy-text'
@@ -45,16 +44,13 @@ TODO:
     }
 
     function selectedTextReference() {
-        // grab starting verse
         var scriptureReference =
             $selectedVerses[0]['book'] +
             ' ' +
             $selectedVerses[0]['chapter'] +
             ':' +
             $selectedVerses[0]['verse'];
-        // loop to put in references
         var extraVerses = '';
-        //var verseCount = Object.keys($selectedVerses).length;
         for (var i = 1; i < $selectedVerses.size; i++) {
             extraVerses = extraVerses.concat(', ' + $selectedVerses[i]['verse']);
         }
@@ -122,12 +118,12 @@ TODO:
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">
-            {#if isPlayable}
+            {#if isAudioPlayable}
                 <button class="dy-btn-sm dy-btn-ghost">
                     <PlayIcon />
                 </button>
             {/if}
-            {#if isTextOnImageVideoEnabled}
+            {#if isRepeatableAudio}
                 <button class="dy-btn-sm dy-btn-ghost">
                     <PlayRepeatIcon />
                 </button>

@@ -20,7 +20,6 @@
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    //import type { FPS_BROWSER_APP_PROFILE_STRING } from '$env/static/private';
 
     function doSwipe(
         event: CustomEvent<{

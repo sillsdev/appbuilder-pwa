@@ -149,7 +149,7 @@ function createSelectedVerses() {
                 for (var i = 1; i < selections.length; i++) {
                     lastVerse = currVerse;
                     currVerse = selections[i].verse;
-                    if (currVerse - lastVerse > 1) {// if they are not consecutive
+                    if (currVerse - lastVerse > 1) {
                         if (wasConsecutive) {
                             reference += lastVerse;
                             wasConsecutive = false;
