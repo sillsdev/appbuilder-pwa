@@ -2,13 +2,25 @@
     import { AudioIcon } from '$lib/icons';
     import { s } from '$lib/data/stores';
     import Modal from './Modal.svelte';
+    import { onMount } from 'svelte';
+    import { setDefaultStorage } from '../data/stores/storage';
+    //import { mergeDefaultStorage } from '/data/stores/storage';
     export let audio;
-
+    let playbackSpeed = 1;
     let modalId = 'playback';
+
+    onMount(() => {
+        const storedSpeed = localStorage.getItem('playbackSpeed');
+        if (storedSpeed !== null) {
+            playbackSpeed = parseFloat(storedSpeed);
+            audio.playbackRate = playbackSpeed;
+        }
+    });
 
     function setPlaySpeed(event) {
         const speed = parseFloat(event.target.value);
         audio.playbackRate = speed;
+        setDefaultStorage('playbackSpeed', speed);
     }
 
     $: iconColor = $s['ui.bar.audio.icon']['color'];
