@@ -24,7 +24,8 @@ The sidebar/drawer.
         themeColors,
         language,
         languageDefault,
-        showDesktopSidebar
+        showDesktopSidebar,
+        interfaceDirection
     } from '$lib/data/stores';
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -58,7 +59,11 @@ The sidebar/drawer.
 
 <svelte:window on:keydown={closeOnEscape} />
 
-<div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar}>
+<div
+    class="dy-drawer"
+    class:dy-drawer-mobile={$showDesktopSidebar}
+    class:dy-drawer-end={$interfaceDirection === 'rtl'}
+>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div
         class="dy-drawer-content flex flex-col"
