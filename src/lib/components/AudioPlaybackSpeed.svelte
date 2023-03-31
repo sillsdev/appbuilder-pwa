@@ -1,6 +1,6 @@
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { s } from '$lib/data/stores';
+    import { s, t } from '$lib/data/stores';
     import Modal from './Modal.svelte';
     export let audio;
 
@@ -20,7 +20,7 @@
     </svelte:fragment>
     <svelte:fragment slot="content">
         <h1>
-            <b style="">Playback Speed</b>
+            <b style="">{$t['Settings_Audio_Speed']}</b>
         </h1>
         <div class="speed-controls">
             <label>
@@ -41,7 +41,7 @@
             </label>
             <label>
                 <input type="radio" name="speed" value="1" on:click={setPlaySpeed} checked />
-                Normal
+                {$t['Settings_Audio_Speed_Normal']}
             </label>
             <label>
                 <input type="radio" name="speed" value="1.2" on:click={setPlaySpeed} />
