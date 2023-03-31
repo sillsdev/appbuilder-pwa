@@ -4,13 +4,7 @@ The navbar component.
 -->
 <script>
     import { HamburgerIcon, ArrowBackIcon, ArrowForwardIcon } from '$lib/icons';
-    import {
-        viewMode,
-        convertStyle,
-        s,
-        showDesktopSidebar,
-        interfaceDirection
-    } from '$lib/data/stores';
+    import { viewMode, convertStyle, s, showDesktopSidebar, direction } from '$lib/data/stores';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
 
@@ -20,11 +14,7 @@ The navbar component.
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div
-    class="dy-navbar"
-    style:background-color={actionBarColor}
-    style:direction={$interfaceDirection}
->
+<div class="dy-navbar" style:background-color={actionBarColor} style:direction={$direction}>
     <div class="dy-navbar-start">
         {#if $page.route.id === '/'}
             <label
@@ -36,7 +26,7 @@ The navbar component.
             </label>
         {:else}
             <a href="{base}/" class="dy-btn dy-btn-ghost dy-btn-circle">
-                {#if $interfaceDirection === 'ltr'}
+                {#if $direction === 'ltr'}
                     <ArrowBackIcon color="white" />
                 {:else}
                     <ArrowForwardIcon color="white" />

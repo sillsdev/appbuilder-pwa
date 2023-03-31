@@ -3,7 +3,7 @@ import { refs } from "./scripture";
 import { userSettings } from "./setting";
 import config from '../config';
 
-export const interfaceDirection = derived([refs, userSettings], ([$refs, $userSettings]) => {
+export const direction = derived([refs, userSettings], ([$refs, $userSettings]) => {
     var direction = config.mainFeatures['settings-app-layout-direction'] 
         ? $userSettings['app-layout-direction']
         : config.mainFeatures['app-layout-direction'];
