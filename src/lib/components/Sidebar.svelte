@@ -25,7 +25,7 @@ The sidebar/drawer.
         language,
         languageDefault,
         showDesktopSidebar,
-        interfaceDirection
+        direction
     } from '$lib/data/stores';
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -62,7 +62,7 @@ The sidebar/drawer.
 <div
     class="dy-drawer"
     class:dy-drawer-mobile={$showDesktopSidebar}
-    class:dy-drawer-end={$interfaceDirection === 'rtl'}
+    class:dy-drawer-end={$direction === 'rtl'}
 >
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div
@@ -92,7 +92,7 @@ The sidebar/drawer.
             </a>
             {#if showAccount}
                 <li>
-                    <a href="{base}/account" style:color={textColor}>
+                    <a href="{base}/account" style:color={textColor} style:direction={$direction}>
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </a>
                 </li>
@@ -100,7 +100,7 @@ The sidebar/drawer.
             {/if}
             {#if showSearch}
                 <li>
-                    <a href="{base}/search" style:color={textColor}>
+                    <a href="{base}/search" style:color={textColor} style:direction={$direction}>
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </a>
                 </li>
@@ -108,28 +108,32 @@ The sidebar/drawer.
             {/if}
             {#if showHistory}
                 <li>
-                    <a href="{base}/history" style:color={textColor}>
+                    <a href="{base}/history" style:color={textColor} style:direction={$direction}>
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </a>
                 </li>
             {/if}
             {#if showBookmarks}
                 <li>
-                    <a href="{base}/bookmarks" style:color={textColor}>
+                    <a href="{base}/bookmarks" style:color={textColor} style:direction={$direction}>
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </a>
                 </li>
             {/if}
             {#if showNotes}
                 <li>
-                    <a href="{base}/notes" style:color={textColor}>
+                    <a href="{base}/notes" style:color={textColor} style:direction={$direction}>
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </a>
                 </li>
             {/if}
             {#if showHighlights}
                 <li>
-                    <a href="{base}/highlights" style:color={textColor}>
+                    <a
+                        href="{base}/highlights"
+                        style:color={textColor}
+                        style:direction={$direction}
+                    >
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </a>
                 </li>
@@ -139,20 +143,20 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <a href="{base}/share" style:color={textColor}>
+                    <a href="{base}/share" style:color={textColor} style:direction={$direction}>
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </a>
                 </li>
                 <div class="dy-divider m-1" />
             {/if}
             <li>
-                <a href="{base}/settings" style:color={textColor}>
+                <a href="{base}/settings" style:color={textColor} style:direction={$direction}>
                     <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                 </a>
             </li>
             <!-- svelte-ignore a11y-missing-attribute -->
             <li>
-                <a style:color={textColor}>
+                <a style:color={textColor} style:direction={$direction}>
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </a>
             </li>
@@ -165,6 +169,7 @@ The sidebar/drawer.
                             style:color={textColor}
                             target="_blank"
                             rel="noreferrer"
+                            style:direction={$direction}
                         >
                             <picture>
                                 <source
@@ -183,7 +188,7 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <a href="{base}/about" style:color={textColor}>
+                <a href="{base}/about" style:color={textColor} style:direction={$direction}>
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </a>
             </li>
