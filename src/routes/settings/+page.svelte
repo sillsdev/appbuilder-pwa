@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { t, theme, userSettings } from '$lib/data/stores';
+    import { t, theme, userSettings, direction } from '$lib/data/stores';
     import * as s from '$lib/data/stores/setting';
 
     let categories = [];
@@ -29,7 +29,7 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class="larger" slot="scrolled-content">
+    <div class="larger" slot="scrolled-content" style:direction={$direction}>
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
             <div class="settings-category" class:dark={$theme === 'Dark'}>
