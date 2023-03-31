@@ -56,7 +56,7 @@
                 1.6x
             </label>
             <div class="dy-modal-action close-btn">
-                <label for={modalId} class="dy-btn dy-btn-ghost">Close</label>
+                <label for={modalId} class="dy-btn dy-btn-ghost">{$t['Button_Close']}</label>
             </div>
         </div>
     </svelte:fragment>
