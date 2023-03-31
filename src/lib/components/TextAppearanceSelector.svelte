@@ -13,7 +13,8 @@ TODO
         theme,
         themes,
         bodyFontSize,
-        bodyLineHeight
+        bodyLineHeight,
+        direction
     } from '$lib/data/stores';
     import config from '$lib/data/config';
 
@@ -76,7 +77,11 @@ TODO
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
-    <div class="dy-dropdown dy-dropdown-end">
+    <div
+        class="dy-dropdown dy-dropdown-bottom {$direction === 'ltr'
+            ? 'dy-dropdown-end'
+            : 'dy-dropdown-right'}"
+    >
         <Dropdown>
             <svelte:fragment slot="label">
                 <TextAppearanceIcon color="white" />

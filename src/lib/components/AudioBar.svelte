@@ -7,7 +7,7 @@ TODO:
 -->
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs, audioHighlight, audioActive, s, playMode } from '$lib/data/stores';
+    import { refs, audioHighlight, audioActive, s, playMode, direction } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -187,7 +187,7 @@ TODO:
     let audioPlaybackProps = {};
 </script>
 
-<div class={audioBarClass} style:background-color={backgroundColor}>
+<div class={audioBarClass} style:background-color={backgroundColor} style:direction={$direction}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
             <button
@@ -199,7 +199,7 @@ TODO:
         {/if}
     </div>
     <!-- Play Controls -->
-    <div class="dy-btn-group audio-controls">
+    <div class="dy-btn-group audio-controls" style:direction="ltr">
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
             <AudioIcon.Prev color={iconColor} />
         </button>

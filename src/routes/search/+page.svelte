@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { refs, t } from '$lib/data/stores';
+    import { refs, t, direction } from '$lib/data/stores';
     import { query } from '$lib/scripts/query';
     import { postQueries, queries } from 'proskomma-tools';
     import { SearchIcon } from '$lib/icons';
@@ -70,7 +70,7 @@
         <!-- <div slot="right-buttons" /> -->
     </Navbar>
 </div>
-<form>
+<form style:direction={$direction}>
     <div class="dy-form-control m-4">
         <label class="dy-input-group">
             <!-- svelte-ignore a11y-autofocus -->
