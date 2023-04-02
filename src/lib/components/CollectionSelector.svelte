@@ -10,8 +10,6 @@ Book Collection Selector component.
     import { onDestroy } from 'svelte';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
-    $: console.log($s);
-
     let modalId = 'collectionSelector';
 
     let nextRef;
@@ -62,15 +60,19 @@ Book Collection Selector component.
             active="Single Pane"
             on:menuaction={navigateReference}
         />
+        <div class="flex w-full">
         <label
             for={modalId}
+            margin: left 
             style={convertStyle($s['ui.dialog.button'])}
             class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation">Cancel</label
         >
         <label
             for={modalId}
+            margin: right 
             style={convertStyle($s['ui.dialog.button'])}
             class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation">Ok</label
         >
+      </div>
     </svelte:fragment>
 </Modal>

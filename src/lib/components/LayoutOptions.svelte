@@ -11,7 +11,6 @@ TODO:
     import config from '$lib/data/config';
     import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
 
-    $: console.log($t);
     export let layoutOption = '';
     const dispatch = createEventDispatcher();
 
