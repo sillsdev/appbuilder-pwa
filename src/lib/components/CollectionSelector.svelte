@@ -11,7 +11,7 @@ Book Collection Selector component.
 
     let modalId = 'collectionSelector';
     let docSet = $refs.docSet;
-    $: console.log("Collection: ", docSet);
+    $: console.log('Collection: ', docSet);
 
     function navigateReference(e) {
         switch (e.detail.tab) {
@@ -59,14 +59,14 @@ Book Collection Selector component.
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => docSet = $refs.docSet}>Cancel</label
+                on:click={() => (docSet = $refs.docSet)}>Cancel</label
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => $refs.docSet = docSet}>Ok</label
+                on:click={() => ($refs.docSet = docSet)}>Ok</label
             >
         </div>
     </svelte:fragment>
