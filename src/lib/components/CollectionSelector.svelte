@@ -7,22 +7,16 @@ Book Collection Selector component.
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import { convertStyle, refs, s } from '$lib/data/stores';
-    import { onDestroy } from 'svelte';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
     let modalId = 'collectionSelector';
+    let docSet = $refs.docSet;
+    $: console.log("Collection: ", docSet);
 
-    let nextRef;
-    const unsub = refs.subscribe((v) => {
-        nextRef = v;
-    }, 'next');
-    /**
-     * Pushes reference changes to refs['next']. Pushes final change to default reference.
-     */
     function navigateReference(e) {
         switch (e.detail.tab) {
             case 'Single Pane':
-                $refs = { docSet: e.detail.text };
+                docSet = e.detail.text;
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -31,7 +25,6 @@ Book Collection Selector component.
                 break;
         }
     }
-    onDestroy(unsub);
 </script>
 
 <Modal id={modalId}>
@@ -60,20 +53,20 @@ Book Collection Selector component.
             active="Single Pane"
             on:menuaction={navigateReference}
         />
-        <div class="flex w-full">
+        <div style:justify-content="space-between" class="flex w-full">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
-                margin:
-                left
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation">Cancel</label
+                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
+                on:click={() => docSet = $refs.docSet}>Cancel</label
             >
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
-                margin:
-                right
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation">Ok</label
+                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
+                on:click={() => $refs.docSet = docSet}>Ok</label
             >
         </div>
     </svelte:fragment>
