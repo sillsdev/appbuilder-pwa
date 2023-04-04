@@ -19,7 +19,6 @@ TODO:
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
-
     let duration = NaN;
     let progress = 0;
     let playing = false;
@@ -28,14 +27,12 @@ TODO:
     let timeIndex = 0;
     let timing = [];
     /**@type{HTMLAudioElement}*/ export let audio;
-
     //get the audio source and timing files, based off the current reference
     const getAudio = async (collection, book, chapter) => {
         if (playing) playPause();
         loaded = false;
         duration = NaN;
         progress = 0;
-
         const method = 'POST';
         const body = JSON.stringify({
             collection: collection,
@@ -54,7 +51,6 @@ TODO:
             return;
         }
         //console.log(`AudioBar: result=`, j.source);
-
         const a = new Audio(`${j.source}`);
         a.onloadedmetadata = () => {
             duration = a.duration;
@@ -99,7 +95,6 @@ TODO:
     /**sets an interval for updateTime*/
     const toggleTimeRunning = (() => {
         let timer;
-
         return () => {
             if (audio.ended || !playing) {
                 playing = false;
@@ -145,39 +140,25 @@ TODO:
             }
         };
     })();
-
-    function seekAudio(event) {
-        if (!loaded) return;
-        // Calculate the percentage of the progress bar that was clicked
-        const progressBar = document.getElementById('progress-bar');
-        const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
-        // Set the current time of the audio element to the corresponding time based on the percent
-        audio.currentTime = duration * percent;
-    }
     /**skips to previous or next chapter if it exists*/
     const skip = (direction) => {
         if (refs.skip(direction)) {
             playAfterSkip = true && playing;
         }
     };
-
     function format(seconds) {
         if (isNaN(seconds)) return '...';
-
         const minutes = Math.floor(seconds / 60);
         seconds = Math.floor(seconds % 60);
         if (seconds < 10) seconds = '0' + seconds;
-
         return `${minutes}:${seconds}`;
     }
-
     function updatePlaybackSpeed(playbackSpeed) {
         if (audio != null) {
             console.log('UpdatePlaybackSpeed:', playbackSpeed);
             audio.playbackRate = parseFloat(playbackSpeed);
         }
     }
-
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
@@ -185,20 +166,17 @@ TODO:
             playMode.reset();
         }
     }
-
     const playIconOptons = {
         arrow: AudioIcon.Play,
         'filled-circle': AudioIcon.PlayFillCircle,
         'outline-circle': AudioIcon.PlayOutlineCircle
     };
-
     const playModeIconOptions = {
         continue: AudioIcon.RepeatOff,
         stop: AudioIcon.RepeatOffStop,
         repeatPage: AudioIcon.Repeat,
         repeatSelection: AudioIcon.RepeatOne
     };
-
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
@@ -210,14 +188,7 @@ TODO:
     $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div id="progress-bar" class="dy-button-group progress-bar" on:click={seekAudio}>
-    <div
-        class="dy-button-group progress-bar-position"
-        style="width: {(progress / duration) * 100}%;"
-    />
-</div>
-<div class={audioBarClass} style:background-color={backgroundColor}>
+<div class={audioBarClass} style:background-color={backgroundColor} style:direction={$direction}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
             <button
@@ -233,7 +204,6 @@ TODO:
         <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
             <AudioIcon.Prev color={iconColor} />
         </button>
-
         {#if $refs.hasAudio?.timingFile}
             <button
                 class="dy-btn-sm dy-btn-ghost"
@@ -271,7 +241,7 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <AudioPlaybackSpeed {...audioPlaybackProps} />
+            <AudioPlaybackSpeed />
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
@@ -292,20 +262,25 @@ TODO:
         grid-auto-columns: 3.125rem auto 3.125rem;
         grid-auto-rows: 4rem;
     }
-
-    .progress-bar {
-        position: relative;
-        width: 100%;
-        height: 5px;
-        /* opacity: 0.5; */
-        background-color: gray;
+    .audio-bar-progress {
+        display: grid;
+        grid-auto-columns: 3.125rem auto 3.125rem;
+        grid-auto-rows: 3.125rem 1.875rem;
     }
-    .progress-bar-position {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        background-color: #06c;
+    .audio-progress-value {
+        grid-row: 2;
+        grid-column: 1;
+        place-self: center;
+    }
+    .audio-progress-duration {
+        grid-row: 2;
+        grid-column: 3;
+        place-self: center;
+    }
+    .audio-progress {
+        grid-row: 2;
+        grid-column: 2;
+        place-self: center;
     }
     .audio-repeat {
         grid-row: 1;
