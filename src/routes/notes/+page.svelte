@@ -3,24 +3,7 @@
     import { NoteIcon } from '$lib/icons';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
-
-    let notes = [
-        {
-            id: '1',
-            reference: 'John 1:9',
-            text: 'He is the light',
-            date: '23 May 2022',
-            actions: ['View', 'Edit', 'Share', 'Delete']
-        },
-        {
-            id: '0',
-            reference: 'John 1:1',
-            text: 'Similar to Genesis 1:1',
-            date: '23 May 2022',
-            actions: ['View', 'Edit', 'Share', 'Delete']
-        }
-    ];
+    import { t, notes } from '$lib/data/stores';
 
     function handleMenuaction(event: CustomEvent, id: string) {
         console.log(event.detail.text + '-' + id);
@@ -39,12 +22,17 @@
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
-        {#each notes as n}
+        {#each $notes as n}
             {@const iconCard = {
                 reference: n.reference,
                 text: n.text,
                 date: n.date,
-                actions: n.actions
+                actions: [
+                    $t['Annotation_Menu_View'],
+                    $t['Annotation_Menu_Edit'],
+                    $t['Annotation_Menu_Share'],
+                    $t['Annotation_Menu_Delete']
+                ]
             }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...iconCard}>
                 <NoteIcon slot="icon" />

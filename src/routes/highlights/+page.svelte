@@ -2,74 +2,7 @@
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { t } from '$lib/data/stores';
-
-    let highlights: App.Highlight[] = [
-        {
-            id: '7',
-            reference: 'John 1:7',
-            text: 'The same came as a witness, that he might testify about the light, that all might believe through him.',
-            date: '24 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '1'
-        },
-        {
-            id: '6',
-            reference: 'John 1:3',
-            text: 'All things were made through him. Without him, nothing was made that has been made.',
-            date: '22 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '2'
-        },
-        {
-            id: '5',
-            reference: 'John 1:7',
-            text: 'The same came as a witness, that he might testify about the light, that all might believe through him.',
-            date: '24 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '1'
-        },
-        {
-            id: '4',
-            reference: 'John 1:3',
-            text: 'All things were made through him. Without him, nothing was made that has been made.',
-            date: '22 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '2'
-        },
-        {
-            id: '3',
-            reference: 'John 1:7',
-            text: 'The same came as a witness, that he might testify about the light, that all might believe through him.',
-            date: '24 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '1'
-        },
-        {
-            id: '2',
-            reference: 'John 1:3',
-            text: 'All things were made through him. Without him, nothing was made that has been made.',
-            date: '22 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '2'
-        },
-        {
-            id: '1',
-            reference: 'John 1:7',
-            text: 'The same came as a witness, that he might testify about the light, that all might believe through him.',
-            date: '24 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '1'
-        },
-        {
-            id: '0',
-            reference: 'John 1:3',
-            text: 'All things were made through him. Without him, nothing was made that has been made.',
-            date: '22 May 2022',
-            actions: ['View', 'Share', 'Delete'],
-            highlight_color: '2'
-        }
-    ];
+    import { t, highlights } from '$lib/data/stores';
 
     function handleMenuaction(event: CustomEvent, id: string) {
         console.log(event.detail.text + '-' + id);
@@ -88,12 +21,16 @@
 
 <ScrolledContent>
     <div class="larger" slot="scrolled-content">
-        {#each highlights as h}
+        {#each $highlights as h}
             {@const colorCard = {
                 reference: h.reference,
                 text: h.text,
                 date: h.date,
-                actions: h.actions,
+                actions: [
+                    $t['Annotation_Menu_View'],
+                    $t['Annotation_Menu_Share'],
+                    $t['Annotation_Menu_Delete']
+                ],
                 highlight_color: h.highlight_color
             }}
             <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...colorCard} />
