@@ -7,7 +7,15 @@ TODO:
 -->
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { refs, audioHighlight, audioActive, s, playMode, direction } from '$lib/data/stores';
+    import {
+        refs,
+        audioHighlight,
+        audioActive,
+        userSettings,
+        s,
+        playMode,
+        direction
+    } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -108,6 +116,7 @@ TODO:
             audio?.pause();
             playing = false;
         } else {
+            audio.playbackRate = parseFloat($userSettings['audio-speed']);
             audio.play();
             playing = true;
         }
@@ -153,6 +162,13 @@ TODO:
         return `${minutes}:${seconds}`;
     }
 
+    function updatePlaybackSpeed(playbackSpeed) {
+        if (audio != null) {
+            console.log('UpdatePlaybackSpeed:', playbackSpeed);
+            audio.playbackRate = parseFloat(playbackSpeed);
+        }
+    }
+
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
@@ -182,9 +198,7 @@ TODO:
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     $: mayResetPlayMode($refs.hasAudio?.timing);
-    $: audioPlaybackProps = { audio };
-
-    let audioPlaybackProps = {};
+    $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
 <div class={audioBarClass} style:background-color={backgroundColor} style:direction={$direction}>
@@ -241,7 +255,7 @@ TODO:
     </div>
     <div class="dy-button-group audio-speed">
         {#if showSpeed}
-            <AudioPlaybackSpeed {...audioPlaybackProps} />
+            <AudioPlaybackSpeed />
         {/if}
     </div>
     {#if !$refs.hasAudio.timingFile}
