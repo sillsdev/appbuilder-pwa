@@ -1,14 +1,12 @@
 <script>
     import { AudioIcon } from '$lib/icons';
-    import { s, t } from '$lib/data/stores';
+    import { s, t, userSettings } from '$lib/data/stores';
     import Modal from './Modal.svelte';
-    export let audio;
 
     let modalId = 'playback';
 
     function setPlaySpeed(event) {
-        const speed = parseFloat(event.target.value);
-        audio.playbackRate = speed;
+        $userSettings['audio-speed'] = event.target.value;
     }
 
     $: iconColor = $s['ui.bar.audio.icon']['color'];
@@ -24,35 +22,83 @@
         </h1>
         <div class="speed-controls">
             <label>
-                <input type="radio" name="speed" value="0.4" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="0.4"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '0.4'}
+                />
                 0.4x
             </label>
             <label>
-                <input type="radio" name="speed" value="0.6" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="0.6"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '0.6'}
+                />
                 0.6x
             </label>
             <label>
-                <input type="radio" name="speed" value="0.7" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="0.7"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '0.7'}
+                />
                 0.7x
             </label>
             <label>
-                <input type="radio" name="speed" value="0.8" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="0.8"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '0.8'}
+                />
                 0.8x
             </label>
             <label>
-                <input type="radio" name="speed" value="1" on:click={setPlaySpeed} checked />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="1"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '1.0'}
+                />
                 {$t['Settings_Audio_Speed_Normal']}
             </label>
             <label>
-                <input type="radio" name="speed" value="1.2" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="1.2"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '1.2'}
+                />
                 1.2x
             </label>
             <label>
-                <input type="radio" name="speed" value="1.4" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="1.4"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '1.4'}
+                />
                 1.4x
             </label>
             <label>
-                <input type="radio" name="speed" value="1.6" on:click={setPlaySpeed} />
+                <input
+                    type="radio"
+                    name="speed"
+                    value="1.6"
+                    on:click={setPlaySpeed}
+                    checked={$userSettings['audio-speed'] === '1.6'}
+                />
                 1.6x
             </label>
             <div class="dy-modal-action close-btn">
