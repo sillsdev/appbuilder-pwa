@@ -164,7 +164,6 @@ TODO:
 
     function updatePlaybackSpeed(playbackSpeed) {
         if (audio != null) {
-            console.log('UpdatePlaybackSpeed:', playbackSpeed);
             audio.playbackRate = parseFloat(playbackSpeed);
         }
     }
