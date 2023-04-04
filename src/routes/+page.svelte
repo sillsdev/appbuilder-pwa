@@ -24,6 +24,7 @@
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { getFeatureValueString } from '$lib/scripts/configUtils';
     import { pinch, swipe } from 'svelte-gestures';
+    import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
 
     function doSwipe(
@@ -84,7 +85,15 @@
     };
 
     // Border Subtraction
-    $: bs = 4 + ($refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0);
+    $: bs =
+        4 +
+        ($selectedVerses.length > 0
+            ? 2
+            : $refs.hasAudio && $audioActive
+            ? $refs.hasAudio.timingFile
+                ? 4
+                : 5
+            : 0);
     // Content Subtarction
     $: cs = 1 + bs + (showBorder ? 3.5 : 0);
 </script>
@@ -148,7 +157,11 @@
         </div>
     </ScrolledContent>
 </div>
-{#if $refs.hasAudio && $audioActive}
+{#if $selectedVerses.length > 0}
+    <div class="left-0 right-0 bottom-0 absolute">
+        <TextSelectionToolbar />
+    </div>
+{:else if $refs.hasAudio && $audioActive}
     <div
         class="audio-bar p-0 left-0 right-0 bottom-0 absolute"
         class:audio-bar-desktop={$showDesktopSidebar}
