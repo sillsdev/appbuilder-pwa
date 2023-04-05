@@ -7,7 +7,6 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 <script>
     import { s, convertStyle } from '$lib/data/stores';
     export let id;
-    $: console.log($s['ui.background']);
 </script>
 
 <!-- The button to open modal -->
