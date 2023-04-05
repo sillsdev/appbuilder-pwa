@@ -285,18 +285,19 @@ TODO:
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
         const bookmarksSpan = document.createElement('span');
         bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
-        const el = workspace.paragraphDiv?.querySelector(`div[data-verse="${workspace.currentVerse}"][data-phrase=${phraseIndex}]`);
+        const el = workspace.paragraphDiv?.querySelector(
+            `div[data-verse="${workspace.currentVerse}"][data-phrase=${phraseIndex}]`
+        );
         el.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
-
     }
     const bookmarkSvg = () => {
-        return '<svg fill="#b10000" class="annotation-bookmark" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>'
-    }
+        return '<svg fill="#b10000" class="annotation-bookmark" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
+    };
     function addBookmark(verseNumber, linkIndex) {
-        let bookmarksSpan = document.getElementById(('bookmarks' + verseNumber));
+        let bookmarksSpan = document.getElementById('bookmarks' + verseNumber);
         let bookmarkSpan = document.createElement('span');
         bookmarkSpan.id = 'bookmark' + linkIndex;
-        bookmarkSpan.innerHTML = '<a href=\"B-' + linkIndex + '\">' + bookmarkSvg() + '</a>';
+        bookmarkSpan.innerHTML = '<a href="B-' + linkIndex + '">' + bookmarkSvg() + '</a>';
         bookmarksSpan.appendChild(bookmarkSpan);
     }
     function onClick(e: any) {
@@ -936,9 +937,11 @@ TODO:
         let verses = [];
         for (let i = 0; i < bookmarks.length; i++) {
             const entry = bookmarks[i];
-            if ((entry.docSet === currentDocSet) && 
-            (entry.book === currentBook) && 
-            (entry.chapter === currentChapter)) {
+            if (
+                entry.docSet === currentDocSet &&
+                entry.book === currentBook &&
+                entry.chapter === currentChapter
+            ) {
                 verses.push(entry.verse);
             }
         }

@@ -63,13 +63,15 @@ TODO:
 
     function modifyBookmark() {
         // If there is already a bookmark at this verse, remove it
-        let found = false
+        let found = false;
         for (var i = 0; i < $bookmarks.length; i++) {
-            if (($bookmarks[i].docSet === $selectedVerses[0].docSet) &&
-                ($bookmarks[i].book === $selectedVerses[0].book) &&
-                ($bookmarks[i].chapter === $selectedVerses[0].chapter) &&
-                ($bookmarks[i].verse === $selectedVerses[0].verse)) {
-                removeBookmark(i)
+            if (
+                $bookmarks[i].docSet === $selectedVerses[0].docSet &&
+                $bookmarks[i].book === $selectedVerses[0].book &&
+                $bookmarks[i].chapter === $selectedVerses[0].chapter &&
+                $bookmarks[i].verse === $selectedVerses[0].verse
+            ) {
+                removeBookmark(i);
                 found = true;
                 break;
             }
@@ -81,23 +83,26 @@ TODO:
     function addBookmark() {
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
-        $bookmarks = [...$bookmarks, {
-            id: $bookmarks.length,
-            reference: selectedVerses.getReference(0),
-            text: selectedText(),
-            date: today.toDateString(),
-            docSet: $selectedVerses[0].docSet,
-            book: $selectedVerses[0].book,
-            chapter: $selectedVerses[0].chapter,
-            verse: $selectedVerses[0].verse
-        }];
+        $bookmarks = [
+            ...$bookmarks,
+            {
+                id: $bookmarks.length,
+                reference: selectedVerses.getReference(0),
+                text: selectedText(),
+                date: today.toDateString(),
+                docSet: $selectedVerses[0].docSet,
+                book: $selectedVerses[0].book,
+                chapter: $selectedVerses[0].chapter,
+                verse: $selectedVerses[0].verse
+            }
+        ];
         console.log($bookmarks);
         selectedVerses.reset();
     }
 
     function removeBookmark(index) {
-        bookmarks.update(b => {
-            b.splice(index, 1)
+        bookmarks.update((b) => {
+            b.splice(index, 1);
             return b;
         });
     }
