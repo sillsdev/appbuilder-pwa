@@ -61,19 +61,46 @@ TODO:
         return scriptureReference;
     }
 
+    function modifyBookmark() {
+        // If there is already a bookmark at this verse, remove it
+        let found = false
+        for (var i = 0; i < $bookmarks.length; i++) {
+            if (($bookmarks[i].docSet === $selectedVerses[0].docSet) &&
+                ($bookmarks[i].book === $selectedVerses[0].book) &&
+                ($bookmarks[i].chapter === $selectedVerses[0].chapter) &&
+                ($bookmarks[i].verse === $selectedVerses[0].verse)) {
+                removeBookmark(i)
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            addBookmark();
+        }
+    }
     function addBookmark() {
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
-
-        $bookmarks.push({
-            id: $bookmarks.size + 1,
+        $bookmarks = [...$bookmarks, {
+            id: $bookmarks.length,
             reference: selectedVerses.getReference(0),
             text: selectedText(),
-            date: today.toDateString()
-        });
+            date: today.toDateString(),
+            docSet: $selectedVerses[0].docSet,
+            book: $selectedVerses[0].book,
+            chapter: $selectedVerses[0].chapter,
+            verse: $selectedVerses[0].verse
+        }];
+        console.log($bookmarks);
         selectedVerses.reset();
     }
 
+    function removeBookmark(index) {
+        bookmarks.update(b => {
+            b.splice(index, 1)
+            return b;
+        });
+    }
     function addNote() {
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
@@ -152,7 +179,7 @@ TODO:
                 </button>
             {/if}
             {#if isBookmarkEnabled}
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => addBookmark()}>
+                <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyBookmark()}>
                     <BookmarkOutlineIcon />
                 </button>
             {/if}

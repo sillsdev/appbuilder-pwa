@@ -19,7 +19,6 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
             //     console.log("Selection %o: verse: %o, text: %o", i, selected.verse, selected.text);
             // }
         } else {
-            console.log('Remove Verse ', id);
             selectedVerses.removeVerse(id);
         }
     }
