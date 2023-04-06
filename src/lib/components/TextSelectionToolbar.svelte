@@ -12,14 +12,9 @@ TODO:
 - Add highlight colors
 -->
 <script>
-    import CopyContentIcon from '$lib/icons/CopyContentIcon.svelte';
-    import HighlightIcon from '$lib/icons/HighlightIcon.svelte';
-    import NoteIcon from '$lib/icons/NoteIcon.svelte';
-    import BookmarkOutlineIcon from '$lib/icons/BookmarkOutlineIcon.svelte';
-    import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import PlayIcon from '$lib/icons/audio/PlayIcon.svelte';
-    import ImageIcon from '$lib/icons/image/ImageSingleIcon.svelte';
-    import PlayRepeatIcon from '$lib/icons/audio/PlayRepeatIcon.svelte';
+
+    import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, BookmarkIcon, BookmarkOutlineIcon, ShareIcon} from '$lib/icons';
+    import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config.js';
     import { t, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
@@ -32,6 +27,7 @@ TODO:
     const isNotesEnabled = config?.mainFeatures['annotation-notes'];
 
     var isHighlight = false;
+    var selectedVerseInBookmarks = -1;
 
     $: isCopyEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-copy-text'
@@ -39,6 +35,7 @@ TODO:
     $: isShareEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-share-text'
     ];
+    $: $selectedVerses, updateSelectedVerseInBookmarks($selectedVerses);
 
     function selectedText() {
         var someText = $selectedVerses.reduce((text, v) => (text += v.text), '');
@@ -61,24 +58,34 @@ TODO:
         return scriptureReference;
     }
 
-    function modifyBookmark() {
-        // If there is already a bookmark at this verse, remove it
-        let found = false;
-        for (var i = 0; i < $bookmarks.length; i++) {
+    function updateSelectedVerseInBookmarks(selectedVerses) {
+        console.log('Updating');
+        selectedVerseInBookmarks = findAnnotation($bookmarks, selectedVerses[0]);
+    }
+    function findAnnotation(annotations, annotation) {
+        let index = -1;
+        for (var i = 0; i < annotations.length; i++) {
             if (
-                $bookmarks[i].docSet === $selectedVerses[0].docSet &&
-                $bookmarks[i].book === $selectedVerses[0].book &&
-                $bookmarks[i].chapter === $selectedVerses[0].chapter &&
-                $bookmarks[i].verse === $selectedVerses[0].verse
+                annotations[i].docSet === annotation.docSet &&
+                annotations[i].book === annotation.book &&
+                annotations[i].chapter === annotation.chapter &&
+                annotations[i].verse === annotation.verse
             ) {
-                removeBookmark(i);
-                found = true;
+                index = i;
                 break;
             }
         }
-        if (!found) {
+        return index;
+    }
+    function modifyBookmark() {
+        // If there is already a bookmark at this verse, remove it
+        const index = findAnnotation($bookmarks, $selectedVerses[0]);
+        if (index === -1) {
             addBookmark();
+        } else {
+            removeBookmark(index);
         }
+        selectedVerses.reset();
     }
     function addBookmark() {
         const timeElapsed = Date.now();
@@ -96,8 +103,6 @@ TODO:
                 verse: $selectedVerses[0].verse
             }
         ];
-        console.log($bookmarks);
-        selectedVerses.reset();
     }
 
     function removeBookmark(index) {
@@ -160,12 +165,12 @@ TODO:
         <div class="dy-btn-group place-self-center">
             {#if isAudioPlayable}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <PlayIcon />
+                    <AudioIcon.Play />
                 </button>
             {/if}
             {#if isRepeatableAudio}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <PlayRepeatIcon />
+                    <AudioIcon.PlayRepeat />
                 </button>
             {/if}
             {#if isTextOnImageEnabled}
@@ -185,7 +190,11 @@ TODO:
             {/if}
             {#if isBookmarkEnabled}
                 <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyBookmark()}>
-                    <BookmarkOutlineIcon />
+                    {#if selectedVerseInBookmarks >= 0}
+                        <BookmarkIcon color="#b10000" />
+                    {:else}
+                        <BookmarkOutlineIcon />
+                    {/if}
                 </button>
             {/if}
             {#if isCopyEnabled}

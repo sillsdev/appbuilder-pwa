@@ -291,7 +291,7 @@ TODO:
         el.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
     }
     const bookmarkSvg = () => {
-        return '<svg fill="#b10000" class="annotation-bookmark" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
+        return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     };
     function addBookmark(verseNumber, linkIndex) {
         let bookmarksSpan = document.getElementById('bookmarks' + verseNumber);
