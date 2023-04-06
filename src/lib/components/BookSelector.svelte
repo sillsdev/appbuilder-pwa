@@ -81,20 +81,34 @@ The navbar component.
 
     let bookGridGroup = ({ bookLabel = 'abbreviation' }) => {
         const colId = $refs.collection;
-        let groups = config.bookCollections
+        let groups = [];
+        var lastGroup = null;
+
+        config.bookCollections
             .find((x) => x.id === colId)
-            .books.map((x) => x.testament)
-            .reduce((acc, curr) => {
-                if (!acc.includes(curr)) acc.push(curr);
-                return acc;
-            }, []);
-        return groups.map((_, i) => ({
-            header: $t['Book_Group_' + groups[i]],
-            cells: config.bookCollections
-                .find((x) => x.id === colId)
-                .books.filter((x) => x.testament === groups[i])
-                .map((x) => ({ label: x[bookLabel], id: x.id }))
-        }));
+            .books.forEach((book) => {
+                let label = book[bookLabel] || book.name;
+                let cell = { label: label, id: book.id };
+                let group = book.testament || '';
+                if (lastGroup == null || group !== lastGroup) {
+                    // Create new group
+                    groups.push({
+                        header: book.testament
+                            ? $t['Book_Group_' + book.testament]
+                            : lastGroup == null
+                            ? '' // use empty string so that first group doesn't have header (e.g. INT)
+                            : '\u00A0', // use &nbsp; so we have a blank space for additional books at the end
+                        cells: [cell]
+                    });
+                    lastGroup = group;
+                } else {
+                    // Add Book to last group
+                    let cells = groups[groups.length - 1].cells;
+                    groups[groups.length - 1].cells = [...cells, cell];
+                }
+            });
+
+        return groups;
     };
 
     const bookContent = {
