@@ -26,6 +26,7 @@ TODO:
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
+    export let bookmarks: any;
     export let mainScroll: any;
     export let maxSelections: any;
     export let redLetters: boolean;
@@ -279,6 +280,26 @@ TODO:
             workspace.phraseDiv = div.cloneNode(true);
         }
     }
+    function addBookmarksDiv(workspace) {
+        const fnc = 'abcdefghijklmnopqrstuvwxyz';
+        const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
+        const bookmarksSpan = document.createElement('span');
+        bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
+        const el = workspace.paragraphDiv?.querySelector(
+            `div[data-verse="${workspace.currentVerse}"][data-phrase=${phraseIndex}]`
+        );
+        el.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
+    }
+    const bookmarkSvg = () => {
+        return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
+    };
+    function addBookmark(verseNumber, linkIndex) {
+        let bookmarksSpan = document.getElementById('bookmarks' + verseNumber);
+        let bookmarkSpan = document.createElement('span');
+        bookmarkSpan.id = 'bookmark' + linkIndex;
+        bookmarkSpan.innerHTML = bookmarkSvg();
+        bookmarksSpan.appendChild(bookmarkSpan);
+    }
     function onClick(e: any) {
         onClickText(e, selectedVerses, maxSelections);
     }
@@ -293,9 +314,11 @@ TODO:
         chapter: string,
         showVerses: boolean,
         showRedLetters: boolean,
-        versePerLine: boolean
+        versePerLine: boolean,
+        bookmarks: any[]
     ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
+        // console.log('bookmarks: ', bookmarks);
         const docslist = await pk.gqlQuery('{docSets { id } }');
         // console.log('LIST %o', docslist);
         // console.log('Displaying Introduction %o', displayingIntroduction);
@@ -573,6 +596,11 @@ TODO:
                                 if (els[i].classList.contains('seltxt') && els[i].id != '') {
                                     els[i].addEventListener('click', onClick, false);
                                 }
+                            }
+                            const bookmarksInChapter = bookmarksForChapter(bookmarks);
+                            // console.log("Bookmarks In Chapter", bookmarksInChapter);
+                            for (var j = 0; j < bookmarksInChapter.length; j++) {
+                                addBookmark(bookmarksInChapter[j], j);
                             }
                         }
                     }
@@ -852,6 +880,7 @@ TODO:
                                         workspace.verseDiv = null;
                                     }
                                     workspace.phraseDiv = null;
+                                    addBookmarksDiv(workspace);
                                     workspace.currentVerse = 'none';
                                     break;
                                 }
@@ -904,6 +933,20 @@ TODO:
         // console.log('DONE %o', root);
     };
 
+    function bookmarksForChapter(bookmarks) {
+        let verses = [];
+        for (let i = 0; i < bookmarks.length; i++) {
+            const entry = bookmarks[i];
+            if (
+                entry.docSet === currentDocSet &&
+                entry.book === currentBook &&
+                entry.chapter === currentChapter
+            ) {
+                verses.push(entry.verse);
+            }
+        }
+        return verses;
+    }
     $: fontSize = bodyFontSize + 'px';
 
     $: lineHeight = bodyLineHeight + '%';
@@ -930,7 +973,7 @@ TODO:
         const bookCode = currentBook;
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
-        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine);
+        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine, bookmarks);
     })();
     onDestroy(unSub);
 </script>

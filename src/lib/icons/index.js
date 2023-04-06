@@ -5,6 +5,8 @@ import ArrowBackIcon from './ArrowBackIcon.svelte';
 import ArrowForwardIcon from './ArrowForwardIcon.svelte';
 import BibleIcon from './BibleIcon.svelte';
 import BookmarkIcon from './BookmarkIcon.svelte';
+import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
+import CopyContentIcon from './CopyContentIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
 import EditIcon from './EditIcon.svelte';
 import HamburgerIcon from './HamburgerIcon.svelte';
@@ -32,6 +34,8 @@ export {
     AudioIcon,
     BibleIcon,
     BookmarkIcon,
+    BookmarkOutlineIcon,
+    CopyContentIcon,
     DropdownIcon,
     EditIcon,
     HamburgerIcon,
