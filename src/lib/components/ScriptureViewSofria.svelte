@@ -27,6 +27,7 @@ TODO:
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let bookmarks: any;
+    export let highlights: any;
     export let mainScroll: any;
     export let maxSelections: any;
     export let redLetters: boolean;
@@ -299,6 +300,21 @@ TODO:
         bookmarkSpan.id = 'bookmark' + linkIndex;
         bookmarkSpan.innerHTML = bookmarkSvg();
         bookmarksSpan.appendChild(bookmarkSpan);
+    }
+    function addHighlightedVerses(highlightsInChapter) {
+        for (let i = 0; i < highlightsInChapter.length; i++) {
+            //Skip this entry if the the next is a highlight for the same verse
+            if (i < highlightsInChapter.length - 1) {
+                if (highlightsInChapter[i].verse === highlightsInChapter[i + 1].verse){
+                    continue;
+                }
+            }
+            let elements = container?.querySelectorAll(`div[data-verse="${highlightsInChapter[i].verse}"]`);
+            for (const element of elements) {
+                const penClass = 'hlp' + highlightsInChapter[i].penColor;
+                element.classList.add(penClass);
+            }
+        }
     }
     function onClick(e: any) {
         onClickText(e, selectedVerses, maxSelections);
@@ -597,11 +613,13 @@ TODO:
                                     els[i].addEventListener('click', onClick, false);
                                 }
                             }
-                            const bookmarksInChapter = bookmarksForChapter(bookmarks);
+                            const bookmarksInChapter = annotationsForChapter(bookmarks);
                             // console.log("Bookmarks In Chapter", bookmarksInChapter);
                             for (var j = 0; j < bookmarksInChapter.length; j++) {
-                                addBookmark(bookmarksInChapter[j], j);
+                                addBookmark(bookmarksInChapter[j].verse, j);
                             }
+                            const highlightsInChapter = annotationsForChapter(highlights);
+                            addHighlightedVerses(highlightsInChapter);
                         }
                     }
                 ],
@@ -933,19 +951,29 @@ TODO:
         // console.log('DONE %o', root);
     };
 
-    function bookmarksForChapter(bookmarks) {
-        let verses = [];
-        for (let i = 0; i < bookmarks.length; i++) {
-            const entry = bookmarks[i];
+    function annotationsForChapter(annotations) {
+        let entries = [];
+        for (let i = 0; i < annotations.length; i++) {
+            const entry = annotations[i];
             if (
                 entry.docSet === currentDocSet &&
                 entry.book === currentBook &&
                 entry.chapter === currentChapter
             ) {
-                verses.push(entry.verse);
+                entries.push(entry);
             }
         }
-        return verses;
+        // Sort entries by verse number
+        if (entries.length > 1) {
+            entries = entries.sort(
+                (e1, e2) => {
+                    const c1 = parseInt(e1.verse, 10);
+                    const c2 = parseInt(e2.verse, 10);
+                    return (c1 > c2) ? 1: (c1 < c2 ? -1 : 0);
+                }
+            ); 
+        }
+        return entries;
     }
     $: fontSize = bodyFontSize + 'px';
 
@@ -973,7 +1001,7 @@ TODO:
         const bookCode = currentBook;
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
-        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine, bookmarks);
+        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine, bookmarks, highlights);
     })();
     onDestroy(unSub);
 </script>

@@ -11,7 +11,7 @@ bookmarks.subscribe(value => {
 setDefaultStorage('highlights', '[]');
 export const highlights = writable(JSON.parse(localStorage.highlights));
 highlights.subscribe(value => {
-    localStorage.notes = JSON.stringify(value);
+    localStorage.highlights = JSON.stringify(value);
 })
 
 setDefaultStorage('notes', '[]');
