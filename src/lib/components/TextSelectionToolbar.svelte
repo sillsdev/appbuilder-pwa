@@ -12,8 +12,15 @@ TODO:
 - Add highlight colors
 -->
 <script>
-
-    import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, BookmarkIcon, BookmarkOutlineIcon, ShareIcon} from '$lib/icons';
+    import {
+        AudioIcon,
+        CopyContentIcon,
+        HighlightIcon,
+        NoteIcon,
+        BookmarkIcon,
+        BookmarkOutlineIcon,
+        ShareIcon
+    } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config.js';
     import { t, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
