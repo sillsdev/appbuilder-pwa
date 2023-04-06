@@ -66,7 +66,6 @@ TODO:
     }
 
     function updateSelectedVerseInBookmarks(selectedVerses) {
-        console.log('Updating');
         selectedVerseInBookmarks = findAnnotation($bookmarks, selectedVerses[0]);
     }
     function findAnnotation(annotations, annotation) {
