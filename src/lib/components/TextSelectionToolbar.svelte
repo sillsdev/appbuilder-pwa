@@ -102,7 +102,7 @@ TODO:
             {
                 id: $bookmarks.length,
                 reference: selectedVerses.getReference(0),
-                text: selectedText(),
+                text: selectedVerses.getVerseByIndex(0).text,
                 date: today.toDateString(),
                 docSet: $selectedVerses[0].docSet,
                 book: $selectedVerses[0].book,
