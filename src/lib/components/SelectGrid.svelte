@@ -38,13 +38,31 @@ A component to display menu options in a grid.
     {#if group.header}
         <div style={convertStyle($s['ui.text.book-group-title'])}>{group.header}</div>
     {/if}
-    <table>
+    <div class="grid grid-cols-6 gap-1">
+        {#each group.cells as cell}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <span
+                on:click={() => handleClick(cell.id)}
+                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
+                style={convertStyle(
+                    Object.fromEntries(
+                        Object.entries($s['ui.button.book-grid']).filter(
+                            ([key]) => key != 'background-color'
+                        )
+                    )
+                )}
+                style:background-color={bookCollectionColor(cell.id)}
+            >
+                {cell.label}
+            </span>
+        {/each}
+    </div>
+    <!-- <table>
         {#each Array(Math.ceil(group.cells.length / cols)) as _, ri}
             <tr>
                 {#each Array(cols) as _, ci}
                     {#if ri * cols + ci < group.cells.length}
                         <td>
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <span
                                 on:click={() => handleClick(group.cells[ri * cols + ci].id)}
                                 class="dy-btn dy-btn-square dy-btn-ghost p-0 normal-case truncate text-clip"
@@ -66,7 +84,7 @@ A component to display menu options in a grid.
                 {/each}
             </tr>
         {/each}
-    </table>
+    </table> -->
 {/each}
 
 <style>
