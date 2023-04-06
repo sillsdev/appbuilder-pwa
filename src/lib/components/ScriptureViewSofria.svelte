@@ -19,7 +19,7 @@ TODO:
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
-    import { LoadingIcon, BookmarkIcon } from '$lib/icons';
+    import { LoadingIcon } from '$lib/icons';
 
     export let audioActive: any;
     export let audioHighlight: any;
