@@ -305,11 +305,13 @@ TODO:
         for (let i = 0; i < highlightsInChapter.length; i++) {
             //Skip this entry if the the next is a highlight for the same verse
             if (i < highlightsInChapter.length - 1) {
-                if (highlightsInChapter[i].verse === highlightsInChapter[i + 1].verse){
+                if (highlightsInChapter[i].verse === highlightsInChapter[i + 1].verse) {
                     continue;
                 }
             }
-            let elements = container?.querySelectorAll(`div[data-verse="${highlightsInChapter[i].verse}"]`);
+            let elements = container?.querySelectorAll(
+                `div[data-verse="${highlightsInChapter[i].verse}"]`
+            );
             for (const element of elements) {
                 const penClass = 'hlp' + highlightsInChapter[i].penColor;
                 element.classList.add(penClass);
@@ -965,13 +967,11 @@ TODO:
         }
         // Sort entries by verse number
         if (entries.length > 1) {
-            entries = entries.sort(
-                (e1, e2) => {
-                    const c1 = parseInt(e1.verse, 10);
-                    const c2 = parseInt(e2.verse, 10);
-                    return (c1 > c2) ? 1: (c1 < c2 ? -1 : 0);
-                }
-            ); 
+            entries = entries.sort((e1, e2) => {
+                const c1 = parseInt(e1.verse, 10);
+                const c2 = parseInt(e2.verse, 10);
+                return c1 > c2 ? 1 : c1 < c2 ? -1 : 0;
+            });
         }
         return entries;
     }
@@ -1001,7 +1001,16 @@ TODO:
         const bookCode = currentBook;
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
-        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine, bookmarks, highlights);
+        query(
+            docSet,
+            bookCode,
+            chapter,
+            viewShowVerses,
+            redLetters,
+            versePerLine,
+            bookmarks,
+            highlights
+        );
     })();
     onDestroy(unSub);
 </script>
