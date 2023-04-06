@@ -297,7 +297,7 @@ TODO:
         let bookmarksSpan = document.getElementById('bookmarks' + verseNumber);
         let bookmarkSpan = document.createElement('span');
         bookmarkSpan.id = 'bookmark' + linkIndex;
-        bookmarkSpan.innerHTML =  bookmarkSvg();
+        bookmarkSpan.innerHTML = bookmarkSvg();
         bookmarksSpan.appendChild(bookmarkSpan);
     }
     function onClick(e: any) {
