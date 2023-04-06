@@ -333,7 +333,8 @@ TODO:
         showVerses: boolean,
         showRedLetters: boolean,
         versePerLine: boolean,
-        bookmarks: any[]
+        bookmarks: any[],
+        highlights: any[]
     ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         // console.log('bookmarks: ', bookmarks);
