@@ -17,6 +17,11 @@ TODO:
     let nextDocSet;
 
     const docSetList = catalog.map((ds) => ds.id);
+    const allowSinglePane = config.bookCollections.map((ds) => ({
+        "id": (ds.languageCode + "_" + ds.id), 
+        "allow": (ds.features["bc-allow-single-pane"])
+    }));
+    $: console.log(allowSinglePane.filter((x) => x.allow === true).map((x) => x.id));
 
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
@@ -39,7 +44,7 @@ TODO:
             <strong>{$t['Layout_Single_Pane']}</strong>
         </p>
         <ul class="dy-menu mx-auto">
-            {#each docSetList as d}
+            {#each allowSinglePane.filter((x) => x.allow === true).map((x) => x.id) as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -55,6 +60,7 @@ TODO:
                         ).collectionName}
                     </a>
                 </li>
+              
             {/each}
         </ul>
         <!-- Side by Side -->
