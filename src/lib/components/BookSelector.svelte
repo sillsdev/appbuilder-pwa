@@ -27,9 +27,20 @@ The navbar component.
 
     let bookSelector;
     $: label = config.bookCollections
-        .find((x) => x.id === $refs.docSet.split('_')[1])
-        .books.find((x) => x.id == book).name;
+        .find((x) => x.id === $refs.collection)
+        .books.find((x) => x.id === book).name;
 
+    function chapterCount(book) {
+        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        console.log('CHAPTER COUNT', count);
+        return count;
+    }
+
+    function verseCount(chapter) {
+        let count = Object.keys(chapters[chapter]).length;
+        console.log('VERSE COUNT', count);
+        return count;
+    }
     /**
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
@@ -43,13 +54,17 @@ The navbar component.
                 case b:
                     bookSelector.setActive(c);
                     $nextRef.book = e.detail.text;
+                    if (chapterCount($nextRef.book) === 0) {
+                        $nextRef.chapter = 0;
+                        completeNavigation();
+                    }
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
-                    if (showVerseSelector) {
-                        bookSelector.setActive(v);
-                    } else {
+                    if (verseCount($nextRef.chapter) === 0 || !showVerseSelector) {
                         completeNavigation();
+                    } else {
+                        bookSelector.setActive(v);
                     }
                     break;
                 case v:
@@ -63,6 +78,7 @@ The navbar component.
     }
 
     function completeNavigation() {
+        console.log('COMPLETE NAV', $nextRef.book, $nextRef.chapter);
         $refs = { book: $nextRef.book, chapter: $nextRef.chapter };
         document.activeElement.blur();
     }

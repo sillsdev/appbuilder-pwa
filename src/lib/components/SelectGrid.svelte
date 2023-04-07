@@ -57,34 +57,6 @@ A component to display menu options in a grid.
             </span>
         {/each}
     </div>
-    <!-- <table>
-        {#each Array(Math.ceil(group.cells.length / cols)) as _, ri}
-            <tr>
-                {#each Array(cols) as _, ci}
-                    {#if ri * cols + ci < group.cells.length}
-                        <td>
-                            <span
-                                on:click={() => handleClick(group.cells[ri * cols + ci].id)}
-                                class="dy-btn dy-btn-square dy-btn-ghost p-0 normal-case truncate text-clip"
-                                style={convertStyle(
-                                    Object.fromEntries(
-                                        Object.entries($s['ui.button.book-grid']).filter(
-                                            ([key]) => key != 'background-color'
-                                        )
-                                    )
-                                )}
-                                style:background-color={bookCollectionColor(
-                                    group.cells[ri * cols + ci].id
-                                )}
-                            >
-                                {group.cells[ri * cols + ci].label}
-                            </span></td
-                        >
-                    {/if}
-                {/each}
-            </tr>
-        {/each}
-    </table> -->
 {/each}
 
 <style>

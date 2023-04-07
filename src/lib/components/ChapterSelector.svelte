@@ -11,7 +11,7 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
 
-    const showVerseSelector = $userSettings['verse-selection'];
+    $: showVerseSelector = $userSettings['verse-selection'] && verseCount(book, chapter) > 0;
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -55,11 +55,27 @@ The navbar component.
         nextRef.reset();
     }
 
+    function chapterCount(book) {
+        let books = catalog.find((d) => d.id === $refs.docSet).documents;
+        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        console.log('CHAPTER COUNT', count);
+        return count;
+    }
+
+    function verseCount(book, chapter) {
+        let books = catalog.find((d) => d.id === $refs.docSet).documents;
+        let chapters = books.find((d) => d.bookCode === book).versesByChapters;
+        let count = Object.keys(chapters[chapter]).length;
+        console.log('VERSE COUNT', count);
+        return count;
+    }
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
-    const showSelector = config.mainFeatures['show-chapter-number-on-app-bar'];
+    const showSelector =
+        config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
 
     function chaptersContent(chapters) {
