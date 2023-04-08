@@ -18,8 +18,8 @@ TODO:
 
     const docSetList = catalog.map((ds) => ds.id);
     const allowSinglePane = config.bookCollections.map((ds) => ({
-        "id": (ds.languageCode + "_" + ds.id), 
-        "allow": (ds.features["bc-allow-single-pane"])
+        id: ds.languageCode + '_' + ds.id,
+        allow: ds.features['bc-allow-single-pane']
     }));
     $: console.log(allowSinglePane.filter((x) => x.allow === true).map((x) => x.id));
 
@@ -60,7 +60,6 @@ TODO:
                         ).collectionName}
                     </a>
                 </li>
-              
             {/each}
         </ul>
         <!-- Side by Side -->
