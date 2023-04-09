@@ -31,7 +31,7 @@ Book Collection Selector component.
         <BibleIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
-      <!-- TODO: Include other layout options -->
+        <!-- TODO: Include other layout options -->
         <TabsMenu
             options={{
                 'Single Pane': {

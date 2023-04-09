@@ -57,14 +57,14 @@ TODO:
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
                             : $themeColors['LayoutBackgroundColor']}
                     >
-                    <div class="dy-relative">
-                        <div class={convertStyle($s['ui.layouts.title'])}>
-                            {d.name}
+                        <div class="dy-relative">
+                            <div class={convertStyle($s['ui.layouts.title'])}>
+                                {d.name}
+                            </div>
+                            {#if d.description}
+                                <div class="text-sm">{d.description}</div>
+                            {/if}
                         </div>
-                        {#if d.description}
-                            <div class="text-sm">{d.description}</div>
-                        {/if}
-                      </div>
                     </a>
                 </li>
             {/each}
