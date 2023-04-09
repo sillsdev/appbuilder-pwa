@@ -11,7 +11,6 @@ Book Collection Selector component.
 
     let modalId = 'collectionSelector';
     let docSet = $refs.docSet;
-    $: console.log('Collection: ', docSet);
 
     function navigateReference(e) {
         switch (e.detail.tab) {
@@ -32,22 +31,13 @@ Book Collection Selector component.
         <BibleIcon color="white" />
     </svelte:fragment>
     <svelte:fragment slot="content">
+      <!-- TODO: Include other layout options -->
         <TabsMenu
             options={{
                 'Single Pane': {
                     tab: { component: SinglePaneIcon },
                     component: LayoutOptions,
                     props: { layoutOption: 'Single Pane' }
-                },
-                'Side By Side': {
-                    tab: { component: SideBySideIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: 'Side By Side' }
-                },
-                'Verse By Verse': {
-                    tab: { component: VerseByVerseIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: 'Verse By Verse' }
                 }
             }}
             active="Single Pane"

@@ -6,7 +6,6 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
-    import Dropdown from './Dropdown.svelte';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
@@ -15,13 +14,15 @@ TODO:
     const dispatch = createEventDispatcher();
 
     let nextDocSet;
+    console.log($s);
 
     const docSetList = catalog.map((ds) => ds.id);
     const allowSinglePane = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
-        allow: ds.features['bc-allow-single-pane']
+        name: ds.collectionName,
+        singlePane: ds.features['bc-allow-single-pane'],
+        description: ds?.collectionDescription
     }));
-    $: console.log(allowSinglePane.filter((x) => x.allow === true).map((x) => x.id));
 
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
@@ -44,20 +45,26 @@ TODO:
             <strong>{$t['Layout_Single_Pane']}</strong>
         </p>
         <ul class="dy-menu mx-auto">
-            {#each allowSinglePane.filter((x) => x.allow === true).map((x) => x.id) as d}
+            {#each allowSinglePane.filter((x) => x.singlePane === true) as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
-                        on:click={() => handleClick(d)}
-                        class={nextDocSet === d ? 'dy-active' : ''}
+                        on:click={() => handleClick(d.id)}
+                        class={nextDocSet === d.id ? 'dy-active' : ''}
                         style={convertStyle($s['ui.layouts.selector'])}
-                        style:background-color={nextDocSet === d
+                        style:background-color={nextDocSet === d.id
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
                             : $themeColors['LayoutBackgroundColor']}
-                        >{config.bookCollections.find(
-                            (x) => x.id === catalog.find((x) => x.id === d).selectors.abbr
-                        ).collectionName}
+                    >
+                    <div class="dy-relative">
+                        <div class={convertStyle($s['ui.layouts.title'])}>
+                            {d.name}
+                        </div>
+                        {#if d.description}
+                            <div class="text-sm">{d.description}</div>
+                        {/if}
+                      </div>
                     </a>
                 </li>
             {/each}
@@ -67,45 +74,19 @@ TODO:
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Two_Pane']}</strong>
         </p>
-        <ul class="dy-menu mx-auto">
-            <div class="flex w-full">
-                <div class="dy-dropdown dy-dropdown-end">
-                    <Dropdown>
-                        <svelte:fragment slot="label">Choose</svelte:fragment>
-                        <svelte:fragment slot="content">
-                            <h1>HI</h1>
-                        </svelte:fragment>
-                    </Dropdown>
-                </div>
-                <div class="dy-divider dy-divider-horizontal" />
-                <div>b</div>
-                <div class="dy-divider dy-divider-horizontal" />
-                <button class="dy-btn dy-btn-ghost dy-btn-sm dy-btn-circle">+</button>
-            </div>
-        </ul>
+        <ul class="dy-menu mx-auto" />
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Interlinear']}</strong>
         </p>
-        <ul class="dy-menu mx-auto">
-            {#each docSetList as d}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <li>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <a
-                        on:click={() => handleClick(d)}
-                        class={nextDocSet === d ? 'dy-active' : ''}
-                        style={convertStyle($s['ui.layouts.selector'])}
-                        style:background-color={nextDocSet === d
-                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                            : $themeColors['LayoutBackgroundColor']}
-                        >{config.bookCollections.find(
-                            (x) => x.id === catalog.find((x) => x.id === d).selectors.abbr
-                        ).collectionName}
-                    </a>
-                </li>
-            {/each}
-        </ul>
+        <ul class="dy-menu mx-auto" />
     {/if}
 </div>
+
+<style>
+    a {
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
