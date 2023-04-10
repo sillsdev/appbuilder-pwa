@@ -164,6 +164,7 @@ TODO:
 
     function updatePlaybackSpeed(playbackSpeed) {
         if (audio != null) {
+            console.log('UpdatePlaybackSpeed:', playbackSpeed);
             audio.playbackRate = parseFloat(playbackSpeed);
         }
     }
@@ -257,9 +258,18 @@ TODO:
             <AudioPlaybackSpeed />
         {/if}
     </div>
-    {#if !$refs.hasAudio.timingFile}
-        <!-- Progress Bar -->
-        <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        {#if loaded}
+            <progress value={progress} max={duration} />
+        {:else}
+            <progress class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1" value="0" max="1" />
+        {/if}
+    </div>
+    <!-- {#if !$refs.hasAudio.timingFile} -->
+    <!-- Progress Bar -->
+    <!-- <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
         {#if loaded}
             <progress class="dy-progress audio-progress" value={progress} max={duration} />
         {:else}
@@ -267,33 +277,19 @@ TODO:
         {/if}
         <div class="audio-progress-duration">{duration ? format(duration) : ''}</div>
     {/if}
+    -->
 </div>
 
 <style>
-    .audio-bar {
-        display: grid;
-        grid-auto-columns: 3.125rem auto 3.125rem;
-        grid-auto-rows: 4rem;
-    }
-    .audio-bar-progress {
-        display: grid;
-        grid-auto-columns: 3.125rem auto 3.125rem;
-        grid-auto-rows: 3.125rem 1.875rem;
-    }
-    .audio-progress-value {
-        grid-row: 2;
-        grid-column: 1;
-        place-self: center;
-    }
-    .audio-progress-duration {
-        grid-row: 2;
-        grid-column: 3;
-        place-self: center;
-    }
-    .audio-progress {
+    .progress-bar {
         grid-row: 2;
         grid-column: 2;
         place-self: center;
+    }
+    .audio-bar {
+        display: grid;
+        grid-auto-columns: 3.125rem auto 3.125rem;
+        grid-auto-rows: 2rem;
     }
     .audio-repeat {
         grid-row: 1;
