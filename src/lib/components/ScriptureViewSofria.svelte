@@ -294,12 +294,14 @@ TODO:
     const bookmarkSvg = () => {
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     };
-    function addBookmark(verseNumber, linkIndex) {
-        let bookmarksSpan = document.getElementById('bookmarks' + verseNumber);
-        let bookmarkSpan = document.createElement('span');
-        bookmarkSpan.id = 'bookmark' + linkIndex;
-        bookmarkSpan.innerHTML = bookmarkSvg();
-        bookmarksSpan.appendChild(bookmarkSpan);
+    function addBookmarkedVerses(bookmarksInChapter) {
+        for (var j = 0; j < bookmarksInChapter.length; j++) {
+            let bookmarksSpan = document.getElementById('bookmarks' + bookmarksInChapter[j].verse);
+            let bookmarkSpan = document.createElement('span');
+            bookmarkSpan.id = 'bookmark' + j;
+            bookmarkSpan.innerHTML = bookmarkSvg();
+            bookmarksSpan.appendChild(bookmarkSpan);
+        }
     }
     function addHighlightedVerses(highlightsInChapter) {
         for (let i = 0; i < highlightsInChapter.length; i++) {
@@ -617,10 +619,7 @@ TODO:
                                 }
                             }
                             const bookmarksInChapter = annotationsForChapter(bookmarks);
-                            // console.log("Bookmarks In Chapter", bookmarksInChapter);
-                            for (var j = 0; j < bookmarksInChapter.length; j++) {
-                                addBookmark(bookmarksInChapter[j].verse, j);
-                            }
+                            addBookmarkedVerses(bookmarksInChapter);
                             const highlightsInChapter = annotationsForChapter(highlights);
                             addHighlightedVerses(highlightsInChapter);
                         }
@@ -955,25 +954,19 @@ TODO:
     };
 
     function annotationsForChapter(annotations) {
-        let entries = [];
-        for (let i = 0; i < annotations.length; i++) {
-            const entry = annotations[i];
-            if (
-                entry.docSet === currentDocSet &&
-                entry.book === currentBook &&
-                entry.chapter === currentChapter
-            ) {
-                entries.push(entry);
-            }
-        }
-        // Sort entries by verse number
-        if (entries.length > 1) {
-            entries = entries.sort((e1, e2) => {
+        // Get entries for chapter and sort by verse
+        let entries = annotations
+            .filter(
+                (entry) =>
+                    entry.docSet === currentDocSet &&
+                    entry.book === currentBook &&
+                    entry.chapter === currentChapter
+            )
+            .sort((e1, e2) => {
                 const c1 = parseInt(e1.verse, 10);
                 const c2 = parseInt(e2.verse, 10);
                 return c1 > c2 ? 1 : c1 < c2 ? -1 : 0;
             });
-        }
         return entries;
     }
     $: fontSize = bodyFontSize + 'px';
