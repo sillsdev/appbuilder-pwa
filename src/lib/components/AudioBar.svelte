@@ -164,7 +164,6 @@ TODO:
 
     function updatePlaybackSpeed(playbackSpeed) {
         if (audio != null) {
-            console.log('UpdatePlaybackSpeed:', playbackSpeed);
             audio.playbackRate = parseFloat(playbackSpeed);
         }
     }
@@ -203,6 +202,7 @@ TODO:
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
+    const SliderProgressColor = config.mainFeatures['SliderProgressColor'];
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
@@ -267,7 +267,6 @@ TODO:
             <AudioPlaybackSpeed />
         {/if}
     </div>
-
     {#if $refs.hasAudio.timingFile}
         <!-- Progress Bar -->
         <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
@@ -298,7 +297,6 @@ TODO:
         grid-column: 2rem;
         place-self: center;
     }
-
     .audio-bar-progress {
         display: grid;
         grid-auto-columns: 3.125rem auto 3.125rem;
