@@ -63,6 +63,9 @@ The navbar component.
     }
 
     function verseCount(book, chapter) {
+        if (chapter === 'i') {
+            return 0;
+        }
         let books = catalog.find((d) => d.id === $refs.docSet).documents;
         let chapters = books.find((d) => d.bookCode === book).versesByChapters;
         let count = Object.keys(chapters[chapter]).length;

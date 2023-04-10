@@ -18,7 +18,7 @@ The navbar component.
 
     const listView = $userSettings['book-selection'] === 'list';
     const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = $userSettings['verse-selection'];
+    const showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -37,6 +37,9 @@ The navbar component.
     }
 
     function verseCount(chapter) {
+        if (chapter === 'i') {
+            return 0;
+        }
         let count = Object.keys(chapters[chapter]).length;
         console.log('VERSE COUNT', count);
         return count;
@@ -55,7 +58,7 @@ The navbar component.
                     bookSelector.setActive(c);
                     $nextRef.book = e.detail.text;
                     if (chapterCount($nextRef.book) === 0) {
-                        $nextRef.chapter = 0;
+                        $nextRef.chapter = 'i';
                         completeNavigation();
                     }
                     break;
