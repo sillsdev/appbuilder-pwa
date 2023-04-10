@@ -10,11 +10,11 @@ TODO:
     export let text = '';
     export let date = '';
     export let actions = [''];
-    export let highlight_color = '1';
+    export let penColor = '1';
 </script>
 
 <div class="annotation-item-block">
-    <div class="annotation-item-color {'hlp' + highlight_color} annotation-float-left" />
+    <div class="annotation-item-color {'hlp' + penColor} annotation-float-left" />
     <!--Menu-->
     <CardMenu on:menuaction {actions} />
     <!--Content-->

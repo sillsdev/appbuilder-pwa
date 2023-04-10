@@ -130,6 +130,14 @@ TODO:
         selectedVerses.reset();
     }
 
+    function modifyHighlight(numColor) {
+        if (numColor == 6) {
+            removeHighlight();
+        } else {
+            addHighlight(numColor);
+        }
+        selectedVerses.reset();
+    }
     function addHighlight(numColor) {
         if (numColor > 5 || numColor < 1) {
             numColor = 1;
@@ -142,18 +150,39 @@ TODO:
         isHighlight = false;
 
         for (var i = 0; i < verseCount; i++) {
-            $highlights.push({
-                id: $highlights.size + 1,
-                reference: selectedVerses.getReference(i),
-                text: selectedVerses.getVerseByIndex(i)['text'],
-                date: today.toDateString(),
-                highlight_color: numColor
-            });
-            selectedVerses.removeVerse(0);
+            const index = findAnnotation($highlights, $selectedVerses[i]);
+            if (index === -1 || $highlights[index].penColor !== numColor) {
+                $highlights = [
+                    ...$highlights,
+                    {
+                        id: $highlights.length,
+                        reference: selectedVerses.getReference(i),
+                        text: selectedVerses.getVerseByIndex(i)['text'],
+                        date: today.toDateString(),
+                        penColor: numColor,
+                        docSet: $selectedVerses[i].docSet,
+                        book: $selectedVerses[i].book,
+                        chapter: $selectedVerses[i].chapter,
+                        verse: $selectedVerses[i].verse
+                    }
+                ];
+            }
         }
-        selectedVerses.reset();
     }
-
+    function removeHighlight() {
+        const verseCount = $selectedVerses.length;
+        for (var i = 0; i < verseCount; i++) {
+            let index = findAnnotation($highlights, $selectedVerses[i]);
+            // Could be highlighted with multiple colors, remove all
+            while (index !== -1) {
+                highlights.update((h) => {
+                    h.splice(index, 1);
+                    return h;
+                });
+                index = findAnnotation($highlights, $selectedVerses[i]);
+            }
+        }
+    }
     function copy() {
         var copyText = selectedText() + '\n' + selectedVerses.getCompositeReference();
         navigator.clipboard.writeText(copyText);
@@ -185,7 +214,7 @@ TODO:
                 </button>
             {/if}
             {#if isHighlightEnabled}
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => addHighlight(2)}>
+                <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyHighlight(2)}>
                     <HighlightIcon />
                 </button>
             {/if}

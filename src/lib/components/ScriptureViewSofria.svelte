@@ -27,6 +27,7 @@ TODO:
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let bookmarks: any;
+    export let highlights: any;
     export let mainScroll: any;
     export let maxSelections: any;
     export let redLetters: boolean;
@@ -293,12 +294,31 @@ TODO:
     const bookmarkSvg = () => {
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     };
-    function addBookmark(verseNumber, linkIndex) {
-        let bookmarksSpan = document.getElementById('bookmarks' + verseNumber);
-        let bookmarkSpan = document.createElement('span');
-        bookmarkSpan.id = 'bookmark' + linkIndex;
-        bookmarkSpan.innerHTML = bookmarkSvg();
-        bookmarksSpan.appendChild(bookmarkSpan);
+    function addBookmarkedVerses(bookmarksInChapter) {
+        for (var j = 0; j < bookmarksInChapter.length; j++) {
+            let bookmarksSpan = document.getElementById('bookmarks' + bookmarksInChapter[j].verse);
+            let bookmarkSpan = document.createElement('span');
+            bookmarkSpan.id = 'bookmark' + j;
+            bookmarkSpan.innerHTML = bookmarkSvg();
+            bookmarksSpan.appendChild(bookmarkSpan);
+        }
+    }
+    function addHighlightedVerses(highlightsInChapter) {
+        for (let i = 0; i < highlightsInChapter.length; i++) {
+            //Skip this entry if the the next is a highlight for the same verse
+            if (i < highlightsInChapter.length - 1) {
+                if (highlightsInChapter[i].verse === highlightsInChapter[i + 1].verse) {
+                    continue;
+                }
+            }
+            let elements = container?.querySelectorAll(
+                `div[data-verse="${highlightsInChapter[i].verse}"]`
+            );
+            for (const element of elements) {
+                const penClass = 'hlp' + highlightsInChapter[i].penColor;
+                element.classList.add(penClass);
+            }
+        }
     }
     function onClick(e: any) {
         onClickText(e, selectedVerses, maxSelections);
@@ -315,7 +335,8 @@ TODO:
         showVerses: boolean,
         showRedLetters: boolean,
         versePerLine: boolean,
-        bookmarks: any[]
+        bookmarks: any[],
+        highlights: any[]
     ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         // console.log('bookmarks: ', bookmarks);
@@ -597,11 +618,10 @@ TODO:
                                     els[i].addEventListener('click', onClick, false);
                                 }
                             }
-                            const bookmarksInChapter = bookmarksForChapter(bookmarks);
-                            // console.log("Bookmarks In Chapter", bookmarksInChapter);
-                            for (var j = 0; j < bookmarksInChapter.length; j++) {
-                                addBookmark(bookmarksInChapter[j], j);
-                            }
+                            const bookmarksInChapter = annotationsForChapter(bookmarks);
+                            addBookmarkedVerses(bookmarksInChapter);
+                            const highlightsInChapter = annotationsForChapter(highlights);
+                            addHighlightedVerses(highlightsInChapter);
                         }
                     }
                 ],
@@ -933,19 +953,21 @@ TODO:
         // console.log('DONE %o', root);
     };
 
-    function bookmarksForChapter(bookmarks) {
-        let verses = [];
-        for (let i = 0; i < bookmarks.length; i++) {
-            const entry = bookmarks[i];
-            if (
-                entry.docSet === currentDocSet &&
-                entry.book === currentBook &&
-                entry.chapter === currentChapter
-            ) {
-                verses.push(entry.verse);
-            }
-        }
-        return verses;
+    function annotationsForChapter(annotations) {
+        // Get entries for chapter and sort by verse
+        let entries = annotations
+            .filter(
+                (entry) =>
+                    entry.docSet === currentDocSet &&
+                    entry.book === currentBook &&
+                    entry.chapter === currentChapter
+            )
+            .sort((e1, e2) => {
+                const c1 = parseInt(e1.verse, 10);
+                const c2 = parseInt(e2.verse, 10);
+                return c1 > c2 ? 1 : c1 < c2 ? -1 : 0;
+            });
+        return entries;
     }
     $: fontSize = bodyFontSize + 'px';
 
@@ -973,7 +995,16 @@ TODO:
         const bookCode = currentBook;
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
-        query(docSet, bookCode, chapter, viewShowVerses, redLetters, versePerLine, bookmarks);
+        query(
+            docSet,
+            bookCode,
+            chapter,
+            viewShowVerses,
+            redLetters,
+            versePerLine,
+            bookmarks,
+            highlights
+        );
     })();
     onDestroy(unSub);
 </script>

@@ -26,7 +26,7 @@ declare namespace App {
         text: string;
         date: string;
         actions: string[];
-        highlight_color: string;
+        penColor: string;
     }
 
     interface TabMenuOptions {
