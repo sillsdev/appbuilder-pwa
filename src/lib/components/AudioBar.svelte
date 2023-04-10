@@ -259,17 +259,9 @@ TODO:
         {/if}
     </div>
 
-    <!-- Progress Bar -->
-    <div class="progress-bar">
-        {#if loaded}
-            <progress value={progress} max={duration} />
-        {:else}
-            <progress class="dy-progress w-11/12 h-1 place-self-end mx-2 my-1" value="0" max="1" />
-        {/if}
-    </div>
-    <!-- {#if !$refs.hasAudio.timingFile} -->
-    <!-- Progress Bar -->
-    <!-- <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
+    {#if $refs.hasAudio.timingFile}
+        <!-- Progress Bar -->
+        <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
         {#if loaded}
             <progress class="dy-progress audio-progress" value={progress} max={duration} />
         {:else}
@@ -277,13 +269,12 @@ TODO:
         {/if}
         <div class="audio-progress-duration">{duration ? format(duration) : ''}</div>
     {/if}
-    -->
 </div>
 
 <style>
-    .progress-bar {
-        grid-row: 2;
-        grid-column: 2;
+    .audio-progress {
+        grid-row: 2rem;
+        grid-column: 2rem;
         place-self: center;
     }
     .audio-bar {
