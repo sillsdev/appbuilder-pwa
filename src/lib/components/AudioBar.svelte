@@ -177,6 +177,15 @@ TODO:
         }
     }
 
+    function seekAudio(event) {
+        if (!loaded) return;
+        // Calculate the percentage of the progress bar that was clicked
+        const progressBar = document.getElementById('progress-bar');
+        const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
+        // Set the current time of the audio element to the corresponding time based on the percent
+        audio.currentTime = duration * percent;
+    }
+
     const playIconOptons = {
         arrow: AudioIcon.Play,
         'filled-circle': AudioIcon.PlayFillCircle,
@@ -263,7 +272,14 @@ TODO:
         <!-- Progress Bar -->
         <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
         {#if loaded}
-            <progress class="dy-progress audio-progress" value={progress} max={duration} />
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <progress
+                id="progress-bar"
+                on:click={seekAudio}
+                class="dy-progress audio-progress"
+                value={progress}
+                max={duration}
+            />
         {:else}
             <progress class="dy-progress audio-progress" value="0" max="1" />
         {/if}
