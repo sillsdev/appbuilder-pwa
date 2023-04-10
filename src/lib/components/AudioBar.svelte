@@ -277,6 +277,22 @@ TODO:
         grid-column: 2rem;
         place-self: center;
     }
+
+    .audio-bar-progress {
+        display: grid;
+        grid-auto-columns: 3.125rem auto 3.125rem;
+        grid-auto-rows: 3.125rem 1.875rem;
+    }
+    .audio-progress-value {
+        grid-row: 2;
+        grid-column: 1;
+        place-self: center;
+    }
+    .audio-progress-duration {
+        grid-row: 2;
+        grid-column: 3;
+        place-self: center;
+    }
     .audio-bar {
         display: grid;
         grid-auto-columns: 3.125rem auto 3.125rem;
