@@ -288,6 +288,11 @@ TODO:
 </div>
 
 <style>
+    .audio-bar {
+        display: grid;
+        grid-auto-columns: 3.125rem auto 3.125rem;
+        grid-auto-rows: 2rem;
+    }
     .audio-progress {
         grid-row: 2rem;
         grid-column: 2rem;
@@ -308,11 +313,6 @@ TODO:
         grid-row: 2;
         grid-column: 3;
         place-self: center;
-    }
-    .audio-bar {
-        display: grid;
-        grid-auto-columns: 3.125rem auto 3.125rem;
-        grid-auto-rows: 2rem;
     }
     .audio-repeat {
         grid-row: 1;
