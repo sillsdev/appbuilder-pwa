@@ -4,12 +4,14 @@ import { setDefaultStorage } from './storage';
 import config from '../config';
 
 /** current reference */
+const firstChapter = config.bookCollections[0].books[0].id + "." + config.bookCollections[0].books[0].chaptersN.split("-")[0];
+const startReference = config.mainFeatures['start-at-reference'] || firstChapter;
 const initReference =
     config.bookCollections[0].languageCode +
     '_' +
     config.bookCollections[0].id +
     '.' +
-    config.mainFeatures['start-at-reference'];
+    startReference;
 setDefaultStorage('refs', initReference);
 export const refs = groupStore(referenceStore, localStorage.refs);
 refs.subscribe((value) => {

@@ -18,7 +18,7 @@ The navbar component.
 
     const listView = $userSettings['book-selection'] === 'list';
     const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = $userSettings['verse-selection'];
+    const showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -27,9 +27,21 @@ The navbar component.
 
     let bookSelector;
     $: label = config.bookCollections
-        .find((x) => x.id === $refs.docSet.split('_')[1])
-        .books.find((x) => x.id == book).name;
+        .find((x) => x.id === $refs.collection)
+        .books.find((x) => x.id === book).name;
 
+    function chapterCount(book) {
+        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        return count;
+    }
+
+    function verseCount(chapter) {
+        if (!chapter || chapter === 'i') {
+            return 0;
+        }
+        let count = Object.keys(chapters[chapter]).length;
+        return count;
+    }
     /**
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
@@ -43,13 +55,17 @@ The navbar component.
                 case b:
                     bookSelector.setActive(c);
                     $nextRef.book = e.detail.text;
+                    if (chapterCount($nextRef.book) === 0) {
+                        $nextRef.chapter = 'i';
+                        completeNavigation();
+                    }
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
-                    if (showVerseSelector) {
-                        bookSelector.setActive(v);
-                    } else {
+                    if (verseCount($nextRef.chapter) === 0 || !showVerseSelector) {
                         completeNavigation();
+                    } else {
+                        bookSelector.setActive(v);
                     }
                     break;
                 case v:
@@ -81,20 +97,46 @@ The navbar component.
 
     let bookGridGroup = ({ bookLabel = 'abbreviation' }) => {
         const colId = $refs.collection;
-        let groups = config.bookCollections
+        let groups = [];
+        var lastGroup = null;
+
+        config.bookCollections
             .find((x) => x.id === colId)
-            .books.map((x) => x.testament)
-            .reduce((acc, curr) => {
-                if (!acc.includes(curr)) acc.push(curr);
-                return acc;
-            }, []);
-        return groups.map((_, i) => ({
-            header: $t['Book_Group_' + groups[i]],
-            cells: config.bookCollections
-                .find((x) => x.id === colId)
-                .books.filter((x) => x.testament === groups[i])
-                .map((x) => ({ label: x[bookLabel], id: x.id }))
-        }));
+            .books.forEach((book) => {
+                let label = book[bookLabel] || book.name;
+                let cell = { label: label, id: book.id };
+                let group = book.testament || '';
+                if (lastGroup == null || group !== lastGroup) {
+                    // Create new group
+                    groups.push({
+                        header: book.testament
+                            ? $t['Book_Group_' + book.testament]
+                            : lastGroup == null
+                            ? '' // use empty string so that first group doesn't have header (e.g. INT)
+                            : '\u00A0', // use &nbsp; so we have a blank space for additional books at the end
+                        cells: [cell]
+                    });
+                    lastGroup = group;
+                } else {
+                    // Add Book to last group
+                    let cells = groups[groups.length - 1].cells;
+                    groups[groups.length - 1].cells = [...cells, cell];
+                }
+            });
+
+        return groups;
+    };
+
+    let chapterGridGroup = (chapters) => {
+        let hasIntroduction = books.find((x) => x.bookCode === book).hasIntroduction;
+        return [
+            {
+                rows: hasIntroduction
+                    ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                    : null,
+                cells: Object.keys(chapters).map((x) => ({ label: x, id: x }))
+            }
+        ];
     };
 
     const bookContent = {
@@ -110,7 +152,7 @@ The navbar component.
         return {
             component: SelectGrid,
             props: {
-                options: [{ cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }]
+                options: chapterGridGroup(chapters)
             }
         };
     }

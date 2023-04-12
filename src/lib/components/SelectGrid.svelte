@@ -9,15 +9,28 @@ A component to display menu options in a grid.
     export let options: App.GridGroup[] = [];
     export let cols = 6;
 
+    let cellStyle = convertStyle(
+        Object.fromEntries(
+            Object.entries($s['ui.button.book-grid']).filter(([key]) => key != 'background-color')
+        )
+    );
+    let rowStyle = convertStyle(
+        Object.fromEntries(
+            Object.entries($s['ui.button.chapter-intro']).filter(
+                ([key]) => key != 'background-color'
+            )
+        )
+    );
+    let headerStyle = convertStyle($s['ui.text.book-group-title']);
     const dispatch = createEventDispatcher();
 
-    $: bookCollectionColor = (id: string) => {
+    $: bookCollectionColor = (id: string, category: string) => {
         const section = config.bookCollections
             .find((x) => x.id === $refs.collection)
             .books.find((x) => x.id === id)?.section;
         let color = Object.keys($themeBookColors).includes(section)
             ? $themeBookColors[section]
-            : $s['ui.button.book-grid']['background-color'];
+            : $s[category]['background-color'];
         return color;
     };
 
@@ -28,73 +41,45 @@ A component to display menu options in a grid.
     }
 </script>
 
-<!--
-  ri - row index
-  ci - column index
-  see https://svelte.dev/tutorial/each-blocks
--->
-
 {#each options as group}
     {#if group.header}
-        <div style={convertStyle($s['ui.text.book-group-title'])}>{group.header}</div>
+        <div class="mx-2" style={headerStyle}>{group.header}</div>
     {/if}
-    <table>
-        {#each Array(Math.ceil(group.cells.length / cols)) as _, ri}
-            <tr>
-                {#each Array(cols) as _, ci}
-                    {#if ri * cols + ci < group.cells.length}
-                        <td>
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <span
-                                on:click={() => handleClick(group.cells[ri * cols + ci].id)}
-                                class="dy-btn dy-btn-square dy-btn-ghost p-0 normal-case truncate text-clip"
-                                style={convertStyle(
-                                    Object.fromEntries(
-                                        Object.entries($s['ui.button.book-grid']).filter(
-                                            ([key]) => key != 'background-color'
-                                        )
-                                    )
-                                )}
-                                style:background-color={bookCollectionColor(
-                                    group.cells[ri * cols + ci].id
-                                )}
-                            >
-                                {group.cells[ri * cols + ci].label}
-                            </span></td
-                        >
-                    {/if}
-                {/each}
-            </tr>
+    <div
+        class="grid grid-cols-{cols} gap-1 m-2"
+        class:grid-cols-5={cols == 5}
+        class:grid-cols-6={cols == 6}
+    >
+        {#if group.rows}
+            {#each group.rows as row}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <span
+                    on:click={() => handleClick(row.id)}
+                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1"
+                    class:col-span-5={cols == 5}
+                    class:col-span-6={cols == 6}
+                    style={rowStyle}
+                    style:background-color={bookCollectionColor(row.id, 'ui.button.chapter-intro')}
+                >
+                    {row.label}
+                </span>
+            {/each}
+        {/if}
+        {#each group.cells as cell}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <span
+                on:click={() => handleClick(cell.id)}
+                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
+                style={cellStyle}
+                style:background-color={bookCollectionColor(cell.id, 'ui.button.book-grid')}
+            >
+                {cell.label}
+            </span>
         {/each}
-    </table>
+    </div>
 {/each}
 
 <style>
-    div {
-        padding: 5px;
-    }
-    table {
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 0px;
-        border-collapse: unset;
-        border-spacing: 5px;
-    }
-    tr {
-        width: 100%;
-        margin: 0px;
-        padding: 0px;
-    }
-    td {
-        text-align: center;
-        overflow: hidden;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        border: none;
-        border-radius: 0px;
-    }
     span {
         text-overflow: ''; /* Works on Firefox only */
         overflow: hidden;

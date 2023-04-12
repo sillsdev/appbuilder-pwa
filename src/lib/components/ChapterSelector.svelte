@@ -11,14 +11,13 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
 
-    const showVerseSelector = $userSettings['verse-selection'];
-
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
+    $: showVerseSelector = $userSettings['verse-selection'] && verseCount(book, chapter) > 0;
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -30,10 +29,10 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (showVerseSelector) {
-                    chapterSelector.setActive(v);
-                } else {
+                if (verseCount($nextRef.chapter) === 0 || !showVerseSelector) {
                     completeNavigation();
+                } else {
+                    bookSelector.setActive(v);
                 }
                 break;
             case v:
@@ -55,19 +54,40 @@ The navbar component.
         nextRef.reset();
     }
 
+    function chapterCount(book) {
+        let books = catalog.find((d) => d.id === $refs.docSet).documents;
+        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        return count;
+    }
+
+    function verseCount(book, chapter) {
+        if (!chapter || chapter === 'i') {
+            return 0;
+        }
+        let books = catalog.find((d) => d.id === $refs.docSet).documents;
+        let chapters = books.find((d) => d.bookCode === book).versesByChapters;
+        let count = Object.keys(chapters[chapter]).length;
+        return count;
+    }
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
-    const showSelector = config.mainFeatures['show-chapter-number-on-app-bar'];
+    $: showSelector =
+        config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
 
     function chaptersContent(chapters) {
+        let hasIntroduction = books.find((x) => x.bookCode === book).hasIntroduction;
         return {
             component: SelectGrid,
             props: {
                 options: [
                     {
+                        rows: hasIntroduction
+                            ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                            : null,
                         cells: Object.keys(chapters).map((x) => ({
                             label: x,
                             id: x
@@ -97,9 +117,9 @@ The navbar component.
 
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
-    <Dropdown on:nav-end={resetNavigation}>
+    <Dropdown on:nav-end={resetNavigation} cols="5">
         <svelte:fragment slot="label">
-            <div style={convertStyle($s['ui.selector.chapter'])}>
+            <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
                 {chapter}
             </div>
             {#if canSelect}
@@ -116,6 +136,7 @@ The navbar component.
                                 [c]: chaptersContent(chapters),
                                 [v]: versesContent(chapters, chapter)
                             }}
+                            cols="5"
                             active={c}
                             on:menuaction={navigateReference}
                         />
@@ -125,6 +146,7 @@ The navbar component.
                             options={{
                                 [c]: chaptersContent(chapters)
                             }}
+                            cols="5"
                             active={c}
                             on:menuaction={navigateReference}
                         />
