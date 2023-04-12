@@ -853,7 +853,7 @@ TODO:
                             switch (subType) {
                                 case 'verses': {
                                     workspace.textType.push('verses');
-                                    if (!displayingIntroduction){
+                                    if (!displayingIntroduction) {
                                         workspace.lastPhraseTerminated = false;
                                         workspace.currentVerse = element.atts.number;
                                         // console.log('verses %o start phrase', element.atts.number);
