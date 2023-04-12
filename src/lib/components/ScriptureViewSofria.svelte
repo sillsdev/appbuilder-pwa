@@ -221,6 +221,7 @@ TODO:
                 div = addTextNode(div, phrase, workspace.usfmWrapperType, spanRequired);
                 if (i < phrases.length - 1) {
                     workspace.phraseDiv = div.cloneNode(true);
+                    // console.log('Add text start phrase');
                     workspace.phraseDiv = startPhrase(workspace);
                 } else {
                     workspace.phraseDiv = div.cloneNode(true);
@@ -262,6 +263,7 @@ TODO:
         return returnValue;
     };
     function appendPhrase(workspace) {
+        workspace.lastPhrase = workspace.phraseDiv.getAttribute('data-phrase');
         if (versePerLine) {
             workspace.verseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
         } else {
@@ -288,7 +290,7 @@ TODO:
         const bookmarksSpan = document.createElement('span');
         bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
         const el = workspace.paragraphDiv?.querySelector(
-            `div[data-verse="${workspace.currentVerse}"][data-phrase=${phraseIndex}]`
+            `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
         );
         el.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
     }
@@ -392,6 +394,7 @@ TODO:
                             workspace.firstVerse = true;
                             workspace.currentVerse = 'none';
                             workspace.currentPhraseIndex = 0;
+                            workspace.lastPhrase = 'a';
                             workspace.introductionGraft = false;
                             workspace.titleGraft = false;
                             workspace.paragraphDiv = document.createElement('div');
@@ -447,6 +450,7 @@ TODO:
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
                                 } else if (sequenceType == 'introduction') {
+                                    // console.log('Introduction start phrase');
                                     workspace.phraseDiv = startPhrase(workspace, 'keep');
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
@@ -622,16 +626,18 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace, output }) => {
                             // console.log('End Document');
-                            var els = document.getElementsByTagName('div');
-                            for (var i = 0; i < els.length; i++) {
-                                if (els[i].classList.contains('seltxt') && els[i].id != '') {
-                                    els[i].addEventListener('click', onClick, false);
+                            if (!displayingIntroduction) {
+                                var els = document.getElementsByTagName('div');
+                                for (var i = 0; i < els.length; i++) {
+                                    if (els[i].classList.contains('seltxt') && els[i].id != '') {
+                                        els[i].addEventListener('click', onClick, false);
+                                    }
                                 }
+                                const bookmarksInChapter = annotationsForChapter(bookmarks);
+                                addBookmarkedVerses(bookmarksInChapter);
+                                const highlightsInChapter = annotationsForChapter(highlights);
+                                addHighlightedVerses(highlightsInChapter);
                             }
-                            const bookmarksInChapter = annotationsForChapter(bookmarks);
-                            addBookmarkedVerses(bookmarksInChapter);
-                            const highlightsInChapter = annotationsForChapter(highlights);
-                            addHighlightedVerses(highlightsInChapter);
                         }
                     }
                 ],
@@ -846,16 +852,18 @@ TODO:
 
                             switch (subType) {
                                 case 'verses': {
-                                    workspace.lastPhraseTerminated = false;
                                     workspace.textType.push('verses');
-                                    workspace.currentVerse = element.atts.number;
-                                    // console.log('verses %o start phrase', element.atts.number);
-                                    workspace.phraseDiv = startPhrase(workspace, 'reset');
-                                    if (versePerLine) {
-                                        workspace.verseDiv = document.createElement('div');
-                                        workspace.verseDiv.classList.add('verse-block');
+                                    if (!displayingIntroduction){
+                                        workspace.lastPhraseTerminated = false;
+                                        workspace.currentVerse = element.atts.number;
+                                        // console.log('verses %o start phrase', element.atts.number);
+                                        workspace.phraseDiv = startPhrase(workspace, 'reset');
+                                        if (versePerLine) {
+                                            workspace.verseDiv = document.createElement('div');
+                                            workspace.verseDiv.classList.add('verse-block');
+                                        }
+                                        // console.log('IN: %o', workspace.phraseDiv);
                                     }
-                                    // console.log('IN: %o', workspace.phraseDiv);
                                     break;
                                 }
                                 // Various types appear under the usfm:xx wrapper
@@ -866,6 +874,7 @@ TODO:
                                     workspace.textType.push('usfm');
                                     if (!workspace.textType.includes('footnote')) {
                                         if (workspace.lastPhraseTerminated === true) {
+                                            // console.log('footnote start phrase');
                                             workspace.phraseDiv = startPhrase(workspace);
                                         }
                                     }
@@ -897,21 +906,23 @@ TODO:
                                     //     console.log('Verses texttype mismatch!!! %o', textTypeV);
                                     // }
                                     workspace.textType.pop();
-                                    if (
-                                        workspace.phraseDiv != null &&
-                                        workspace.phraseDiv.innerText !== ''
-                                    ) {
-                                        appendPhrase(workspace);
+                                    if (!displayingIntroduction) {
+                                        if (
+                                            workspace.phraseDiv != null &&
+                                            workspace.phraseDiv.innerText !== ''
+                                        ) {
+                                            appendPhrase(workspace);
+                                        }
+                                        if (versePerLine) {
+                                            workspace.paragraphDiv.appendChild(
+                                                workspace.verseDiv.cloneNode(true)
+                                            );
+                                            workspace.verseDiv = null;
+                                        }
+                                        workspace.phraseDiv = null;
+                                        addBookmarksDiv(workspace);
+                                        workspace.currentVerse = 'none';
                                     }
-                                    if (versePerLine) {
-                                        workspace.paragraphDiv.appendChild(
-                                            workspace.verseDiv.cloneNode(true)
-                                        );
-                                        workspace.verseDiv = null;
-                                    }
-                                    workspace.phraseDiv = null;
-                                    addBookmarksDiv(workspace);
-                                    workspace.currentVerse = 'none';
                                     break;
                                 }
                                 case 'usfm': {
