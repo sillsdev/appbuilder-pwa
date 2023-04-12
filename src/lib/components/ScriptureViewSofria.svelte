@@ -12,6 +12,7 @@ TODO:
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from '../scripts/thaw';
+    import { catalog } from '$lib/data/catalog';
     import { refs } from '$lib/data/stores';
     import {
         onClickText,
@@ -40,6 +41,9 @@ TODO:
 
     const pk = new Proskomma();
     let container: HTMLElement;
+    let lastVerseInView = '';
+    let displayingIntroduction = false;
+
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
     }
@@ -83,9 +87,6 @@ TODO:
     const onlySpaces = (str) => {
         return str.trim().length === 0;
     };
-
-    let lastVerseInView = '';
-    let displayingIntroduction = false;
 
     const handleScroll = (() => {
         let scrollTimer: NodeJS.Timeout;
@@ -222,7 +223,8 @@ TODO:
                     workspace.phraseDiv = div.cloneNode(true);
                     workspace.phraseDiv = startPhrase(workspace);
                 } else {
-                    workspace.phraseDiv = div;
+                    workspace.phraseDiv = div.cloneNode(true);
+                    console.log('last phraseDiv', workspace.phraseDiv);
                 }
             }
             workspace.lastPhraseTerminated =
@@ -323,6 +325,11 @@ TODO:
     function onClick(e: any) {
         onClickText(e, selectedVerses, maxSelections);
     }
+
+    function chapterCount(book) {
+        const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        return count;
+    }
     let bookRoot = document.createElement('div');
     // console.log('START: %o', bookRoot);
     let loading = true;
@@ -374,11 +381,11 @@ TODO:
                         description: 'Set up; Book heading',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            /* console.log(
-                                'Start Document: %o, %o',
-                                context,
-                                context.document.metadata.document
-                            );*/
+                            // console.log(
+                            //     'Start Document: %o, %o',
+                            //     context,
+                            //     context.document.metadata.document
+                            // );
                             bookRoot.replaceChildren();
                             workspace.root = bookRoot;
                             workspace.footnoteIndex = 0;
@@ -441,12 +448,9 @@ TODO:
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
                                 } else if (sequenceType == 'introduction') {
+                                    workspace.phraseDiv = startPhrase(workspace, 'keep');
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
-                                    if (workspace.introductionIndex == 1) {
-                                        // console.log('Introduction start phrase');
-                                        workspace.phraseDiv = startPhrase(workspace, 'keep');
-                                    }
                                 }
                             }
                         }
@@ -521,6 +525,13 @@ TODO:
                                     workspace.root.appendChild(div);
                                     workspace.headerText = '';
                                 } else if (sequenceType == 'introduction') {
+                                    if (
+                                        workspace.phraseDiv != null &&
+                                        workspace.phraseDiv.innerText !== ''
+                                    ) {
+                                        appendPhrase(workspace);
+                                        workspace.phraseDiv = null;
+                                    }
                                     workspace.root.appendChild(workspace.paragraphDiv);
                                 }
                             }
@@ -948,7 +959,13 @@ TODO:
             }
         }
         const docId = bookLookup[bookCode];
-        cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+
+        // Parse whole book if no chapters
+        if (chapterCount(currentBook) === 0) {
+            cl.renderDocument({ docId, config: {}, output });
+        } else {
+            cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+        }
         loading = false;
         // console.log('DONE %o', root);
     };
@@ -982,11 +999,13 @@ TODO:
     $: currentDocSet = references.docSet;
 
     $: versePerLine = verseLayout === 'one-per-line';
+    /**list of books in current docSet*/
+    $: books = catalog.find((d) => d.id === currentDocSet).documents;
 
     $: (() => {
+        const bookHasIntroduction = books.find((x) => x.bookCode === currentBook).hasIntroduction;
         let chapterToDisplay = currentChapter;
-        if (chapterToDisplay == 'i') {
-            // console.log('Displaying introduction');
+        if (bookHasIntroduction && chapterToDisplay == 'i') {
             chapterToDisplay = '1';
             displayingIntroduction = true;
         } else {
