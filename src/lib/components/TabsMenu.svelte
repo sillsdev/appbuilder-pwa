@@ -7,6 +7,7 @@ A component to display tabbed menus.
     import { s, convertStyle } from '$lib/data/stores';
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {} } };
+    export let cols: number = 6;
     export let active = '';
     const dispatch = createEventDispatcher();
     const hasTabs = Object.keys(options).length > 1;
@@ -53,6 +54,7 @@ A component to display tabbed menus.
 <div class="tabs-content" style={convertStyle($s['ui.background'])} class:p-2={!hasTabs}>
     <svelte:component
         this={options[active].component}
+        {cols}
         on:menuaction={handleMenuaction}
         {...options[active].props}
     />

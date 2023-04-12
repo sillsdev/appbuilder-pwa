@@ -7,6 +7,7 @@ A component to display menu options in a grid.
     import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores';
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
+    export let cols: string = '6';
 
     let cellStyle = convertStyle(
         Object.fromEntries(
@@ -44,13 +45,13 @@ A component to display menu options in a grid.
     {#if group.header}
         <div class="mx-2" style={headerStyle}>{group.header}</div>
     {/if}
-    <div class="grid grid-cols-6 gap-1  m-2">
+    <div class="grid grid-cols-{cols} gap-1 m-2">
         {#if group.rows}
             {#each group.rows as row}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <span
                     on:click={() => handleClick(row.id)}
-                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1 col-span-6"
+                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1 col-span-{cols}"
                     style={rowStyle}
                     style:background-color={bookCollectionColor(row.id, 'ui.button.chapter-intro')}
                 >

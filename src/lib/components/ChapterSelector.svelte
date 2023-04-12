@@ -117,7 +117,7 @@ The navbar component.
 
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
-    <Dropdown on:nav-end={resetNavigation}>
+    <Dropdown on:nav-end={resetNavigation} cols>
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
                 {chapter}
@@ -137,6 +137,7 @@ The navbar component.
                                 [c]: chaptersContent(chapters),
                                 [v]: versesContent(chapters, chapter)
                             }}
+                            cols="5"
                             active={c}
                             on:menuaction={navigateReference}
                         />
@@ -146,6 +147,7 @@ The navbar component.
                             options={{
                                 [c]: chaptersContent(chapters)
                             }}
+                            cols="5"
                             active={c}
                             on:menuaction={navigateReference}
                         />
