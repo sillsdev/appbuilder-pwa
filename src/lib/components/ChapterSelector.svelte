@@ -117,7 +117,7 @@ The navbar component.
 
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
-    <Dropdown on:nav-end={resetNavigation} cols>
+    <Dropdown on:nav-end={resetNavigation} cols="5">
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
                 {chapter}
@@ -129,7 +129,6 @@ The navbar component.
         <svelte:fragment slot="content">
             {#if canSelect}
                 <div>
-                    {(console.log('SHOW_VERSE_SELECTOR', showVerseSelector), '')}
                     {#if showVerseSelector}
                         <TabsMenu
                             bind:this={chapterSelector}
