@@ -17,7 +17,7 @@ The navbar component.
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-    $: showVerseSelector = $userSettings['verse-selection'];
+    $: showVerseSelector = $userSettings['verse-selection'] && verseCount(book, chapter) > 0;
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
