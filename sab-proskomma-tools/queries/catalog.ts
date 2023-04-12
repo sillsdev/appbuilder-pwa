@@ -13,18 +13,19 @@ const catalogQuery = ({ cv }: { cv: any }) => `{
         h: header(id:"h")
         toc: header(id:"toc")
         toc2: header(id:"toc2")
-        toc3: header(id:"toc3")${
+        toc3: header(id:"toc3")
+        ${
             cv
                 ? `
-        sequences(types:"introduction") { id }
-    cvNumbers: cvIndexes {
-      chapter
-      verses: verseNumbers {
-        number
-        range
-      }
-    }
-  `
+            sequences(types:"introduction") { id }
+            cvNumbers: cvIndexes {
+              chapter
+              verses: verseNumbers {
+                number
+                range
+              }
+            }
+          `
                 : ''
         }
       }
