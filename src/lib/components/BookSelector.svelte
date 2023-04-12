@@ -32,16 +32,14 @@ The navbar component.
 
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
-        console.log('CHAPTER COUNT', count);
         return count;
     }
 
     function verseCount(chapter) {
-        if (chapter === 'i') {
+        if (!chapter || chapter === 'i') {
             return 0;
         }
         let count = Object.keys(chapters[chapter]).length;
-        console.log('VERSE COUNT', count);
         return count;
     }
     /**
@@ -81,7 +79,6 @@ The navbar component.
     }
 
     function completeNavigation() {
-        console.log('COMPLETE NAV', $nextRef.book, $nextRef.chapter);
         $refs = { book: $nextRef.book, chapter: $nextRef.chapter };
         document.activeElement.blur();
     }
@@ -130,6 +127,18 @@ The navbar component.
         return groups;
     };
 
+    let chapterGridGroup = (chapters) => {
+        let hasIntroduction = books.find((x) => x.bookCode === book).hasIntroduction;
+        return [
+            {
+                rows: hasIntroduction
+                    ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                    : null,
+                cells: Object.keys(chapters).map((x) => ({ label: x, id: x }))
+            }
+        ];
+    };
+
     const bookContent = {
         component: listView ? SelectList : SelectGrid,
         props: {
@@ -143,7 +152,7 @@ The navbar component.
         return {
             component: SelectGrid,
             props: {
-                options: [{ cells: Object.keys(chapters).map((x) => ({ label: x, id: x })) }]
+                options: chapterGridGroup(chapters)
             }
         };
     }
