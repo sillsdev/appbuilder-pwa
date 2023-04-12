@@ -210,7 +210,7 @@ TODO:
             {/if}
             {#if isTextOnImageEnabled}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <ImageIcon />
+                    <ImageIcon.Image />
                 </button>
             {/if}
             {#if isHighlightEnabled}
