@@ -224,7 +224,6 @@ TODO:
                     workspace.phraseDiv = startPhrase(workspace);
                 } else {
                     workspace.phraseDiv = div.cloneNode(true);
-                    console.log('last phraseDiv', workspace.phraseDiv);
                 }
             }
             workspace.lastPhraseTerminated =
