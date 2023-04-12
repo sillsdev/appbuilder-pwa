@@ -5,7 +5,7 @@ A simple dropdown menu from DaisyUI.
 <script lang="ts">
     import { s, convertStyle } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
-    export let cols: number = 6;
+    export let cols = 6;
     const dispatch = createEventDispatcher();
 </script>
 

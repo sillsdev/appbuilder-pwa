@@ -7,7 +7,7 @@ A component to display menu options in a grid.
     import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores';
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
-    export let cols: number = 6;
+    export let cols = 6;
 
     let cellStyle = convertStyle(
         Object.fromEntries(
