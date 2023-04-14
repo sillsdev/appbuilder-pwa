@@ -6,6 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import CardMenu from './CardMenu.svelte';
+    import { s, convertStyle } from '$lib/data/stores';
     export let reference = '';
     export let text = '';
     export let date = '';
@@ -13,7 +14,7 @@ TODO:
     export let penColor = '1';
 </script>
 
-<div class="annotation-item-block">
+<div class="annotation-item-block" style={convertStyle($s['ui.background'])}>
     <div class="annotation-item-color {'hlp' + penColor} annotation-float-left" />
     <!--Menu-->
     <CardMenu on:menuaction {actions} />
