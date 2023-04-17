@@ -440,6 +440,7 @@ TODO:
                             workspace.titleBlockDiv = document.createElement('div');
                             workspace.verseDiv = null;
                             workspace.phraseDiv = null;
+                            workspace.videoDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
                             workspace.titleText = [];
@@ -447,6 +448,7 @@ TODO:
                             workspace.usfmWrapperType = '';
                             workspace.showWordsOfJesus = showRedLetters;
                             workspace.lastPhraseTerminated = false;
+                            workspace.currentVideoIndex = 0;
                             deselectAllElements(selectedVerses);
                         }
                     }
@@ -536,6 +538,10 @@ TODO:
                                     }
                                     // Build div
                                     workspace.root.appendChild(workspace.paragraphDiv);
+                                    if (workspace.videoDiv) {
+                                        workspace.root.appendChild(workspace.videoDiv);
+                                        workspace.videoDiv = null;
+                                    }
                                 } else if (sequenceType == 'title') {
                                     const div = document.createElement('div');
                                     var paraClass =
@@ -991,8 +997,17 @@ TODO:
                     {
                         description: 'Start Milestone',
                         test: () => true,
-                        action: ({ context }) => {
-                            // console.log('Start Milestone: %o', context.sequences[0].element);
+                        action: ({ context, workspace }) => {
+                            const element = context.sequences[0].element;
+                            if (element.subType === 'usfm:zvideo') {
+                                const id = element.atts['id'][0];
+                                const video = config.videos.find((x) => x.id === id);
+                                workspace.videoDiv = createVideoBlock(
+                                    document,
+                                    video,
+                                    workspace.currentVideoIndex++
+                                );
+                            }
                         }
                     }
                 ],
@@ -1001,7 +1016,7 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context }) => {
-                            // console.log('End Milestone %o', context.sequences[0].element);
+                            console.log('End Milestone %o', context.sequences[0].element);
                         }
                     }
                 ]
