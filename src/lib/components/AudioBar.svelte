@@ -94,7 +94,12 @@ TODO:
                     : 'none'
             ].join();
         }
-        if (audio.ended) toggleTimeRunning();
+        if (audio.ended && playing == true) {
+            skip(direction.forward); // Skip to the next chapter
+            timeIndex = 0;
+            audio.play();
+            playing = true;
+        }
     };
     /**sets an interval for updateTime*/
     const toggleTimeRunning = (() => {
