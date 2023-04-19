@@ -998,6 +998,7 @@ TODO:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
+                            //console.log('Start Milestone %o', context.sequences[0].element);
                             const element = context.sequences[0].element;
                             if (element.subType === 'usfm:zvideo') {
                                 const id = element.atts['id'][0];
@@ -1016,7 +1017,7 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context }) => {
-                            console.log('End Milestone %o', context.sequences[0].element);
+                            //console.log('End Milestone %o', context.sequences[0].element);
                         }
                     }
                 ]
@@ -1068,7 +1069,6 @@ TODO:
                 (x.placement.ref.startsWith(bookCode + ' ' + chapter + ':') ||
                     x.placement.ref.startsWith(bookCode + '.' + chapter + '.'))
         );
-        console.log('VIDEOS:', videos);
         return videos;
     }
     $: fontSize = bodyFontSize + 'px';
