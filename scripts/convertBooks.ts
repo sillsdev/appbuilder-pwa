@@ -15,6 +15,10 @@ import { queries, postQueries, freeze } from '../sab-proskomma-tools';
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 
+function replaceVideoTags(text: string): string {
+    return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
+}
+
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,
@@ -53,6 +57,10 @@ export async function convertBooks(
                         'utf8',
                         (err, content) => {
                             if (err) throw err;
+                            //video tags in SAB are not USFM. Replacement then with
+                            //custom zvideo milestone
+                            content = replaceVideoTags(content);
+
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
                             //as it can be run asynchronously

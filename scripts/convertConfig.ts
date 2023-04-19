@@ -190,6 +190,15 @@ export type ConfigData = {
 
 const data: ConfigData = {};
 
+function decodeFromXml(input: string): string {
+    return input
+        .replace('&quot;', '"')
+        .replace('&apos;', "'")
+        .replace('&lt;', '<')
+        .replace('&gt;', '>')
+        .replace('&amp;', '&');
+}
+
 function parseConfigValue(value: any) {
     if (!value.includes(':') && !isNaN(parseInt(value))) value = parseInt(value);
     else if (['true', 'false'].includes(value)) value = value === 'true' ? true : false;
@@ -588,22 +597,6 @@ function convertConfig(dataDir: string, verbose: number) {
     }
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
-    /*
-    videos?: {
-        id: string;
-        width: number;
-        height: number;
-        title: string;
-        thumbnail: string;
-        onlineUrl: string;
-        placement: {
-            pos: string;
-            ref: string;
-            collection: number;
-        };
-    };
-    */
-
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
     if (videoTags?.length > 0) {
         data.videos = [];
@@ -626,7 +619,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 height: parseInt(tag.attributes.getNamedItem('height')!.value),
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
                 thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
-                onlineUrl: tag.getElementsByTagName('online-url')[0]?.innerHTML,
+                onlineUrl: decodeFromXml(tag.getElementsByTagName('online-url')[0]?.innerHTML),
                 placement
             });
         }

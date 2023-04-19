@@ -13,6 +13,7 @@ TODO:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { thaw } from '../scripts/thaw';
     import { catalog } from '$lib/data/catalog';
+    import config from '$lib/data/config';
     import { refs } from '$lib/data/stores';
     import {
         onClickText,
@@ -21,6 +22,7 @@ TODO:
     } from '$lib/scripts/verseSelectUtil';
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { LoadingIcon } from '$lib/icons';
+    import { createVideoBlock, addVideoLinks } from '$lib/video';
 
     export let audioActive: any;
     export let audioHighlight: any;
@@ -323,6 +325,42 @@ TODO:
             }
         }
     }
+
+    function placeElement(
+        document: Document,
+        container: HTMLElement,
+        element: HTMLElement,
+        pos: string,
+        verse: string
+    ) {
+        if (pos === 'after') {
+            const el = document.getElementById('bookmarks' + verse);
+            el.insertAdjacentElement('afterend', element);
+        } else if (pos === 'before') {
+            var el = container.querySelector(`div[data-verse="${verse}"][data-phrase="a"]`);
+            if (el.previousElementSibling?.classList.contains('c-drop')) {
+                el = el.previousElementSibling;
+            }
+            el.insertAdjacentElement('beforebegin', element);
+        } else if (pos === 'top') {
+            const el = document.getElementsByClassName('m')[0];
+            el.insertAdjacentElement('beforebegin', element);
+        } else if (pos === 'bottom') {
+            const els = container.querySelectorAll('span[id^=bookmarks]');
+            const el = els[els.length - 1];
+            el.insertAdjacentElement('afterend', element);
+        }
+    }
+
+    function addVideos(videos) {
+        videos.forEach((video, index) => {
+            // ref can be MAT 1:1 or MAT.1.1
+            let verse = video.placement.ref.split(/[:.]/).at(-1);
+            const videoBlockDiv = createVideoBlock(document, video, index);
+            placeElement(document, container, videoBlockDiv, video.placement.pos, verse);
+        });
+        addVideoLinks(document, videos);
+    }
     function onClick(e: any) {
         onClickText(e, selectedVerses, maxSelections);
     }
@@ -344,7 +382,8 @@ TODO:
         showRedLetters: boolean,
         versePerLine: boolean,
         bookmarks: any[],
-        highlights: any[]
+        highlights: any[],
+        videos: any[]
     ) => {
         // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
         // console.log('bookmarks: ', bookmarks);
@@ -401,6 +440,7 @@ TODO:
                             workspace.titleBlockDiv = document.createElement('div');
                             workspace.verseDiv = null;
                             workspace.phraseDiv = null;
+                            workspace.videoDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
                             workspace.titleText = [];
@@ -408,6 +448,7 @@ TODO:
                             workspace.usfmWrapperType = '';
                             workspace.showWordsOfJesus = showRedLetters;
                             workspace.lastPhraseTerminated = false;
+                            workspace.currentVideoIndex = 0;
                             deselectAllElements(selectedVerses);
                         }
                     }
@@ -497,6 +538,10 @@ TODO:
                                     }
                                     // Build div
                                     workspace.root.appendChild(workspace.paragraphDiv);
+                                    if (workspace.videoDiv) {
+                                        workspace.root.appendChild(workspace.videoDiv);
+                                        workspace.videoDiv = null;
+                                    }
                                 } else if (sequenceType == 'title') {
                                     const div = document.createElement('div');
                                     var paraClass =
@@ -633,10 +678,21 @@ TODO:
                                         els[i].addEventListener('click', onClick, false);
                                     }
                                 }
-                                const bookmarksInChapter = annotationsForChapter(bookmarks);
+                                const bookmarksInChapter = annotationsForChapter(
+                                    bookmarks,
+                                    docSet,
+                                    bookCode,
+                                    chapter
+                                );
                                 addBookmarkedVerses(bookmarksInChapter);
-                                const highlightsInChapter = annotationsForChapter(highlights);
+                                const highlightsInChapter = annotationsForChapter(
+                                    highlights,
+                                    docSet,
+                                    bookCode,
+                                    chapter
+                                );
                                 addHighlightedVerses(highlightsInChapter);
+                                addVideos(videos);
                             }
                         }
                     }
@@ -941,8 +997,17 @@ TODO:
                     {
                         description: 'Start Milestone',
                         test: () => true,
-                        action: ({ context }) => {
-                            // console.log('Start Milestone: %o', context.sequences[0].element);
+                        action: ({ context, workspace }) => {
+                            const element = context.sequences[0].element;
+                            if (element.subType === 'usfm:zvideo') {
+                                const id = element.atts['id'][0];
+                                const video = config.videos.find((x) => x.id === id);
+                                workspace.videoDiv = createVideoBlock(
+                                    document,
+                                    video,
+                                    workspace.currentVideoIndex++
+                                );
+                            }
                         }
                     }
                 ],
@@ -951,7 +1016,7 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context }) => {
-                            // console.log('End Milestone %o', context.sequences[0].element);
+                            console.log('End Milestone %o', context.sequences[0].element);
                         }
                     }
                 ]
@@ -980,14 +1045,12 @@ TODO:
         // console.log('DONE %o', root);
     };
 
-    function annotationsForChapter(annotations) {
+    function annotationsForChapter(annotations, docSet: string, bookCode: string, chapter: string) {
         // Get entries for chapter and sort by verse
         let entries = annotations
             .filter(
                 (entry) =>
-                    entry.docSet === currentDocSet &&
-                    entry.book === currentBook &&
-                    entry.chapter === currentChapter
+                    entry.docSet === docSet && entry.book === bookCode && entry.chapter === chapter
             )
             .sort((e1, e2) => {
                 const c1 = parseInt(e1.verse, 10);
@@ -995,6 +1058,18 @@ TODO:
                 return c1 > c2 ? 1 : c1 < c2 ? -1 : 0;
             });
         return entries;
+    }
+
+    function videosForChapter(docSet: string, bookCode: string, chapter: string) {
+        let collection = docSet.split('_')[1];
+        let videos = config.videos.filter(
+            (x) =>
+                x.placement.collection === collection &&
+                (x.placement.ref.startsWith(bookCode + ' ' + chapter + ':') ||
+                    x.placement.ref.startsWith(bookCode + '.' + chapter + '.'))
+        );
+        console.log('VIDEOS:', videos);
+        return videos;
     }
     $: fontSize = bodyFontSize + 'px';
 
@@ -1024,6 +1099,7 @@ TODO:
         const bookCode = currentBook;
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
+        const videos = videosForChapter(docSet, bookCode, chapter);
         query(
             docSet,
             bookCode,
@@ -1032,7 +1108,8 @@ TODO:
             redLetters,
             versePerLine,
             bookmarks,
-            highlights
+            highlights,
+            videos
         );
     })();
     onDestroy(unSub);
