@@ -23,16 +23,7 @@ TODO:
     } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config.js';
-    import {
-        t,
-        s,
-        refs,
-        theme,
-        bookmarks,
-        notes,
-        highlights,
-        selectedVerses
-    } from '$lib/data/stores';
+    import { t, s, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
