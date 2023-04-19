@@ -137,18 +137,22 @@ TODO
                                 on:click={() => ($theme = 'Normal')}
                             />
                         {/if}
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Sepia')}
-                            style:border={buttonBorder('Sepia', $theme)}
-                            on:click={() => ($theme = 'Sepia')}
-                        />
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Dark')}
-                            style:border={buttonBorder('Dark', $theme)}
-                            on:click={() => ($theme = 'Dark')}
-                        />
+                        {#if themes.includes('Sepia')}
+                            <button
+                                class="dy-btn-sm"
+                                style:background-color={buttonBackground('Sepia')}
+                                style:border={buttonBorder('Sepia', $theme)}
+                                on:click={() => ($theme = 'Sepia')}
+                            />
+                        {/if}
+                        {#if themes.includes('Dark')}
+                            <button
+                                class="dy-btn-sm"
+                                style:background-color={buttonBackground('Dark')}
+                                style:border={buttonBorder('Dark', $theme)}
+                                on:click={() => ($theme = 'Dark')}
+                            />
+                        {/if}
                     </div>
                 {/if}
             </svelte:fragment>
