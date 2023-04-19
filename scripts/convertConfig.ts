@@ -249,6 +249,10 @@ function dirEmpty(path: PathLike): boolean {
     return empty;
 }
 
+function removeCData(data: string) {
+    return data.replace('<![CDATA[', '').replace(']]>', '');
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
@@ -450,6 +454,11 @@ function convertConfig(dataDir: string, verbose: number) {
             ? collectionAbbreviationTags[0].innerHTML
             : undefined;
         if (verbose >= 2) console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
+        const footerTags = tag.getElementsByTagName('footer');
+        const footer = footerTags[0]?.innerHTML.length
+            ? removeCData(footerTags[0].innerHTML)
+            : undefined;
+        if (verbose >= 2) console.log(`.. footer: `, footer);
 
         const bcStyles = tag.querySelector('styles');
         const styles = bcStyles ? parseStyles(bcStyles) : undefined;
@@ -463,6 +472,7 @@ function convertConfig(dataDir: string, verbose: number) {
             books,
             languageCode,
             languageName,
+            footer,
             style: {
                 font: stylesTag
                     .getElementsByTagName('text-font')[0]

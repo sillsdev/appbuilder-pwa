@@ -325,7 +325,6 @@ TODO:
             }
         }
     }
-
     function placeElement(
         document: Document,
         container: HTMLElement,
@@ -351,7 +350,6 @@ TODO:
             el.insertAdjacentElement('afterend', element);
         }
     }
-
     function addVideos(videos) {
         if (videos) {
             videos.forEach((video, index) => {
@@ -361,6 +359,22 @@ TODO:
                 placeElement(document, container, videoBlockDiv, video.placement.pos, verse);
             });
             addVideoLinks(document, videos);
+        }
+    }
+    function addFooter(document: Document, container: HTMLElement, docSet: string) {
+        const collection = docSet.split('_')[1];
+        const footer = config.bookCollections.find((x) => x.id === collection)?.footer;
+        if (footer && container.getElementsByClassName('footer').length == 0) {
+            const divFooter = document.createElement('div');
+            divFooter.classList.add('footer');
+            const divFooterLine = document.createElement('div');
+            divFooterLine.classList.add('footer-line');
+            divFooter.appendChild(divFooterLine);
+            const spanFooter = document.createElement('span');
+            spanFooter.classList.add('footer');
+            spanFooter.innerHTML = footer;
+            divFooterLine.appendChild(spanFooter);
+            container.appendChild(divFooter);
         }
     }
     function onClick(e: any) {
@@ -696,6 +710,8 @@ TODO:
                                 addHighlightedVerses(highlightsInChapter);
                                 addVideos(videos);
                             }
+
+                            addFooter(document, container, docSet);
                         }
                     }
                 ],
