@@ -353,13 +353,15 @@ TODO:
     }
 
     function addVideos(videos) {
-        videos.forEach((video, index) => {
-            // ref can be MAT 1:1 or MAT.1.1
-            let verse = video.placement.ref.split(/[:.]/).at(-1);
-            const videoBlockDiv = createVideoBlock(document, video, index);
-            placeElement(document, container, videoBlockDiv, video.placement.pos, verse);
-        });
-        addVideoLinks(document, videos);
+        if (videos) {
+            videos.forEach((video, index) => {
+                // ref can be MAT 1:1 or MAT.1.1
+                let verse = video.placement.ref.split(/[:.]/).at(-1);
+                const videoBlockDiv = createVideoBlock(document, video, index);
+                placeElement(document, container, videoBlockDiv, video.placement.pos, verse);
+            });
+            addVideoLinks(document, videos);
+        }
     }
     function onClick(e: any) {
         onClickText(e, selectedVerses, maxSelections);
@@ -1063,7 +1065,7 @@ TODO:
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
-        let videos = config.videos.filter(
+        let videos = config.videoss?.filter(
             (x) =>
                 x.placement.collection === collection &&
                 (x.placement.ref.startsWith(bookCode + ' ' + chapter + ':') ||
