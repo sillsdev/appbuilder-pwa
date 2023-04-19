@@ -22,6 +22,7 @@ The sidebar/drawer.
         s,
         t,
         themeColors,
+        theme,
         language,
         languageDefault,
         showDesktopSidebar,
@@ -68,7 +69,7 @@ The sidebar/drawer.
     <div
         class="dy-drawer-content flex flex-col"
         style:background-color={contentBackgroundColor}
-        style:color={contentTextColor}
+        data-color-theme={$theme}
     >
         <!-- Page content here -->
         <slot />
