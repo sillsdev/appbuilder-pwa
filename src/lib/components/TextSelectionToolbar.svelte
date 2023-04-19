@@ -23,7 +23,16 @@ TODO:
     } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config.js';
-    import { t, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
+    import {
+        t,
+        s,
+        refs,
+        theme,
+        bookmarks,
+        notes,
+        highlights,
+        selectedVerses
+    } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
@@ -191,36 +200,42 @@ TODO:
         });
         selectedVerses.reset();
     }
+
+    $: barBackgroundColor = $s['ui.bar.text-select']['background-color'];
+    $: barIconColor = $s['ui.bar.text-select.icon']['color'];
 </script>
 
 <Toaster />
-<div class="h-8 bg-base-100 mx-auto flex items-center flex-col">
+<div
+    class="h-8 bg-base-100 mx-auto flex items-center flex-col"
+    style:background-color={barBackgroundColor}
+>
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">
             {#if isAudioPlayable}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <AudioIcon.Play />
+                    <AudioIcon.Play color={barIconColor} />
                 </button>
             {/if}
             {#if isRepeatableAudio}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <AudioIcon.PlayRepeat />
+                    <AudioIcon.PlayRepeat color={barIconColor} />
                 </button>
             {/if}
             {#if isTextOnImageEnabled}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <ImageIcon.Image />
+                    <ImageIcon.Image color={barIconColor} />
                 </button>
             {/if}
             {#if isHighlightEnabled}
                 <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyHighlight(2)}>
-                    <HighlightIcon />
+                    <HighlightIcon color={barIconColor} />
                 </button>
             {/if}
             {#if isNotesEnabled}
                 <button class="dy-btn-sm dy-btn-ghost" on:click={() => addNote()}>
-                    <NoteIcon />
+                    <NoteIcon color={barIconColor} />
                 </button>
             {/if}
             {#if isBookmarkEnabled}
@@ -228,18 +243,18 @@ TODO:
                     {#if selectedVerseInBookmarks >= 0}
                         <BookmarkIcon color="#b10000" />
                     {:else}
-                        <BookmarkOutlineIcon />
+                        <BookmarkOutlineIcon color={barIconColor} />
                     {/if}
                 </button>
             {/if}
             {#if isCopyEnabled}
                 <button class="dy-btn-sm dy-btn-ghost" on:click={() => copy()}>
-                    <CopyContentIcon />
+                    <CopyContentIcon color={barIconColor} />
                 </button>
             {/if}
             {#if isShareEnabled}
                 <button class="dy-btn-sm dy-btn-ghost">
-                    <ShareIcon />
+                    <ShareIcon color={barIconColor} />
                 </button>
             {/if}
         </div>
