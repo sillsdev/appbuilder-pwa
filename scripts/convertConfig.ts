@@ -569,7 +569,7 @@ function convertConfig(dataDir: string, verbose: number) {
             if (type !== 'assets') {
                 data.audio.sources[id].accessMethods = source
                     .getElementsByTagName('access-methods')[0]
-                    .getAttribute('value')!
+                    ?.getAttribute('value')!
                     .toString()
                     .split('|');
                 data.audio.sources[id].folder = source.getElementsByTagName('folder')[0].innerHTML;
