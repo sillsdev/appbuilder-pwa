@@ -214,6 +214,9 @@ TODO:
                 phrases[0] = text;
             }
             for (let i = 0; i < phrases.length; i++) {
+                if (workspace.phraseDiv === null) {
+                    workspace.phraseDiv = startPhrase(workspace, 'keep');
+                }
                 let div = workspace.phraseDiv.cloneNode(true);
                 const phrase = phrases[i];
                 const spanRequired = usfmSpanRequired(
@@ -273,7 +276,14 @@ TODO:
         }
     }
     function handleVerseLabel(element, showVerseNumbers, workspace) {
-        if (showVerseNumbers === true) {
+        if (workspace.firstVerse === true) {
+            workspace.paragraphDiv.className = 'm';
+            const div = document.createElement('div');
+            div.classList.add('c-drop');
+            div.innerText = workspace.chapterNumText;
+            workspace.paragraphDiv.appendChild(div);
+            workspace.firstVerse = false;
+        } else if (showVerseNumbers === true) {
             var spanV = document.createElement('span');
             spanV.classList.add('v');
             spanV.innerText = element.atts['number'];
@@ -291,10 +301,16 @@ TODO:
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
         const bookmarksSpan = document.createElement('span');
         bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
-        const el = workspace.paragraphDiv?.querySelector(
+        let el = workspace.paragraphDiv?.querySelector(
             `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
         );
-        el.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
+        if (el === null) {
+            // Try finding if it is already attached to root
+            el = workspace.root.querySelector(
+            `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
+        );
+        }
+        el?.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
     }
     const bookmarkSvg = () => {
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
@@ -465,7 +481,42 @@ TODO:
                             workspace.showWordsOfJesus = showRedLetters;
                             workspace.lastPhraseTerminated = false;
                             workspace.currentVideoIndex = 0;
+                            workspace.chapterNumText = '';
                             deselectAllElements(selectedVerses);
+                        }
+                    }
+                ],
+                endDocument: [
+                    {
+                        description: 'Set up',
+                        test: () => true,
+                        action: ({ context, workspace, output }) => {
+                            // console.log('End Document');
+                            if (!displayingIntroduction) {
+                                var els = document.getElementsByTagName('div');
+                                for (var i = 0; i < els.length; i++) {
+                                    if (els[i].classList.contains('seltxt') && els[i].id != '') {
+                                        els[i].addEventListener('click', onClick, false);
+                                    }
+                                }
+                                const bookmarksInChapter = annotationsForChapter(
+                                    bookmarks,
+                                    docSet,
+                                    bookCode,
+                                    chapter
+                                );
+                                addBookmarkedVerses(bookmarksInChapter);
+                                const highlightsInChapter = annotationsForChapter(
+                                    highlights,
+                                    docSet,
+                                    bookCode,
+                                    chapter
+                                );
+                                addHighlightedVerses(highlightsInChapter);
+                                addVideos(videos);
+                            }
+
+                            addFooter(document, container, docSet);
                         }
                     }
                 ],
@@ -492,10 +543,6 @@ TODO:
                                     context.sequences[0].block.subType;
                                 if (sequenceType === 'main' && !displayingIntroduction) {
                                     workspace.lastPhraseTerminated = false;
-                                    if (workspace.firstVerse == true) {
-                                        paraClass = 'm';
-                                        workspace.firstVerse = false;
-                                    }
 
                                     if (workspace.currentVerse != 'none') {
                                         workspace.phraseDiv = startPhrase(workspace);
@@ -653,7 +700,7 @@ TODO:
                 ],
                 mark: [
                     {
-                        description: 'Output text',
+                        description: 'Mark',
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
@@ -670,48 +717,11 @@ TODO:
                                 )
                             ) {
                                 if (element.subType === 'chapter_label') {
-                                    const div = document.createElement('div');
-                                    div.classList.add('c-drop');
-                                    div.innerText = element.atts['number'];
-                                    workspace.paragraphDiv.appendChild(div);
+                                    workspace.chapterNumText = element.atts['number'];
                                 } else if (element.subType === 'verses_label') {
                                     handleVerseLabel(element, showVerses, workspace);
                                 }
                             }
-                        }
-                    }
-                ],
-                endDocument: [
-                    {
-                        description: 'Set up',
-                        test: () => true,
-                        action: ({ context, workspace, output }) => {
-                            // console.log('End Document');
-                            if (!displayingIntroduction) {
-                                var els = document.getElementsByTagName('div');
-                                for (var i = 0; i < els.length; i++) {
-                                    if (els[i].classList.contains('seltxt') && els[i].id != '') {
-                                        els[i].addEventListener('click', onClick, false);
-                                    }
-                                }
-                                const bookmarksInChapter = annotationsForChapter(
-                                    bookmarks,
-                                    docSet,
-                                    bookCode,
-                                    chapter
-                                );
-                                addBookmarkedVerses(bookmarksInChapter);
-                                const highlightsInChapter = annotationsForChapter(
-                                    highlights,
-                                    docSet,
-                                    bookCode,
-                                    chapter
-                                );
-                                addHighlightedVerses(highlightsInChapter);
-                                addVideos(videos);
-                            }
-
-                            addFooter(document, container, docSet);
                         }
                     }
                 ],
