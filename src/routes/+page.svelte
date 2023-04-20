@@ -102,9 +102,6 @@
     $: cs = 1 + bs + (showBorder ? 3.5 : 0);
 </script>
 
-<svelte:head>
-    <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
-</svelte:head>
 <div class="navbar h-16">
     <Navbar>
         <div slot="left-buttons">
