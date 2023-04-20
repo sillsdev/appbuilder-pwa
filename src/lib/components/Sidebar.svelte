@@ -22,7 +22,6 @@ The sidebar/drawer.
         s,
         t,
         themeColors,
-        theme,
         language,
         languageDefault,
         showDesktopSidebar,
