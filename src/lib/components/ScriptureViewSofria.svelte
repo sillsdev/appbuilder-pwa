@@ -276,7 +276,7 @@ TODO:
         }
     }
     function handleVerseLabel(element, showVerseNumbers, workspace) {
-        if (workspace.firstVerse === true) {
+        if (workspace.firstVerse === true && workspace.chapterNumText !== '') {
             workspace.paragraphDiv.className = 'm';
             const div = document.createElement('div');
             div.classList.add('c-drop');
@@ -307,8 +307,8 @@ TODO:
         if (el === null) {
             // Try finding if it is already attached to root
             el = workspace.root.querySelector(
-            `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
-        );
+                `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
+            );
         }
         el?.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
     }
