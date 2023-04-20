@@ -1081,7 +1081,7 @@ TODO:
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
-        let videos = config.videoss?.filter(
+        let videos = config.videos?.filter(
             (x) =>
                 x.placement.collection === collection &&
                 (x.placement.ref.startsWith(bookCode + ' ' + chapter + ':') ||
