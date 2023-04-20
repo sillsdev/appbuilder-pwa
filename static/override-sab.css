@@ -1,3 +1,8 @@
+/* 
+ * The body of the HTML in the native apps is just the scripture content area. So the CSS
+ * include some default margin at the top and bottom.  The body of the HTML in the PWA includes
+ * the top and bottom bars. So we don't want any margin. Otherwise, we get double scrollbars.
+ */
 body {
     margin-top: 0;
     margin-bottom: 0;
