@@ -66,11 +66,7 @@ The sidebar/drawer.
     class:dy-drawer-end={$direction === 'rtl'}
 >
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
-    <div
-        class="dy-drawer-content flex flex-col"
-        style:background-color={contentBackgroundColor}
-        data-color-theme={$theme}
-    >
+    <div class="dy-drawer-content flex flex-col" style:background-color={contentBackgroundColor}>
         <!-- Page content here -->
         <slot />
     </div>
