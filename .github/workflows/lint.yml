@@ -37,4 +37,4 @@ jobs:
 
             - name: Build
               run: |
-                  npm run buildExamples
+                  npm run build:examples
