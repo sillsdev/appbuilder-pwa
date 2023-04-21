@@ -98,7 +98,7 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
 export function prepareAudioPhraseEndChars(inputChars: string) {
     let chars = inputChars;
     // remove spaces
-    chars = chars.replace(' ', '');
+    chars = chars.replaceAll(' ', '');
     // convert \s to spaces
     chars = chars.replace('\\s', ' ');
     // convert \uABCD to Unicode chars
