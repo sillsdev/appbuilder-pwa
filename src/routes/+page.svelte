@@ -35,7 +35,6 @@
             target: EventTarget;
         }>
     ) {
-        console.log('SWIPE', event.detail);
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
     }
 
