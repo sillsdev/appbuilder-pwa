@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { t, theme, userSettings, direction } from '$lib/data/stores';
+    import { t, userSettings, direction } from '$lib/data/stores';
     import * as s from '$lib/data/stores/setting';
 
     let categories = [];
@@ -32,7 +32,7 @@
     <div class="larger" slot="scrolled-content" style:direction={$direction}>
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
-            <div class="settings-category" class:dark={$theme === 'Dark'}>
+            <div class="settings-category">
                 {$t[category]}
             </div>
             {#each categories[category] as setting, i}
@@ -42,7 +42,7 @@
                         class:settings-separator={i > 0}
                     >
                         <label class="dy-label py-0 cursor-pointer">
-                            <div class="settings-title" class:dark={$theme === 'Dark'}>
+                            <div class="settings-title">
                                 {$t[setting.title] || setting.title}
                             </div>
                             <input
@@ -63,7 +63,7 @@
                         class="dy-form-control settings-item w-full max-w-lg"
                         class:settings-separator={i > 0}
                     >
-                        <div class="settings-title py-0" class:dark={$theme === 'Dark'}>
+                        <div class="settings-title py-0">
                             {$t[setting.title] || setting.title}
                         </div>
                         <select
@@ -85,7 +85,7 @@
                         class="dy-form-control settings-item w-full max-w-lg"
                         class:settings-separator={i > 0}
                     >
-                        <div class="settings-title py-0" class:dark={$theme === 'Dark'}>
+                        <div class="settings-title py-0">
                             {$t[setting.title]}
                         </div>
                         <!-- TODO: Time Control -->

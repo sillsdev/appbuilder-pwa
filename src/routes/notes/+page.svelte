@@ -3,7 +3,7 @@
     import { NoteIcon } from '$lib/icons';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, notes } from '$lib/data/stores';
+    import { t, notes, monoIconColor } from '$lib/data/stores';
 
     function handleMenuaction(event: CustomEvent, id: string) {
         console.log(event.detail.text + '-' + id);
@@ -35,7 +35,7 @@
                 ]
             }}
             <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...iconCard}>
-                <NoteIcon slot="icon" />
+                <NoteIcon slot="icon" color={$monoIconColor} />
             </IconCard>
         {/each}
     </div>

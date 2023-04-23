@@ -22,7 +22,11 @@ export const themeBookColors = derived(theme, $theme => {
     const theme = config.themes.find(x => x.name == $theme);
     const colorSet = theme.colorSets.find(x => x.type === 'books');
     return colorSet.colors;    
-})
+});
+
+export const monoIconColor = derived(theme, $theme => {
+    return $theme === 'Dark' ? "white" : "black";
+});
 
 const resolveColor = (colorValue, colors) => {
     if (colorValue.startsWith('#')) {
