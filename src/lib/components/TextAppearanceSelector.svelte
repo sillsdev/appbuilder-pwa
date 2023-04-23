@@ -11,6 +11,7 @@ TODO
         language,
         languages,
         theme,
+        monoIconColor,
         themes,
         bodyFontSize,
         bodyLineHeight,
@@ -90,10 +91,7 @@ TODO
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
                     <div class="grid gap-4 items-center range-row m-2 ">
-                        <TextAppearanceIcon
-                            color={$theme === 'Dark' ? 'white' : 'black'}
-                            size="1rem"
-                        />
+                        <TextAppearanceIcon color={$monoIconColor} size="1rem" />
                         <input
                             type="range"
                             min={config.mainFeatures['text-size-min']}
@@ -106,10 +104,7 @@ TODO
                 {/if}
                 {#if showLineHeight}
                     <div class="grid gap-4 items-center range-row m-2 ">
-                        <ImageIcon.FormatLineSpacing
-                            color={$theme === 'Dark' ? 'white' : 'black'}
-                            size="1rem"
-                        />
+                        <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1rem" />
                         <input
                             type="range"
                             min="100"

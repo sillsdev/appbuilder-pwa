@@ -6,6 +6,7 @@ Dispatches a menuaction event when an option is selected from the menu.
 <script lang="ts">
     import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
     import { clickOutside } from '$lib/scripts/click_outside';
+    import { monoIconColor } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
     export let actions = [''];
@@ -25,7 +26,7 @@ Dispatches a menuaction event when an option is selected from the menu.
 >
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <span on:click={() => (showMenu = !showMenu)} class="dropbtn">
-        <MoreVertIcon />
+        <MoreVertIcon color={$monoIconColor} />
         <!-- <img class="dropbtn-image" src="icons/ic_more_vert_black_24dp.png" alt="vertical dots" /> -->
     </span>
     <div class="dropdown-content {showMenu ? 'show' : 'hidden'}">
