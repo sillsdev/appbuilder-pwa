@@ -5,12 +5,10 @@ Dispatches a menuaction event when an option is selected from the menu.
 -->
 <script lang="ts">
     import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
-    import { clickOutside } from '$lib/scripts/click_outside';
     import { monoIconColor } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
     export let actions = [''];
-    let showMenu = false;
 
     function handleAction(action: string) {
         dispatch('menuaction', {
@@ -19,21 +17,17 @@ Dispatches a menuaction event when an option is selected from the menu.
     }
 </script>
 
-<div
-    use:clickOutside
-    on:outclick={() => (showMenu = false)}
-    class="annotation-item-menu annotation-float-right"
->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <span on:click={() => (showMenu = !showMenu)} class="dropbtn">
+<div class="dy-dropdown dy-dropdown-bottom dy-dropdown-end">
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <div tabindex="0" class="dy-btn dy-btn-ghost p-1">
         <MoreVertIcon color={$monoIconColor} />
-        <!-- <img class="dropbtn-image" src="icons/ic_more_vert_black_24dp.png" alt="vertical dots" /> -->
-    </span>
-    <div class="dropdown-content {showMenu ? 'show' : 'hidden'}">
-        {#each actions as a}
-            <!-- svelte-ignore a11y-missing-attribute-->
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <a on:click={() => handleAction(a)}>{a}</a>
-        {/each}
     </div>
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <ul tabindex="0" class="dy-dropdown-content dy-menu shadow bg-base-100">
+        {#each actions as a}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a on:click={() => handleAction(a)}>{a}</a></li>
+        {/each}
+    </ul>
 </div>
