@@ -101,9 +101,6 @@
 </ScrolledContent>
 
 <style>
-    div.dark {
-        color: #e0e0e0;
-    }
     .navbar {
         height: 4em;
     }
