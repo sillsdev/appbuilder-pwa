@@ -6,11 +6,21 @@
     import { t, notes, monoIconColor } from '$lib/data/stores';
 
     function handleMenuaction(event: CustomEvent, id: string) {
-        console.log(event.detail.text + '-' + id);
+        switch (event.detail.text) {
+            case $t['Annotation_Menu_View']:
+                console.log('View: ', $notes[id].reference);
+                break;
+            case $t['Annotation_Menu_Share']:
+                console.log('Share: ', $notes[id].reference);
+                break;
+            case $t['Annotation_Menu_Delete']:
+                console.log('Delete: ', id);
+                break;
+        }
     }
 </script>
 
-<div class="navbar">
+<div class="navbar h-16">
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
@@ -21,7 +31,7 @@
 </div>
 
 <ScrolledContent>
-    <div class="larger" slot="scrolled-content">
+    <div slot="scrolled-content" style="height: calc(100vh - 5rem);height: calc(100dvh - 5rem);">
         {#each $notes as n}
             {@const iconCard = {
                 reference: n.reference,
@@ -40,13 +50,3 @@
         {/each}
     </div>
 </ScrolledContent>
-
-<style>
-    .navbar {
-        height: 4em;
-    }
-    .larger {
-        height: calc (100vh - 4em);
-        height: calc (100dvh - 4em);
-    }
-</style>

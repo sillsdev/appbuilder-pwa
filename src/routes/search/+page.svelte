@@ -61,7 +61,7 @@
     }
 </script>
 
-<div class="navbar">
+<div class="navbar h-16">
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
@@ -136,8 +136,5 @@
         border-radius: 5px;
         display: inline-block;
         user-select: none;
-    }
-    .navbar {
-        height: 4rem;
     }
 </style>
