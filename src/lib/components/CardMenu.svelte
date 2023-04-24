@@ -14,6 +14,10 @@ Dispatches a menuaction event when an option is selected from the menu.
         dispatch('menuaction', {
             text: action
         });
+
+        // Close the menu. Not done by DaisyUI CSS library.
+        // https://github.com/saadeghi/daisyui/issues/1195
+        (document.activeElement as HTMLElement).blur();
     }
 </script>
 

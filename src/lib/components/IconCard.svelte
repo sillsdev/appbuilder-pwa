@@ -15,7 +15,10 @@ TODO:
     export let alt = '';
 </script>
 
-<div class="annotation-item-block dy-card" style:direction={$direction}>
+<div
+    class="annotation-item-block dy-card w-100 bg-base-100 shadow-lg my-4"
+    style:direction={$direction}
+>
     <div class="icon-card">
         <div class="self-center">
             {#if src !== '' && alt !== ''}

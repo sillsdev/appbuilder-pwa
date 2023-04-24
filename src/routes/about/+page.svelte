@@ -1,6 +1,4 @@
 <script lang="ts">
-    // Mark this as prerender?
-    // Check kit.svelte.dev docs (Language Forge examples)
     import { onMount } from 'svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -13,7 +11,7 @@
     });
 </script>
 
-<div class="navbar">
+<div class="navbar h-16">
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
@@ -23,17 +21,7 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class="larger" slot="scrolled-content">
+    <div slot="scrolled-content" style="height: calc(100vh - 5rem);height: calc(100dvh - 5rem);">
         {@html partial}
     </div>
 </ScrolledContent>
-
-<style>
-    .navbar {
-        height: 4em;
-    }
-    .larger {
-        height: calc (100vh - 4em);
-        height: calc (100dvh - 4em);
-    }
-</style>

@@ -19,7 +19,7 @@
     });
 </script>
 
-<div class="navbar">
+<div class="navbar h-16">
     <Navbar>
         <!-- <div slot="left-buttons" /> -->
         <label for="sidebar" slot="center">
@@ -29,7 +29,11 @@
     </Navbar>
 </div>
 <ScrolledContent>
-    <div class="larger" slot="scrolled-content" style:direction={$direction}>
+    <div
+        slot="scrolled-content"
+        style="height: calc(100vh - 5rem);height: calc(100dvh - 5rem);"
+        style:direction={$direction}
+    >
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
             <div class="settings-category">
@@ -99,13 +103,3 @@
         {/each}
     </div>
 </ScrolledContent>
-
-<style>
-    .navbar {
-        height: 4em;
-    }
-    .larger {
-        height: calc (100vh - 4em);
-        height: calc (100dvh - 4em);
-    }
-</style>
