@@ -2,6 +2,17 @@ import { writable, derived, get } from 'svelte/store';
 import { catalog } from '../catalog';
 import config from '../config';
 
+export function parseReference(ref) {
+    if (!ref) return ['','',''];
+    const parts = ref.split('.');
+    if (parts.length === 2) {
+        // After everyone has converted to full references, remove this check
+        const defaultDocSet = config.bookCollections[0].languageCode + "_" + config.bookCollections[0].id;
+        return { docSet: defaultDocSet, book: parts[0], chapter: parts[1]};
+    }
+    return {docSet: parts[0], book: parts[1], chapter: parts[2]};
+}
+
 /**stores references and some useful derived information.*/
 export const referenceStore = (initReference) => {
     const internal = writable({ ds: '', b: '', c: '', n: 0 });
@@ -33,18 +44,7 @@ export const referenceStore = (initReference) => {
             n: length
         });
     };
-    function parseReference(ref) {
-        if (!ref) return ['','',''];
-        const parts = ref.split('.');
-        if (parts.length === 2) {
-            // After everyone has converted to full references, remove this check
-            const defaultDocSet = config.bookCollections[0].languageCode + "_" + config.bookCollections[0].id;
-            return [defaultDocSet, ...parts];
-        }
-        return parts;
-    }
-    const [docSetInit, bookInit, chapterInit] = parseReference(initReference);
-    setInternal({ docSet: docSetInit, book: bookInit, chapter: chapterInit });
+    setInternal(parseReference(initReference));
 
     const external = derived(internal, ($internal) => ({
         reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,

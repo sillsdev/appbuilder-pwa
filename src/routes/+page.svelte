@@ -19,6 +19,7 @@
         themeColors,
         userSettings
     } from '$lib/data/stores';
+    import { parseReference } from '$lib/data/stores/store-types';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
@@ -28,6 +29,7 @@
     import { pinch, swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
+    import { page } from '$app/stores';
 
     function doSwipe(
         event: CustomEvent<{
@@ -98,8 +100,18 @@
                 ? 4
                 : 5
             : 0);
-    // Content Subtarction
+    // Content Subtraction
     $: cs = 1 + bs + (showBorder ? 3.5 : 0);
+
+    // Process page parameters
+    if ($page.data?.ref) {
+        const ref = parseReference($page.data.ref);
+        console.log('Page.ref', $page.data.ref, ref);
+        $refs = ref;
+    }
+    if ($page.data?.audio) {
+        $audioActive = $page.data.audio === '1';
+    }
 </script>
 
 <div class="navbar h-16">
