@@ -105,9 +105,7 @@
 
     // Process page parameters
     if ($page.data?.ref) {
-        const ref = parseReference($page.data.ref);
-        console.log('Page.ref', $page.data.ref, ref);
-        $refs = ref;
+        $refs = parseReference($page.data.ref);
     }
     if ($page.data?.audio) {
         $audioActive = $page.data.audio === '1';
