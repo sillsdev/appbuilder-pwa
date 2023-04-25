@@ -268,7 +268,7 @@ TODO:
     </div>
     {#if !$refs.hasAudio.timingFile}
         <!-- Progress Bar -->
-        <div class="audio-progress-value" style="font-size: small;">
+        <div class="audio-progress-value text-sm">
             {duration ? format(progress) : ''}
         </div>
         {#if loaded}
@@ -283,7 +283,7 @@ TODO:
         {:else}
             <progress class="dy-progress audio-progress" value="0" max="1" />
         {/if}
-        <div class="audio-progress-duration" style="font-size: small;">
+        <div class="audio-progress-duration text-sm">
             {duration ? format(duration) : ''}
         </div>
     {/if}
