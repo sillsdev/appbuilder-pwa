@@ -268,7 +268,9 @@ TODO:
     </div>
     {#if !$refs.hasAudio.timingFile}
         <!-- Progress Bar -->
-        <div class="audio-progress-value">{duration ? format(progress) : ''}</div>
+        <div class="audio-progress-value" style="font-size: small;">
+            {duration ? format(progress) : ''}
+        </div>
         {#if loaded}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <progress
@@ -281,7 +283,9 @@ TODO:
         {:else}
             <progress class="dy-progress audio-progress" value="0" max="1" />
         {/if}
-        <div class="audio-progress-duration">{duration ? format(duration) : ''}</div>
+        <div class="audio-progress-duration" style="font-size: small;">
+            {duration ? format(duration) : ''}
+        </div>
     {/if}
 </div>
 
