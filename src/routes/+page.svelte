@@ -17,7 +17,8 @@
         selectedVerses,
         showDesktopSidebar,
         themeColors,
-        userSettings
+        userSettings,
+        history
     } from '$lib/data/stores';
     import { parseReference } from '$lib/data/stores/store-types';
     import { AudioIcon, SearchIcon } from '$lib/icons';
@@ -37,7 +38,15 @@
             target: EventTarget;
         }>
     ) {
-        (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
+        const skipped = (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
+        if (skipped) {
+            history.add({
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: $refs.chapter,
+                verse: $refs.verse
+            });
+        }
     }
 
     var lastPinch = 1.0;

@@ -36,6 +36,7 @@ The navbar component.
                 }
                 break;
             case v:
+                $nextRef.verse = e.detail.text;
                 completeNavigation();
                 break;
             default:
@@ -46,6 +47,12 @@ The navbar component.
 
     function completeNavigation() {
         $refs.chapter = $nextRef.chapter;
+        $history.add({
+            collection: $refs.collection,
+            book: $nextRef.book,
+            chapter: $nextRef.chapter,
+            verse: $nextRef.verse
+        });
         document.activeElement.blur();
     }
 

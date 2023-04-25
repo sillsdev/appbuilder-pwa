@@ -6,10 +6,20 @@ TODO:
 -->
 <script lang="ts">
     import { direction } from '$lib/data/stores';
+    import { getFeatureValueString } from '$lib/scripts/configUtils';
     export let collection = '';
     export let book = '';
-    export let reference = '';
+    export let chapter = '';
+    export let verse = '';
     export let date = '';
+
+    const chapterVerseSeparator = () => {
+        return getFeatureValueString('ref-chapter-verse-separator', collection, book);
+    };
+
+    const reference = () => {
+        return verse ? chapter + chapterVerseSeparator() + verse : chapter;
+    };
 </script>
 
 <div
