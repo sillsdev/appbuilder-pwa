@@ -4,23 +4,22 @@ A card for annotations in the history page.
 TODO:
 - handle the book and collection specific styles
 -->
-<script>
+<script lang="ts">
+    import type { HistoryItem } from '$lib/data/history';
     import { direction, refs } from '$lib/data/stores';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
-    export let collection = '';
-    export let book = '';
-    export let chapter = '';
-    export let verse = '';
-    export let date = '';
+    export let history: HistoryItem;
 
-    $: bc = config.bookCollections.find((x) => x.id === collection);
+    $: bc = config.bookCollections.find((x) => x.id === history.collection);
     $: bcName = config.bookCollections.length == 1 ? null : bc.collectionName;
-    $: bookName = bc.books.find((x) => x.id === book)?.name;
+    $: bookName = bc.books.find((x) => x.id === history.book)?.name;
     $: chapterVerseSeparator = bc.features['ref-chapter-verse-separator'];
-    $: reference = verse ? chapter + chapterVerseSeparator + verse : chapter;
-    $: dateFormat = formatDateAndTime(new Date(date));
+    $: reference = history.verse
+        ? history.chapter + chapterVerseSeparator + history.verse
+        : history.chapter;
+    $: dateFormat = formatDateAndTime(new Date(history.date));
 </script>
 
 <div
@@ -31,7 +30,8 @@ TODO:
     <a
         style="text-decoration:none;"
         href="{base}/"
-        on:click={() => ($refs = { book: book, chapter: chapter, verse: verse })}
+        on:click={() =>
+            ($refs = { book: history.book, chapter: history.chapter, verse: history.verse })}
     >
         <div
             class="history-card grid grid-cols-1"

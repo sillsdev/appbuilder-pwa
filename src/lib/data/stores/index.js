@@ -1,6 +1,5 @@
 export * from './annotation';
 export * from './audio';
-export * from './history';
 export * from './interface';
 export * from './localization';
 export * from './scripture';

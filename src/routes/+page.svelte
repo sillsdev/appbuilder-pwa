@@ -17,9 +17,9 @@
         selectedVerses,
         showDesktopSidebar,
         themeColors,
-        userSettings,
-        history
+        userSettings
     } from '$lib/data/stores';
+    import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -41,7 +41,7 @@
         const prev = $refs;
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
         if (prev !== $refs) {
-            history.add({
+            addHistory({
                 collection: $refs.collection,
                 book: $refs.book,
                 chapter: $refs.chapter,
