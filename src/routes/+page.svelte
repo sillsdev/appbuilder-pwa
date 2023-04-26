@@ -38,8 +38,9 @@
             target: EventTarget;
         }>
     ) {
-        const skipped = (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
-        if (skipped) {
+        const prev = $refs;
+        (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
+        if (prev !== $refs) {
             history.add({
                 collection: $refs.collection,
                 book: $refs.book,

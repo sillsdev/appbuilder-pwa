@@ -6,7 +6,7 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
+    import { refs, nextRef, s, t, convertStyle, userSettings, history } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
@@ -47,9 +47,9 @@ The navbar component.
 
     function completeNavigation() {
         $refs.chapter = $nextRef.chapter;
-        $history.add({
+        history.add({
             collection: $refs.collection,
-            book: $nextRef.book,
+            book: $refs.book,
             chapter: $nextRef.chapter,
             verse: $nextRef.verse
         });
