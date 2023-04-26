@@ -111,9 +111,7 @@ export const referenceStore = (initReference) => {
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
             setInternal({book: switchTo.book, chapter: switchTo.chapter});
-            return true;
         }
-        return false;
     });
     return { subscribe: external.subscribe, set: setInternal, skip };
 };
