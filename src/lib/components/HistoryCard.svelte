@@ -35,10 +35,12 @@ TODO:
     >
         <div
             class="history-card grid grid-cols-1"
-            class:grid-rows-2={bcName == null}
-            class:grid-rows-3={bcName !== null}
+            class:grid-rows-2={!bcName}
+            class:grid-rows-3={bcName}
         >
-            <div class="history-item-book-collection">{bcName}</div>
+            {#if bcName}
+                <div class="history-item-book-collection">{bcName}</div>
+            {/if}
             <div class="history-item-reference justify-self-start">{bookName} {reference}</div>
             <div class="history-item-date justify-self-start">{dateFormat}</div>
         </div>
