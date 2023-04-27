@@ -9,19 +9,19 @@ A component to display menu options in a grid.
     export let options: App.GridGroup[] = [];
     export let cols = 6;
 
-    let cellStyle = convertStyle(
+    $: cellStyle = convertStyle(
         Object.fromEntries(
             Object.entries($s['ui.button.book-grid']).filter(([key]) => key != 'background-color')
         )
     );
-    let rowStyle = convertStyle(
+    $: rowStyle = convertStyle(
         Object.fromEntries(
             Object.entries($s['ui.button.chapter-intro']).filter(
                 ([key]) => key != 'background-color'
             )
         )
     );
-    let headerStyle = convertStyle($s['ui.text.book-group-title']);
+    $: headerStyle = convertStyle($s['ui.text.book-group-title']);
     const dispatch = createEventDispatcher();
 
     $: bookCollectionColor = (id: string, category: string) => {
