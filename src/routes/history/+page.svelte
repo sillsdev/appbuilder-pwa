@@ -3,12 +3,13 @@
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
-    import { getHistory } from '$lib/data/history';
+    import { clearHistory } from '$lib/data/history';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
-    const history = getHistory();
-    async function clearHistory() {
-        history.clear();
+    export let data;
+    async function onClearHistory() {
+        await clearHistory();
+        data.history = [];
     }
 </script>
 
@@ -20,7 +21,7 @@
             <div class="btn btn-ghost normal-case text-xl">{$t['Menu_History']}</div>
         </label>
         <div slot="right-buttons">
-            <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={clearHistory}>
+            <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={onClearHistory}>
                 <DeleteSweepIcon color="white" />
             </button>
         </div>
@@ -30,7 +31,7 @@
 
 <ScrolledContent>
     <div slot="scrolled-content" style="height: calc(100vh - 5rem);height: calc(100dvh - 5rem);">
-        {#each $history.reverse() as h}
+        {#each data.history.reverse() as h}
             <HistoryCard history={h} />
         {/each}
     </div>

@@ -1,4 +1,5 @@
 import { openDB, type DBSchema } from "idb";
+import type { Writable } from "stream";
 import { writable } from "svelte/store";
 
 
@@ -18,10 +19,10 @@ interface History extends DBSchema {
     };
 }
 
-let history = null;
+let historyDB = null;
 async function openHistory() {
-    if (!history) {
-        history = await openDB<History>("history", 1, {
+    if (!historyDB) {
+        historyDB = await openDB<History>("history", 1, {
             upgrade(db) {
                 const historyStore = db.createObjectStore("history", {
                     keyPath: "date",
@@ -31,7 +32,7 @@ async function openHistory() {
             },
         });
     }
-    return history;
+    return historyDB;
 }
 
 
@@ -61,24 +62,12 @@ export async function addHistory(item: {
     }, 2000);
 }
 
-async function clearHistory() {
+export async function clearHistory() {
     let history = await openHistory();
     await history.clear("history");
 }
 
-export function getHistory() {
-    const { subscribe, set } = writable([]);
-    openHistory().then(history => {
-        history.getAllFromIndex("history", "date").then(items => {
-            set(items);
-        });
-    });
-    return {
-        subscribe,
-        clear: () => {
-            //console.log("clearHistory");
-            clearHistory();
-            set([]);
-        }
-    }
+export async function getHistory() {
+    const history = await openHistory();   
+    return await history.getAllFromIndex("history", "date");
 }
