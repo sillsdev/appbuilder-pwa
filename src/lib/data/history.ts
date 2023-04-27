@@ -1,8 +1,4 @@
 import { openDB, type DBSchema } from "idb";
-import type { Writable } from "stream";
-import { writable } from "svelte/store";
-
-
 
 export interface HistoryItem {
     date: number;
