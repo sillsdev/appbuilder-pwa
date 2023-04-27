@@ -18,15 +18,22 @@ interface History extends DBSchema {
     };
 }
 
-export const history = await openDB<History>("history", 1, {
-    upgrade(db) {
-        const historyStore = db.createObjectStore("history", {
-            keyPath: "date",
+let history = null;
+async function openHistory() {
+    if (!history) {
+        history = await openDB<History>("history", 1, {
+            upgrade(db) {
+                const historyStore = db.createObjectStore("history", {
+                    keyPath: "date",
+                });
+        
+                historyStore.createIndex("date", "date");
+            },
         });
+    }
+    return history;
+}
 
-        historyStore.createIndex("date", "date");
-    },
-});
 
 let nextItem:HistoryItem = null;
 let nextTimer:NodeJS.Timeout = null;
@@ -37,6 +44,7 @@ export async function addHistory(item: {
     chapter: string;
     verse: string;
 }) {
+    let history = await openHistory();
     if (nextTimer) {
         clearTimeout(nextTimer);
         nextTimer = null;
@@ -54,15 +62,17 @@ export async function addHistory(item: {
 }
 
 async function clearHistory() {
+    let history = await openHistory();
     await history.clear("history");
 }
 
 export function getHistory() {
     const { subscribe, set } = writable([]);
-    history.getAllFromIndex("history", "date").then(items => {
-        set(items);
+    openHistory().then(history => {
+        history.getAllFromIndex("history", "date").then(items => {
+            set(items);
+        });
     });
-
     return {
         subscribe,
         clear: () => {
