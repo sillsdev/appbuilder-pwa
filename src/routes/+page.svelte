@@ -104,7 +104,7 @@
     $: bs =
         4 +
         ($selectedVerses.length > 0
-            ? 2
+            ? 3
             : $refs.hasAudio && $audioActive
             ? $refs.hasAudio.timingFile
                 ? 4
