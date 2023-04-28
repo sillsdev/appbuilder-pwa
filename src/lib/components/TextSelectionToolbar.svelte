@@ -23,7 +23,17 @@ TODO:
     } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config.js';
-    import { t, s, refs, bookmarks, notes, highlights, selectedVerses } from '$lib/data/stores';
+    import {
+        t,
+        s,
+        refs,
+        bookmarks,
+        notes,
+        highlights,
+        selectedVerses,
+        theme,
+        themeColors
+    } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
@@ -33,8 +43,9 @@ TODO:
     const isHighlightEnabled = config?.mainFeatures['annotation-highlights'];
     const isNotesEnabled = config?.mainFeatures['annotation-notes'];
 
-    var isHighlight = false;
-    var selectedVerseInBookmarks = -1;
+    let isHighlight = false;
+    let selectedVerseInBookmarks = -1;
+    let showHightlightPens = false;
 
     $: isCopyEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-copy-text'
@@ -43,6 +54,7 @@ TODO:
         'bc-allow-share-text'
     ];
     $: $selectedVerses, updateSelectedVerseInBookmarks($selectedVerses);
+    $: buttonBorder = '1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888');
 
     function selectedText() {
         var someText = $selectedVerses.reduce((text, v) => (text += v.text), '');
@@ -198,56 +210,112 @@ TODO:
 
 <Toaster />
 <div
-    class="h-8 bg-base-100 mx-auto flex items-center flex-col"
+    class="h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={barBackgroundColor}
 >
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">
-            {#if isAudioPlayable}
-                <button class="dy-btn-sm dy-btn-ghost">
-                    <AudioIcon.Play color={barIconColor} />
-                </button>
-            {/if}
-            {#if isRepeatableAudio}
-                <button class="dy-btn-sm dy-btn-ghost">
-                    <AudioIcon.PlayRepeat color={barIconColor} />
-                </button>
-            {/if}
-            {#if isTextOnImageEnabled}
-                <button class="dy-btn-sm dy-btn-ghost">
-                    <ImageIcon.Image color={barIconColor} />
-                </button>
-            {/if}
-            {#if isHighlightEnabled}
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyHighlight(2)}>
-                    <HighlightIcon color={barIconColor} />
-                </button>
-            {/if}
-            {#if isNotesEnabled}
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => addNote()}>
-                    <NoteIcon color={barIconColor} />
-                </button>
-            {/if}
-            {#if isBookmarkEnabled}
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyBookmark()}>
-                    {#if selectedVerseInBookmarks >= 0}
-                        <BookmarkIcon color="#b10000" />
-                    {:else}
-                        <BookmarkOutlineIcon color={barIconColor} />
-                    {/if}
-                </button>
-            {/if}
-            {#if isCopyEnabled}
-                <button class="dy-btn-sm dy-btn-ghost" on:click={() => copy()}>
-                    <CopyContentIcon color={barIconColor} />
-                </button>
-            {/if}
-            {#if isShareEnabled}
-                <button class="dy-btn-sm dy-btn-ghost">
-                    <ShareIcon color={barIconColor} />
-                </button>
+            {#if showHightlightPens}
+                <div class="pen-grid grid grid-rows-1 gap-2 my-2">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="dy-btn-sm "
+                        style:background-color={$themeColors['HighlighterPenYellow']}
+                        style:border={buttonBorder}
+                        on:click={() => modifyHighlight(1)}
+                    />
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="dy-btn-sm "
+                        style:background-color={$themeColors['HighlighterPenGreen']}
+                        style:border={buttonBorder}
+                        on:click={() => modifyHighlight(2)}
+                    />
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="dy-btn-sm "
+                        style:background-color={$themeColors['HighlighterPenBlue']}
+                        style:border={buttonBorder}
+                        on:click={() => modifyHighlight(3)}
+                    />
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="dy-btn-sm "
+                        style:background-color={$themeColors['HighlighterPenOrange']}
+                        style:border={buttonBorder}
+                        on:click={() => modifyHighlight(4)}
+                    />
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="dy-btn-sm "
+                        style:background-color={$themeColors['HighlighterPenPink']}
+                        style:border={buttonBorder}
+                        on:click={() => modifyHighlight(5)}
+                    />
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="dy-btn-sm "
+                        style:background-color={'white'}
+                        style:border={buttonBorder}
+                        on:click={() => modifyHighlight(6)}
+                    />
+                </div>
+            {:else}
+                {#if isAudioPlayable}
+                    <button class="dy-btn-sm dy-btn-ghost">
+                        <AudioIcon.Play color={barIconColor} />
+                    </button>
+                {/if}
+                {#if isRepeatableAudio}
+                    <button class="dy-btn-sm dy-btn-ghost">
+                        <AudioIcon.PlayRepeat color={barIconColor} />
+                    </button>
+                {/if}
+                {#if isTextOnImageEnabled}
+                    <button class="dy-btn-sm dy-btn-ghost">
+                        <ImageIcon.Image color={barIconColor} />
+                    </button>
+                {/if}
+                {#if isHighlightEnabled}
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        on:click={() => (showHightlightPens = true)}
+                    >
+                        <HighlightIcon color={barIconColor} />
+                    </button>
+                {/if}
+                {#if isNotesEnabled}
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => addNote()}>
+                        <NoteIcon color={barIconColor} />
+                    </button>
+                {/if}
+                {#if isBookmarkEnabled}
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyBookmark()}>
+                        {#if selectedVerseInBookmarks >= 0}
+                            <BookmarkIcon color="#b10000" />
+                        {:else}
+                            <BookmarkOutlineIcon color={barIconColor} />
+                        {/if}
+                    </button>
+                {/if}
+                {#if isCopyEnabled}
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => copy()}>
+                        <CopyContentIcon color={barIconColor} />
+                    </button>
+                {/if}
+                {#if isShareEnabled}
+                    <button class="dy-btn-sm dy-btn-ghost">
+                        <ShareIcon color={barIconColor} />
+                    </button>
+                {/if}
             {/if}
         </div>
     </div>
 </div>
+
+<style>
+    .pen-grid {
+        grid-template-columns: repeat(6, 3rem);
+    }
+</style>
