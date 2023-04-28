@@ -3,24 +3,14 @@
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
-    let history = [
-        { book: 'World English Bible', reference: 'Genesis 1', date: 'Today | 14:49' },
-        { book: 'World English Bible', reference: 'Genesis 1:1', date: 'Today | 14:48' },
-        { book: 'World English Bible', reference: 'John 1', date: 'Today | 11:09' },
-        { book: 'World English Bible', reference: 'John 1:7', date: 'Today | 10:03' },
-        { book: 'World English Bible', reference: 'John 1', date: 'Today | 09:48' },
-        { book: 'World English Bible', reference: 'John 1:5', date: 'Today | 09:48' },
-        { book: 'World English Bible', reference: 'John 1:1', date: 'Today | 09:46' },
-        { book: 'World English Bible', reference: 'John 1', date: 'Today | 09:45' },
-        { book: 'World English Bible', reference: 'John 1:3', date: 'Today | 09:43' },
-        { book: 'World English Bible', reference: 'John 1', date: 'Today | 09:43' },
-        { book: 'World English Bible', reference: 'John 1:3', date: 'Today | 09:42' },
-        { book: 'World English Bible', reference: 'John 1', date: 'Yesterday | 15:36' },
-        { book: 'World English Bible', reference: 'John 1:3', date: 'Yesterday | 15:30' },
-        { book: 'World English Bible', reference: 'John 1', date: '22 May 2022 | 13:48' },
-        { book: 'World Messianic Bible', reference: 'Yochanan 1', date: '22 May 2022 | 13:42' },
-        { book: 'World English Bible', reference: 'John 1', date: '22 May 2022 | 13:39' }
-    ];
+    import { clearHistory } from '$lib/data/history';
+    import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
+
+    export let data;
+    async function onClearHistory() {
+        await clearHistory();
+        data.history = [];
+    }
 </script>
 
 <div class="navbar h-16">
@@ -30,14 +20,19 @@
         <label for="sidebar" slot="center">
             <div class="btn btn-ghost normal-case text-xl">{$t['Menu_History']}</div>
         </label>
+        <div slot="right-buttons">
+            <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={onClearHistory}>
+                <DeleteSweepIcon color="white" />
+            </button>
+        </div>
         <!-- <div slot="right-buttons" /> -->
     </Navbar>
 </div>
 
 <ScrolledContent>
     <div slot="scrolled-content" style="height: calc(100vh - 5rem);height: calc(100dvh - 5rem);">
-        {#each history as h}
-            <HistoryCard {...h} />
+        {#each data.history.reverse() as h}
+            <HistoryCard history={h} />
         {/each}
     </div>
 </ScrolledContent>

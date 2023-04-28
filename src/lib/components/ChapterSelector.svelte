@@ -7,6 +7,7 @@ The navbar component.
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
+    import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
@@ -36,6 +37,7 @@ The navbar component.
                 }
                 break;
             case v:
+                $nextRef.verse = e.detail.text;
                 completeNavigation();
                 break;
             default:
@@ -46,6 +48,12 @@ The navbar component.
 
     function completeNavigation() {
         $refs.chapter = $nextRef.chapter;
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $nextRef.chapter,
+            verse: $nextRef.verse
+        });
         document.activeElement.blur();
     }
 

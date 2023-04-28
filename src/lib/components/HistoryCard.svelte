@@ -5,22 +5,44 @@ TODO:
 - handle the book and collection specific styles
 -->
 <script lang="ts">
-    import { direction } from '$lib/data/stores';
-    export let collection = '';
-    export let book = '';
-    export let reference = '';
-    export let date = '';
+    import type { HistoryItem } from '$lib/data/history';
+    import { direction, refs } from '$lib/data/stores';
+    import { formatDateAndTime } from '$lib/scripts/dateUtils';
+    import { base } from '$app/paths';
+    import config from '$lib/data/config';
+    export let history: HistoryItem;
+
+    $: bc = config.bookCollections.find((x) => x.id === history.collection);
+    $: bcName = config.bookCollections.length == 1 ? null : bc.collectionName;
+    $: bookName = bc.books.find((x) => x.id === history.book)?.name;
+    $: chapterVerseSeparator = bc.features['ref-chapter-verse-separator'];
+    $: reference = history.verse
+        ? history.chapter + chapterVerseSeparator + history.verse
+        : history.chapter;
+    $: dateFormat = formatDateAndTime(new Date(history.date));
 </script>
 
 <div
     class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4"
     style:direction={$direction}
 >
-    <div class="history-card grid grid-cols-1 grid-rows-2">
-        <div>
-            <span class="history-item-book-collection">{collection}</span>
-            <span class="history-item-reference justify-self-start">{book} {reference}</span>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <a
+        style="text-decoration:none;"
+        href="{base}/"
+        on:click={() =>
+            ($refs = { book: history.book, chapter: history.chapter, verse: history.verse })}
+    >
+        <div
+            class="history-card grid grid-cols-1"
+            class:grid-rows-2={!bcName}
+            class:grid-rows-3={bcName}
+        >
+            {#if bcName}
+                <div class="history-item-book-collection">{bcName}</div>
+            {/if}
+            <div class="history-item-reference justify-self-start">{bookName} {reference}</div>
+            <div class="history-item-date justify-self-start">{dateFormat}</div>
         </div>
-        <div class="history-item-date justify-self-start">{date}</div>
-    </div>
+    </a>
 </div>

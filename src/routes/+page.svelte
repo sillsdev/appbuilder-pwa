@@ -19,6 +19,7 @@
         themeColors,
         userSettings
     } from '$lib/data/stores';
+    import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
     import { AudioIcon, SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -37,7 +38,16 @@
             target: EventTarget;
         }>
     ) {
+        const prev = $refs;
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
+        if (prev !== $refs) {
+            addHistory({
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: $refs.chapter,
+                verse: $refs.verse
+            });
+        }
     }
 
     var lastPinch = 1.0;
