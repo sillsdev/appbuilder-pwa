@@ -907,6 +907,9 @@ TODO:
                                 div.appendChild(span);
                                 workspace.phraseDiv = div.cloneNode(true);
                                 workspace.footnoteIndex++;
+                                if (workspace.lastPhraseTerminated) {
+                                    workspace.phraseDiv = startPhrase(workspace);
+                                }
                             }
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;
