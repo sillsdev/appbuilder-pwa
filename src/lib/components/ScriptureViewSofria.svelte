@@ -7,7 +7,6 @@ TODO:
 - parse introduction for references
 -->
 <script lang="ts">
-    import { onDestroy } from 'svelte';
     import { base } from '$app/paths';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
@@ -24,26 +23,20 @@ TODO:
     import { LoadingIcon } from '$lib/icons';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
 
-    export let audioActive: any;
-    export let audioHighlight: any;
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let bookmarks: any;
     export let highlights: any;
-    export let mainScroll: any;
     export let maxSelections: any;
     export let redLetters: boolean;
     export let references: any;
-    export let scrolls: any;
     export let selectedVerses: any;
-    export let themeColors: any;
     export let verseLayout: any;
     export let viewShowVerses: boolean;
 
     const pk = new Proskomma();
     let container: HTMLElement;
-    let lastVerseInView = '';
     let displayingIntroduction = false;
 
     function escapeSpecialChars(separators: string) {
@@ -64,95 +57,11 @@ TODO:
     };
     $: seprgx = seprgx2(audioPhraseEndChars);
 
-    /**unique key to use for groupStore modifier*/
-    const key = {};
-
-    let group = 'default';
-    let scrollId: string;
-    let scrollMod: any;
-    const unSub = scrolls.subscribe((val, mod) => {
-        scrollId = val;
-        scrollMod = mod;
-    }, group);
-
-    /**scrolls element with id into view*/
-    const scrollTo = (id: string) => {
-        if (scrollMod === key) return;
-        container
-            ?.querySelector(
-                `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
-            )
-            ?.scrollIntoView();
-    };
-    $: scrollTo(scrollId);
-
     const onlySpaces = (str) => {
         return str.trim().length === 0;
     };
 
-    const handleScroll = (() => {
-        let scrollTimer: NodeJS.Timeout;
-        return (trigger) => {
-            clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(() => {
-                const items = Array.from(container?.getElementsByClassName('scroll-item'))
-                    .filter((it, i) => {
-                        const rect = it.getBoundingClientRect();
-                        const win = container.getBoundingClientRect();
-
-                        return (
-                            rect.top - win.top >= mainScroll.top &&
-                            rect.bottom - win.top <= mainScroll.height + mainScroll.top
-                        );
-                    })
-                    .map(
-                        (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
-                    );
-
-                scrolls.set(items[0], group, key);
-                lastVerseInView = items.pop();
-            }, 500);
-        };
-    })();
-    $: handleScroll([mainScroll, $refs]);
-
     $: $selectedVerses, updateSelections(selectedVerses);
-
-    /**updates highlight*/
-    const updateHighlight = (h: string, color: string, timing: any) => {
-        if (!timing) {
-            return;
-        }
-        const a = h.split(',');
-        // Remove highlighting for currently highlighted verses
-        let el = container?.getElementsByClassName('highlighting')?.item(0);
-        let node = el?.getAttributeNode('style');
-        el?.removeAttributeNode(node);
-        el?.classList.remove('highlighting');
-        // If audio off or if not in the right chapter, return
-        if (
-            !audioActive ||
-            a[0] !== currentDocSet ||
-            a[1] !== currentBook ||
-            a[2] !== currentChapter
-        )
-            return;
-        // Try to get verse for timing
-        el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
-        // If failed to get 'verse #, none' then try for 'verse # a' instead
-        if (el == null && a[4] == 'none') {
-            el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="a"]`);
-        }
-        // Highlight verse if found
-        el?.setAttribute('style', 'background-color: ' + color + ';');
-        el?.classList.add('highlighting');
-        if (
-            `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
-            lastVerseInView
-        )
-            el?.scrollIntoView();
-    };
-    $: updateHighlight(audioHighlight, highlightColor, references.hasAudio?.timingFile);
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
         let result = 0;
@@ -1103,8 +1012,6 @@ TODO:
 
     $: lineHeight = bodyLineHeight + '%';
 
-    $: highlightColor = themeColors['TextHighlightColor'];
-
     $: currentChapter = references.chapter;
 
     $: currentBook = references.book;
@@ -1140,7 +1047,7 @@ TODO:
             videos
         );
     })();
-    onDestroy(unSub);
+    //onDestroy(unSub);
 </script>
 
 <article class="container" bind:this={container}>
