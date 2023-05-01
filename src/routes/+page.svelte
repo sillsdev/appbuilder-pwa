@@ -31,6 +31,7 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
+    import { onDestroy } from 'svelte';
 
     function doSwipe(
         event: CustomEvent<{
@@ -83,17 +84,14 @@
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
         audioActive: $audioActive,
-        audioHighlight: $audioHighlight,
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
         bookmarks: $bookmarks,
         highlights: $highlights,
-        mainScroll: $mainScroll,
         maxSelections: config.mainFeatures['annotation-max-select'],
         redLetters: $userSettings['red-letters'],
         references: $refs,
-        scrolls: scrolls,
         selectedVerses: selectedVerses,
         themeColors: $themeColors,
         verseLayout: $userSettings['verse-layout'],
@@ -120,6 +118,97 @@
     if ($page.data?.audio) {
         $audioActive = $page.data.audio === '1';
     }
+
+    /**unique key to use for groupStore modifier*/
+    const key = {};
+
+    let group = 'default';
+    let scrollId: string;
+    let scrollMod: any;
+    const unSub = scrolls.subscribe((val, mod) => {
+        scrollId = val;
+        scrollMod = mod;
+    }, group);
+    onDestroy(unSub);
+
+    /**scrolls element with id into view*/
+    const scrollTo = (id: string) => {
+        if (scrollMod === key) return;
+        document
+            .querySelector(
+                `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
+            )
+            ?.scrollIntoView();
+    };
+    $: scrollTo(scrollId);
+
+    let lastVerseInView = '';
+    const handleScroll = (() => {
+        let scrollTimer: NodeJS.Timeout;
+        return (trigger) => {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                const items = Array.from(document.getElementsByClassName('scroll-item'))
+                    .filter((it, i) => {
+                        const rect = it.getBoundingClientRect();
+                        const win = document
+                            .getElementsByClassName('container')[0]
+                            ?.getBoundingClientRect();
+
+                        return (
+                            rect.top - win.top >= $mainScroll.top &&
+                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
+                        );
+                    })
+                    .map(
+                        (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
+                    );
+
+                scrolls.set(items[0], group, key);
+                lastVerseInView = items.pop();
+            }, 500);
+        };
+    })();
+    $: handleScroll([$mainScroll, $refs]);
+
+    $: highlightColor = $themeColors['TextHighlightColor'];
+    /**updates highlight*/
+    const updateHighlight = (h: string, color: string, timing: any) => {
+        if (!timing) {
+            return;
+        }
+        let container = document.getElementsByClassName('container')[0];
+        const a = h.split(',');
+        // Remove highlighting for currently highlighted verses
+        let el = container?.getElementsByClassName('highlighting')?.item(0);
+        let node = el?.getAttributeNode('style');
+        el?.removeAttributeNode(node);
+        el?.classList.remove('highlighting');
+        // If audio off or if not in the right chapter, return
+        if (
+            !audioActive ||
+            a[0] !== $refs.docSet ||
+            a[1] !== $refs.book ||
+            a[2] !== $refs.chapter
+        ) {
+            return;
+        }
+        // Try to get verse for timing
+        el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
+        // If failed to get 'verse #, none' then try for 'verse # a' instead
+        if (el == null && a[4] == 'none') {
+            el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="a"]`);
+        }
+        // Highlight verse if found
+        el?.setAttribute('style', 'background-color: ' + color + ';');
+        el?.classList.add('highlighting');
+        if (
+            `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
+            lastVerseInView
+        )
+            el?.scrollIntoView();
+    };
+    $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
 </script>
 
 <div class="navbar h-16">
