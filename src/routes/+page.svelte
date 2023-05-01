@@ -39,6 +39,7 @@
             target: EventTarget;
         }>
     ) {
+        console.log('SWIPE', event.detail.direction);
         const prev = $refs;
         (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
         if (prev !== $refs) {
@@ -51,7 +52,9 @@
         }
     }
 
-    var lastPinch = 1.0;
+    const minFontSize = config.mainFeatures['text-size-min'];
+    const maxFontSize = config.mainFeatures['text-size-max'];
+    let lastPinch = 1.0;
     function doPinch(
         event: CustomEvent<{
             scale: number;
@@ -59,16 +62,18 @@
                 x: number;
                 y: number;
             };
-        }>,
-        minFontSize: number,
-        maxFontSize: number
+        }>
     ) {
         const currPinch = event.detail.scale;
         bodyFontSize.update((fontSize) => {
-            const newFontSize = currPinch > lastPinch ? fontSize + 1.0 : fontSize - 1.0;
-            lastPinch = currPinch;
-            const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
-            return clampedFontSize;
+            if (Math.abs(currPinch - lastPinch) > 0.1) {
+                const newFontSize = currPinch > lastPinch ? fontSize + 1.0 : fontSize - 1.0;
+                lastPinch = currPinch;
+                const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
+                return clampedFontSize;
+            } else {
+                return fontSize;
+            }
         });
     }
 
@@ -251,15 +256,10 @@
         <div
             style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
             slot="scrolled-content"
+            use:pinch
+            on:pinch={doPinch}
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
             on:swipe={doSwipe}
-            use:pinch
-            on:pinch={(event) =>
-                doPinch(
-                    event,
-                    config.mainFeatures['text-size-min'],
-                    config.mainFeatures['text-size-max']
-                )}
         >
             <ScriptureViewSofria {...viewSettings} />
         </div>
