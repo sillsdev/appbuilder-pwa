@@ -83,7 +83,6 @@
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
-        audioActive: $audioActive,
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
@@ -93,7 +92,6 @@
         redLetters: $userSettings['red-letters'],
         references: $refs,
         selectedVerses: selectedVerses,
-        themeColors: $themeColors,
         verseLayout: $userSettings['verse-layout'],
         viewShowVerses: $userSettings['verse-numbers']
     };

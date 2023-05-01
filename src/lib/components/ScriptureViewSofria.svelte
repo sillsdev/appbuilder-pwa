@@ -7,7 +7,6 @@ TODO:
 - parse introduction for references
 -->
 <script lang="ts">
-    import { onDestroy } from 'svelte';
     import { base } from '$app/paths';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
@@ -24,7 +23,6 @@ TODO:
     import { LoadingIcon } from '$lib/icons';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
 
-    export let audioActive: any;
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
@@ -34,7 +32,6 @@ TODO:
     export let redLetters: boolean;
     export let references: any;
     export let selectedVerses: any;
-    export let themeColors: any;
     export let verseLayout: any;
     export let viewShowVerses: boolean;
 
@@ -63,32 +60,6 @@ TODO:
     const onlySpaces = (str) => {
         return str.trim().length === 0;
     };
-
-    // const handleScroll = (() => {
-    //     let scrollTimer: NodeJS.Timeout;
-    //     return (trigger) => {
-    //         clearTimeout(scrollTimer);
-    //         scrollTimer = setTimeout(() => {
-    //             const items = Array.from(container?.getElementsByClassName('scroll-item'))
-    //                 .filter((it, i) => {
-    //                     const rect = it.getBoundingClientRect();
-    //                     const win = container.getBoundingClientRect();
-
-    //                     return (
-    //                         rect.top - win.top >= mainScroll.top &&
-    //                         rect.bottom - win.top <= mainScroll.height + mainScroll.top
-    //                     );
-    //                 })
-    //                 .map(
-    //                     (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
-    //                 );
-
-    //             scrolls.set(items[0], group, key);
-    //             lastVerseInView = items.pop();
-    //         }, 500);
-    //     };
-    // })();
-    // $: handleScroll([mainScroll, $refs]);
 
     $: $selectedVerses, updateSelections(selectedVerses);
 
@@ -1052,7 +1023,6 @@ TODO:
     $: books = catalog.find((d) => d.id === currentDocSet).documents;
 
     $: (() => {
-        console.log('REQUERY');
         const bookHasIntroduction = books.find((x) => x.bookCode === currentBook).hasIntroduction;
         let chapterToDisplay = currentChapter;
         if (bookHasIntroduction && chapterToDisplay == 'i') {
