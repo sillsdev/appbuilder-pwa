@@ -242,9 +242,9 @@
             {/if}
             <!-- Text Appearance Options Menu -->
             <TextAppearanceSelector />
-            <!-- {#if showCollections}
+            {#if showCollections}
                 <CollectionSelector />
-            {/if} -->
+            {/if}
         </div>
     </Navbar>
 </div>
