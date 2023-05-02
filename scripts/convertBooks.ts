@@ -20,7 +20,10 @@ function replaceVideoTags(text: string): string {
 }
 
 function removeStrongNumberReferences(text: string): string {
-    return text.replace(/\\w ([^|]*)\|strong="[^"]*"\\w\*/g, '$1');
+    //remove strong number references
+    // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
+    // \v 4  \wj  \+w Blessed|strong="G3107"\+w* \+w are|strong="G3107"\+w* \+w those|strong="G3588"\+w* \+w who|strong="G3588"\+w* \+w mourn|strong="G3996"\+w*,\wj*  (Matt 5:4 WEBBE)
+    return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
 }
 
 export async function convertBooks(
