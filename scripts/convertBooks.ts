@@ -19,6 +19,10 @@ function replaceVideoTags(text: string): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 
+function removeStrongNumberReferences(text: string): string {
+    return text.replace(/\\w ([^|]*)\|strong="[^"]*"\\w\*/g, '$1');
+}
+
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,
@@ -58,8 +62,9 @@ export async function convertBooks(
                         (err, content) => {
                             if (err) throw err;
                             //video tags in SAB are not USFM. Replacement then with
-                            //custom zvideo milestone
-                            content = replaceVideoTags(content);
+                            //custom zvideo milestone.
+                            //ignore strong number references
+                            content = replaceVideoTags(removeStrongNumberReferences(content));
 
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
