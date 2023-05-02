@@ -57,8 +57,8 @@ TODO:
     };
     $: seprgx = seprgx2(audioPhraseEndChars);
 
-    const onlySpaces = (str) => {
-        return str.trim().length === 0;
+    const ignoreString = (str) => {
+        return str.length === 0;
     };
 
     $: $selectedVerses, updateSelections(selectedVerses);
@@ -113,7 +113,7 @@ TODO:
     };
     const addText = (workspace, text) => {
         // console.log('Adding text:', text);
-        if (!onlySpaces(text)) {
+        if (!ignoreString(text)) {
             let phrases = [];
             if (!workspace.introductionGraft && $refs.hasAudio) {
                 phrases = parsePhrase(text, seprgx);
@@ -868,13 +868,15 @@ TODO:
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
                                     workspace.textType.push('usfm');
-                                    if (!workspace.textType.includes('footnote')) {
-                                        if (workspace.lastPhraseTerminated === true) {
-                                            // console.log('footnote start phrase');
-                                            workspace.phraseDiv = startPhrase(workspace);
+                                    if (usfmType !== 'w') {
+                                        if (!workspace.textType.includes('footnote')) {
+                                            if (workspace.lastPhraseTerminated === true) {
+                                                // console.log('footnote start phrase');
+                                                workspace.phraseDiv = startPhrase(workspace);
+                                            }
                                         }
+                                        workspace.usfmWrapperType = usfmType;
                                     }
-                                    workspace.usfmWrapperType = usfmType;
                                     break;
                                 }
                                 default: {
@@ -922,8 +924,16 @@ TODO:
                                     break;
                                 }
                                 case 'usfm': {
+                                    let usfmType = element.subType.split(':')[1];
                                     workspace.textType.pop();
-                                    workspace.usfmWrapperType = '';
+                                    // NOTE: This raises the question of how to handle
+                                    // other cases where Words of Jesus wrapper (or other types)
+                                    // might have another usfm wrapper in them.  I don't have
+                                    // any other examples to see how they ought to be processed
+                                    // but should note it as a future possible issue
+                                    if (usfmType !== 'w') {
+                                        workspace.usfmWrapperType = '';
+                                    }
                                     break;
                                 }
                                 default: {
