@@ -16,12 +16,11 @@ TODO:
     let nextDocSet;
     console.log($s);
 
-    const docSetList = catalog.map((ds) => ds.id);
-    const allowSinglePane = config.bookCollections.map((ds) => ({
-        id: ds.languageCode + '_' + ds.id,
-        name: ds.collectionName,
-        singlePane: ds.features['bc-allow-single-pane'],
-        description: ds?.collectionDescription
+    const allowSinglePane = config.bookCollections.map((bc) => ({
+        docSet: bc.languageCode + '_' + bc.id,
+        name: bc.collectionName,
+        singlePane: bc.features['bc-allow-single-pane'],
+        description: bc?.collectionDescription
     }));
 
     const removeKey = refs.subscribe((v) => {
@@ -50,10 +49,10 @@ TODO:
                 <li>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
-                        on:click={() => handleClick(d.id)}
-                        class={nextDocSet === d.id ? 'dy-active' : ''}
+                        on:click={() => handleClick(d.docSet)}
+                        class={nextDocSet === d.docSet ? 'dy-active' : ''}
                         style={convertStyle($s['ui.layouts.selector'])}
-                        style:background-color={nextDocSet === d.id
+                        style:background-color={nextDocSet === d.docSet
                             ? $themeColors['LayoutItemSelectedBackgroundColor']
                             : $themeColors['LayoutBackgroundColor']}
                     >
