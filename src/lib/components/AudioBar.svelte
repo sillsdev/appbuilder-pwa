@@ -64,8 +64,9 @@ TODO:
             updateTime();
             if (playAfterSkip && !playing) {
                 playPause();
-                playAfterSkip = false;
+                playAfterSkip = true;
             }
+            //playAfterLoaded();
         };
         timing = j.timing;
     };
@@ -94,8 +95,24 @@ TODO:
                     : 'none'
             ].join();
         }
-        if (audio.ended) toggleTimeRunning();
+        if (audio.ended) {
+            // Get the next chapter and play its audio if it exists
+            const nextChapter = refs.skip(direction.forward);
+            if (nextChapter) {
+                playAfterSkip = true;
+                getAudio($refs.collection, $refs.book, nextChapter);
+                playPause();
+            }
+        }
     };
+
+    // const playAfterLoaded = () => {
+    //     if (playAfterSkip && !playing) {
+    //         playPause();
+    //         playAfterSkip = false;
+    //     }
+    // };
+
     /**sets an interval for updateTime*/
     const toggleTimeRunning = (() => {
         let timer;
@@ -266,7 +283,7 @@ TODO:
             <AudioPlaybackSpeed />
         {/if}
     </div>
-    {#if !$refs.hasAudio.timingFile}
+    {#if $refs.hasAudio.timingFile}
         <!-- Progress Bar -->
         <div class="audio-progress-value text-sm">
             {duration ? format(progress) : ''}
