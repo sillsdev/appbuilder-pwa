@@ -203,6 +203,7 @@ TODO:
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
     $: iconColor = $s['ui.bar.audio.icon']['color'];
+    $: iconPlayColor = $s['ui.bar.audio.play.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     $: mayResetPlayMode($refs.hasAudio?.timing);
@@ -242,7 +243,7 @@ TODO:
             on:click={playPause}
         >
             {#if !playing}
-                <svelte:component this={playIcon} color={iconColor} size={playIconSize} />
+                <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
             {:else}
                 <AudioIcon.Pause color={iconColor} size={playIconSize} />
             {/if}
