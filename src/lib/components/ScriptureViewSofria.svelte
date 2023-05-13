@@ -13,7 +13,6 @@ TODO:
     import { thaw } from '../scripts/thaw';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
-    import { refs } from '$lib/data/stores';
     import {
         onClickText,
         deselectAllElements,
@@ -115,7 +114,7 @@ TODO:
         // console.log('Adding text:', text);
         if (!onlySpaces(text)) {
             let phrases = [];
-            if (!workspace.introductionGraft && $refs.hasAudio) {
+            if (!workspace.introductionGraft && references.hasAudio) {
                 phrases = parsePhrase(text, seprgx);
             } else {
                 // Don't parse introduction or if there is no audio.
