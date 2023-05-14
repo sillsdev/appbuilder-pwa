@@ -36,7 +36,6 @@ export class ConvertMedia extends Task {
     public triggerFiles: string[] = [
         'images',
         'fonts',
-        'styles',
         'illustrations',
         'audio',
         'timings',
@@ -68,7 +67,7 @@ export class ConvertMedia extends Task {
         };
     }
     async convertMedia(dataDir: string, verbose: number, modifiedDirectories: string[]) {
-        const required = ['styles', 'fonts'];
+        const required = ['fonts'];
 
         // FIXME: about 1/5 times the copy fails because of EPERM
         // I suspect this is because of my filesystem. If you also encounter this
