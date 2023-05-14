@@ -256,6 +256,7 @@
         <div
             style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
             slot="scrolled-content"
+            class="max-w-screen-md mx-auto"
             use:pinch
             on:pinch={doPinch}
             use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
