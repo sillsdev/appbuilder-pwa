@@ -21,10 +21,10 @@
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
+    import config from '$lib/data/config';
     import { AudioIcon, SearchIcon, ChevronLeftIcon, ChevronRightIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
-    import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { getFeatureValueString } from '$lib/scripts/configUtils';
     import { pinch, swipe } from 'svelte-gestures';
@@ -212,6 +212,24 @@
             el?.scrollIntoView();
     };
     $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
+    function prevChapter() {
+        (refs as any).skip(-1);
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter,
+            verse: $refs.verse
+        });
+    }
+    function nextChapter() {
+        (refs as any).skip(1);
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter,
+            verse: $refs.verse
+        });
+    }
 </script>
 
 <div class="navbar h-16">
@@ -254,29 +272,18 @@
 >
     <div class="flex flex-row justify-center space-x-4 ml-4 mr-4">
         <!-- TODO: we shouldn't show these buttons on smaller screens -->
-        <div class="grow flex flex-column items-center justify-end">
+        <div class="flex flex-column items-center justify-end">
             <button
                 class="dy-btn dy-btn-ghost dy-btn-circle"
                 disabled={!$refs.prev.book || !$refs.prev.chapter}
-                on:click={() => {
-                    refs.skip(-1);
-                    addHistory({
-                        collection: $refs.collection,
-                        book: $refs.book,
-                        chapter: $refs.chapter,
-                        verse: $refs.verse
-                    });
-                }}
+                on:click={prevChapter}
             >
                 {#if $refs.prev.book && $refs.prev.chapter}
                     <ChevronLeftIcon color="gray" />
                 {/if}
             </button>
         </div>
-
-        <!-- div class="flex flex-col justify-center">
-    </div -->
-        <ScrolledContent class="grow-0">
+        <ScrolledContent>
             <div
                 style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
                 slot="scrolled-content"
@@ -289,20 +296,12 @@
                 <ScriptureViewSofria {...viewSettings} />
             </div>
         </ScrolledContent>
-        <div class="grow flex flex-column items-center justify-start">
+        <div class="flex flex-column items-center justify-start">
             <!-- TODO: we shouldn't show these buttons on smaller screens -->
             <button
                 class="dy-btn dy-btn-ghost dy-btn-circle"
                 disabled={!$refs.next.book || !$refs.next.chapter}
-                on:click={() => {
-                    refs.skip(1);
-                    addHistory({
-                        collection: $refs.collection,
-                        book: $refs.book,
-                        chapter: $refs.chapter,
-                        verse: $refs.verse
-                    });
-                }}
+                on:click={nextChapter}
             >
                 {#if $refs.next.book && $refs.next.chapter}
                     <ChevronRightIcon color="gray" />
@@ -339,8 +338,5 @@
     }
     button[disabled] {
         background-color: transparent;
-        &:hover {
-            background-color: transparent;
-        }
     }
 </style>
