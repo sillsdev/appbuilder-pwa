@@ -4,9 +4,7 @@ A template for building a Progressive Web App with [Scripture App Builder](https
 
 ## Usage
 
-You will need to have Scripture App Builder 10.3 [PWA build](https://drive.google.com/drive/folders/1EQaBXX-Y3Y2ZD3rgn8EtTfEO6J1Dhd9U?usp=share_link) to use this project without the provided example data.
-
-> Contact [chris_hubbard@sil.org](mailto:chris_hubbard@sil.org) for access to the Google Drive folder.
+You will need to download [Scripture App Builder 10.3.2](https://drive.google.com/drive/folders/1EQaBXX-Y3Y2ZD3rgn8EtTfEO6J1Dhd9U?usp=share_link](https://software.sil.org/scriptureappbuilder/download/)) to use this project without the provided example data.
 
 ### Develop
 
