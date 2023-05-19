@@ -16,7 +16,7 @@
     onMount(updateScroll);
 </script>
 
-<div class="p-2 w-full overflow-y-auto " bind:this={main} on:scroll={updateScroll}>
+<div class="p-2 overflow-y-auto " bind:this={main} on:scroll={updateScroll}>
     <main>
         <slot name="scrolled-content" />
     </main>

@@ -21,7 +21,7 @@
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
-    import { AudioIcon, SearchIcon } from '$lib/icons';
+    import { AudioIcon, SearchIcon, ChevronLeftIcon, ChevronRightIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
@@ -252,19 +252,64 @@
     class:borderimg={showBorder}
     style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
 >
-    <ScrolledContent>
-        <div
-            style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
-            slot="scrolled-content"
-            class="max-w-screen-md mx-auto"
-            use:pinch
-            on:pinch={doPinch}
-            use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-            on:swipe={doSwipe}
-        >
-            <ScriptureViewSofria {...viewSettings} />
+    <div class="flex flex-row justify-center space-x-4 ml-4 mr-4">
+        <!-- TODO: we shouldn't show these buttons on smaller screens -->
+        <div class="grow flex flex-column items-center justify-end">
+            <button
+                class="dy-btn dy-btn-ghost dy-btn-circle"
+                disabled={!$refs.prev.book || !$refs.prev.chapter}
+                on:click={() => {
+                    refs.skip(-1);
+                    addHistory({
+                        collection: $refs.collection,
+                        book: $refs.book,
+                        chapter: $refs.chapter,
+                        verse: $refs.verse
+                    });
+                }}
+            >
+                {#if $refs.prev.book && $refs.prev.chapter}
+                    <ChevronLeftIcon color="gray" />
+                {/if}
+            </button>
         </div>
-    </ScrolledContent>
+
+        <!-- div class="flex flex-col justify-center">
+    </div -->
+        <ScrolledContent class="grow-0">
+            <div
+                style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
+                slot="scrolled-content"
+                class="max-w-screen-md"
+                use:pinch
+                on:pinch={doPinch}
+                use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+                on:swipe={doSwipe}
+            >
+                <ScriptureViewSofria {...viewSettings} />
+            </div>
+        </ScrolledContent>
+        <div class="grow flex flex-column items-center justify-start">
+            <!-- TODO: we shouldn't show these buttons on smaller screens -->
+            <button
+                class="dy-btn dy-btn-ghost dy-btn-circle"
+                disabled={!$refs.next.book || !$refs.next.chapter}
+                on:click={() => {
+                    refs.skip(1);
+                    addHistory({
+                        collection: $refs.collection,
+                        book: $refs.book,
+                        chapter: $refs.chapter,
+                        verse: $refs.verse
+                    });
+                }}
+            >
+                {#if $refs.next.book && $refs.next.chapter}
+                    <ChevronRightIcon color="gray" />
+                {/if}
+            </button>
+        </div>
+    </div>
 </div>
 {#if $selectedVerses.length > 0}
     <div class="left-0 right-0 bottom-0 absolute">
@@ -291,5 +336,11 @@
         border: 30px solid transparent;
         border-image-source: url(/borders/border.png);
         border-image-slice: 100;
+    }
+    button[disabled] {
+        background-color: transparent;
+        &:hover {
+            background-color: transparent;
+        }
     }
 </style>
