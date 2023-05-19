@@ -4,7 +4,7 @@ A template for building a Progressive Web App with [Scripture App Builder](https
 
 ## Usage
 
-You will need to download [Scripture App Builder 10.3.2](https://drive.google.com/drive/folders/1EQaBXX-Y3Y2ZD3rgn8EtTfEO6J1Dhd9U?usp=share_link](https://software.sil.org/scriptureappbuilder/download/)) to use this project without the provided example data.
+You will need to download [Scripture App Builder 10.3.2](https://software.sil.org/scriptureappbuilder/download/) to use this project without the provided example data.
 
 ### Develop
 
