@@ -6,6 +6,8 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
+    import Dropdown from './Dropdown.svelte';
+    import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
@@ -14,7 +16,7 @@ TODO:
     const dispatch = createEventDispatcher();
 
     let nextDocSet;
-    console.log($s);
+    console.log(config.bookCollections);
 
     const docSetList = catalog.map((ds) => ds.id);
     const allowSinglePane = config.bookCollections.map((ds) => ({
@@ -38,13 +40,13 @@ TODO:
     }
 </script>
 
-<div class="w-60 p-2">
+<div class="p-2">
     <!-- Single Pane -->
     {#if layoutOption === 'Single Pane'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Single_Pane']}</strong>
         </p>
-        <ul class="dy-menu mx-auto">
+        <ul class="dy-menu dy-menu-compact mx-auto">
             {#each allowSinglePane.filter((x) => x.singlePane === true) as d}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li>
@@ -69,12 +71,38 @@ TODO:
                 </li>
             {/each}
         </ul>
+
         <!-- Side by Side -->
     {:else if layoutOption === 'Side By Side'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Two_Pane']}</strong>
         </p>
-        <ul class="dy-menu mx-auto" />
+        <ul class="dy-menu-compact mx-auto">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <div class="px-3">1.</div>
+                        <div class="normal-case">Dropdown</div>
+                        <DropdownIcon />
+                    </svelte:fragment>
+                    <svelte:fragment slot="content" />
+                </Dropdown>
+            </li>
+            <li>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <div class="px-3">2.</div>
+                        <div class="normal-case">Dropdown</div>
+                        <DropdownIcon />
+                    </svelte:fragment>
+                    <svelte:fragment slot="content" />
+                </Dropdown>
+            </li>
+        </ul>
+
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
         <p style:color={$themeColors['LayoutTitleColor']}>
