@@ -48,6 +48,11 @@ Book Collection Selector component.
                     tab: { component: SinglePaneIcon },
                     component: LayoutOptions,
                     props: { layoutOption: 'Single Pane' }
+                },
+                'Side By Side': {
+                    tab: { component: SideBySideIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Side By Side' }
                 }
             }}
             active="Single Pane"
