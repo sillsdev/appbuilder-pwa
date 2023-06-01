@@ -1,23 +1,18 @@
-<!-- @component Previous code: <pre>loading . . .</pre> -->
-
-<span class="spin"></span>
-
-<style>
-    @keyframes spinner {
+@keyframes spinner {
     0% {
         transform: translate3d(-50%, -50%, 0) rotate(0deg);
     }
     100% {
         transform: translate3d(-50%, -50%, 0) rotate(360deg);
     }
-    }
-    .spin::before {
+}
+.spin::before {
     animation: 1.5s linear infinite spinner;
     animation-play-state: inherit;
     border: solid 1rem #cfd0d1;
     border-bottom-color: grey;
     border-radius: 50%;
-    content: "";
+    content: '';
     height: 10rem;
     width: 10rem;
     position: absolute;
@@ -25,6 +20,4 @@
     left: 50%;
     transform: translate3d(-50%, -50%, 0);
     will-change: transform;
-    }
-</style>
-
+}

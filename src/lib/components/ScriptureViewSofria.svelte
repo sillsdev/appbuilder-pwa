@@ -7,6 +7,7 @@ TODO:
 - parse introduction for references
 -->
 <script lang="ts">
+    import '../../../static/spinner.css';
     import { base } from '$app/paths';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
@@ -19,7 +20,6 @@ TODO:
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
-    import { LoadingIcon } from '$lib/icons';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
 
     export let audioPhraseEndChars: string;
@@ -1094,7 +1094,7 @@ TODO:
 
 <article class="container" bind:this={container}>
     {#if loading}
-        <LoadingIcon />
+        <span class="spin" />
     {/if}
     <div
         id="content"

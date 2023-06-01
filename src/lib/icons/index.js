@@ -25,7 +25,6 @@ import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import VerseByVerseIcon from './VerseByVerseIcon.svelte';
 import { AudioIcon } from './audio';
 import { ImageIcon } from './image';
-import LoadingIcon from './LoadingIcon.svelte';
 
 export {
     AboutIcon,
@@ -53,6 +52,5 @@ export {
     SideBySideIcon,
     SinglePaneIcon,
     TextAppearanceIcon,
-    VerseByVerseIcon,
-    LoadingIcon
+    VerseByVerseIcon
 };
