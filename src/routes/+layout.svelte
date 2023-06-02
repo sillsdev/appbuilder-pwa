@@ -2,9 +2,15 @@
     import Sidebar from '$lib/components/Sidebar.svelte';
     import { s, refs, theme } from '$lib/data/stores';
     import { base } from '$app/paths';
+    import { onMount } from 'svelte';
     import '$lib/app.css';
+
+    onMount(() => {
+        updateBodyTheme($theme);
+    });
+
     function updateBodyTheme(theme) {
-        document.querySelector('body').setAttribute('data-color-theme', theme);
+        document.querySelector('#content')?.setAttribute('data-color-theme', theme);
     }
     $: updateBodyTheme($theme);
 </script>
