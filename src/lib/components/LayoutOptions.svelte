@@ -19,7 +19,7 @@ TODO:
     let nextDocSet;
 
     //const allDocSets = catalog.map((ds) => ds.id);
-    const allDocSets = config.bookCollections.map((ds) => ({
+    $: allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
         singlePane: ds.features['bc-allow-single-pane'],
@@ -88,10 +88,9 @@ TODO:
                             <li>
                                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                                 <a
-                                    on:click={() => handleClick(d.id)}
-                                    class={nextDocSet === leftSide.id ? 'dy-active' : ''}
+                                    on:click={() => handleLeft(d)}
                                     style={convertStyle($s['ui.layouts.selector'])}
-                                    style:background-color={nextDocSet === d.id
+                                    style:background-color={leftSide.id === d.id
                                         ? $themeColors['LayoutItemSelectedBackgroundColor']
                                         : $themeColors['LayoutBackgroundColor']}
                                 >
@@ -125,10 +124,9 @@ TODO:
                               <li>
                                   <!-- svelte-ignore a11y-click-events-have-key-events -->
                                   <a
-                                      on:click={() => handleClick(d.id)}
-                                      class={nextDocSet === rightSide.id ? 'dy-active' : ''}
+                                      on:click={() => handleRight(d)}
                                       style={convertStyle($s['ui.layouts.selector'])}
-                                      style:background-color={nextDocSet === d.id
+                                      style:background-color={rightSide.id === d.id
                                           ? $themeColors['LayoutItemSelectedBackgroundColor']
                                           : $themeColors['LayoutBackgroundColor']}
                                   >
