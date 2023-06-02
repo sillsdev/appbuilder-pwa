@@ -7,7 +7,6 @@ TODO:
 - parse introduction for references
 -->
 <script lang="ts">
-    import '../../../static/spinner.css';
     import { base } from '$app/paths';
     import { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
