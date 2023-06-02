@@ -19,7 +19,7 @@ TODO:
     let nextDocSet;
 
     //const allDocSets = catalog.map((ds) => ds.id);
-    const allDocSets = config.bookCollections.map((ds) => ({
+    $: allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
         singlePane: ds.features['bc-allow-single-pane'],
@@ -27,7 +27,21 @@ TODO:
     }));
 
     $: leftSide = allDocSets.find((x) => x.id === $refs.docSet);
-    $: rightSide = allDocSets.filter((x) => x.id != $refs.docSet)[0];
+    $: rightSide = allDocSets.filter((x) => x.id != leftSide.id)[0];
+
+    function handleLeft(opt) {
+      leftSide = opt;
+      if (rightSide === leftSide) {
+        rightSide = allDocSets.filter((x) => x.id != leftSide.id)[0];
+      }
+    }
+
+    function handleRight(opt) {
+      rightSide = opt;
+      if (leftSide === rightSide) {
+        leftSide = allDocSets.filter((x) => x.id != rightSide.id)[0];
+      }
+    }
 
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
@@ -96,10 +110,9 @@ TODO:
                             <li>
                                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                                 <a
-                                    on:click={() => handleClick(d.id)}
-                                    class={nextDocSet === leftSide.id ? 'dy-active' : ''}
+                                    on:click={() => handleLeft(d)}
                                     style={convertStyle($s['ui.layouts.selector'])}
-                                    style:background-color={nextDocSet === d.id
+                                    style:background-color={leftSide.id === d.id
                                         ? $themeColors['LayoutItemSelectedBackgroundColor']
                                         : $themeColors['LayoutBackgroundColor']}
                                 >
@@ -133,10 +146,9 @@ TODO:
                               <li>
                                   <!-- svelte-ignore a11y-click-events-have-key-events -->
                                   <a
-                                      on:click={() => handleClick(d.id)}
-                                      class={nextDocSet === rightSide.id ? 'dy-active' : ''}
+                                      on:click={() => handleRight(d)}
                                       style={convertStyle($s['ui.layouts.selector'])}
-                                      style:background-color={nextDocSet === d.id
+                                      style:background-color={rightSide.id === d.id
                                           ? $themeColors['LayoutItemSelectedBackgroundColor']
                                           : $themeColors['LayoutBackgroundColor']}
                                   >
