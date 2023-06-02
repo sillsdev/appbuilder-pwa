@@ -101,16 +101,9 @@
         viewShowVerses: $userSettings['verse-numbers']
     };
 
+    $: audioBarHeight = $refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0;
     // Border Subtraction
-    $: bs =
-        4 +
-        ($selectedVerses.length > 0
-            ? 3
-            : $refs.hasAudio && $audioActive
-            ? $refs.hasAudio.timingFile
-                ? 4
-                : 5
-            : 0);
+    $: bs = 4 + ($selectedVerses.length > 0 ? 3 : audioBarHeight);
     // Content Subtraction
     $: cs = 1 + bs + (showBorder ? 3.5 : 0);
 
@@ -267,15 +260,17 @@
     </ScrolledContent>
 </div>
 {#if $selectedVerses.length > 0}
-    <div class="left-0 right-0 bottom-0 absolute">
+    <div class="text-selection left-0 right-0 absolute" style:bottom={'-3rem'}>
         <TextSelectionToolbar />
     </div>
 {:else if $refs.hasAudio && $audioActive}
+    <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
     <div
-        class="audio-bar p-0 left-0 right-0 bottom-0 absolute"
+        class="audio-bar p-0 left-0 right-0 absolute"
         class:audio-bar-desktop={$showDesktopSidebar}
+        style:bottom={'-' + audioBarHeight + 'rem'}
     >
-        <div style:height={$refs.hasAudio?.timingFile ? '4rem' : '5rem'}>
+        <div style:height={audioBarHeight + 'rem'}>
             <AudioBar audio={$refs.hasAudio?.audio} />
         </div>
     </div>
