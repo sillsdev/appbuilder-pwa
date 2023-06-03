@@ -17,10 +17,6 @@
 </script>
 
 <!-- Make the top level element scrollable so that slots can be sticky relative to the direct parent -->
-<main
-    class="p-2 overflow-y-auto {$$restProps.class || ''}"
-    bind:this={main}
-    on:scroll={updateScroll}
->
+<main class={`p-2 overflow-y-auto ${$$props.class}`} bind:this={main} on:scroll={updateScroll}>
     <slot />
 </main>
