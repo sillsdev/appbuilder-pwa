@@ -270,7 +270,6 @@
     class:borderimg={showBorder}
     style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
 >
-    <!-- TODO: maybe we shouldn't show prev/next chapter buttons on smaller screens -->
     <ScrolledContent class="md:flex flex flex-row justify-center space-x-4">
         <div class="max-sm:hidden flex flex-column items-center justify-end sticky top-0">
             <button
