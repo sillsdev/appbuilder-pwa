@@ -16,8 +16,11 @@
     onMount(updateScroll);
 </script>
 
-<div class="p-2 overflow-y-auto " bind:this={main} on:scroll={updateScroll}>
-    <main>
-        <slot name="scrolled-content" />
-    </main>
-</div>
+<!-- Make the top level element scrollable so that slots can be sticky relative to the direct parent -->
+<main
+    class="p-2 overflow-y-auto {$$restProps.class || ''}"
+    bind:this={main}
+    on:scroll={updateScroll}
+>
+    <slot />
+</main>

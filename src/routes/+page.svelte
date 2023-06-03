@@ -270,9 +270,9 @@
     class:borderimg={showBorder}
     style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
 >
-    <div class="flex flex-row justify-center space-x-4 ml-4 mr-4">
-        <!-- TODO: we shouldn't show these buttons on smaller screens -->
-        <div class="flex flex-column items-center justify-end">
+    <!-- TODO: maybe we shouldn't show prev/next chapter buttons on smaller screens -->
+    <ScrolledContent class="md:flex flex flex-row justify-center space-x-4">
+        <div class="max-sm:hidden flex flex-column items-center justify-end sticky top-0">
             <button
                 class="dy-btn dy-btn-ghost dy-btn-circle"
                 disabled={!$refs.prev.book || !$refs.prev.chapter}
@@ -283,20 +283,20 @@
                 {/if}
             </button>
         </div>
-        <ScrolledContent>
-            <div
-                style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
-                slot="scrolled-content"
-                class="max-w-screen-md"
-                use:pinch
-                on:pinch={doPinch}
-                use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-                on:swipe={doSwipe}
-            >
-                <ScriptureViewSofria {...viewSettings} />
-            </div>
-        </ScrolledContent>
-        <div class="flex flex-column items-center justify-start">
+
+        <div
+            style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
+            class="max-w-screen-md"
+            use:pinch
+            on:pinch={doPinch}
+            use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+            on:swipe={doSwipe}
+        >
+            <ScriptureViewSofria {...viewSettings} />
+        </div>
+        <div
+            class="max-sm:hidden flex flex-column items-center justify-start sticky top-0 hidden sm:flex"
+        >
             <!-- TODO: we shouldn't show these buttons on smaller screens -->
             <button
                 class="dy-btn dy-btn-ghost dy-btn-circle"
@@ -308,7 +308,7 @@
                 {/if}
             </button>
         </div>
-    </div>
+    </ScrolledContent>
 </div>
 {#if $selectedVerses.length > 0}
     <div class="left-0 right-0 bottom-0 absolute">

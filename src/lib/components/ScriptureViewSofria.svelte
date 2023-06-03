@@ -1062,5 +1062,6 @@ TODO:
         class:hidden={loading}
         style:font-size={fontSize}
         style:line-height={lineHeight}
+        class="single"
     />
 </article>
