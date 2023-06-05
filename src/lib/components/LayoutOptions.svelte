@@ -10,13 +10,14 @@ TODO:
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
+    import CollectionList from './CollectionList.svelte';
 
     export let layoutOption = '';
     const dispatch = createEventDispatcher();
 
     let nextDocSet;
 
-    $: allDocSets = config.bookCollections.map((ds) => ({
+    let allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
         singlePane: ds.features['bc-allow-single-pane'],
@@ -27,12 +28,12 @@ TODO:
         refs.set({ docSet: opt, book: $refs.book, chapter: $refs.chapter });
         nextDocSet = opt;
         dispatch('menuaction', {
-            text: opt
+            text: opt.id
         });
     }
 
     function handleLeft(opt) {
-        leftSide = opt;
+        leftSide = opt.detail.collection;
         if (rightSide === leftSide) {
             rightSide = allDocSets.filter((x) => x.id != leftSide.id)[0];
         }
@@ -40,7 +41,7 @@ TODO:
     }
 
     function handleRight(opt) {
-        rightSide = opt;
+        rightSide = opt.detail.collection;
         if (leftSide === rightSide) {
             leftSide = allDocSets.filter((x) => x.id != rightSide.id)[0];
         }
@@ -48,38 +49,18 @@ TODO:
     }
 </script>
 
-<div class="p-2">
+<div>
     <!-- Single Pane -->
     {#if layoutOption === 'Single Pane'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Single_Pane']}</strong>
         </p>
-        <ul class="dy-menu dy-menu-compact mx-auto">
-            {#each allDocSets.filter((x) => x.singlePane === true) as d}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <li>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <a
-                        on:click={() => handleClick(d.id)}
-                        style={convertStyle($s['ui.layouts.selector'])}
-                        style:background-color={nextDocSet === d.id
-                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                            : $themeColors['LayoutBackgroundColor']}
-                    >
-                        <div class="dy-relative">
-                            <div class={convertStyle($s['ui.layouts.title'])}>
-                                {d.name}
-                            </div>
-                            {#if d.description}
-                                <div class="text-sm">{d.description}</div>
-                            {/if}
-                        </div>
-                    </a>
-                </li>
-            {/each}
-        </ul>
+        <CollectionList
+            docSets={allDocSets.filter((x) => x.singlePane === true)}
+            {nextDocSet}
+            on:menuaction={handleSinglePane}
+        />
         <!-- Side by Side -->
-        <!-- TODO: Handle clicking and set a ref store to have left and right docset assignments.-->
     {:else if layoutOption === 'Side By Side'}
         <p style:color={$themeColors['LayoutTitleColor']}>
             <strong>{$t['Layout_Two_Pane']}</strong>
@@ -95,30 +76,11 @@ TODO:
                         <DropdownIcon />
                     </svelte:fragment>
                     <svelte:fragment slot="content">
-                        <ul>
-                            {#each allDocSets.filter((x) => x.singlePane === true) as d}
-                                <!-- svelte-ignore a11y-missing-attribute -->
-                                <li>
-                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                    <a
-                                        on:click={() => handleLeft(d)}
-                                        style={convertStyle($s['ui.layouts.selector'])}
-                                        style:background-color={leftSide.id === d.id
-                                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                                            : $themeColors['LayoutBackgroundColor']}
-                                    >
-                                        <div class="dy-relative">
-                                            <div class={convertStyle($s['ui.layouts.title'])}>
-                                                {d.name}
-                                            </div>
-                                            {#if d.description}
-                                                <div class="text-sm">{d.description}</div>
-                                            {/if}
-                                        </div>
-                                    </a>
-                                </li>
-                            {/each}
-                        </ul>
+                        <CollectionList
+                            docSets={allDocSets}
+                            nextDocSet={leftSide}
+                            on:menuaction={handleLeft}
+                        />
                     </svelte:fragment>
                 </Dropdown>
             </li>
@@ -131,30 +93,11 @@ TODO:
                         <DropdownIcon />
                     </svelte:fragment>
                     <svelte:fragment slot="content">
-                        <ul>
-                            {#each allDocSets.filter((x) => x.singlePane === true) as d}
-                                <!-- svelte-ignore a11y-missing-attribute -->
-                                <li>
-                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                    <a
-                                        on:click={() => handleRight(d)}
-                                        style={convertStyle($s['ui.layouts.selector'])}
-                                        style:background-color={rightSide.id === d.id
-                                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                                            : $themeColors['LayoutBackgroundColor']}
-                                    >
-                                        <div class="dy-relative">
-                                            <div class={convertStyle($s['ui.layouts.title'])}>
-                                                {d.name}
-                                            </div>
-                                            {#if d.description}
-                                                <div class="text-sm">{d.description}</div>
-                                            {/if}
-                                        </div>
-                                    </a>
-                                </li>
-                            {/each}
-                        </ul>
+                        <CollectionList
+                            docSets={allDocSets}
+                            nextDocSet={rightSide}
+                            on:menuaction={handleRight}
+                        />
                     </svelte:fragment>
                 </Dropdown>
             </li>
@@ -167,10 +110,3 @@ TODO:
         <ul class="dy-menu mx-auto" />
     {/if}
 </div>
-
-<style>
-    a {
-        display: flex;
-        justify-content: space-between;
-    }
-</style>

@@ -52,6 +52,13 @@ declare namespace App {
         cells?: GridEntry[];
     }
 
+    interface CollectionEntry {
+        id: string;
+        name: string;
+        singlePane: boolean;
+        description: string;
+    }
+
     interface UserPreferenceSetting {
         type: 'checkbox' | 'list' | 'time';
         category: string;
