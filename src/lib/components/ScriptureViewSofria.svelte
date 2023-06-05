@@ -26,6 +26,7 @@ TODO:
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let bookmarks: any;
+    export let notes: any;
     export let highlights: any;
     export let maxSelections: any;
     export let redLetters: boolean;
@@ -204,6 +205,35 @@ TODO:
             workspace.phraseDiv = div.cloneNode(true);
         }
     }
+
+    function addNotesDiv(workspace) {
+        const fnc = 'abcdefghijklmnopqrstuvwxyz';
+        const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
+        const notesSpan = document.createElement('span');
+        notesSpan.id = 'notes' + workspace.currentVerse;
+        let el = workspace.paragraphDiv?.querySelector(
+            `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
+        );
+        if (el === null) {
+            // Try finding if it is already attached to root
+            el = workspace.root.querySelector(
+                `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
+            );
+        }
+        el?.parentNode.insertBefore(notesSpan, el.nextSibling);
+    }
+    const noteSvg = () => {
+        return '<svg fill="#000000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>';
+    };
+    function addNotedVerses(notesInChapter) {
+        for (var k = 0; k < notesInChapter.length; k++) {
+            let notesSpan = document.getElementById('bookmarks' + notesInChapter[k].verse);
+            let noteSpan = document.createElement('span');
+            noteSpan.id = 'note' + k;
+            noteSpan.innerHTML = noteSvg();
+            notesSpan.appendChild(noteSpan);
+        }
+    }
     function addBookmarksDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
@@ -322,6 +352,7 @@ TODO:
         showRedLetters: boolean,
         versePerLine: boolean,
         bookmarks: any[],
+        notes: any[],
         highlights: any[],
         videos: any[]
     ) => {
@@ -407,6 +438,13 @@ TODO:
                                         els[i].addEventListener('click', onClick, false);
                                     }
                                 }
+                                const notesInChapter = annotationsForChapter(
+                                    notes,
+                                    docSet,
+                                    bookCode,
+                                    chapter
+                                );
+                                addNotedVerses(notesInChapter);
                                 const bookmarksInChapter = annotationsForChapter(
                                     bookmarks,
                                     docSet,
@@ -915,6 +953,7 @@ TODO:
                                             workspace.verseDiv = null;
                                         }
                                         workspace.phraseDiv = null;
+                                        addNotesDiv(workspace);
                                         addBookmarksDiv(workspace);
                                         workspace.currentVerse = 'none';
                                     }
@@ -1045,6 +1084,7 @@ TODO:
             redLetters,
             versePerLine,
             bookmarks,
+            notes,
             highlights,
             videos
         );

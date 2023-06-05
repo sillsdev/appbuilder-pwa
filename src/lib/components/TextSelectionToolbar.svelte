@@ -133,12 +133,19 @@ TODO:
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
 
-        $notes.push({
-            id: $notes.size + 1,
-            reference: selectedVerses.getReference(0),
-            text: selectedText(),
-            date: today.toDateString()
-        });
+        $notes = [
+            ...$notes,
+            {
+                id: $notes.length,
+                reference: selectedVerses.getReference(0),
+                text: selectedText(),
+                date: today.toDateString(),
+                docSet: $selectedVerses[0].docSet,
+                book: $selectedVerses[0].book,
+                chapter: $selectedVerses[0].chapter,
+                verse: $selectedVerses[0].verse
+            }
+        ];
         selectedVerses.reset();
     }
 
