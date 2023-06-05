@@ -53,7 +53,12 @@ A component to display tabbed menus.
         {/each}
     </div>
 {/if}
-<div style={convertStyle($s['ui.background'])} class:p-2={!hasTabs} style:overflow-y={scroll ? 'auto' : ''} style:max-height={height}>
+<div
+    style={convertStyle($s['ui.background'])}
+    class:p-2={!hasTabs}
+    style:overflow-y={scroll ? 'auto' : ''}
+    style:max-height={height}
+>
     <svelte:component
         this={options[active].component}
         {cols}
