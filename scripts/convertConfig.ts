@@ -272,9 +272,9 @@ function removeCData(data: string) {
 
 function changeSpToRem(propValue: string) {
     // Convert Android-specific sp values to rem values
-    let rootFontSize: number = Number(16);
-    let remValue = Number(propValue.replace('sp', '')) / rootFontSize;
-    let newPropValue = String(remValue) + 'rem';
+    const rootFontSize: number = Number(16);
+    const remValue = Number(propValue.replace('sp', '')) / rootFontSize;
+    const newPropValue = String(remValue) + 'rem';
     return newPropValue;
 }
 
