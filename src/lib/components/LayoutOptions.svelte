@@ -6,10 +6,8 @@ TODO:
 -->
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
-    import SelectList from './SelectList.svelte';
     import Dropdown from './Dropdown.svelte';
     import { DropdownIcon } from '$lib/icons';
-    import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
 
@@ -18,7 +16,6 @@ TODO:
 
     let nextDocSet;
 
-    //const allDocSets = catalog.map((ds) => ds.id);
     $: allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
@@ -28,20 +25,6 @@ TODO:
 
     $: leftSide = allDocSets.find((x) => x.id === $refs.docSet);
     $: rightSide = allDocSets.filter((x) => x.id != leftSide.id)[0];
-
-    function handleLeft(opt) {
-      leftSide = opt;
-      if (rightSide === leftSide) {
-        rightSide = allDocSets.filter((x) => x.id != leftSide.id)[0];
-      }
-    }
-
-    function handleRight(opt) {
-      rightSide = opt;
-      if (leftSide === rightSide) {
-        leftSide = allDocSets.filter((x) => x.id != rightSide.id)[0];
-      }
-    }
 
     const removeKey = refs.subscribe((v) => {
         nextDocSet = v.docSet;
@@ -54,6 +37,21 @@ TODO:
         dispatch('menuaction', {
             text: opt
         });
+    }
+    function handleLeft(opt) {
+        leftSide = opt;
+        if (rightSide === leftSide) {
+            rightSide = allDocSets.filter((x) => x.id != leftSide.id)[0];
+        }
+        (document.activeElement as HTMLElement).blur();
+    }
+
+    function handleRight(opt) {
+        rightSide = opt;
+        if (leftSide === rightSide) {
+            leftSide = allDocSets.filter((x) => x.id != rightSide.id)[0];
+        }
+        (document.activeElement as HTMLElement).blur();
     }
 </script>
 
@@ -104,30 +102,30 @@ TODO:
                         <DropdownIcon />
                     </svelte:fragment>
                     <svelte:fragment slot="content">
-                      <ul>
-                        {#each allDocSets.filter((x) => x.singlePane === true) as d}
-                            <!-- svelte-ignore a11y-missing-attribute -->
-                            <li>
-                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                <a
-                                    on:click={() => handleLeft(d)}
-                                    style={convertStyle($s['ui.layouts.selector'])}
-                                    style:background-color={leftSide.id === d.id
-                                        ? $themeColors['LayoutItemSelectedBackgroundColor']
-                                        : $themeColors['LayoutBackgroundColor']}
-                                >
-                                    <div class="dy-relative">
-                                        <div class={convertStyle($s['ui.layouts.title'])}>
-                                            {d.name}
+                        <ul>
+                            {#each allDocSets.filter((x) => x.singlePane === true) as d}
+                                <!-- svelte-ignore a11y-missing-attribute -->
+                                <li>
+                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                    <a
+                                        on:click={() => handleLeft(d)}
+                                        style={convertStyle($s['ui.layouts.selector'])}
+                                        style:background-color={leftSide.id === d.id
+                                            ? $themeColors['LayoutItemSelectedBackgroundColor']
+                                            : $themeColors['LayoutBackgroundColor']}
+                                    >
+                                        <div class="dy-relative">
+                                            <div class={convertStyle($s['ui.layouts.title'])}>
+                                                {d.name}
+                                            </div>
+                                            {#if d.description}
+                                                <div class="text-sm">{d.description}</div>
+                                            {/if}
                                         </div>
-                                        {#if d.description}
-                                            <div class="text-sm">{d.description}</div>
-                                        {/if}
-                                    </div>
-                                </a>
-                            </li>
-                        {/each}
-                    </ul>
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
                     </svelte:fragment>
                 </Dropdown>
             </li>
@@ -141,29 +139,29 @@ TODO:
                     </svelte:fragment>
                     <svelte:fragment slot="content">
                         <ul>
-                          {#each allDocSets.filter((x) => x.singlePane === true) as d}
-                              <!-- svelte-ignore a11y-missing-attribute -->
-                              <li>
-                                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                  <a
-                                      on:click={() => handleRight(d)}
-                                      style={convertStyle($s['ui.layouts.selector'])}
-                                      style:background-color={rightSide.id === d.id
-                                          ? $themeColors['LayoutItemSelectedBackgroundColor']
-                                          : $themeColors['LayoutBackgroundColor']}
-                                  >
-                                      <div class="dy-relative">
-                                          <div class={convertStyle($s['ui.layouts.title'])}>
-                                              {d.name}
-                                          </div>
-                                          {#if d.description}
-                                              <div class="text-sm">{d.description}</div>
-                                          {/if}
-                                      </div>
-                                  </a>
-                              </li>
-                          {/each}
-                      </ul>
+                            {#each allDocSets.filter((x) => x.singlePane === true) as d}
+                                <!-- svelte-ignore a11y-missing-attribute -->
+                                <li>
+                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                    <a
+                                        on:click={() => handleRight(d)}
+                                        style={convertStyle($s['ui.layouts.selector'])}
+                                        style:background-color={rightSide.id === d.id
+                                            ? $themeColors['LayoutItemSelectedBackgroundColor']
+                                            : $themeColors['LayoutBackgroundColor']}
+                                    >
+                                        <div class="dy-relative">
+                                            <div class={convertStyle($s['ui.layouts.title'])}>
+                                                {d.name}
+                                            </div>
+                                            {#if d.description}
+                                                <div class="text-sm">{d.description}</div>
+                                            {/if}
+                                        </div>
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
                     </svelte:fragment>
                 </Dropdown>
             </li>

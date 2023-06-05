@@ -16,6 +16,6 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 <input type="checkbox" {id} class="dy-modal-toggle" />
 <label for={id} class="dy-modal cursor-pointer">
     <label style={convertStyle($s['ui.dialog'])} class="dy-modal-box relative" for="">
-        <slot name="content" />
+      <slot name="content" />
     </label>
 </label>
