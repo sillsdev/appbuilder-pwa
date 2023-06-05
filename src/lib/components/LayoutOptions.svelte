@@ -30,6 +30,7 @@ TODO:
             text: opt
         });
     }
+
     function handleLeft(opt) {
         leftSide = opt;
         if (rightSide === leftSide) {

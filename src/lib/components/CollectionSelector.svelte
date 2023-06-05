@@ -58,23 +58,21 @@ Book Collection Selector component.
             active="Single Pane"
             on:menuaction={navigateReference}
         />
-        <div style:justify-content="space-between" class="flex w-full dy-modal-action">
+        <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <button
+            <label
+                for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => (docSet = $refs.docSet)}
+                on:click={() => (docSet = $refs.docSet)}>Cancel</label
             >
-                Cancel
-            </button>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <button
+            <label
+                for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => ($refs.docSet = docSet)}
+                on:click={() => ($refs.docSet = docSet)}>Ok</label
             >
-                Ok
-            </button>
         </div>
     </svelte:fragment>
 </Modal>
