@@ -219,11 +219,19 @@ function parseStyles(stylesTag: Element, verbose: number) {
         for (const propertyTag of propertyTags) {
             const propName = propertyTag.getAttribute('property');
             const propValue = propertyTag.getAttribute('value');
-            if (propName && propValue) { 
+            if (propName && propValue) {
                 // Check for sp values (Android-specific) and convert to rem values:
-                if (propValue.endsWith("sp")) {
+                if (propValue.endsWith('sp')) {
                     properties[propName] = changeSpToRem(propValue);
-                    if (verbose) console.log('Parsing '+propName+' = '+propValue+' -> '+properties[propName]);
+                    if (verbose)
+                        console.log(
+                            'Parsing ' +
+                                propName +
+                                ' = ' +
+                                propValue +
+                                ' -> ' +
+                                properties[propName]
+                        );
                 } else {
                     //Not a sp value
                     properties[propName] = propValue;
@@ -265,8 +273,8 @@ function removeCData(data: string) {
 function changeSpToRem(propValue: string) {
     // Convert Android-specific sp values to rem values
     let rootFontSize: number = Number(16);
-    let remValue = Number(propValue.replace('sp','')) / rootFontSize;
-    let newPropValue = String(remValue) + "rem";
+    let remValue = Number(propValue.replace('sp', '')) / rootFontSize;
+    let newPropValue = String(remValue) + 'rem';
     return newPropValue;
 }
 
