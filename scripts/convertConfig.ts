@@ -206,7 +206,7 @@ function parseConfigValue(value: any) {
     return value;
 }
 
-function parseStyles(stylesTag: Element) {
+function parseStyles(stylesTag: Element, verbose: number) {
     const styles = [];
     const styleTags = stylesTag?.getElementsByTagName('style');
     if (!styleTags) throw new Error('Styles tag not found in xml');
@@ -219,7 +219,24 @@ function parseStyles(stylesTag: Element) {
         for (const propertyTag of propertyTags) {
             const propName = propertyTag.getAttribute('property');
             const propValue = propertyTag.getAttribute('value');
-            if (propName && propValue) properties[propName] = propValue;
+            if (propName && propValue) {
+                // Check for sp values (Android-specific) and convert to rem values:
+                if (propValue.endsWith('sp')) {
+                    properties[propName] = changeSpToRem(propValue);
+                    if (verbose)
+                        console.log(
+                            'Parsing ' +
+                                propName +
+                                ' = ' +
+                                propValue +
+                                ' -> ' +
+                                properties[propName]
+                        );
+                } else {
+                    //Not a sp value
+                    properties[propName] = propValue;
+                }
+            }
         }
         styles.push({
             name,
@@ -251,6 +268,14 @@ function dirEmpty(path: PathLike): boolean {
 
 function removeCData(data: string) {
     return data.replace('<![CDATA[', '').replace(']]>', '');
+}
+
+function changeSpToRem(propValue: string) {
+    // Convert Android-specific sp values to rem values
+    const rootFontSize = 16;
+    const remValue = Number(propValue.replace('sp', '')) / rootFontSize;
+    const newPropValue = String(remValue) + 'rem';
+    return newPropValue;
 }
 
 function convertConfig(dataDir: string, verbose: number) {
@@ -343,7 +368,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     // Styles
     const mainStyles = document.querySelector('styles')!;
-    data.styles = parseStyles(mainStyles);
+    data.styles = parseStyles(mainStyles, verbose);
 
     // Traits
     const traitTags = document.getElementsByTagName('traits')[0].getElementsByTagName('trait');
@@ -401,7 +426,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
             }
             const bkStyles = book.querySelector('styles');
-            const styles = bkStyles ? parseStyles(bkStyles) : undefined;
+            const styles = bkStyles ? parseStyles(bkStyles, verbose) : undefined;
 
             books.push({
                 chapters: parseInt(
@@ -461,7 +486,7 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 2) console.log(`.. footer: `, footer);
 
         const bcStyles = tag.querySelector('styles');
-        const styles = bcStyles ? parseStyles(bcStyles) : undefined;
+        const styles = bcStyles ? parseStyles(bcStyles, verbose) : undefined;
 
         data.bookCollections.push({
             id: tag.id,
