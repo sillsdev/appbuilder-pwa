@@ -6,7 +6,12 @@ export interface StylesTaskOutput extends TaskOutput {
     taskName: 'ConvertStyles';
 }
 /**
- * Convert firebase-config.js to module or provide null definition
+ * Convert styles to use #container and #content instead of body
+ * Note: The styles generated are for the body element of the mobile browser window in the Android
+ * app.  This browser window doesn't include the app bar or tool bars.  With the PWA, we need
+ * to split up the styles assigned to body. Most of the styles will be attached to #container.
+ * The margin-top and margin-bottom are changed to padding-top and padding-bottom and attached
+ * to the #content element instead.
  */
 export function convertStyles(dataDir: string, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
@@ -21,11 +26,15 @@ export function convertStyles(dataDir: string, verbose: number) {
         const lines = fileContents.split('\n');
         const updatedFileContents = lines
             .map((line) => {
+                if (line.indexOf('body') === 0 && line.indexOf('margin-top') > 0) {
+                    let parts = line.split('margin-top');
+                    line = parts[0].replace('body', '#container') + '}\n';
+                    line +=
+                        '#content { padding-top' +
+                        parts[1].replace('margin-bottom', 'padding-bottom');
+                }
                 if (line.indexOf('body') === 0) {
-                    line = line
-                        .replace('body', '#content')
-                        .replace('margin-top', 'padding-top')
-                        .replace('margin-bottom', 'padding-bottom');
+                    line = line.replace('body', '#container');
                 }
                 return line;
             })

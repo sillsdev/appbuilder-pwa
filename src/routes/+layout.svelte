@@ -2,17 +2,7 @@
     import Sidebar from '$lib/components/Sidebar.svelte';
     import { s, refs, theme } from '$lib/data/stores';
     import { base } from '$app/paths';
-    import { onMount } from 'svelte';
     import '$lib/app.css';
-
-    onMount(() => {
-        updateBodyTheme($theme);
-    });
-
-    function updateBodyTheme(theme) {
-        document.querySelector('#content')?.setAttribute('data-color-theme', theme);
-    }
-    $: updateBodyTheme($theme);
 </script>
 
 <svelte:head>
@@ -22,5 +12,7 @@
     <link rel="stylesheet" href="{base}/override-sab.css" />
 </svelte:head>
 <Sidebar>
-    <slot />
+    <div id="container" data-color-theme={$theme}>
+        <slot />
+    </div>
 </Sidebar>

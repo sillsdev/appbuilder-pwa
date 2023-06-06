@@ -36,11 +36,11 @@ const verbose: number = verboseLevel
 
 const stepClasses: Task[] = [
     ConvertConfig,
+    ConvertStyles,
     ConvertManifest,
     ConvertMedia,
     ConvertBooks,
     ConvertFirebase,
-    ConvertStyles,
     ConvertAbout
 ].map((x) => new x(dataDir));
 const allPaths = new Set(
