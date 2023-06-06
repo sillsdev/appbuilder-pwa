@@ -27,7 +27,7 @@ Dispatches a menuaction event when an option is selected from the menu.
         <MoreVertIcon color={$monoIconColor} />
     </div>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <ul tabindex="0" class="dy-dropdown-content dy-menu shadow bg-base-100">
+    <ul tabindex="0" class="dy-dropdown-content dy-menu shadow bg-base-100 z-10">
         {#each actions as a}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-missing-attribute -->
