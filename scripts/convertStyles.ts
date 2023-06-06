@@ -26,7 +26,7 @@ export function convertStyles(dataDir: string, verbose: number) {
         const lines = fileContents.split('\n');
         const updatedFileContents = lines
             .map((line) => {
-                if (line.indexOf('body') === 0 && line.indexOf('margin-top') > 0) {
+                if (line.indexOf('body {') === 0) {
                     const parts = line.split('margin-top');
                     line = parts[0].replace('body', '#container') + '}\n';
                     line +=
