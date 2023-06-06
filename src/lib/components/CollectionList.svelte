@@ -24,21 +24,16 @@
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : $themeColors['LayoutBackgroundColor']}
             >
-                <div
-                            style={$s['ui.layouts.selector']}
-                        >
-                            <div style={convertStyle($s['ui.layouts.title'])}>
-                                {d.name}
-                            </div>
-                            {#if d.description}
-                                <div
-                                    class="text-sm"
-                                    style={convertStyle($s['ui.layouts.selector'])}
-                                >
-                                    {d.description}
-                                </div>
-                            {/if}
+                <div style={$s['ui.layouts.selector']}>
+                    <div style={convertStyle($s['ui.layouts.title'])}>
+                        {d.name}
+                    </div>
+                    {#if d.description}
+                        <div class="text-sm" style={convertStyle($s['ui.layouts.selector'])}>
+                            {d.description}
                         </div>
+                    {/if}
+                </div>
             </a>
         </li>
     {/each}
