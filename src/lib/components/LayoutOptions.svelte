@@ -14,6 +14,7 @@ TODO:
 
     export let layoutOption = '';
     const dispatch = createEventDispatcher();
+    $: console.log($s);
 
     let nextDocSet;
 
@@ -52,8 +53,8 @@ TODO:
 <div>
     <!-- Single Pane -->
     {#if layoutOption === 'Single Pane'}
-        <p style:color={$themeColors['LayoutTitleColor']}>
-            <strong>{$t['Layout_Single_Pane']}</strong>
+        <p style={convertStyle($s['ui.layouts.selector'])}>
+            {$t['Layout_Single_Pane']}
         </p>
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
@@ -63,7 +64,7 @@ TODO:
         <!-- Side by Side -->
     {:else if layoutOption === 'Side By Side'}
         <p style:color={$themeColors['LayoutTitleColor']}>
-            <strong>{$t['Layout_Two_Pane']}</strong>
+            {$t['Layout_Two_Pane']}
         </p>
         <ul class="dy-menu-compact mx-auto">
             <!-- svelte-ignore a11y-missing-attribute -->
@@ -71,9 +72,23 @@ TODO:
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <Dropdown>
                     <svelte:fragment slot="label">
-                        <div class="px-3">1.</div>
-                        <div class="normal-case">{leftSide.name}</div>
-                        <DropdownIcon />
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>1.</div>
+                        <div class="dy-relative font-normal normal-case text-left">
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {leftSide.name}
+                            </div>
+                            {#if leftSide.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {leftSide.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                        </div>
                     </svelte:fragment>
                     <svelte:fragment slot="content">
                         <CollectionList
@@ -88,9 +103,26 @@ TODO:
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <Dropdown>
                     <svelte:fragment slot="label">
-                        <div class="px-3">2.</div>
-                        <div class="normal-case">{rightSide.name}</div>
-                        <DropdownIcon />
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>1.</div>
+                        <div
+                            class="dy-relative font-normal normal-case text-left"
+                            style={$s['ui.layouts.selector']}
+                        >
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {rightSide.name}
+                            </div>
+                            {#if rightSide.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {rightSide.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                        </div>
                     </svelte:fragment>
                     <svelte:fragment slot="content">
                         <CollectionList
@@ -105,7 +137,7 @@ TODO:
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
         <p style:color={$themeColors['LayoutTitleColor']}>
-            <strong>{$t['Layout_Interlinear']}</strong>
+            {$t['Layout_Interlinear']}
         </p>
         <ul class="dy-menu mx-auto" />
     {/if}
