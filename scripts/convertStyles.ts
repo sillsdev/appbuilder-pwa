@@ -27,7 +27,7 @@ export function convertStyles(dataDir: string, verbose: number) {
         const updatedFileContents = lines
             .map((line) => {
                 if (line.indexOf('body') === 0 && line.indexOf('margin-top') > 0) {
-                    let parts = line.split('margin-top');
+                    const parts = line.split('margin-top');
                     line = parts[0].replace('body', '#container') + '}\n';
                     line +=
                         '#content { padding-top' +
