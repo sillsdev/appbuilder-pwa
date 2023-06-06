@@ -20,19 +20,25 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <a
                 on:click={() => handleClick(d)}
-                style={convertStyle($s['ui.layouts.selector'])}
                 style:background-color={nextDocSet.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : $themeColors['LayoutBackgroundColor']}
             >
-                <div class="dy-relative">
-                    <div class={convertStyle($s['ui.layouts.title'])}>
-                        {d.name}
-                    </div>
-                    {#if d.description}
-                        <div class="text-sm">{d.description}</div>
-                    {/if}
-                </div>
+                <div
+                            style={$s['ui.layouts.selector']}
+                        >
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {d.name}
+                            </div>
+                            {#if d.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {d.description}
+                                </div>
+                            {/if}
+                        </div>
             </a>
         </li>
     {/each}
