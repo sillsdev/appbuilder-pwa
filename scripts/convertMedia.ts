@@ -1,5 +1,5 @@
 import { CopyOptions, cpSync } from 'fs';
-import rmDir from 'rimraf';
+import { rimraf } from 'rimraf';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
@@ -74,7 +74,7 @@ export class ConvertMedia extends Task {
         // error there will need to be a delay between the removal and the copy.
         await Promise.all(
             modifiedDirectories.map((p) =>
-                rmDir(path.join('static', p)).then(() => {
+                rimraf(path.join('static', p)).then(() => {
                     if (verbose) console.log(`removed ${path.join('static', p)}`);
                     return p;
                 })
