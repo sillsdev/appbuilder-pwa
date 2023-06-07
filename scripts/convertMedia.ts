@@ -1,9 +1,9 @@
-import { CopySyncOptions, cpSync } from 'fs';
+import { CopyOptions, cpSync } from 'fs';
 import { rimraf } from 'rimraf';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
-function cpSyncOptional(source: string, destination: string, opts?: CopySyncOptions): boolean {
+function cpSyncOptional(source: string, destination: string, opts?: CopyOptions): boolean {
     try {
         cpSync(source, destination, opts);
         return true;
