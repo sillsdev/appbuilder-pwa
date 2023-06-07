@@ -23,10 +23,24 @@ Book Collection Selector component.
         (Number(vertOffset.replace('rem', '')) + 1) +
         'rem; right:1rem;';
 
+    // ToDo: Make functional to store SideBySide and VerseByVerse preferences
     function navigateReference(e) {
         switch (e.detail.tab) {
             case 'Single Pane':
                 docSet = e.detail.text;
+                console.log("Single Pane", e.detail.text);
+                // force closes active dropdown elements
+                document.activeElement.blur();
+                break;
+            case 'Side By Side':
+                docSet = e.detail.text;
+                console.log("Side By Side");
+                // force closes active dropdown elements
+                document.activeElement.blur();
+                break;
+            case 'Verse By Verse':
+                docSet = e.detail.text;
+                console.log("Verse By Verse");
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -53,6 +67,11 @@ Book Collection Selector component.
                     tab: { component: SideBySideIcon },
                     component: LayoutOptions,
                     props: { layoutOption: 'Side By Side' }
+                },
+                'Verse By Verse': {
+                    tab: { component: VerseByVerseIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Verse By Verse' }
                 }
             }}
             active="Single Pane"

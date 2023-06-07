@@ -5,7 +5,7 @@ TODO:
 - functionality...
 -->
 <script lang="ts">
-    import { onDestroy, createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
     import Dropdown from './Dropdown.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
@@ -14,9 +14,6 @@ TODO:
 
     export let layoutOption = '';
     const dispatch = createEventDispatcher();
-    $: console.log($s);
-
-    let nextDocSet;
 
     let allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
@@ -29,7 +26,7 @@ TODO:
         refs.set({ docSet: opt, book: $refs.book, chapter: $refs.chapter });
         nextDocSet = opt;
         dispatch('menuaction', {
-            text: opt.id
+            text: leftSide.id
         });
     }
 
@@ -53,17 +50,17 @@ TODO:
 <div>
     <!-- Single Pane -->
     {#if layoutOption === 'Single Pane'}
-        <p style={convertStyle($s['ui.layouts.selector'])}>
+        <p class="py-2" style={convertStyle($s['ui.layouts.selector'])}>
             {$t['Layout_Single_Pane']}
         </p>
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
-            {nextDocSet}
+            nextDocSet={leftSide}
             on:menuaction={handleSinglePane}
         />
         <!-- Side by Side -->
     {:else if layoutOption === 'Side By Side'}
-        <p style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Two_Pane']}
         </p>
         <ul class="dy-menu-compact mx-auto">
@@ -103,7 +100,7 @@ TODO:
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <Dropdown>
                     <svelte:fragment slot="label">
-                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>1.</div>
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>2.</div>
                         <div
                             class="dy-relative font-normal normal-case text-left"
                             style={$s['ui.layouts.selector']}
@@ -136,9 +133,110 @@ TODO:
         </ul>
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
-        <p style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Interlinear']}
         </p>
-        <ul class="dy-menu mx-auto" />
+        <ul class="dy-menu-compact mx-auto">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>1.</div>
+                        <div class="dy-relative font-normal normal-case text-left">
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {leftSide.name}
+                            </div>
+                            {#if leftSide.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {leftSide.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                        </div>
+                    </svelte:fragment>
+                    <svelte:fragment slot="content">
+                        <CollectionList
+                            docSets={allDocSets}
+                            nextDocSet={leftSide}
+                            on:menuaction={handleLeft}
+                        />
+                    </svelte:fragment>
+                </Dropdown>
+            </li>
+            <li>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>2.</div>
+                        <div
+                            class="dy-relative font-normal normal-case text-left"
+                            style={$s['ui.layouts.selector']}
+                        >
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {rightSide.name}
+                            </div>
+                            {#if rightSide.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {rightSide.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                        </div>
+                    </svelte:fragment>
+                    <svelte:fragment slot="content">
+                        <CollectionList
+                            docSets={allDocSets}
+                            nextDocSet={rightSide}
+                            on:menuaction={handleRight}
+                        />
+                    </svelte:fragment>
+                </Dropdown>
+            </li>
+            <li>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>3.</div>
+                        <div
+                            class="dy-relative font-normal normal-case text-left"
+                            style={$s['ui.layouts.selector']}
+                        >
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {rightSide.name}
+                            </div>
+                            {#if rightSide.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {rightSide.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                        </div>
+                    </svelte:fragment>
+                    <svelte:fragment slot="content">
+                        <CollectionList
+                            docSets={allDocSets}
+                            nextDocSet={rightSide}
+                            on:menuaction={handleRight}
+                        />
+                    </svelte:fragment>
+                </Dropdown>
+            </li>
+        </ul>
     {/if}
 </div>
