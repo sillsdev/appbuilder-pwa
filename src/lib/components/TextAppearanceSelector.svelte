@@ -90,7 +90,7 @@ TODO
             <svelte:fragment slot="content">
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
-                    <div class="grid gap-4 items-center range-row m-2 ">
+                    <div class="grid gap-4 items-center range-row m-2">
                         <TextAppearanceIcon color={$monoIconColor} size="1rem" />
                         <input
                             type="range"
@@ -103,7 +103,7 @@ TODO
                     </div>
                 {/if}
                 {#if showLineHeight}
-                    <div class="grid gap-4 items-center range-row m-2 ">
+                    <div class="grid gap-4 items-center range-row m-2">
                         <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1rem" />
                         <input
                             type="range"
@@ -112,7 +112,7 @@ TODO
                             bind:value={$bodyLineHeight}
                             class="dy-range dy-range-xs"
                         />
-                        <div class="text-sm place-self-end ">
+                        <div class="text-sm place-self-end">
                             {formatLineHeight($bodyLineHeight)}
                         </div>
                     </div>

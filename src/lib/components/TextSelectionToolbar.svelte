@@ -227,42 +227,42 @@ TODO:
                 <div class="pen-grid grid grid-rows-1 gap-2 my-2">
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        class="dy-btn-sm "
+                        class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenYellow']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(1)}
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        class="dy-btn-sm "
+                        class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenGreen']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(2)}
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        class="dy-btn-sm "
+                        class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenBlue']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(3)}
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        class="dy-btn-sm "
+                        class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenOrange']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(4)}
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        class="dy-btn-sm "
+                        class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenPink']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(5)}
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        class="dy-btn-sm "
+                        class="dy-btn-sm"
                         style:background-color={'white'}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(6)}
