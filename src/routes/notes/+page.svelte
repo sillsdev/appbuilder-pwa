@@ -3,6 +3,7 @@
     import { NoteIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import { t, notes, monoIconColor } from '$lib/data/stores';
+    import { formatDate } from '$lib/scripts/dateUtils.js';
 
     function handleMenuaction(event: CustomEvent, id: string) {
         switch (event.detail.text) {
@@ -17,6 +18,8 @@
                 break;
         }
     }
+
+    export let data;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -31,11 +34,11 @@
     </div>
 
     <div class="overflow-y-auto">
-        {#each $notes as n}
+        {#each data.notes as n}
             {@const iconCard = {
                 reference: n.reference,
                 text: n.text,
-                date: n.date,
+                date: formatDate(new Date(n.date)),
                 actions: [
                     $t['Annotation_Menu_View'],
                     $t['Annotation_Menu_Edit'],
@@ -43,7 +46,7 @@
                     $t['Annotation_Menu_Delete']
                 ]
             }}
-            <IconCard on:menuaction={(e) => handleMenuaction(e, n.id)} {...iconCard}>
+            <IconCard on:menuaction={(e) => handleMenuaction(e, n.reference)} {...iconCard}>
                 <NoteIcon slot="icon" color={$monoIconColor} />
             </IconCard>
         {/each}

@@ -1,21 +1,24 @@
 <script lang="ts">
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, highlights } from '$lib/data/stores';
+    import { t } from '$lib/data/stores';
+    import { formatDate } from '$lib/scripts/dateUtils.js';
 
     function handleMenuaction(event: CustomEvent, id: string) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
-                console.log('View: ', $highlights[id].reference);
+                console.log('View: ', data.highlights[id].reference);
                 break;
             case $t['Annotation_Menu_Share']:
-                console.log('Share: ', $highlights[id].reference);
+                console.log('Share: ', data.highlights[id].reference);
                 break;
             case $t['Annotation_Menu_Delete']:
                 console.log('Delete: ', id);
                 break;
         }
     }
+
+    export let data;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -30,19 +33,19 @@
     </div>
 
     <div class="overflow-y-auto">
-        {#each $highlights as h}
+        {#each data.highlights as h}
             {@const colorCard = {
                 reference: h.reference,
                 text: h.text,
-                date: h.date,
+                date: formatDate(new Date(h.date)),
                 actions: [
                     $t['Annotation_Menu_View'],
                     $t['Annotation_Menu_Share'],
                     $t['Annotation_Menu_Delete']
                 ],
-                penColor: h.penColor
+                penColor: h.penColor.toString()
             }}
-            <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...colorCard} />
+            <ColorCard on:menuaction={(e) => handleMenuaction(e, h.reference)} {...colorCard} />
         {/each}
     </div>
 </div>

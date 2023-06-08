@@ -11,7 +11,7 @@ TODO:
 - Add note dialog
 - Add highlight colors
 -->
-<script>
+<script lang="ts">
     import {
         AudioIcon,
         CopyContentIcon,
@@ -22,20 +22,23 @@ TODO:
         ShareIcon
     } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
-    import config from '$lib/data/config.js';
+    import config from '$lib/data/config';
     import {
         t,
         s,
         refs,
-        bookmarks,
         notes,
-        highlights,
         selectedVerses,
         theme,
-        themeColors
+        themeColors,
+        highlights,
+        bookmarks
+
     } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
-
+    import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
+    import { addHighlights, removeHighlights } from '$lib/data/highlights';
+    import { addNote } from '$lib/data/notes';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -69,7 +72,7 @@ TODO:
             ':' +
             $selectedVerses[0]['verse'];
         var extraVerses = '';
-        for (var i = 1; i < $selectedVerses.size; i++) {
+        for (var i = 1; i < $selectedVerses.length; i++) {
             extraVerses = extraVerses.concat(', ' + $selectedVerses[i]['verse']);
         }
         scriptureReference.concat(extraVerses);
@@ -77,131 +80,59 @@ TODO:
         return scriptureReference;
     }
 
-    function updateSelectedVerseInBookmarks(selectedVerses) {
-        selectedVerseInBookmarks = findAnnotation($bookmarks, selectedVerses[0]);
-    }
-    function findAnnotation(annotations, annotation) {
-        let index = -1;
-        for (var i = 0; i < annotations.length; i++) {
-            if (
-                annotations[i].docSet === annotation.docSet &&
-                annotations[i].book === annotation.book &&
-                annotations[i].chapter === annotation.chapter &&
-                annotations[i].verse === annotation.verse
-            ) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
-    function modifyBookmark() {
-        // If there is already a bookmark at this verse, remove it
-        const index = findAnnotation($bookmarks, $selectedVerses[0]);
-        if (index === -1) {
-            addBookmark();
-        } else {
-            removeBookmark(index);
-        }
-        selectedVerses.reset();
-    }
-    function addBookmark() {
-        const timeElapsed = Date.now();
-        const today = new Date(timeElapsed);
-        $bookmarks = [
-            ...$bookmarks,
-            {
-                id: $bookmarks.length,
-                reference: selectedVerses.getReference(0),
-                text: selectedVerses.getVerseByIndex(0).text,
-                date: today.toDateString(),
-                docSet: $selectedVerses[0].docSet,
-                book: $selectedVerses[0].book,
-                chapter: $selectedVerses[0].chapter,
-                verse: $selectedVerses[0].verse
-            }
-        ];
-    }
-
-    function removeBookmark(index) {
-        bookmarks.update((b) => {
-            b.splice(index, 1);
-            return b;
+    async function updateSelectedVerseInBookmarks(selectedVerses) {
+        selectedVerseInBookmarks = await findBookmark({
+            collection: selectedVerses[0].collection,
+            book: selectedVerses[0].book,
+            chapter: selectedVerses[0].chapter,
+            verse: selectedVerses[0].verse
         });
     }
-    function addNote() {
-        const timeElapsed = Date.now();
-        const today = new Date(timeElapsed);
 
-        $notes = [
-            ...$notes,
-            {
-                id: $notes.length,
-                reference: selectedVerses.getReference(0),
-                text: selectedText(),
-                date: today.toDateString(),
-                docSet: $selectedVerses[0].docSet,
+    async function modifyBookmark() {
+        // If there is already a bookmark at this verse, remove it
+        if (selectedVerseInBookmarks === -1) {
+            await addBookmark({
+                collection: $selectedVerses[0].collection,
                 book: $selectedVerses[0].book,
                 chapter: $selectedVerses[0].chapter,
-                verse: $selectedVerses[0].verse
-            }
-        ];
-        selectedVerses.reset();
-    }
-
-    function modifyHighlight(numColor) {
-        if (numColor == 6) {
-            removeHighlight();
+                verse: $selectedVerses[0].verse,
+                text: selectedVerses.getVerseByIndex(0).text,
+                reference: selectedVerses.getReference(0)
+            });
         } else {
-            addHighlight(numColor);
+            await removeBookmark(selectedVerseInBookmarks);
         }
+
+        await bookmarks.sync();
         selectedVerses.reset();
     }
-    function addHighlight(numColor) {
-        if (numColor > 5 || numColor < 1) {
-            numColor = 1;
-        }
 
-        const timeElapsed = Date.now();
-        const today = new Date(timeElapsed);
-        const verseCount = $selectedVerses.length;
+    async function modifyNote() {
+        await addNote({
+            collection: $selectedVerses[0].collection,
+            book: $selectedVerses[0].book,
+            chapter: $selectedVerses[0].chapter,
+            verse: $selectedVerses[0].verse,
+            text: selectedVerses.getVerseByIndex(0).text,
+            reference: selectedVerses.getReference(0)
+        })
 
-        isHighlight = false;
-
-        for (var i = 0; i < verseCount; i++) {
-            const index = findAnnotation($highlights, $selectedVerses[i]);
-            if (index === -1 || $highlights[index].penColor !== numColor) {
-                $highlights = [
-                    ...$highlights,
-                    {
-                        id: $highlights.length,
-                        reference: selectedVerses.getReference(i),
-                        text: selectedVerses.getVerseByIndex(i)['text'],
-                        date: today.toDateString(),
-                        penColor: numColor,
-                        docSet: $selectedVerses[i].docSet,
-                        book: $selectedVerses[i].book,
-                        chapter: $selectedVerses[i].chapter,
-                        verse: $selectedVerses[i].verse
-                    }
-                ];
-            }
-        }
+        await notes.sync();
+        selectedVerses.reset();
     }
-    function removeHighlight() {
-        const verseCount = $selectedVerses.length;
-        for (var i = 0; i < verseCount; i++) {
-            let index = findAnnotation($highlights, $selectedVerses[i]);
-            // Could be highlighted with multiple colors, remove all
-            while (index !== -1) {
-                highlights.update((h) => {
-                    h.splice(index, 1);
-                    return h;
-                });
-                index = findAnnotation($highlights, $selectedVerses[i]);
-            }
+
+    async function modifyHighlight(numColor) {
+        if (numColor == 6) {
+            await removeHighlights($selectedVerses);
+        } else {
+            await addHighlights(numColor, $selectedVerses);
         }
+
+        await highlights.sync();
+        selectedVerses.reset();
     }
+
     function copy() {
         var copyText = selectedText() + '\n' + selectedVerses.getCompositeReference();
         navigator.clipboard.writeText(copyText);
@@ -293,12 +224,17 @@ TODO:
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => addNote()}>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyNote()}>
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}
                 {#if isBookmarkEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyBookmark()}>
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        on:click={async function () {
+                            await modifyBookmark();
+                        }}
+                    >
                         {#if selectedVerseInBookmarks >= 0}
                             <BookmarkIcon color="#b10000" />
                         {:else}

@@ -1,21 +1,61 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { setDefaultStorage } from "./storage";
+import { refs } from "./scripture";
+import { findBookmarkByChapter } from "$lib/data/bookmarks";
+import { findHighlightByChapter } from "$lib/data/highlights";
+import { findNoteByChapter } from "$lib/data/notes";
 
 /* list of bookmarks */
-setDefaultStorage('bookmarks', '[]');
-export const bookmarks = writable(JSON.parse(localStorage.bookmarks));
-bookmarks.subscribe(value => {
-    localStorage.bookmarks = JSON.stringify(value);
-});
+function createBookmarks() {
+    const {subscribe, set} = writable([]);
+    const fetchData = async (item) => {
+        const foundBookmarks = await findBookmarkByChapter(item);
+        set(foundBookmarks);
+    };
 
-setDefaultStorage('highlights', '[]');
-export const highlights = writable(JSON.parse(localStorage.highlights));
-highlights.subscribe(value => {
-    localStorage.highlights = JSON.stringify(value);
-})
+    refs.subscribe(item => {
+        fetchData(item);
+    });
+    
+    return {
+        subscribe, 
+        sync: async () => await fetchData(get(refs))
+    };
+}
+export const bookmarks = createBookmarks();
 
-setDefaultStorage('notes', '[]');
-export const notes = writable(JSON.parse(localStorage.notes));
-notes.subscribe(value => {
-    localStorage.notes = JSON.stringify(value);
-})
+function createHighlights() {
+    const {subscribe, set} = writable([]);
+    const fetchData = async (item) => {
+        const foundHighlights = await findHighlightByChapter(item);
+        set(foundHighlights);
+    };
+
+    refs.subscribe(item => {
+        fetchData(item);
+    });
+    
+    return {
+        subscribe, 
+        sync: async () => await fetchData(get(refs))
+    };
+}
+export const highlights = createHighlights();
+
+function createNotes() {
+    const {subscribe, set} = writable([]);
+    const fetchData = async (item) => {
+        const foundNotes = await findNoteByChapter(item);
+        set(foundNotes);
+    };
+
+    refs.subscribe(item => {
+        fetchData(item);
+    });
+    
+    return {
+        subscribe, 
+        sync: async () => await fetchData(get(refs))
+    };
+}
+export const notes = createNotes();

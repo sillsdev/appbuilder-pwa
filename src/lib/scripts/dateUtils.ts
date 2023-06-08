@@ -31,3 +31,10 @@ export function formatDateAndTime(date: Date): string {
     }
     return format;
 }
+
+export function formatDate(date: Date): string {
+    const day = date.toLocaleString('default', { day: '2-digit' });
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.toLocaleString('default', { year: 'numeric' });
+    return day + ' ' + month + ' ' + year;
+}

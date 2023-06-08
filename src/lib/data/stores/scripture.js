@@ -54,6 +54,12 @@ function getInsertIndex(newVerseNumber, selections) {
     }
     return index;
 }
+
+export function getReference(item) {
+    const separator = config.bookCollections.find((x) => x.id === item.collection).features["ref-chapter-verse-separator"];
+    return item.book + " " + item.chapter + separator + item.verse;
+}
+
 function createSelectedVerses() {
     const external = writable([]);
 
@@ -61,11 +67,12 @@ function createSelectedVerses() {
         subscribe: external.subscribe,
         addVerse: (id, text) => {
             const currentRefs = get(refs);
+            const reference = getReference({...currentRefs, verse: id});
             const selection = {
-                docSet: currentRefs.docSet,
                 collection: currentRefs.collection,
                 book: currentRefs.book,
                 chapter: currentRefs.chapter,
+                reference: reference,
                 verse: id,
                 text: text
             };
