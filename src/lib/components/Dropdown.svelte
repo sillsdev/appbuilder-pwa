@@ -11,7 +11,7 @@ A simple dropdown menu from DaisyUI.
 
 <div class="dy-dropdown">
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <label tabindex="0" class="dy-btn dy-btn-ghost p-0.5 dy-no-animation">
+    <label tabindex="0" class="dy-btn dy-btn-ghost p-0.5 dy-no-animation flex-nowrap">
         <slot name="label" />
     </label>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
