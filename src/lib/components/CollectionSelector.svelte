@@ -11,6 +11,15 @@ Book Collection Selector component.
 
     let modalId = 'collectionSelector';
     let docSet = $refs.docSet;
+    let modal;
+    export function showModal() {
+        modal.showModal();
+    }
+    export let vertOffset = '0px';
+    $: positioningCSS =
+        'position:absolute; top:' +
+        (vertOffset + parseFloat(getComputedStyle(document.documentElement).fontSize)) +
+        'px; right:1rem;';
 
     function navigateReference(e) {
         switch (e.detail.tab) {
@@ -26,10 +35,7 @@ Book Collection Selector component.
     }
 </script>
 
-<Modal id={modalId}>
-    <svelte:fragment slot="label">
-        <BibleIcon color="white" />
-    </svelte:fragment>
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}>
     <svelte:fragment slot="content">
         <!-- TODO: Include other layout options -->
         <TabsMenu
@@ -43,21 +49,23 @@ Book Collection Selector component.
             active="Single Pane"
             on:menuaction={navigateReference}
         />
-        <div style:justify-content="space-between" class="flex w-full">
+        <div style:justify-content="space-between" class="flex w-full dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <label
-                for={modalId}
+            <button
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => (docSet = $refs.docSet)}>Cancel</label
+                on:click={() => (docSet = $refs.docSet)}
             >
+                Cancel
+            </button>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <label
-                for={modalId}
+            <button
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => ($refs.docSet = docSet)}>Ok</label
+                on:click={() => ($refs.docSet = docSet)}
             >
+                Ok
+            </button>
         </div>
     </svelte:fragment>
 </Modal>

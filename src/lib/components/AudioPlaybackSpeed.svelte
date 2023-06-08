@@ -12,7 +12,7 @@
     $: iconColor = $s['ui.bar.audio.icon']['color'];
 </script>
 
-<Modal id={modalId}>
+<Modal id={modalId} addCSS="position:absolute; bottom:1rem; right:1rem;">
     <svelte:fragment slot="label">
         <AudioIcon.Speed color={iconColor} />
     </svelte:fragment>
@@ -102,7 +102,7 @@
                 1.6x
             </label>
             <div class="dy-modal-action close-btn">
-                <label for={modalId} class="dy-btn dy-btn-ghost">{$t['Button_Close']}</label>
+                <button class="dy-btn dy-btn-ghost">{$t['Button_Close']}</button>
             </div>
         </div>
     </svelte:fragment>

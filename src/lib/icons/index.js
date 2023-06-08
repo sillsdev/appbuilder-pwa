@@ -23,6 +23,8 @@ import SideBySideIcon from './SideBySideIcon.svelte';
 import SinglePaneIcon from './SinglePaneIcon.svelte';
 import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import VerseByVerseIcon from './VerseByVerseIcon.svelte';
+import TriangleLeftIcon from './TriangleLeftIcon.svelte';
+import TriangleRightIcon from './TriangleRightIcon.svelte';
 import { AudioIcon } from './audio';
 import { ImageIcon } from './image';
 
@@ -52,5 +54,7 @@ export {
     SideBySideIcon,
     SinglePaneIcon,
     TextAppearanceIcon,
-    VerseByVerseIcon
+    VerseByVerseIcon,
+    TriangleLeftIcon,
+    TriangleRightIcon
 };
