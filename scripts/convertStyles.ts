@@ -21,12 +21,13 @@ export function convertStyles(dataDir: string, verbose: number) {
     readdirSync(srcDir).forEach((file) => {
         const srcFile = path.join(srcDir, file);
         const dstFile = path.join(dstDir, file);
+        if (verbose) console.log('Converting: ', srcFile);
 
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
         const updatedFileContents = lines
             .map((line) => {
-                if (line.indexOf('body {') === 0) {
+                if (line.indexOf('body {') === 0 && line.indexOf('margin-top') > 0) {
                     const parts = line.split('margin-top');
                     line = parts[0].replace('body', '#container') + '}\n';
                     line +=
