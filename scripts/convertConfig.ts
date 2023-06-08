@@ -351,8 +351,12 @@ function convertConfig(dataDir: string, verbose: number) {
                 }
                 Object.keys(colors).forEach((x) => {
                     while (!colors[x].startsWith('#')) {
-                        const value = colors[x];
-                        colors[x] = colors[value];
+                        const key = colors[x];
+                        const value = colors[key];
+                        if (!value) {
+                            break;
+                        }
+                        colors[x] = value;
                     }
                 });
                 return {
