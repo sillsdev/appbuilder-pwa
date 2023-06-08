@@ -84,7 +84,13 @@ TODO:
         // Add pending phrase to the paragraph before starting
         // new ones
         if (workspace.phraseDiv != null) {
-            appendPhrase(workspace);
+            if (workspace.phraseDiv.innerText.length === 0) {
+                if (indexOption === 'advance') {
+                    indexOption = 'keep';
+                }
+            } else {
+                appendPhrase(workspace);
+            }
         }
         const div = document.createElement('div');
         if (!workspace.introductionGraft) {
@@ -110,6 +116,18 @@ TODO:
         }
         return div.cloneNode(true);
     };
+    const addGraftText = (workspace, text) => {
+        if (workspace.textType.includes('note_caller')) {
+            workspace.footnoteDiv.setAttribute('nc', text);
+        } else {
+            const spanRequired = usfmSpanRequired(
+                workspace.usfmWrapperType,
+                workspace.showWordsOfJesus
+            );
+            const div = addTextNode(workspace.footnoteDiv, text, workspace.usfmWrapperType, spanRequired);
+            workspace.footnoteDiv = div.cloneNode(true);
+        }
+    }
     const addText = (workspace, text) => {
         // console.log('Adding text:', text);
         if (!onlySpaces(text)) {
@@ -411,6 +429,7 @@ TODO:
                             workspace.verseDiv = null;
                             workspace.phraseDiv = null;
                             workspace.videoDiv = null;
+                            workspace.footnoteDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
                             workspace.titleText = [];
@@ -594,6 +613,81 @@ TODO:
                         }
                     }
                 ],
+                startVerses: [
+                    {
+                        description: 'Start Verses',
+                        test: () => true,
+                        action: ({ context, workspace }) => {
+                            const element = context.sequences[0].element;
+                            console.log('Start Verses %o %o', element.atts['number'], element);
+                            workspace.textType.push('verses');
+                            if (!displayingIntroduction) {
+                                workspace.lastPhraseTerminated = false;
+                                workspace.currentVerse = element.atts.number;
+                                // console.log('verses %o start phrase', element.atts.number);
+                                workspace.phraseDiv = startPhrase(workspace, 'reset');
+                                if (versePerLine) {
+                                    workspace.verseDiv = document.createElement('div');
+                                    workspace.verseDiv.classList.add('verse-block');
+                                }
+                                // console.log('IN: %o', workspace.phraseDiv);
+                            }
+                        }
+                    }
+                ],
+                endVerses: [
+                    {
+                        description: 'End Verses',
+                        test: () => true,
+                        action: ({ context, workspace }) => {
+                            const element = context.sequences[0].element;
+                            console.log('End Verses %o %o', element.atts['number'], element);
+                            /*const textTypeV = workspace.textType.pop(); */
+                            // if (textTypeV != 'verses') {
+                            //     console.log('Verses texttype mismatch!!! %o', textTypeV);
+                            // }
+                            workspace.textType.pop();
+                            if (!displayingIntroduction) {
+                                if (
+                                    workspace.phraseDiv != null &&
+                                    workspace.phraseDiv.innerText !== ''
+                                ) {
+                                    appendPhrase(workspace);
+                                }
+                                if (versePerLine) {
+                                    workspace.paragraphDiv.appendChild(
+                                        workspace.verseDiv.cloneNode(true)
+                                    );
+                                    workspace.verseDiv = null;
+                                }
+                                workspace.phraseDiv = null;
+                                addBookmarksDiv(workspace);
+                                addNotesDiv(workspace);
+                                workspace.currentVerse = 'none';
+                            }
+                        }
+                    }
+                ],
+                startChapter: [
+                    {
+                        description: 'Start Chapter',
+                        test: () => true,
+                        action: ({ context }) => {
+                            const element = context.sequences[0].element;
+                            console.log('Start Chapter %o %o', element.atts['number'], element);
+                        }
+                    }
+                ],
+                endChapter: [
+                    {
+                        description: 'End Chapter',
+                        test: () => true,
+                        action: ({ context }) => {
+                            const element = context.sequences[0].element;
+                            console.log('End Chapter %o %o', element.atts['number'], element);
+                        }
+                    }
+                ],
                 text: [
                     {
                         description: 'Output text',
@@ -629,6 +723,11 @@ TODO:
                                             blockType.includes('usfm:x') ||
                                             blockType.includes('usfm:f')
                                         ) {
+                                            if (workspace.textType.includes('note_caller')) {
+                                                workspace.footnoteDiv.setAttribute('nc', text);
+                                            } else {
+                                                addGraftText(workspace, text);
+                                            }
                                             // Graft Text
                                         } else if (blockType.includes('usfm:ip')) {
                                             // Introduction
@@ -640,6 +739,15 @@ TODO:
                                     }
                                 }
                             }
+                        }
+                    }
+                ],
+                metaContent: [
+                    {
+                        description: 'Meta Content',
+                        test: () => true,
+                        action: ({ context }) => {
+                            console.log('Meta Content %o', context.sequences[0].element);
                         }
                     }
                 ],
@@ -781,6 +889,15 @@ TODO:
                         }
                     }
                 ],
+                unresolvedBlockGraft: [
+                    {
+                        description: 'Unresolved Block Graft',
+                        test: () => true,
+                        action: (environment) => {
+                            console.log('Unresolved Block Graft');
+                        }
+                    }
+                ],
                 blockGraft: [
                     {
                         description: 'Block Graft',
@@ -832,6 +949,7 @@ TODO:
                             //     element.sequence.id,
                             //     environment.context.sequences[0].element
                             // );
+                            let footnoteSpan = null;
                             const graftRecord = {
                                 type: element.type,
                                 subtype: element.subType,
@@ -839,32 +957,48 @@ TODO:
                             };
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 workspace.textType.push('footnote');
+
+                                let footnoteId = `X-${workspace.footnoteIndex + 1}`;
+                                workspace.footnoteDiv = document.createElement('div');
+                                workspace.footnoteDiv.id = footnoteId;
+                                workspace.footnoteDiv.style.display = 'none';
+                                workspace.footnoteDiv.setAttribute('type', element.subType);
+
                                 const div = workspace.phraseDiv.cloneNode(true);
                                 // console.log('Footnote or xref');
-                                const span = document.createElement('span');
-                                span.setAttribute('data-graft', `X-${workspace.footnoteIndex + 1}`);
-                                span.classList.add('footnote');
+                                footnoteSpan = document.createElement('span');
+                                footnoteSpan.setAttribute('data-graft', footnoteId);
+                                footnoteSpan.classList.add('footnote');
                                 const a = document.createElement('a');
                                 const sup = document.createElement('sup');
                                 sup.innerHTML = fnc.charAt(workspace.footnoteIndex);
                                 a.appendChild(sup);
-                                span.appendChild(a);
-                                div.appendChild(span);
-                                workspace.phraseDiv = div.cloneNode(true);
+                                footnoteSpan.appendChild(a);
                                 workspace.footnoteIndex++;
-                                if (workspace.lastPhraseTerminated) {
-                                    workspace.phraseDiv = startPhrase(workspace);
-                                }
+                            } else if (element.subType === 'note_caller') {
+                                workspace.textType.push(element.subType);
                             }
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;
                             environment.context.renderer.renderSequence(environment);
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
+                                const div = workspace.phraseDiv.cloneNode(true);
+                                footnoteSpan.appendChild(workspace.footnoteDiv);
+                                div.appendChild(footnoteSpan);
+                                workspace.phraseDiv = div.cloneNode(true);
+                                if (workspace.lastPhraseTerminated) {
+                                    workspace.phraseDiv = startPhrase(workspace);
+                                }
                                 const textTypeF = workspace.textType.pop();
                                 // if (textTypeF != 'footnote') {
                                 //     console.log('Footnote text type mismatch!!! %o', textTypeF);
                                 // }
+                            } else if (element.subType === 'note_caller') {
+                                const textTypeF = workspace.textType.pop();
+                                if (textTypeF != 'note_caller') {
+                                    console.log('note caller text type mismatch!!! %o', textTypeF);
+                                }
                             }
                             // console.log('Inline Graft End');
                         }
@@ -884,18 +1018,6 @@ TODO:
 
                             switch (subType) {
                                 case 'verses': {
-                                    workspace.textType.push('verses');
-                                    if (!displayingIntroduction) {
-                                        workspace.lastPhraseTerminated = false;
-                                        workspace.currentVerse = element.atts.number;
-                                        // console.log('verses %o start phrase', element.atts.number);
-                                        workspace.phraseDiv = startPhrase(workspace, 'reset');
-                                        if (versePerLine) {
-                                            workspace.verseDiv = document.createElement('div');
-                                            workspace.verseDiv.classList.add('verse-block');
-                                        }
-                                        // console.log('IN: %o', workspace.phraseDiv);
-                                    }
                                     break;
                                 }
                                 // Various types appear under the usfm:xx wrapper
@@ -909,6 +1031,9 @@ TODO:
                                             // console.log('footnote start phrase');
                                             workspace.phraseDiv = startPhrase(workspace);
                                         }
+                                    }
+                                    if (usfmType === 'w') {
+                                        usfmType = 'glossary';
                                     }
                                     workspace.usfmWrapperType = usfmType;
                                     break;
@@ -933,29 +1058,6 @@ TODO:
                             }
                             switch (subType) {
                                 case 'verses': {
-                                    /*const textTypeV = workspace.textType.pop(); */
-                                    // if (textTypeV != 'verses') {
-                                    //     console.log('Verses texttype mismatch!!! %o', textTypeV);
-                                    // }
-                                    workspace.textType.pop();
-                                    if (!displayingIntroduction) {
-                                        if (
-                                            workspace.phraseDiv != null &&
-                                            workspace.phraseDiv.innerText !== ''
-                                        ) {
-                                            appendPhrase(workspace);
-                                        }
-                                        if (versePerLine) {
-                                            workspace.paragraphDiv.appendChild(
-                                                workspace.verseDiv.cloneNode(true)
-                                            );
-                                            workspace.verseDiv = null;
-                                        }
-                                        workspace.phraseDiv = null;
-                                        addNotesDiv(workspace);
-                                        addBookmarksDiv(workspace);
-                                        workspace.currentVerse = 'none';
-                                    }
                                     break;
                                 }
                                 case 'usfm': {
@@ -995,6 +1097,42 @@ TODO:
                         test: () => true,
                         action: ({ context }) => {
                             //console.log('End Milestone %o', context.sequences[0].element);
+                        }
+                    }
+                ],
+                startRow: [
+                    {
+                        description: 'Start Row',
+                        test: () => true,
+                        action: ({ context }) => {
+                            console.log('Start Row %o', context.sequences[0].element);
+                        }
+                    }
+                ],
+                endRow: [
+                    {
+                        description: 'End Row',
+                        test: () => true,
+                        action: ({ context }) => {
+                            console.log('End Row %o', context.sequences[0].element);
+                        }
+                    }
+                ],
+                startCell: [
+                    {
+                        description: 'Start Cell',
+                        test: () => true,
+                        action: ({ context }) => {
+                            console.log('Start Cell %o', context.sequences[0].element);
+                        }
+                    }
+                ],
+                endCell: [
+                    {
+                        description: 'End Cell',
+                        test: () => true,
+                        action: ({ context }) => {
+                            console.log('End Cell %o', context.sequences[0].element);
                         }
                     }
                 ]
