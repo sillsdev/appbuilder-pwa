@@ -606,6 +606,7 @@ function convertConfig(dataDir: string, verbose: number) {
             if (verbose >= 2) console.log(`Converting audioSource: ${id}`);
             const type = source.getAttribute('type')!.toString();
             const name = source.getElementsByTagName('name')[0].innerHTML;
+            if (verbose >= 3) console.log(`  type=${type}, name=${name}`);
             data.audio.sources[id] = {
                 type: type,
                 name: name
@@ -616,7 +617,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     ?.getAttribute('value')!
                     .toString()
                     .split('|');
-                data.audio.sources[id].folder = source.getElementsByTagName('folder')[0].innerHTML;
+                data.audio.sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
 
                 if (type === 'download')
                     data.audio.sources[id].address =
