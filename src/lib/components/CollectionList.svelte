@@ -22,7 +22,7 @@
                 on:click={() => handleClick(d)}
                 style:background-color={nextDocSet.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
-                    : $themeColors['LayoutBackgroundColor']}
+                    : ''}
             >
                 <div style={$s['ui.layouts.selector']}>
                     <div style={convertStyle($s['ui.layouts.title'])}>
