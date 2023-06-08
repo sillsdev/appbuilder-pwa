@@ -17,8 +17,8 @@ TODO:
         direction
     } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
-    import { base } from '$app/paths';
     import config from '$lib/data/config';
+    import { getAudioSourceInfo } from '$lib/data/audio';
 
     let duration = NaN;
     let progress = 0;
@@ -36,26 +36,13 @@ TODO:
         duration = NaN;
         progress = 0;
 
-        const method = 'POST';
-        const body = JSON.stringify({
-            collection: collection,
-            book: book,
-            chapter: chapter
+        const audioSourceInfo = await getAudioSourceInfo({
+            collection,
+            book,
+            chapter
         });
-        const headers = {
-            'content-type': 'application/json',
-            accept: 'application/json'
-        };
-        //console.log(`AudioBar: request: body=`, body);
-        const res = await fetch(`${base}/data/audio`, { method, body, headers });
-        const j = await res.json();
-        if (j.error) {
-            console.error(j.error);
-            return;
-        }
-        //console.log(`AudioBar: result=`, j.source);
 
-        const a = new Audio(`${j.source}`);
+        const a = new Audio(audioSourceInfo.source);
         a.onloadedmetadata = () => {
             duration = a.duration;
             timeIndex = 0;
@@ -67,7 +54,7 @@ TODO:
                 playAfterSkip = false;
             }
         };
-        timing = j.timing;
+        timing = audioSourceInfo.timing;
     };
     $: getAudio($refs.collection, $refs.book, $refs.chapter);
     $: (() => {
