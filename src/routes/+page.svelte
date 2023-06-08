@@ -212,8 +212,10 @@
 <div class="navbar h-16">
     <Navbar>
         <div slot="left-buttons">
-            <BookSelector />
-            <ChapterSelector />
+            <div class="flex flex-nowrap">
+                <BookSelector />
+                <ChapterSelector />
+            </div>
         </div>
         <div slot="right-buttons">
             {#if $refs.hasAudio && showAudio}
