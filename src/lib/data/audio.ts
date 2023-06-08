@@ -1,16 +1,15 @@
-import { json } from '@sveltejs/kit';
 import config from '$lib/data/config';
-import path from 'path';
-import { readFile } from 'fs/promises';
 
-export async function POST({ request }) {
-    const body = await request.json();
-
+export async function getAudioSourceInfo(item: {
+    collection: string,
+    book: string,
+    chapter: string
+}) {
     //search config for audio on provided collection, book, and chapter
-    const audio = config.bookCollections.find((c) => body.collection === c.id)?.books?.find((b) => (b.id === body.book))?.audio?.find((a) => body.chapter === ''+a.num);
+    const audio = config.bookCollections.find((c) => item.collection === c.id)?.books?.find((b) => (b.id === item.book))?.audio?.find((a) => item.chapter === ''+a.num);
 
-    if(!audio) {
-        return json({error: `no audio found for ${body.collection}:${body.book}:${body.chapter}`})
+    if (!audio) {
+        throw `no audio found for ${item.collection}:${item.book}:${item.chapter}`
     }
 
     const audioSource = config.audio.sources[audio.src];
@@ -21,7 +20,7 @@ export async function POST({ request }) {
         // if (source.accessMethods.includes('download')) {
         //    // TODO: Figure out how to use Cache API to download audio to PWA
         // }
-        const request = `${dbp4}/api/bibles/filesets/${audioSource.damId}/${body.book}/${body.chapter}?v=4&key=${audioSource.key}`;
+        const request = `${dbp4}/api/bibles/filesets/${audioSource.damId}/${item.book}/${item.chapter}?v=4&key=${audioSource.key}`;
         const response = await fetch(request, {
             method: 'GET',
             headers: {
@@ -30,12 +29,12 @@ export async function POST({ request }) {
         });
         const result = await response.json();
         if (result.error) {
-            return json({ error: `Failed to connect to BibleBrain: ${result.error}`});
+            throw `Failed to connect to BibleBrain: ${result.error}`;
         }
     
         audioPath = result.data[0].path;
     }
-    if (audioSource.type === 'assets') {
+    else if (audioSource.type === 'assets') {
         audioPath = '/audio/' + audio.filename;
     }
     else if (audioSource.type === 'download') {
@@ -45,7 +44,14 @@ export async function POST({ request }) {
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
-        const timingFile = await readFile(path.join('static', 'timings', audio.timingFile), 'utf8');
+        const timeFilePath = `/timings/${audio.timingFile}`;
+        console.log("Fetching Timing File:", timeFilePath);
+        const response = await fetch(timeFilePath);
+        if (!response.ok) {
+            throw new Error("Failed to read file")
+        }
+        const timingFile = await response.text();
+
         const lines = timingFile.split('separators ')[1].split('\n');
         timing.push({ 
             time: parseFloat(lines[1].split('\t')[0]), 
@@ -62,8 +68,8 @@ export async function POST({ request }) {
         }
     }
 
-    return json({
+    return {
         source: audioPath,
         timing: timing.length > 0 ? timing : null
-    });
+    }
 }
