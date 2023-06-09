@@ -28,19 +28,17 @@ Book Collection Selector component.
         switch (e.detail.tab) {
             case 'Single Pane':
                 docSet = e.detail.text;
-                console.log("Single Pane", e.detail.text);
+                console.log('Single Pane', e.detail.text);
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
             case 'Side By Side':
-                docSet = e.detail.text;
-                console.log("Side By Side");
+                console.log('Side By Side');
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
             case 'Verse By Verse':
-                docSet = e.detail.text;
-                console.log("Verse By Verse");
+                console.log('Verse By Verse');
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;
@@ -55,7 +53,6 @@ Book Collection Selector component.
     ><!--addCSS is a prop for injecting CSS into the modal-->
 
     <svelte:fragment slot="content">
-        <!-- TODO: Include other layout options -->
         <TabsMenu
             options={{
                 'Single Pane': {
