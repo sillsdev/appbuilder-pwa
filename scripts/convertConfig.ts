@@ -559,27 +559,29 @@ function convertConfig(dataDir: string, verbose: number) {
     }
 
     // Menu localizations
-    const translationMappingsTag = document.getElementsByTagName('translation-mappings')[0];
-    const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
-    data.translationMappings = { defaultLang, mappings: {} };
-    const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
+    const translationMappingsTags = document.getElementsByTagName('translation-mappings');
+    for (const translationMappingsTag of translationMappingsTags) {
+        const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
+        data.translationMappings = { defaultLang, mappings: {} };
+        const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
 
-    for (const tag of translationMappingsTags) {
-        if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
-        const localizations: typeof data.translationMappings.mappings.key = {};
-        for (const localization of tag.getElementsByTagName('t')) {
-            localizations[localization.attributes.getNamedItem('lang')!.value] =
-                localization.innerHTML;
+        for (const tag of translationMappingsTags) {
+            if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
+            const localizations: typeof data.translationMappings.mappings.key = {};
+            for (const localization of tag.getElementsByTagName('t')) {
+                localizations[localization.attributes.getNamedItem('lang')!.value] =
+                    localization.innerHTML;
+            }
+            if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
+            data.translationMappings.mappings[tag.id] = localizations;
         }
-        if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
-        data.translationMappings.mappings[tag.id] = localizations;
+        if (verbose)
+            console.log(
+                `Converted ${
+                    Object.keys(data.translationMappings.mappings).length
+                } translation mappings`
+            );
     }
-    if (verbose)
-        console.log(
-            `Converted ${
-                Object.keys(data.translationMappings.mappings).length
-            } translation mappings`
-        );
 
     // Keys
     if (document.getElementsByTagName('keys').length > 0) {
