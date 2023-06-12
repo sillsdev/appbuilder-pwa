@@ -103,8 +103,7 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
-    let bookGridGroup = ({ bookLabel = 'abbreviation' }) => {
-        const colId = $refs.collection;
+    let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
         var lastGroup = null;
 
@@ -147,10 +146,11 @@ The navbar component.
         ];
     };
 
-    const bookContent = {
+    $: bookContent = {
         component: listView ? SelectList : SelectGrid,
         props: {
             options: bookGridGroup({
+                colId: $refs.collection,
                 bookLabel: listView ? 'name' : 'abbreviation'
             })
         }
