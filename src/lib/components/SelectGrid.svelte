@@ -8,7 +8,6 @@ A component to display menu options in a grid.
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
     export let cols = 6;
-    $: console.log($s);
 
     $: cellStyle = convertStyle(
         Object.fromEntries(
