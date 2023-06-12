@@ -56,7 +56,7 @@ A component to display menu options in a grid.
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <span
                     on:click={() => handleClick(row.id)}
-                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1 hover:brightness-50"
+                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1 hover:brightness-[.7]"
                     class:col-span-5={cols == 5}
                     class:col-span-6={cols == 6}
                     style={rowStyle}
@@ -70,7 +70,7 @@ A component to display menu options in a grid.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <span
                 on:click={() => handleClick(cell.id)}
-                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip hover:brightness-50"
+                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip hover:brightness-[.7]"
                 style={cellStyle}
                 style:background-color={bookCollectionColor(cell.id, 'ui.button.book-grid')}
             >
