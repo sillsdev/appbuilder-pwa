@@ -14,7 +14,6 @@ TODO:
     const dispatch = createEventDispatcher();
 
     let nextDocSet;
-    console.log($s);
 
     const docSetList = catalog.map((ds) => ds.id);
     const allowSinglePane = config.bookCollections.map((ds) => ({

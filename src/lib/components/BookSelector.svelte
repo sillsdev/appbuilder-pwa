@@ -98,14 +98,10 @@ The navbar component.
         nextRef.reset();
     }
 
-    $: console.log($refs)
 
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
-    $: console.log("books", config.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books);
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
     let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
