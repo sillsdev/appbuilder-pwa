@@ -98,7 +98,6 @@ The navbar component.
         nextRef.reset();
     }
 
-
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
@@ -156,7 +155,6 @@ The navbar component.
             })
         }
     };
-
 
     function chaptersContent(chapters) {
         return {
