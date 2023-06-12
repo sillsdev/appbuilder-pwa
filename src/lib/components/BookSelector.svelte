@@ -98,13 +98,17 @@ The navbar component.
         nextRef.reset();
     }
 
+    $: console.log($refs)
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
+    $: console.log("books", config.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books);
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
-    let bookGridGroup = ({ bookLabel = 'abbreviation' }) => {
-        const colId = $refs.collection;
+    let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
         var lastGroup = null;
 
@@ -147,14 +151,16 @@ The navbar component.
         ];
     };
 
-    const bookContent = {
+    $: bookContent = {
         component: listView ? SelectList : SelectGrid,
         props: {
             options: bookGridGroup({
+                colId: $refs.collection,
                 bookLabel: listView ? 'name' : 'abbreviation'
             })
         }
     };
+
 
     function chaptersContent(chapters) {
         return {
