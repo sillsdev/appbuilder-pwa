@@ -4,16 +4,19 @@ A component to display menu options in a grid.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores';
+    import { s, refs, themeBookColors, themeColors, convertStyle } from '$lib/data/stores';
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
     export let cols = 6;
+
+    $: buttonSelectedColor = "#FF0000";
 
     $: cellStyle = convertStyle(
         Object.fromEntries(
             Object.entries($s['ui.button.book-grid']).filter(([key]) => key != 'background-color')
         )
     );
+
     $: rowStyle = convertStyle(
         Object.fromEntries(
             Object.entries($s['ui.button.chapter-intro']).filter(
@@ -21,6 +24,7 @@ A component to display menu options in a grid.
             )
         )
     );
+    
     $: headerStyle = convertStyle($s['ui.text.book-group-title']);
     const dispatch = createEventDispatcher();
 
@@ -55,7 +59,7 @@ A component to display menu options in a grid.
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <span
                     on:click={() => handleClick(row.id)}
-                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1 hover:brightness-[.7]"
+                    class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1"
                     class:col-span-5={cols == 5}
                     class:col-span-6={cols == 6}
                     style={rowStyle}
@@ -69,12 +73,11 @@ A component to display menu options in a grid.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <span
                 on:click={() => handleClick(cell.id)}
-                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip hover:brightness-[.7]"
+                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip bg-[{bookCollectionColor(cell.id, 'ui.button.chapter-intro')}] hover:bg-[{buttonSelectedColor}]"
                 style={cellStyle}
-                style:background-color={bookCollectionColor(cell.id, 'ui.button.book-grid')}
-            >
-                {cell.label}
-            </span>
+        >
+            {cell.label}
+        </span>
         {/each}
     </div>
 {/each}
