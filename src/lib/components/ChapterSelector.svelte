@@ -73,10 +73,13 @@ The navbar component.
             return 0;
         }
         let count = 0;
-        let books = catalog.find((d) => d.id === $refs.docSet).documents;
-        let chapters = books.find((d) => d.bookCode === book).versesByChapters;
-        if (chapters && chapters.length > chapter) {
-            count = Object.keys(chapters[chapter]).length;
+        const books = catalog.find((d) => d.id === $refs.docSet).documents;
+        const chapters = books.find((d) => d.bookCode === book).versesByChapters;
+        if (chapters) {
+            const verses = chapters[chapter];
+            if (verses) {
+                count = Object.keys(verses).length;
+            }
         }
         return count;
     }
