@@ -117,8 +117,36 @@ TODO:
         return div.cloneNode(true);
     };
     const addTableText = (workspace, text) => {
+        if (workspace.inRow) {
+            if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
+                const references = text.split('; ');
+                for (let i = 0; i < references.length; i++) {
+                    const links = references[i].split('|');
+                    const displayText = links[0];
+                    const referenceText = links.length > 1 ? links[1] : links[0];
+                    const spanElement = document.createElement('span');
+                    spanElement.classList.add('reflink');
 
-    }
+                    // TODO: Figure out what really needs to be added to go to references
+                    // For now, just make it look consistent
+                    const aElement = document.createElement('a');
+                    aElement.setAttribute('href', referenceText);
+                    const refText = document.createTextNode(displayText);
+                    aElement.appendChild(refText);
+                    spanElement.appendChild(aElement);
+
+                    workspace.tableCellElement.appendChild(spanElement);
+                    if (i < references.length - 1) {
+                        const textNode = document.createTextNode('; ');
+                        workspace.tableCellElement.appendChild(textNode);
+                    }
+                }
+            } else {
+                const div = addTextNode(workspace.tableCellElement, text, workspace);
+                workspace.tableCellElement = div.cloneNode(true);
+            }
+        }
+    };
     const addGraftText = (workspace, text) => {
         if (workspace.textType.includes('note_caller')) {
             workspace.footnoteDiv.setAttribute('nc', text);
@@ -126,7 +154,7 @@ TODO:
             const div = addTextNode(workspace.footnoteDiv, text, workspace);
             workspace.footnoteDiv = div.cloneNode(true);
         }
-    }
+    };
     const addText = (workspace, text) => {
         // console.log('Adding text:', text);
         if (!onlySpaces(text)) {
@@ -165,7 +193,7 @@ TODO:
         spanElement.appendChild(textNode);
         parent.appendChild(spanElement);
         return parent;
-    }
+    };
     const addTextNode = (div: any, phrase: string, workspace: any) => {
         const usfmWrapperType = workspace.usfmWrapperType;
         if (usfmWrapperType) {
@@ -191,9 +219,9 @@ TODO:
         } else {
             const textNode = document.createTextNode(phrase);
             div.appendChild(textNode);
-        } 
+        }
         return div;
-    }
+    };
     const processText = (introductionGraft, showIntroduction, titleGraft) => {
         let returnValue = false;
         if (introductionGraft == showIntroduction || (titleGraft && showIntroduction)) {
@@ -358,7 +386,7 @@ TODO:
     }
     function preprocessAction(action: string, workspace: any) {
         // Table ends if row ended and anything other than start row follows it
-        if ((!workspace.inRow) && (workspace.inTable) && !(action === 'startRow')) {
+        if (!workspace.inRow && workspace.inTable && !(action === 'startRow')) {
             workspace.inTable = false;
             workspace.root.appendChild(workspace.tableElement);
         }
@@ -424,11 +452,11 @@ TODO:
                         description: 'Set up; Book heading',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
-                                'Start Document: %o, %o',
-                                context,
-                                context.document.metadata.document
-                            );
+                            // console.log(
+                            //     'Start Document: %o, %o',
+                            //     context,
+                            //     context.document.metadata.document
+                            // );
                             preprocessAction('startDocument', workspace);
                             bookRoot.replaceChildren();
                             workspace.root = bookRoot;
@@ -470,7 +498,7 @@ TODO:
                         description: 'Set up',
                         test: () => true,
                         action: ({ context, workspace, output }) => {
-                            console.log('End Document');
+                            // console.log('End Document');
                             preprocessAction('endDocument', workspace);
                             if (!displayingIntroduction) {
                                 var els = document.getElementsByTagName('div');
@@ -558,11 +586,11 @@ TODO:
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
                             // console.log('End paragraph: Sequence type ' + sequenceType);
-                            console.log(
-                                'End Paragraph %o %o',
-                                context.sequences[0].block,
-                                context.sequences[0].type
-                            );
+                            // console.log(
+                            //     'End Paragraph %o %o',
+                            //     context.sequences[0].block,
+                            //     context.sequences[0].type
+                            // );
                             preprocessAction('endPara', workspace);
                             if (
                                 processText(
@@ -644,7 +672,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log('Start Verses %o %o', element.atts['number'], element);
+                            // console.log('Start Verses %o %o', element.atts['number'], element);
                             preprocessAction('startVerses', workspace);
                             workspace.textType.push('verses');
                             if (!displayingIntroduction) {
@@ -667,7 +695,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log('End Verses %o %o', element.atts['number'], element);
+                            // console.log('End Verses %o %o', element.atts['number'], element);
                             /*const textTypeV = workspace.textType.pop(); */
                             // if (textTypeV != 'verses') {
                             //     console.log('Verses texttype mismatch!!! %o', textTypeV);
@@ -701,7 +729,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log('Start Chapter %o %o', element.atts['number'], element);
+                            // console.log('Start Chapter %o %o', element.atts['number'], element);
                             preprocessAction('startChapter', workspace);
                         }
                     }
@@ -712,7 +740,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log('End Chapter %o %o', element.atts['number'], element);
+                            // console.log('End Chapter %o %o', element.atts['number'], element);
                             preprocessAction('endChapter', workspace);
                         }
                     }
@@ -722,12 +750,12 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
-                                'Text element: %o %o %o',
-                                context.sequences[0].element.type,
-                                context.sequences[0].element.text,
-                                context.sequences[0].block
-                            );
+                            // console.log(
+                            //     'Text element: %o %o %o',
+                            //     context.sequences[0].element.type,
+                            //     context.sequences[0].element.text,
+                            //     context.sequences[0].block
+                            // );
                             // console.log('Text Type: %o', currentTextType(workspace));
                             preprocessAction('text', workspace);
                             if (
@@ -759,15 +787,11 @@ TODO:
                                                 addGraftText(workspace, text);
                                             }
                                             // Graft Text
-                                        } else if (blockType ==='usfm:ip') {
+                                        } else if (blockType === 'usfm:ip') {
                                             // Introduction
                                             addText(workspace, text);
                                         } else if (blockType === 'usfm:tr') {
-                                            console.log("CELL TEXT: ", text);
-                                            if (workspace.inRow) {
-                                                const div = addTextNode(workspace.tableCellElement, text, workspace);
-                                                workspace.tableCellElement = div.cloneNode(true);
-                                            }
+                                            addTableText(workspace, text);
                                         } else {
                                             addText(workspace, text);
                                         }
@@ -783,7 +807,7 @@ TODO:
                         description: 'Meta Content',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Meta Content %o', context.sequences[0].element);
+                            // console.log('Meta Content %o', context.sequences[0].element);
                             preprocessAction('metaContent', workspace);
                         }
                     }
@@ -794,11 +818,11 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log(
-                                'Mark: SubType %o, Atts: %o',
-                                element.subType,
-                                element.atts
-                            );
+                            // console.log(
+                            //     'Mark: SubType %o, Atts: %o',
+                            //     element.subType,
+                            //     element.atts
+                            // );
                             preprocessAction('mark', workspace);
                             if (
                                 processText(
@@ -822,8 +846,8 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('start sequence %o', sequenceType);
-                            preprocessAction('startSequence', workspace)
+                            // console.log('start sequence %o', sequenceType);
+                            preprocessAction('startSequence', workspace);
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -868,7 +892,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('End sequence |%o|', sequenceType);
+                            // console.log('End sequence |%o|', sequenceType);
                             preprocessAction('endSequence', workspace);
                             if (
                                 processText(
@@ -929,22 +953,12 @@ TODO:
                         }
                     }
                 ],
-                unresolvedBlockGraft: [
-                    {
-                        description: 'Unresolved Block Graft',
-                        test: () => true,
-                        action: (environment) => {
-                            console.log('Unresolved Block Graft');
-                            preprocessAction('unresolved', environment.workspace);
-                        }
-                    }
-                ],
                 blockGraft: [
                     {
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            console.log('Block Graft %o', environment.context.sequences[0].block);
+                            // console.log('Block Graft %o', environment.context.sequences[0].block);
                             preprocessAction('blockGraft', environment.workspace);
                             const currentBlock = environment.context.sequences[0].block;
                             const graftRecord = {
@@ -959,13 +973,11 @@ TODO:
                                 environment.workspace.titleGraft = true;
                             }
                             if (currentBlock.sequence) {
-                                //                                environment.workspace.htmlBits.push(`<span data-graft="${currentBlock.sequence.id}">`);
                                 graftRecord.sequence = {};
                                 const cachedSequencePointer = environment.workspace.currentSequence;
                                 environment.workspace.currentSequence = graftRecord.sequence;
                                 environment.context.renderer.renderSequence(environment);
                                 environment.workspace.currentSequence = cachedSequencePointer;
-                                //                                environment.workspace.htmlBits.push(`</span>`);
                             }
                             if (currentBlock.subType === 'introduction') {
                                 // console.log('*** END INTRODUCTION');
@@ -973,7 +985,7 @@ TODO:
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
                         }
                     }
                 ],
@@ -984,13 +996,13 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            console.log(
-                                'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                                element.type,
-                                element.subType,
-                                element.sequence.id,
-                                environment.context.sequences[0].element
-                            );
+                            // console.log(
+                            //     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
+                            //     element.type,
+                            //     element.subType,
+                            //     element.sequence.id,
+                            //     environment.context.sequences[0].element
+                            // );
                             preprocessAction('inlineGraft', workspace);
                             let footnoteSpan = null;
                             const graftRecord = {
@@ -1043,7 +1055,7 @@ TODO:
                                     console.log('note caller text type mismatch!!! %o', textTypeF);
                                 }
                             }
-                            console.log('Inline Graft End');
+                            // console.log('Inline Graft End');
                         }
                     }
                 ],
@@ -1052,7 +1064,7 @@ TODO:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Start Wrapper %o', context.sequences[0].element);
+                            // console.log('Start Wrapper %o', context.sequences[0].element);
                             preprocessAction('startWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1077,7 +1089,7 @@ TODO:
                                         }
                                     }
                                     workspace.usfmWrapperType = usfmType;
-                                    console.log('setting wrapper type to (%o)', usfmType);
+                                    // console.log('setting wrapper type to (%o)', usfmType);
                                     break;
                                 }
                                 case 'cell': {
@@ -1099,7 +1111,7 @@ TODO:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('End Wrapper %o', context.sequences[0].element);
+                            // console.log('End Wrapper %o', context.sequences[0].element);
                             preprocessAction('endWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1118,7 +1130,9 @@ TODO:
                                 case 'cell': {
                                     workspace.textType.pop();
                                     if (workspace.tableRowElement != null) {
-                                        workspace.tableRowElement.appendChild(workspace.tableCellElement);
+                                        workspace.tableRowElement.appendChild(
+                                            workspace.tableCellElement
+                                        );
                                     }
                                 }
                                 default: {
@@ -1133,7 +1147,7 @@ TODO:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Start Milestone %o', context.sequences[0].element);
+                            // console.log('Start Milestone %o', context.sequences[0].element);
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
                             if (element.subType === 'usfm:zvideo') {
@@ -1153,7 +1167,7 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('End Milestone %o', context.sequences[0].element);
+                            // console.log('End Milestone %o', context.sequences[0].element);
                             preprocessAction('endMilestone', workspace);
                         }
                     }
@@ -1163,7 +1177,7 @@ TODO:
                         description: 'Start Row',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Start Row %o', context.sequences[0].element);
+                            // console.log('Start Row %o', context.sequences[0].element);
                             preprocessAction('startRow', workspace);
                             if (!workspace.inTable) {
                                 workspace.tableElement = document.createElement('table');
@@ -1180,7 +1194,7 @@ TODO:
                         description: 'End Row',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('End Row %o', context.sequences[0].element);
+                            // console.log('End Row %o', context.sequences[0].element);
                             preprocessAction('endRow', workspace);
                             workspace.tableElement.appendChild(workspace.tableRowElement);
                             workspace.rowCellNumber = 0;
@@ -1188,26 +1202,6 @@ TODO:
                         }
                     }
                 ],
-                startCell: [
-                    {
-                        description: 'Start Cell',
-                        test: () => true,
-                        action: ({ context, workspace }) => {
-                            console.log('Start Cell %o', context.sequences[0].element);
-                            preprocessAction('startCell', workspace);
-                        }
-                    }
-                ],
-                endCell: [
-                    {
-                        description: 'End Cell',
-                        test: () => true,
-                        action: ({ context, workspace }) => {
-                            console.log('End Cell %o', context.sequences[0].element);
-                            preprocessAction('endCell', workspace);
-                        }
-                    }
-                ]
             },
             debugLevel: 0
         });
