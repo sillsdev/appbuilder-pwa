@@ -185,7 +185,7 @@ The navbar component.
 <!-- Book Selector -->
 <Dropdown on:nav-end={resetNavigation}>
     <svelte:fragment slot="label">
-        <div class="normal-case" style={convertStyle($s['ui.selector.book'])}>
+        <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
             {label}
         </div>
         <DropdownIcon color="white" />
