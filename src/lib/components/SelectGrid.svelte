@@ -60,7 +60,7 @@ A component to display menu options in a grid.
     {/if}
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <div
-        on:touchstart={handleHover} 
+        on:touchstart={handleHover}
         on:mouseover={handleHover}
         on:touchend={handleHoverEnd}
         on:mouseout={handleHoverEnd}
@@ -78,24 +78,28 @@ A component to display menu options in a grid.
                     class:col-span-5={cols == 5}
                     class:col-span-6={cols == 6}
                     style={rowStyle}
-                    style:background-color={hovered === row.id ? hoverColor : bookCollectionColor(row.id, 'ui.button.chapter-intro')}
+                    style:background-color={hovered === row.id
+                        ? hoverColor
+                        : bookCollectionColor(row.id, 'ui.button.chapter-intro')}
                 >
                     {row.label}
                 </span>
             {/each}
         {/if}
-            {#each group.cells as cell}
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <span
-                    on:click={() => handleClick(cell.id)}
-                    id={cell.id}
-                    class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
-                    style={cellStyle}
-                    style:background-color={hovered === cell.id ? hoverColor : bookCollectionColor(cell.id, 'ui.button.chapter-intro')}
-                >
-                    {cell.label}
-                </span>
-            {/each}
+        {#each group.cells as cell}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <span
+                on:click={() => handleClick(cell.id)}
+                id={cell.id}
+                class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
+                style={cellStyle}
+                style:background-color={hovered === cell.id
+                    ? hoverColor
+                    : bookCollectionColor(cell.id, 'ui.button.chapter-intro')}
+            >
+                {cell.label}
+            </span>
+        {/each}
     </div>
 {/each}
 
