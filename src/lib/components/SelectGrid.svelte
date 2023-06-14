@@ -14,12 +14,30 @@ A component to display menu options in a grid.
 
     // Function to handle span touch
     function handleHover(event) {
+        console.log('touched');
         hovered = event.target.id;
     }
 
     // Function to handle span touch end
     function handleHoverEnd() {
+        console.log('untouched');
         hovered = null;
+    }
+
+    function handleTouchMove(event) {
+        const touch = event.touches[0];
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        const rect = element.getBoundingClientRect();
+        if (
+            touch.clientX >= rect.left &&
+            touch.clientX <= rect.right &&
+            touch.clientY >= rect.top &&
+            touch.clientY <= rect.bottom
+        ) {
+            hovered = element.id;
+        } else {
+            hovered = null;
+        }
     }
 
     $: cellStyle = convertStyle(
@@ -61,8 +79,9 @@ A component to display menu options in a grid.
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <div
         on:touchstart={handleHover}
-        on:mouseover={handleHover}
+        on:touchmove={handleTouchMove}
         on:touchend={handleHoverEnd}
+        on:mouseover={handleHover}
         on:mouseout={handleHoverEnd}
         class="grid grid-cols-{cols} gap-1 m-2"
         class:grid-cols-5={cols == 5}
