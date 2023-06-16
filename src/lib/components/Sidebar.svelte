@@ -196,8 +196,6 @@ The sidebar/drawer.
     .dy-menu {
         position: absolute;
         top: 4rem;
-        min-height: calc(100vh - 4rem);
-        min-height: calc(100dvh - 4rem);
     }
     a {
         text-decoration: none;

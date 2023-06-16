@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{base}/override-sab.css" />
 </svelte:head>
 <Sidebar>
-    <div id="container" data-color-theme={$theme}>
+    <div id="container" data-color-theme={$theme} style="height:100vh;height:100dvh;">
         <slot />
     </div>
 </Sidebar>
