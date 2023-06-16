@@ -4,10 +4,39 @@ A component to display menu options in a grid.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, refs, themeBookColors, convertStyle } from '$lib/data/stores';
+    import { s, refs, themeBookColors, themeColors, convertStyle } from '$lib/data/stores';
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
     export let cols = 6;
+
+    let hovered = null;
+    $: hoverColor = $themeColors['ButtonSelectedColor'];
+
+    // Function to handle span touch
+    function handleHover(event) {
+        hovered = event.target.id;
+    }
+
+    // Function to handle span touch end
+    function handleHoverEnd() {
+        hovered = null;
+    }
+
+    function handleTouchMove(event) {
+        const touch = event.touches[0];
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        const rect = element.getBoundingClientRect();
+        if (
+            touch.clientX >= rect.left &&
+            touch.clientX <= rect.right &&
+            touch.clientY >= rect.top &&
+            touch.clientY <= rect.bottom
+        ) {
+            hovered = element.id;
+        } else {
+            hovered = null;
+        }
+    }
 
     $: cellStyle = convertStyle(
         Object.fromEntries(
@@ -45,7 +74,13 @@ A component to display menu options in a grid.
     {#if group.header}
         <div class="mx-2" style={headerStyle}>{group.header}</div>
     {/if}
+    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <div
+        on:touchstart={handleHover}
+        on:touchmove={handleTouchMove}
+        on:touchend={handleHoverEnd}
+        on:mouseover={handleHover}
+        on:mouseout={handleHoverEnd}
         class="grid grid-cols-{cols} gap-1 m-2"
         class:grid-cols-5={cols == 5}
         class:grid-cols-6={cols == 6}
@@ -55,11 +90,14 @@ A component to display menu options in a grid.
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <span
                     on:click={() => handleClick(row.id)}
+                    id={row.id}
                     class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1"
                     class:col-span-5={cols == 5}
                     class:col-span-6={cols == 6}
                     style={rowStyle}
-                    style:background-color={bookCollectionColor(row.id, 'ui.button.chapter-intro')}
+                    style:background-color={hovered === row.id
+                        ? hoverColor
+                        : bookCollectionColor(row.id, 'ui.button.chapter-intro')}
                 >
                     {row.label}
                 </span>
@@ -69,9 +107,12 @@ A component to display menu options in a grid.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <span
                 on:click={() => handleClick(cell.id)}
+                id={cell.id}
                 class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
                 style={cellStyle}
-                style:background-color={bookCollectionColor(cell.id, 'ui.button.book-grid')}
+                style:background-color={hovered === cell.id
+                    ? hoverColor
+                    : bookCollectionColor(cell.id, 'ui.button.chapter-intro')}
             >
                 {cell.label}
             </span>
@@ -87,5 +128,6 @@ A component to display menu options in a grid.
         border-radius: 0px;
         padding: 1.2em 0;
         vertical-align: middle;
+        transition: background-color 0.05s ease;
     }
 </style>
