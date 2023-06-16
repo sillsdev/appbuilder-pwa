@@ -14,13 +14,11 @@ A component to display menu options in a grid.
 
     // Function to handle span touch
     function handleHover(event) {
-        console.log('touched');
         hovered = event.target.id;
     }
 
     // Function to handle span touch end
     function handleHoverEnd() {
-        console.log('untouched');
         hovered = null;
     }
 
