@@ -1,7 +1,6 @@
 <script lang="ts">
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import { t, highlights } from '$lib/data/stores';
 
     function handleMenuaction(event: CustomEvent, id: string) {
@@ -19,18 +18,18 @@
     }
 </script>
 
-<div class="navbar h-16">
-    <Navbar>
-        <!-- <div slot="left-buttons" /> -->
-        <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Highlights']}</div>
-        </label>
-        <!-- <div slot="right-buttons" /> -->
-    </Navbar>
-</div>
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+    <div class="navbar h-16">
+        <Navbar>
+            <!-- <div slot="left-buttons" /> -->
+            <label for="sidebar" slot="center">
+                <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Highlights']}</div>
+            </label>
+            <!-- <div slot="right-buttons" /> -->
+        </Navbar>
+    </div>
 
-<ScrolledContent>
-    <div slot="scrolled-content" style="height: calc(100vh - 5rem);height: calc(100dvh -5rem);">
+    <div class="overflow-y-auto">
         {#each $highlights as h}
             {@const colorCard = {
                 reference: h.reference,
@@ -46,4 +45,4 @@
             <ColorCard on:menuaction={(e) => handleMenuaction(e, h.id)} {...colorCard} />
         {/each}
     </div>
-</ScrolledContent>
+</div>

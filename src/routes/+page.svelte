@@ -103,12 +103,6 @@
         viewShowVerses: $userSettings['verse-numbers']
     };
 
-    $: audioBarHeight = $refs.hasAudio && $audioActive ? ($refs.hasAudio.timingFile ? 4 : 5) : 0;
-    // Border Subtraction
-    $: bs = 4 + ($selectedVerses.length > 0 ? 3 : audioBarHeight);
-    // Content Subtraction
-    $: cs = 1 + bs + (showBorder ? 3.5 : 0);
-
     // Process page parameters
     if ($page.data?.ref) {
         $refs = parseReference($page.data.ref);
@@ -132,6 +126,7 @@
     /**scrolls element with id into view*/
     const scrollTo = (id: string) => {
         if (scrollMod === key) return;
+        if (!id) return;
         document
             .querySelector(
                 `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
@@ -209,76 +204,70 @@
     $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
 </script>
 
-<div class="navbar h-16">
-    <Navbar>
-        <div slot="left-buttons">
-            <div class="flex flex-nowrap">
-                <BookSelector />
-                <ChapterSelector />
+<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
+    <div class="navbar h-16">
+        <Navbar>
+            <div slot="left-buttons">
+                <div class="flex flex-nowrap">
+                    <BookSelector />
+                    <ChapterSelector />
+                </div>
+            </div>
+            <div slot="right-buttons">
+                {#if $refs.hasAudio && showAudio}
+                    <!-- Mute/Volume Button -->
+                    <button
+                        class="dy-btn dy-btn-ghost dy-btn-circle"
+                        on:click={() => ($audioActive = !$audioActive)}
+                    >
+                        {#if $audioActive}
+                            <AudioIcon.Volume color="white" />
+                        {:else}
+                            <AudioIcon.Mute color="white" />
+                        {/if}
+                    </button>
+                {/if}
+                {#if showSearch}
+                    <!-- Search Button -->
+                    <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                        <SearchIcon color="white" />
+                    </a>
+                {/if}
+                <!-- Text Appearance Options Menu -->
+                <TextAppearanceSelector />
+                {#if showCollections}
+                    <CollectionSelector />
+                {/if}
+            </div>
+        </Navbar>
+    </div>
+    <div class:borderimg={showBorder} class="overflow-y-auto">
+        <ScrolledContent>
+            <div
+                slot="scrolled-content"
+                class="max-w-screen-md mx-auto"
+                use:pinch
+                on:pinch={doPinch}
+                use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+                on:swipe={doSwipe}
+            >
+                <ScriptureViewSofria {...viewSettings} />
+            </div>
+        </ScrolledContent>
+    </div>
+    {#if $selectedVerses.length > 0}
+        <div class="text-selection">
+            <TextSelectionToolbar />
+        </div>
+    {:else if $refs.hasAudio && $audioActive}
+        <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
+        <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
+            <div>
+                <AudioBar audio={$refs.hasAudio?.audio} />
             </div>
         </div>
-        <div slot="right-buttons">
-            {#if $refs.hasAudio && showAudio}
-                <!-- Mute/Volume Button -->
-                <button
-                    class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={() => ($audioActive = !$audioActive)}
-                >
-                    {#if $audioActive}
-                        <AudioIcon.Volume color="white" />
-                    {:else}
-                        <AudioIcon.Mute color="white" />
-                    {/if}
-                </button>
-            {/if}
-            {#if showSearch}
-                <!-- Search Button -->
-                <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                    <SearchIcon color="white" />
-                </a>
-            {/if}
-            <!-- Text Appearance Options Menu -->
-            <TextAppearanceSelector />
-            {#if showCollections}
-                <CollectionSelector />
-            {/if}
-        </div>
-    </Navbar>
+    {/if}
 </div>
-<div
-    class:borderimg={showBorder}
-    style={'height:calc(100vh - ' + bs + 'rem);height:calc(100dvh - ' + bs + 'rem)'}
->
-    <ScrolledContent>
-        <div
-            style={'height:calc(100vh - ' + cs + 'rem);height:calc(100dvh - ' + cs + 'rem);'}
-            slot="scrolled-content"
-            class="max-w-screen-md mx-auto"
-            use:pinch
-            on:pinch={doPinch}
-            use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-            on:swipe={doSwipe}
-        >
-            <ScriptureViewSofria {...viewSettings} />
-        </div>
-    </ScrolledContent>
-</div>
-{#if $selectedVerses.length > 0}
-    <div class="text-selection left-0 right-0 absolute" style:bottom={'-3rem'}>
-        <TextSelectionToolbar />
-    </div>
-{:else if $refs.hasAudio && $audioActive}
-    <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
-    <div
-        class="audio-bar p-0 left-0 right-0 absolute"
-        class:audio-bar-desktop={$showDesktopSidebar}
-        style:bottom={'-' + audioBarHeight + 'rem'}
-    >
-        <div style:height={audioBarHeight + 'rem'}>
-            <AudioBar audio={$refs.hasAudio?.audio} />
-        </div>
-    </div>
-{/if}
 
 <style>
     @media (min-width: 1024px) {
