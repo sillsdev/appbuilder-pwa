@@ -61,64 +61,68 @@
     }
 </script>
 
-<div class="navbar h-16">
-    <Navbar>
-        <!-- <div slot="left-buttons" /> -->
-        <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
-        </label>
-        <!-- <div slot="right-buttons" /> -->
-    </Navbar>
-</div>
-<form style:direction={$direction}>
-    <div class="dy-form-control m-4">
-        <label class="dy-input-group">
-            <!-- svelte-ignore a11y-autofocus -->
-            <input
-                autofocus
-                type="text"
-                placeholder={$t['Search']}
-                class="dy-input dy-input-bordered"
-                bind:value={searchText}
-            />
-            <button on:click|preventDefault={submit} class="dy-btn">
-                <SearchIcon />
-            </button>
-        </label>
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+    <div class="navbar h-16">
+        <Navbar>
+            <!-- <div slot="left-buttons" /> -->
+            <label for="sidebar" slot="center">
+                <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
+            </label>
+            <!-- <div slot="right-buttons" /> -->
+        </Navbar>
     </div>
-    <div class="dy-form-control w-full max-w-xs m-4">
-        <label class="dy-label cursor-pointer">
-            <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
-            <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
-        </label>
-    </div>
-    {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
-        <div class="dy-form-control">
-            <div class="cursor-pointer">
-                <div class="">Special characters</div>
-                <div class="special-characters">
-                    {#each specialCharacters as character}
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <div
-                            class="special-character bg-primary"
-                            on:click={() => (searchText += character)}
-                        >
-                            {character}
-                        </div>
-                    {/each}
-                </div>
+    <div>
+        <form style:direction={$direction}>
+            <div class="dy-form-control m-4">
+                <label class="dy-input-group">
+                    <!-- svelte-ignore a11y-autofocus -->
+                    <input
+                        autofocus
+                        type="text"
+                        placeholder={$t['Search']}
+                        class="dy-input dy-input-bordered"
+                        bind:value={searchText}
+                    />
+                    <button on:click|preventDefault={submit} class="dy-btn">
+                        <SearchIcon />
+                    </button>
+                </label>
             </div>
-        </div>
-    {/if}
-</form>
-{#await promise}
-    searching . . .
-{:then results}
-    {#each passages as p}
-        <h2>{p.reference} <i>{p.docSetId}</i></h2>
-        <p>{p.text}</p>
-    {/each}
-{/await}
+            <div class="dy-form-control w-full max-w-xs m-4">
+                <label class="dy-label cursor-pointer">
+                    <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
+                    <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
+                </label>
+            </div>
+            {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
+                <div class="dy-form-control">
+                    <div class="cursor-pointer">
+                        <div class="">Special characters</div>
+                        <div class="special-characters">
+                            {#each specialCharacters as character}
+                                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                <div
+                                    class="special-character bg-primary"
+                                    on:click={() => (searchText += character)}
+                                >
+                                    {character}
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                </div>
+            {/if}
+        </form>
+        {#await promise}
+            searching . . .
+        {:then results}
+            {#each passages as p}
+                <h2>{p.reference} <i>{p.docSetId}</i></h2>
+                <p>{p.text}</p>
+            {/each}
+        {/await}
+    </div>
+</div>
 
 <style>
     .special-characters {

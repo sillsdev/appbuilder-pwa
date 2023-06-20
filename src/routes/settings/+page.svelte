@@ -19,21 +19,17 @@
     });
 </script>
 
-<div class="navbar h-16">
-    <Navbar>
-        <!-- <div slot="left-buttons" /> -->
-        <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
-        </label>
-        <!-- <div slot="right-buttons" /> -->
-    </Navbar>
-</div>
-<ScrolledContent>
-    <div
-        slot="scrolled-content"
-        style="height: calc(100vh - 5rem);height: calc(100dvh - 5rem);"
-        style:direction={$direction}
-    >
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+    <div class="navbar h-16">
+        <Navbar>
+            <!-- <div slot="left-buttons" /> -->
+            <label for="sidebar" slot="center">
+                <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
+            </label>
+            <!-- <div slot="right-buttons" /> -->
+        </Navbar>
+    </div>
+    <div class="overflow-y-auto" style:direction={$direction}>
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
             <div class="settings-category">
@@ -102,4 +98,4 @@
             {/each}
         {/each}
     </div>
-</ScrolledContent>
+</div>
