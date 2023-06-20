@@ -90,6 +90,7 @@ A component to display menu options in a grid.
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <span
                     on:click={() => handleClick(row.id)}
+                    on:touchend={() => handleClick(cell.id)}
                     id={row.id}
                     class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1"
                     class:col-span-5={cols == 5}
