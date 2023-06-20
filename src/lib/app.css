@@ -5,6 +5,14 @@
 @layer base {
 }
 
+/* https://stackoverflow.com/a/58236787/35577 */
+/* On Chrome Mobile, there is a whitespace along the right side that */
+/* can't figure out where it is coming from.  This will hide it. */
+html,
+body {
+    overflow-x: hidden;
+}
+
 /* https://github.com/saadeghi/daisyui/issues/1450 */
 /* When tapping on the appbar buttons, the hover state sticks sometimes */
 @media (hover: none) {
