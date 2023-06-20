@@ -23,11 +23,14 @@ TODO:
     }));
 
     function handleClick(opt) {
-        refs.set({ docSet: opt, book: $refs.book, chapter: $refs.chapter });
-        nextDocSet = opt;
-        dispatch('menuaction', {
-            text: selectedDocSets[0].id
-        });
+        switch (layoutOption) {
+            case 'Single Pane':
+                selectedDocSets[0] = opt.detail.collection;
+                dispatch('menuaction', {
+                    text: selectedDocSets[0].id
+                });
+            //case 'Side By Side':
+        }
     }
 
     function handleLeft(opt) {
