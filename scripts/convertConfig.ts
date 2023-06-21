@@ -152,12 +152,14 @@ export type ConfigData = {
             collection: string;
         };
     }[];
+    defaultLayout?: string; // TODO
     layouts?: {
         // TODO
         mode: string;
         enabled: boolean;
+        layoutCollections: string[];
         features?: {
-            [key: string]: any;
+            [key: string]: string;
         };
     }[];
     menuItems?: {
@@ -177,7 +179,6 @@ export type ConfigData = {
             file: string;
         }[];
     }[];
-    defaultLayout?: string; // TODO
     security?: {
         // TODO
         features?: {
@@ -667,6 +668,36 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
+    const layouts = document.getElementsByTagName('layouts')[0]?.getElementsByTagName('layout');
+    if (layouts?.length > 0) {
+        data.layouts = [];
+        for (const layout of layouts) {
+            const mode = layout.attributes.getNamedItem('mode')!.value;
+            const enabled = layout.attributes.getNamedItem('enabled')!.value === 'true';
+            const featureElements = layout.getElementsByTagName('features')[0];
+            const features: { [key: string]: string } = {};
+            if (featureElements) {
+                for (const feature of featureElements.getElementsByTagName('feature')) {
+                    const name = feature.attributes.getNamedItem('name')!.value;
+                    const value = feature.attributes.getNamedItem('value')!.value;
+                    if (verbose >= 2)
+                        console.log(`.. Converting feature: name=${name}, value=${value}`);
+                    features[name] = value;
+                }
+            }
+            const layoutCollectionElements = layout.getElementsByTagName('layout-collection');
+            const layoutCollections = Array.from(layoutCollectionElements).map((element) => {
+                return element.attributes.getNamedItem('id')!.value;
+            });
+
+            data.layouts.push({
+                mode,
+                enabled,
+                layoutCollections,
+                features
+            });
+        }
+    }
     /*
     layouts?: {
         mode: string;
