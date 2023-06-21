@@ -14,12 +14,13 @@ Book Collection Selector component.
     let modal;
     export function showModal() {
         modal.showModal();
+        console.log('='+vertOffset)
     }
-    export let vertOffset = '0px';
+    export let vertOffset = '1rem';
     $: positioningCSS =
         'position:absolute; top:' +
-        (vertOffset + parseFloat(getComputedStyle(document.documentElement).fontSize)) +
-        'px; right:1rem;';
+        (Number(vertOffset.replace('rem', '')) + 1) +
+        'rem; right:1rem;';
 
     function navigateReference(e) {
         switch (e.detail.tab) {

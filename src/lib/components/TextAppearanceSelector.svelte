@@ -24,11 +24,11 @@ TODO
     export function showModal() {
         modal.showModal();
     }
-    export let vertOffset = '0px';
+    export let vertOffset = '1rem';
     $: positioningCSS =
         'position:absolute; top:' +
-        (vertOffset + parseFloat(getComputedStyle(document.documentElement).fontSize)) +
-        'px; right:1rem;';
+        (Number(vertOffset.replace('rem', '')) + 1) +
+        'rem; right:1rem;';
 
     const showFontSize = config.mainFeatures['text-font-size-slider'];
     const showLineHeight = config.mainFeatures['text-line-height-slider'];
