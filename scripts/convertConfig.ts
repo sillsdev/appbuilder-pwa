@@ -668,7 +668,10 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    const layouts = document.getElementsByTagName('layouts')[0]?.getElementsByTagName('layout');
+    const layoutRoot = document.getElementsByTagName('layouts')[0];
+    data.defaultLayout = layoutRoot?.attributes.getNamedItem('default')?.value;
+
+    const layouts = layoutRoot?.getElementsByTagName('layout');
     if (layouts?.length > 0) {
         data.layouts = [];
         for (const layout of layouts) {
@@ -698,17 +701,6 @@ function convertConfig(dataDir: string, verbose: number) {
             });
         }
     }
-    /*
-    layouts?: {
-        mode: string;
-        enabled: boolean;
-        features?: {
-            [key: string]: any;
-        };
-    }[];
-    */
-
-    /* defaultLayout?: string; */
 
     // Menu Items
     const menuItems = document
