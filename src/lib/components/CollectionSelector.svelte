@@ -14,9 +14,10 @@ Book Collection Selector component.
     let modal;
     export function showModal() {
         modal.showModal();
-        console.log('='+vertOffset)
     }
-    export let vertOffset = '1rem';
+
+    export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
+    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
     $: positioningCSS =
         'position:absolute; top:' +
         (Number(vertOffset.replace('rem', '')) + 1) +
@@ -36,7 +37,9 @@ Book Collection Selector component.
     }
 </script>
 
-<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}>
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
+    ><!--addCSS is a prop for injecting CSS into the modal-->
+
     <svelte:fragment slot="content">
         <!-- TODO: Include other layout options -->
         <TabsMenu

@@ -110,8 +110,8 @@
         viewShowVerses: $userSettings['verse-numbers']
     };
 
-    $: extraIconsExist = showSearch || showCollections; //was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
-    let showOverlowMenu = false;
+    $: extraIconsExist = showSearch || showCollections; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    let showOverlowMenu = false; //Controls the visibility of the extraButtons div on mobile
     function handleMenuClick(event) {
         showOverlowMenu = false;
     }
@@ -218,18 +218,20 @@
 
     let textAppearanceSelector;
     function handleTextAppearanceSelector() {
-        textAppearanceSelector.showModal();
+        textAppearanceSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
     }
 
     let collectionSelector;
     function handleCollectionSelector() {
-        collectionSelector.showModal();
+        collectionSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
     }
 
     let navBarHeight = '4rem';
 </script>
 
 <div>
+    <!--Div containing the popup modals triggered by the navBar buttons:-->
+
     <!-- Text Appearance Options Menu -->
     <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={navBarHeight} />
 
@@ -257,6 +259,7 @@
                           console.log('Clicked in right-buttons but showOverlowMenu = false.');
                       }}
             >
+                <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
                 <div class="flex">
                     {#if $refs.hasAudio && showAudio}
                         <!-- Mute/Volume Button -->
@@ -275,7 +278,9 @@
                     {/if}
                 </div>
                 <div id="extraButtons" class={showOverlowMenu ? 'flex' : 'hidden md:flex'}>
-                    <!-- Text Appearance Options Menu -->
+                    <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
+
+                    <!-- Text Appearance Selector Button -->
                     <label
                         for="textAppearanceSelector"
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
@@ -283,13 +288,14 @@
                         ><TextAppearanceIcon color="white" /></label
                     >
 
+                    <!-- Search Button -->
                     {#if showSearch}
-                        <!-- Search Button -->
                         <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
                             <SearchIcon color="white" />
                         </a>
                     {/if}
 
+                    <!-- Collection Selector Button -->
                     {#if showCollections}
                         <label
                             for="collectionSelector"
@@ -299,7 +305,7 @@
                     {/if}
                 </div>
                 {#if extraIconsExist}
-                    <!-- Overflow Menu Button -->
+                    <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
                     <button
                         class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
                         on:click={() => {

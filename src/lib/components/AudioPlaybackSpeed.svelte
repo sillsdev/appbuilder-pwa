@@ -12,7 +12,8 @@
     $: iconColor = $s['ui.bar.audio.icon']['color'];
 </script>
 
-<Modal id={modalId} addCSS="position:absolute; bottom:1rem; right:1rem;">
+<Modal id={modalId} addCSS="position:absolute; bottom:1rem; right:1rem;"
+    ><!--addCSS injects CSS into the modal to position it 1rem away from the bottom and right edges of the screen (on mobile it will be centered)-->
     <svelte:fragment slot="label">
         <AudioIcon.Speed color={iconColor} />
     </svelte:fragment>
