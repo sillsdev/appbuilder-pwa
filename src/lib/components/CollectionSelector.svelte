@@ -23,12 +23,12 @@ Book Collection Selector component.
         (Number(vertOffset.replace('rem', '')) + 1) +
         'rem; right:1rem;';
 
-    // ToDo: Make functional to store SideBySide and VerseByVerse preferences
+    // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
         switch (e.detail.tab) {
             case 'Single Pane':
                 docSet = e.detail.text;
-                console.log('Single Pane', e.detail.text);
+                console.log('Single Pane');
                 // force closes active dropdown elements
                 document.activeElement.blur();
                 break;

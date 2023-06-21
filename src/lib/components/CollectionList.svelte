@@ -1,7 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { themeColors, convertStyle, s } from '$lib/data/stores';
+    // array of all selectable docsets
     export let docSets: App.CollectionEntry[] = [];
+    // selected docset to highlight
     export let nextDocSet: App.CollectionEntry;
 
     const dispatch = createEventDispatcher();

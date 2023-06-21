@@ -13,7 +13,6 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
 
-    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
 

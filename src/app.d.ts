@@ -59,6 +59,12 @@ declare namespace App {
         description: string;
     }
 
+    interface CollectionGroup {
+        singlePane: CollectionEntry;
+        sideBySide: FixedLengthArray<[CollectionEntry, CollectionEntry]>;
+        verseByVerse: FixedLengthArray<[CollectionEntry, CollectionEntry, CollectionEntry]>;
+    }
+
     interface UserPreferenceSetting {
         type: 'checkbox' | 'list' | 'time';
         category: string;
