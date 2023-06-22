@@ -25,36 +25,17 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
-        switch (e.detail.tab) {
-            case 'Single Pane':
-                docSet = e.detail.text;
-                console.log('Single Pane');
-                // force closes active dropdown elements
-                document.activeElement.blur();
-                break;
-            case 'Side By Side':
-                console.log('Side By Side');
-                // force closes active dropdown elements
-                document.activeElement.blur();
-                break;
-            case 'Verse By Verse':
-                console.log('Verse By Verse');
-                // force closes active dropdown elements
-                document.activeElement.blur();
-                break;
-            default:
-                console.log('Collection navigateReference: Default');
-                break;
-        }
+        docSet = e.detail.text.id;
     }
 
     // ToDo
     function handleOk() {
-        $refs.docSet = docSet
+        console.log('Navigating');
+        $refs.docSet = docSet;
     }
     // ToDo
     function handleCancel() {
-        docSet = $refs.docSet
+        docSet = $refs.docSet;
     }
 </script>
 
@@ -89,14 +70,14 @@ Book Collection Selector component.
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={handleOk}>Cancel</label
+                on:click={() => handleCancel()}>Cancel</label
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => (handleCancel)}>Ok</label
+                on:click={() => handleOk()}>Ok</label
             >
         </div>
     </svelte:fragment>
