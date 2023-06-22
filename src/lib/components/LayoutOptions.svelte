@@ -5,7 +5,6 @@ TODO:
 - functionality...
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import Dropdown from './Dropdown.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
@@ -13,7 +12,6 @@ TODO:
     import CollectionList from './CollectionList.svelte';
 
     export let layoutOption = '';
-    const dispatch = createEventDispatcher();
 
     const blank = {
         id: '',
@@ -29,8 +27,7 @@ TODO:
         description: ds?.collectionDescription
     }));
 
-    // An array of three selected docSets
-    // ToDo: Assign these to default values provided by scripture app builder
+    // ToDo: Should instead be assigned to default values when the store is declared
     $nextDocSet.singlePane = allDocSets[0];
     $nextDocSet.sideBySide = allDocSets.slice(0, 2);
     $nextDocSet.verseByVerse = [...allDocSets.slice(0, 2), blank];
@@ -75,30 +72,6 @@ TODO:
         }
         (document.activeElement as HTMLElement).blur();
     }
-
-    // function handleLeft(opt) {
-    //     $nextDocSet.singlePane = opt.detail.collection;
-    //     if ($nextDocSet.sideBySide[0] === $nextDocSet.singlePane) {
-    //         $nextDocSet.sideBySide[0] = allDocSets.filter(
-    //             (x) =>
-    //                 x.id != $nextDocSet.singlePane.id &&
-    //                 x.id != $nextDocSet.sideBySide[1].id
-    //         )[0];
-    //     }
-    //     (document.activeElement as HTMLElement).blur();
-    // }
-
-    // function handleRight(opt) {
-    //     $nextDocSet.sideBySide[0] = opt.detail.collection;
-    //     if ($nextDocSet.singlePane === $nextDocSet.sideBySide[0]) {
-    //         $nextDocSet.singlePane = allDocSets.filter(
-    //             (x) =>
-    //                 x.id != $nextDocSet.sideBySide[0].id &&
-    //                 x.id != $nextDocSet.sideBySide[1].id
-    //         )[0];
-    //     }
-    //     (document.activeElement as HTMLElement).blur();
-    // }
 </script>
 
 <div>
@@ -155,7 +128,6 @@ TODO:
                 </div>
             {/each}
         </div>
-
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
         <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>

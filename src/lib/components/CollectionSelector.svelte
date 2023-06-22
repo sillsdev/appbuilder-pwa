@@ -6,7 +6,7 @@ Book Collection Selector component.
     import Modal from './Modal.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { convertStyle, refs, s } from '$lib/data/stores';
+    import { convertStyle, refs, nextDocSet, s } from '$lib/data/stores';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
     const modalId = 'collectionSelector';
@@ -25,12 +25,25 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
-        docSet = e.detail.text.id;
+        switch (e.detail.tab) {
+            case 'Single Pane':
+                console.log(e.detail.tab);
+                docSet = $nextDocSet.singlePane;
+                break;
+            case 'Side By Side':
+                break;
+            case 'Verse By Verse':
+                break;
+            default:
+                console.log('CollectionSelector navigateReference: Default');
+                break;
+        }
     }
 
+    // Not running because its not catching a menuaction.
     // ToDo
     function handleOk() {
-        console.log('Navigating');
+        console.log('Navigating to', docSet);
         $refs.docSet = docSet;
     }
     // ToDo
