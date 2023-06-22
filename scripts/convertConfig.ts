@@ -701,7 +701,7 @@ function convertConfig(dataDir: string, verbose: number) {
             });
         }
     }
-    if(verbose) console.log(`Converted ${layouts?.length} layouts`);
+    if (verbose) console.log(`Converted ${layouts?.length} layouts`);
 
     // Menu Items
     const menuItems = document
