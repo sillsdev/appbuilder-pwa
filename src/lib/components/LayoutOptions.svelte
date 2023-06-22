@@ -22,7 +22,7 @@ TODO:
         description: ''
     };
 
-    let allDocSets = config.bookCollections.map((ds) => ({
+    const allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
         singlePane: ds.features['bc-allow-single-pane'],
@@ -37,14 +37,17 @@ TODO:
 
     function handleClick(opt: any, index: number) {
         const docSet = opt.detail.collection;
-        console.log('Setting index', index);
+        console.log('Setting index', index, 'of', layoutOption);
         switch (layoutOption) {
             case 'Single Pane':
                 $nextDocSet.singlePane = docSet;
+                break;
             case 'Side By Side':
                 $nextDocSet.sideBySide[index] = docSet;
+                break;
             case 'Verse By Verse':
                 $nextDocSet.verseByVerse[index] = docSet;
+                break;
         }
         dispatch('menuaction', {
             text: docSet
