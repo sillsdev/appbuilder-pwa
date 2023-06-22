@@ -1201,7 +1201,7 @@ TODO:
                             workspace.inRow = false;
                         }
                     }
-                ],
+                ]
             },
             debugLevel: 0
         });
