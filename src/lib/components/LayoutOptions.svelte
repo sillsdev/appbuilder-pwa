@@ -37,7 +37,9 @@ TODO:
         selectedDocSets.singlePane = opt.detail.collection;
         if (selectedDocSets.sideBySide[0] === selectedDocSets.singlePane) {
             selectedDocSets.sideBySide[0] = allDocSets.filter(
-                (x) => x.id != selectedDocSets.singlePane.id && x.id != selectedDocSets.sideBySide[1].id
+                (x) =>
+                    x.id != selectedDocSets.singlePane.id &&
+                    x.id != selectedDocSets.sideBySide[1].id
             )[0];
         }
         (document.activeElement as HTMLElement).blur();
@@ -47,7 +49,9 @@ TODO:
         selectedDocSets.sideBySide[0] = opt.detail.collection;
         if (selectedDocSets.singlePane === selectedDocSets.sideBySide[0]) {
             selectedDocSets.singlePane = allDocSets.filter(
-                (x) => x.id != selectedDocSets.sideBySide[0].id && x.id != selectedDocSets.sideBySide[1].id
+                (x) =>
+                    x.id != selectedDocSets.sideBySide[0].id &&
+                    x.id != selectedDocSets.sideBySide[1].id
             )[0];
         }
         (document.activeElement as HTMLElement).blur();
@@ -72,36 +76,38 @@ TODO:
         </p>
         <div class="flex flex-col">
             {#each selectedDocSets.sideBySide as collection, i}
-            <div>
-                <Dropdown>
-                    <svelte:fragment slot="label">
-                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>{i+1}.</div>
-                        <div class="dy-relative font-normal normal-case text-left">
-                            <div style={convertStyle($s['ui.layouts.title'])}>
-                                {collection.name}
+                <div>
+                    <Dropdown>
+                        <svelte:fragment slot="label">
+                            <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
+                                {i + 1}.
                             </div>
-                            {#if collection.description}
-                                <div
-                                    class="text-sm"
-                                    style={convertStyle($s['ui.layouts.selector'])}
-                                >
-                                    {collection.description}
+                            <div class="dy-relative font-normal normal-case text-left">
+                                <div style={convertStyle($s['ui.layouts.title'])}>
+                                    {collection.name}
                                 </div>
-                            {/if}
-                        </div>
-                        <div class="px-3">
-                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
-                        </div>
-                    </svelte:fragment>
-                    <svelte:fragment slot="content">
-                        <CollectionList
-                            docSets={allDocSets}
-                            nextDocSet={collection}
-                            on:menuaction={(event) => handleClick(event, collection)}
-                        />
-                    </svelte:fragment>
-                </Dropdown>
-            </div>
+                                {#if collection.description}
+                                    <div
+                                        class="text-sm"
+                                        style={convertStyle($s['ui.layouts.selector'])}
+                                    >
+                                        {collection.description}
+                                    </div>
+                                {/if}
+                            </div>
+                            <div class="px-3">
+                                <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                            </div>
+                        </svelte:fragment>
+                        <svelte:fragment slot="content">
+                            <CollectionList
+                                docSets={allDocSets}
+                                nextDocSet={collection}
+                                on:menuaction={(event) => handleClick(event, collection)}
+                            />
+                        </svelte:fragment>
+                    </Dropdown>
+                </div>
             {/each}
         </div>
 
