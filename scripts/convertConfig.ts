@@ -152,9 +152,8 @@ export type ConfigData = {
             collection: string;
         };
     }[];
-    defaultLayout?: string; // TODO
+    defaultLayout?: string;
     layouts?: {
-        // TODO
         mode: string;
         enabled: boolean;
         layoutCollections: string[];
@@ -676,11 +675,12 @@ function convertConfig(dataDir: string, verbose: number) {
         data.layouts = [];
         for (const layout of layouts) {
             const mode = layout.attributes.getNamedItem('mode')!.value;
+            if (verbose >= 2) console.log(`Converting layout`, mode);
             const enabled = layout.attributes.getNamedItem('enabled')!.value === 'true';
             const featureElements = layout.getElementsByTagName('features')[0];
             const features: { [key: string]: string } = {};
             if (featureElements) {
-                for (const feature of featureElements.getElementsByTagName('feature')) {
+                for (const feature of featureElements.getElementsByTagName('e')) {
                     const name = feature.attributes.getNamedItem('name')!.value;
                     const value = feature.attributes.getNamedItem('value')!.value;
                     if (verbose >= 2)
@@ -701,6 +701,7 @@ function convertConfig(dataDir: string, verbose: number) {
             });
         }
     }
+    if(verbose) console.log(`Converted ${layouts?.length} layouts`);
 
     // Menu Items
     const menuItems = document
