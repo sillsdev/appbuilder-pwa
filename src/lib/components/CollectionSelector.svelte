@@ -47,6 +47,15 @@ Book Collection Selector component.
                 break;
         }
     }
+
+    // ToDo
+    function handleOk() {
+        $refs.docSet = docSet
+    }
+    // ToDo
+    function handleCancel() {
+        docSet = $refs.docSet
+    }
 </script>
 
 <Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
@@ -80,14 +89,14 @@ Book Collection Selector component.
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => (docSet = $refs.docSet)}>Cancel</label
+                on:click={handleOk}>Cancel</label
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => ($refs.docSet = docSet)}>Ok</label
+                on:click={() => (handleCancel)}>Ok</label
             >
         </div>
     </svelte:fragment>
