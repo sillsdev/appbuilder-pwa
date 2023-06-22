@@ -540,11 +540,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
-                                'Start Paragraph %o %o',
-                                context.sequences[0].block,
-                                context.sequences[0].type
-                            );
+                            // console.log(
+                            //     'Start Paragraph %o %o',
+                            //     context.sequences[0].block,
+                            //     context.sequences[0].type
+                            // );
                             preprocessAction('startPara', workspace);
                             const sequenceType = context.sequences[0].type;
                             if (
