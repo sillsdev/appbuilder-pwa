@@ -9,7 +9,7 @@ Book Collection Selector component.
     import { convertStyle, refs, s } from '$lib/data/stores';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
-    let modalId = 'collectionSelector';
+    const modalId = 'collectionSelector';
     let docSet = $refs.docSet;
     let modal;
     export function showModal() {

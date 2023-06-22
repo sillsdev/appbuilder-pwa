@@ -44,14 +44,35 @@ TODO:
                 break;
             case 'Side By Side':
                 $nextDocSet.sideBySide[index] = docSet;
+                console.log('Length', $nextDocSet.sideBySide.length);
+                for (let i = 0; i < $nextDocSet.sideBySide.length; i++) {
+                    if (i === index) {
+                        // if found self
+                        continue;
+                    } else if ($nextDocSet.sideBySide[i] === docSet) {
+                        // if this is a repeat value of self
+                        $nextDocSet.sideBySide[i] = allDocSets.filter(
+                            (x) => $nextDocSet.sideBySide.includes(x) === false
+                        )[0];
+                    }
+                }
                 break;
             case 'Verse By Verse':
                 $nextDocSet.verseByVerse[index] = docSet;
+                console.log('Length', $nextDocSet.verseByVerse.length);
+                for (let i = 0; i < $nextDocSet.verseByVerse.length; i++) {
+                    if (i === index) {
+                        // if found self
+                        continue;
+                    } else if ($nextDocSet.verseByVerse[i] === docSet) {
+                        // if this is a repeat value of self
+                        $nextDocSet.verseByVerse[i] = allDocSets.filter(
+                            (x) => $nextDocSet.verseByVerse.includes(x) === false
+                        )[0];
+                    }
+                }
                 break;
         }
-        dispatch('menuaction', {
-            text: docSet
-        });
         (document.activeElement as HTMLElement).blur();
     }
 
