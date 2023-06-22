@@ -49,6 +49,7 @@ TODO:
         dispatch('menuaction', {
             text: docSet
         });
+        (document.activeElement as HTMLElement).blur();
     }
 
     // function handleLeft(opt) {
