@@ -22,7 +22,14 @@
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
-    import { AudioIcon, SearchIcon } from '$lib/icons';
+    import {
+        AudioIcon,
+        SearchIcon,
+        TriangleLeftIcon,
+        TriangleRightIcon,
+        BibleIcon,
+        TextAppearanceIcon
+    } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
@@ -102,6 +109,12 @@
         verseLayout: $userSettings['verse-layout'],
         viewShowVerses: $userSettings['verse-numbers']
     };
+
+    $: extraIconsExist = showSearch || showCollections; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    let showOverlowMenu = false; //Controls the visibility of the extraButtons div on mobile
+    function handleMenuClick(event) {
+        showOverlowMenu = false;
+    }
 
     // Process page parameters
     if ($page.data?.ref) {
@@ -202,45 +215,115 @@
             el?.scrollIntoView();
     };
     $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
+
+    let textAppearanceSelector;
+    function handleTextAppearanceSelector() {
+        textAppearanceSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
+    }
+
+    let collectionSelector;
+    function handleCollectionSelector() {
+        collectionSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
+    }
+
+    let navBarHeight = '4rem';
 </script>
 
+<div>
+    <!--Div containing the popup modals triggered by the navBar buttons:-->
+
+    <!-- Text Appearance Options Menu -->
+    <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={navBarHeight} />
+
+    <!-- Collection Selector Menu -->
+    <CollectionSelector bind:this={collectionSelector} vertOffset={navBarHeight} />
+</div>
+
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
-    <div class="navbar h-16">
+    <div class="navbar" style="height: {navBarHeight};">
         <Navbar>
-            <div slot="left-buttons">
-                <div class="flex flex-nowrap">
-                    <BookSelector />
-                    <ChapterSelector />
-                </div>
+            <div
+                slot="left-buttons"
+                class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}
+            >
+                <BookSelector />
+                <ChapterSelector />
             </div>
-            <div slot="right-buttons">
-                {#if $refs.hasAudio && showAudio}
-                    <!-- Mute/Volume Button -->
-                    <button
-                        class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => ($audioActive = !$audioActive)}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div
+                slot="right-buttons"
+                class="flex flex-nowrap"
+                on:click={showOverlowMenu
+                    ? handleMenuClick
+                    : () => {
+                          console.log('Clicked in right-buttons but showOverlowMenu = false.');
+                      }}
+            >
+                <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
+                <div class="flex">
+                    {#if $refs.hasAudio && showAudio}
+                        <!-- Mute/Volume Button -->
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={() => {
+                                $audioActive = !$audioActive;
+                            }}
+                        >
+                            {#if $audioActive}
+                                <AudioIcon.Volume color="white" />
+                            {:else}
+                                <AudioIcon.Mute color="white" />
+                            {/if}
+                        </button>
+                    {/if}
+                </div>
+                <div id="extraButtons" class={showOverlowMenu ? 'flex' : 'hidden md:flex'}>
+                    <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
+
+                    <!-- Text Appearance Selector Button -->
+                    <label
+                        for="textAppearanceSelector"
+                        class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                        on:click={handleTextAppearanceSelector}
+                        ><TextAppearanceIcon color="white" /></label
                     >
-                        {#if $audioActive}
-                            <AudioIcon.Volume color="white" />
+
+                    <!-- Search Button -->
+                    {#if showSearch}
+                        <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
+                            <SearchIcon color="white" />
+                        </a>
+                    {/if}
+
+                    <!-- Collection Selector Button -->
+                    {#if showCollections}
+                        <label
+                            for="collectionSelector"
+                            class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                            on:click={handleCollectionSelector}><BibleIcon color="white" /></label
+                        >
+                    {/if}
+                </div>
+                {#if extraIconsExist}
+                    <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
+                    <button
+                        class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
+                        on:click={() => {
+                            showOverlowMenu = !showOverlowMenu;
+                            event.stopPropagation();
+                        }}
+                    >
+                        {#if showOverlowMenu}
+                            <TriangleRightIcon color="white" scale={1.25} />
                         {:else}
-                            <AudioIcon.Mute color="white" />
+                            <TriangleLeftIcon color="white" scale={1.25} />
                         {/if}
                     </button>
-                {/if}
-                {#if showSearch}
-                    <!-- Search Button -->
-                    <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                        <SearchIcon color="white" />
-                    </a>
-                {/if}
-                <!-- Text Appearance Options Menu -->
-                <TextAppearanceSelector />
-                {#if showCollections}
-                    <CollectionSelector />
                 {/if}
             </div>
         </Navbar>
     </div>
+
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <ScrolledContent>
             <div
