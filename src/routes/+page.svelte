@@ -39,7 +39,13 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
+    // import { initProskomma } from '$lib/data/scripture';
+
+    // let proskomma;
+    // onMount(async () => {
+    //     proskomma = await initProskomma();
+    // });
 
     function doSwipe(
         event: CustomEvent<{
@@ -107,7 +113,8 @@
         references: $refs,
         selectedVerses: selectedVerses,
         verseLayout: $userSettings['verse-layout'],
-        viewShowVerses: $userSettings['verse-numbers']
+        viewShowVerses: $userSettings['verse-numbers'],
+        proskomma: $page.data?.proskomma
     };
 
     $: extraIconsExist = showSearch || showCollections; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
