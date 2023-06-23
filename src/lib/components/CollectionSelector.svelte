@@ -82,15 +82,15 @@ Book Collection Selector component.
             <label
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
+                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
                 on:click={() => handleCancel()}>{$t['Button_Cancel']}</label
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => handleOk()}>{$t['Button_Ok']}</label
+                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
+                on:click={() => handleOk()}>{$t['Button_OK']}</label
             >
         </div>
     </svelte:fragment>
