@@ -44,7 +44,7 @@
         "prettier": "^2.5.1",
         "prettier-plugin-svelte": "^2.5.0",
         "proskomma-core": "0.9.14",
-        "proskomma-json-tools": "^0.5.7",
+        "proskomma-json-tools": "^0.7.1",
         "proskomma-tools": "^0.0.5",
         "rimraf": "^5",
         "svelte": "^3",
