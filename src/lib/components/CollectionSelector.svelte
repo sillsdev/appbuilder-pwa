@@ -6,7 +6,7 @@ Book Collection Selector component.
     import Modal from './Modal.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { convertStyle, refs, nextDocSet, s } from '$lib/data/stores';
+    import { convertStyle, refs, nextDocSet, s, t } from '$lib/data/stores';
     import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
     const modalId = 'collectionSelector';
@@ -83,14 +83,14 @@ Book Collection Selector component.
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => handleCancel()}>Cancel</label
+                on:click={() => handleCancel()}>{$t['Button_Cancel']}</label
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <label
                 for={modalId}
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => handleOk()}>Ok</label
+                on:click={() => handleOk()}>{$t['Button_Ok']}</label
             >
         </div>
     </svelte:fragment>
