@@ -25,6 +25,7 @@
                 style:background-color={nextDocSet.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}
+                class="flex justify-between"
             >
                 <div style={$s['ui.layouts.selector']}>
                     <div style={convertStyle($s['ui.layouts.title'])}>
@@ -40,10 +41,3 @@
         </li>
     {/each}
 </ul>
-
-<style>
-    a {
-        display: flex;
-        justify-content: space-between;
-    }
-</style>

@@ -75,6 +75,7 @@ Book Collection Selector component.
                 }
             }}
             active="Single Pane"
+            scroll={false}
             on:menuaction={navigateReference}
         />
         <div class="flex w-full justify-between dy-modal-action">
