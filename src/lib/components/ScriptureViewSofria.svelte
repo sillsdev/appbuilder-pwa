@@ -1098,6 +1098,7 @@ TODO:
                                     const cellClass = 'tc' + workspace.rowCellNumber;
                                     workspace.tableCellElement = document.createElement('td');
                                     workspace.tableCellElement.classList.add(cellClass);
+                                    break;
                                 }
                                 default: {
                                     break;
@@ -1134,6 +1135,7 @@ TODO:
                                             workspace.tableCellElement
                                         );
                                     }
+                                    break;
                                 }
                                 default: {
                                     break;
