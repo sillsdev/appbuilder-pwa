@@ -152,12 +152,13 @@ export type ConfigData = {
             collection: string;
         };
     }[];
+    defaultLayout?: string;
     layouts?: {
-        // TODO
         mode: string;
         enabled: boolean;
+        layoutCollections: string[];
         features?: {
-            [key: string]: any;
+            [key: string]: string;
         };
     }[];
     menuItems?: {
@@ -177,7 +178,6 @@ export type ConfigData = {
             file: string;
         }[];
     }[];
-    defaultLayout?: string; // TODO
     security?: {
         // TODO
         features?: {
@@ -667,17 +667,41 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    /*
-    layouts?: {
-        mode: string;
-        enabled: boolean;
-        features?: {
-            [key: string]: any;
-        };
-    }[];
-    */
+    const layoutRoot = document.getElementsByTagName('layouts')[0];
+    data.defaultLayout = layoutRoot?.attributes.getNamedItem('default')?.value;
 
-    /* defaultLayout?: string; */
+    const layouts = layoutRoot?.getElementsByTagName('layout');
+    if (layouts?.length > 0) {
+        data.layouts = [];
+        for (const layout of layouts) {
+            const mode = layout.attributes.getNamedItem('mode')!.value;
+            if (verbose >= 2) console.log(`Converting layout`, mode);
+            const enabled = layout.attributes.getNamedItem('enabled')!.value === 'true';
+            const featureElements = layout.getElementsByTagName('features')[0];
+            const features: { [key: string]: string } = {};
+            if (featureElements) {
+                for (const feature of featureElements.getElementsByTagName('e')) {
+                    const name = feature.attributes.getNamedItem('name')!.value;
+                    const value = feature.attributes.getNamedItem('value')!.value;
+                    if (verbose >= 2)
+                        console.log(`.. Converting feature: name=${name}, value=${value}`);
+                    features[name] = value;
+                }
+            }
+            const layoutCollectionElements = layout.getElementsByTagName('layout-collection');
+            const layoutCollections = Array.from(layoutCollectionElements).map((element) => {
+                return element.attributes.getNamedItem('id')!.value;
+            });
+
+            data.layouts.push({
+                mode,
+                enabled,
+                layoutCollections,
+                features
+            });
+        }
+    }
+    if (verbose) console.log(`Converted ${layouts?.length} layouts`);
 
     // Menu Items
     const menuItems = document
