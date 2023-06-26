@@ -13,7 +13,6 @@ Book Collection Selector component.
     const modalId = 'collectionSelector';
     let docSet = $refs.docSet;
     let modal;
-    $: console.log($nextDocSet);
 
     $: showSinglePane = config.layouts.find((x) => x.mode === 'single').enabled;
     $: showSideBySide = config.layouts.find((x) => x.mode === 'two').enabled;
@@ -32,7 +31,6 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
-        console.log(e.detail.tab);
         switch (e.detail.tab) {
             case 'Single Pane':
                 docSet = $nextDocSet.singlePane;
@@ -42,7 +40,6 @@ Book Collection Selector component.
             case 'Verse By Verse':
                 break;
             default:
-                console.log('CollectionSelector navigateReference: Default');
                 break;
         }
     }
@@ -50,7 +47,6 @@ Book Collection Selector component.
     // Not running because its not catching a menuaction.
     // ToDo
     function handleOk() {
-        console.log('Navigating to', docSet);
         $refs.docSet = docSet;
     }
     // ToDo

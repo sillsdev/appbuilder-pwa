@@ -11,8 +11,6 @@ Displays the three different layout option menus.
 
     export let layoutOption = '';
 
-    $: console.log($nextDocSet.verseByVerse[1].id === $nextDocSet.verseByVerse[0].id);
-
     const blank = {
         id: '',
         name: '--------',
@@ -29,7 +27,6 @@ Displays the three different layout option menus.
 
     function handleClick(opt: any, index: number) {
         const docSet = opt.detail.collection;
-        console.log('Setting index', index, 'of', layoutOption);
         switch (layoutOption) {
             case 'Single Pane':
                 $nextDocSet.singlePane = docSet;
