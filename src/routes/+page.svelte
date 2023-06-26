@@ -39,13 +39,7 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { onDestroy, onMount } from 'svelte';
-    // import { initProskomma } from '$lib/data/scripture';
-
-    // let proskomma;
-    // onMount(async () => {
-    //     proskomma = await initProskomma();
-    // });
+    import { onDestroy } from 'svelte';
 
     function doSwipe(
         event: CustomEvent<{
