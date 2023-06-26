@@ -13,6 +13,8 @@ TODO:
 
     export let layoutOption = '';
 
+    $: console.log($nextDocSet.verseByVerse[1].id === $nextDocSet.verseByVerse[0].id);
+
     const blank = {
         id: '',
         name: '--------',
@@ -27,11 +29,6 @@ TODO:
         description: ds?.collectionDescription
     }));
 
-    // ToDo: Should instead be assigned to default values when the store is declared
-    $nextDocSet.singlePane = allDocSets[0];
-    $nextDocSet.sideBySide = allDocSets.slice(0, 2);
-    $nextDocSet.verseByVerse = [...allDocSets.slice(0, 2), blank];
-
     function handleClick(opt: any, index: number) {
         const docSet = opt.detail.collection;
         console.log('Setting index', index, 'of', layoutOption);
@@ -41,12 +38,11 @@ TODO:
                 break;
             case 'Side By Side':
                 $nextDocSet.sideBySide[index] = docSet;
-                console.log('Length', $nextDocSet.sideBySide.length);
                 for (let i = 0; i < $nextDocSet.sideBySide.length; i++) {
                     if (i === index) {
                         // if found self
                         continue;
-                    } else if ($nextDocSet.sideBySide[i] === docSet) {
+                    } else if ($nextDocSet.sideBySide[i].id === docSet.id) {
                         // if this is a repeat value of self
                         $nextDocSet.sideBySide[i] = allDocSets.filter(
                             (x) => $nextDocSet.sideBySide.includes(x) === false
@@ -56,12 +52,11 @@ TODO:
                 break;
             case 'Verse By Verse':
                 $nextDocSet.verseByVerse[index] = docSet;
-                console.log('Length', $nextDocSet.verseByVerse.length);
                 for (let i = 0; i < $nextDocSet.verseByVerse.length; i++) {
                     if (i === index) {
                         // if found self
                         continue;
-                    } else if ($nextDocSet.verseByVerse[i] === docSet) {
+                    } else if ($nextDocSet.verseByVerse[i].id === docSet.id) {
                         // if this is a repeat value of self
                         $nextDocSet.verseByVerse[i] = allDocSets.filter(
                             (x) => $nextDocSet.verseByVerse.includes(x) === false

@@ -6,12 +6,19 @@ Book Collection Selector component.
     import Modal from './Modal.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
+    import config from '$lib/data/config';
     import { convertStyle, refs, nextDocSet, s, t } from '$lib/data/stores';
     import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
     const modalId = 'collectionSelector';
     let docSet = $refs.docSet;
     let modal;
+    $: console.log($nextDocSet);
+
+    $: showSinglePane = config.layouts.find((x) => x.mode === 'single').enabled;
+    $: showSideBySide = config.layouts.find((x) => x.mode === 'two').enabled;
+    $: showVerseByVerse = config.layouts.find((x) => x.mode === 'verse-by-verse').enabled;
+
     export function showModal() {
         modal.showModal();
     }
@@ -25,9 +32,9 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
+        console.log(e.detail.tab);
         switch (e.detail.tab) {
             case 'Single Pane':
-                console.log(e.detail.tab);
                 docSet = $nextDocSet.singlePane;
                 break;
             case 'Side By Side':

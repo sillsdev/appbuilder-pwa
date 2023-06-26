@@ -32,54 +32,23 @@ function createInitDocSet(): App.CollectionGroup {
                 App.CollectionEntry,
                 App.CollectionEntry
             ];
+
+            // If there is no third docSet, set it to the blank value
+            if (docSets.length < 3) {
+                initDocSets.verseByVerse[2] = {
+                    id: '',
+                    name: '--------',
+                    singlePane: false,
+                    description: ''
+                };
+            }
         }
     }
     return initDocSets;
 }
 
-console.log('Creating initial docSet', createInitDocSet());
-const initDocSets: App.CollectionGroup = {
-    singlePane: {
-        id: '',
-        name: '',
-        singlePane: false,
-        description: ''
-    },
-    sideBySide: [
-        {
-            id: '',
-            name: '',
-            singlePane: false,
-            description: ''
-        },
-        {
-            id: '',
-            name: '',
-            singlePane: false,
-            description: ''
-        }
-    ],
-    verseByVerse: [
-        {
-            id: '',
-            name: '',
-            singlePane: false,
-            description: ''
-        },
-        {
-            id: '',
-            name: '',
-            singlePane: false,
-            description: ''
-        },
-        {
-            id: '',
-            name: '',
-            singlePane: false,
-            description: ''
-        }
-    ]
-};
+const initDocSets: App.CollectionGroup = createInitDocSet();
+console.log('Initial docSets', initDocSets);
 
 setDefaultStorage('docSets', initDocSets);
 // ToDo: Create a docSet store
