@@ -14,6 +14,7 @@ Book Collection Selector component.
     let docSet = $refs.docSet;
     let modal;
 
+    // ToDo: Implement visibility of layout tabs
     $: showSinglePane = config.layouts.find((x) => x.mode === 'single').enabled;
     $: showSideBySide = config.layouts.find((x) => x.mode === 'two').enabled;
     $: showVerseByVerse = config.layouts.find((x) => x.mode === 'verse-by-verse').enabled;
