@@ -1,15 +1,13 @@
 <!--
 @component
-Displays the three different layout options.  
-TODO:
-- functionality...
+Displays the three different layout option menus.  
 -->
 <script lang="ts">
     import Dropdown from './Dropdown.svelte';
+    import CollectionList from './CollectionList.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import { themeColors, s, t, convertStyle, nextDocSet } from '$lib/data/stores';
-    import CollectionList from './CollectionList.svelte';
 
     export let layoutOption = '';
 

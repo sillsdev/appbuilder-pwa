@@ -1,3 +1,7 @@
+<!--
+@component
+Custom list of collections for the LayoutOptions menu
+-->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { themeColors, convertStyle, s } from '$lib/data/stores';
