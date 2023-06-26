@@ -107,7 +107,8 @@
         references: $refs,
         selectedVerses: selectedVerses,
         verseLayout: $userSettings['verse-layout'],
-        viewShowVerses: $userSettings['verse-numbers']
+        viewShowVerses: $userSettings['verse-numbers'],
+        proskomma: $page.data?.proskomma
     };
 
     $: extraIconsExist = showSearch || showCollections; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.

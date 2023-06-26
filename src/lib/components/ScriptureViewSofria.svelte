@@ -7,10 +7,8 @@ TODO:
 - parse introduction for references
 -->
 <script lang="ts">
-    import { base } from '$app/paths';
-    import { Proskomma } from 'proskomma-core';
+    import type { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { thaw } from '../scripts/thaw';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import {
@@ -20,6 +18,7 @@ TODO:
     } from '$lib/scripts/verseSelectUtil';
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
+    import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -33,8 +32,8 @@ TODO:
     export let selectedVerses: any;
     export let verseLayout: any;
     export let viewShowVerses: boolean;
+    export let proskomma: Proskomma;
 
-    const pk = new Proskomma();
     let container: HTMLElement;
     let displayingIntroduction = false;
 
@@ -416,36 +415,13 @@ TODO:
         highlights: any[],
         videos: any[]
     ) => {
-        // console.log('PARMS: bc: %o, chapter: %o, collection: %o', bookCode, chapter, docSet);
-        // console.log('bookmarks: ', bookmarks);
-        const docslist = await pk.gqlQuery('{docSets { id } }');
-        // console.log('LIST %o', docslist);
-        // console.log('Displaying Introduction %o', displayingIntroduction);
-        let found = false;
-        for (const doc of docslist.data.docSets) {
-            // console.log('ID: %o', doc.id);
-            if (doc.id === docSet) {
-                // console.log('Found');
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            // console.log('fetch %o pkf', docSet);
-            const res = await fetch(`${base}/collections/${docSet}.pkf`).then((r) => {
-                return r.arrayBuffer();
-            });
-            if (res.byteLength) {
-                // console.log('awaiting thaw');
-                const uint8res = new Uint8Array(res);
-                thaw(pk, uint8res);
-            }
-        }
+        // Is it possible that this could be called and proskomma is not set yet?
+        if (!proskomma) return;
+        await loadDocSetIfNotLoaded(proskomma, docSet);
 
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const cl = new SofriaRenderFromProskomma({
-            proskomma: pk,
+            proskomma,
             actions: {
                 startDocument: [
                     {
@@ -1207,9 +1183,17 @@ TODO:
             },
             debugLevel: 0
         });
-        const docsResult = pk.gqlQuerySync(
+        performance.mark('pk-query-books-start');
+        const docsResult = proskomma.gqlQuerySync(
             '{documents { docSetId id bookCode: header(id: "bookCode")} }'
         );
+        performance.mark('pk-query-books-end');
+        performance.measure(
+            'pk-query-books-duration',
+            'pk-query-books-start',
+            'pk-query-books-end'
+        );
+
         // console.log('docsResult %o', docsResult);
         const bookLookup = {};
         for (const docRecord of docsResult.data.documents) {
@@ -1219,12 +1203,15 @@ TODO:
         }
         const docId = bookLookup[bookCode];
 
+        performance.mark('cl-render-start');
         // Parse whole book if no chapters
         if (chapterCount(currentBook) === 0) {
             cl.renderDocument({ docId, config: {}, output });
         } else {
             cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
         }
+        performance.mark('cl-render-end');
+        performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
         loading = false;
         // console.log('DONE %o', root);
     };
@@ -1269,6 +1256,7 @@ TODO:
     $: books = catalog.find((d) => d.id === currentDocSet).documents;
 
     $: (() => {
+        performance.mark('query-start');
         const bookHasIntroduction = books.find((x) => x.bookCode === currentBook).hasIntroduction;
         let chapterToDisplay = currentChapter;
         if (bookHasIntroduction && chapterToDisplay == 'i') {
@@ -1293,8 +1281,9 @@ TODO:
             highlights,
             videos
         );
+        performance.mark('query-end');
+        performance.measure('query-duration', 'query-start', 'query-end');
     })();
-    //onDestroy(unSub);
 </script>
 
 <article class="container" bind:this={container}>
