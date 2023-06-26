@@ -45,7 +45,6 @@ Book Collection Selector component.
         }
     }
 
-    // Not running because its not catching a menuaction.
     // ToDo
     function handleOk() {
         $refs.docSet = docSet;
