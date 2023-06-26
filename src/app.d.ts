@@ -60,9 +60,9 @@ declare namespace App {
     }
 
     interface CollectionGroup {
-        singlePane: CollectionEntry;
-        sideBySide: FixedLengthArray<[CollectionEntry, CollectionEntry]>;
-        verseByVerse: FixedLengthArray<[CollectionEntry, CollectionEntry, CollectionEntry]>;
+        singlePane?: CollectionEntry;
+        sideBySide?: FixedLengthArray<[CollectionEntry, CollectionEntry]>;
+        verseByVerse?: FixedLengthArray<[CollectionEntry, CollectionEntry, CollectionEntry]>;
     }
 
     interface UserPreferenceSetting {
