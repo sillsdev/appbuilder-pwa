@@ -100,7 +100,7 @@ TODO
             {#if showFontSize}
                 <div class="grid gap-4 items-center range-row m-2">
                     <TextAppearanceIcon color={$monoIconColor} size="1rem" />
-                    <Slider 
+                    <Slider
                         bind:value={$bodyFontSize}
                         barColor={$themeColors['SliderBarColor']}
                         progressColor={$themeColors['SliderProgressColor']}
