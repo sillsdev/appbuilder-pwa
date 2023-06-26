@@ -6,6 +6,7 @@ TODO
 -->
 <script>
     import Modal from './Modal.svelte';
+    import Slider from './Slider.svelte';
     import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
     import {
         language,
@@ -15,7 +16,8 @@ TODO
         themes,
         bodyFontSize,
         bodyLineHeight,
-        direction
+        direction,
+        themeColors
     } from '$lib/data/stores';
     import config from '$lib/data/config';
 
@@ -98,12 +100,12 @@ TODO
             {#if showFontSize}
                 <div class="grid gap-4 items-center range-row m-2">
                     <TextAppearanceIcon color={$monoIconColor} size="1rem" />
-                    <input
-                        type="range"
+                    <Slider 
+                        bind:value={$bodyFontSize}
+                        barColor={$themeColors['SliderBarColor']}
+                        progressColor={$themeColors['SliderProgressColor']}
                         min={config.mainFeatures['text-size-min']}
                         max={config.mainFeatures['text-size-max']}
-                        bind:value={$bodyFontSize}
-                        class="dy-range dy-range-xs"
                     />
                     <div class="text-sm place-self-end">{$bodyFontSize}</div>
                 </div>
@@ -111,12 +113,12 @@ TODO
             {#if showLineHeight}
                 <div class="grid gap-4 items-center range-row m-2">
                     <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1rem" />
-                    <input
-                        type="range"
+                    <Slider
+                        bind:value={$bodyLineHeight}
+                        barColor={$themeColors['SliderBarColor']}
+                        progressColor={$themeColors['SliderProgressColor']}
                         min="100"
                         max="250"
-                        bind:value={$bodyLineHeight}
-                        class="dy-range dy-range-xs"
                     />
                     <div class="text-sm place-self-end">
                         {formatLineHeight($bodyLineHeight)}
