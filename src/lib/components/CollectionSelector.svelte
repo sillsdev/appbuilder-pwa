@@ -52,9 +52,8 @@ Book Collection Selector component.
     }
 </script>
 
-<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
-    ><!--addCSS is a prop for injecting CSS into the modal-->
-
+<!--addCSS is a prop for injecting CSS into the modal-->
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}>
     <svelte:fragment slot="content">
         <TabsMenu
             options={{
