@@ -74,7 +74,7 @@ function removeIdSuffixes(id: string) {
 
     return id;
 }
-function isSelectableText(target) {
+export function isSelectableText(target) {
     return target.classList.contains('seltxt');
 }
 

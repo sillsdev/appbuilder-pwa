@@ -5,7 +5,6 @@
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioActive,
-        audioHighlight,
         bodyFontSize,
         bodyLineHeight,
         bookmarks,
@@ -13,6 +12,7 @@
         direction,
         highlights,
         mainScroll,
+        audioHighlightElements,
         notes,
         refs,
         s,
@@ -27,6 +27,7 @@
         NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
+    import { updateAudioPlayer } from '$lib/data/audio';
     import { parseReference } from '$lib/data/stores/store-types';
     import {
         AudioIcon,
@@ -187,43 +188,41 @@
 
     $: highlightColor = $themeColors['TextHighlightColor'];
     /**updates highlight*/
-    const updateHighlight = (h: string, color: string, timing: any) => {
-        if (!timing) {
-            return;
-        }
+    const updateHighlight = (elementIds, color: string) => {
         let container = document.getElementsByClassName('container')[0];
-        const a = h.split(',');
+        console.log('container', container);
         // Remove highlighting for currently highlighted verses
-        let el = container?.getElementsByClassName('highlighting')?.item(0);
-        let node = el?.getAttributeNode('style');
-        el?.removeAttributeNode(node);
-        el?.classList.remove('highlighting');
-        // If audio off or if not in the right chapter, return
-        if (
-            !audioActive ||
-            a[0] !== $refs.docSet ||
-            a[1] !== $refs.book ||
-            a[2] !== $refs.chapter
-        ) {
-            return;
+        const elements = container?.getElementsByClassName('highlighting');
+        for (let i = 0; i < elements?.length; i++) {
+            const element = elements[i];
+            const node = element.getAttributeNode('style');
+            element.removeAttributeNode(node);
+            element.classList.remove('highlighting');
         }
-        // Try to get verse for timing
-        el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="${a[4]}"]`);
-        // If failed to get 'verse #, none' then try for 'verse # a' instead
-        if (el == null && a[4] == 'none') {
-            el = container?.querySelector(`div[data-verse="${a[3]}"][data-phrase="a"]`);
-        }
-        // Highlight verse if found
-        el?.setAttribute('style', 'background-color: ' + color + ';');
-        el?.classList.add('highlighting');
-        if (
-            `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
-            lastVerseInView
-        )
-            el?.scrollIntoView();
-    };
-    $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
 
+        for (const elementId of elementIds) {
+            console.log('elementid', elementId);
+            const element = document.getElementById(elementId);
+            if (element === null) {
+                break;
+            }
+            console.log('attribute1', element);
+            element.setAttribute('style', 'background-color: ' + color + ';');
+            console.log('attribute2', element);
+            element.classList.add('highlighting');
+            console.log('highlight');
+        }
+
+        // todo implement scrolling
+        // if (
+        //     `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
+        //     lastVerseInView
+        // )
+        //     el?.scrollIntoView();
+    };
+
+    $: updateHighlight($audioHighlightElements, highlightColor);
+    $: updateAudioPlayer($refs);
     const navBarHeight = NAVBAR_HEIGHT;
 </script>
 
@@ -347,7 +346,7 @@
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
         <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
             <div>
-                <AudioBar audio={$refs.hasAudio?.audio} />
+                <AudioBar />
             </div>
         </div>
     {/if}
