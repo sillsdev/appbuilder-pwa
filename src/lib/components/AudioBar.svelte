@@ -5,155 +5,19 @@ Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play
 TODO:
 - display audio not found message in UI when audio is not found
 -->
-<script>
+<script lang="ts">
     import { AudioIcon } from '$lib/icons';
-    import {
-        refs,
-        audioHighlight,
-        audioActive,
-        userSettings,
-        s,
-        playMode,
-        direction
-    } from '$lib/data/stores';
+    import { refs, userSettings, s, playMode, direction, audioPlayer } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import config from '$lib/data/config';
-    import { getAudioSourceInfo } from '$lib/data/audio';
-
-    let duration = NaN;
-    let progress = 0;
-    let playing = false;
-    let loaded = false;
-    let playAfterSkip = false;
-    let timeIndex = 0;
-    let timing = [];
-    /**@type{HTMLAudioElement}*/ export let audio;
-
-    //get the audio source and timing files, based off the current reference
-    const getAudio = async (collection, book, chapter) => {
-        if (playing) playPause();
-        loaded = false;
-        duration = NaN;
-        progress = 0;
-
-        const audioSourceInfo = await getAudioSourceInfo({
-            collection,
-            book,
-            chapter
-        });
-
-        const a = new Audio(audioSourceInfo.source);
-        a.onloadedmetadata = () => {
-            duration = a.duration;
-            timeIndex = 0;
-            loaded = true;
-            audio = a;
-            updateTime();
-            if (playAfterSkip && !playing) {
-                playPause();
-                playAfterSkip = false;
-            }
-        };
-        timing = audioSourceInfo.timing;
-    };
-    $: getAudio($refs.collection, $refs.book, $refs.chapter);
-    $: (() => {
-        if (!$audioActive && playing) playPause();
-    })();
-    /**updates the progress bar, and if necessary the timeIndex*/
-    const updateTime = () => {
-        if (!loaded) return;
-        progress = audio.currentTime;
-        if (timing) {
-            if (progress >= timing[timeIndex].time) timeIndex++;
-            else if (timeIndex > 0 && progress < timing[timeIndex - 1].time) timeIndex--;
-            $audioHighlight = [
-                $refs.docSet,
-                $refs.book,
-                $refs.chapter,
-                timing[timeIndex].tag.match(/[0-9]+/)
-                    ? timing[timeIndex].tag.match(/[0-9]+/)
-                    : 'none',
-                timing[timeIndex].tag.match(/[0-9]+/)
-                    ? timing[timeIndex].tag.match(/[a-z]/i)
-                        ? timing[timeIndex].tag.match(/[a-z]/i)
-                        : 'none'
-                    : 'none'
-            ].join();
-        }
-        if (audio.ended) toggleTimeRunning();
-    };
-    /**sets an interval for updateTime*/
-    const toggleTimeRunning = (() => {
-        let timer;
-
-        return () => {
-            if (audio.ended || !playing) {
-                playing = false;
-                clearInterval(timer);
-            } else {
-                timer = setInterval(updateTime, 100);
-            }
-        };
-    })();
-    /**plays or pauses the audio*/
-    const playPause = () => {
-        if (!loaded) return;
-        if (playing) {
-            audio?.pause();
-            playing = false;
-        } else {
-            audio.playbackRate = parseFloat($userSettings['audio-speed']);
-            audio.play();
-            playing = true;
-        }
-        toggleTimeRunning();
-    };
-    /**seeks the audio*/
-    const seek = (() => {
-        let seekTimer;
-        let mutedBySeek;
-        return (scale) => {
-            clearInterval(seekTimer);
-            if (!loaded) return;
-            if (mutedBySeek) audio.muted = false;
-            if (scale === 0) {
-                audio.playbackRate = audio.defaultPlaybackRate;
-            } else if (scale > 0) {
-                mutedBySeek = true;
-                audio.muted = true;
-                audio.playbackRate = audio.defaultPlaybackRate * scale;
-            } else {
-                seekTimer = setInterval(() => {
-                    mutedBySeek = true;
-                    audio.muted = true;
-                    audio.currentTime -= audio.defaultPlaybackRate;
-                }, 100);
-            }
-        };
-    })();
-    /**skips to previous or next chapter if it exists*/
-    const skip = (direction) => {
-        if (refs.skip(direction)) {
-            playAfterSkip = true && playing;
-        }
-    };
-
-    function format(seconds) {
-        if (isNaN(seconds)) return '...';
-
-        const minutes = Math.floor(seconds / 60);
-        seconds = Math.floor(seconds % 60);
-        if (seconds < 10) seconds = '0' + seconds;
-
-        return `${minutes}:${seconds}`;
-    }
-
-    function updatePlaybackSpeed(playbackSpeed) {
-        if (audio != null) {
-            audio.playbackRate = parseFloat(playbackSpeed);
-        }
-    }
+    import {
+        skip,
+        playPause,
+        changeVerse,
+        format,
+        seek,
+        updatePlaybackSpeed
+    } from '$lib/data/audio';
 
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
@@ -164,12 +28,12 @@ TODO:
     }
 
     function seekAudio(event) {
-        if (!loaded) return;
+        if (!$audioPlayer.loaded) return;
         // Calculate the percentage of the progress bar that was clicked
         const progressBar = document.getElementById('progress-bar');
         const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
         // Set the current time of the audio element to the corresponding time based on the percent
-        audio.currentTime = duration * percent;
+        seek($audioPlayer.duration * percent);
     }
 
     const playIconOptons = {
@@ -215,33 +79,23 @@ TODO:
         </button>
 
         {#if $refs.hasAudio?.timingFile}
-            <button
-                class="dy-btn-sm dy-btn-ghost"
-                on:pointerdown={() => seek(-1)}
-                on:pointerup={() => seek(0)}
-                on:pointercancel={() => seek(0)}
-            >
+            <button class="dy-btn-sm dy-btn-ghost" on:click={() => changeVerse(-1)}>
                 <AudioIcon.RW color={iconColor} />
             </button>
         {/if}
         <button
             class="dy-btn-sm dy-btn-ghost"
             class:dy-btn-lg={config.mainFeatures['audio-play-button-size'] === 'large'}
-            on:click={playPause}
+            on:click={() => playPause()}
         >
-            {#if !playing}
+            {#if !$audioPlayer.playing}
                 <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
             {:else}
                 <AudioIcon.Pause color={iconColor} size={playIconSize} />
             {/if}
         </button>
         {#if $refs.hasAudio?.timingFile}
-            <button
-                class="dy-btn-sm dy-btn-ghost"
-                on:pointerdown={() => seek(4)}
-                on:pointerup={() => seek(0)}
-                on:pointercancel={() => seek(0)}
-            >
+            <button class="dy-btn-sm dy-btn-ghost" on:click={() => changeVerse(1)}>
                 <AudioIcon.FF color={iconColor} />
             </button>
         {/if}
@@ -257,22 +111,22 @@ TODO:
     {#if !$refs.hasAudio.timingFile}
         <!-- Progress Bar -->
         <div class="audio-progress-value text-sm">
-            {duration ? format(progress) : ''}
+            {$audioPlayer.duration ? format($audioPlayer.progress) : ''}
         </div>
-        {#if loaded}
+        {#if $audioPlayer.loaded}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <progress
                 id="progress-bar"
                 class="dy-progress audio-progress"
-                value={progress}
-                max={duration}
+                value={$audioPlayer.progress}
+                max={$audioPlayer.duration}
                 on:click={seekAudio}
             />
         {:else}
             <progress class="dy-progress audio-progress" value="0" max="1" />
         {/if}
         <div class="audio-progress-duration text-sm">
-            {duration ? format(duration) : ''}
+            {$audioPlayer.duration ? format($audioPlayer.duration) : ''}
         </div>
     {/if}
 </div>
