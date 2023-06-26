@@ -7,7 +7,7 @@ Book Collection Selector component.
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import { convertStyle, refs, nextDocSet, s, t } from '$lib/data/stores';
-    import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+    import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
 
     const modalId = 'collectionSelector';
     let docSet = $refs.docSet;
@@ -80,18 +80,16 @@ Book Collection Selector component.
         />
         <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <label
-                for={modalId}
+            <button
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleCancel()}>{$t['Button_Cancel']}</label
+                on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <label
-                for={modalId}
+            <button
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleOk()}>{$t['Button_OK']}</label
+                on:click={() => handleOk()}>{$t['Button_OK']}</button
             >
         </div>
     </svelte:fragment>
