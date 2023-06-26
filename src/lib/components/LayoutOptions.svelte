@@ -3,11 +3,14 @@
 Displays the three different layout option menus.  
 -->
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import Dropdown from './Dropdown.svelte';
     import CollectionList from './CollectionList.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import { themeColors, s, t, convertStyle, nextDocSet } from '$lib/data/stores';
+
+    const dispatch = createEventDispatcher();
 
     export let layoutOption = '';
 
@@ -60,6 +63,9 @@ Displays the three different layout option menus.
                 }
                 break;
         }
+        dispatch('menuaction', {
+            collection: opt
+        });
         (document.activeElement as HTMLElement).blur();
     }
 </script>

@@ -31,9 +31,10 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
+        console.log(e.detail.tab);
         switch (e.detail.tab) {
             case 'Single Pane':
-                docSet = $nextDocSet.singlePane;
+                docSet = $nextDocSet.singlePane.id;
                 break;
             case 'Side By Side':
                 break;
