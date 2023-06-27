@@ -20,14 +20,6 @@ The navbar component.
     const listView = $userSettings['book-selection'] === 'list';
     const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
     const showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
-    $: console.log(
-        'Book Selector: book:',
-        true,
-        'chapter:',
-        showBookOnly,
-        'verse:',
-        showVerseSelector || showBookOnly
-    );
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
