@@ -175,7 +175,8 @@ The navbar component.
                                 colId: $refs.collection,
                                 bookLabel: listView ? 'name' : 'abbreviation'
                             })
-                        }
+                        },
+                        visibility: true
                     },
                     [c]: {
                         component: SelectGrid,

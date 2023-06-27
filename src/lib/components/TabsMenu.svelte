@@ -10,7 +10,7 @@ A component to display tabbed menus.
     export let cols = 6;
     export let active = '';
     const dispatch = createEventDispatcher();
-    const hasTabs = Object.keys(options).length > 1;
+    const hasTabs = Object.keys(options).filter((x) => options[x].visibility).length > 1;
 
     function handleMenuaction({ detail }: CustomEvent) {
         dispatch('menuaction', {
