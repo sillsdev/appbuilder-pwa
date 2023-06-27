@@ -96,68 +96,70 @@ TODO
     <Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
         ><!--addCSS is a prop for injecting CSS into the modal-->
         <svelte:fragment slot="content">
-            <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
-            {#if showFontSize}
-                <div class="grid gap-4 items-center range-row m-2">
-                    <TextAppearanceIcon color={$monoIconColor} size="1rem" />
-                    <Slider
-                        bind:value={$bodyFontSize}
-                        barColor={$themeColors['SliderBarColor']}
-                        progressColor={$themeColors['SliderProgressColor']}
-                        min={config.mainFeatures['text-size-min']}
-                        max={config.mainFeatures['text-size-max']}
-                    />
-                    <div class="text-sm place-self-end">{$bodyFontSize}</div>
-                </div>
-            {/if}
-            {#if showLineHeight}
-                <div class="grid gap-4 items-center range-row m-2">
-                    <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1rem" />
-                    <Slider
-                        bind:value={$bodyLineHeight}
-                        barColor={$themeColors['SliderBarColor']}
-                        progressColor={$themeColors['SliderProgressColor']}
-                        min="100"
-                        max="250"
-                    />
-                    <div class="text-sm place-self-end">
-                        {formatLineHeight($bodyLineHeight)}
+            <div class="grid gap-4">
+                <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
+                {#if showFontSize}
+                    <div class="grid gap-4 items-center range-row m-2">
+                        <TextAppearanceIcon color={$monoIconColor} size="1rem" />
+                        <Slider
+                            bind:value={$bodyFontSize}
+                            barColor={$themeColors['SliderBarColor']}
+                            progressColor={$themeColors['SliderProgressColor']}
+                            min={config.mainFeatures['text-size-min']}
+                            max={config.mainFeatures['text-size-max']}
+                        />
+                        <div class="text-sm place-self-end">{$bodyFontSize}</div>
                     </div>
-                </div>
-            {/if}
-            <!-- Theme Selction buttons-->
-            {#if showThemes}
-                <div
-                    class="grid gap-2 m-2"
-                    class:grid-cols-2={themes.length === 2}
-                    class:grid-cols-3={themes.length === 3}
-                >
-                    {#if themes.includes('Normal')}
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Normal')}
-                            style:border={buttonBorder('Normal', $theme)}
-                            on:click={() => ($theme = 'Normal')}
+                {/if}
+                {#if showLineHeight}
+                    <div class="grid gap-4 items-center range-row m-2">
+                        <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1rem" />
+                        <Slider
+                            bind:value={$bodyLineHeight}
+                            barColor={$themeColors['SliderBarColor']}
+                            progressColor={$themeColors['SliderProgressColor']}
+                            min="100"
+                            max="250"
                         />
-                    {/if}
-                    {#if themes.includes('Sepia')}
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Sepia')}
-                            style:border={buttonBorder('Sepia', $theme)}
-                            on:click={() => ($theme = 'Sepia')}
-                        />
-                    {/if}
-                    {#if themes.includes('Dark')}
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Dark')}
-                            style:border={buttonBorder('Dark', $theme)}
-                            on:click={() => ($theme = 'Dark')}
-                        />
-                    {/if}
-                </div>
-            {/if}
+                        <div class="text-sm place-self-end">
+                            {formatLineHeight($bodyLineHeight)}
+                        </div>
+                    </div>
+                {/if}
+                <!-- Theme Selction buttons-->
+                {#if showThemes}
+                    <div
+                        class="grid gap-2 m-2"
+                        class:grid-cols-2={themes.length === 2}
+                        class:grid-cols-3={themes.length === 3}
+                    >
+                        {#if themes.includes('Normal')}
+                            <button
+                                class="dy-btn-sm"
+                                style:background-color={buttonBackground('Normal')}
+                                style:border={buttonBorder('Normal', $theme)}
+                                on:click={() => ($theme = 'Normal')}
+                            />
+                        {/if}
+                        {#if themes.includes('Sepia')}
+                            <button
+                                class="dy-btn-sm"
+                                style:background-color={buttonBackground('Sepia')}
+                                style:border={buttonBorder('Sepia', $theme)}
+                                on:click={() => ($theme = 'Sepia')}
+                            />
+                        {/if}
+                        {#if themes.includes('Dark')}
+                            <button
+                                class="dy-btn-sm"
+                                style:background-color={buttonBackground('Dark')}
+                                style:border={buttonBorder('Dark', $theme)}
+                                on:click={() => ($theme = 'Dark')}
+                            />
+                        {/if}
+                    </div>
+                {/if}
+            </div>
         </svelte:fragment>
     </Modal>
 {/if}
