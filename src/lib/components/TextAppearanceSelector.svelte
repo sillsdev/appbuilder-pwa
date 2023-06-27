@@ -33,6 +33,8 @@ TODO
         'position:absolute; top:' +
         (Number(vertOffset.replace('rem', '')) + 1) +
         'rem; right:1rem;';
+    $: barColor = $themeColors['SliderBarColor'];
+    $: progressColor = $themeColors['SliderProgressColor'];
 
     const showFontSize = config.mainFeatures['text-font-size-slider'];
     const showLineHeight = config.mainFeatures['text-line-height-slider'];
@@ -100,28 +102,30 @@ TODO
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
                     <div class="grid gap-4 items-center range-row m-2">
-                        <TextAppearanceIcon color={$monoIconColor} size="1rem" />
+                        <TextAppearanceIcon color={$monoIconColor} size="1.5rem" />
                         <Slider
                             bind:value={$bodyFontSize}
-                            barColor={$themeColors['SliderBarColor']}
-                            progressColor={$themeColors['SliderProgressColor']}
+                            {barColor}
+                            {progressColor}
                             min={config.mainFeatures['text-size-min']}
                             max={config.mainFeatures['text-size-max']}
                         />
-                        <div class="text-sm place-self-end">{$bodyFontSize}</div>
+                        <div class="text-sm text-{$monoIconColor} place-self-end">
+                            {$bodyFontSize}
+                        </div>
                     </div>
                 {/if}
                 {#if showLineHeight}
                     <div class="grid gap-4 items-center range-row m-2">
-                        <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1rem" />
+                        <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1.5rem" />
                         <Slider
                             bind:value={$bodyLineHeight}
-                            barColor={$themeColors['SliderBarColor']}
-                            progressColor={$themeColors['SliderProgressColor']}
+                            {barColor}
+                            {progressColor}
                             min="100"
                             max="250"
                         />
-                        <div class="text-sm place-self-end">
+                        <div class="text-sm text-{$monoIconColor} place-self-end">
                             {formatLineHeight($bodyLineHeight)}
                         </div>
                     </div>
