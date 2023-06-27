@@ -19,6 +19,7 @@ The navbar component.
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: showVerseSelector = $userSettings['verse-selection'] && verseCount(book, chapter) > 0;
+    $: console.log('chapter:', true, 'verse:', showVerseSelector);
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -85,42 +86,6 @@ The navbar component.
     $: showSelector =
         config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
-
-    function chaptersContent(chapters) {
-        let hasIntroduction = books.find((x) => x.bookCode === book).hasIntroduction;
-        return {
-            component: SelectGrid,
-            props: {
-                options: [
-                    {
-                        rows: hasIntroduction
-                            ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
-                            : null,
-                        cells: Object.keys(chapters).map((x) => ({
-                            label: x,
-                            id: x
-                        }))
-                    }
-                ]
-            }
-        };
-    }
-
-    function versesContent(chapters, chapter) {
-        return {
-            component: SelectGrid,
-            props: {
-                options: [
-                    {
-                        cells: Object.keys(chapters[chapter]).map((x) => ({
-                            label: x,
-                            id: x
-                        }))
-                    }
-                ]
-            }
-        };
-    }
 </script>
 
 <!-- Chapter Selector -->
@@ -137,28 +102,51 @@ The navbar component.
         <svelte:fragment slot="content">
             {#if canSelect}
                 <div>
-                    {#if showVerseSelector}
-                        <TabsMenu
-                            bind:this={chapterSelector}
-                            options={{
-                                [c]: chaptersContent(chapters),
-                                [v]: versesContent(chapters, chapter)
-                            }}
-                            cols="5"
-                            active={c}
-                            on:menuaction={navigateReference}
-                        />
-                    {:else}
-                        <TabsMenu
-                            bind:this={chapterSelector}
-                            options={{
-                                [c]: chaptersContent(chapters)
-                            }}
-                            cols="5"
-                            active={c}
-                            on:menuaction={navigateReference}
-                        />
-                    {/if}
+                    <TabsMenu
+                        bind:this={chapterSelector}
+                        options={{
+                            [c]: {
+                                component: SelectGrid,
+                                props: {
+                                    options: [
+                                        {
+                                            rows: books.find((x) => x.bookCode === book)
+                                                .hasIntroduction
+                                                ? [
+                                                      {
+                                                          label: $t['Chapter_Introduction_Title'],
+                                                          id: 'i'
+                                                      }
+                                                  ]
+                                                : null,
+                                            cells: Object.keys(chapters).map((x) => ({
+                                                label: x,
+                                                id: x
+                                            }))
+                                        }
+                                    ]
+                                },
+                                visibility: true
+                            },
+                            [v]: {
+                                component: SelectGrid,
+                                props: {
+                                    options: [
+                                        {
+                                            cells: Object.keys(chapters[chapter]).map((x) => ({
+                                                label: x,
+                                                id: x
+                                            }))
+                                        }
+                                    ]
+                                },
+                                visibility: showVerseSelector
+                            }
+                        }}
+                        cols="5"
+                        active={c}
+                        on:menuaction={navigateReference}
+                    />
                 </div>
             {/if}
         </svelte:fragment>

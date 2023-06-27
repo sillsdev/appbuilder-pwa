@@ -37,6 +37,7 @@ declare namespace App {
             };
             component: any;
             props: any;
+            visibility: true;
         };
     }
 

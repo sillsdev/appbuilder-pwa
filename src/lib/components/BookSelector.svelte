@@ -20,6 +20,14 @@ The navbar component.
     const listView = $userSettings['book-selection'] === 'list';
     const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
     const showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
+    $: console.log(
+        'Book Selector: book:',
+        true,
+        'chapter:',
+        showBookOnly,
+        'verse:',
+        showVerseSelector || showBookOnly
+    );
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -145,41 +153,6 @@ The navbar component.
             }
         ];
     };
-
-    $: bookContent = {
-        component: listView ? SelectList : SelectGrid,
-        props: {
-            options: bookGridGroup({
-                colId: $refs.collection,
-                bookLabel: listView ? 'name' : 'abbreviation'
-            })
-        }
-    };
-
-    function chaptersContent(chapters) {
-        return {
-            component: SelectGrid,
-            props: {
-                options: chapterGridGroup(chapters)
-            }
-        };
-    }
-
-    function versesContent(chapters, chapter) {
-        return {
-            component: SelectGrid,
-            props: {
-                options: [
-                    {
-                        cells: Object.keys(chapters[chapter]).map((x) => ({
-                            label: x,
-                            id: x
-                        }))
-                    }
-                ]
-            }
-        };
-    }
 </script>
 
 <!-- Book Selector -->
@@ -192,37 +165,43 @@ The navbar component.
     </svelte:fragment>
     <svelte:fragment slot="content">
         <div>
-            {#if showBookOnly}
-                <TabsMenu
-                    bind:this={bookSelector}
-                    options={{
-                        [b]: bookContent
-                    }}
-                    active={b}
-                    on:menuaction={navigateReference}
-                />
-            {:else if showVerseSelector}
-                <TabsMenu
-                    bind:this={bookSelector}
-                    options={{
-                        [b]: bookContent,
-                        [c]: chaptersContent(chapters),
-                        [v]: versesContent(chapters, chapter)
-                    }}
-                    active={b}
-                    on:menuaction={navigateReference}
-                />
-            {:else}
-                <TabsMenu
-                    bind:this={bookSelector}
-                    options={{
-                        [b]: bookContent,
-                        [c]: chaptersContent(chapters)
-                    }}
-                    active={b}
-                    on:menuaction={navigateReference}
-                />
-            {/if}
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    [b]: {
+                        component: listView ? SelectList : SelectGrid,
+                        props: {
+                            options: bookGridGroup({
+                                colId: $refs.collection,
+                                bookLabel: listView ? 'name' : 'abbreviation'
+                            })
+                        }
+                    },
+                    [c]: {
+                        component: SelectGrid,
+                        props: {
+                            options: chapterGridGroup(chapters)
+                        },
+                        visibility: showBookOnly
+                    },
+                    [v]: {
+                        component: SelectGrid,
+                        props: {
+                            options: [
+                                {
+                                    cells: Object.keys(chapters[chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
+                                }
+                            ]
+                        },
+                        visibility: showBookOnly || showVerseSelector
+                    }
+                }}
+                active={b}
+                on:menuaction={navigateReference}
+            />
         </div>
     </svelte:fragment>
 </Dropdown>
