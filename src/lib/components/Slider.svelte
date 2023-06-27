@@ -33,7 +33,7 @@ A simple slider component.
     input[type='range'] {
         -webkit-appearance: none;
         margin-right: 15px;
-        width: 200px;
+        width: auto;
         height: 7px;
         background: var(--barColor);
         border-radius: 5px;
