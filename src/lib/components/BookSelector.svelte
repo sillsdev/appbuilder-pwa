@@ -18,8 +18,8 @@ The navbar component.
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
 
     const listView = $userSettings['book-selection'] === 'list';
-    const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
+    const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
+    const showVerseSelector = $userSettings['verse-selection'];
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -47,7 +47,7 @@ The navbar component.
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
     function navigateReference(e) {
-        if (showBookOnly) {
+        if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
             $refs = { book: $nextRef.book, chapter: 1 };
             document.activeElement.blur();
@@ -145,41 +145,6 @@ The navbar component.
             }
         ];
     };
-
-    $: bookContent = {
-        component: listView ? SelectList : SelectGrid,
-        props: {
-            options: bookGridGroup({
-                colId: $refs.collection,
-                bookLabel: listView ? 'name' : 'abbreviation'
-            })
-        }
-    };
-
-    function chaptersContent(chapters) {
-        return {
-            component: SelectGrid,
-            props: {
-                options: chapterGridGroup(chapters)
-            }
-        };
-    }
-
-    function versesContent(chapters, chapter) {
-        return {
-            component: SelectGrid,
-            props: {
-                options: [
-                    {
-                        cells: Object.keys(chapters[chapter]).map((x) => ({
-                            label: x,
-                            id: x
-                        }))
-                    }
-                ]
-            }
-        };
-    }
 </script>
 
 <!-- Book Selector -->
@@ -192,37 +157,44 @@ The navbar component.
     </svelte:fragment>
     <svelte:fragment slot="content">
         <div>
-            {#if showBookOnly}
-                <TabsMenu
-                    bind:this={bookSelector}
-                    options={{
-                        [b]: bookContent
-                    }}
-                    active={b}
-                    on:menuaction={navigateReference}
-                />
-            {:else if showVerseSelector}
-                <TabsMenu
-                    bind:this={bookSelector}
-                    options={{
-                        [b]: bookContent,
-                        [c]: chaptersContent(chapters),
-                        [v]: versesContent(chapters, chapter)
-                    }}
-                    active={b}
-                    on:menuaction={navigateReference}
-                />
-            {:else}
-                <TabsMenu
-                    bind:this={bookSelector}
-                    options={{
-                        [b]: bookContent,
-                        [c]: chaptersContent(chapters)
-                    }}
-                    active={b}
-                    on:menuaction={navigateReference}
-                />
-            {/if}
+            <TabsMenu
+                bind:this={bookSelector}
+                options={{
+                    [b]: {
+                        component: listView ? SelectList : SelectGrid,
+                        props: {
+                            options: bookGridGroup({
+                                colId: $refs.collection,
+                                bookLabel: listView ? 'name' : 'abbreviation'
+                            })
+                        },
+                        visible: true
+                    },
+                    [c]: {
+                        component: SelectGrid,
+                        props: {
+                            options: chapterGridGroup(chapters)
+                        },
+                        visible: showChapterSelector
+                    },
+                    [v]: {
+                        component: SelectGrid,
+                        props: {
+                            options: [
+                                {
+                                    cells: Object.keys(chapters[chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
+                                }
+                            ]
+                        },
+                        visible: showChapterSelector && showVerseSelector
+                    }
+                }}
+                active={b}
+                on:menuaction={navigateReference}
+            />
         </div>
     </svelte:fragment>
 </Dropdown>
