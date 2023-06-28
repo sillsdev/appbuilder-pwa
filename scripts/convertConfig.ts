@@ -161,6 +161,16 @@ export type ConfigData = {
             [key: string]: string;
         };
     }[];
+    backgroundImages?: {
+        width: string;
+        height: string;
+        filename: string;
+    }[];
+    watermarkImages?: {
+        width: string;
+        height: string;
+        filename: string;
+    }[];
     menuItems?: {
         type: string;
         title: {
@@ -702,6 +712,34 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
     if (verbose) console.log(`Converted ${layouts?.length} layouts`);
+
+    // Background images
+    const backgroundImages = document
+        .querySelector('images[type=background]')
+        ?.getElementsByTagName('image');
+    if (backgroundImages) {
+        data.backgroundImages = [];
+        for (const backgroundImage of backgroundImages) {
+            const width = backgroundImage.getAttribute('width')!;
+            const height = backgroundImage.getAttribute('height')!;
+            const filename = backgroundImage.innerHTML;
+            data.backgroundImages.push({ width, height, filename });
+        }
+    }
+
+    // Watermark images
+    const watermarkImages = document
+        .querySelector('images[type=watermark]')
+        ?.getElementsByTagName('image');
+    if (watermarkImages) {
+        data.watermarkImages = [];
+        for (const watermarkImage of watermarkImages) {
+            const width = watermarkImage.getAttribute('width')!;
+            const height = watermarkImage.getAttribute('height')!;
+            const filename = watermarkImage.innerHTML;
+            data.watermarkImages.push({ width, height, filename });
+        }
+    }
 
     // Menu Items
     const menuItems = document
