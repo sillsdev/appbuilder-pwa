@@ -13,7 +13,8 @@ const initReference =
     '.' +
     startReference;
 setDefaultStorage('refs', initReference);
-export const refs = groupStore(referenceStore, localStorage.refs);
+
+export const refs = referenceStore(localStorage.refs);
 refs.subscribe((value) => {
     localStorage.refs = value.docSet + '.' + value.book + '.' + value.chapter;
 });

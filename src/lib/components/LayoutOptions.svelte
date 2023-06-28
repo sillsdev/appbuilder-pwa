@@ -23,13 +23,8 @@ TODO:
         description: ds?.collectionDescription
     }));
 
-    const removeKey = refs.subscribe((v) => {
-        nextDocSet = v.docSet;
-    }, 'next');
-    onDestroy(removeKey);
-
     function handleClick(opt) {
-        refs.set({ docSet: opt }, 'next');
+        refs.set({ docSet: opt, book: $refs.book, chapter: $refs.chapter });
         nextDocSet = opt;
         dispatch('menuaction', {
             text: opt

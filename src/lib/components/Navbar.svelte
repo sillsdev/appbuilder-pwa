@@ -4,7 +4,14 @@ The navbar component.
 -->
 <script>
     import { HamburgerIcon, ArrowBackIcon, ArrowForwardIcon } from '$lib/icons';
-    import { viewMode, convertStyle, s, showDesktopSidebar, direction } from '$lib/data/stores';
+    import {
+        layout,
+        LAYOUT_TWO,
+        convertStyle,
+        s,
+        showDesktopSidebar,
+        direction
+    } from '$lib/data/stores';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
 
@@ -20,7 +27,7 @@ The navbar component.
             <label
                 for="sidebar"
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
-                class:lg:hidden={$showDesktopSidebar && $viewMode !== 'Side By Side'}
+                class:lg:hidden={$showDesktopSidebar && $layout.mode !== LAYOUT_TWO}
             >
                 <HamburgerIcon color="white" />
             </label>

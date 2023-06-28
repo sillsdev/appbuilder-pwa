@@ -6,7 +6,11 @@ import { userSettings } from './setting';
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
-export const viewMode = writable('Single Pane');
+export const LAYOUT_SINGLE = 'single';
+export const LAYOUT_TWO = 'two';
+export const LAYOUT_VERSE_BY_VERSE = 'verse-by-verse';
+/** when type != LAYOUT_SINGLE, add a "collections" property which is the array of additional collections */
+export const layout = writable({mode:LAYOUT_SINGLE});
 
 /**scrollTop of main window*/
 export const mainScroll = writable({ top: 0, height: 0});
