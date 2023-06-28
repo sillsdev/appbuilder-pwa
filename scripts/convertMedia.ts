@@ -41,7 +41,7 @@ export class ConvertMedia extends Task {
         'timings',
         'backgrounds',
         'borders',
-        'images',
+        'watermarks',
         'clips',
         'videos',
         'icons'
