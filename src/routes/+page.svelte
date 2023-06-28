@@ -119,7 +119,7 @@
 
     // Process page parameters
     if ($page.data?.ref) {
-        $refs = parseReference($page.data.ref);
+        refs.set(parseReference($page.data.ref));
     }
     if ($page.data?.audio) {
         $audioActive = $page.data.audio === '1';
