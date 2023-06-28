@@ -125,7 +125,7 @@ The navbar component.
                                         }
                                     ]
                                 },
-                                visibility: true
+                                visible: true
                             },
                             [v]: {
                                 component: SelectGrid,
@@ -139,7 +139,7 @@ The navbar component.
                                         }
                                     ]
                                 },
-                                visibility: showVerseSelector
+                                visible: showVerseSelector
                             }
                         }}
                         cols="5"

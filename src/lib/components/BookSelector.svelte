@@ -168,14 +168,14 @@ The navbar component.
                                 bookLabel: listView ? 'name' : 'abbreviation'
                             })
                         },
-                        visibility: true
+                        visible: true
                     },
                     [c]: {
                         component: SelectGrid,
                         props: {
                             options: chapterGridGroup(chapters)
                         },
-                        visibility: showBookOnly
+                        visible: showBookOnly
                     },
                     [v]: {
                         component: SelectGrid,
@@ -189,7 +189,7 @@ The navbar component.
                                 }
                             ]
                         },
-                        visibility: showBookOnly || showVerseSelector
+                        visible: showBookOnly || showVerseSelector
                     }
                 }}
                 active={b}

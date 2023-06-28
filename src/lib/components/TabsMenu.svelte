@@ -6,11 +6,11 @@ A component to display tabbed menus.
     import { createEventDispatcher } from 'svelte';
     import { s, convertStyle } from '$lib/data/stores';
 
-    export let options: App.TabMenuOptions = { '': { component: '', props: {}, visibility: true } };
+    export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true } };
     export let cols = 6;
     export let active = '';
     const dispatch = createEventDispatcher();
-    const hasTabs = Object.keys(options).filter((x) => options[x].visibility).length > 1;
+    const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
 
     function handleMenuaction({ detail }: CustomEvent) {
         dispatch('menuaction', {
@@ -29,7 +29,7 @@ A component to display tabbed menus.
 {#if hasTabs}
     <div class="dy-tabs" style={convertStyle($s['ui.selector.tabs'])}>
         {#each Object.keys(options) as opt}
-            {#if options[opt].visibility}
+            {#if options[opt].visible}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <a
