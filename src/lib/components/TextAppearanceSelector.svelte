@@ -110,7 +110,7 @@ TODO
                             min={config.mainFeatures['text-size-min']}
                             max={config.mainFeatures['text-size-max']}
                         />
-                        <div class="text-sm text-{$monoIconColor} place-self-end">
+                        <div class="text-md text-{$monoIconColor} place-self-end">
                             {$bodyFontSize}
                         </div>
                     </div>
@@ -125,7 +125,7 @@ TODO
                             min="100"
                             max="250"
                         />
-                        <div class="text-sm text-{$monoIconColor} place-self-end">
+                        <div class="text-md text-{$monoIconColor} place-self-end">
                             {formatLineHeight($bodyLineHeight)}
                         </div>
                     </div>
@@ -170,6 +170,6 @@ TODO
 
 <style>
     .range-row {
-        grid-template-columns: 1rem auto 1rem;
+        grid-template-columns: 1.5rem auto 1.5rem;
     }
 </style>
