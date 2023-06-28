@@ -54,8 +54,7 @@
             addHistory({
                 collection: $refs.collection,
                 book: $refs.book,
-                chapter: $refs.chapter,
-                verse: $refs.verse
+                chapter: $refs.chapter
             });
         }
     }
