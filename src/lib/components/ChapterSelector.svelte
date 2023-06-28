@@ -15,10 +15,10 @@ The navbar component.
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
 
-    // Needs testing, does updating the book correctly effect what chapter0.s or verses are availible in the next tab?
+    // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-    $: showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
+    $: showVerseSelector = $userSettings['verse-selection'];
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
