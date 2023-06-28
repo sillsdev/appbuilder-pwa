@@ -13,6 +13,7 @@ TODO:
     export let history: HistoryItem;
 
     $: bc = config.bookCollections.find((x) => x.id === history.collection);
+    $: docSet = bc.languageCode + '_' + bc.id;
     $: bcName = config.bookCollections.length == 1 ? null : bc.collectionName;
     $: bookName = bc.books.find((x) => x.id === history.book)?.name;
     $: chapterVerseSeparator = bc.features['ref-chapter-verse-separator'];
@@ -30,8 +31,7 @@ TODO:
     <a
         style="text-decoration:none;"
         href="{base}/"
-        on:click={() =>
-            ($refs = { book: history.book, chapter: history.chapter, verse: history.verse })}
+        on:click={() => refs.set({ docSet, book: history.book, chapter: history.chapter })}
     >
         <div
             class="history-card grid grid-cols-1"
