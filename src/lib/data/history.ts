@@ -39,8 +39,8 @@ export async function addHistory(item: {
     collection: string;
     book: string;
     chapter: string;
-    verse: string;
-}) {
+    verse?: string;
+}) { 
     let history = await openHistory();
     if (nextTimer) {
         clearTimeout(nextTimer);

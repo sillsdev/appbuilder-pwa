@@ -3,7 +3,7 @@ import { catalog } from '../catalog';
 import config from '../config';
 
 export function parseReference(ref) {
-    if (!ref) return ['','',''];
+    if (!ref) return {docSet: '', book: '', chapter: ''};
     const parts = ref.split('.');
     if (parts.length === 2) {
         // After everyone has converted to full references, remove this check
