@@ -18,8 +18,8 @@ The navbar component.
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
 
     const listView = $userSettings['book-selection'] === 'list';
-    const showBookOnly = !config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = $userSettings['verse-selection'] && verseCount(chapter) > 0;
+    const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
+    const showVerseSelector = $userSettings['verse-selection'];
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -47,7 +47,7 @@ The navbar component.
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
     function navigateReference(e) {
-        if (showBookOnly) {
+        if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
             $refs = { book: $nextRef.book, chapter: 1 };
             document.activeElement.blur();
@@ -175,7 +175,7 @@ The navbar component.
                         props: {
                             options: chapterGridGroup(chapters)
                         },
-                        visible: showBookOnly
+                        visible: showChapterSelector
                     },
                     [v]: {
                         component: SelectGrid,
@@ -189,7 +189,7 @@ The navbar component.
                                 }
                             ]
                         },
-                        visible: showBookOnly || showVerseSelector
+                        visible: showChapterSelector && showVerseSelector
                     }
                 }}
                 active={b}
