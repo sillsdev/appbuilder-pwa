@@ -30,10 +30,10 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (verseCount($nextRef.chapter) === 0 || !showVerseSelector) {
+                if (verseCount(book, $nextRef.chapter) === 0 || !showVerseSelector) {
                     completeNavigation();
                 } else {
-                    bookSelector.setActive(v);
+                    chapterSelector.setActive(v);
                 }
                 break;
             case v:
