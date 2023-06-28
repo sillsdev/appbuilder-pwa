@@ -14,7 +14,7 @@ Book Collection Selector component.
     let docSet = $refs.docSet;
     let modal;
 
-    // ToDo: Implement visibility of layout tabs
+    // ToDo: If showSinglePane false, provide first availible visible option instead
     $: showSinglePane = config.layouts.find((x) => x.mode === 'single').enabled;
     $: showSideBySide = config.layouts.find((x) => x.mode === 'two').enabled;
     $: showVerseByVerse = config.layouts.find((x) => x.mode === 'verse-by-verse').enabled;
@@ -64,17 +64,20 @@ Book Collection Selector component.
                 'Single Pane': {
                     tab: { component: SinglePaneIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Single Pane' }
+                    props: { layoutOption: 'Single Pane' },
+                    visible: showSinglePane
                 },
                 'Side By Side': {
                     tab: { component: SideBySideIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Side By Side' }
+                    props: { layoutOption: 'Side By Side' },
+                    visible: showSideBySide
                 },
                 'Verse By Verse': {
                     tab: { component: VerseByVerseIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Verse By Verse' }
+                    props: { layoutOption: 'Verse By Verse' },
+                    visible: showVerseByVerse
                 }
             }}
             active="Single Pane"
