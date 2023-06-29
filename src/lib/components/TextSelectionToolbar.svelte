@@ -33,7 +33,6 @@ TODO:
         themeColors,
         highlights,
         bookmarks
-
     } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
@@ -116,7 +115,7 @@ TODO:
             verse: $selectedVerses[0].verse,
             text: selectedVerses.getVerseByIndex(0).text,
             reference: selectedVerses.getReference(0)
-        })
+        });
 
         await notes.sync();
         selectedVerses.reset();
