@@ -43,7 +43,7 @@
                     $t['Annotation_Menu_Share'],
                     $t['Annotation_Menu_Delete']
                 ],
-                penColor: h.penColor.toString()
+                penColor: h.penColor
             }}
             <ColorCard on:menuaction={(e) => handleMenuaction(e, h.reference)} {...colorCard} />
         {/each}
