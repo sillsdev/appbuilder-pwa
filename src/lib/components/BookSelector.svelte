@@ -192,7 +192,6 @@ The navbar component.
                         visible: showChapterSelector && showVerseSelector
                     }
                 }}
-                active={b}
                 on:menuaction={navigateReference}
             />
         </div>

@@ -8,7 +8,7 @@ A component to display tabbed menus.
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true } };
     export let cols = 6;
-    export let active = '';
+    export let active = Object.keys(options).filter((x) => options[x].visible)[0];
     const dispatch = createEventDispatcher();
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
 

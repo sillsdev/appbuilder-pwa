@@ -143,7 +143,6 @@ The navbar component.
                             }
                         }}
                         cols="5"
-                        active={c}
                         on:menuaction={navigateReference}
                     />
                 </div>
