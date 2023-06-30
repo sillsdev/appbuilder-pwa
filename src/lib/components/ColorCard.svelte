@@ -11,12 +11,12 @@ TODO:
     export let text = '';
     export let date = '';
     export let actions = [''];
-    export let penColor = '1';
+    export let penColor = 1;
 </script>
 
 <div class="annotation-item-block dy-card" style:direction={$direction}>
     <div class="color-card">
-        <div class="annotation-item-color {'hlp' + penColor} self-center" />
+        <div class="annotation-item-color {'hlp' + penColor.toString()} self-center" />
         <div class="annotation-item-reference justify-self-start self-center">{reference}</div>
         <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
         <div class="annotation-item-text col-span-3">{text}</div>

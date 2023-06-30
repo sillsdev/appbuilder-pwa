@@ -489,21 +489,9 @@ TODO:
                                     bookCode,
                                     chapter
                                 );
-                                addNotedVerses(notesInChapter);
-                                const bookmarksInChapter = annotationsForChapter(
-                                    bookmarks,
-                                    docSet,
-                                    bookCode,
-                                    chapter
-                                );
-                                addBookmarkedVerses(bookmarksInChapter);
-                                const highlightsInChapter = annotationsForChapter(
-                                    highlights,
-                                    docSet,
-                                    bookCode,
-                                    chapter
-                                );
-                                addHighlightedVerses(highlightsInChapter);
+                                addNotedVerses(notes);
+                                addBookmarkedVerses(bookmarks);
+                                addHighlightedVerses(highlights);
                                 addVideos(videos);
                             }
 
