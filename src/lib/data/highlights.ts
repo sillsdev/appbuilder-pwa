@@ -1,5 +1,7 @@
 import { openDB, type DBSchema } from "idb";
 import config from '$lib/data/config';
+import { writable } from "svelte/store";
+
 
 export interface HighlightItem {
     date: number;
@@ -63,6 +65,7 @@ export async function addHighlights(numColor: number, selectedVerses) {
         const nextItem = {...selectedVerse, date: date, bookIndex: bookIndex, penColor: numColor};
         await highlights.add("highlights", nextItem);
     }
+    notifyUpdated();
 }
 
 export async function findHighlight(item: {
@@ -105,14 +108,22 @@ export async function removeHighlights(selectedVerses) {
             index = await findHighlight({...selectedVerse});
         }
     }
+    notifyUpdated();
 }
 
 export async function clearHighlights() {
     const highlights = await openHighlights();
     await highlights.clear("highlights");
+    notifyUpdated();
 }
 
 export async function getHighlights() :Promise<HighlightItem[]> {
     const highlights = await openHighlights();   
     return await highlights.getAll("highlights");
 }
+
+function notifyUpdated() {
+    highlightsLastUpdated.set(Date.now());
+}
+
+export const highlightsLastUpdated = writable(Date.now());

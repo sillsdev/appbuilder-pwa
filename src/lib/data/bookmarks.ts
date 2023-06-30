@@ -1,5 +1,6 @@
 import { openDB, type DBSchema } from "idb";
 import config from '$lib/data/config';
+import { writable } from "svelte/store";
 
 export interface BookmarkItem {
     date: number;
@@ -51,6 +52,7 @@ export async function addBookmark(item: {
         .books.findIndex((x) => x.id === item.book);
     const nextItem = {...item, date: date, bookIndex: bookIndex};
     await bookmarks.add("bookmarks", nextItem);
+    notifyUpdated();
 }
 
 export async function findBookmark(item: {
@@ -83,14 +85,22 @@ export async function findBookmarkByChapter(item: {
 export async function removeBookmark(date: number) {
     const bookmarks = await openBookmarks();
     await bookmarks.delete("bookmarks", date);
+    notifyUpdated();
 }
 
 export async function clearBookmarks() {
     const bookmarks = await openBookmarks();
     await bookmarks.clear("bookmarks");
+    notifyUpdated();
 }
 
 export async function getBookmarks() :Promise<BookmarkItem[]> {
     const bookmarks = await openBookmarks();   
     return await bookmarks.getAll("bookmarks");
 }
+
+function notifyUpdated() {
+    bookmarksLastUpdated.set(Date.now());
+}
+
+export const bookmarksLastUpdated = writable(Date.now());
