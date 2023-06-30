@@ -1,61 +1,20 @@
-import { writable, get } from "svelte/store";
-import { setDefaultStorage } from "./storage";
+import { writable, get, derived } from "svelte/store";
 import { refs } from "./scripture";
-import { findBookmarkByChapter } from "$lib/data/bookmarks";
-import { findHighlightByChapter } from "$lib/data/highlights";
-import { findNoteByChapter } from "$lib/data/notes";
+import { findBookmarkByChapter, bookmarksLastUpdated } from "$lib/data/bookmarks";
+import { findHighlightByChapter, highlightsLastUpdated } from "$lib/data/highlights";
+import { findNoteByChapter, notesLastUpdated } from "$lib/data/notes";
 
-/* list of bookmarks */
-function createBookmarks() {
-    const {subscribe, set} = writable([]);
-    const fetchData = async (item) => {
-        const foundBookmarks = await findBookmarkByChapter(item);
-        set(foundBookmarks);
-    };
+/* list of bookmarks for the current collection/book/chapter */
+export const bookmarks = derived([refs, bookmarksLastUpdated], ([$refs]) => {
+    return findBookmarkByChapter($refs);
+});
 
-    refs.subscribe(item => {
-        fetchData(item);
-    });
-    
-    return {
-        subscribe, 
-        sync: async () => await fetchData(get(refs))
-    };
-}
-export const bookmarks = createBookmarks();
+/* list of highlights for the current collection/book/chapter */
+export const highlights = derived([refs, highlightsLastUpdated], ([$refs]) => {
+    return findHighlightByChapter($refs);
+});
 
-function createHighlights() {
-    const {subscribe, set} = writable([]);
-    const fetchData = async (item) => {
-        const foundHighlights = await findHighlightByChapter(item);
-        set(foundHighlights);
-    };
-
-    refs.subscribe(item => {
-        fetchData(item);
-    });
-    
-    return {
-        subscribe, 
-        sync: async () => await fetchData(get(refs))
-    };
-}
-export const highlights = createHighlights();
-
-function createNotes() {
-    const {subscribe, set} = writable([]);
-    const fetchData = async (item) => {
-        const foundNotes = await findNoteByChapter(item);
-        set(foundNotes);
-    };
-
-    refs.subscribe(item => {
-        fetchData(item);
-    });
-    
-    return {
-        subscribe, 
-        sync: async () => await fetchData(get(refs))
-    };
-}
-export const notes = createNotes();
+/* list of notes for the current collection/book/chapter */
+export const notes = derived([refs, notesLastUpdated], ([$refs]) => {
+    return findNoteByChapter($refs);
+});

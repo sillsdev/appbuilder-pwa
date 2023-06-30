@@ -103,7 +103,6 @@ TODO:
             await removeBookmark(selectedVerseInBookmarks);
         }
 
-        await bookmarks.sync();
         selectedVerses.reset();
     }
 
@@ -117,7 +116,6 @@ TODO:
             reference: selectedVerses.getReference(0)
         });
 
-        await notes.sync();
         selectedVerses.reset();
     }
 
@@ -128,7 +126,6 @@ TODO:
             await addHighlights(numColor, $selectedVerses);
         }
 
-        await highlights.sync();
         selectedVerses.reset();
     }
 

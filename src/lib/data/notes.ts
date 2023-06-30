@@ -1,5 +1,7 @@
 import { openDB, type DBSchema } from "idb";
 import config from '$lib/data/config';
+import { writable } from "svelte/store";
+
 
 export interface NoteItem {
     date: number;
@@ -51,6 +53,7 @@ export async function addNote(item: {
         .books.findIndex((x) => x.id === item.book);
     const nextItem = {...item, date: date, bookIndex: bookIndex};
     await notes.add("notes", nextItem);
+    notifyUpdated();
 }
 
 export async function findNote(item: {
@@ -83,14 +86,22 @@ export async function findNoteByChapter(item: {
 export async function removeNote(date: number) {
     const notes = await openNotes();
     await notes.delete("notes", date);
+    notifyUpdated();
 }
 
 export async function clearNotes() {
     const notes = await openNotes();
     await notes.clear("notes");
+    notifyUpdated();
 }
 
 export async function getNotes() :Promise<NoteItem[]> {
     const notes = await openNotes();   
     return await notes.getAll("notes");
 }
+
+function notifyUpdated() {
+    notesLastUpdated.set(Date.now());
+}
+
+export const notesLastUpdated = writable(Date.now());
