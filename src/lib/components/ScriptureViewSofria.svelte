@@ -278,13 +278,15 @@ TODO:
         return '<svg fill="#000000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>';
     };
     function addNotedVerses(notesInChapter) {
-        for (var k = 0; k < notesInChapter.length; k++) {
-            let notesSpan = document.getElementById('bookmarks' + notesInChapter[k].verse);
-            let noteSpan = document.createElement('span');
-            noteSpan.id = 'note' + k;
-            noteSpan.innerHTML = noteSvg();
-            notesSpan.appendChild(noteSpan);
-        }
+        notesInChapter.then((notes) => {
+            for (var k = 0; k < notes.length; k++) {
+                let notesSpan = document.getElementById('bookmarks' + notes[k].verse);
+                let noteSpan = document.createElement('span');
+                noteSpan.id = 'note' + k;
+                noteSpan.innerHTML = noteSvg();
+                notesSpan.appendChild(noteSpan);
+            }
+        });
     }
     function addBookmarksDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
@@ -306,30 +308,34 @@ TODO:
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     };
     function addBookmarkedVerses(bookmarksInChapter) {
-        for (var j = 0; j < bookmarksInChapter.length; j++) {
-            let bookmarksSpan = document.getElementById('bookmarks' + bookmarksInChapter[j].verse);
-            let bookmarkSpan = document.createElement('span');
-            bookmarkSpan.id = 'bookmark' + j;
-            bookmarkSpan.innerHTML = bookmarkSvg();
-            bookmarksSpan.appendChild(bookmarkSpan);
-        }
+        bookmarksInChapter.then((bookmarks) => {
+            for (var j = 0; j < bookmarks.length; j++) {
+                let bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
+                let bookmarkSpan = document.createElement('span');
+                bookmarkSpan.id = 'bookmark' + j;
+                bookmarkSpan.innerHTML = bookmarkSvg();
+                bookmarksSpan.appendChild(bookmarkSpan);
+            }
+        });
     }
     function addHighlightedVerses(highlightsInChapter) {
-        for (let i = 0; i < highlightsInChapter.length; i++) {
-            //Skip this entry if the the next is a highlight for the same verse
-            if (i < highlightsInChapter.length - 1) {
-                if (highlightsInChapter[i].verse === highlightsInChapter[i + 1].verse) {
-                    continue;
+        highlightsInChapter.then((highlights) => {
+            for (let i = 0; i < highlights.length; i++) {
+                //Skip this entry if the the next is a highlight for the same verse
+                if (i < highlights.length - 1) {
+                    if (highlights[i].verse === highlights[i + 1].verse) {
+                        continue;
+                    }
+                }
+                let elements = container?.querySelectorAll(
+                    `div[data-verse="${highlights[i].verse}"]`
+                );
+                for (const element of elements) {
+                    const penClass = 'hlp' + highlights[i].penColor;
+                    element.classList.add(penClass);
                 }
             }
-            let elements = container?.querySelectorAll(
-                `div[data-verse="${highlightsInChapter[i].verse}"]`
-            );
-            for (const element of elements) {
-                const penClass = 'hlp' + highlightsInChapter[i].penColor;
-                element.classList.add(penClass);
-            }
-        }
+        });
     }
     function placeElement(
         document: Document,
