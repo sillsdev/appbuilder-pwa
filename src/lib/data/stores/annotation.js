@@ -1,4 +1,4 @@
-import { writable, get, derived } from "svelte/store";
+import { derived } from "svelte/store";
 import { refs } from "./scripture";
 import { findBookmarkByChapter, bookmarksLastUpdated } from "$lib/data/bookmarks";
 import { findHighlightByChapter, highlightsLastUpdated } from "$lib/data/highlights";
