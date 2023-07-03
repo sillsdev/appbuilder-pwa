@@ -483,12 +483,6 @@ TODO:
                                         els[i].addEventListener('click', onClick, false);
                                     }
                                 }
-                                const notesInChapter = annotationsForChapter(
-                                    notes,
-                                    docSet,
-                                    bookCode,
-                                    chapter
-                                );
                                 addNotedVerses(notes);
                                 addBookmarkedVerses(bookmarks);
                                 addHighlightedVerses(highlights);
@@ -1203,21 +1197,6 @@ TODO:
         loading = false;
         // console.log('DONE %o', root);
     };
-
-    function annotationsForChapter(annotations, docSet: string, bookCode: string, chapter: string) {
-        // Get entries for chapter and sort by verse
-        let entries = annotations
-            .filter(
-                (entry) =>
-                    entry.docSet === docSet && entry.book === bookCode && entry.chapter === chapter
-            )
-            .sort((e1, e2) => {
-                const c1 = parseInt(e1.verse, 10);
-                const c2 = parseInt(e2.verse, 10);
-                return c1 > c2 ? 1 : c1 < c2 ? -1 : 0;
-            });
-        return entries;
-    }
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
