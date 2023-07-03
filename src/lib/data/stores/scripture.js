@@ -57,7 +57,8 @@ function getInsertIndex(newVerseNumber, selections) {
 
 export function getReference(item) {
     const separator = config.bookCollections.find((x) => x.id === item.collection).features["ref-chapter-verse-separator"];
-    return item.book + " " + item.chapter + separator + item.verse;
+    const bookName = config.bookCollections.find((x) => x.id === item.collection).books.find((x) => x.id === item.book)?.name || item.book;
+    return bookName + " " + item.chapter + separator + item.verse;
 }
 
 function createSelectedVerses() {
@@ -137,7 +138,8 @@ function createSelectedVerses() {
             if (index > -1 && index < selections.length) {
                 const selection = selections[index];
                 const separator = config.bookCollections.find((x) => x.id === selection.collection).features["ref-chapter-verse-separator"];
-                return selection.book + " " + selection.chapter + separator + selection.verse;
+                const bookName = config.bookCollections.find((x) => x.id === selection.collection).books.find((x) => x.id === selection.book)?.name || selection.book;
+                return bookName + " " + selection.chapter + separator + selection.verse;
             } else {
                 return '';
             }
