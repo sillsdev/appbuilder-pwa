@@ -39,7 +39,9 @@ The sidebar/drawer.
     }
 
     const menuItems = config?.menuItems;
-    const showLayouts = config.mainFeatures['layout-config-change-nav-drawer-menu'];
+    const showLayouts =
+        config.mainFeatures['layout-config-change-nav-drawer-menu'] &&
+        config.bookCollections.length > 1;
     const showSearch = config.mainFeatures['search'];
     const showHistory = config.mainFeatures['history'];
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
