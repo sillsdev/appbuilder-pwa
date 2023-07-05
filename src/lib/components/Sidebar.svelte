@@ -90,6 +90,20 @@ The sidebar/drawer.
                     />
                 </picture>
             </a>
+            {#if showAccount}
+                <li>
+                    <a href="{base}/account" style:color={textColor} style:direction={$direction}>
+                        <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
+                    </a>
+                </li>
+            {/if}
+            {#if showSearch}
+                <li>
+                    <a href="{base}/search" style:color={textColor} style:direction={$direction}>
+                        <SearchIcon color={iconColor} />{$t['Menu_Search']}
+                    </a>
+                </li>
+            {/if}
             {#if showLayouts}
                 <li>
                     <!-- svelte-ignore a11y-missing-attribute -->
@@ -102,22 +116,8 @@ The sidebar/drawer.
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>
-                <div class="dy-divider m-1" />
             {/if}
-            {#if showAccount}
-                <li>
-                    <a href="{base}/account" style:color={textColor} style:direction={$direction}>
-                        <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
-                    </a>
-                </li>
-                <div class="dy-divider m-1" />
-            {/if}
-            {#if showSearch}
-                <li>
-                    <a href="{base}/search" style:color={textColor} style:direction={$direction}>
-                        <SearchIcon color={iconColor} />{$t['Menu_Search']}
-                    </a>
-                </li>
+            {#if showAccount || showSearch || showLayouts}
                 <div class="dy-divider m-1" />
             {/if}
             {#if showHistory}
