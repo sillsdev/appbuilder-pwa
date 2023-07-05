@@ -6,6 +6,7 @@ The sidebar/drawer.
     import {
         AccountIcon,
         SearchIcon,
+        BibleIcon,
         HistoryIcon,
         BookmarkIcon,
         NoteIcon,
@@ -27,6 +28,7 @@ The sidebar/drawer.
         showDesktopSidebar,
         direction
     } from '$lib/data/stores';
+    import CollectionSelector from './CollectionSelector.svelte';
     const drawerId = 'sidebar';
     let menuToggle = false;
 
@@ -38,6 +40,7 @@ The sidebar/drawer.
     }
 
     const menuItems = config?.menuItems;
+    const showLayouts = config.mainFeatures['layout-config-change-nav-drawer-menu'];
     const showSearch = config.mainFeatures['search'];
     const showHistory = config.mainFeatures['history'];
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
@@ -86,6 +89,20 @@ The sidebar/drawer.
                     />
                 </picture>
             </a>
+            {#if showLayouts}
+                <li>
+                    <!-- svelte-ignore a11y-missing-attribute -->
+                    <button
+                        style:color={textColor}
+                        style:direction={$direction}
+                        class="btn"
+                        onclick="collectionSelector.showModal()"
+                    >
+                        <BibleIcon color={iconColor} />{$t['Menu_Layout']}
+                    </button>
+                </li>
+                <div class="dy-divider m-1" />
+            {/if}
             {#if showAccount}
                 <li>
                     <a href="{base}/account" style:color={textColor} style:direction={$direction}>
