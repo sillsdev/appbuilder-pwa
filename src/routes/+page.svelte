@@ -10,10 +10,12 @@
         bodyFontSize,
         bodyLineHeight,
         bookmarks,
+        convertStyle,
         highlights,
         mainScroll,
         notes,
         refs,
+        s,
         scrolls,
         selectedVerses,
         showDesktopSidebar,
@@ -94,6 +96,7 @@
     const showCollections =
         config.bookCollections.length > 1 &&
         config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
@@ -325,7 +328,17 @@
             </div>
         </Navbar>
     </div>
-
+    <!-- {#if showCollectionViewer && showCollections} -->
+    {#if true}
+        <div
+            class="dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 ml-auto m-0.5 cursor-pointer"
+            style:background-color={convertStyle($s['ui.pane1'])}
+            style={convertStyle($s['ui.pane1.name'])}
+            onclick="collectionSelector.showModal()"
+        >
+            {$refs.docSet}
+        </div>
+    {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <ScrolledContent>
             <div
