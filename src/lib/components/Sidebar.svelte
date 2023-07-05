@@ -28,7 +28,6 @@ The sidebar/drawer.
         showDesktopSidebar,
         direction
     } from '$lib/data/stores';
-    import CollectionSelector from './CollectionSelector.svelte';
     const drawerId = 'sidebar';
     let menuToggle = false;
 

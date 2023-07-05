@@ -11,7 +11,6 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     export let useLabel = true; //If this is set to false, there will be no button/label with this modal to open it, and the modal may be initialized without filling the label slot.
     export function showModal() {
         //This exported function allows buttons/labels in other divs to trigger the modal popup (see handleTextAppearanceSelector() and handleCollectionSelector() in +page.svelte).
-        console.log('m opened');
         dialog.showModal();
     }
     export let addCSS = 'position: absolute; top: 1rem;'; //Here addCSS is a prop for injecting CSS into the modal contents div/form below.
