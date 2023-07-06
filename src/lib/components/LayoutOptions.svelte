@@ -9,6 +9,7 @@ Displays the three different layout option menus.
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import { themeColors, s, t, convertStyle, nextDocSet } from '$lib/data/stores';
+    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
 

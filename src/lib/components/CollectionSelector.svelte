@@ -18,7 +18,7 @@ Book Collection Selector component.
     // ToDo: If showSinglePane false, provide first availible visible option instead
     $: showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
     $: showSideBySide = config.layouts.find((x) => x.mode === LAYOUT_TWO).enabled;
-    $: showVerseByVerse = config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled; 
+    $: showVerseByVerse = config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled;
 
     export function showModal() {
         modal.showModal();
@@ -35,12 +35,12 @@ Book Collection Selector component.
     function navigateReference(e) {
         console.log(e.detail.tab);
         switch (e.detail.tab) {
-            case 'Single Pane':
+            case LAYOUT_SINGLE:
                 docSet = $nextDocSet.singlePane.id;
                 break;
-            case 'Side By Side':
+            case LAYOUT_TWO:
                 break;
-            case 'Verse By Verse':
+            case LAYOUT_VERSE_BY_VERSE:
                 break;
             default:
                 break;
