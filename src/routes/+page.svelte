@@ -331,7 +331,7 @@
     {#if showCollectionViewer && showCollections}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 right-0 m-0.5 cursor-pointer"
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 right-2 m-1 cursor-pointer"
             style:top={navBarHeight}
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
