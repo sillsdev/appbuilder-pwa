@@ -9,15 +9,16 @@ Book Collection Selector component.
     import config from '$lib/data/config';
     import { convertStyle, refs, nextDocSet, s, t } from '$lib/data/stores';
     import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const modalId = 'collectionSelector';
     let docSet = $refs.docSet;
     let modal;
 
     // ToDo: If showSinglePane false, provide first availible visible option instead
-    $: showSinglePane = config.layouts.find((x) => x.mode === 'single').enabled;
-    $: showSideBySide = config.layouts.find((x) => x.mode === 'two').enabled;
-    $: showVerseByVerse = config.layouts.find((x) => x.mode === 'verse-by-verse').enabled;
+    $: showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
+    $: showSideBySide = config.layouts.find((x) => x.mode === LAYOUT_TWO).enabled;
+    $: showVerseByVerse = config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled; 
 
     export function showModal() {
         modal.showModal();
