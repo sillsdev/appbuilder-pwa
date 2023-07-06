@@ -91,7 +91,9 @@
     );
 
     const showSearch = config.mainFeatures['search'];
-    const showCollections = config.bookCollections.length > 1;
+    const showCollections =
+        config.bookCollections.length > 1 &&
+        config.mainFeatures['layout-config-change-toolbar-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
