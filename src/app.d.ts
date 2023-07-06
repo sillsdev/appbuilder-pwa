@@ -55,6 +55,8 @@ declare namespace App {
     interface CollectionEntry {
         id: string;
         name: string;
+        // boolean value for if a collection is allowed
+        // to be shown in single pane view
         singlePane: boolean;
         description: string;
     }
