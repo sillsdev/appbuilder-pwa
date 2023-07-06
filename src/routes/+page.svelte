@@ -92,6 +92,8 @@
         $refs.book
     );
 
+    $: console.log($refs);
+
     const showSearch = config.mainFeatures['search'];
     const showCollections =
         config.bookCollections.length > 1 &&
@@ -330,13 +332,15 @@
     </div>
     <!-- {#if showCollectionViewer && showCollections} -->
     {#if true}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
-            class="dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 ml-auto m-0.5 cursor-pointer"
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 right-0 m-0.5 cursor-pointer"
+            style:top={navBarHeight}
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
-            onclick="collectionSelector.showModal()"
+            on:click={handleCollectionSelector}
         >
-            {$refs.docSet}
+            {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
