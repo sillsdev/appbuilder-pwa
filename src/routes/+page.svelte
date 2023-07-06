@@ -330,8 +330,7 @@
             </div>
         </Navbar>
     </div>
-    <!-- {#if showCollectionViewer && showCollections} -->
-    {#if true}
+    {#if showCollectionViewer && showCollections}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
             class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 right-0 m-0.5 cursor-pointer"
