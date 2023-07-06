@@ -28,7 +28,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     <form
         method="dialog"
         style={convertStyle($s['ui.dialog']) + addCSS}
-        class="dy-modal-box relative"
+        class="dy-modal-box overflow-y-visible relative"
     >
         <slot name="content" /><!--This is the slot for the popup's actual contents-->
     </form>

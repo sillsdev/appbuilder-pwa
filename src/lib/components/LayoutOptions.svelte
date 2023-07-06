@@ -1,86 +1,168 @@
 <!--
 @component
-Displays the three different layout options.  
-TODO:
-- functionality...
+Displays the three different layout option menus.  
 -->
 <script lang="ts">
-    import { onDestroy, createEventDispatcher } from 'svelte';
-    import { catalog } from '$lib/data/catalog';
+    import { createEventDispatcher } from 'svelte';
+    import Dropdown from './Dropdown.svelte';
+    import CollectionList from './CollectionList.svelte';
+    import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
-    import { refs, themeColors, s, t, convertStyle } from '$lib/data/stores';
+    import { themeColors, s, t, convertStyle, nextDocSet } from '$lib/data/stores';
+    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
-    export let layoutOption = '';
     const dispatch = createEventDispatcher();
 
-    let nextDocSet;
+    export let layoutOption = '';
 
-    const docSetList = catalog.map((ds) => ds.id);
-    const allowSinglePane = config.bookCollections.map((ds) => ({
+    const blank = {
+        id: '',
+        name: '--------',
+        singlePane: false,
+        description: ''
+    };
+
+    const allDocSets = config.bookCollections.map((ds) => ({
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
         singlePane: ds.features['bc-allow-single-pane'],
         description: ds?.collectionDescription
     }));
 
-    function handleClick(opt) {
-        refs.set({ docSet: opt, book: $refs.book, chapter: $refs.chapter });
-        nextDocSet = opt;
+    function handleClick(opt: any, index: number) {
+        const docSet = opt.detail.collection;
+        switch (layoutOption) {
+            case 'Single Pane':
+                $nextDocSet.singlePane = docSet;
+                break;
+            case 'Side By Side':
+                $nextDocSet.sideBySide[index] = docSet;
+                for (let i = 0; i < $nextDocSet.sideBySide.length; i++) {
+                    if (i === index) {
+                        // if found self
+                        continue;
+                    } else if ($nextDocSet.sideBySide[i].id === docSet.id) {
+                        // if this is a repeat value of self
+                        $nextDocSet.sideBySide[i] = allDocSets.filter(
+                            (x) => $nextDocSet.sideBySide.includes(x) === false
+                        )[0];
+                    }
+                }
+                break;
+            case 'Verse By Verse':
+                $nextDocSet.verseByVerse[index] = docSet;
+                for (let i = 0; i < $nextDocSet.verseByVerse.length; i++) {
+                    if (i === index) {
+                        // if found self
+                        continue;
+                    } else if ($nextDocSet.verseByVerse[i].id === docSet.id) {
+                        // if this is a repeat value of self
+                        $nextDocSet.verseByVerse[i] = allDocSets.filter(
+                            (x) => $nextDocSet.verseByVerse.includes(x) === false
+                        )[0];
+                    }
+                }
+                break;
+        }
         dispatch('menuaction', {
-            text: opt
+            collection: opt
         });
+        (document.activeElement as HTMLElement).blur();
     }
 </script>
 
-<div class="w-60 p-2">
+<div>
     <!-- Single Pane -->
     {#if layoutOption === 'Single Pane'}
-        <p style:color={$themeColors['LayoutTitleColor']}>
-            <strong>{$t['Layout_Single_Pane']}</strong>
+        <p class="py-2" style={convertStyle($s['ui.layouts.selector'])}>
+            {$t['Layout_Single_Pane']}
         </p>
-        <ul class="dy-menu mx-auto">
-            {#each allowSinglePane.filter((x) => x.singlePane === true) as d}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <li>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <a
-                        on:click={() => handleClick(d.id)}
-                        class={nextDocSet === d.id ? 'dy-active' : ''}
-                        style={convertStyle($s['ui.layouts.selector'])}
-                        style:background-color={nextDocSet === d.id
-                            ? $themeColors['LayoutItemSelectedBackgroundColor']
-                            : $themeColors['LayoutBackgroundColor']}
-                    >
-                        <div class="dy-relative">
-                            <div class={convertStyle($s['ui.layouts.title'])}>
-                                {d.name}
-                            </div>
-                            {#if d.description}
-                                <div class="text-sm">{d.description}</div>
-                            {/if}
-                        </div>
-                    </a>
-                </li>
-            {/each}
-        </ul>
+        <CollectionList
+            docSets={allDocSets.filter((x) => x.singlePane === true)}
+            nextDocSet={$nextDocSet.singlePane}
+            on:menuaction={(event) => handleClick(event, 0)}
+        />
         <!-- Side by Side -->
     {:else if layoutOption === 'Side By Side'}
-        <p style:color={$themeColors['LayoutTitleColor']}>
-            <strong>{$t['Layout_Two_Pane']}</strong>
+        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+            {$t['Layout_Two_Pane']}
         </p>
-        <ul class="dy-menu mx-auto" />
+        <div class="flex flex-col">
+            {#each $nextDocSet.sideBySide as collection, i}
+                <div>
+                    <Dropdown>
+                        <svelte:fragment slot="label">
+                            <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
+                                {i + 1}.
+                            </div>
+                            <div class="dy-relative font-normal normal-case text-left">
+                                <div style={convertStyle($s['ui.layouts.title'])}>
+                                    {collection.name}
+                                </div>
+                                {#if collection.description}
+                                    <div
+                                        class="text-sm"
+                                        style={convertStyle($s['ui.layouts.selector'])}
+                                    >
+                                        {collection.description}
+                                    </div>
+                                {/if}
+                            </div>
+                            <div class="px-3">
+                                <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                            </div>
+                        </svelte:fragment>
+                        <svelte:fragment slot="content">
+                            <CollectionList
+                                docSets={allDocSets}
+                                nextDocSet={collection}
+                                on:menuaction={(event) => {
+                                    handleClick(event, i);
+                                }}
+                            />
+                        </svelte:fragment>
+                    </Dropdown>
+                </div>
+            {/each}
+        </div>
         <!-- Verse By Verse -->
     {:else if layoutOption === 'Verse By Verse'}
-        <p style:color={$themeColors['LayoutTitleColor']}>
-            <strong>{$t['Layout_Interlinear']}</strong>
+        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+            {$t['Layout_Interlinear']}
         </p>
-        <ul class="dy-menu mx-auto" />
+        {#each $nextDocSet.verseByVerse as collection, i}
+            <div>
+                <Dropdown>
+                    <svelte:fragment slot="label">
+                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
+                            {i + 1}.
+                        </div>
+                        <div class="dy-relative font-normal normal-case text-left">
+                            <div style={convertStyle($s['ui.layouts.title'])}>
+                                {collection.name}
+                            </div>
+                            {#if collection.description}
+                                <div
+                                    class="text-sm"
+                                    style={convertStyle($s['ui.layouts.selector'])}
+                                >
+                                    {collection.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s['ui.layouts.selector'].color} />
+                        </div>
+                    </svelte:fragment>
+                    <svelte:fragment slot="content">
+                        <CollectionList
+                            docSets={i === 2 ? [blank, ...allDocSets] : allDocSets}
+                            nextDocSet={collection}
+                            on:menuaction={(event) => handleClick(event, i)}
+                        />
+                    </svelte:fragment>
+                </Dropdown>
+            </div>
+        {/each}
     {/if}
 </div>
-
-<style>
-    a {
-        display: flex;
-        justify-content: space-between;
-    }
-</style>

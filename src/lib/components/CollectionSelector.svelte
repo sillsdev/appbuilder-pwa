@@ -6,12 +6,20 @@ Book Collection Selector component.
     import Modal from './Modal.svelte';
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { convertStyle, refs, s } from '$lib/data/stores';
-    import { BibleIcon, SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+    import config from '$lib/data/config';
+    import { convertStyle, refs, nextDocSet, s, t } from '$lib/data/stores';
+    import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
+    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
-    let modalId = 'collectionSelector';
+    const modalId = 'collectionSelector';
     let docSet = $refs.docSet;
     let modal;
+
+    // ToDo: If showSinglePane false, provide first availible visible option instead
+    $: showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
+    $: showSideBySide = config.layouts.find((x) => x.mode === LAYOUT_TWO).enabled;
+    $: showVerseByVerse = config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled;
+
     export function showModal() {
         modal.showModal();
     }
@@ -23,53 +31,73 @@ Book Collection Selector component.
         (Number(vertOffset.replace('rem', '')) + 1) +
         'rem; right:1rem;';
 
+    // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
+        console.log(e.detail.tab);
         switch (e.detail.tab) {
-            case 'Single Pane':
-                docSet = e.detail.text;
-                // force closes active dropdown elements
-                document.activeElement.blur();
+            case LAYOUT_SINGLE:
+                docSet = $nextDocSet.singlePane.id;
+                break;
+            case LAYOUT_TWO:
+                break;
+            case LAYOUT_VERSE_BY_VERSE:
                 break;
             default:
-                console.log('Collection navigateReference: Default');
                 break;
         }
     }
+
+    // ToDo
+    function handleOk() {
+        $refs.docSet = docSet;
+    }
+    // ToDo
+    function handleCancel() {
+        docSet = $refs.docSet;
+    }
 </script>
 
-<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
-    ><!--addCSS is a prop for injecting CSS into the modal-->
-
+<!--addCSS is a prop for injecting CSS into the modal-->
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}>
     <svelte:fragment slot="content">
-        <!-- TODO: Include other layout options -->
         <TabsMenu
             options={{
                 'Single Pane': {
                     tab: { component: SinglePaneIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Single Pane' }
+                    props: { layoutOption: 'Single Pane' },
+                    visible: showSinglePane
+                },
+                'Side By Side': {
+                    tab: { component: SideBySideIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Side By Side' },
+                    visible: showSideBySide
+                },
+                'Verse By Verse': {
+                    tab: { component: VerseByVerseIcon },
+                    component: LayoutOptions,
+                    props: { layoutOption: 'Verse By Verse' },
+                    visible: showVerseByVerse
                 }
             }}
             active="Single Pane"
+            scroll={false}
             on:menuaction={navigateReference}
         />
-        <div style:justify-content="space-between" class="flex w-full dy-modal-action">
+        <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <button
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => (docSet = $refs.docSet)}
+                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
+                on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
             >
-                Cancel
-            </button>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <button
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost dy-no-animation"
-                on:click={() => ($refs.docSet = docSet)}
+                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
+                on:click={() => handleOk()}>{$t['Button_OK']}</button
             >
-                Ok
-            </button>
         </div>
     </svelte:fragment>
 </Modal>
