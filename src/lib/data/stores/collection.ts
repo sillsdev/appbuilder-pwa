@@ -33,8 +33,10 @@ function createInitDocSet(): App.CollectionGroup {
                 App.CollectionEntry
             ];
 
-            // If there is no third docSet, set it to the blank value
-            if (docSets.length < 3) {
+            // If there is no third docSet 
+            // and there are greater than 2 project book collections
+            // set it to the blank value
+            if (docSets.length < 3 && config.bookCollections.length > 2) {
                 initDocSets.verseByVerse[2] = {
                     id: '',
                     name: '--------',
