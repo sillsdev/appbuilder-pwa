@@ -579,8 +579,9 @@ function convertConfig(dataDir: string, verbose: number) {
             if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
             const localizations: typeof data.translationMappings.mappings.key = {};
             for (const localization of tag.getElementsByTagName('t')) {
-                localizations[localization.attributes.getNamedItem('lang')!.value] =
-                decodeFromXml(localization.innerHTML);
+                localizations[localization.attributes.getNamedItem('lang')!.value] = decodeFromXml(
+                    localization.innerHTML
+                );
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
             data.translationMappings.mappings[tag.id] = localizations;
