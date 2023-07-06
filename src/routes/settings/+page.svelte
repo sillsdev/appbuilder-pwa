@@ -19,7 +19,7 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh; font-family: initial;">
     <div class="navbar h-16">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
