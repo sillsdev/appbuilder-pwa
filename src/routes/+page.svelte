@@ -92,8 +92,6 @@
         $refs.book
     );
 
-    $: console.log($refs);
-
     const showSearch = config.mainFeatures['search'];
     const showCollections =
         config.bookCollections.length > 1 &&
