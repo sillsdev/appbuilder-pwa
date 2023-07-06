@@ -26,7 +26,10 @@ The sidebar/drawer.
         language,
         languageDefault,
         showDesktopSidebar,
-        direction
+        direction,
+        modal,
+        MODAL_TEXT_APPERANCE,
+        MODAL_COLLECTION
     } from '$lib/data/stores';
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -111,7 +114,7 @@ The sidebar/drawer.
                         style:color={textColor}
                         style:direction={$direction}
                         class="btn"
-                        onclick="collectionSelector.showModal()"
+                        on:click={() => modal.open(MODAL_COLLECTION)}
                     >
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
@@ -170,9 +173,14 @@ The sidebar/drawer.
             </li>
             <!-- svelte-ignore a11y-missing-attribute -->
             <li>
-                <a style:color={textColor} style:direction={$direction}>
+                <button
+                    style:color={textColor}
+                    style:direction={$direction}
+                    class="btn"
+                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
-                </a>
+                </button>
             </li>
             <div class="dy-divider m-1" />
             {#if menuItems}
