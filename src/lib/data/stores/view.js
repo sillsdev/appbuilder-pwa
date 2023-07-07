@@ -3,6 +3,8 @@ import { derived, writable, get } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 import { userSettings } from './setting';
 
+export const NAVBAR_HEIGHT = '4rem';
+
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
