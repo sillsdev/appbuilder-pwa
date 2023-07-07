@@ -29,7 +29,7 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div class="overflow-y-auto" style:direction={$direction}>
+    <div class="overflow-y-auto">
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
             <div class="settings-category">

@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import type { HistoryItem } from '$lib/data/history';
-    import { direction, refs } from '$lib/data/stores';
+    import { refs } from '$lib/data/stores';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -21,12 +21,10 @@ TODO:
         ? history.chapter + chapterVerseSeparator + history.verse
         : history.chapter;
     $: dateFormat = formatDateAndTime(new Date(history.date));
+    $: textDirection = bc.style.textDirection;
 </script>
 
-<div
-    class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4"
-    style:direction={$direction}
->
+<div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <a
         style="text-decoration:none;"
@@ -41,7 +39,13 @@ TODO:
             {#if bcName}
                 <div class="history-item-book-collection">{bcName}</div>
             {/if}
-            <div class="history-item-reference justify-self-start">{bookName} {reference}</div>
+            <div
+                class="history-item-reference justify-self-start"
+                class:justify-self-end={textDirection.toLowerCase() === 'rtl'}
+            >
+                {bookName}
+                {reference}
+            </div>
             <div class="history-item-date justify-self-start">{dateFormat}</div>
         </div>
     </a>

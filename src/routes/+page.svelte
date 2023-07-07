@@ -320,12 +320,11 @@
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
             on:click={() => modal.open(MODAL_COLLECTION)}
-            style:direction={$direction}
         >
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto" style:direction={$direction}>
+    <div class:borderimg={showBorder} class="overflow-y-auto">
         <ScrolledContent>
             <div
                 slot="scrolled-content"

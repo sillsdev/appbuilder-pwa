@@ -29,7 +29,7 @@ Book Collection Selector component.
     $: positioningCSS =
         'position:absolute; top:' +
         (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; right:1rem;';
+        'rem; inset-inline-end:1rem;';
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {

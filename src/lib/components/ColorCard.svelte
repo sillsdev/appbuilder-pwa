@@ -14,7 +14,7 @@ TODO:
     export let penColor = 1;
 </script>
 
-<div class="annotation-item-block dy-card" style:direction={$direction}>
+<div class="annotation-item-block dy-card">
     <div class="color-card">
         <div class="annotation-item-color {'hlp' + penColor.toString()} self-center" />
         <div class="annotation-item-reference justify-self-start self-center">{reference}</div>

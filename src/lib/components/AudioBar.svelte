@@ -197,7 +197,7 @@ TODO:
     $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
-<div class={audioBarClass} style:background-color={backgroundColor} style:direction={$direction}>
+<div class={audioBarClass} style:background-color={backgroundColor}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
             <button
