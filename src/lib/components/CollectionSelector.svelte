@@ -33,8 +33,6 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
-        console.log(e.detail.tab, $nextDocSet.singlePane.id);
-        console.log('single', LAYOUT_SINGLE === e.detail.tab);
         switch (e.detail.tab) {
             case LAYOUT_SINGLE:
                 docSet = $nextDocSet.singlePane.id;
@@ -44,7 +42,6 @@ Book Collection Selector component.
             case LAYOUT_VERSE_BY_VERSE:
                 break;
             default:
-                console.log('default');
                 break;
         }
     }
@@ -52,7 +49,6 @@ Book Collection Selector component.
     // ToDo
     function handleOk() {
         $refs.docSet = docSet;
-        console.log('handled ok', docSet, $refs.docSet);
     }
     // ToDo
     function handleCancel() {
