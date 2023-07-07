@@ -1227,6 +1227,8 @@ TODO:
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === currentDocSet).documents;
+    $: direction = config.bookCollections.find((x) => x.id === references.collection).style
+        .textDirection;
 
     $: (() => {
         performance.mark('query-start');
@@ -1270,5 +1272,6 @@ TODO:
         style:font-size={fontSize}
         style:line-height={lineHeight}
         class="single"
+        style:direction
     />
 </article>

@@ -6,7 +6,8 @@
         theme,
         modal,
         MODAL_COLLECTION,
-        MODAL_TEXT_APPERANCE
+        MODAL_TEXT_APPERANCE,
+        NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { base } from '$app/paths';
     import '$lib/app.css';
@@ -33,7 +34,6 @@
 
     let textAppearanceSelector;
     let collectionSelector;
-    let navBarHeight = '4rem';
 </script>
 
 <svelte:head>
@@ -47,14 +47,14 @@
     <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 
     <!-- Text Appearance Options Menu -->
-    <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={navBarHeight} />
+    <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
     <!-- Collection Selector Menu -->
-    <CollectionSelector bind:this={collectionSelector} vertOffset={navBarHeight} />
+    <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
 </div>
 
 <Sidebar on:showModal={showModal}>
     <div id="container" data-color-theme={$theme} style="height:100vh;height:100dvh;">
-        <slot {navBarHeight} />
+        <slot />
     </div>
 </Sidebar>

@@ -10,6 +10,7 @@
         bodyLineHeight,
         bookmarks,
         convertStyle,
+        direction,
         highlights,
         mainScroll,
         notes,
@@ -22,7 +23,8 @@
         userSettings,
         modal,
         MODAL_TEXT_APPERANCE,
-        MODAL_COLLECTION
+        MODAL_COLLECTION,
+        NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
@@ -222,7 +224,7 @@
     };
     $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
 
-    export let navBarHeight;
+    const navBarHeight = NAVBAR_HEIGHT;
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
@@ -313,16 +315,17 @@
     {#if showCollectionViewer && showCollections}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 right-2 m-1 cursor-pointer"
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
             style:top={navBarHeight}
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
-            on:click={handleCollectionSelector}
+            on:click={() => modal.open(MODAL_COLLECTION)}
+            style:direction={$direction}
         >
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto">
+    <div class:borderimg={showBorder} class="overflow-y-auto" style:direction={$direction}>
         <ScrolledContent>
             <div
                 slot="scrolled-content"
