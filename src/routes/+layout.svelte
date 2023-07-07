@@ -1,6 +1,7 @@
 <script lang="ts">
     import Sidebar from '$lib/components/Sidebar.svelte';
     import {
+        direction,
         s,
         refs,
         theme,
@@ -54,7 +55,12 @@
 </div>
 
 <Sidebar on:showModal={showModal}>
-    <div id="container" data-color-theme={$theme} style="height:100vh;height:100dvh;">
+    <div
+        id="container"
+        data-color-theme={$theme}
+        style="height:100vh;height:100dvh;"
+        style:direction={$direction}
+    >
         <slot />
     </div>
 </Sidebar>

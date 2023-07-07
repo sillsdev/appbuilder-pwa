@@ -5,7 +5,7 @@ A simple modal component from DaisyUI. Closes when clicked outside of.
 See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 -->
 <script>
-    import { s, convertStyle } from '$lib/data/stores';
+    import { direction, s, convertStyle } from '$lib/data/stores';
     export let id;
     let dialog;
     export let useLabel = true; //If this is set to false, there will be no button/label with this modal to open it, and the modal may be initialized without filling the label slot.
@@ -24,7 +24,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     </label>
 {/if}
 
-<dialog bind:this={dialog} {id} class="dy-modal cursor-pointer">
+<dialog bind:this={dialog} {id} class="dy-modal cursor-pointer" style:direction={$direction}>
     <form
         method="dialog"
         style={convertStyle($s['ui.dialog']) + addCSS}
