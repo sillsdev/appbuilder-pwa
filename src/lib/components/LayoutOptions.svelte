@@ -13,7 +13,7 @@ Displays the three different layout option menus.
 
     const dispatch = createEventDispatcher();
 
-    export let layoutOption = '';
+    export let layoutOption;
 
     const blank = {
         id: '',
@@ -32,10 +32,10 @@ Displays the three different layout option menus.
     function handleClick(opt: any, index: number) {
         const docSet = opt.detail.collection;
         switch (layoutOption) {
-            case 'Single Pane':
+            case LAYOUT_SINGLE:
                 $nextDocSet.singlePane = docSet;
                 break;
-            case 'Side By Side':
+            case LAYOUT_TWO:
                 $nextDocSet.sideBySide[index] = docSet;
                 for (let i = 0; i < $nextDocSet.sideBySide.length; i++) {
                     if (i === index) {
@@ -49,7 +49,7 @@ Displays the three different layout option menus.
                     }
                 }
                 break;
-            case 'Verse By Verse':
+            case LAYOUT_VERSE_BY_VERSE:
                 $nextDocSet.verseByVerse[index] = docSet;
                 for (let i = 0; i < $nextDocSet.verseByVerse.length; i++) {
                     if (i === index) {
@@ -73,8 +73,8 @@ Displays the three different layout option menus.
 
 <div>
     <!-- Single Pane -->
-    {#if layoutOption === 'Single Pane'}
-        <p class="py-2" style={convertStyle($s['ui.layouts.selector'])}>
+    {#if layoutOption === LAYOUT_SINGLE}
+        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Single_Pane']}
         </p>
         <CollectionList
@@ -82,8 +82,8 @@ Displays the three different layout option menus.
             nextDocSet={$nextDocSet.singlePane}
             on:menuaction={(event) => handleClick(event, 0)}
         />
-        <!-- Side by Side -->
-    {:else if layoutOption === 'Side By Side'}
+        <!-- Two Pane -->
+    {:else if layoutOption === LAYOUT_TWO}
         <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Two_Pane']}
         </p>
@@ -126,7 +126,7 @@ Displays the three different layout option menus.
             {/each}
         </div>
         <!-- Verse By Verse -->
-    {:else if layoutOption === 'Verse By Verse'}
+    {:else if layoutOption === LAYOUT_VERSE_BY_VERSE}
         <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Interlinear']}
         </p>
