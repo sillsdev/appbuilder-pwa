@@ -9,10 +9,12 @@
         bodyFontSize,
         bodyLineHeight,
         bookmarks,
+        convertStyle,
         highlights,
         mainScroll,
         notes,
         refs,
+        s,
         scrolls,
         selectedVerses,
         showDesktopSidebar,
@@ -95,6 +97,7 @@
     const showCollections =
         config.bookCollections.length > 1 &&
         config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
@@ -307,7 +310,18 @@
             </div>
         </Navbar>
     </div>
-
+    {#if showCollectionViewer && showCollections}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 right-2 m-1 cursor-pointer"
+            style:top={navBarHeight}
+            style:background-color={convertStyle($s['ui.pane1'])}
+            style={convertStyle($s['ui.pane1.name'])}
+            on:click={handleCollectionSelector}
+        >
+            {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
+        </div>
+    {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <ScrolledContent>
             <div
