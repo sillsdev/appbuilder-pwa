@@ -12,7 +12,7 @@ Book Collection Selector component.
     import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const modalId = 'collectionSelector';
-    let docSet = $refs.docSet;
+    let docSet;
     let modal;
 
     // ToDo: If showSinglePane false, provide first availible visible option instead
@@ -33,7 +33,6 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
-        console.log(e.detail.tab);
         switch (e.detail.tab) {
             case LAYOUT_SINGLE:
                 docSet = $nextDocSet.singlePane.id;
@@ -62,26 +61,25 @@ Book Collection Selector component.
     <svelte:fragment slot="content">
         <TabsMenu
             options={{
-                'Single Pane': {
+                [LAYOUT_SINGLE]: {
                     tab: { component: SinglePaneIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Single Pane' },
+                    props: { layoutOption: LAYOUT_SINGLE },
                     visible: showSinglePane
                 },
-                'Side By Side': {
+                [LAYOUT_TWO]: {
                     tab: { component: SideBySideIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Side By Side' },
+                    props: { layoutOption: LAYOUT_TWO },
                     visible: showSideBySide
                 },
-                'Verse By Verse': {
+                [LAYOUT_VERSE_BY_VERSE]: {
                     tab: { component: VerseByVerseIcon },
                     component: LayoutOptions,
-                    props: { layoutOption: 'Verse By Verse' },
+                    props: { layoutOption: LAYOUT_VERSE_BY_VERSE },
                     visible: showVerseByVerse
                 }
             }}
-            active="Single Pane"
             scroll={false}
             on:menuaction={navigateReference}
         />
