@@ -2,7 +2,6 @@
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioActive,
@@ -18,7 +17,10 @@
         selectedVerses,
         showDesktopSidebar,
         themeColors,
-        userSettings
+        userSettings,
+        modal,
+        MODAL_TEXT_APPERANCE,
+        MODAL_COLLECTION
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
@@ -31,7 +33,6 @@
         TextAppearanceIcon
     } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { getFeatureValueString } from '$lib/scripts/configUtils';
@@ -218,28 +219,8 @@
     };
     $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
 
-    let textAppearanceSelector;
-    function handleTextAppearanceSelector() {
-        textAppearanceSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
-    }
-
-    let collectionSelector;
-    function handleCollectionSelector() {
-        collectionSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
-    }
-
-    let navBarHeight = '4rem';
+    export let navBarHeight;
 </script>
-
-<div>
-    <!--Div containing the popup modals triggered by the navBar buttons:-->
-
-    <!-- Text Appearance Options Menu -->
-    <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={navBarHeight} />
-
-    <!-- Collection Selector Menu -->
-    <CollectionSelector bind:this={collectionSelector} vertOffset={navBarHeight} />
-</div>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
     <div class="navbar" style="height: {navBarHeight};">
@@ -286,7 +267,7 @@
                     <label
                         for="textAppearanceSelector"
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                        on:click={handleTextAppearanceSelector}
+                        on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
                         ><TextAppearanceIcon color="white" /></label
                     >
 
@@ -302,7 +283,8 @@
                         <label
                             for="collectionSelector"
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                            on:click={handleCollectionSelector}><BibleIcon color="white" /></label
+                            on:click={() => modal.open(MODAL_COLLECTION)}
+                            ><BibleIcon color="white" /></label
                         >
                     {/if}
                 </div>

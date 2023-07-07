@@ -6,6 +6,7 @@ The sidebar/drawer.
     import {
         AccountIcon,
         SearchIcon,
+        BibleIcon,
         HistoryIcon,
         BookmarkIcon,
         NoteIcon,
@@ -25,7 +26,10 @@ The sidebar/drawer.
         language,
         languageDefault,
         showDesktopSidebar,
-        direction
+        direction,
+        modal,
+        MODAL_TEXT_APPERANCE,
+        MODAL_COLLECTION
     } from '$lib/data/stores';
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -38,6 +42,9 @@ The sidebar/drawer.
     }
 
     const menuItems = config?.menuItems;
+    const showLayouts =
+        config.mainFeatures['layout-config-change-nav-drawer-menu'] &&
+        config.bookCollections.length > 1;
     const showSearch = config.mainFeatures['search'];
     const showHistory = config.mainFeatures['history'];
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
@@ -92,7 +99,6 @@ The sidebar/drawer.
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </a>
                 </li>
-                <div class="dy-divider m-1" />
             {/if}
             {#if showSearch}
                 <li>
@@ -100,6 +106,21 @@ The sidebar/drawer.
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </a>
                 </li>
+            {/if}
+            {#if showLayouts}
+                <li>
+                    <!-- svelte-ignore a11y-missing-attribute -->
+                    <button
+                        style:color={textColor}
+                        style:direction={$direction}
+                        class="btn"
+                        on:click={() => modal.open(MODAL_COLLECTION)}
+                    >
+                        <BibleIcon color={iconColor} />{$t['Menu_Layout']}
+                    </button>
+                </li>
+            {/if}
+            {#if showAccount || showSearch || showLayouts}
                 <div class="dy-divider m-1" />
             {/if}
             {#if showHistory}
@@ -152,9 +173,14 @@ The sidebar/drawer.
             </li>
             <!-- svelte-ignore a11y-missing-attribute -->
             <li>
-                <a style:color={textColor} style:direction={$direction}>
+                <button
+                    style:color={textColor}
+                    style:direction={$direction}
+                    class="btn"
+                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
-                </a>
+                </button>
             </li>
             <div class="dy-divider m-1" />
             {#if menuItems}
