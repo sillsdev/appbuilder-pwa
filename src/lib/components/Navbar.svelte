@@ -10,7 +10,8 @@ The navbar component.
         convertStyle,
         s,
         showDesktopSidebar,
-        direction
+        direction,
+        NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
@@ -21,7 +22,12 @@ The navbar component.
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div class="dy-navbar" style:background-color={actionBarColor} style:direction={$direction}>
+<div
+    class="dy-navbar"
+    style:height={NAVBAR_HEIGHT}
+    style:background-color={actionBarColor}
+    style:direction={$direction}
+>
     <div class="dy-navbar-start">
         {#if $page.route.id === '/'}
             <label
