@@ -9,7 +9,7 @@
     font-weight: bold; font-style: normal; 
 }
 
-body { font-family: font1; direction: LTR; font-size: 20px; font-weight: normal; font-style: normal; color: var(--TextColor); margin-top: 16px; margin-bottom: 10px; }
+body { font-family: font1; direction: LTR; font-size: 20px; font-weight: normal; font-style: normal; color: var(--TextColor); }
 body.single { margin-left: 5%; margin-right: 5%; margin-bottom: 60px; }
 body.verse-by-verse { margin-left: 5%; margin-right: 5%; margin-bottom: 60px; }
 body.about { margin-left: 4%; margin-right: 4%; color: var(--TextColor); background-color: var(--BackgroundColor); }
