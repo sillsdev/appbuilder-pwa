@@ -38,36 +38,30 @@
         highlights.sort((a, b) => {
             if (a.bookIndex > b.bookIndex) {
                 return 1;
-            }
-            else if (a.bookIndex < b.bookIndex) {
+            } else if (a.bookIndex < b.bookIndex) {
                 return -1;
-            }
-            else if (parseInt(a.chapter) > parseInt(b.chapter)) {
+            } else if (parseInt(a.chapter) > parseInt(b.chapter)) {
                 return 1;
-            }
-            else if (parseInt(a.chapter) < parseInt(b.chapter)) {
+            } else if (parseInt(a.chapter) < parseInt(b.chapter)) {
                 return -1;
-            }
-            else if (parseInt(a.verse) > parseInt(b.verse)) {
+            } else if (parseInt(a.verse) > parseInt(b.verse)) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
-        highlights = highlights
+        highlights = highlights;
     }
 
     function sortByDate() {
         highlights.sort((a, b) => {
             if (a.date < b.date) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
         highlights = highlights;
     }
@@ -76,21 +70,18 @@
         highlights.sort((a, b) => {
             if (a.penColor > b.penColor) {
                 return 1;
-            }
-            else if (a.penColor < b.penColor) {
+            } else if (a.penColor < b.penColor) {
                 return -1;
-            }
-            else if (a.date < b.date) {
+            } else if (a.date < b.date) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
         highlights = highlights;
     }
-    
+
     let highlights = $page.data.highlights;
     sortByDate();
 </script>
@@ -112,8 +103,7 @@
                         $t['Annotation_Sort_Order_Color']
                     ]
                 }}
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu}>
-                </SortMenu>
+                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             </label>
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
