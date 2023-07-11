@@ -20,7 +20,7 @@
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh; font-family: initial;">
-    <div class="navbar h-16">
+    <div class="navbar">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
