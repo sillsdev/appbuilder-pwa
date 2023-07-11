@@ -6,7 +6,7 @@
     import { t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils.js';
     import { page } from '$app/stores';
-    
+
     function handleMenuAction(event: CustomEvent, id: string) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
@@ -36,40 +36,34 @@
         bookmarks.sort((a, b) => {
             if (a.bookIndex > b.bookIndex) {
                 return 1;
-            }
-            else if (a.bookIndex < b.bookIndex) {
+            } else if (a.bookIndex < b.bookIndex) {
                 return -1;
-            }
-            else if (parseInt(a.chapter) > parseInt(b.chapter)) {
+            } else if (parseInt(a.chapter) > parseInt(b.chapter)) {
                 return 1;
-            }
-            else if (parseInt(a.chapter) < parseInt(b.chapter)) {
+            } else if (parseInt(a.chapter) < parseInt(b.chapter)) {
                 return -1;
-            }
-            else if (parseInt(a.verse) > parseInt(b.verse)) {
+            } else if (parseInt(a.verse) > parseInt(b.verse)) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
-        bookmarks = bookmarks
+        bookmarks = bookmarks;
     }
 
     function sortByDate() {
         bookmarks.sort((a, b) => {
             if (a.date < b.date) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
         bookmarks = bookmarks;
     }
-    
+
     let bookmarks = $page.data.bookmarks;
     sortByDate();
 </script>
@@ -81,7 +75,7 @@
             <label for="sidebar" slot="center">
                 <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Bookmarks']}</div>
             </label>
-            
+
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label slot="right-buttons">
                 {@const sortMenu = {
@@ -90,8 +84,7 @@
                         $t['Annotation_Sort_Order_Date']
                     ]
                 }}
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu}>
-                </SortMenu>
+                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             </label>
             <!-- <div slot="right-buttons" /> -->
         </Navbar>

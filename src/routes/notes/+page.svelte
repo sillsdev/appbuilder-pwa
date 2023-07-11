@@ -36,40 +36,34 @@
         notes.sort((a, b) => {
             if (a.bookIndex > b.bookIndex) {
                 return 1;
-            }
-            else if (a.bookIndex < b.bookIndex) {
+            } else if (a.bookIndex < b.bookIndex) {
                 return -1;
-            }
-            else if (parseInt(a.chapter) > parseInt(b.chapter)) {
+            } else if (parseInt(a.chapter) > parseInt(b.chapter)) {
                 return 1;
-            }
-            else if (parseInt(a.chapter) < parseInt(b.chapter)) {
+            } else if (parseInt(a.chapter) < parseInt(b.chapter)) {
                 return -1;
-            }
-            else if (parseInt(a.verse) > parseInt(b.verse)) {
+            } else if (parseInt(a.verse) > parseInt(b.verse)) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
-        notes = notes
+        notes = notes;
     }
 
     function sortByDate() {
         notes.sort((a, b) => {
             if (a.date < b.date) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
-        })
+        });
 
         notes = notes;
     }
-    
+
     let notes = $page.data.notes;
     sortByDate();
 </script>
@@ -90,8 +84,7 @@
                         $t['Annotation_Sort_Order_Date']
                     ]
                 }}
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu}>
-                </SortMenu>
+                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             </label>
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
