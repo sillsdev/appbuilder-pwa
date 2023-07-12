@@ -49,7 +49,7 @@ function createInitDocSet(): App.CollectionGroup {
 
 const initDocSets: App.CollectionGroup = createInitDocSet();
 
-function createSelectedDocSets() {
+function createSelectedLayouts() {
     const external = writable<App.CollectionGroup>(initDocSets);
 
     return {
@@ -60,4 +60,4 @@ function createSelectedDocSets() {
         }
     };
 }
-export const selectedDocSets = createSelectedDocSets();
+export const selectedLayouts = createSelectedLayouts();

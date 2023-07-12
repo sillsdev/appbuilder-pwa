@@ -8,7 +8,7 @@ Custom list of collections for the LayoutOptions menu
     // array of all selectable docsets
     export let docSets: App.CollectionEntry[] = [];
     // selected docset to highlight
-    export let selectedDocSets: App.CollectionEntry;
+    export let selectedLayouts: App.CollectionEntry;
 
     const dispatch = createEventDispatcher();
 
@@ -26,7 +26,7 @@ Custom list of collections for the LayoutOptions menu
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <a
                 on:click={() => handleClick(d)}
-                style:background-color={selectedDocSets.id === d.id
+                style:background-color={selectedLayouts.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}
                 class="flex justify-between"

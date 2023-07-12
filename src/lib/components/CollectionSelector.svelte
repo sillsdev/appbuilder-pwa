@@ -7,15 +7,15 @@ Book Collection Selector component.
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import config from '$lib/data/config';
-    import { convertStyle, refs, selectedDocSets, s, t } from '$lib/data/stores';
+    import { convertStyle, refs, selectedLayouts, s, t } from '$lib/data/stores';
     import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
     import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const modalId = 'collectionSelector';
     let docSet;
     let modal;
-    // values of selectedDocSets before user makes changes
-    const restoreDocSets = JSON.stringify($selectedDocSets);
+    // values of selectedLayouts before user makes changes
+    const restoreDocSets = JSON.stringify($selectedLayouts);
 
     // ToDo: If showSinglePane false, provide first availible visible option instead
     $: showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
@@ -38,7 +38,7 @@ Book Collection Selector component.
         console.log(e.detail.tab);
         switch (e.detail.tab) {
             case LAYOUT_SINGLE:
-                docSet = $selectedDocSets.singlePane.id;
+                docSet = $selectedLayouts.singlePane.id;
                 break;
             case LAYOUT_TWO:
                 break;
@@ -55,7 +55,7 @@ Book Collection Selector component.
     }
 
     function handleCancel() {
-        $selectedDocSets = JSON.parse(restoreDocSets);
+        $selectedLayouts = JSON.parse(restoreDocSets);
     }
 </script>
 
