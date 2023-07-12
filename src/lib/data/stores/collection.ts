@@ -50,11 +50,6 @@ function createInitDocSet(): App.CollectionGroup {
 }
 
 const initDocSets: App.CollectionGroup = createInitDocSet();
-console.log('Initial docSets', initDocSets);
-
-setDefaultStorage('docSets', initDocSets);
-// ToDo: Create a docSet store
-export const docSet = groupStore(referenceStore, localStorage.docSets);
 
 function createNextDocSet() {
     const external = writable<App.CollectionGroup>(initDocSets);
