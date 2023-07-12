@@ -1,6 +1,4 @@
-import { groupStore, referenceStore } from './store-types';
-import { writable, get } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { writable } from 'svelte/store';
 import config from '../config';
 
 function findDocSet(id) {
@@ -33,7 +31,7 @@ function createInitDocSet(): App.CollectionGroup {
                 App.CollectionEntry
             ];
 
-            // If there is no third docSet
+            // If there is no third VerseByVerse docSet 
             // and there are greater than 2 project book collections
             // set it to the blank value
             if (docSets.length < 3 && config.bookCollections.length > 2) {
