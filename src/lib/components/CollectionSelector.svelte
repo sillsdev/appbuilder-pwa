@@ -14,6 +14,8 @@ Book Collection Selector component.
     const modalId = 'collectionSelector';
     let docSet;
     let modal;
+    // values of selectedCollections before user makes changes
+    const restoreDocSet = JSON.stringify($nextDocSet);
 
     // ToDo: If showSinglePane false, provide first availible visible option instead
     $: showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
@@ -33,6 +35,7 @@ Book Collection Selector component.
 
     // ToDo: Set the $refs store to have the docSet using a nextCollection store
     function navigateReference(e) {
+        console.log(e.detail.tab);
         switch (e.detail.tab) {
             case LAYOUT_SINGLE:
                 docSet = $nextDocSet.singlePane.id;
@@ -52,7 +55,7 @@ Book Collection Selector component.
     }
     // ToDo
     function handleCancel() {
-        docSet = $refs.docSet;
+        $nextDocSet = JSON.parse(restoreDocSet);
     }
 </script>
 
