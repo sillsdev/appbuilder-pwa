@@ -7,9 +7,9 @@ node_modules
 .env.*
 !.env.example
 /data
-src/data/config.js
-src/data/catalog.js
-src/data/firebase-config.js
+src/lib/data/config.js
+src/lib/data/catalog.js
+src/lib/data/firebase-config.js
 static
 example_data
 
