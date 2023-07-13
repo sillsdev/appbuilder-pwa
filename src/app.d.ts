@@ -52,6 +52,21 @@ declare namespace App {
         cells?: GridEntry[];
     }
 
+    interface CollectionEntry {
+        id: string;
+        name: string;
+        // boolean value for if a collection is allowed
+        // to be shown in single pane view
+        singlePane: boolean;
+        description: string;
+    }
+
+    interface CollectionGroup {
+        singlePane?: CollectionEntry;
+        sideBySide?: FixedLengthArray<[CollectionEntry, CollectionEntry]>;
+        verseByVerse?: FixedLengthArray<[CollectionEntry, CollectionEntry, CollectionEntry]>;
+    }
+
     interface UserPreferenceSetting {
         type: 'checkbox' | 'list' | 'time';
         category: string;

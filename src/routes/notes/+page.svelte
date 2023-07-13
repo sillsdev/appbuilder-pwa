@@ -69,7 +69,7 @@
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
-    <div class="navbar h-16">
+    <div class="navbar">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
@@ -93,6 +93,7 @@
     <div class="overflow-y-auto">
         {#each notes as n}
             {@const iconCard = {
+                collection: n.collection,
                 reference: n.reference,
                 text: n.text,
                 date: formatDate(new Date(n.date)),

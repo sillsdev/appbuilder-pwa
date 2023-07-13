@@ -4,7 +4,10 @@ import { setDefaultStorage } from './storage';
 import config from '../config';
 
 /** current reference */
-const firstChapter = config.bookCollections[0].books[0].id + "." + config.bookCollections[0].books[0].chaptersN.split("-")[0];
+const firstChapter =
+    config.bookCollections[0].books[0].id +
+    '.' +
+    config.bookCollections[0].books[0].chaptersN.split('-')[0];
 const startReference = config.mainFeatures['start-at-reference'] || firstChapter;
 const initReference =
     config.bookCollections[0].languageCode +
@@ -20,13 +23,13 @@ refs.subscribe((value) => {
 });
 
 function createNextRef() {
-    const external = writable({ book: '', chapter: '', verse:'' });
+    const external = writable({ book: '', chapter: '', verse: '' });
 
     return {
         subscribe: external.subscribe,
         set: external.set,
         reset: () => {
-            external.set({ book: '', chapter: '', verse:'' });
+            external.set({ book: '', chapter: '', verse: '' });
         }
     };
 }
@@ -56,8 +59,14 @@ function getInsertIndex(newVerseNumber, selections) {
 }
 
 export function getReference(item) {
-    const separator = config.bookCollections.find((x) => x.id === item.collection).features["ref-chapter-verse-separator"];
-    return item.book + " " + item.chapter + separator + item.verse;
+    const separator = config.bookCollections.find((x) => x.id === item.collection).features[
+        'ref-chapter-verse-separator'
+    ];
+    const bookName =
+        config.bookCollections
+            .find((x) => x.id === item.collection)
+            .books.find((x) => x.id === item.book)?.name || item.book;
+    return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
 function createSelectedVerses() {
@@ -67,7 +76,7 @@ function createSelectedVerses() {
         subscribe: external.subscribe,
         addVerse: (id, text) => {
             const currentRefs = get(refs);
-            const reference = getReference({...currentRefs, verse: id});
+            const reference = getReference({ ...currentRefs, verse: id });
             const selection = {
                 collection: currentRefs.collection,
                 book: currentRefs.book,
@@ -136,8 +145,13 @@ function createSelectedVerses() {
             const index = Number(i);
             if (index > -1 && index < selections.length) {
                 const selection = selections[index];
-                const separator = config.bookCollections.find((x) => x.id === selection.collection).features["ref-chapter-verse-separator"];
-                return selection.book + " " + selection.chapter + separator + selection.verse;
+                const separator = config.bookCollections.find((x) => x.id === selection.collection)
+                    .features['ref-chapter-verse-separator'];
+                const bookName =
+                    config.bookCollections
+                        .find((x) => x.id === selection.collection)
+                        .books.find((x) => x.id === selection.book)?.name || selection.book;
+                return bookName + ' ' + selection.chapter + separator + selection.verse;
             } else {
                 return '';
             }
@@ -149,10 +163,21 @@ function createSelectedVerses() {
                 return selectedVerses.getReference(0);
             } else {
                 const selectionStart = selections[0];
-                const verseSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-chapter-verse-separator"];
-                const rangeSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-verse-range-separator"];
-                const verseListSeparator = config.bookCollections.find((x) => x.id === selectionStart.collection).features["ref-verse-list-separator"];
-                var reference = selectionStart.book + " " + selectionStart.chapter + verseSeparator + selectionStart.verse;
+                const verseSeparator = config.bookCollections.find(
+                    (x) => x.id === selectionStart.collection
+                ).features['ref-chapter-verse-separator'];
+                const rangeSeparator = config.bookCollections.find(
+                    (x) => x.id === selectionStart.collection
+                ).features['ref-verse-range-separator'];
+                const verseListSeparator = config.bookCollections.find(
+                    (x) => x.id === selectionStart.collection
+                ).features['ref-verse-list-separator'];
+                var reference =
+                    selectionStart.book +
+                    ' ' +
+                    selectionStart.chapter +
+                    verseSeparator +
+                    selectionStart.verse;
                 var wasConsecutive = false;
                 var lastVerse = selectionStart.verse;
                 var currVerse = selectionStart.verse;
@@ -164,7 +189,7 @@ function createSelectedVerses() {
                             reference += lastVerse;
                             wasConsecutive = false;
                         }
-                        reference += verseListSeparator + " " + currVerse;
+                        reference += verseListSeparator + ' ' + currVerse;
                     } else {
                         if (reference.charAt(reference.length - 1) != rangeSeparator) {
                             reference += rangeSeparator;

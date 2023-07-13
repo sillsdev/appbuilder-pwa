@@ -97,7 +97,7 @@ TODO:
                 chapter: $selectedVerses[0].chapter,
                 verse: $selectedVerses[0].verse,
                 text: selectedVerses.getVerseByIndex(0).text,
-                reference: selectedVerses.getReference(0)
+                reference: $selectedVerses[0].reference
             });
         } else {
             await removeBookmark(selectedVerseInBookmarks);
@@ -113,7 +113,7 @@ TODO:
             chapter: $selectedVerses[0].chapter,
             verse: $selectedVerses[0].verse,
             text: selectedVerses.getVerseByIndex(0).text,
-            reference: selectedVerses.getReference(0)
+            reference: $selectedVerses[0].reference
         });
 
         selectedVerses.reset();

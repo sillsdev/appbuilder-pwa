@@ -19,8 +19,8 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
-    <div class="navbar h-16">
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh; font-family: initial;">
+    <div class="navbar">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
@@ -29,7 +29,7 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div class="overflow-y-auto" style:direction={$direction}>
+    <div class="overflow-y-auto">
         <!-- loops through the different settings types -->
         {#each Object.keys(categories) as category}
             <div class="settings-category">

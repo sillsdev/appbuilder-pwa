@@ -9,6 +9,8 @@ A component to display tabbed menus.
     export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true } };
     export let cols = 6;
     export let active = Object.keys(options).filter((x) => options[x].visible)[0];
+    export let scroll = true;
+    export let height = '50vh';
     const dispatch = createEventDispatcher();
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
 
@@ -53,7 +55,12 @@ A component to display tabbed menus.
         {/each}
     </div>
 {/if}
-<div class="tabs-content" style={convertStyle($s['ui.background'])} class:p-2={!hasTabs}>
+<div
+    style={convertStyle($s['ui.background'])}
+    class:p-2={!hasTabs}
+    style:overflow-y={scroll ? 'auto' : ''}
+    style:max-height={height}
+>
     <svelte:component
         this={options[active].component}
         {cols}
@@ -61,10 +68,3 @@ A component to display tabbed menus.
         {...options[active].props}
     />
 </div>
-
-<style>
-    .tabs-content {
-        max-height: 50vh;
-        overflow-y: auto;
-    }
-</style>

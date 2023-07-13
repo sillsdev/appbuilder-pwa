@@ -2,7 +2,6 @@
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioActive,
@@ -10,15 +9,22 @@
         bodyFontSize,
         bodyLineHeight,
         bookmarks,
+        convertStyle,
+        direction,
         highlights,
         mainScroll,
         notes,
         refs,
+        s,
         scrolls,
         selectedVerses,
         showDesktopSidebar,
         themeColors,
-        userSettings
+        userSettings,
+        modal,
+        MODAL_TEXT_APPERANCE,
+        MODAL_COLLECTION,
+        NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { parseReference } from '$lib/data/stores/store-types';
@@ -31,7 +37,6 @@
         TextAppearanceIcon
     } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { getFeatureValueString } from '$lib/scripts/configUtils';
@@ -91,7 +96,10 @@
     );
 
     const showSearch = config.mainFeatures['search'];
-    const showCollections = config.bookCollections.length > 1;
+    const showCollections =
+        config.bookCollections.length > 1 &&
+        config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
     $: viewSettings = {
@@ -216,31 +224,11 @@
     };
     $: updateHighlight($audioHighlight, highlightColor, $refs.hasAudio?.timingFile);
 
-    let textAppearanceSelector;
-    function handleTextAppearanceSelector() {
-        textAppearanceSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
-    }
-
-    let collectionSelector;
-    function handleCollectionSelector() {
-        collectionSelector.showModal(); //Uses an exported modal function (see Modal.svelte) to trigger the modal popup
-    }
-
-    let navBarHeight = '4rem';
+    const navBarHeight = NAVBAR_HEIGHT;
 </script>
 
-<div>
-    <!--Div containing the popup modals triggered by the navBar buttons:-->
-
-    <!-- Text Appearance Options Menu -->
-    <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={navBarHeight} />
-
-    <!-- Collection Selector Menu -->
-    <CollectionSelector bind:this={collectionSelector} vertOffset={navBarHeight} />
-</div>
-
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
-    <div class="navbar" style="height: {navBarHeight};">
+    <div class="navbar">
         <Navbar>
             <div
                 slot="left-buttons"
@@ -284,7 +272,7 @@
                     <label
                         for="textAppearanceSelector"
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                        on:click={handleTextAppearanceSelector}
+                        on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
                         ><TextAppearanceIcon color="white" /></label
                     >
 
@@ -300,7 +288,8 @@
                         <label
                             for="collectionSelector"
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                            on:click={handleCollectionSelector}><BibleIcon color="white" /></label
+                            on:click={() => modal.open(MODAL_COLLECTION)}
+                            ><BibleIcon color="white" /></label
                         >
                     {/if}
                 </div>
@@ -313,7 +302,8 @@
                             event.stopPropagation();
                         }}
                     >
-                        {#if showOverlowMenu}
+                        <!-- tricky logic: this causes the direction of the arrows to switch when rtl -->
+                        {#if showOverlowMenu === ($direction === 'ltr')}
                             <TriangleRightIcon color="white" scale={1.25} />
                         {:else}
                             <TriangleLeftIcon color="white" scale={1.25} />
@@ -323,7 +313,18 @@
             </div>
         </Navbar>
     </div>
-
+    {#if showCollectionViewer && showCollections}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
+            style:top={navBarHeight}
+            style:background-color={convertStyle($s['ui.pane1'])}
+            style={convertStyle($s['ui.pane1.name'])}
+            on:click={() => modal.open(MODAL_COLLECTION)}
+        >
+            {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
+        </div>
+    {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <ScrolledContent>
             <div

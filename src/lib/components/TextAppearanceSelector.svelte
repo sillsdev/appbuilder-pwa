@@ -32,7 +32,7 @@ TODO
     $: positioningCSS =
         'position:absolute; top:' +
         (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; right:1rem;';
+        'rem; inset-inline-end:1rem;';
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
 
