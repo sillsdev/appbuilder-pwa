@@ -81,6 +81,7 @@ The sidebar/drawer.
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content"
             style:background-color={drawerBackgroundColor}
+            style:direction={$direction}
         >
             <!-- Sidebar content here -->
             <a class="fill" href="{base}/">
@@ -95,14 +96,14 @@ The sidebar/drawer.
             </a>
             {#if showAccount}
                 <li>
-                    <a href="{base}/account" style:color={textColor} style:direction={$direction}>
+                    <a href="{base}/account" style:color={textColor}>
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </a>
                 </li>
             {/if}
             {#if showSearch}
                 <li>
-                    <a href="{base}/search" style:color={textColor} style:direction={$direction}>
+                    <a href="{base}/search" style:color={textColor}>
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </a>
                 </li>
@@ -112,7 +113,6 @@ The sidebar/drawer.
                     <!-- svelte-ignore a11y-missing-attribute -->
                     <button
                         style:color={textColor}
-                        style:direction={$direction}
                         class="btn"
                         on:click={() => modal.open(MODAL_COLLECTION)}
                     >
@@ -125,32 +125,28 @@ The sidebar/drawer.
             {/if}
             {#if showHistory}
                 <li>
-                    <a href="{base}/history" style:color={textColor} style:direction={$direction}>
+                    <a href="{base}/history" style:color={textColor}>
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </a>
                 </li>
             {/if}
             {#if showBookmarks}
                 <li>
-                    <a href="{base}/bookmarks" style:color={textColor} style:direction={$direction}>
+                    <a href="{base}/bookmarks" style:color={textColor}>
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </a>
                 </li>
             {/if}
             {#if showNotes}
                 <li>
-                    <a href="{base}/notes" style:color={textColor} style:direction={$direction}>
+                    <a href="{base}/notes" style:color={textColor}>
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </a>
                 </li>
             {/if}
             {#if showHighlights}
                 <li>
-                    <a
-                        href="{base}/highlights"
-                        style:color={textColor}
-                        style:direction={$direction}
-                    >
+                    <a href="{base}/highlights" style:color={textColor}>
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </a>
                 </li>
@@ -160,14 +156,14 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <a href="{base}/share" style:color={textColor} style:direction={$direction}>
+                    <a href="{base}/share" style:color={textColor}>
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </a>
                 </li>
                 <div class="dy-divider m-1" />
             {/if}
             <li>
-                <a href="{base}/settings" style:color={textColor} style:direction={$direction}>
+                <a href="{base}/settings" style:color={textColor}>
                     <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                 </a>
             </li>
@@ -175,7 +171,6 @@ The sidebar/drawer.
             <li>
                 <button
                     style:color={textColor}
-                    style:direction={$direction}
                     class="btn"
                     on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
                 >
@@ -191,7 +186,6 @@ The sidebar/drawer.
                             style:color={textColor}
                             target="_blank"
                             rel="noreferrer"
-                            style:direction={$direction}
                         >
                             <picture>
                                 <source
@@ -210,7 +204,7 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <a href="{base}/about" style:color={textColor} style:direction={$direction}>
+                <a href="{base}/about" style:color={textColor}>
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </a>
             </li>
