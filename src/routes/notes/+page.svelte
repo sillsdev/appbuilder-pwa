@@ -36,6 +36,7 @@
     <div class="overflow-y-auto">
         {#each data.notes as n}
             {@const iconCard = {
+                collection: n.collection,
                 reference: n.reference,
                 text: n.text,
                 date: formatDate(new Date(n.date)),

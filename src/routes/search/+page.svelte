@@ -72,7 +72,7 @@
         </Navbar>
     </div>
     <div>
-        <form style:direction={$direction}>
+        <form>
             <div class="dy-form-control m-4">
                 <label class="dy-input-group">
                     <!-- svelte-ignore a11y-autofocus -->

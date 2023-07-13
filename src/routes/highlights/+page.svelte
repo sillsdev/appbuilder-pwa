@@ -35,6 +35,7 @@
     <div class="overflow-y-auto">
         {#each data.highlights as h}
             {@const colorCard = {
+                collection: h.collection,
                 reference: h.reference,
                 text: h.text,
                 date: formatDate(new Date(h.date)),
