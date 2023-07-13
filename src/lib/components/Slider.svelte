@@ -4,6 +4,7 @@ A simple slider component.
 -->
 
 <script>
+    import { direction } from '$lib/data/stores';
     export let barColor;
     export let progressColor;
     export let value;
@@ -20,6 +21,8 @@ A simple slider component.
     style:background-size={linePercent}
     style:--progressColor={progressColor}
     style:--barColor={barColor}
+    style:--scale={$direction.toLowerCase() === 'ltr' ? 1 : -1}
+    style:direction={$direction}
 />
 
 <style>
@@ -42,6 +45,7 @@ A simple slider component.
             var(--progressColor)
         ); /* Implemented as a gradient to distinguish from background. */
         background-repeat: no-repeat;
+        transform: scaleX(var(--scale));
     }
 
     /* Input Thumb */
@@ -54,6 +58,7 @@ A simple slider component.
         cursor: ew-resize;
         box-shadow: 0 0 2px 0 #555;
         transition: background 0.3s ease-in-out;
+        transform: scaleX(var(--scale));
     }
 
     input[type='range']::-moz-range-thumb {
@@ -65,6 +70,7 @@ A simple slider component.
         cursor: ew-resize;
         box-shadow: 0 0 2px 0 #555;
         transition: background 0.3s ease-in-out;
+        transform: scaleX(var(--scale));
     }
 
     input[type='range']::-ms-thumb {
@@ -76,6 +82,7 @@ A simple slider component.
         cursor: ew-resize;
         box-shadow: 0 0 2px 0 #555;
         transition: background 0.3s ease-in-out;
+        transform: scaleX(var(--scale));
     }
 
     input[type='range']::-webkit-slider-thumb:hover {
@@ -96,6 +103,7 @@ A simple slider component.
         box-shadow: none;
         border: none;
         background: transparent;
+        transform: scaleX(var(--scale));
     }
 
     input[type='range']::-moz-range-track {
@@ -103,6 +111,7 @@ A simple slider component.
         box-shadow: none;
         border: none;
         background: transparent;
+        transform: scaleX(var(--scale));
     }
 
     input[type='range']::-ms-track {
@@ -110,5 +119,6 @@ A simple slider component.
         box-shadow: none;
         border: none;
         background: transparent;
+        transform: scaleX(var(--scale));
     }
 </style>
