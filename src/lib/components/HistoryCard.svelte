@@ -24,6 +24,7 @@ TODO:
     $: textDirection = bc.style.textDirection;
 </script>
 
+<!-- history cards are alway LTR with the reference following the text direction -->
 <div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <a

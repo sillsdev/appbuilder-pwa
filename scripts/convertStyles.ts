@@ -37,6 +37,10 @@ export function convertStyles(dataDir: string, verbose: number) {
                 if (line.indexOf('body') === 0) {
                     line = line.replace('body', '#container');
                 }
+                if (line.indexOf('div.c-drop') === 0) {
+                    line = line.replace('padding-right', 'padding-inline-end');
+                    line = line.replace('float: left', 'display: inline-block');
+                }
                 return line;
             })
             .join('\n');
