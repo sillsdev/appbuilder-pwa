@@ -36,6 +36,7 @@
     <div class="overflow-y-auto">
         {#each data.bookmarks as b}
             {@const iconCard = {
+                collection: b.collection,
                 reference: b.reference,
                 text: b.text,
                 date: formatDate(new Date(b.date)),
