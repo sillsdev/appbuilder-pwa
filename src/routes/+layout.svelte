@@ -9,7 +9,6 @@
         MODAL_COLLECTION,
         MODAL_NOTE,
         MODAL_TEXT_APPERANCE,
-        NAVBAR_HEIGHT,
         MODAL_FONT,
         MODAL_VERSE_ON_IMAGE,
         NAVBAR_HEIGHT

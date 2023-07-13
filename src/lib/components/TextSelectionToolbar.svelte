@@ -35,8 +35,7 @@ TODO:
         themeColors,
         highlights,
         bookmarks,
-        audioActive,
-        MODAL_VERSE_ON_IMAGE
+        audioActive
     } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
@@ -199,12 +198,13 @@ TODO:
                     </button>
                 {/if}
                 {#if isTextOnImageEnabled}
-                    <button
+                    <a
+                        href="{base}/verse-on-image"
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => modal.open(MODAL_VERSE_ON_IMAGE)}
+                        style="text-decoration:none; display:flex; align-items:center;"
                     >
                         <ImageIcon.Image color={barIconColor} />
-                    </button>
+                    </a>
                 {/if}
                 {#if isHighlightEnabled}
                     <button
