@@ -11,7 +11,7 @@ export async function initProskomma() {
     if (!proskomma) {
         proskomma = new Proskomma();
 
-        let docSet;//get(refs).docSet;
+        let docSet; //get(refs).docSet;
         if (!docSet) {
             docSet = config.bookCollections[0].languageCode + '_' + config.bookCollections[0].id;
         }
@@ -20,7 +20,7 @@ export async function initProskomma() {
     }
 
     return proskomma;
-} 
+}
 
 export async function loadDocSet(proskomma, docSet) {
     performance.mark('pk-fetch-start');
@@ -29,7 +29,7 @@ export async function loadDocSet(proskomma, docSet) {
         return r.arrayBuffer();
     });
     performance.mark('pk-fetch-end');
-    performance.measure('pk-fetch-duration', 'pk-fetch-start', 'pk-fetch-end')
+    performance.measure('pk-fetch-duration', 'pk-fetch-start', 'pk-fetch-end');
     if (res.byteLength) {
         performance.mark('pk-thaw-start');
         // console.log('awaiting thaw');
@@ -44,11 +44,7 @@ export async function loadDocSetIfNotLoaded(proskomma, docSet) {
     performance.mark('pk-query-docset-start');
     const docslist = await proskomma.gqlQuery('{docSets { id } }');
     performance.mark('pk-query-docset-end');
-    performance.measure(
-        'pk-query-docset-duration',
-        'pk-query-docset-start',
-        'pk-query-docset-end'
-    );
+    performance.measure('pk-query-docset-duration', 'pk-query-docset-start', 'pk-query-docset-end');
     // console.log('LIST %o', docslist);
 
     let found = false;
