@@ -302,7 +302,8 @@
                             event.stopPropagation();
                         }}
                     >
-                        {#if showOverlowMenu}
+                        <!-- tricky logic: this causes the direction of the arrows to switch when rtl -->
+                        {#if showOverlowMenu === ($direction === 'ltr')}
                             <TriangleRightIcon color="white" scale={1.25} />
                         {:else}
                             <TriangleLeftIcon color="white" scale={1.25} />
