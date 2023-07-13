@@ -22,12 +22,7 @@ The navbar component.
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div
-    class="dy-navbar"
-    style:height={NAVBAR_HEIGHT}
-    style:background-color={actionBarColor}
-    style:direction={$direction}
->
+<div class="dy-navbar" style:height={NAVBAR_HEIGHT} style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
         {#if $page.route.id === '/'}
             <label
