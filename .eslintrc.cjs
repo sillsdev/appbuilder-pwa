@@ -35,6 +35,7 @@ module.exports = {
         'no-tabs': 'error',
         'no-undef': 'off', // Covered by TS, and eslint false flags some globals
         'no-inner-declarations': 'off',
-        '@typescript-eslint/no-unused-vars': 'off'
+        '@typescript-eslint/no-unused-vars': 'off',
+        'no-self-assign': 'off'
     }
 };
