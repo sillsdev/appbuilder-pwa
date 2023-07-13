@@ -34,7 +34,7 @@
         "autoprefixer": "^10.4.7",
         "concurrently": "^8",
         "daisyui": "^3",
-        "eslint": "^8.18.0",
+        "eslint": "^8.44.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-svelte3": "^4.0.0",
