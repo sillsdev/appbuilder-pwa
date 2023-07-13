@@ -108,10 +108,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     }
 
     // "Audio"
-    if (
-        config.mainFeatures['settings-audio-highlight-phrase'] &&
-        config.traits['has-sync-audio']
-    ) {
+    if (config.mainFeatures['settings-audio-highlight-phrase'] && config.traits['has-sync-audio']) {
         // Synchronised phrase highlighting
         settings.push({
             type: 'checkbox',
@@ -149,10 +146,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         Object.keys(config.audio?.sources || []).filter(
             (key) => config.audio.sources[key].accessMethods?.length > 1
         ).length > 0;
-    if (
-        config.mainFeatures['settings-audio-access-method'] &&
-        hasAudioSourceWithAccessModeChoice
-    ) {
+    if (config.mainFeatures['settings-audio-access-method'] && hasAudioSourceWithAccessModeChoice) {
         settings.push({
             type: 'list',
             category: SETTINGS_CATEGORY_AUDIO,
@@ -351,7 +345,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         settings.push({
             type: 'checkbox',
             category: SETTINGS_CATEGORY_INTERFACE,
-            title: "Desktop Sidebar",
+            title: 'Desktop Sidebar',
             key: 'desktop-sidebar',
             defaultValue: false
         });
@@ -367,4 +361,4 @@ function defaultUserSettings() {
 }
 mergeDefaultStorage('userSettings', defaultUserSettings());
 export const userSettings = writable(JSON.parse(localStorage.userSettings));
-userSettings.subscribe(value => localStorage.userSettings = JSON.stringify(value));
+userSettings.subscribe((value) => (localStorage.userSettings = JSON.stringify(value)));

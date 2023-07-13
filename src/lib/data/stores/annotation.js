@@ -1,8 +1,8 @@
-import { derived } from "svelte/store";
-import { refs } from "./scripture";
-import { findBookmarkByChapter, bookmarksLastUpdated } from "$lib/data/bookmarks";
-import { findHighlightByChapter, highlightsLastUpdated } from "$lib/data/highlights";
-import { findNoteByChapter, notesLastUpdated } from "$lib/data/notes";
+import { derived } from 'svelte/store';
+import { refs } from './scripture';
+import { findBookmarkByChapter, bookmarksLastUpdated } from '$lib/data/bookmarks';
+import { findHighlightByChapter, highlightsLastUpdated } from '$lib/data/highlights';
+import { findNoteByChapter, notesLastUpdated } from '$lib/data/notes';
 
 /* promise of bookmarks for the current collection/book/chapter */
 export const bookmarks = derived([refs, bookmarksLastUpdated], ([$refs]) => {

@@ -3,14 +3,15 @@ import { catalog } from '../catalog';
 import config from '../config';
 
 export function parseReference(ref) {
-    if (!ref) return {docSet: '', book: '', chapter: ''};
+    if (!ref) return { docSet: '', book: '', chapter: '' };
     const parts = ref.split('.');
     if (parts.length === 2) {
         // After everyone has converted to full references, remove this check
-        const defaultDocSet = config.bookCollections[0].languageCode + "_" + config.bookCollections[0].id;
-        return { docSet: defaultDocSet, book: parts[0], chapter: parts[1]};
+        const defaultDocSet =
+            config.bookCollections[0].languageCode + '_' + config.bookCollections[0].id;
+        return { docSet: defaultDocSet, book: parts[0], chapter: parts[1] };
     }
-    return {docSet: parts[0], book: parts[1], chapter: parts[2]};
+    return { docSet: parts[0], book: parts[1], chapter: parts[2] };
 }
 
 /**stores references and some useful derived information.*/
@@ -54,15 +55,18 @@ export const referenceStore = (initReference) => {
         chapter: $internal.c,
         chapterVerses: `${$internal.c}:1-${$internal.n}`,
         numVerses: $internal.n,
-        hasAudio:config.traits['has-audio'] && config.bookCollections
-        .find((x) => x.id === $internal.ds.split('_')[1]).books
-        .find((x) => x.id === $internal.b).audio
-        .find((x) => x.num == $internal.c),
+        hasAudio:
+            config.traits['has-audio'] &&
+            config.bookCollections
+                .find((x) => x.id === $internal.ds.split('_')[1])
+                .books.find((x) => x.id === $internal.b)
+                .audio.find((x) => x.num == $internal.c),
 
-
-        title: catalog.find((ds) => ds.id === $internal.ds)
+        title: catalog
+            .find((ds) => ds.id === $internal.ds)
             .documents.find((b) => b.bookCode === $internal.b).toc,
-        name: catalog.find((ds) => ds.id === $internal.ds)
+        name: catalog
+            .find((ds) => ds.id === $internal.ds)
             .documents.find((b) => b.bookCode === $internal.b).h,
         next: (() => {
             let nextBook = null;
@@ -105,14 +109,14 @@ export const referenceStore = (initReference) => {
         })()
     }));
 
-    const skip = ((direction) => {
+    const skip = (direction) => {
         const ref = get(external);
         const switchTo = direction < 0 ? ref.prev : ref.next;
         // if the chapter exists, the book will too, so only need to check chapter
         if (switchTo.chapter) {
-            setInternal({book: switchTo.book, chapter: switchTo.chapter});
+            setInternal({ book: switchTo.book, chapter: switchTo.chapter });
         }
-    });
+    };
     return { subscribe: external.subscribe, set: setInternal, skip };
 };
 
@@ -127,10 +131,10 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
     /**@type{any}*/ const unsubs = {
         default: stores.default.subscribe((v) => (vals['default'] = v))
     };
-    /**@type{any}*/ const subs = { default: []};
+    /**@type{any}*/ const subs = { default: [] };
 
     const subscribe = (cb, key = 'default') => {
-        if(!stores.hasOwnProperty(key)) {
+        if (!stores.hasOwnProperty(key)) {
             stores[key] = groupType(props);
             unsubs[key] = stores[key].subscribe((v) => (vals[key] = v));
             subs[key] = [];
@@ -139,7 +143,7 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
         cb(vals[key], mods[key]);
         return () => {
             subs[key] = subs[key].filter((sub) => sub !== cb);
-            if(key !== 'default' && subs[key].length <= 0) {
+            if (key !== 'default' && subs[key].length <= 0) {
                 unsubs[key]();
                 delete stores[key];
                 delete vals[key];
@@ -147,7 +151,7 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
                 delete unsubs[key];
                 delete subs[key];
             }
-        }
+        };
     };
 
     const set = (val, key = 'default', mod = undefined) => {
@@ -156,14 +160,18 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
         subs[key].forEach((sub) => sub(vals[key], mods[key]));
     };
 
-    const extras = Object.fromEntries(Object.entries(stores["default"]).filter((kv) => kv[0] !== "subscribe" && kv[0] !== "set" && typeof(kv[1]) === 'function').map((kv) => [
-        kv[0], 
-        (val, key = 'default', mod = undefined) => {
-            stores[key][kv[0]](val);
-            mods[key] = mod;
-            subs[key].forEach((sub) => sub(vals[key], mods[key]));
-        }
-    ]));
+    const extras = Object.fromEntries(
+        Object.entries(stores['default'])
+            .filter((kv) => kv[0] !== 'subscribe' && kv[0] !== 'set' && typeof kv[1] === 'function')
+            .map((kv) => [
+                kv[0],
+                (val, key = 'default', mod = undefined) => {
+                    stores[key][kv[0]](val);
+                    mods[key] = mod;
+                    subs[key].forEach((sub) => sub(vals[key], mods[key]));
+                }
+            ])
+    );
 
-    return {subscribe, set, ...extras};
+    return { subscribe, set, ...extras };
 };
