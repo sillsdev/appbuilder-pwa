@@ -64,12 +64,12 @@ The verse on image component.
 
 
 
-<Modal bind:this={modal} id={modalId} useLabel={false} addCSS="position:absolute; top:0rem; left:0rem; width:100%; height:full; border: 2px solid purple">
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS="position:absolute; top:0rem; left:0rem; width:100%; max-width:100%; height:100%; max-height:100%; border-radius:0%;">
     <!--addCSS injects CSS into the modal to position it 1rem away from the bottom and right edges of the screen (on mobile it will be centered)-->
     <svelte:fragment slot="content">
         <!-- Content here -->
         <div class="flex flex-col flex-nowrap" style="">
-            <div id="verseOnImgPreview" style="border: 2px solid red">
+            <div id="verseOnImgPreview" style="border: 2px solid red; width:auto;">
                 <!-- Preview display of the image and text -->
                 <canvas bind:this={cnv} width=300 height=full style="border: 2px solid green;"></canvas>
                 <button on:click={shareCanvas}>Export Canvas</button>
