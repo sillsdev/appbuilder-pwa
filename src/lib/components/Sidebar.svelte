@@ -219,6 +219,10 @@ The sidebar/drawer.
         min-height: calc(100vh - 4rem);
         min-height: calc(100dvh - 4rem);
     }
+    /* fixes the text items in rtl so that they are next to the icon */
+    .dy-menu li {
+        flex-direction: row;
+    }
     a {
         text-decoration: none;
     }
