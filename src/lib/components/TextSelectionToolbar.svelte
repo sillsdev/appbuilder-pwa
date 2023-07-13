@@ -199,7 +199,7 @@ TODO:
                 {/if}
                 {#if isTextOnImageEnabled}
                     <a
-                        href="{base}/verse-on-image"
+                        href="{base}/image"
                         class="dy-btn-sm dy-btn-ghost"
                         style="text-decoration:none; display:flex; align-items:center;"
                     >
