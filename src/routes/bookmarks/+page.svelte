@@ -4,7 +4,7 @@
     import { BookmarkIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
-    import { formatDate } from '$lib/scripts/dateUtils.js';
+    import { formatDate } from '$lib/scripts/dateUtils';
     import { page } from '$app/stores';
 
     function handleMenuAction(event: CustomEvent, id: string) {
@@ -63,7 +63,9 @@
 
         bookmarks = bookmarks;
     }
-
+    const sortMenu = {
+        actions: [$t['Annotation_Sort_Order_Reference'], $t['Annotation_Sort_Order_Date']]
+    };
     let bookmarks = $page.data.bookmarks;
     sortByDate();
 </script>
@@ -78,12 +80,6 @@
 
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label slot="right-buttons">
-                {@const sortMenu = {
-                    actions: [
-                        $t['Annotation_Sort_Order_Reference'],
-                        $t['Annotation_Sort_Order_Date']
-                    ]
-                }}
                 <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             </label>
             <!-- <div slot="right-buttons" /> -->
