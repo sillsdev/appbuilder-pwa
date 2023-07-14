@@ -1,7 +1,8 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
+import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from './view.js';
 import config from '../config';
 
-function findDocSet(id) {
+function findCollection(id) {
     const ds = config.bookCollections.find((x) => x.id === id);
     return {
         id: ds.languageCode + '_' + ds.id,
@@ -11,31 +12,31 @@ function findDocSet(id) {
     };
 }
 
-function createInitDocSet(): App.CollectionGroup {
+function createInitCollections(): App.CollectionGroup {
     const layouts = config.layouts;
-    const initDocSets: App.CollectionGroup = {};
+    const initCollections: App.CollectionGroup = {};
 
     for (const layout of layouts) {
         if (!layout.enabled) continue;
-        const docSets: App.CollectionEntry[] = layout.layoutCollections.map((collectionId) =>
-            findDocSet(collectionId)
+        const collections: App.CollectionEntry[] = layout.layoutCollections.map((collectionId) =>
+            findCollection(collectionId)
         );
         if (layout.mode === 'single') {
-            initDocSets.singlePane = docSets[0];
+            initCollections.singlePane = collections[0];
         } else if (layout.mode === 'two') {
-            initDocSets.sideBySide = docSets as [App.CollectionEntry, App.CollectionEntry];
+            initCollections.sideBySide = collections as [App.CollectionEntry, App.CollectionEntry];
         } else if (layout.mode === 'verse-by-verse') {
-            initDocSets.verseByVerse = docSets as [
+            initCollections.verseByVerse = collections as [
                 App.CollectionEntry,
                 App.CollectionEntry,
                 App.CollectionEntry
             ];
 
-            // If there is no third VerseByVerse docSet 
+            // If there is no third VerseByVerse collection 
             // and there are greater than 2 project book collections
             // set it to the blank value
-            if (docSets.length < 3 && config.bookCollections.length > 2) {
-                initDocSets.verseByVerse[2] = {
+            if (collections.length < 3 && config.bookCollections.length > 2) {
+                initCollections.verseByVerse[2] = {
                     id: '',
                     name: '--------',
                     singlePane: false,
@@ -44,19 +45,34 @@ function createInitDocSet(): App.CollectionGroup {
             }
         }
     }
-    return initDocSets;
+    return initCollections;
 }
 
-const initDocSets: App.CollectionGroup = createInitDocSet();
+const initCollections: App.CollectionGroup = createInitCollections();
 
 function createSelectedLayouts() {
-    const external = writable<App.CollectionGroup>(initDocSets);
+    const external = writable<App.CollectionGroup>(initCollections);
 
     return {
         subscribe: external.subscribe,
         set: external.set,
+        collections: (mode) => {
+          let value;
+          switch (mode){
+            case LAYOUT_SINGLE:
+              value = [get(external).singlePane];
+              break;
+            case LAYOUT_TWO:
+              value = get(external).sideBySide;
+              break;
+            case LAYOUT_VERSE_BY_VERSE:
+              value = get(external).verseByVerse;
+              break;
+          }
+          return value;
+        },
         reset: () => {
-            external.set(initDocSets);
+            external.set(initCollections);
         }
     };
 }

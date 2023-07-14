@@ -7,13 +7,14 @@ Book Collection Selector component.
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import config from '$lib/data/config';
-    import { convertStyle, refs, selectedLayouts, s, t } from '$lib/data/stores';
+    import { convertStyle, refs, layout, selectedLayouts, s, t } from '$lib/data/stores';
     import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
     import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const modalId = 'collectionSelector';
-    let docSet;
     let modal;
+    let tabMenu;
+
     // values of selectedLayouts before user makes changes
     const restoreDocSets = JSON.stringify($selectedLayouts);
 
@@ -26,6 +27,15 @@ Book Collection Selector component.
         modal.showModal();
     }
 
+    function getSelectedLayout() {
+        const collections = selectedLayouts.collections(tabMenu.active);
+        return {
+            mode: tabMenu.active,
+            primaryDocSet: collections[0].id,
+            auxDocSets: collections.slice(1).map((x) => x.id)
+        };
+    }
+
     export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
     //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
     $: positioningCSS =
@@ -33,25 +43,10 @@ Book Collection Selector component.
         (Number(vertOffset.replace('rem', '')) + 1) +
         'rem; inset-inline-end:1rem;';
 
-    // ToDo: Set the $refs store to have the docSet using a nextCollection store
-    function navigateReference(e) {
-        console.log(e.detail.tab);
-        switch (e.detail.tab) {
-            case LAYOUT_SINGLE:
-                docSet = $selectedLayouts.singlePane.id;
-                break;
-            case LAYOUT_TWO:
-                break;
-            case LAYOUT_VERSE_BY_VERSE:
-                break;
-            default:
-                break;
-        }
-    }
-
-    // ToDo
     function handleOk() {
-        $refs.docSet = docSet;
+        const selectedLayout = getSelectedLayout();
+        $refs.docSet = selectedLayout.primaryDocSet;
+        $layout = selectedLayout;
     }
 
     function handleCancel() {
@@ -63,6 +58,7 @@ Book Collection Selector component.
 <Modal bind:this={modal} id={modalId} useLabel={false}>
     <svelte:fragment slot="content">
         <TabsMenu
+            bind:this={tabMenu}
             options={{
                 [LAYOUT_SINGLE]: {
                     tab: { component: SinglePaneIcon },
@@ -84,7 +80,6 @@ Book Collection Selector component.
                 }
             }}
             scroll={false}
-            on:menuaction={navigateReference}
         />
         <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
