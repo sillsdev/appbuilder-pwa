@@ -3,7 +3,7 @@
     import SortMenu from '$lib/components/SortMenu.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
-    import { formatDate } from '$lib/scripts/dateUtils.js';
+    import { formatDate } from '$lib/scripts/dateUtils';
     import { page } from '$app/stores';
 
     function handleMenuaction(event: CustomEvent, id: string) {
@@ -81,7 +81,13 @@
 
         highlights = highlights;
     }
-
+    const sortMenu = {
+        actions: [
+            $t['Annotation_Sort_Order_Reference'],
+            $t['Annotation_Sort_Order_Date'],
+            $t['Annotation_Sort_Order_Color']
+        ]
+    };
     let highlights = $page.data.highlights;
     sortByDate();
 </script>
@@ -96,13 +102,6 @@
 
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label slot="right-buttons">
-                {@const sortMenu = {
-                    actions: [
-                        $t['Annotation_Sort_Order_Reference'],
-                        $t['Annotation_Sort_Order_Date'],
-                        $t['Annotation_Sort_Order_Color']
-                    ]
-                }}
                 <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             </label>
             <!-- <div slot="right-buttons" /> -->
