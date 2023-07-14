@@ -6,8 +6,9 @@
     import { t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
     import { page } from '$app/stores';
+    import { removeBookmark } from '$lib/data/bookmarks';
 
-    function handleMenuAction(event: CustomEvent, id: string) {
+    function handleMenuAction(event: CustomEvent, id: number) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
                 console.log('View: ', bookmarks[id].reference);
@@ -16,9 +17,10 @@
                 console.log('Share: ', bookmarks[id].reference);
                 break;
             case $t['Annotation_Menu_Delete']:
-                console.log('Delete: ', id);
+                removeBookmark(id);
                 break;
         }
+        bookmarks = bookmarks;
     }
 
     function handleSortAction(event: CustomEvent) {
@@ -99,7 +101,7 @@
                     $t['Annotation_Menu_Delete']
                 ]
             }}
-            <IconCard on:menuaction={(e) => handleMenuAction(e, b.reference)} {...iconCard}>
+            <IconCard on:menuaction={(e) => handleMenuAction(e, b.date)} {...iconCard}>
                 <BookmarkIcon slot="icon" color="red" />
             </IconCard>
         {/each}
