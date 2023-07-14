@@ -32,7 +32,7 @@ function createInitCollections(): App.CollectionGroup {
                 App.CollectionEntry
             ];
 
-            // If there is no third VerseByVerse collection 
+            // If there is no third VerseByVerse collection
             // and there are greater than 2 project book collections
             // set it to the blank value
             if (collections.length < 3 && config.bookCollections.length > 2) {
@@ -57,19 +57,19 @@ function createSelectedLayouts() {
         subscribe: external.subscribe,
         set: external.set,
         collections: (mode) => {
-          let value;
-          switch (mode){
-            case LAYOUT_SINGLE:
-              value = [get(external).singlePane];
-              break;
-            case LAYOUT_TWO:
-              value = get(external).sideBySide;
-              break;
-            case LAYOUT_VERSE_BY_VERSE:
-              value = get(external).verseByVerse;
-              break;
-          }
-          return value;
+            let value;
+            switch (mode) {
+                case LAYOUT_SINGLE:
+                    value = [get(external).singlePane];
+                    break;
+                case LAYOUT_TWO:
+                    value = get(external).sideBySide;
+                    break;
+                case LAYOUT_VERSE_BY_VERSE:
+                    value = get(external).verseByVerse;
+                    break;
+            }
+            return value;
         },
         reset: () => {
             external.set(initCollections);
