@@ -12,8 +12,7 @@ export const LAYOUT_SINGLE = 'single';
 export const LAYOUT_TWO = 'two';
 export const LAYOUT_VERSE_BY_VERSE = 'verse-by-verse';
 
-const singleLayout = {mode:LAYOUT_SINGLE, auxDocSets: []};
-/** when type != LAYOUT_SINGLE, add a "collections" property which is the array of additional collections */
+const singleLayout = { mode: LAYOUT_SINGLE, auxDocSets: [] };
 export const layout = writable(singleLayout);
 
 export const MODAL_COLLECTION = 'collection';
