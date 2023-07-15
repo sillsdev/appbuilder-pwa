@@ -190,7 +190,6 @@
     /**updates highlight*/
     const updateHighlight = (elementIds, color: string) => {
         let container = document.getElementsByClassName('container')[0];
-        console.log('container', container);
         // Remove highlighting for currently highlighted verses
         const elements = container?.getElementsByClassName('highlighting');
         for (let i = 0; i < elements?.length; i++) {
@@ -201,16 +200,12 @@
         }
 
         for (const elementId of elementIds) {
-            console.log('elementid', elementId);
             const element = document.getElementById(elementId);
             if (element === null) {
                 break;
             }
-            console.log('attribute1', element);
             element.setAttribute('style', 'background-color: ' + color + ';');
-            console.log('attribute2', element);
             element.classList.add('highlighting');
-            console.log('highlight');
         }
 
         // todo implement scrolling

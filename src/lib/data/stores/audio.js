@@ -20,14 +20,14 @@ function createaudioHighlightElements() {
 export const audioHighlightElements = createaudioHighlightElements();
 export const audioPlayerDefault = {
     loaded: false,
-    duration: NaN,
+    duration: 0,
     progress: 0,
     playing: false,
-    playAfterSkip: false,
     timeIndex: 0,
     timing: [],
     timer: NaN,
-    audio: null
+    audio: null,
+    seekTimer: NaN
 };
 export const audioPlayer = writable({ ...audioPlayerDefault });
 

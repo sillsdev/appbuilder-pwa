@@ -10,7 +10,6 @@ interface AudioPlayer {
     duration: number;
     progress: number;
     playing: boolean;
-    playAfterSkip: boolean;
     timeIndex: number;
     timing: Array<any>;
     collection: string;
@@ -49,27 +48,23 @@ async function getAudio() {
     if (currentAudioPlayer.loaded) {
         return;
     }
-    currentAudioPlayer.duration = NaN;
+    currentAudioPlayer.duration = 0;
     currentAudioPlayer.progress = 0;
     if (currentAudioPlayer.playing) {
         pause();
     }
 
     const audioSourceInfo = await getAudioSourceInfo(currentAudioPlayer);
+    currentAudioPlayer.timing = audioSourceInfo.timing;
     const a = new Audio(audioSourceInfo.source);
     a.onloadedmetadata = () => {
         currentAudioPlayer.duration = a.duration;
         currentAudioPlayer.timeIndex = 0;
         currentAudioPlayer.loaded = true;
         currentAudioPlayer.audio = a;
+        audioPlayerStore.set(currentAudioPlayer);
         updateTime();
-        if (currentAudioPlayer.playAfterSkip && !currentAudioPlayer.playing) {
-            play();
-            currentAudioPlayer.playAfterSkip = false;
-        }
     };
-
-    currentAudioPlayer.timing = audioSourceInfo.timing;
 }
 // plays or pauses the audio
 export function playPause() {
@@ -84,17 +79,15 @@ export function playPause() {
 // changes chapter
 export function skip(direction) {
     pause();
-    if (refs.skip(direction)) {
-        currentAudioPlayer.playAfterSkip = true && currentAudioPlayer.playing;
-    }
+    refs.skip(direction);
 }
+// formats timing information
 export function format(seconds) {
-    if (isNaN(seconds)) return '...';
+    if (isNaN(seconds)) return '0:00';
 
     const minutes = Math.floor(seconds / 60);
     seconds = Math.floor(seconds % 60);
     if (seconds < 10) seconds = '0' + seconds;
-
     return `${minutes}:${seconds}`;
 }
 // changes the phrase of the audio
@@ -127,29 +120,14 @@ export function changeVerse(direction) {
     }
 }
 export function seek(position) {
-    let seekTimer;
-    let mutedBySeek;
-
-    return (scale) => {
-        clearInterval(seekTimer);
-        if (!currentAudioPlayer.loaded) return;
-        if (mutedBySeek) currentAudioPlayer.audio.muted = false;
-        if (scale === 0) {
-            currentAudioPlayer.audio.playbackRate = currentAudioPlayer.audio.defaultPlaybackRate;
-        } else if (scale > 0) {
-            mutedBySeek = true;
-            currentAudioPlayer.audio.muted = true;
-            currentAudioPlayer.audio.playbackRate =
-                currentAudioPlayer.audio.defaultPlaybackRate * scale;
-        } else {
-            seekTimer = setInterval(() => {
-                mutedBySeek = true;
-                currentAudioPlayer.audio.muted = true;
-                currentAudioPlayer.audio.currentTime -=
-                    currentAudioPlayer.audio.defaultPlaybackRate;
-            }, 100);
-        }
-    };
+    const playing = currentAudioPlayer.playing;
+    pause();
+    currentAudioPlayer.audio.currentTime = position;
+    currentAudioPlayer.progress = position;
+    audioPlayerStore.set(currentAudioPlayer);
+    if (playing === true) {
+        play();
+    }
 }
 // calls updatehighlights() to see if highlights need to be change
 function updateTime() {
@@ -157,6 +135,9 @@ function updateTime() {
         return;
     }
     currentAudioPlayer.progress = currentAudioPlayer.audio.currentTime;
+    if (!currentAudioPlayer.timing && currentAudioPlayer.progress) {
+        audioPlayerStore.set(currentAudioPlayer);
+    }
     if (currentAudioPlayer.timing && currentAudioPlayer.progress) {
         updateHighlights();
     }

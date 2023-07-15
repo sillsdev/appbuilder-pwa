@@ -29,7 +29,6 @@ TODO:
 
     function seekAudio(event) {
         if (!$audioPlayer.loaded) return;
-        // Calculate the percentage of the progress bar that was clicked
         const progressBar = document.getElementById('progress-bar');
         const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
         // Set the current time of the audio element to the corresponding time based on the percent
@@ -53,6 +52,7 @@ TODO:
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
+    //$: durationDisplay = format($audioPlayer.duration);
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: iconPlayColor = $s['ui.bar.audio.play.icon']['color'];
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
@@ -111,7 +111,7 @@ TODO:
     {#if !$refs.hasAudio.timingFile}
         <!-- Progress Bar -->
         <div class="audio-progress-value text-sm">
-            {$audioPlayer.duration ? format($audioPlayer.progress) : ''}
+            {format($audioPlayer.progress)}
         </div>
         {#if $audioPlayer.loaded}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -126,7 +126,7 @@ TODO:
             <progress class="dy-progress audio-progress" value="0" max="1" />
         {/if}
         <div class="audio-progress-duration text-sm">
-            {$audioPlayer.duration ? format($audioPlayer.duration) : ''}
+            {format($audioPlayer.duration)}
         </div>
     {/if}
 </div>
