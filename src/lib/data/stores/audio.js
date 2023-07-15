@@ -26,8 +26,7 @@ export const audioPlayerDefault = {
     timeIndex: 0,
     timing: [],
     timer: NaN,
-    audio: null,
-    seekTimer: NaN
+    audio: null
 };
 export const audioPlayer = writable({ ...audioPlayerDefault });
 
