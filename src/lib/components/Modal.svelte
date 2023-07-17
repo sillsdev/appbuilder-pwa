@@ -13,7 +13,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
         //This exported function allows buttons/labels in other divs to trigger the modal popup (see handleTextAppearanceSelector() and handleCollectionSelector() in +page.svelte).
         dialog.showModal();
     }
-    export let addCSS = 'position: absolute; top: 1rem;'; //Here addCSS is a prop for injecting CSS into the modal contents div/form below.
+    export let addCSS = ''; //Here addCSS is a prop for injecting CSS into the modal contents div/form below.
 </script>
 
 {#if useLabel}
