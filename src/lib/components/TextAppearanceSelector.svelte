@@ -2,7 +2,6 @@
 @component
 The navbar component. We have sliders that update reactively to both font size and line height.
 3 buttons to change the style from normal, sepia and dark.
-TODO
 -->
 <script>
     import Modal from './Modal.svelte';

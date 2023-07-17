@@ -10,6 +10,7 @@
         bookmarks,
         convertStyle,
         direction,
+        firstLaunch,
         highlights,
         mainScroll,
         audioHighlightElements,
@@ -45,7 +46,7 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
 
     function doSwipe(
         event: CustomEvent<{
@@ -97,9 +98,9 @@
     );
 
     const showSearch = config.mainFeatures['search'];
-    const showCollections =
-        config.bookCollections.length > 1 &&
-        config.mainFeatures['layout-config-change-toolbar-button'];
+    const enoughCollections = config.bookCollections.length > 1;
+    const showCollectionNavbar = config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionsOnFirstLaunch = config.mainFeatures['layout-config-first-launch'];
     const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
@@ -119,7 +120,7 @@
         proskomma: $page.data?.proskomma
     };
 
-    $: extraIconsExist = showSearch || showCollections; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let showOverlowMenu = false; //Controls the visibility of the extraButtons div on mobile
     function handleMenuClick(event) {
         showOverlowMenu = false;
@@ -219,6 +220,13 @@
     $: updateHighlight($audioHighlightElements, highlightColor);
     $: updateAudioPlayer($refs);
     const navBarHeight = NAVBAR_HEIGHT;
+    onMount(() => {
+        if ($firstLaunch && showCollectionsOnFirstLaunch && enoughCollections) {
+            console.log('open on first launch');
+            modal.open(MODAL_COLLECTION);
+            $firstLaunch = false;
+        }
+    });
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
@@ -278,7 +286,7 @@
                     {/if}
 
                     <!-- Collection Selector Button -->
-                    {#if showCollections}
+                    {#if showCollectionNavbar && enoughCollections}
                         <label
                             for="collectionSelector"
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
@@ -307,7 +315,7 @@
             </div>
         </Navbar>
     </div>
-    {#if showCollectionViewer && showCollections}
+    {#if showCollectionViewer && enoughCollections}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
             class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"

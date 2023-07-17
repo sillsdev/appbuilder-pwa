@@ -8,6 +8,9 @@ export const NAVBAR_HEIGHT = '4rem';
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
+setDefaultStorage('firstLaunch', true);
+export const firstLaunch = writable(localStorage.firstLaunch === 'true');
+firstLaunch.subscribe((bool) => (localStorage.firstLaunch = bool));
 export const LAYOUT_SINGLE = 'single';
 export const LAYOUT_TWO = 'two';
 export const LAYOUT_VERSE_BY_VERSE = 'verse-by-verse';
