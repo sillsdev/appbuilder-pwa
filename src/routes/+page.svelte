@@ -221,9 +221,10 @@
     $: updateAudioPlayer($refs);
     const navBarHeight = NAVBAR_HEIGHT;
     onMount(() => {
-        if ($firstLaunch && showCollectionsOnFirstLaunch && enoughCollections) {
-            console.log('open on first launch');
-            modal.open(MODAL_COLLECTION);
+        if ($firstLaunch) {
+            if (showCollectionsOnFirstLaunch && enoughCollections) {
+                modal.open(MODAL_COLLECTION);
+            }
             $firstLaunch = false;
         }
     });
