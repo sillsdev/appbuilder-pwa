@@ -5,71 +5,42 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
-    import { page } from '$app/stores';
     import { removeBookmark } from '$lib/data/bookmarks';
+    import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { invalidate } from '$app/navigation';
+    import { page } from '$app/stores';
 
-    function handleMenuAction(event: CustomEvent, id: number) {
+    async function handleMenuAction(event: CustomEvent, id: number) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
-                console.log('View: ', bookmarks[id].reference);
+                console.log('View: ', $page.data.bookmarks[id].reference);
                 break;
             case $t['Annotation_Menu_Share']:
-                console.log('Share: ', bookmarks[id].reference);
+                console.log('Share: ', $page.data.bookmarks[id].reference);
                 break;
             case $t['Annotation_Menu_Delete']:
-                removeBookmark(id);
+                await removeBookmark(id);
+                invalidate('bookmarks');
                 break;
         }
-        bookmarks = bookmarks;
     }
 
     function handleSortAction(event: CustomEvent) {
         switch (event.detail.text) {
             case $t['Annotation_Sort_Order_Reference']:
-                sortByReference();
+                sortOrder = SORT_REFERENCE;
                 break;
             case $t['Annotation_Sort_Order_Date']:
-                sortByDate();
+                sortOrder = SORT_DATE;
                 break;
         }
     }
 
-    function sortByReference() {
-        bookmarks.sort((a, b) => {
-            if (a.bookIndex > b.bookIndex) {
-                return 1;
-            } else if (a.bookIndex < b.bookIndex) {
-                return -1;
-            } else if (parseInt(a.chapter) > parseInt(b.chapter)) {
-                return 1;
-            } else if (parseInt(a.chapter) < parseInt(b.chapter)) {
-                return -1;
-            } else if (parseInt(a.verse) > parseInt(b.verse)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        bookmarks = bookmarks;
-    }
-
-    function sortByDate() {
-        bookmarks.sort((a, b) => {
-            if (a.date < b.date) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        bookmarks = bookmarks;
-    }
     const sortMenu = {
         actions: [$t['Annotation_Sort_Order_Reference'], $t['Annotation_Sort_Order_Date']]
     };
-    let bookmarks = $page.data.bookmarks;
-    sortByDate();
+
+    let sortOrder = SORT_DATE;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -89,7 +60,7 @@
     </div>
 
     <div id="bookmarks" class="overflow-y-auto">
-        {#each bookmarks as b}
+        {#each toSorted($page.data.bookmarks, sortOrder) as b}
             {@const iconCard = {
                 collection: b.collection,
                 reference: b.reference,
