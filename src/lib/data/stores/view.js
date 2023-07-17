@@ -5,6 +5,11 @@ import { userSettings } from './setting';
 
 export const NAVBAR_HEIGHT = '4rem';
 
+/** a local storage flag that keeps track of if the page is at its very first launch */
+setDefaultStorage('firstLaunch', true);
+export const firstLaunch = writable(localStorage.firstLaunch === 'true');
+firstLaunch.subscribe((bool) => (localStorage.firstLaunch = bool));
+
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
