@@ -19,9 +19,10 @@ Custom list of collections for the LayoutOptions menu
     }
 </script>
 
-<ul class="dy-menu dy-menu-compact">
+<div class="hover:bg-base-20">
     {#each docSets as d}
         <!-- svelte-ignore a11y-missing-attribute -->
+<<<<<<< HEAD
         <li>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <a
@@ -40,8 +41,23 @@ Custom list of collections for the LayoutOptions menu
                             {d.description}
                         </div>
                     {/if}
+=======
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div
+            on:click={() => handleClick(d)}
+            class="layout-item-block {nextDocSet.id === d.id ? 'layout-item-selected' : ''}"
+        >
+            <div class="layout-text-block">
+                <div class="layout-item-name">
+                    {d.name}
+>>>>>>> ee6c953 (Converted styles to use sab-app.css styles)
                 </div>
-            </a>
-        </li>
+                {#if d.description}
+                    <div class="layout-item-description">
+                        {d.description}
+                    </div>
+                {/if}
+            </div>
+        </div>
     {/each}
-</ul>
+</div>

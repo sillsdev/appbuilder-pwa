@@ -71,12 +71,12 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div>
+<body class="layout">
     <!-- Single Pane -->
     {#if layoutOption === LAYOUT_SINGLE}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <div class="layout-title">
             {$t['Layout_Single_Pane']}
-        </p>
+        </div>
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
             selectedLayouts={$selectedLayouts.singlePane}
@@ -84,7 +84,7 @@ Displays the three different layout option menus.
         />
         <!-- Two Pane -->
     {:else if layoutOption === LAYOUT_TWO}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <div class="layout-title">
             {$t['Layout_Two_Pane']}
         </p>
         <div class="flex flex-col">
@@ -92,23 +92,22 @@ Displays the three different layout option menus.
                 <div>
                     <Dropdown>
                         <svelte:fragment slot="label">
-                            <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
+                            <div class="layout-subtitle">
                                 {i + 1}.
                             </div>
-                            <div class="dy-relative font-normal normal-case text-left">
-                                <div style={convertStyle($s['ui.layouts.title'])}>
-                                    {collection.name}
-                                </div>
-                                {#if collection.description}
-                                    <div
-                                        class="text-sm"
-                                        style={convertStyle($s['ui.layouts.selector'])}
-                                    >
-                                        {collection.description}
+                            <div class="layout-item-block">
+                                <div class="layout-text-block normal-case text-left">
+                                    <div class="layout-item-name">
+                                        {collection.name}
                                     </div>
-                                {/if}
+                                    {#if collection.description}
+                                        <div class="layout-item-description">
+                                            {collection.description}
+                                        </div>
+                                    {/if}
+                                </div>
                             </div>
-                            <div class="px-3">
+                            <div class="layout-dropdown-right">
                                 <DropdownIcon color={$s['ui.layouts.selector'].color} />
                             </div>
                         </svelte:fragment>
@@ -127,30 +126,29 @@ Displays the three different layout option menus.
         </div>
         <!-- Verse By Verse -->
     {:else if layoutOption === LAYOUT_VERSE_BY_VERSE}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <div class="layout-title">
             {$t['Layout_Interlinear']}
         </p>
         {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
                 <Dropdown>
                     <svelte:fragment slot="label">
-                        <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
+                        <div class="layout-subtitle">
                             {i + 1}.
                         </div>
-                        <div class="dy-relative font-normal normal-case text-left">
-                            <div style={convertStyle($s['ui.layouts.title'])}>
-                                {collection.name}
-                            </div>
-                            {#if collection.description}
-                                <div
-                                    class="text-sm"
-                                    style={convertStyle($s['ui.layouts.selector'])}
-                                >
-                                    {collection.description}
+                        <div class="layout-item-block">
+                            <div class="layout-text-block normal-case text-left">
+                                <div class="layout-item-name">
+                                    {collection.name}
                                 </div>
-                            {/if}
+                                {#if collection.description}
+                                    <div class="layout-item-description">
+                                        {collection.description}
+                                    </div>
+                                {/if}
+                            </div>
                         </div>
-                        <div class="px-3">
+                        <div class="layout-dropdown-right">
                             <DropdownIcon color={$s['ui.layouts.selector'].color} />
                         </div>
                     </svelte:fragment>
@@ -165,4 +163,4 @@ Displays the three different layout option menus.
             </div>
         {/each}
     {/if}
-</div>
+</body>
