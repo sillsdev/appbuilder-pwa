@@ -8,7 +8,7 @@ Displays the three different layout option menus.
     import CollectionList from './CollectionList.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
-    import { themeColors, s, t, convertStyle, selectedLayouts } from '$lib/data/stores';
+    import { s, t, theme, nextDocSet } from '$lib/data/stores';
     import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
@@ -71,7 +71,7 @@ Displays the three different layout option menus.
     }
 </script>
 
-<body class="layout">
+<div id="container" data-color-theme={$theme} class="layout">
     <!-- Single Pane -->
     {#if layoutOption === LAYOUT_SINGLE}
         <div class="layout-title">
@@ -163,4 +163,4 @@ Displays the three different layout option menus.
             </div>
         {/each}
     {/if}
-</body>
+</div>
