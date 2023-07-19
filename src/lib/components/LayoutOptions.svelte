@@ -8,7 +8,7 @@ Displays the three different layout option menus.
     import CollectionList from './CollectionList.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
-    import { s, t, theme, nextDocSet } from '$lib/data/stores';
+    import { s, t, theme, selectedLayouts } from '$lib/data/stores';
     import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
@@ -79,14 +79,14 @@ Displays the three different layout option menus.
         </div>
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
-            selectedLayouts={$selectedLayouts.singlePane}
+            selectedLayout={$selectedLayouts.singlePane}
             on:menuaction={(event) => handleClick(event, 0)}
         />
         <!-- Two Pane -->
     {:else if layoutOption === LAYOUT_TWO}
         <div class="layout-title">
             {$t['Layout_Two_Pane']}
-        </p>
+        </div>
         <div class="flex flex-col">
             {#each $selectedLayouts.sideBySide as collection, i}
                 <div>
@@ -114,7 +114,7 @@ Displays the three different layout option menus.
                         <svelte:fragment slot="content">
                             <CollectionList
                                 docSets={allDocSets}
-                                selectedLayouts={collection}
+                                selectedLayout={collection}
                                 on:menuaction={(event) => {
                                     handleClick(event, i);
                                 }}
@@ -128,7 +128,7 @@ Displays the three different layout option menus.
     {:else if layoutOption === LAYOUT_VERSE_BY_VERSE}
         <div class="layout-title">
             {$t['Layout_Interlinear']}
-        </p>
+        </div>
         {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
                 <Dropdown>
@@ -155,7 +155,7 @@ Displays the three different layout option menus.
                     <svelte:fragment slot="content">
                         <CollectionList
                             docSets={i === 2 ? [blank, ...allDocSets] : allDocSets}
-                            selectedLayouts={collection}
+                            selectedLayout={collection}
                             on:menuaction={(event) => handleClick(event, i)}
                         />
                     </svelte:fragment>
