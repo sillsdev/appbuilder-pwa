@@ -90,11 +90,11 @@ Displays the three different layout option menus.
         <div class="flex flex-col">
             {#each $selectedLayouts.sideBySide as collection, i}
                 <div>
+                    <div class="layout-subtitle">
+                        {i + 1}.
+                    </div>
                     <Dropdown>
                         <svelte:fragment slot="label">
-                            <div class="layout-subtitle">
-                                {i + 1}.
-                            </div>
                             <div class="layout-item-block">
                                 <div class="layout-text-block normal-case text-left">
                                     <div class="layout-item-name">
@@ -131,11 +131,11 @@ Displays the three different layout option menus.
         </div>
         {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
+                <div class="layout-subtitle">
+                    {i + 1}.
+                </div>
                 <Dropdown>
                     <svelte:fragment slot="label">
-                        <div class="layout-subtitle">
-                            {i + 1}.
-                        </div>
                         <div class="layout-item-block">
                             <div class="layout-text-block normal-case text-left">
                                 <div class="layout-item-name">
@@ -148,7 +148,7 @@ Displays the three different layout option menus.
                                 {/if}
                             </div>
                         </div>
-                        <div class="layout-dropdown-right">
+                        <div>
                             <DropdownIcon color={$s['ui.layouts.selector'].color} />
                         </div>
                     </svelte:fragment>
