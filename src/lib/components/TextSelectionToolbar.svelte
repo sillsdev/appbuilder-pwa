@@ -27,6 +27,8 @@ TODO:
         t,
         s,
         refs,
+        modal,
+        MODAL_NOTE,
         notes,
         selectedVerses,
         theme,
@@ -108,6 +110,7 @@ TODO:
     }
 
     async function modifyNote() {
+        modal.open(MODAL_NOTE);
         await addNote({
             docSet: $selectedVerses[0].docSet,
             collection: $selectedVerses[0].collection,
