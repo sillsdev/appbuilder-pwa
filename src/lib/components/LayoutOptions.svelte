@@ -93,7 +93,7 @@ Displays the three different layout option menus.
                     <div class="layout-subtitle">
                         {i + 1}.
                     </div>
-                    <Dropdown>
+                    <Dropdown useCustomBtn={true} direction="left">
                         <svelte:fragment slot="label">
                             <div class="layout-item-block">
                                 <div class="layout-text-block normal-case text-left">
@@ -134,7 +134,7 @@ Displays the three different layout option menus.
                 <div class="layout-subtitle">
                     {i + 1}.
                 </div>
-                <Dropdown>
+                <Dropdown useCustomBtn={true}>
                     <svelte:fragment slot="label">
                         <div class="layout-item-block">
                             <div class="layout-text-block normal-case text-left">
