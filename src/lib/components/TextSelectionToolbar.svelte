@@ -109,21 +109,6 @@ TODO:
         selectedVerses.reset();
     }
 
-    async function modifyNote() {
-        modal.open(MODAL_NOTE);
-        await addNote({
-            docSet: $selectedVerses[0].docSet,
-            collection: $selectedVerses[0].collection,
-            book: $selectedVerses[0].book,
-            chapter: $selectedVerses[0].chapter,
-            verse: $selectedVerses[0].verse,
-            text: selectedVerses.getVerseByIndex(0).text,
-            reference: $selectedVerses[0].reference
-        });
-
-        selectedVerses.reset();
-    }
-
     async function modifyHighlight(numColor) {
         if (numColor == 6) {
             await removeHighlights($selectedVerses);
@@ -225,7 +210,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyNote()}>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modal.open(MODAL_NOTE)}>
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}
