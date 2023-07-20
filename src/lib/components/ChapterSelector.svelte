@@ -107,6 +107,7 @@ The navbar component.
                             [c]: {
                                 component: SelectGrid,
                                 props: {
+                                    cols: 5,
                                     options: [
                                         {
                                             rows: books.find((x) => x.bookCode === book)
@@ -130,6 +131,7 @@ The navbar component.
                             [v]: {
                                 component: SelectGrid,
                                 props: {
+                                    cols: 5,
                                     options: [
                                         {
                                             cells: Object.keys(chapters[chapter]).map((x) => ({
@@ -142,7 +144,6 @@ The navbar component.
                                 visible: showVerseSelector
                             }
                         }}
-                        cols="5"
                         on:menuaction={navigateReference}
                     />
                 </div>
