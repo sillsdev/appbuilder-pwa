@@ -41,7 +41,7 @@
                     on:input={() => (noteContent = textArea.value)}
                 />
             </div>
-            <div class="w-full flex justify-end mt-4">
+            <div class="w-full flex mt-4 justify-between">
                 <button on:click={reset} class="dy-btn dy-btn-sm dy-btn-ghost"
                     >{$t['Button_Cancel']}</button
                 >
