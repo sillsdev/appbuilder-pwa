@@ -244,7 +244,7 @@
             <div
                 slot="right-buttons"
                 class="flex flex-nowrap"
-                on:click={showOverlowMenu ? handleMenuClick : () => {}}
+                on:click={showOverlowMenu ? handleMenuClick : () => ({})}
             >
                 <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
                 <div class="flex">
