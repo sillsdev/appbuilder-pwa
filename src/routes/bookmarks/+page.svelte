@@ -84,7 +84,7 @@
             }}
 
             <IconCard on:menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
-                <BookmarkIcon slot="icon" color="red" />
+                <BookmarkIcon slot="icon" color="#b10000" />
             </IconCard>
         {/each}
     </div>
