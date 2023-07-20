@@ -29,6 +29,10 @@ function createModal() {
     return {
         subscribe,
         open: (modalType) => {
+<<<<<<< HEAD
+=======
+            console.log('opening', modalType);
+>>>>>>> 14dc073 (Add Note Modal)
             set([...get(modal), modalType]);
         },
         clear: () => set([])
