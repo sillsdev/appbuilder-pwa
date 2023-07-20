@@ -29,7 +29,6 @@ function createModal() {
     return {
         subscribe,
         open: (modalType) => {
-            console.log('opening', modalType);
             set([...get(modal), modalType]);
         },
         clear: () => set([])

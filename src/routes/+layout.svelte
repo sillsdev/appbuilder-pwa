@@ -15,7 +15,7 @@
     import '$lib/app.css';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
-    import NoteMenu from '$lib/components/NoteMenu.svelte';
+    import NoteDialog from '$lib/components/NoteDialog.svelte';
 
     $: $modal, showModal();
 
@@ -27,7 +27,7 @@
                         collectionSelector.showModal();
                         break;
                     case MODAL_NOTE:
-                        noteMenu.showModal();
+                        noteDialog.showModal();
                         break;
                     case MODAL_TEXT_APPERANCE:
                         textAppearanceSelector.showModal();
@@ -40,7 +40,7 @@
 
     let textAppearanceSelector;
     let collectionSelector;
-    let noteMenu;
+    let noteDialog;
 </script>
 
 <svelte:head>
@@ -54,7 +54,7 @@
     <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 
     <!-- Add Note Menu -->
-    <NoteMenu bind:this={noteMenu} />
+    <NoteDialog bind:this={noteDialog} />
     <!-- Text Appearance Options Menu -->
     <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 

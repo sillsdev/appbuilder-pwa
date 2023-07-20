@@ -7,7 +7,6 @@
     let modal;
     let textArea;
     let noteContent;
-    $: console.log(noteContent);
 
     export function showModal() {
         modal.showModal();
@@ -43,8 +42,12 @@
                 />
             </div>
             <div class="w-full flex justify-end mt-4">
-                <button on:click={reset} class="dy-btn dy-btn-sm dy-btn-ghost">delete</button>
-                <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost">save</button>
+                <button on:click={reset} class="dy-btn dy-btn-sm dy-btn-ghost"
+                    >{$t['Button_Cancel']}</button
+                >
+                <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
+                    >{$t['Button_OK']}</button
+                >
             </div>
         </div>
     </svelte:fragment>
