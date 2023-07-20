@@ -20,7 +20,7 @@ interface Bookmarks extends DBSchema {
         indexes: {
             'collection, book, chapter, verse': string;
             'collection, book, chapter': string;
-            'date': string;
+            date: string;
         };
     };
 }
@@ -45,9 +45,7 @@ async function openBookmarks() {
                     'book',
                     'chapter'
                 ]);
-                bookmarkStore.createIndex('date', [
-                    'date'
-                ]);
+                bookmarkStore.createIndex('date', ['date']);
             }
         });
     }
