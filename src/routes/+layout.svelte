@@ -16,10 +16,14 @@
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
 <<<<<<< HEAD
+<<<<<<< HEAD
     import NoteDialog from '$lib/components/NoteDialog.svelte';
 =======
     import NoteMenu from '$lib/components/NoteMenu.svelte';
 >>>>>>> 14dc073 (Add Note Modal)
+=======
+    import NoteDialog from '$lib/components/NoteDialog.svelte';
+>>>>>>> 73a2bfb (review changes)
 
     $: $modal, showModal();
 
@@ -32,10 +36,14 @@
                         break;
                     case MODAL_NOTE:
 <<<<<<< HEAD
+<<<<<<< HEAD
                         noteDialog.showModal();
 =======
                         noteMenu.showModal();
 >>>>>>> 14dc073 (Add Note Modal)
+=======
+                        noteDialog.showModal();
+>>>>>>> 73a2bfb (review changes)
                         break;
                     case MODAL_TEXT_APPERANCE:
                         textAppearanceSelector.showModal();
@@ -49,10 +57,14 @@
     let textAppearanceSelector;
     let collectionSelector;
 <<<<<<< HEAD
+<<<<<<< HEAD
     let noteDialog;
 =======
     let noteMenu;
 >>>>>>> 14dc073 (Add Note Modal)
+=======
+    let noteDialog;
+>>>>>>> 73a2bfb (review changes)
 </script>
 
 <svelte:head>
@@ -67,10 +79,14 @@
 
     <!-- Add Note Menu -->
 <<<<<<< HEAD
+<<<<<<< HEAD
     <NoteDialog bind:this={noteDialog} />
 =======
     <NoteMenu bind:this={noteMenu} />
 >>>>>>> 14dc073 (Add Note Modal)
+=======
+    <NoteDialog bind:this={noteDialog} />
+>>>>>>> 73a2bfb (review changes)
     <!-- Text Appearance Options Menu -->
     <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
