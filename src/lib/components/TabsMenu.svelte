@@ -2,6 +2,8 @@
 @component
 A component to display tabbed menus.
 -->
+<svelte:options accessors={true} />
+
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { s, convertStyle } from '$lib/data/stores';
@@ -11,6 +13,7 @@ A component to display tabbed menus.
     export let active = Object.keys(options).filter((x) => options[x].visible)[0];
     export let scroll = true;
     export let height = '50vh';
+
     const dispatch = createEventDispatcher();
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
 

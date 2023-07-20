@@ -8,7 +8,7 @@ Displays the three different layout option menus.
     import CollectionList from './CollectionList.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
-    import { themeColors, s, t, convertStyle, nextDocSet } from '$lib/data/stores';
+    import { themeColors, s, t, convertStyle, selectedLayouts } from '$lib/data/stores';
     import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
@@ -33,32 +33,32 @@ Displays the three different layout option menus.
         const docSet = opt.detail.collection;
         switch (layoutOption) {
             case LAYOUT_SINGLE:
-                $nextDocSet.singlePane = docSet;
+                $selectedLayouts.singlePane = docSet;
                 break;
             case LAYOUT_TWO:
-                $nextDocSet.sideBySide[index] = docSet;
-                for (let i = 0; i < $nextDocSet.sideBySide.length; i++) {
+                $selectedLayouts.sideBySide[index] = docSet;
+                for (let i = 0; i < $selectedLayouts.sideBySide.length; i++) {
                     if (i === index) {
                         // if found self
                         continue;
-                    } else if ($nextDocSet.sideBySide[i].id === docSet.id) {
+                    } else if ($selectedLayouts.sideBySide[i].id === docSet.id) {
                         // if this is a repeat value of self
-                        $nextDocSet.sideBySide[i] = allDocSets.filter(
-                            (x) => $nextDocSet.sideBySide.includes(x) === false
+                        $selectedLayouts.sideBySide[i] = allDocSets.filter(
+                            (x) => $selectedLayouts.sideBySide.includes(x) === false
                         )[0];
                     }
                 }
                 break;
             case LAYOUT_VERSE_BY_VERSE:
-                $nextDocSet.verseByVerse[index] = docSet;
-                for (let i = 0; i < $nextDocSet.verseByVerse.length; i++) {
+                $selectedLayouts.verseByVerse[index] = docSet;
+                for (let i = 0; i < $selectedLayouts.verseByVerse.length; i++) {
                     if (i === index) {
                         // if found self
                         continue;
-                    } else if ($nextDocSet.verseByVerse[i].id === docSet.id) {
+                    } else if ($selectedLayouts.verseByVerse[i].id === docSet.id) {
                         // if this is a repeat value of self
-                        $nextDocSet.verseByVerse[i] = allDocSets.filter(
-                            (x) => $nextDocSet.verseByVerse.includes(x) === false
+                        $selectedLayouts.verseByVerse[i] = allDocSets.filter(
+                            (x) => $selectedLayouts.verseByVerse.includes(x) === false
                         )[0];
                     }
                 }
@@ -79,7 +79,7 @@ Displays the three different layout option menus.
         </p>
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
-            nextDocSet={$nextDocSet.singlePane}
+            selectedLayouts={$selectedLayouts.singlePane}
             on:menuaction={(event) => handleClick(event, 0)}
         />
         <!-- Two Pane -->
@@ -88,7 +88,7 @@ Displays the three different layout option menus.
             {$t['Layout_Two_Pane']}
         </p>
         <div class="flex flex-col">
-            {#each $nextDocSet.sideBySide as collection, i}
+            {#each $selectedLayouts.sideBySide as collection, i}
                 <div>
                     <Dropdown>
                         <svelte:fragment slot="label">
@@ -115,7 +115,7 @@ Displays the three different layout option menus.
                         <svelte:fragment slot="content">
                             <CollectionList
                                 docSets={allDocSets}
-                                nextDocSet={collection}
+                                selectedLayouts={collection}
                                 on:menuaction={(event) => {
                                     handleClick(event, i);
                                 }}
@@ -130,7 +130,7 @@ Displays the three different layout option menus.
         <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Interlinear']}
         </p>
-        {#each $nextDocSet.verseByVerse as collection, i}
+        {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
                 <Dropdown>
                     <svelte:fragment slot="label">
@@ -157,7 +157,7 @@ Displays the three different layout option menus.
                     <svelte:fragment slot="content">
                         <CollectionList
                             docSets={i === 2 ? [blank, ...allDocSets] : allDocSets}
-                            nextDocSet={collection}
+                            selectedLayouts={collection}
                             on:menuaction={(event) => handleClick(event, i)}
                         />
                     </svelte:fragment>
