@@ -51,6 +51,7 @@ async function openNotes() {
 }
 
 export async function addNote(item: {
+    docSet: string;
     collection: string;
     book: string;
     chapter: string;
