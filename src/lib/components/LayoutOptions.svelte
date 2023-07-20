@@ -100,9 +100,9 @@ Displays the three different layout option menus.
                     <div class="layout-subtitle">
                         {i + 1}.
                     </div>
-                    <Dropdown useCustomBtn={true} direction="left">
+                    <Dropdown useCustomBtn={true} direction="right">
                         <svelte:fragment slot="label">
-                            <div class="layout-item-block">
+                            <div class="layout-item-block" style:box-shadow="unset">
                                 <div class="layout-text-block normal-case text-left">
                                     <div class="layout-item-name">
                                         {collection.name}
@@ -141,9 +141,9 @@ Displays the three different layout option menus.
                 <div class="layout-subtitle">
                     {i + 1}.
                 </div>
-                <Dropdown useCustomBtn={true}>
+                <Dropdown useCustomBtn={true} direction="right">
                     <svelte:fragment slot="label">
-                        <div class="layout-item-block">
+                        <div class="layout-item-block" style:box-shadow="unset">
                             <div class="layout-text-block normal-case text-left">
                                 <div class="layout-item-name">
                                     {collection.name}
