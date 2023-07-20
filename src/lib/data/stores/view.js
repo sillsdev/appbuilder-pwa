@@ -21,13 +21,16 @@ const singleLayout = { mode: LAYOUT_SINGLE, auxDocSets: [] };
 export const layout = writable(singleLayout);
 
 export const MODAL_COLLECTION = 'collection';
+export const MODAL_NOTE = 'note';
 export const MODAL_TEXT_APPERANCE = 'text-appearance';
 
 function createModal() {
     const { subscribe, set } = writable([]);
     return {
         subscribe,
-        open: (modalType) => set([...get(modal), modalType]),
+        open: (modalType) => {
+            set([...get(modal), modalType]);
+        },
         clear: () => set([])
     };
 }

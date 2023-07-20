@@ -27,6 +27,8 @@ TODO:
         t,
         s,
         refs,
+        modal,
+        MODAL_NOTE,
         notes,
         selectedVerses,
         theme,
@@ -37,7 +39,6 @@ TODO:
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
-    import { addNote } from '$lib/data/notes';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -103,20 +104,6 @@ TODO:
         } else {
             await removeBookmark(selectedVerseInBookmarks);
         }
-
-        selectedVerses.reset();
-    }
-
-    async function modifyNote() {
-        await addNote({
-            docSet: $selectedVerses[0].docSet,
-            collection: $selectedVerses[0].collection,
-            book: $selectedVerses[0].book,
-            chapter: $selectedVerses[0].chapter,
-            verse: $selectedVerses[0].verse,
-            text: selectedVerses.getVerseByIndex(0).text,
-            reference: $selectedVerses[0].reference
-        });
 
         selectedVerses.reset();
     }
@@ -222,7 +209,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modifyNote()}>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modal.open(MODAL_NOTE)}>
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}
