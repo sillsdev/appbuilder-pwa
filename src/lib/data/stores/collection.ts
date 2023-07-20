@@ -50,7 +50,7 @@ function createInitDocSet(): App.CollectionGroup {
 }
 
 const initDocSets: App.CollectionGroup = createInitDocSet();
-console.log('Initial docSets', initDocSets);
+// console.log('Initial docSets', initDocSets);
 
 setDefaultStorage('docSets', initDocSets);
 // ToDo: Create a docSet store

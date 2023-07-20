@@ -5,10 +5,14 @@ TODO:
 - handle the book and collection specific styles
 -->
 <script lang="ts">
+    import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { direction } from '$lib/data/stores';
+    import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
+    export let docSet = '';
     export let collection = '';
+    export let book = '';
+    export let chapter = '';
     export let reference = '';
     export let text = '';
     export let date = '';
@@ -34,15 +38,29 @@ TODO:
             class="annotation-item-reference justify-self-start self-center"
             class:justify-self-end={justifyEnd}
         >
-            {reference}
+            <a
+                style="text-decoration:none;"
+                href="{base}/"
+                on:click={() => refs.set({ docSet, book, chapter })}
+            >
+                {reference}
+            </a>
         </div>
         <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
+
         <div
             class="annotation-item-text col-span-3 justify-self-start"
             class:justify-self-end={justifyEnd}
         >
-            {text}
+            <a
+                style="text-decoration:none;"
+                href="{base}/"
+                on:click={() => refs.set({ docSet, book, chapter })}
+            >
+                {text}
+            </a>
         </div>
+
         <div class="annotation-item-date col-span-3 justify-self-end">{date}</div>
     </div>
 </div>

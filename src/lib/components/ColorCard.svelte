@@ -5,8 +5,12 @@ TODO:
 - handle the book and collection specific styles
 -->
 <script lang="ts">
-    import { direction } from '$lib/data/stores';
+    import { base } from '$app/paths';
+    import { refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
+    export let docSet = '';
+    export let book = '';
+    export let chapter = '';
     export let reference = '';
     export let text = '';
     export let date = '';
@@ -17,9 +21,25 @@ TODO:
 <div class="annotation-item-block dy-card">
     <div class="color-card">
         <div class="annotation-item-color {'hlp' + penColor.toString()} self-center" />
-        <div class="annotation-item-reference justify-self-start self-center">{reference}</div>
+        <div class="annotation-item-reference justify-self-start self-center">
+            <a
+                style="text-decoration:none;"
+                href="{base}/"
+                on:click={() => refs.set({ docSet, book, chapter })}
+            >
+                {reference}
+            </a>
+        </div>
         <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
-        <div class="annotation-item-text col-span-3">{text}</div>
+        <div class="annotation-item-text col-span-3">
+            <a
+                style="text-decoration:none;"
+                href="{base}/"
+                on:click={() => refs.set({ docSet, book, chapter })}
+            >
+                {text}
+            </a>
+        </div>
         <div class="annotation-item-date col-span-3 justify-self-end">{date}</div>
     </div>
 </div>

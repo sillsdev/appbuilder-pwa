@@ -4,6 +4,7 @@ import { writable } from 'svelte/store';
 
 export interface NoteItem {
     date: number;
+    docSet: string;
     collection: string;
     book: string;
     chapter: string;

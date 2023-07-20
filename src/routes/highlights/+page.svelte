@@ -2,20 +2,31 @@
     import ColorCard from '$lib/components/ColorCard.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
+    import { notes, refs, t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
+    import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
+    import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { invalidate } from '$app/navigation';
     import { page } from '$app/stores';
+    import { base } from '$app/paths';
+    import { goto } from '$app/navigation';
+    import config from '$lib/data/config';
 
-    function handleMenuaction(event: CustomEvent, id: string) {
+    async function handleMenuaction(event: CustomEvent, highlight: HighlightItem) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
-                console.log('View: ', highlights[id].reference);
+                refs.set(highlight);
+                goto(`${base}/`);
                 break;
             case $t['Annotation_Menu_Share']:
-                console.log('Share: ', highlights[id].reference);
+                await navigator.share({
+                    title: config.name,
+                    text: highlight.text + '\n' + highlight.reference
+                });
                 break;
             case $t['Annotation_Menu_Delete']:
-                console.log('Delete: ', id);
+                await removeHighlight(highlight.date);
+                invalidate('highlights');
                 break;
         }
     }
@@ -23,64 +34,17 @@
     function handleSortAction(event: CustomEvent) {
         switch (event.detail.text) {
             case $t['Annotation_Sort_Order_Reference']:
-                sortByReference();
+                sortOrder = SORT_REFERENCE;
                 break;
             case $t['Annotation_Sort_Order_Date']:
-                sortByDate();
+                sortOrder = SORT_DATE;
                 break;
             case $t['Annotation_Sort_Order_Color']:
-                sortByColor();
+                sortOrder = SORT_COLOR;
                 break;
         }
     }
 
-    function sortByReference() {
-        highlights.sort((a, b) => {
-            if (a.bookIndex > b.bookIndex) {
-                return 1;
-            } else if (a.bookIndex < b.bookIndex) {
-                return -1;
-            } else if (parseInt(a.chapter) > parseInt(b.chapter)) {
-                return 1;
-            } else if (parseInt(a.chapter) < parseInt(b.chapter)) {
-                return -1;
-            } else if (parseInt(a.verse) > parseInt(b.verse)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        highlights = highlights;
-    }
-
-    function sortByDate() {
-        highlights.sort((a, b) => {
-            if (a.date < b.date) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        highlights = highlights;
-    }
-
-    function sortByColor() {
-        highlights.sort((a, b) => {
-            if (a.penColor > b.penColor) {
-                return 1;
-            } else if (a.penColor < b.penColor) {
-                return -1;
-            } else if (a.date < b.date) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        highlights = highlights;
-    }
     const sortMenu = {
         actions: [
             $t['Annotation_Sort_Order_Reference'],
@@ -88,8 +52,8 @@
             $t['Annotation_Sort_Order_Color']
         ]
     };
-    let highlights = $page.data.highlights;
-    sortByDate();
+
+    let sortOrder = SORT_DATE;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -109,9 +73,11 @@
     </div>
 
     <div class="overflow-y-auto">
-        {#each highlights as h}
+        {#each toSorted($page.data.highlights, sortOrder) as h}
             {@const colorCard = {
-                collection: h.collection,
+                docSet: h.docSet,
+                book: h.book,
+                chapter: h.chapter,
                 reference: h.reference,
                 text: h.text,
                 date: formatDate(new Date(h.date)),
@@ -122,7 +88,7 @@
                 ],
                 penColor: h.penColor
             }}
-            <ColorCard on:menuaction={(e) => handleMenuaction(e, h.reference)} {...colorCard} />
+            <ColorCard on:menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
         {/each}
     </div>
 </div>

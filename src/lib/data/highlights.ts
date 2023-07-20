@@ -4,6 +4,7 @@ import { writable } from 'svelte/store';
 
 export interface HighlightItem {
     date: number;
+    docSet: string;
     collection: string;
     book: string;
     chapter: string;
@@ -106,16 +107,20 @@ export async function findHighlightByChapter(item: {
     return result;
 }
 
-export async function removeHighlights(selectedVerses) {
+export async function removeHighlight(date: number) {
     const highlights = await openHighlights();
+    await highlights.delete('highlights', date);
+    notifyUpdated();
+}
 
+export async function removeHighlights(selectedVerses) {
     const verseCount = selectedVerses.length;
     for (var i = 0; i < verseCount; i++) {
         const selectedVerse = selectedVerses[i];
         let index = await findHighlight({ ...selectedVerse });
         // Could be highlighted with multiple colors, remove all
         while (index !== -1) {
-            await highlights.delete('highlights', index);
+            await removeHighlight(index);
             index = await findHighlight({ ...selectedVerse });
         }
     }
