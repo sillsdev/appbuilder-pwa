@@ -3,23 +3,30 @@
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { BookmarkIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
+    import { refs, t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
-    import { removeBookmark } from '$lib/data/bookmarks';
+    import { removeBookmark, type BookmarkItem } from '$lib/data/bookmarks';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { invalidate } from '$app/navigation';
     import { page } from '$app/stores';
+    import { base } from '$app/paths';
+    import { goto } from '$app/navigation';
+    import config from '$lib/data/config';
 
-    async function handleMenuAction(event: CustomEvent, id: number) {
+    async function handleMenuAction(event: CustomEvent, bookmark: BookmarkItem) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
-                console.log('View: ', $page.data.bookmarks[id].reference);
+                refs.set(bookmark);
+                goto(`${base}/`);
                 break;
             case $t['Annotation_Menu_Share']:
-                console.log('Share: ', $page.data.bookmarks[id].reference);
+                await navigator.share({
+                    title: config.name,
+                    text: bookmark.reference + '\n' + bookmark.text
+                });
                 break;
             case $t['Annotation_Menu_Delete']:
-                await removeBookmark(id);
+                await removeBookmark(bookmark.date);
                 invalidate('bookmarks');
                 break;
         }
@@ -62,7 +69,10 @@
     <div id="bookmarks" class="overflow-y-auto">
         {#each toSorted($page.data.bookmarks, sortOrder) as b}
             {@const iconCard = {
+                docSet: b.docSet,
                 collection: b.collection,
+                book: b.book,
+                chapter: b.chapter,
                 reference: b.reference,
                 text: b.text,
                 date: formatDate(new Date(b.date)),
@@ -72,7 +82,8 @@
                     $t['Annotation_Menu_Delete']
                 ]
             }}
-            <IconCard on:menuaction={(e) => handleMenuAction(e, b.date)} {...iconCard}>
+
+            <IconCard on:menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
                 <BookmarkIcon slot="icon" color="red" />
             </IconCard>
         {/each}
