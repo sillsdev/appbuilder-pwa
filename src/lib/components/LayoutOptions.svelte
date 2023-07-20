@@ -8,8 +8,15 @@ Displays the three different layout option menus.
     import CollectionList from './CollectionList.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
-    import { s, t, theme, selectedLayouts } from '$lib/data/stores';
-    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
+    import {
+        LAYOUT_SINGLE,
+        LAYOUT_TWO,
+        LAYOUT_VERSE_BY_VERSE,
+        s,
+        selectedLayouts,
+        t,
+        theme
+    } from '$lib/data/stores';
 
     const dispatch = createEventDispatcher();
 
