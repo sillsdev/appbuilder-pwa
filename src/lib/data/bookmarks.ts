@@ -4,6 +4,7 @@ import { writable } from 'svelte/store';
 
 export interface BookmarkItem {
     date: number;
+    docSet: string;
     collection: string;
     book: string;
     chapter: string;
@@ -19,6 +20,7 @@ interface Bookmarks extends DBSchema {
         indexes: {
             'collection, book, chapter, verse': string;
             'collection, book, chapter': string;
+            date: string;
         };
     };
 }
@@ -43,6 +45,7 @@ async function openBookmarks() {
                     'book',
                     'chapter'
                 ]);
+                bookmarkStore.createIndex('date', ['date']);
             }
         });
     }
@@ -50,6 +53,7 @@ async function openBookmarks() {
 }
 
 export async function addBookmark(item: {
+    docSet: string;
     collection: string;
     book: string;
     chapter: string;

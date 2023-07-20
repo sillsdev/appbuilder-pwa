@@ -3,20 +3,34 @@
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { NoteIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, monoIconColor } from '$lib/data/stores';
+    import { t, monoIconColor, refs, bookmarks } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
+    import { removeNote, type NoteItem } from '$lib/data/notes';
+    import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { invalidate } from '$app/navigation';
     import { page } from '$app/stores';
+    import { base } from '$app/paths';
+    import { goto } from '$app/navigation';
+    import config from '$lib/data/config';
 
-    function handleMenuaction(event: CustomEvent, id: string) {
+    async function handleMenuaction(event: CustomEvent, note: NoteItem) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
-                console.log('View: ', notes[id].reference);
+                refs.set(note);
+                goto(`${base}/`);
+                break;
+            case $t['Annotation_Menu_Edit']:
+                console.log('Ready to edit: ', note.reference, ' ', note.text);
                 break;
             case $t['Annotation_Menu_Share']:
-                console.log('Share: ', notes[id].reference);
+                await navigator.share({
+                    title: config.name,
+                    text: note.text + '\n' + note.reference
+                });
                 break;
             case $t['Annotation_Menu_Delete']:
-                console.log('Delete: ', id);
+                await removeNote(note.date);
+                invalidate('notes');
                 break;
         }
     }
@@ -24,50 +38,19 @@
     function handleSortAction(event: CustomEvent) {
         switch (event.detail.text) {
             case $t['Annotation_Sort_Order_Reference']:
-                sortByReference();
+                sortOrder = SORT_REFERENCE;
                 break;
             case $t['Annotation_Sort_Order_Date']:
-                sortByDate();
+                sortOrder = SORT_DATE;
                 break;
         }
     }
 
-    function sortByReference() {
-        notes.sort((a, b) => {
-            if (a.bookIndex > b.bookIndex) {
-                return 1;
-            } else if (a.bookIndex < b.bookIndex) {
-                return -1;
-            } else if (parseInt(a.chapter) > parseInt(b.chapter)) {
-                return 1;
-            } else if (parseInt(a.chapter) < parseInt(b.chapter)) {
-                return -1;
-            } else if (parseInt(a.verse) > parseInt(b.verse)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        notes = notes;
-    }
-
-    function sortByDate() {
-        notes.sort((a, b) => {
-            if (a.date < b.date) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-
-        notes = notes;
-    }
     const sortMenu = {
         actions: [$t['Annotation_Sort_Order_Reference'], $t['Annotation_Sort_Order_Date']]
     };
-    let notes = $page.data.notes;
-    sortByDate();
+
+    let sortOrder = SORT_DATE;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -87,9 +70,12 @@
     </div>
 
     <div class="overflow-y-auto">
-        {#each notes as n}
+        {#each toSorted($page.data.notes, sortOrder) as n}
             {@const iconCard = {
+                docSet: n.docSet,
                 collection: n.collection,
+                book: n.book,
+                chapter: n.chapter,
                 reference: n.reference,
                 text: n.text,
                 date: formatDate(new Date(n.date)),
@@ -100,7 +86,7 @@
                     $t['Annotation_Menu_Delete']
                 ]
             }}
-            <IconCard on:menuaction={(e) => handleMenuaction(e, n.reference)} {...iconCard}>
+            <IconCard on:menuaction={(e) => handleMenuaction(e, n)} {...iconCard}>
                 <NoteIcon slot="icon" color={$monoIconColor} />
             </IconCard>
         {/each}

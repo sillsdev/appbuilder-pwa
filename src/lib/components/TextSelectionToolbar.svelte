@@ -92,6 +92,7 @@ TODO:
         // If there is already a bookmark at this verse, remove it
         if (selectedVerseInBookmarks === -1) {
             await addBookmark({
+                docSet: $selectedVerses[0].docSet,
                 collection: $selectedVerses[0].collection,
                 book: $selectedVerses[0].book,
                 chapter: $selectedVerses[0].chapter,
@@ -108,6 +109,7 @@ TODO:
 
     async function modifyNote() {
         await addNote({
+            docSet: $selectedVerses[0].docSet,
             collection: $selectedVerses[0].collection,
             book: $selectedVerses[0].book,
             chapter: $selectedVerses[0].chapter,
