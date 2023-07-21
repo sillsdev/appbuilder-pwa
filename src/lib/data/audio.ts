@@ -1,6 +1,5 @@
 import config from '$lib/data/config';
 import { audioHighlightElements } from '$lib/data/stores/audio.js';
-// import { isSelectableText } from '$lib/scripts/verseSelectUtil';
 import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/data/stores';
 import { MRUCache } from '$lib/data/mrucache';
 
@@ -16,6 +15,7 @@ interface AudioPlayer {
     book: string;
     chapter: string;
     timer: number;
+    isAudio: boolean;
 }
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer;
@@ -147,6 +147,10 @@ function updateTime() {
 }
 // calls updateTime() every 100ms
 function toggleTimeRunning() {
+    // enables audio play position to be changed by clicking on verse number
+    if (currentAudioPlayer.isAudio === false) {
+        currentAudioPlayer.isAudio = true;
+    }
     if (currentAudioPlayer.audio.ended || currentAudioPlayer.playing === false) {
         clearInterval(currentAudioPlayer.timer);
         currentAudioPlayer.timer = null;
@@ -180,7 +184,7 @@ function updateHighlights() {
         const timing = currentAudioPlayer.timing[i];
         if (
             currentAudioPlayer.progress >= timing.starttime &&
-            currentAudioPlayer.progress <= timing.endtime
+            currentAudioPlayer.progress < timing.endtime
         ) {
             currentAudioPlayer.timeIndex = i;
             tag = timing.tag.replace(/[^ -~]+/g, '');
@@ -274,16 +278,30 @@ export async function getAudioSourceInfo(item: {
     };
 }
 
-//todo implement selectable text that can play audio
-
-// export function onClickSound(e: any) {
-//     let target = e.target;
-
-//     if (isSelectableText(target)) {
-//         const start = parseFloat(target.start);
-//         this.audio.currentTime = start;
-//         this.audio.play();
-//     } else {
-
-//     }
-// }
+// changes audio to the verse number clicked on
+export function verseClickSoundChange(element) {
+    if (currentAudioPlayer.isAudio === false) {
+        return;
+    }
+    let plays = false;
+    if (currentAudioPlayer.playing === true) {
+        plays = true;
+        pause();
+    }
+    const verseSelection = document.querySelector('[data-verse="' + element + '"]');
+    const verseId = verseSelection.getAttribute('id');
+    const elements = currentAudioPlayer.timing;
+    for (let i = 0; i < elements.length; i++) {
+        let tag = currentAudioPlayer.timing[i].tag.replace(/[^ -~]+/g, '');
+        if (verseId === tag) {
+            currentAudioPlayer.timeIndex = currentAudioPlayer.timing[i];
+            const newtime = currentAudioPlayer.timeIndex.starttime;
+            currentAudioPlayer.audio.currentTime = newtime;
+            updateTime();
+            break;
+        }
+    }
+    if (plays === true) {
+        play();
+    }
+}
