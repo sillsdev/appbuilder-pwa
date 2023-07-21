@@ -33,6 +33,8 @@
     import {
         AudioIcon,
         SearchIcon,
+        ChevronLeftIcon,
+        ChevronRightIcon,
         TriangleLeftIcon,
         TriangleRightIcon,
         BibleIcon,
@@ -64,6 +66,23 @@
                 chapter: $refs.chapter
             });
         }
+    }
+
+    function prevChapter() {
+        (refs as any).skip(-1);
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter
+        });
+    }
+    function nextChapter() {
+        (refs as any).skip(1);
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter
+        });
     }
 
     const minFontSize = config.mainFeatures['text-size-min'];
@@ -244,15 +263,7 @@
             <div
                 slot="right-buttons"
                 class="flex flex-nowrap"
-<<<<<<< HEAD
-<<<<<<< HEAD
                 on:click={showOverlowMenu ? handleMenuClick : () => ({})}
-=======
-                on:click={showOverlowMenu ? handleMenuClick : () => {}}
->>>>>>> 14dc073 (Add Note Modal)
-=======
-                on:click={showOverlowMenu ? handleMenuClick : () => ({})}
->>>>>>> a37caab (resolve lint complaint)
             >
                 <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
                 <div class="flex">
@@ -333,18 +344,32 @@
         </div>
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
-        <ScrolledContent>
-            <div
-                slot="scrolled-content"
-                class="max-w-screen-md mx-auto"
-                use:pinch
-                on:pinch={doPinch}
-                use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-                on:swipe={doSwipe}
-            >
-                <ScriptureViewSofria {...viewSettings} />
+        <div class="flex flex-row mx-auto justify-evenly">
+            <div class="basis-1/6 flex justify-center">
+                <div class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost">
+                    <ChevronLeftIcon />
+                </div>
             </div>
-        </ScrolledContent>
+            <div class="basis-4/6 max-w-screen-md">
+                <ScrolledContent>
+                    <div
+                        slot="scrolled-content"
+                        class="max-w-screen-md mx-auto"
+                        use:pinch
+                        on:pinch={doPinch}
+                        use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+                        on:swipe={doSwipe}
+                    >
+                        <ScriptureViewSofria {...viewSettings} />
+                    </div>
+                </ScrolledContent>
+            </div>
+            <div class="basis-1/6 flex justify-center">
+                <div class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost">
+                    <ChevronRightIcon />
+                </div>
+            </div>
+        </div>
     </div>
     {#if $selectedVerses.length > 0}
         <div class="text-selection">
