@@ -85,6 +85,9 @@
         });
     }
 
+    $: hasPrev = $refs.prev.chapter === null;
+    $: hasNext = $refs.next.chapter === null;
+
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
     let lastPinch = 1.0;
@@ -346,9 +349,12 @@
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <div class="flex flex-row mx-auto justify-evenly">
             <div class="basis-1/6 flex justify-center">
-                <div class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost">
+                <button
+                    on:click={prevChapter}
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost"
+                >
                     <ChevronLeftIcon />
-                </div>
+                </button>
             </div>
             <div class="basis-4/6 max-w-screen-md">
                 <ScrolledContent>
@@ -365,9 +371,12 @@
                 </ScrolledContent>
             </div>
             <div class="basis-1/6 flex justify-center">
-                <div class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost">
+                <button
+                    on:click={nextChapter}
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost"
+                >
                     <ChevronRightIcon />
-                </div>
+                </button>
             </div>
         </div>
     </div>
