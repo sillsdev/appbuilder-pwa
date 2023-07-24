@@ -261,7 +261,9 @@ TODO:
     // handles clicks on verse numbers
     function audioClickHandler(click) {
         const element = click.target.textContent;
-        verseClickSoundChange(element);
+        const verseSelection = document.querySelector('[data-verse="' + element + '"]');
+        const verseId = verseSelection.getAttribute('id');
+        verseClickSoundChange(verseId);
     }
 
     function addNotesDiv(workspace) {

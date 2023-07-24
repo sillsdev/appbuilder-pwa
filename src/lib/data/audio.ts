@@ -15,12 +15,14 @@ interface AudioPlayer {
     book: string;
     chapter: string;
     timer: number;
-    isAudio: boolean;
 }
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer;
 audioPlayerStore.subscribe(async (value) => {
     currentAudioPlayer = value;
+    if (currentAudioPlayer.audio === null) {
+        return;
+    }
     await getAudio();
 });
 // produces the cache key for the mru audio cache
@@ -147,10 +149,6 @@ function updateTime() {
 }
 // calls updateTime() every 100ms
 function toggleTimeRunning() {
-    // enables audio play position to be changed by clicking on verse number
-    if (currentAudioPlayer.isAudio === false) {
-        currentAudioPlayer.isAudio = true;
-    }
     if (currentAudioPlayer.audio.ended || currentAudioPlayer.playing === false) {
         clearInterval(currentAudioPlayer.timer);
         currentAudioPlayer.timer = null;
@@ -158,6 +156,14 @@ function toggleTimeRunning() {
         currentAudioPlayer.timer = setInterval(() => updateTime(), 100);
     }
     return;
+}
+// checks if audio has played
+function hasAudioPlayed() {
+    if (currentAudioPlayer.progress > 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 function pause() {
     if (!currentAudioPlayer.loaded) return;
@@ -279,8 +285,8 @@ export async function getAudioSourceInfo(item: {
 }
 
 // changes audio to the verse number clicked on
-export function verseClickSoundChange(element) {
-    if (currentAudioPlayer.isAudio === false) {
+export function verseClickSoundChange(verseId) {
+    if (hasAudioPlayed() === false) {
         return;
     }
     let plays = false;
@@ -288,8 +294,6 @@ export function verseClickSoundChange(element) {
         plays = true;
         pause();
     }
-    const verseSelection = document.querySelector('[data-verse="' + element + '"]');
-    const verseId = verseSelection.getAttribute('id');
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
         let tag = currentAudioPlayer.timing[i].tag.replace(/[^ -~]+/g, '');
