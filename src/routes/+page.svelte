@@ -86,7 +86,7 @@
         });
     }
 
-    $: mdWindow = $windowSize.width < 768;
+    $: mdWindow = $windowSize.width < 769;
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
     $: console.log('width', $windowSize.width);
