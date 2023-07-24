@@ -85,9 +85,23 @@
         });
     }
 
+    let width = window.innerWidth;
+    $: {
+        const handleResize = () => {
+            width = window.innerWidth;
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Clean up the event listener when the component is destroyed to avoid memory leaks
+        onDestroy(() => {
+            window.removeEventListener('resize', handleResize);
+        });
+    }
+
+    $: mdWindow = width < 768;
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
-    $: console.log(hasPrev, hasNext);
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -348,42 +362,61 @@
         </div>
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
-        <div class="flex flex-row mx-auto justify-evenly">
-            <div class="basis-1/6 flex justify-end">
-                <button
-                    on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
-                        ? 'visible'
-                        : 'invisible'}"
+        {#if mdWindow}
+            <ScrolledContent>
+                <div
+                    slot="scrolled-content"
+                    class="max-w-screen-md mx-auto"
+                    use:pinch
+                    on:pinch={doPinch}
+                    use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+                    on:swipe={doSwipe}
                 >
-                    <ChevronLeftIcon />
-                </button>
-            </div>
-            <div class="basis-4/6 max-w-screen-md">
-                <ScrolledContent>
-                    <div
-                        slot="scrolled-content"
-                        class="max-w-screen-md mx-auto"
-                        use:pinch
-                        on:pinch={doPinch}
-                        use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-                        on:swipe={doSwipe}
+                    <ScriptureViewSofria {...viewSettings} />
+                </div>
+            </ScrolledContent>
+        {:else}
+            <div class="flex flex-row mx-auto justify-evenly">
+                <div class="basis-1/6 flex justify-end">
+                    <button
+                        on:click={prevChapter}
+                        class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                            ? 'visible'
+                            : 'invisible'}"
                     >
-                        <ScriptureViewSofria {...viewSettings} />
-                    </div>
-                </ScrolledContent>
+                        <ChevronLeftIcon />
+                    </button>
+                </div>
+                <div class="basis-4/6 max-w-screen-md">
+                    <ScrolledContent>
+                        <div
+                            slot="scrolled-content"
+                            class="max-w-screen-md mx-auto"
+                            use:pinch
+                            on:pinch={doPinch}
+                            use:swipe={{
+                                timeframe: 300,
+                                minSwipeDistance: 60,
+                                touchAction: 'pan-y'
+                            }}
+                            on:swipe={doSwipe}
+                        >
+                            <ScriptureViewSofria {...viewSettings} />
+                        </div>
+                    </ScrolledContent>
+                </div>
+                <div class="basis-1/6 flex justify-start">
+                    <button
+                        on:click={nextChapter}
+                        class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronRightIcon />
+                    </button>
+                </div>
             </div>
-            <div class="basis-1/6 flex justify-start">
-                <button
-                    on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronRightIcon />
-                </button>
-            </div>
-        </div>
+        {/if}
     </div>
     {#if $selectedVerses.length > 0}
         <div class="text-selection">
