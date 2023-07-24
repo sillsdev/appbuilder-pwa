@@ -85,8 +85,9 @@
         });
     }
 
-    $: hasPrev = $refs.prev.chapter === null;
-    $: hasNext = $refs.next.chapter === null;
+    $: hasPrev = $refs.prev.chapter !== null;
+    $: hasNext = $refs.next.chapter !== null;
+    $: console.log(hasPrev, hasNext);
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -348,10 +349,12 @@
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <div class="flex flex-row mx-auto justify-evenly">
-            <div class="basis-1/6 flex justify-center">
+            <div class="basis-1/6 flex justify-end">
                 <button
                     on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost"
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                        ? 'visible'
+                        : 'invisible'}"
                 >
                     <ChevronLeftIcon />
                 </button>
@@ -370,10 +373,12 @@
                     </div>
                 </ScrolledContent>
             </div>
-            <div class="basis-1/6 flex justify-center">
+            <div class="basis-1/6 flex justify-start">
                 <button
                     on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost"
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                        ? 'visible'
+                        : 'invisible'}"
                 >
                     <ChevronRightIcon />
                 </button>
