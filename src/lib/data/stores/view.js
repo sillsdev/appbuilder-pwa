@@ -38,33 +38,43 @@ function createModal() {
 export const modal = createModal();
 
 const createWindowSizeStore = () => {
-    // Function to handle window resize events
+    const internal = writable({ width: window.innerWidth, height: window.innerHeight });
+
     const handleResize = () => {
-        windowSizeStore.set({ width: window.innerWidth, height: window.innerHeight });
+        internal.set({ width: window.innerWidth, height: window.innerHeight });
     };
 
-    // Add event listener to update the store value when the window is resized
-    window.addEventListener('resize', handleResize);
+    let numSubscriptions = 0;
 
-    // Custom unsubscribe function to remove the event listener
-    const unsubscribe = () => {
-        window.removeEventListener('resize', handleResize);
-    };
+    function subscribe(callback) {
+        // Increment the subscription count
+        numSubscriptions += 1;
 
-    // Initialize the store with the current window size and the unsubscribe function
-    const windowSizeStore = writable(
-        { width: window.innerWidth, height: window.innerHeight },
-        function start(set) {
-            return unsubscribe;
+        // If this is the first subscription, attach the event listener
+        if (numSubscriptions === 1) {
+            window.addEventListener('resize', handleResize);
         }
-    );
+
+        // Delegate the subscription to the internal store
+        const unsubscribe = internal.subscribe(callback);
+
+        // Return an unsubscribe function that handles decrementing the subscription count
+        return () => {
+            // Call the internal store's unsubscribe function
+            unsubscribe();
+
+            // Decrement the subscription count
+            numSubscriptions -= 1;
+            if (numSubscriptions === 0) {
+                window.removeEventListener('resize', handleResize);
+            }
+        };
+    }
 
     return {
-        subscribe: windowSizeStore.subscribe
+        subscribe
     };
 };
-
-export const windowSizeStore = createWindowSizeStore();
 
 export const windowSize = createWindowSizeStore();
 

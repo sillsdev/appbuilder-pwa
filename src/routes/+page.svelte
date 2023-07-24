@@ -89,6 +89,7 @@
     $: mdWindow = $windowSize.width < 768;
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
+    $: console.log('width', $windowSize.width);
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -363,8 +364,8 @@
                 </div>
             </ScrolledContent>
         {:else}
-            <div class="flex flex-row mx-auto justify-evenly">
-                <div class="basis-1/6 flex justify-end">
+            <div class="flex flex-row mx-auto justify-center">
+                <div class="basis-1/12 flex justify-end">
                     <button
                         on:click={prevChapter}
                         class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
@@ -374,7 +375,7 @@
                         <ChevronLeftIcon />
                     </button>
                 </div>
-                <div class="basis-4/6 max-w-screen-md">
+                <div class="basis-5/6 max-w-screen-md">
                     <ScrolledContent>
                         <div
                             slot="scrolled-content"
@@ -392,7 +393,7 @@
                         </div>
                     </ScrolledContent>
                 </div>
-                <div class="basis-1/6 flex justify-start">
+                <div class="basis-1/12 flex justify-start">
                     <button
                         on:click={nextChapter}
                         class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
