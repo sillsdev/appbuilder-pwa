@@ -20,9 +20,6 @@ const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer;
 audioPlayerStore.subscribe(async (value) => {
     currentAudioPlayer = value;
-    if (currentAudioPlayer.audio === null) {
-        return;
-    }
     await getAudio();
 });
 // produces the cache key for the mru audio cache
