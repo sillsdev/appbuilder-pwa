@@ -25,7 +25,8 @@
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
-        NAVBAR_HEIGHT
+        NAVBAR_HEIGHT,
+        windowSize
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer } from '$lib/data/audio';
@@ -85,21 +86,8 @@
         });
     }
 
-    let width = window.innerWidth;
-    $: {
-        const handleResize = () => {
-            width = window.innerWidth;
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        // Clean up the event listener when the component is destroyed to avoid memory leaks
-        onDestroy(() => {
-            window.removeEventListener('resize', handleResize);
-        });
-    }
-
-    $: mdWindow = width < 768;
+    $: console.log('window size', $windowSize.width);
+    $: mdWindow = $windowSize.width < 768;
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
 
