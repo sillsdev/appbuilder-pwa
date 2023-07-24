@@ -156,11 +156,7 @@ function toggleTimeRunning() {
 }
 // checks if audio has played
 function hasAudioPlayed() {
-    if (currentAudioPlayer.progress > 0) {
-        return true;
-    } else {
-        return false;
-    }
+    return currentAudioPlayer.progress > 0;
 }
 function pause() {
     if (!currentAudioPlayer.loaded) return;
@@ -282,14 +278,9 @@ export async function getAudioSourceInfo(item: {
 }
 
 // changes audio to the verse number clicked on
-export function verseClickSoundChange(verseId) {
-    if (hasAudioPlayed() === false) {
+export function seekToVerse(verseId) {
+    if (!hasAudioPlayed()) {
         return;
-    }
-    let plays = false;
-    if (currentAudioPlayer.playing === true) {
-        plays = true;
-        pause();
     }
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
@@ -297,12 +288,9 @@ export function verseClickSoundChange(verseId) {
         if (verseId === tag) {
             currentAudioPlayer.timeIndex = currentAudioPlayer.timing[i];
             const newtime = currentAudioPlayer.timeIndex.starttime;
-            currentAudioPlayer.audio.currentTime = newtime;
+            seek(newtime);
             updateTime();
             break;
         }
-    }
-    if (plays === true) {
-        play();
     }
 }

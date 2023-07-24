@@ -19,7 +19,7 @@ TODO:
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { verseClickSoundChange } from '$lib/data/audio';
+    import { seekToVerse } from '$lib/data/audio';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -263,7 +263,7 @@ TODO:
         const element = click.target.textContent;
         const verseSelection = document.querySelector('[data-verse="' + element + '"]');
         const verseId = verseSelection.getAttribute('id');
-        verseClickSoundChange(verseId);
+        seekToVerse(verseId);
     }
 
     function addNotesDiv(workspace) {
