@@ -59,27 +59,6 @@ TODO:
     $: $selectedVerses, updateSelectedVerseInBookmarks($selectedVerses);
     $: buttonBorder = '1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888');
 
-    function selectedText() {
-        var someText = $selectedVerses.reduce((text, v) => (text += v.text), '');
-        return someText;
-    }
-
-    function selectedTextReference() {
-        var scriptureReference =
-            $selectedVerses[0]['book'] +
-            ' ' +
-            $selectedVerses[0]['chapter'] +
-            ':' +
-            $selectedVerses[0]['verse'];
-        var extraVerses = '';
-        for (var i = 1; i < $selectedVerses.length; i++) {
-            extraVerses = extraVerses.concat(', ' + $selectedVerses[i]['verse']);
-        }
-        scriptureReference.concat(extraVerses);
-
-        return scriptureReference;
-    }
-
     async function updateSelectedVerseInBookmarks(selectedVerses) {
         selectedVerseInBookmarks = await findBookmark({
             collection: selectedVerses[0].collection,
@@ -92,13 +71,14 @@ TODO:
     async function modifyBookmark() {
         // If there is already a bookmark at this verse, remove it
         if (selectedVerseInBookmarks === -1) {
+            const text = await selectedVerses.getVerseTextByIndex(0);
             await addBookmark({
                 docSet: $selectedVerses[0].docSet,
                 collection: $selectedVerses[0].collection,
                 book: $selectedVerses[0].book,
                 chapter: $selectedVerses[0].chapter,
                 verse: $selectedVerses[0].verse,
-                text: selectedVerses.getVerseByIndex(0).text,
+                text,
                 reference: $selectedVerses[0].reference
             });
         } else {
@@ -112,14 +92,17 @@ TODO:
         if (numColor == 6) {
             await removeHighlights($selectedVerses);
         } else {
-            await addHighlights(numColor, $selectedVerses);
+            await addHighlights(numColor, $selectedVerses, selectedVerses.getVerseTextByIndex);
         }
 
         selectedVerses.reset();
     }
 
-    function copy() {
-        var copyText = selectedText() + '\n' + selectedVerses.getCompositeReference();
+    async function copy() {
+        var copyText =
+            (await selectedVerses.getCompositeText()) +
+            '\n' +
+            selectedVerses.getCompositeReference();
         navigator.clipboard.writeText(copyText);
         toast($t['Text_Copied'], {
             position: 'bottom-right'
@@ -228,7 +211,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isCopyEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => copy()}>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={copy}>
                         <CopyContentIcon color={barIconColor} />
                     </button>
                 {/if}

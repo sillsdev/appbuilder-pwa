@@ -1,6 +1,7 @@
-import { groupStore, referenceStore } from './store-types';
+import { referenceStore } from './store-types';
 import { writable, get } from 'svelte/store';
 import { setDefaultStorage } from './storage';
+import { pk } from './pk';
 import config from '../config';
 
 /** current reference */
@@ -69,21 +70,44 @@ export function getReference(item) {
     return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
+export async function getVerseText(item) {
+    const proskomma = get(pk);
+    const scriptureCV = `${item.chapter}:${item.verse}`;
+    const query = `{
+        docSet (id: "${item.docSet}") {
+            document(bookCode:"${item.book}") {
+                mainSequence {
+                    blocks(withScriptureCV: "${scriptureCV}") {
+                        text(withScriptureCV: "${scriptureCV}" normalizeSpace:true )
+                    }
+                }
+            }
+        }
+    }`;
+
+    const { data } = await proskomma.gqlQuery(query);
+    const block = data.docSet.document.mainSequence.blocks[0];
+    if (block === null) {
+        return '';
+    }
+    return block.text;
+}
+
 function createSelectedVerses() {
     const external = writable([]);
 
     return {
         subscribe: external.subscribe,
-        addVerse: (id, text) => {
+        addVerse: (id) => {
             const currentRefs = get(refs);
             const reference = getReference({ ...currentRefs, verse: id });
             const selection = {
+                docSet: currentRefs.docSet,
                 collection: currentRefs.collection,
                 book: currentRefs.book,
                 chapter: currentRefs.chapter,
                 reference: reference,
-                verse: id,
-                text: text
+                verse: id
             };
             let selections = get(external);
             const newVerseNumber = Number(id);
@@ -106,6 +130,16 @@ function createSelectedVerses() {
             let selections = get(external);
             return selections.length;
         },
+        getVerseTextByIndex: async (i) => {
+            let selections = get(external);
+            let text = '';
+            const index = Number(i);
+            if (index > -1 && index < selections.length) {
+                const selection = selections[index];
+                text = await getVerseText(selection);
+            }
+            return text;
+        },
         getVerseByIndex: (i) => {
             let selections = get(external);
             const index = Number(i);
@@ -117,8 +151,7 @@ function createSelectedVerses() {
                     collection: '',
                     book: '',
                     chapter: '',
-                    verse: '',
-                    text: ''
+                    verse: ''
                 };
                 return selection;
             }
@@ -134,8 +167,7 @@ function createSelectedVerses() {
                     collection: '',
                     book: '',
                     chapter: '',
-                    verse: '',
-                    text: ''
+                    verse: ''
                 };
                 return selection;
             }
@@ -202,6 +234,16 @@ function createSelectedVerses() {
                 }
                 return reference;
             }
+        },
+
+        getCompositeText: async () => {
+            const selections = get(external);
+            const verseText = [];
+            for (var i = 0; i < selections.length; i++) {
+                const t = await getVerseText(selections[i]);
+                verseText.push(t);
+            }
+            return verseText.join(' ');
         }
     };
 }
