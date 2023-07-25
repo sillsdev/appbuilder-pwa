@@ -1,5 +1,6 @@
 import { groupStore } from './store-types';
-import { derived, writable, get } from 'svelte/store';
+import { derived, readable, writable, get } from 'svelte/store';
+import { onDestroy } from 'svelte';
 import { setDefaultStorage } from './storage';
 import { userSettings } from './setting';
 
@@ -35,6 +36,47 @@ function createModal() {
     };
 }
 export const modal = createModal();
+
+const createWindowSizeStore = () => {
+    const internal = writable({ width: window.innerWidth, height: window.innerHeight });
+
+    const handleResize = () => {
+        internal.set({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    let numSubscriptions = 0;
+
+    function subscribe(callback) {
+        // Increment the subscription count
+        numSubscriptions += 1;
+
+        // If this is the first subscription, attach the event listener
+        if (numSubscriptions === 1) {
+            window.addEventListener('resize', handleResize);
+        }
+
+        // Delegate the subscription to the internal store
+        const unsubscribe = internal.subscribe(callback);
+
+        // Return an unsubscribe function that handles decrementing the subscription count
+        return () => {
+            // Call the internal store's unsubscribe function
+            unsubscribe();
+
+            // Decrement the subscription count
+            numSubscriptions -= 1;
+            if (numSubscriptions === 0) {
+                window.removeEventListener('resize', handleResize);
+            }
+        };
+    }
+
+    return {
+        subscribe
+    };
+};
+
+export const windowSize = createWindowSizeStore();
 
 /**scrollTop of main window*/
 export const mainScroll = writable({ top: 0, height: 0 });

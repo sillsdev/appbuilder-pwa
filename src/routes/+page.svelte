@@ -33,6 +33,7 @@
     import {
         AudioIcon,
         SearchIcon,
+        ChevronIcon,
         TriangleLeftIcon,
         TriangleRightIcon,
         BibleIcon,
@@ -65,6 +66,26 @@
             });
         }
     }
+
+    function prevChapter() {
+        (refs as any).skip(-1);
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter
+        });
+    }
+    function nextChapter() {
+        (refs as any).skip(1);
+        addHistory({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter
+        });
+    }
+
+    $: hasPrev = $refs.prev.chapter !== null;
+    $: hasNext = $refs.next.chapter !== null;
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -325,18 +346,46 @@
         </div>
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
-        <ScrolledContent>
-            <div
-                slot="scrolled-content"
-                class="max-w-screen-md mx-auto"
-                use:pinch
-                on:pinch={doPinch}
-                use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-                on:swipe={doSwipe}
-            >
-                <ScriptureViewSofria {...viewSettings} />
+        <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
+            <div class="hidden md:flex basis-1/12 justify-end">
+                <button
+                    on:click={prevChapter}
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                        ? 'visible'
+                        : 'invisible'}"
+                >
+                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
+                </button>
             </div>
-        </ScrolledContent>
+            <div class="basis-5/6 max-w-screen-md">
+                <ScrolledContent>
+                    <div
+                        slot="scrolled-content"
+                        class="max-w-screen-md mx-auto"
+                        use:pinch
+                        on:pinch={doPinch}
+                        use:swipe={{
+                            timeframe: 300,
+                            minSwipeDistance: 60,
+                            touchAction: 'pan-y'
+                        }}
+                        on:swipe={doSwipe}
+                    >
+                        <ScriptureViewSofria {...viewSettings} />
+                    </div>
+                </ScrolledContent>
+            </div>
+            <div class="hidden basis-1/12 md:flex justify-start">
+                <button
+                    on:click={nextChapter}
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                        ? 'visible'
+                        : 'invisible'}"
+                >
+                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 0 : 180} />
+                </button>
+            </div>
+        </div>
     </div>
     {#if $selectedVerses.length > 0}
         <div class="text-selection">
