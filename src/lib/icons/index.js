@@ -6,8 +6,7 @@ import ArrowForwardIcon from './ArrowForwardIcon.svelte';
 import BibleIcon from './BibleIcon.svelte';
 import BookmarkIcon from './BookmarkIcon.svelte';
 import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
-import ChevronLeftIcon from './ChevronLeftIcon.svelte';
-import ChevronRightIcon from './ChevronRightIcon.svelte';
+import ChevronIcon from './ChevronIcon.svelte';
 import CopyContentIcon from './CopyContentIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
@@ -40,8 +39,7 @@ export {
     BibleIcon,
     BookmarkIcon,
     BookmarkOutlineIcon,
-    ChevronLeftIcon,
-    ChevronRightIcon,
+    ChevronIcon,
     CopyContentIcon,
     DeleteSweepIcon,
     DropdownIcon,

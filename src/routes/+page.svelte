@@ -33,8 +33,7 @@
     import {
         AudioIcon,
         SearchIcon,
-        ChevronLeftIcon,
-        ChevronRightIcon,
+        ChevronIcon,
         TriangleLeftIcon,
         TriangleRightIcon,
         BibleIcon,
@@ -355,11 +354,7 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    {#if $direction === 'ltr'}
-                        <ChevronLeftIcon size={36} color={'gray'} />
-                    {:else}
-                        <ChevronRightIcon size={36} color={'gray'} />
-                    {/if}
+                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
                 </button>
             </div>
             <div class="basis-5/6 max-w-screen-md">
@@ -387,11 +382,7 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    {#if $direction === 'ltr'}
-                        <ChevronRightIcon size={36} color={'gray'} />
-                    {:else}
-                        <ChevronLeftIcon size={36} color={'gray'} />
-                    {/if}
+                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 0 : 180} />
                 </button>
             </div>
         </div>
