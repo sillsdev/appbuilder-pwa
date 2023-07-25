@@ -240,10 +240,10 @@ function createSelectedVerses() {
             const selections = get(external);
             const verseText = [];
             for (var i = 0; i < selections.length; i++) {
-                verseText.push(await getVerseText(selections[i]));
+                const t = await getVerseText(selections[i]);
+                verseText.push(t);
             }
-            text = verseText.join(' ');
-            return text;
+            return verseText.join(' ');
         }
     };
 }
