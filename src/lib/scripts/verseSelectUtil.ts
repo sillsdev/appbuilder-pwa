@@ -9,8 +9,7 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
         if (!target.classList.contains('selected')) {
             const currentLength = selectedVerses.length();
             if (currentLength < maxSelections) {
-                const selectedText = getTextOfSelectedElements(id);
-                selectedVerses.addVerse(id, selectedText);
+                selectedVerses.addVerse(id);
             }
 
             // Display all selected entries in order
@@ -117,35 +116,4 @@ function modifyClassOfElement(id: string, clsName: string, select: boolean): boo
     }
 
     return found;
-}
-// Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function getTextOfSelectedElements(id): string {
-    let [success, selectedText] = getTextOfElement(id);
-    let text = selectedText;
-    for (let i = 97; i <= 122; i++) {
-        const letter = String.fromCharCode(i);
-        [success, selectedText] = getTextOfElement(id + letter);
-        if (!success) {
-            break;
-        }
-        text = text.concat(selectedText);
-    }
-    return text;
-}
-
-// Modify class name of elements id, id+1, id+2, etc.
-function getTextOfElement(id: string): [boolean, string] {
-    let found = false;
-    let selectedText = '';
-    let i = 0;
-    let el = document.getElementById(id);
-
-    while (el) {
-        selectedText = selectedText.concat(el.textContent);
-        i++;
-        el = document.getElementById(id + '+' + i);
-        found = true;
-    }
-
-    return [found, selectedText];
 }

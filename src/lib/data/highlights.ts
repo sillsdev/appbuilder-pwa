@@ -51,7 +51,11 @@ async function openHighlights() {
     return highlightDB;
 }
 
-export async function addHighlights(numColor: number, selectedVerses) {
+export async function addHighlights(
+    numColor: number,
+    selectedVerses: any[],
+    getVerseTextByIndex: (i: any) => Promise<string>
+) {
     const highlights = await openHighlights();
 
     if (numColor > 5 || numColor < 1) {
@@ -74,7 +78,9 @@ export async function addHighlights(numColor: number, selectedVerses) {
         const bookIndex = config.bookCollections
             .find((x) => x.id === selectedVerse.collection)
             .books.findIndex((x) => x.id === selectedVerse.book);
-        const nextItem = { ...selectedVerse, date: date, bookIndex: bookIndex, penColor: numColor };
+        const text = await getVerseTextByIndex(i);
+
+        const nextItem = { ...selectedVerse, text, date, bookIndex, penColor: numColor };
         await highlights.add('highlights', nextItem);
     }
     notifyUpdated();
