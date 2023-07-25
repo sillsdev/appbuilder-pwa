@@ -1,6 +1,5 @@
 import config from '$lib/data/config';
 import { audioHighlightElements } from '$lib/data/stores/audio.js';
-// import { isSelectableText } from '$lib/scripts/verseSelectUtil';
 import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/data/stores';
 import { MRUCache } from '$lib/data/mrucache';
 
@@ -155,6 +154,10 @@ function toggleTimeRunning() {
     }
     return;
 }
+// checks if audio has played
+function hasAudioPlayed() {
+    return currentAudioPlayer.progress > 0;
+}
 function pause() {
     if (!currentAudioPlayer.loaded) return;
     if (currentAudioPlayer.playing) {
@@ -180,7 +183,7 @@ function updateHighlights() {
         const timing = currentAudioPlayer.timing[i];
         if (
             currentAudioPlayer.progress >= timing.starttime &&
-            currentAudioPlayer.progress <= timing.endtime
+            currentAudioPlayer.progress < timing.endtime
         ) {
             currentAudioPlayer.timeIndex = i;
             tag = timing.tag.replace(/[^ -~]+/g, '');
@@ -274,16 +277,20 @@ export async function getAudioSourceInfo(item: {
     };
 }
 
-//todo implement selectable text that can play audio
-
-// export function onClickSound(e: any) {
-//     let target = e.target;
-
-//     if (isSelectableText(target)) {
-//         const start = parseFloat(target.start);
-//         this.audio.currentTime = start;
-//         this.audio.play();
-//     } else {
-
-//     }
-// }
+// changes audio to the verse number clicked on
+export function seekToVerse(verseId) {
+    if (!hasAudioPlayed()) {
+        return;
+    }
+    const elements = currentAudioPlayer.timing;
+    for (let i = 0; i < elements.length; i++) {
+        let tag = currentAudioPlayer.timing[i].tag.replace(/[^ -~]+/g, '');
+        if (verseId === tag) {
+            currentAudioPlayer.timeIndex = currentAudioPlayer.timing[i];
+            const newtime = currentAudioPlayer.timeIndex.starttime;
+            seek(newtime);
+            updateTime();
+            break;
+        }
+    }
+}

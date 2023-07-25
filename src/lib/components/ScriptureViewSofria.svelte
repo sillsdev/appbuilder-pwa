@@ -19,6 +19,7 @@ TODO:
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
+    import { seekToVerse } from '$lib/data/audio';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -257,6 +258,13 @@ TODO:
             workspace.phraseDiv = div.cloneNode(true);
         }
     }
+    // handles clicks on verse numbers
+    function audioClickHandler(click) {
+        const element = click.target.textContent;
+        const verseSelection = document.querySelector('[data-verse="' + element + '"]');
+        const verseId = verseSelection.getAttribute('id');
+        seekToVerse(verseId);
+    }
 
     function addNotesDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
@@ -396,8 +404,13 @@ TODO:
             workspace.root.appendChild(workspace.tableElement);
         }
     }
+    // changes audio position if verse number clicked otherwise selects verse
     function onClick(e: any) {
-        onClickText(e, selectedVerses, maxSelections);
+        if (e.target.getAttribute('class') === 'v') {
+            audioClickHandler(e);
+        } else {
+            onClickText(e, selectedVerses, maxSelections);
+        }
     }
 
     function chapterCount(book) {
@@ -494,7 +507,6 @@ TODO:
                                 addHighlightedVerses(highlights);
                                 addVideos(videos);
                             }
-
                             addFooter(document, container, docSet);
                         }
                     }
