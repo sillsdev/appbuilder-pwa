@@ -347,7 +347,7 @@
         </div>
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
-        <div class="flex flex-row mx-auto justify-center">
+        <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-end">
                 <button
                     on:click={prevChapter}
@@ -355,7 +355,11 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    <ChevronLeftIcon />
+                    {#if $direction === 'ltr'}
+                        <ChevronLeftIcon />
+                    {:else}
+                        <ChevronRightIcon />
+                    {/if}
                 </button>
             </div>
             <div class="basis-5/6 max-w-screen-md">
@@ -383,7 +387,11 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    <ChevronRightIcon />
+                    {#if $direction === 'ltr'}
+                        <ChevronRightIcon />
+                    {:else}
+                        <ChevronLeftIcon />
+                    {/if}
                 </button>
             </div>
         </div>
