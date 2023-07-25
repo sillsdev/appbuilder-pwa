@@ -24,7 +24,7 @@ export async function shareAnnotations(annotations: any) {
         await navigator.share({
             title: config.name,
             files: [file]
-        })
+        });
         console.log('Successfully shared');
     } catch (error) {
         console.error('Error sharing: ', error);
