@@ -4,7 +4,7 @@
     // Weight = 400
     // Grade = 0
     // Optical size = 24px
-    export let color = 'grey';
+    export let color = 'black';
     export let size = 24;
 </script>
 

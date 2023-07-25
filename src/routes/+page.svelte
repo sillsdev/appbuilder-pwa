@@ -356,9 +356,9 @@
                         : 'invisible'}"
                 >
                     {#if $direction === 'ltr'}
-                        <ChevronLeftIcon size={36} />
+                        <ChevronLeftIcon size={36} color={'gray'} />
                     {:else}
-                        <ChevronRightIcon size={36} />
+                        <ChevronRightIcon size={36} color={'gray'} />
                     {/if}
                 </button>
             </div>
@@ -388,9 +388,9 @@
                         : 'invisible'}"
                 >
                     {#if $direction === 'ltr'}
-                        <ChevronRightIcon size={36} />
+                        <ChevronRightIcon size={36} color={'gray'} />
                     {:else}
-                        <ChevronLeftIcon size={36} />
+                        <ChevronLeftIcon size={36} color={'gray'} />
                     {/if}
                 </button>
             </div>
