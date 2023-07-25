@@ -25,8 +25,7 @@
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
-        NAVBAR_HEIGHT,
-        windowSize
+        NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer } from '$lib/data/audio';
@@ -86,10 +85,8 @@
         });
     }
 
-    $: mdWindow = $windowSize.width < 769;
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
-    $: console.log('width', $windowSize.width);
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -350,61 +347,46 @@
         </div>
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
-        {#if mdWindow}
-            <ScrolledContent>
-                <div
-                    slot="scrolled-content"
-                    class="max-w-screen-md mx-auto"
-                    use:pinch
-                    on:pinch={doPinch}
-                    use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
-                    on:swipe={doSwipe}
+        <div class="flex flex-row mx-auto justify-center">
+            <div class="hidden md:flex basis-1/12 justify-end">
+                <button
+                    on:click={prevChapter}
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                        ? 'visible'
+                        : 'invisible'}"
                 >
-                    <ScriptureViewSofria {...viewSettings} />
-                </div>
-            </ScrolledContent>
-        {:else}
-            <div class="flex flex-row mx-auto justify-center">
-                <div class="basis-1/12 flex justify-end">
-                    <button
-                        on:click={prevChapter}
-                        class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
-                            ? 'visible'
-                            : 'invisible'}"
-                    >
-                        <ChevronLeftIcon />
-                    </button>
-                </div>
-                <div class="basis-5/6 max-w-screen-md">
-                    <ScrolledContent>
-                        <div
-                            slot="scrolled-content"
-                            class="max-w-screen-md mx-auto"
-                            use:pinch
-                            on:pinch={doPinch}
-                            use:swipe={{
-                                timeframe: 300,
-                                minSwipeDistance: 60,
-                                touchAction: 'pan-y'
-                            }}
-                            on:swipe={doSwipe}
-                        >
-                            <ScriptureViewSofria {...viewSettings} />
-                        </div>
-                    </ScrolledContent>
-                </div>
-                <div class="basis-1/12 flex justify-start">
-                    <button
-                        on:click={nextChapter}
-                        class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
-                            ? 'visible'
-                            : 'invisible'}"
-                    >
-                        <ChevronRightIcon />
-                    </button>
-                </div>
+                    <ChevronLeftIcon />
+                </button>
             </div>
-        {/if}
+            <div class="basis-5/6 max-w-screen-md">
+                <ScrolledContent>
+                    <div
+                        slot="scrolled-content"
+                        class="max-w-screen-md mx-auto"
+                        use:pinch
+                        on:pinch={doPinch}
+                        use:swipe={{
+                            timeframe: 300,
+                            minSwipeDistance: 60,
+                            touchAction: 'pan-y'
+                        }}
+                        on:swipe={doSwipe}
+                    >
+                        <ScriptureViewSofria {...viewSettings} />
+                    </div>
+                </ScrolledContent>
+            </div>
+            <div class="hidden basis-1/12 md:flex justify-start">
+                <button
+                    on:click={nextChapter}
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                        ? 'visible'
+                        : 'invisible'}"
+                >
+                    <ChevronRightIcon />
+                </button>
+            </div>
+        </div>
     </div>
     {#if $selectedVerses.length > 0}
         <div class="text-selection">
