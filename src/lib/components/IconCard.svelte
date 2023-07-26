@@ -49,7 +49,7 @@ TODO:
         <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
 
         <div
-            class="annotation-item-text col-span-3 justify-self-start"
+            class="annotation-item-text col-start-2 col-end-3 justify-self-start"
             class:justify-self-end={justifyEnd}
         >
             <a
