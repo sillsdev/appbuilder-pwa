@@ -347,7 +347,7 @@
     {/if}
     <div class:borderimg={showBorder} class="overflow-y-auto">
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
-            <div class="hidden md:flex basis-1/12 justify-end">
+            <div class="hidden md:flex basis-1/12 justify-center">
                 <button
                     on:click={prevChapter}
                     class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
@@ -375,7 +375,7 @@
                     </div>
                 </ScrolledContent>
             </div>
-            <div class="hidden basis-1/12 md:flex justify-start">
+            <div class="hidden basis-1/12 md:flex justify-center">
                 <button
                     on:click={nextChapter}
                     class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
