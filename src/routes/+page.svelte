@@ -350,7 +350,7 @@
             <div class="hidden md:flex basis-1/12 justify-end">
                 <button
                     on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost me-4 {hasPrev
                         ? 'visible'
                         : 'invisible'}"
                 >
@@ -378,7 +378,7 @@
             <div class="hidden basis-1/12 md:flex justify-start">
                 <button
                     on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost ms-4 {hasNext
                         ? 'visible'
                         : 'invisible'}"
                 >
