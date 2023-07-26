@@ -29,7 +29,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto">
+    <div class="overflow-y-auto p-2.5">
         {#each data.history.reverse() as h}
             <HistoryCard history={h} />
         {/each}

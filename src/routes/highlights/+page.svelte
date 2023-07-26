@@ -77,7 +77,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto">
+    <div class="overflow-y-auto p-2.5">
         {#each toSorted($page.data.highlights, sortOrder) as h}
             {@const colorCard = {
                 docSet: h.docSet,
