@@ -20,7 +20,7 @@
                 goto(`${base}/`);
                 break;
             case $t['Annotation_Menu_Share']:
-                shareAnnotation(highlight);
+                await shareAnnotation(highlight);
                 break;
             case $t['Annotation_Menu_Delete']:
                 await removeHighlight(highlight.date);
@@ -67,7 +67,7 @@
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     on:click={async () =>
-                        shareAnnotations(toSorted($page.data.highlights, sortOrder))}
+                        await shareAnnotations(toSorted($page.data.highlights, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>

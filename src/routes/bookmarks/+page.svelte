@@ -21,7 +21,7 @@
                 goto(`${base}/`);
                 break;
             case $t['Annotation_Menu_Share']:
-                shareAnnotation(bookmark);
+                await shareAnnotation(bookmark);
                 break;
             case $t['Annotation_Menu_Delete']:
                 await removeBookmark(bookmark.date);
@@ -61,7 +61,7 @@
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     on:click={async () =>
-                        shareAnnotations(toSorted($page.data.bookmarks, sortOrder))}
+                        await shareAnnotations(toSorted($page.data.bookmarks, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>

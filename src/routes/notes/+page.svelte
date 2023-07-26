@@ -24,7 +24,7 @@
                 console.log('Ready to edit: ', note.reference, ' ', note.text);
                 break;
             case $t['Annotation_Menu_Share']:
-                shareAnnotation(note);
+                await shareAnnotation(note);
                 break;
             case $t['Annotation_Menu_Delete']:
                 await removeNote(note.date);
@@ -63,7 +63,8 @@
             <div slot="right-buttons">
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () => shareAnnotations(toSorted($page.data.notes, sortOrder))}
+                    on:click={async () =>
+                        await shareAnnotations(toSorted($page.data.notes, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
