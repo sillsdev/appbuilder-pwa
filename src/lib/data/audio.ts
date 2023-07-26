@@ -52,8 +52,10 @@ async function getAudio() {
     if (currentAudioPlayer.playing) {
         pause();
     }
-
     const audioSourceInfo = await getAudioSourceInfo(currentAudioPlayer);
+    if (!audioSourceInfo) {
+        return;
+    }
     currentAudioPlayer.timing = audioSourceInfo.timing;
     const a = new Audio(audioSourceInfo.source);
     a.onloadedmetadata = () => {
@@ -208,9 +210,8 @@ export async function getAudioSourceInfo(item: {
         .find((c) => item.collection === c.id)
         ?.books?.find((b) => b.id === item.book)
         ?.audio?.find((a) => item.chapter === '' + a.num);
-
     if (!audio) {
-        throw `no audio found for ${item.collection}:${item.book}:${item.chapter}`;
+        return;
     }
 
     const audioSource = config.audio.sources[audio.src];
