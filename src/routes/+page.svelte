@@ -12,6 +12,7 @@
         convertStyle,
         direction,
         firstLaunch,
+        footnotes,
         highlights,
         mainScroll,
         audioHighlightElements,
@@ -40,6 +41,7 @@
         BibleIcon,
         TextAppearanceIcon
     } from '$lib/icons';
+    import StackView from '$lib/components/StackView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
@@ -388,6 +390,7 @@
             </div>
         </div>
     </div>
+    <StackView />
     {#if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
             <TextSelectionToolbar />

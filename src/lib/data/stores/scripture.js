@@ -4,6 +4,22 @@ import { setDefaultStorage } from './storage';
 import { pk } from './pk';
 import config from '../config';
 
+function createStack() {
+    const external = writable([]);
+
+    return {
+        subscribe: external.subscribe,
+        push: (content) => {
+            external.set([content, ...get(external)]);
+        },
+        pop: () => {
+            external.set(get(external).slice(1));
+        }
+    };
+}
+
+export const footnotes = createStack();
+
 /** current reference */
 const firstChapter =
     config.bookCollections[0].books[0].id +
