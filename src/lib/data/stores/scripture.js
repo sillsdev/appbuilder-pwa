@@ -204,16 +204,17 @@ function createSelectedVerses() {
                 const verseListSeparator = config.bookCollections.find(
                     (x) => x.id === selectionStart.collection
                 ).features['ref-verse-list-separator'];
-                var reference =
-                    selectionStart.book +
-                    ' ' +
-                    selectionStart.chapter +
-                    verseSeparator +
-                    selectionStart.verse;
-                var wasConsecutive = false;
-                var lastVerse = selectionStart.verse;
-                var currVerse = selectionStart.verse;
-                for (var i = 1; i < selections.length; i++) {
+                const bookName =
+                    config.bookCollections
+                        .find((x) => x.id === selectionStart.collection)
+                        .books.find((x) => x.id === selectionStart.book)?.name ||
+                    selectionStart.book;
+                let reference =
+                    bookName + ' ' + selectionStart.chapter + verseSeparator + selectionStart.verse;
+                let wasConsecutive = false;
+                let lastVerse = selectionStart.verse;
+                let currVerse = selectionStart.verse;
+                for (let i = 1; i < selections.length; i++) {
                     lastVerse = currVerse;
                     currVerse = selections[i].verse;
                     if (currVerse - lastVerse > 1) {

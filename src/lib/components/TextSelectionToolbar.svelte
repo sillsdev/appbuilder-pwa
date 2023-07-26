@@ -39,6 +39,9 @@ TODO:
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
+    import { shareText, shareImage } from '$lib/data/share';
+    import { base } from '$app/paths';
+
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -108,6 +111,13 @@ TODO:
             position: 'bottom-right'
         });
         selectedVerses.reset();
+    }
+    async function shareSelectedText() {
+        const book = $selectedVerses[0].book;
+        const reference = selectedVerses.getCompositeReference();
+        const text = await selectedVerses.getCompositeText();
+
+        shareText(config.name, config.name + '\n\n' + text + '\n' + reference, book + '.txt');
     }
 
     $: barBackgroundColor = $s['ui.bar.text-select']['background-color'];
@@ -216,7 +226,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isShareEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={shareSelectedText}>
                         <ShareIcon color={barIconColor} />
                     </button>
                 {/if}
