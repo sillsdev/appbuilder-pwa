@@ -31,7 +31,7 @@ TODO:
             </a>
         </div>
         <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
-        <div class="annotation-item-text col-span-3">
+        <div class="annotation-item-text col-start-2 col-end-3">
             <a
                 style="text-decoration:none;"
                 href="{base}/"
