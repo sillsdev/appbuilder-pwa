@@ -188,8 +188,7 @@ function updateHighlights() {
             currentAudioPlayer.progress < timing.endtime
         ) {
             currentAudioPlayer.timeIndex = i;
-            tag = timing.tag.replace(/[^ -~]+/g, '');
-            highlights.push(tag);
+            highlights.push(timing.tag);
         }
     }
     return audioHighlightElements.set(highlights);
@@ -259,14 +258,16 @@ export async function getAudioSourceInfo(item: {
         });
 
         for (let i = 0; i < lines.length; i++) {
-            if (lines[i]) {
-                if (lines[i].startsWith('\\')) {
+            const line = lines[i].trim();
+            if (line) {
+                if (line.startsWith('\\')) {
                     continue;
                 }
+                const parts = line.split('\t');
                 timing.push({
-                    starttime: parseFloat(lines[i].split('\t')[0]),
-                    endtime: parseFloat(lines[i].split('\t')[1]),
-                    tag: lines[i].split('\t')[2]
+                    starttime: parseFloat(parts[0]),
+                    endtime: parseFloat(parts[1]),
+                    tag: parts[2]
                 });
             }
         }
@@ -285,7 +286,7 @@ export function seekToVerse(verseId) {
     }
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
-        let tag = currentAudioPlayer.timing[i].tag.replace(/[^ -~]+/g, '');
+        const tag = currentAudioPlayer.timing[i].tag;
         if (verseId === tag) {
             currentAudioPlayer.timeIndex = currentAudioPlayer.timing[i];
             const newtime = currentAudioPlayer.timeIndex.starttime;
