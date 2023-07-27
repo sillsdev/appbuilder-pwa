@@ -71,7 +71,7 @@
         </Navbar>
     </div>
 
-    <div id="bookmarks" class="overflow-y-auto">
+    <div id="bookmarks" class="overflow-y-auto p-2.5">
         {#each toSorted($page.data.bookmarks, sortOrder) as b}
             {@const iconCard = {
                 docSet: b.docSet,
