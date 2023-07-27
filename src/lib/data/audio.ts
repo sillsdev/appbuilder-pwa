@@ -288,8 +288,7 @@ export function seekToVerse(verseId) {
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
         if (verseId === tag) {
-            currentAudioPlayer.timeIndex = currentAudioPlayer.timing[i];
-            const newtime = currentAudioPlayer.timeIndex.starttime;
+            const newtime = currentAudioPlayer.timing[i].starttime;
             seek(newtime);
             updateTime();
             break;
