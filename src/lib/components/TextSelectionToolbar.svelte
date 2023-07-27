@@ -43,6 +43,7 @@ TODO:
     import { shareText, shareImage } from '$lib/data/share';
     import { base } from '$app/paths';
     import { play, seekToVerse } from '$lib/data/audio';
+
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
