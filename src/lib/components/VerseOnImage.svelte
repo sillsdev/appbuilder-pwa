@@ -30,7 +30,6 @@ The verse on image component.
     $: cnvFullScreen = $windowSize.width < 450;
     let cnv;
 
-    /*DEBUG*/ console.log('v=' + verses);
     let cnv_background;
     let cnv_text;
     let cnv_font = '30px Comic Sans MS';
@@ -53,7 +52,9 @@ The verse on image component.
     }
 
     onMount(async () => {
-        cnv_text = await selectedVerses.getCompositeText();
+        verses = await selectedVerses.getCompositeText();
+        cnv_text = verses;
+        /*DEBUG*/ console.log('v=' + verses);
 
         var background = new Image();
         background.src = base + '/backgrounds/aaron-burden-6jYoil2GhVk-unsplash-1080.jpg';
@@ -70,26 +71,7 @@ The verse on image component.
     export function shareCanvas() {
         cnv.toBlob((blob) => {
             const file = new File([blob], reference + '.png', { type: 'image/png' });
-
             shareImage(reference, verses, reference + '.png', file);
-
-            // if (navigator.share) {
-            //     navigator
-            //         .share({
-            //             title: reference,
-            //             text: verses,
-            //             files: [file]
-            //         })
-            //         .then(() => {
-            //             console.log('Successfully shared');
-            //         })
-            //         .catch((error) => {
-            //             console.error('Error sharing:', error);
-            //         });
-            // } else {
-            //     // Handle browser that does not support Web Share API
-            //     console.log('Web Share API is not supported in this browser');
-            // }
         });
     }
 
