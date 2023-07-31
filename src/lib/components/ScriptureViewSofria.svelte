@@ -417,11 +417,11 @@ TODO:
         if (e.target.getAttribute('class') === 'v') {
             audioClickHandler(e);
         } else {
-            if (!$audioPlayer.playing){
-            const x = onClickText(e, selectedVerses, maxSelections);
-            const tagSelected = x + 'a';
-            seekToVerse(tagSelected);
-        }   
+            if (!$audioPlayer.playing) {
+                const x = onClickText(e, selectedVerses, maxSelections);
+                const tagSelected = x + 'a';
+                seekToVerse(tagSelected);
+            }
         }
     }
 
