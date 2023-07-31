@@ -41,7 +41,7 @@ TODO:
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText, shareImage } from '$lib/data/share';
     import { base } from '$app/paths';
-
+    import { playPause } from '$lib/data/audio';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -100,7 +100,11 @@ TODO:
 
         selectedVerses.reset();
     }
-
+    // resets underlined verses and plays verse audio
+    function playVerseAudio(){
+        playPause();
+        selectedVerses.reset();
+    }
     async function copy() {
         var copyText =
             (await selectedVerses.getCompositeText()) +
@@ -178,12 +182,14 @@ TODO:
                     />
                 </div>
             {:else}
-                {#if isAudioPlayable}
-                    <button class="dy-btn-sm dy-btn-ghost">
-                        <AudioIcon.Play color={barIconColor} />
+                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
+                    <button 
+                    class="dy-btn-sm dy-btn-ghost"
+                    on:click={() => playVerseAudio()}>
+                    <AudioIcon.Play color={barIconColor} />
                     </button>
                 {/if}
-                {#if isRepeatableAudio}
+                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
                     <button class="dy-btn-sm dy-btn-ghost">
                         <AudioIcon.PlayRepeat color={barIconColor} />
                     </button>

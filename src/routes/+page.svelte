@@ -4,6 +4,7 @@
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
+        audioPlayer,
         audioActive,
         bodyFontSize,
         bodyLineHeight,
@@ -387,7 +388,7 @@
             </div>
         </div>
     </div>
-    {#if $selectedVerses.length > 0}
+    {#if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
             <TextSelectionToolbar />
         </div>

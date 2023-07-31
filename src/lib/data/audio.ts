@@ -17,7 +17,7 @@ interface AudioPlayer {
     timer: number;
 }
 const cache = new MRUCache<string, AudioPlayer>(10);
-let currentAudioPlayer;
+export let currentAudioPlayer;
 audioPlayerStore.subscribe(async (value) => {
     currentAudioPlayer = value;
     await getAudio();
@@ -278,10 +278,9 @@ export async function getAudioSourceInfo(item: {
         timing: timing.length > 0 ? timing : null
     };
 }
-
-// changes audio to the verse number clicked on
+// changes audio to the verse clicked on
 export function seekToVerse(verseId) {
-    if (!hasAudioPlayed()) {
+    if (!currentAudioPlayer.timing) {
         return;
     }
     const elements = currentAudioPlayer.timing;
@@ -290,8 +289,15 @@ export function seekToVerse(verseId) {
         if (verseId === tag) {
             const newtime = currentAudioPlayer.timing[i].starttime;
             seek(newtime);
-            updateTime();
             break;
         }
     }
+}
+// changes audio to the verse number clicked on
+export function seekToVerseBasedOnNumberClicked(verseId) {
+    if (!hasAudioPlayed()) {
+        return;
+    }
+    seekToVerse(verseId);
+    updateTime();
 }

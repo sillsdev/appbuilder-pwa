@@ -19,7 +19,8 @@ TODO:
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { seekToVerse } from '$lib/data/audio';
+    import { seekToVerse, seekToVerseBasedOnNumberClicked } from '$lib/data/audio';
+    import { audioPlayer } from '$lib/data/stores';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -263,9 +264,16 @@ TODO:
         const element = click.target.textContent;
         const verseSelection = document.querySelector('[data-verse="' + element + '"]');
         const verseId = verseSelection.getAttribute('id');
-        seekToVerse(verseId);
+        seekToVerseBasedOnNumberClicked(verseId);
     }
-
+    // function selectionAudioClickHandler(click){
+    //     // const element = click.target.id;
+    //     // console.log(element);
+    //     // const x =element.replace(/[a-z]/g, 'a');
+    //     // const x = onClickText(
+    //     // console.log(x);
+    //     // seekToVerse(x);
+    // }
     function addNotesDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
@@ -409,7 +417,11 @@ TODO:
         if (e.target.getAttribute('class') === 'v') {
             audioClickHandler(e);
         } else {
-            onClickText(e, selectedVerses, maxSelections);
+            if (!$audioPlayer.playing){
+            const x = onClickText(e, selectedVerses, maxSelections);
+            const tagSelected = x + 'a';
+            seekToVerse(tagSelected);
+        }   
         }
     }
 
