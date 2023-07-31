@@ -1,31 +1,45 @@
+<svelte:options accessors={true} />
+
 <script>
     import Modal from './Modal.svelte';
     import { t, selectedVerses } from '$lib/data/stores';
-    import { addNote } from '$lib/data/notes';
+    import { editNote, addNote } from '$lib/data/notes';
 
+    export let note = undefined;
     let id = 'note';
     let modal;
     let textArea;
     let noteContent;
 
     export function showModal() {
+        if (note !== undefined) {
+            textArea.value = note.text;
+        }
         modal.showModal();
     }
 
     function reset() {
         noteContent = '';
+        textArea.value = '';
         selectedVerses.reset();
     }
 
     async function modifyNote() {
-        await addNote({
-            collection: $selectedVerses[0].collection,
-            book: $selectedVerses[0].book,
-            chapter: $selectedVerses[0].chapter,
-            verse: $selectedVerses[0].verse,
-            text: noteContent,
-            reference: $selectedVerses[0].reference
-        });
+        if (note !== undefined) {
+            await editNote({
+                note: note,
+                newText: noteContent
+            });
+        } else {
+            await addNote({
+                collection: $selectedVerses[0].collection,
+                book: $selectedVerses[0].book,
+                chapter: $selectedVerses[0].chapter,
+                verse: $selectedVerses[0].verse,
+                text: noteContent,
+                reference: $selectedVerses[0].reference
+            });
+        }
         reset();
     }
 </script>

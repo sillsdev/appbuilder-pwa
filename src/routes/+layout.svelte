@@ -21,12 +21,13 @@
 
     function showModal() {
         if ($modal.length > 0) {
-            $modal.forEach((modalType) => {
+            $modal.forEach(({ modalType, data }) => {
                 switch (modalType) {
                     case MODAL_COLLECTION:
                         collectionSelector.showModal();
                         break;
                     case MODAL_NOTE:
+                        noteDialog.note = data;
                         noteDialog.showModal();
                         break;
                     case MODAL_TEXT_APPERANCE:
@@ -55,6 +56,7 @@
 
     <!-- Add Note Menu -->
     <NoteDialog bind:this={noteDialog} />
+
     <!-- Text Appearance Options Menu -->
     <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 

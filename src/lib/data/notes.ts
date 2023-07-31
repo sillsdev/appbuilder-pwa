@@ -20,6 +20,7 @@ interface Notes extends DBSchema {
         indexes: {
             'collection, book, chapter, verse': string;
             'collection, book, chapter': string;
+            'date': string;
         };
     };
 }
@@ -27,7 +28,7 @@ interface Notes extends DBSchema {
 let noteDB = null;
 async function openNotes() {
     if (!noteDB) {
-        noteDB = await openDB<Notes>('notes', 1, {
+        noteDB = await openDB<Notes>('notes', 2, {
             upgrade(db) {
                 const noteStore = db.createObjectStore('notes', {
                     keyPath: 'date'
@@ -44,6 +45,7 @@ async function openNotes() {
                     'book',
                     'chapter'
                 ]);
+                noteStore.createIndex('date', ['date']);
             }
         });
     }
@@ -96,6 +98,19 @@ export async function findNoteByChapter(item: {
     return result;
 }
 
+export async function editNote(item: {
+    note: any,
+    newText: string
+}) {
+    const notes = await openNotes();
+    const tx = notes.transaction('notes', 'readwrite');
+    const store = tx.objectStore('notes');
+    const result = await store.get(item.note.date);
+    await store.put({ ...result, text: item.newText });
+    await tx.done;
+    notifyUpdated();
+}
+
 export async function removeNote(date: number) {
     const notes = await openNotes();
     await notes.delete('notes', date);
@@ -114,7 +129,9 @@ export async function getNotes(): Promise<NoteItem[]> {
 }
 
 function notifyUpdated() {
-    notesLastUpdated.set(Date.now());
+    const date = Date.now();
+    notesLastUpdated.set(date);
+    console.log("attempting to update notes", date);
 }
 
 export const notesLastUpdated = writable(Date.now());
