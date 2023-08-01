@@ -8,7 +8,6 @@
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeNote, type NoteItem } from '$lib/data/notes';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
-    import { invalidate } from '$app/navigation';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
     import { goto } from '$app/navigation';
@@ -28,7 +27,6 @@
                 break;
             case $t['Annotation_Menu_Delete']:
                 await removeNote(note.date);
-                invalidate('notes');
                 break;
         }
     }

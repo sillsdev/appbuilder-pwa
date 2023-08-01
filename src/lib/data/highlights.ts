@@ -1,6 +1,7 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
 import { writable } from 'svelte/store';
+import { invalidate } from '$app/navigation';
 
 export interface HighlightItem {
     date: number;
@@ -146,6 +147,7 @@ export async function getHighlights(): Promise<HighlightItem[]> {
 
 function notifyUpdated() {
     highlightsLastUpdated.set(Date.now());
+    invalidate('highlights');
 }
 
 export const highlightsLastUpdated = writable(Date.now());

@@ -1,6 +1,7 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
 import { writable } from 'svelte/store';
+import { invalidate } from '$app/navigation';
 
 export interface NoteItem {
     date: number;
@@ -20,7 +21,6 @@ interface Notes extends DBSchema {
         indexes: {
             'collection, book, chapter, verse': string;
             'collection, book, chapter': string;
-            'date': string;
         };
     };
 }
@@ -28,7 +28,7 @@ interface Notes extends DBSchema {
 let noteDB = null;
 async function openNotes() {
     if (!noteDB) {
-        noteDB = await openDB<Notes>('notes', 2, {
+        noteDB = await openDB<Notes>('notes', 1, {
             upgrade(db) {
                 const noteStore = db.createObjectStore('notes', {
                     keyPath: 'date'
@@ -45,7 +45,6 @@ async function openNotes() {
                     'book',
                     'chapter'
                 ]);
-                noteStore.createIndex('date', ['date']);
             }
         });
     }
@@ -98,10 +97,7 @@ export async function findNoteByChapter(item: {
     return result;
 }
 
-export async function editNote(item: {
-    note: any,
-    newText: string
-}) {
+export async function editNote(item: { note: any; newText: string }) {
     const notes = await openNotes();
     const tx = notes.transaction('notes', 'readwrite');
     const store = tx.objectStore('notes');
@@ -129,9 +125,8 @@ export async function getNotes(): Promise<NoteItem[]> {
 }
 
 function notifyUpdated() {
-    const date = Date.now();
-    notesLastUpdated.set(date);
-    console.log("attempting to update notes", date);
+    notesLastUpdated.set(Date.now());
+    invalidate('notes');
 }
 
 export const notesLastUpdated = writable(Date.now());

@@ -1,6 +1,7 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
 import { writable } from 'svelte/store';
+import { invalidate } from '$app/navigation';
 
 export interface BookmarkItem {
     date: number;
@@ -117,6 +118,7 @@ export async function getBookmarks(): Promise<BookmarkItem[]> {
 
 function notifyUpdated() {
     bookmarksLastUpdated.set(Date.now());
+    invalidate('bookmarks');
 }
 
 export const bookmarksLastUpdated = writable(Date.now());

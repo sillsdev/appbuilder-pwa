@@ -8,12 +8,17 @@
     export let note = undefined;
     let id = 'note';
     let modal;
+    let title;
     let textArea;
     let noteContent;
 
     export function showModal() {
         if (note !== undefined) {
             textArea.value = note.text;
+            noteContent = note.text;
+            title = 'Annotation_Note_Edit';
+        } else {
+            title = 'Annotation_Note_Add';
         }
         modal.showModal();
     }
@@ -47,7 +52,7 @@
 <Modal bind:this={modal} {id} useLabel={false}>
     <svelte:fragment slot="content">
         <div id="container" class="flex flex-col justify-evenly">
-            <div class="annotation-item-title w-full pb-3">{$t['Annotation_Note_Add']}</div>
+            <div class="annotation-item-title w-full pb-3">{$t[title]}</div>
             <div>
                 <textarea
                     bind:this={textArea}
