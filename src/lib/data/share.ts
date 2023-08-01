@@ -28,7 +28,7 @@ export async function shareText(
     }
 
     // if we're here, we failed to share, so we'll try to use the download link
-    const shareFile = file ? file : createShareFile(text, filename);
+    const shareFile = createShareFile(title + '\n\n' + text, filename);
     const url = URL.createObjectURL(shareFile);
 
     const anchor = document.createElement('a');
