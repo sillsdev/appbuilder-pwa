@@ -14,7 +14,7 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
             // Display all selected entries in order
             for (let i = 0; i < selectedVerses.length(); i++) {
                 const selected = selectedVerses.getVerseByIndex(i);
-                return selected.verse[0];
+                return selected.verse;
             }
         } else {
             selectedVerses.removeVerse(id);
