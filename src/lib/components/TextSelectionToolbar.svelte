@@ -34,7 +34,8 @@ TODO:
         theme,
         themeColors,
         highlights,
-        bookmarks
+        bookmarks,
+        audioActive
     } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
@@ -103,6 +104,7 @@ TODO:
     // resets underlined verses and plays verse audio
     function playVerseAudio() {
         playPause();
+        $audioActive = true;
         selectedVerses.reset();
     }
     async function copy() {

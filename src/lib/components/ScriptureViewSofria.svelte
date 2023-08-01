@@ -266,14 +266,6 @@ TODO:
         const verseId = verseSelection.getAttribute('id');
         seekToVerseBasedOnNumberClicked(verseId);
     }
-    // function selectionAudioClickHandler(click){
-    //     // const element = click.target.id;
-    //     // console.log(element);
-    //     // const x =element.replace(/[a-z]/g, 'a');
-    //     // const x = onClickText(
-    //     // console.log(x);
-    //     // seekToVerse(x);
-    // }
     function addNotesDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
