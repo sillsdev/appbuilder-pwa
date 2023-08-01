@@ -103,7 +103,7 @@ TODO:
     }
     // resets underlined verses and plays verse audio
     function playVerseAudio() {
-        const element = $selectedVerses[0].verse
+        const element = $selectedVerses[0].verse;
         const tagSelected = element + 'a';
         seekToVerse(tagSelected);
         play();
