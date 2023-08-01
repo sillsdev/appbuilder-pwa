@@ -169,7 +169,7 @@ function pause() {
     toggleTimeRunning();
 }
 
-function play() {
+export function play() {
     if (!currentAudioPlayer.loaded) return;
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
@@ -294,7 +294,7 @@ export function seekToVerse(verseId) {
     }
 }
 // changes audio to the verse number clicked on
-export function seekToVerseBasedOnNumberClicked(verseId) {
+export function seekBasedOnNumber(verseId) {
     if (!hasAudioPlayed()) {
         return;
     }

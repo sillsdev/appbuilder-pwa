@@ -12,10 +12,9 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
                 selectedVerses.addVerse(id);
             }
             // Display all selected entries in order
-            for (let i = 0; i < selectedVerses.length(); i++) {
-                const selected = selectedVerses.getVerseByIndex(i);
-                return selected.verse;
-            }
+            // for (let i = 0; i < selectedVerses.length(); i++) {
+            //     const selected = selectedVerses.getVerseByIndex(i);
+            // }
         } else {
             selectedVerses.removeVerse(id);
         }
