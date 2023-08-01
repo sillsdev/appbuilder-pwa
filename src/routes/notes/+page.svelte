@@ -4,11 +4,10 @@
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, monoIconColor, refs, bookmarks } from '$lib/data/stores';
+    import { t, monoIconColor, refs, modal, MODAL_NOTE } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeNote, type NoteItem } from '$lib/data/notes';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
-    import { invalidate } from '$app/navigation';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
     import { goto } from '$app/navigation';
@@ -21,14 +20,13 @@
                 goto(`${base}/`);
                 break;
             case $t['Annotation_Menu_Edit']:
-                console.log('Ready to edit: ', note.reference, ' ', note.text);
+                modal.open(MODAL_NOTE, note);
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(note);
                 break;
             case $t['Annotation_Menu_Delete']:
                 await removeNote(note.date);
-                invalidate('notes');
                 break;
         }
     }

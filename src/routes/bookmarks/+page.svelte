@@ -8,7 +8,6 @@
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeBookmark, type BookmarkItem } from '$lib/data/bookmarks';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
-    import { invalidate } from '$app/navigation';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
     import { goto } from '$app/navigation';
@@ -25,7 +24,6 @@
                 break;
             case $t['Annotation_Menu_Delete']:
                 await removeBookmark(bookmark.date);
-                invalidate('bookmarks');
                 break;
         }
     }

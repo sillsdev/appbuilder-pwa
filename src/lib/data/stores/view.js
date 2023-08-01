@@ -1,6 +1,5 @@
 import { groupStore } from './store-types';
-import { derived, readable, writable, get } from 'svelte/store';
-import { onDestroy } from 'svelte';
+import { derived, writable, get } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 import { userSettings } from './setting';
 
@@ -29,8 +28,8 @@ function createModal() {
     const { subscribe, set } = writable([]);
     return {
         subscribe,
-        open: (modalType) => {
-            set([...get(modal), modalType]);
+        open: (modalType, data = undefined) => {
+            set([...get(modal), { modalType, data }]);
         },
         clear: () => set([])
     };

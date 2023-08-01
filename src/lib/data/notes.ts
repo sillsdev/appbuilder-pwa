@@ -1,6 +1,7 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
 import { writable } from 'svelte/store';
+import { invalidate } from '$app/navigation';
 
 export interface NoteItem {
     date: number;
@@ -96,6 +97,16 @@ export async function findNoteByChapter(item: {
     return result;
 }
 
+export async function editNote(item: { note: any; newText: string }) {
+    const notes = await openNotes();
+    const tx = notes.transaction('notes', 'readwrite');
+    const store = tx.objectStore('notes');
+    const result = await store.get(item.note.date);
+    await store.put({ ...result, text: item.newText });
+    await tx.done;
+    notifyUpdated();
+}
+
 export async function removeNote(date: number) {
     const notes = await openNotes();
     await notes.delete('notes', date);
@@ -115,6 +126,7 @@ export async function getNotes(): Promise<NoteItem[]> {
 
 function notifyUpdated() {
     notesLastUpdated.set(Date.now());
+    invalidate('notes');
 }
 
 export const notesLastUpdated = writable(Date.now());
