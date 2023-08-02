@@ -19,7 +19,7 @@ TODO:
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { seekBasedOnNumber } from '$lib/data/audio';
+    import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
 
     export let audioPhraseEndChars: string;
@@ -261,10 +261,13 @@ TODO:
     }
     // handles clicks on verse numbers
     function audioClickHandler(click) {
+        if (!hasAudioPlayed()) {
+            return;
+        }
         const element = click.target.textContent;
         const verseSelection = document.querySelector('[data-verse="' + element + '"]');
         const verseId = verseSelection.getAttribute('id');
-        seekBasedOnNumber(verseId);
+        seekToVerse(verseId);
     }
     function addNotesDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';

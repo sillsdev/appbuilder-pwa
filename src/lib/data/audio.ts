@@ -292,13 +292,8 @@ export function seekToVerse(verseClicked) {
             break;
         }
     }
-}
-// this function is called when a verse number is clicked on and changes the audio to that verse
-export function seekBasedOnNumber(verseId) {
-    if (!hasAudioPlayed()) {
-        return;
-    }
-    // Calls seek to verse to find the verse associtated with the verse number clicked. Calls update time to change highlighting.
-    seekToVerse(verseId);
+    //forces highlighting change
     updateTime();
+}
+    }
 }
