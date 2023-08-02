@@ -278,26 +278,27 @@ export async function getAudioSourceInfo(item: {
         timing: timing.length > 0 ? timing : null
     };
 }
-// changes audio to the verse clicked on
-export function seekToVerse(verseId) {
+// This function can be called when the text selection toolbar play button is clicked on and it changes the audio to the start of the verse clicked on
+export function seekToVerse(verseClicked) {
     if (!currentAudioPlayer.timing) {
         return;
     }
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
-        if (verseId === tag) {
+        if (verseClicked === tag) {
             const newtime = currentAudioPlayer.timing[i].starttime;
             seek(newtime);
             break;
         }
     }
 }
-// changes audio to the verse number clicked on
+// this function is called when a verse number is clicked on and changes the audio to that verse
 export function seekBasedOnNumber(verseId) {
     if (!hasAudioPlayed()) {
         return;
     }
+    // Calls seek to verse to find the verse associtated with the verse number clicked. Calls update time to change highlighting.
     seekToVerse(verseId);
     updateTime();
 }
