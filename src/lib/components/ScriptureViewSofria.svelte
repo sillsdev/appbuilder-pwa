@@ -12,6 +12,7 @@ TODO:
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { footnotes } from '$lib/data/stores';
+    import { generateHTML } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
         deselectAllElements,
@@ -191,9 +192,14 @@ TODO:
     };
     const usfmSpan = (parent: any, spanClass: string, phrase: string) => {
         const spanElement = document.createElement('span');
+        let child;
         spanElement.classList.add(spanClass);
-        const textNode = document.createTextNode(phrase);
-        spanElement.appendChild(textNode);
+        if (spanClass === 'xt') {
+            spanElement.innerHTML = generateHTML(phrase);
+        } else {
+            child = document.createTextNode(phrase);
+            spanElement.appendChild(child);
+        }
         parent.appendChild(spanElement);
         return parent;
     };
@@ -277,7 +283,8 @@ TODO:
             event.stopPropagation();
             const root = event.target.parentNode.parentNode;
             const footnote = root.querySelector(`div#${root.getAttribute('data-graft')}`);
-            footnotes.push(footnote.innerHTML);
+            const parsed = footnote.innerHTML;
+            footnotes.push(parsed);
         }
     }
 

@@ -19,7 +19,8 @@
         "convert:examples": "ts-node scripts/index.ts --examples",
         "clean": "rimraf .svelte-kit build src/lib/data/book-collections src/config.js static/about.partial.html static/collections static/images static/fonts static/styles static/illustrations static/audio static/timings static/backgrounds static/icons static/borders static/manifest.json && echo 🔔 Reminder: The project cannot be built until the conversion scripts are run again.",
         "clean:data": "rimraf --glob data/*",
-        "clean:all": "npm run clean && npm run clean:data"
+        "clean:all": "npm run clean && npm run clean:data",
+        "test": "vitest"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
@@ -57,7 +58,8 @@
         "tailwindcss": "^3.3",
         "ts-node": "^10.8.1",
         "typescript": "^5",
-        "vite": "^4"
+        "vite": "^4",
+        "vitest": "^0.34.1"
     },
     "volta": {
         "node": "20.9.0"
