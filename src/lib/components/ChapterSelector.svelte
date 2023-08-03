@@ -82,7 +82,7 @@ The navbar component.
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
-    $: chapters, console.log('verses', chapters[chapter] === undefined);
+    $: chapters, console.log('Has verses:', chapters[chapter] !== undefined);
     $: showSelector =
         config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
@@ -140,7 +140,7 @@ The navbar component.
                                                       label: x,
                                                       id: x
                                                   }))
-                                                : null
+                                                : ''
                                         }
                                     ]
                                 },
