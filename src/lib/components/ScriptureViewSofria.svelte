@@ -1020,7 +1020,6 @@ TODO:
                                 // console.log('Footnote or xref');
                                 footnoteSpan = document.createElement('span');
                                 footnoteSpan.setAttribute('data-graft', footnoteId);
-                                footnoteSpan.classList.add('footnote');
                                 const a = document.createElement('a');
                                 const sup = document.createElement('sup');
                                 sup.classList.add('footnote');
