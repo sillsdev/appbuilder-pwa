@@ -157,7 +157,7 @@ function toggleTimeRunning() {
     return;
 }
 // checks if audio has played
-function hasAudioPlayed() {
+export function hasAudioPlayed() {
     return currentAudioPlayer.progress > 0;
 }
 function pause() {
@@ -295,5 +295,4 @@ export function seekToVerse(verseClicked) {
     //forces highlighting change
     updateTime();
 }
-    }
-}
+
