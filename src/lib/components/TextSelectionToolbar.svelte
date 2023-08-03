@@ -34,14 +34,15 @@ TODO:
         theme,
         themeColors,
         highlights,
-        bookmarks
+        bookmarks,
+        audioActive
     } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText, shareImage } from '$lib/data/share';
     import { base } from '$app/paths';
-
+    import { play, seekToVerse } from '$lib/data/audio';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -100,7 +101,15 @@ TODO:
 
         selectedVerses.reset();
     }
-
+    // resets underlined verses and plays verse audio
+    function playVerseAudio() {
+        const element = $selectedVerses[0].verse;
+        const tagSelected = element + 'a';
+        seekToVerse(tagSelected);
+        play();
+        $audioActive = true;
+        selectedVerses.reset();
+    }
     async function copy() {
         var copyText =
             (await selectedVerses.getCompositeText()) +
@@ -178,12 +187,12 @@ TODO:
                     />
                 </div>
             {:else}
-                {#if isAudioPlayable}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => playVerseAudio()}>
                         <AudioIcon.Play color={barIconColor} />
                     </button>
                 {/if}
-                {#if isRepeatableAudio}
+                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
                     <button class="dy-btn-sm dy-btn-ghost">
                         <AudioIcon.PlayRepeat color={barIconColor} />
                     </button>

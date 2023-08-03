@@ -17,7 +17,7 @@ interface AudioPlayer {
     timer: number;
 }
 const cache = new MRUCache<string, AudioPlayer>(10);
-let currentAudioPlayer;
+export let currentAudioPlayer;
 audioPlayerStore.subscribe(async (value) => {
     currentAudioPlayer = value;
     await getAudio();
@@ -157,7 +157,7 @@ function toggleTimeRunning() {
     return;
 }
 // checks if audio has played
-function hasAudioPlayed() {
+export function hasAudioPlayed() {
     return currentAudioPlayer.progress > 0;
 }
 function pause() {
@@ -169,7 +169,7 @@ function pause() {
     toggleTimeRunning();
 }
 
-function play() {
+export function play() {
     if (!currentAudioPlayer.loaded) return;
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
@@ -278,20 +278,20 @@ export async function getAudioSourceInfo(item: {
         timing: timing.length > 0 ? timing : null
     };
 }
-
-// changes audio to the verse number clicked on
-export function seekToVerse(verseId) {
-    if (!hasAudioPlayed()) {
+// This function can be called when the text selection toolbar play button is clicked on and it changes the audio to the start of the verse clicked on
+export function seekToVerse(verseClicked) {
+    if (!currentAudioPlayer.timing) {
         return;
     }
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
-        if (verseId === tag) {
+        if (verseClicked === tag) {
             const newtime = currentAudioPlayer.timing[i].starttime;
             seek(newtime);
-            updateTime();
             break;
         }
     }
+    //forces highlighting change
+    updateTime();
 }
