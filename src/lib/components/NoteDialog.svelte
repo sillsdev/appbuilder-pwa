@@ -10,12 +10,10 @@
     let modal;
     let title;
     let textArea;
-    let noteContent;
 
     export function showModal() {
         if (note !== undefined) {
             textArea.value = note.text;
-            noteContent = note.text;
             title = 'Annotation_Note_Edit';
         } else {
             title = 'Annotation_Note_Add';
@@ -24,7 +22,6 @@
     }
 
     function reset() {
-        noteContent = '';
         textArea.value = '';
         selectedVerses.reset();
     }
@@ -33,7 +30,7 @@
         if (note !== undefined) {
             await editNote({
                 note: note,
-                newText: noteContent
+                newText: textArea.value
             });
         } else {
             await addNote({
@@ -41,7 +38,7 @@
                 book: $selectedVerses[0].book,
                 chapter: $selectedVerses[0].chapter,
                 verse: $selectedVerses[0].verse,
-                text: noteContent,
+                text: textArea.value,
                 reference: $selectedVerses[0].reference
             });
         }
@@ -54,11 +51,7 @@
         <div id="container" class="flex flex-col justify-evenly">
             <div class="annotation-item-title w-full pb-3">{$t[title]}</div>
             <div>
-                <textarea
-                    bind:this={textArea}
-                    class="dy-textarea w-full"
-                    on:input={() => (noteContent = textArea.value)}
-                />
+                <textarea bind:this={textArea} class="dy-textarea w-full" />
             </div>
             <div class="w-full flex mt-4 justify-between">
                 <button on:click={reset} class="dy-btn dy-btn-sm dy-btn-ghost"
