@@ -82,6 +82,7 @@ The navbar component.
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
+    $: chapters, console.log('verses', chapters[chapter] === undefined);
     $: showSelector =
         config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
@@ -134,14 +135,16 @@ The navbar component.
                                     cols: 5,
                                     options: [
                                         {
-                                            cells: Object.keys(chapters[chapter]).map((x) => ({
-                                                label: x,
-                                                id: x
-                                            }))
+                                            cells: chapters[chapter]
+                                                ? Object.keys(chapters[chapter]).map((x) => ({
+                                                      label: x,
+                                                      id: x
+                                                  }))
+                                                : null
                                         }
                                     ]
                                 },
-                                visible: showVerseSelector
+                                visible: chapters[chapter] !== undefined && showVerseSelector
                             }
                         }}
                         on:menuaction={navigateReference}

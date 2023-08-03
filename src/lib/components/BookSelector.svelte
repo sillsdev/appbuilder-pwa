@@ -181,14 +181,19 @@ The navbar component.
                         props: {
                             options: [
                                 {
-                                    cells: Object.keys(chapters[chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
+                                    cells: chapters[chapter]
+                                        ? Object.keys(chapters[chapter]).map((x) => ({
+                                              label: x,
+                                              id: x
+                                          }))
+                                        : null
                                 }
                             ]
                         },
-                        visible: showChapterSelector && showVerseSelector
+                        visible:
+                            chapters[chapter] !== undefined &&
+                            showChapterSelector &&
+                            showVerseSelector
                     }
                 }}
                 on:menuaction={navigateReference}
