@@ -295,4 +295,3 @@ export function seekToVerse(verseClicked) {
     //forces highlighting change
     updateTime();
 }
-
