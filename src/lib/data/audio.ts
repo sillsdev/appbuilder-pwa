@@ -295,3 +295,86 @@ export function seekToVerse(verseClicked) {
     //forces highlighting change
     updateTime();
 }
+
+// This algorithm is based on the Android code in
+// AudioVideoFileManager::getExtractAudioProcessingTask
+export function getTimingForVerseRange(verseRange: string) {
+    const timing = currentAudioPlayer.timing;
+
+    if (timing && timing.length > 0) {
+        // Ensure the final timing has its end time set properly
+        const lastTiming = timing[timing.length - 1];
+        if (lastTiming.endtime - lastTiming.starttime < 0.01) {
+            lastTiming.endtime = currentAudioPlayer.audio.duration;
+        }
+    }
+
+    let timing1 = null;
+    let timing2 = null;
+
+    const vs = verseRange.split('-');
+    if (vs.length === 1) {
+        const verse = vs[0];
+        timing1 = timing.find((t) => t.tag.includes(verse));
+        timing2 = timing1;
+    }
+    const startVerse = verseRange.split('-')[0];
+    const endVerse = verseRange.split('-')[1];
+    const startTiming = timing.find((t) => t.tag.includes(startVerse));
+    const endTiming = timing.find((t) => t.tag.includes(endVerse));
+    return {
+        start: startTiming,
+        end: endTiming
+    };
+}
+
+function getTimingForVerse(timings: Array<any>, verse: string) {
+    const result = [];
+    for (let i = 0; i < timings.length; i++) {
+        if (!isTimingForVerseRange(timings[i])) {
+            // This timing is for a single verse or phrases in a verse
+            // e.g. "4" - return timings 4a, 4b, 4c.
+            if (getVerseForTiming(timings[i]) === verse) {
+                result.push(timings[i]);
+            }
+        } else {
+        }
+    }
+}
+
+function getVerseForTiming(timing: any) {
+    function extractNumericalPart(inputString) {
+        let numericalPart = '';
+        let index = 0;
+
+        // Skip non-numerical characters at the beginning of the string
+        while (index < inputString.length && isNaN(parseInt(inputString[index]))) {
+            index++;
+        }
+
+        // Extract numerical characters until a non-numerical character is encountered
+        while (index < inputString.length && !isNaN(parseInt(inputString[index]))) {
+            numericalPart += inputString[index];
+            index++;
+        }
+
+        // Return the numerical part or null if no numerical part is found
+        return numericalPart.length > 0 ? numericalPart : null;
+    }
+
+    return extractNumericalPart(timing.tag);
+}
+
+function isVerseNumberInVerseRange(verse: string, verseRange: string) {
+    const vs = verseRange.split('-');
+    if (vs.length === 1) {
+        return verse === vs[0];
+    }
+    const startVerse = vs[0];
+    const endVerse = vs[1];
+    return verse >= startVerse && verse <= endVerse;
+}
+
+function isTimingForVerseRange(timing: any) {
+    return timing.tag && timing.tag.includes('-');
+}

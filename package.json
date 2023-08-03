@@ -24,6 +24,8 @@
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
         "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+        "@ffmpeg/ffmpeg": "^0.12.1",
+        "@ffmpeg/util": "^0.12.0",
         "@sveltejs/adapter-static": "^2",
         "@sveltejs/kit": "^1",
         "@tailwindcss/typography": "^0.5.2",
@@ -60,6 +62,6 @@
         "vite": "^4"
     },
     "volta": {
-        "node": "16.17.0"
+        "node": "18.17.0"
     }
 }
