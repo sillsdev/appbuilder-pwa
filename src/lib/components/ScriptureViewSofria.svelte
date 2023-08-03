@@ -11,6 +11,7 @@ TODO:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+    import { footnotes } from '$lib/data/stores';
     import {
         onClickText,
         deselectAllElements,
@@ -269,6 +270,16 @@ TODO:
         const verseId = verseSelection.getAttribute('id');
         seekToVerse(verseId);
     }
+    // handles clicks on in-text notation superscripts
+    function footnoteClickHandler(event) {
+        if ($footnotes.length === 0) {
+            event.stopPropagation();
+            const root = event.target.parentNode.parentNode;
+            const footnote = root.querySelector(`div#${root.getAttribute('data-graft')}`);
+            footnotes.push(footnote.innerHTML);
+        }
+    }
+
     function addNotesDiv(workspace) {
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
@@ -407,17 +418,22 @@ TODO:
             workspace.root.appendChild(workspace.tableElement);
         }
     }
-    // changes audio position if verse number clicked otherwise selects verse
+    // handles on click when interacting with the scripture view
     function onClick(e: any) {
-        if (e.target.getAttribute('class') === 'v') {
-            audioClickHandler(e);
-        } else {
-            if (!$audioPlayer.playing) {
-                onClickText(e, selectedVerses, maxSelections);
-            }
+        switch (e.target.getAttribute('class')) {
+            case 'v':
+                audioClickHandler(e);
+                break;
+            case 'footnote':
+                footnoteClickHandler(e);
+                break;
+            default:
+                if (!$audioPlayer.playing) {
+                    onClickText(e, selectedVerses, maxSelections);
+                }
+                break;
         }
     }
-
     function chapterCount(book) {
         const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
@@ -1007,8 +1023,10 @@ TODO:
                                 footnoteSpan.classList.add('footnote');
                                 const a = document.createElement('a');
                                 const sup = document.createElement('sup');
+                                sup.classList.add('footnote');
                                 sup.innerHTML = fnc.charAt(workspace.footnoteIndex);
                                 a.appendChild(sup);
+                                a.classList.add('cursor-pointer');
                                 footnoteSpan.appendChild(a);
                                 workspace.footnoteIndex++;
                             } else if (element.subType === 'note_caller') {
