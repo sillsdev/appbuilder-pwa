@@ -32,8 +32,9 @@ The verse on image component.
 
     let cnv_background;
     let cnv_text;
-    let cnv_font = '30px Comic Sans MS';
-    let cnv_color = 'red';
+    let cnv_font_size = 30;
+    $: cnv_font = cnv_font_size + 'px Comic Sans MS';
+    let cnv_color = 'white';
 
     $: render(cnv_background, cnv_text, cnv_font, cnv_color);
 
@@ -46,8 +47,15 @@ The verse on image component.
         context.textAlign = 'center';
 
         const lines = getLines(context, canvas_text, cnv.width);
-        for (const line in lines) {
-            context.fillText(line, cnv.width / 2, cnv.height / 2);
+        /*DEBUG*/ console.log(lines);
+        let textHeight = cnv_font_size * lines.length;
+        /*DEBUG*/ console.log('th=', textHeight);
+        for (const lineIndex in lines) {
+            let line = lines[lineIndex];
+            let lineX = cnv.width / 2;
+            let lineY =
+                cnv_font_size + (cnv.height - textHeight) / 2 + Number(lineIndex) * cnv_font_size;
+            context.fillText(line, lineX, lineY);
         }
     }
 
