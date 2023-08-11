@@ -21,6 +21,7 @@ The verse on image component.
     import { shareImage } from '$lib/data/share';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
+    import { toPng } from 'html-to-image';
 
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
@@ -77,10 +78,31 @@ The verse on image component.
     });
 
     export function shareCanvas() {
-        cnv.toBlob((blob) => {
-            const file = new File([blob], reference + '.png', { type: 'image/png' });
-            shareImage(reference, verses, reference + '.png', file);
-        });
+        // // DEFAULT
+        // cnv.toBlob((blob) => {
+        //     const file = new File([blob], reference + '.png', { type: 'image/png' });
+        //     shareImage(reference, verses, reference + '.png', file);
+        // });
+
+        // USING html-to-image
+        var node = document.getElementById('verseOnImgPreview');
+
+        toPng(node)
+            .then(function (dataUrl) {
+                fetch(dataUrl)
+                    .then((response) => response.blob())
+                    .then((blob) => {
+                        // Now you have the Blob and can use it as needed
+                        /*DEBUG*/ console.log(blob);
+                        shareImage(reference, verses, reference + '.png', blob);
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                    });
+            })
+            .catch(function (error) {
+                console.error('oops, something went wrong!', error);
+            });
     }
 
     function getLines(ctx, text, maxWidth) {
@@ -144,7 +166,7 @@ The verse on image component.
     style="border:0px solid green;"
     style:direction={$direction}
 >
-    <div id="verseOnImgPreview" class="flex flex-col items-center">
+    <div id="verseOnImgPreview" class="flex flex-col items-center" style="border: 2px solid green;">
         <!-- Preview display of the image and text -->
         <canvas
             bind:this={cnv}
@@ -153,6 +175,7 @@ The verse on image component.
             class="cnv_Mobile"
             md:class="cnv_Md"
         />
+        <p>PIE</p>
     </div>
 
     <div id="editorTabs" class="flex flex-row flex-nowrap" style="overflow-x:scroll;">
