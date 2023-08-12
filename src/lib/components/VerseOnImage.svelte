@@ -28,41 +28,47 @@ The verse on image component.
 
     $: reference = selectedVerses.getCompositeReference();
     let verses;
+    let voi_ParentDiv;
     $: cnvFullScreen = $windowSize.width < 450;
     let cnv;
 
     let cnv_background;
-    let cnv_text;
-    let cnv_font_size = 30;
-    $: cnv_font = cnv_font_size + 'px Comic Sans MS';
-    let cnv_color = 'white';
+    // let cnv_text;
+    let voi_textBox;
+    $: txtFormatted = verses;
+    let voi_fontSize = 30;
+    $: voi_font = voi_fontSize + 'px Comic Sans MS';
+    let voi_fontColor = 'white';
+    let voi_txtPadding = '0px';
+    let voi_textAlign = 'center';
+    let voi_textBoxHeight;
+    let voi_textBoxWidth;
 
-    $: render(cnv_background, cnv_text, cnv_font, cnv_color);
+    $: render(cnv_background /*cnv_text, cnv_font, cnv_color*/);
 
-    function render(canvas_background, canvas_text, canvas_font, canvas_color) {
+    function render(canvas_background /*canvas_text, canvas_font, canvas_color*/) {
         if (!cnv || !canvas_background) return;
         const context = cnv.getContext('2d');
         context.drawImage(canvas_background, 0, 0, cnv.width, cnv.height);
-        context.font = canvas_font;
-        context.fillStyle = canvas_color;
-        context.textAlign = 'center';
+        // context.font = canvas_font;
+        // context.fillStyle = canvas_color;
+        // context.textAlign = 'center';
 
-        const lines = getLines(context, canvas_text, cnv.width);
-        /*DEBUG*/ console.log(lines);
-        let textHeight = cnv_font_size * lines.length;
-        /*DEBUG*/ console.log('th=', textHeight);
-        for (const lineIndex in lines) {
-            let line = lines[lineIndex];
-            let lineX = cnv.width / 2;
-            let lineY =
-                cnv_font_size + (cnv.height - textHeight) / 2 + Number(lineIndex) * cnv_font_size;
-            context.fillText(line, lineX, lineY);
-        }
+        // const lines = getLines(context, canvas_text, cnv.width);
+        // let textHeight = cnv_font_size * lines.length;
+        // /*DEBUG*/ console.log('th=', textHeight);
+        // for (const lineIndex in lines) {
+        //     let line = lines[lineIndex];
+        //     let lineX = cnv.width / 2;
+        //     let lineY =
+        //         cnv_font_size + (cnv.height - textHeight) / 2 + Number(lineIndex) * cnv_font_size;
+        //     context.fillText(line, lineX, lineY);
+        // }
     }
 
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
-        cnv_text = verses;
+        // cnv_text = verses;
         /*DEBUG*/ console.log('v=' + verses);
 
         var background = new Image();
@@ -73,6 +79,8 @@ The verse on image component.
             cnv_background = background;
             /*DEBUG*/ console.log('W&H=', cnv.width, cnv.height);
         };
+        voi_textBoxHeight = voi_ParentDiv.clientHeight * 0.5;
+        voi_textBoxWidth = voi_ParentDiv.clientWidth * 0.5;
 
         centerButton(0);
     });
@@ -159,6 +167,40 @@ The verse on image component.
         active_editor_index = n;
         button.classList.add('activeButton');
     }
+
+    let posX = 0; //voi_textPosX
+    let posY = 0; //voi_textPosY
+    let dragging = false;
+    let offsetX, offsetY;
+
+    function handleMouseMove(event) {
+        if (dragging) {
+            posX = event.clientX - offsetX;
+            posY = event.clientY - offsetY;
+            const newX = event.clientX - offsetX;
+            const newY = event.clientY - offsetY;
+
+            // Prevent child div from going outside the parent borders
+            const parentRect = voi_ParentDiv.getBoundingClientRect();
+            posX = Math.max(0, Math.min(newX, parentRect.width - voi_textBoxWidth));
+            posY = Math.max(0, Math.min(newY, parentRect.height - voi_textBoxHeight));
+        }
+    }
+
+    function handleMouseDown(event) {
+        dragging = true;
+        offsetX = event.clientX - posX; // Update offsetX
+        offsetY = event.clientY - posY; // Update offsetY
+
+        function handleMouseUp() {
+            dragging = false;
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+    }
 </script>
 
 <div
@@ -166,7 +208,12 @@ The verse on image component.
     style="border:0px solid green;"
     style:direction={$direction}
 >
-    <div id="verseOnImgPreview" class="flex flex-col items-center" style="border: 2px solid green;">
+    <div
+        id="verseOnImgPreview"
+        bind:this={voi_ParentDiv}
+        class="flex flex-col items-center"
+        style="border: 2px solid cyan;"
+    >
         <!-- Preview display of the image and text -->
         <canvas
             bind:this={cnv}
@@ -174,8 +221,37 @@ The verse on image component.
             height={cnvFullScreen ? '300px' : '50vh'}
             class="cnv_Mobile"
             md:class="cnv_Md"
+            style="position: relative; z-index: 1;"
         />
-        <p>PIE</p>
+        <p
+            id="verseOnImageTextDiv"
+            style="
+                border: 1px solid yellow;
+                position: absolute;
+                z-index: 2;
+                width: {voi_textBoxWidth};
+                height: {voi_textBoxHeight};
+                color: {voi_fontColor};
+                font: {voi_font};
+                font-size: {voi_fontSize};
+                padding: {voi_txtPadding};
+                text-align: {voi_textAlign};
+                user-drag: none;
+                transform: translate({posX}px, {posY}px);
+            "
+            bind:this={voi_textBox}
+            on:mousedown={handleMouseDown}
+            on:touchstart={(event) => handleMouseDown(event.touches[0])}
+            on:touchmove={(event) => {
+                event.preventDefault();
+                handleMouseMove(event.touches[0]);
+            }}
+            on:touchend={() => {
+                dragging = false;
+            }}
+        >
+            {txtFormatted}
+        </p>
     </div>
 
     <div id="editorTabs" class="flex flex-row flex-nowrap" style="overflow-x:scroll;">
