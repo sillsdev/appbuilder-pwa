@@ -26,50 +26,44 @@ The verse on image component.
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
 
+    $: viewportWidth_in_px = Math.max(
+        document.documentElement.clientWidth || 0,
+        window.innerWidth || 0
+    );
+    $: viewportHeight_in_px = Math.max(
+        document.documentElement.clientHeight || 0,
+        window.innerHeight || 0
+    );
+
     $: reference = selectedVerses.getCompositeReference();
     let verses;
-    let voi_ParentDiv;
+    let voi_parentDiv;
+    $: voi_width = cnvFullScreen ? '100vw' : '50vh';
+    $: voi_height = cnvFullScreen ? '100vw' : '50vh';
     $: cnvFullScreen = $windowSize.width < 450;
     let cnv;
 
     let cnv_background;
-    // let cnv_text;
     let voi_textBox;
     $: txtFormatted = verses;
-    let voi_fontSize = 30;
+    let voi_fontSize = 20;
     $: voi_font = voi_fontSize + 'px Comic Sans MS';
     let voi_fontColor = 'white';
     let voi_txtPadding = '0px';
     let voi_textAlign = 'center';
-    let voi_textBoxHeight;
     let voi_textBoxWidth;
+    $: voi_textBox_maxHeight = voi_height - voi_textPosY;
 
-    $: render(cnv_background /*cnv_text, cnv_font, cnv_color*/);
+    $: render(cnv_background);
 
-    function render(canvas_background /*canvas_text, canvas_font, canvas_color*/) {
+    function render(canvas_background) {
         if (!cnv || !canvas_background) return;
         const context = cnv.getContext('2d');
         context.drawImage(canvas_background, 0, 0, cnv.width, cnv.height);
-        // context.font = canvas_font;
-        // context.fillStyle = canvas_color;
-        // context.textAlign = 'center';
-
-        // const lines = getLines(context, canvas_text, cnv.width);
-        // let textHeight = cnv_font_size * lines.length;
-        // /*DEBUG*/ console.log('th=', textHeight);
-        // for (const lineIndex in lines) {
-        //     let line = lines[lineIndex];
-        //     let lineX = cnv.width / 2;
-        //     let lineY =
-        //         cnv_font_size + (cnv.height - textHeight) / 2 + Number(lineIndex) * cnv_font_size;
-        //     context.fillText(line, lineX, lineY);
-        // }
     }
 
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
-        // cnv_text = verses;
-        /*DEBUG*/ console.log('v=' + verses);
 
         var background = new Image();
         background.src = base + '/backgrounds/aaron-burden-6jYoil2GhVk-unsplash-1080.jpg';
@@ -77,11 +71,8 @@ The verse on image component.
         // Make sure the image is loaded first otherwise nothing will draw.
         background.onload = function () {
             cnv_background = background;
-            /*DEBUG*/ console.log('W&H=', cnv.width, cnv.height);
         };
-        voi_textBoxHeight = voi_ParentDiv.clientHeight * 0.5;
-        voi_textBoxWidth = voi_ParentDiv.clientWidth * 0.5;
-
+        /*DEBUG*/ voi_textBoxWidth = voi_parentDiv.clientWidth * 0.75;
         centerButton(0);
     });
 
@@ -168,29 +159,30 @@ The verse on image component.
         button.classList.add('activeButton');
     }
 
-    let posX = 0; //voi_textPosX
-    let posY = 0; //voi_textPosY
+    let voi_textPosX = 0;
+    let voi_textPosY = 0;
     let dragging = false;
     let offsetX, offsetY;
 
     function handleMouseMove(event) {
         if (dragging) {
-            posX = event.clientX - offsetX;
-            posY = event.clientY - offsetY;
+            voi_textPosX = event.clientX - offsetX;
+            voi_textPosY = event.clientY - offsetY;
             const newX = event.clientX - offsetX;
             const newY = event.clientY - offsetY;
 
             // Prevent child div from going outside the parent borders
-            const parentRect = voi_ParentDiv.getBoundingClientRect();
-            posX = Math.max(0, Math.min(newX, parentRect.width - voi_textBoxWidth));
-            posY = Math.max(0, Math.min(newY, parentRect.height - voi_textBoxHeight));
+            const parentRect = voi_parentDiv.getBoundingClientRect();
+            const childRect = voi_textBox.getBoundingClientRect();
+            voi_textPosX = Math.max(0, Math.min(newX, parentRect.width - childRect.width));
+            voi_textPosY = Math.max(0, Math.min(newY, parentRect.height - childRect.height));
         }
     }
 
     function handleMouseDown(event) {
         dragging = true;
-        offsetX = event.clientX - posX; // Update offsetX
-        offsetY = event.clientY - posY; // Update offsetY
+        offsetX = event.clientX - voi_textPosX; // Update offsetX
+        offsetY = event.clientY - voi_textPosY; // Update offsetY
 
         function handleMouseUp() {
             dragging = false;
@@ -204,56 +196,63 @@ The verse on image component.
 </script>
 
 <div
+    id="verseOnImageContainer"
     class="flex flex-col flex-nowrap max-w-screen-sm mx-auto"
-    style="border:0px solid green;"
+    style="border: 0px solid yellow;"
     style:direction={$direction}
 >
-    <div
-        id="verseOnImgPreview"
-        bind:this={voi_ParentDiv}
-        class="flex flex-col items-center"
-        style="border: 2px solid cyan;"
-    >
-        <!-- Preview display of the image and text -->
-        <canvas
-            bind:this={cnv}
-            width={cnvFullScreen ? '300px' : '50vh'}
-            height={cnvFullScreen ? '300px' : '50vh'}
-            class="cnv_Mobile"
-            md:class="cnv_Md"
-            style="position: relative; z-index: 1;"
-        />
-        <p
-            id="verseOnImageTextDiv"
-            style="
-                border: 1px solid yellow;
+    <div class="flex flex-col items-center">
+        <div
+            id="verseOnImgPreview"
+            bind:this={voi_parentDiv}
+            class="flex flex-col"
+            style="border: 0px solid cyan; width:{voi_width}; height:{voi_height};"
+        >
+            <!-- Preview display of the image and text -->
+
+            <canvas
+                bind:this={cnv}
+                width={cnvFullScreen ? viewportWidth_in_px + 'px' : viewportHeight_in_px / 2 + 'px'}
+                height={cnvFullScreen
+                    ? viewportWidth_in_px + 'px'
+                    : viewportHeight_in_px / 2 + 'px'}
+                style="position: relative; z-index: 1;"
+            />
+
+            <p
+                id="verseOnImageTextDiv"
+                style="
+                border: 1px solid lightgreen;
                 position: absolute;
                 z-index: 2;
-                width: {voi_textBoxWidth};
-                height: {voi_textBoxHeight};
+                width: {voi_textBoxWidth}px;
+                height: auto;
+                max-width: {voi_width};
+                max-height: {voi_textBox_maxHeight};
                 color: {voi_fontColor};
                 font: {voi_font};
                 font-size: {voi_fontSize};
                 padding: {voi_txtPadding};
                 text-align: {voi_textAlign};
+                overflow: hidden;
                 user-drag: none;
-                transform: translate({posX}px, {posY}px);
+                transform: translate({voi_textPosX}px, {voi_textPosY}px);
             "
-            bind:this={voi_textBox}
-            on:mousedown={handleMouseDown}
-            on:touchstart={(event) => handleMouseDown(event.touches[0])}
-            on:touchmove={(event) => {
-                event.preventDefault();
-                handleMouseMove(event.touches[0]);
-            }}
-            on:touchend={() => {
-                dragging = false;
-            }}
-        >
-            {txtFormatted}
-        </p>
+                bind:this={voi_textBox}
+                on:mousedown={handleMouseDown}
+                on:touchstart={(event) => handleMouseDown(event.touches[0])}
+                on:touchmove={(event) => {
+                    event.preventDefault();
+                    handleMouseMove(event.touches[0]);
+                }}
+                on:touchend={() => {
+                    dragging = false;
+                }}
+            >
+                {txtFormatted}
+            </p>
+        </div>
     </div>
-
     <div id="editorTabs" class="flex flex-row flex-nowrap" style="overflow-x:scroll;">
         <!-- NavBar of tab buttons to bring up the different editor panes -->
         <button
@@ -327,6 +326,10 @@ The verse on image component.
         </div>
 
         <div class="dy-carousel-item" style="width:100%;">
+            <div class="grid gap-4 items-center range-row m-2">
+                <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1.5rem" />
+                <Slider bind:value={voi_fontSize} {barColor} {progressColor} min="10" max="250" />
+            </div>
             <h1 style="width:100%;">Editor Content 1</h1>
         </div>
 
