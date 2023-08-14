@@ -279,7 +279,8 @@ The verse on image component.
             overflow-x: scroll;
             z-index: 3;
             --tabWidth: {voi_width / 5}px; 
-            background-color: {temp_DEBUG_Color};"
+            background-color: {temp_DEBUG_Color};
+        "
     >
         <!-- NavBar of tab buttons to bring up the different editor panes -->
         <button
@@ -356,7 +357,13 @@ The verse on image component.
     <div
         id="editorsPane"
         class="dy-w-64 dy-carousel dy-rounded-box"
-        style="background-color: {temp_DEBUG_Color}; z-index: 3; overflow-x: hidden; border: 1px solid cyan;"
+        style="
+            background-color: {temp_DEBUG_Color}; 
+            z-index: 3; 
+            overflow-x: hidden; 
+            touch-action: none;
+            border: 1px solid cyan;
+        "
     >
         <div
             id="image_selector_pane"
@@ -561,23 +568,8 @@ The verse on image component.
 </div>
 
 <style>
-    /* .cnv_Mobile {
-        width: 100vw;
-        height: 100vw;
-    }
-
-    .cnv_Md {
-        width: 50vh;
-        height: 50vh;
-    } */
-
     #editorTabs::-webkit-scrollbar {
         display: none;
-        /* width: 0 !important */
-    }
-
-    .editorTabs {
-        -ms-overflow-style: none;
     }
 
     #editorTabs {
