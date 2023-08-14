@@ -11,12 +11,13 @@ The verse on image component.
         language,
         languages,
         theme,
-        monoIconColor,
         themes,
+        monoIconColor,
         themeColors,
         selectedVerses,
         windowSize,
-        direction
+        direction,
+        s
     } from '$lib/data/stores';
     import { shareImage } from '$lib/data/share';
     import { base } from '$app/paths';
@@ -27,6 +28,8 @@ The verse on image component.
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
     $: unselectedColor = 'grey';
+
+    /*DEBUG*/ const temp_DEBUG_Color = 'WhiteSmoke';
 
     $: viewportWidth_in_px = Math.max(
         document.documentElement.clientWidth || 0,
@@ -39,6 +42,7 @@ The verse on image component.
 
     $: reference = selectedVerses.getCompositeReference();
     let verses;
+    let voi_imgSrc;
     let voi_parentDiv;
     $: voi_width = cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2;
     $: voi_height = voi_width;
@@ -50,35 +54,37 @@ The verse on image component.
     $: txtFormatted = verses;
     let voi_fontSize = 20;
     $: voi_font = voi_fontSize + 'px Comic Sans MS';
-    let voi_fontColor = 'white';
-    let voi_bold = true;
-    let voi_italic = false;
+    let voi_fontColor = $s['ui.text-on-image']['color'];
+    let voi_bold = $s['ui.text-on-image']['font-weight'] == 'bold';
+    let voi_italic = $s['ui.text-on-image']['font-style'] == 'italic';
     let voi_letterSpacing = 0;
-    let voi_lineHeight = 1;
+    let voi_lineHeight_x10 = 10;
+    $: voi_lineHeight = voi_lineHeight_x10 / 10;
     let voi_txtPadding = '0px';
     let voi_textAlign = 'center';
     let voi_textBoxWidth;
     $: voi_textBox_maxHeight = voi_height - voi_textPosY;
 
-    $: render(cnv_background);
+    $: render(voi_imgSrc);
 
-    function render(canvas_background) {
-        if (!cnv || !canvas_background) return;
-        const context = cnv.getContext('2d');
-        context.drawImage(canvas_background, 0, 0, cnv.width, cnv.height);
+    function render(imgSrc) {
+        if (!cnv) return;
+        cnv_background = new Image();
+        cnv_background.src = base + '/backgrounds/' + imgSrc;
+        // Make sure the image is loaded first otherwise nothing will draw.
+        cnv_background.onload = function () {
+            const context = cnv.getContext('2d');
+            context.drawImage(cnv_background, 0, 0, cnv.width, cnv.height);
+        };
     }
 
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
 
-        var background = new Image();
-        background.src = base + '/backgrounds/aaron-burden-vKBdY7e7KFk-unsplash-1080.jpg';
+        voi_imgSrc = config.backgroundImages[0].filename;
 
-        // Make sure the image is loaded first otherwise nothing will draw.
-        background.onload = function () {
-            cnv_background = background;
-        };
         /*DEBUG*/ voi_textBoxWidth = voi_parentDiv.clientWidth * 0.75;
+
         centerButton(0);
     });
 
@@ -204,10 +210,11 @@ The verse on image component.
 <div
     id="verseOnImageContainer"
     class="flex flex-col flex-nowrap max-w-screen-sm mx-auto"
-    style="border: 0px solid yellow;"
+    style="height: 100%; max-width: {voi_width}px;"
     style:direction={$direction}
 >
-    <div class="flex flex-col items-center">
+    <!-- verseOnImgPreview -->
+    <div id="verseOnImgPreviewContainer" class="flex flex-col items-center">
         <div
             id="verseOnImgPreview"
             bind:this={voi_parentDiv}
@@ -263,10 +270,16 @@ The verse on image component.
             </p>
         </div>
     </div>
+
+    <!-- Editor Tabs -->
     <div
         id="editorTabs"
         class="flex flex-row flex-nowrap"
-        style="overflow-x:scroll; background-color: white;"
+        style="
+            overflow-x:scroll;
+            z-index: 3;
+            --tabWidth: {voi_width / 5}px; 
+            background-color: {temp_DEBUG_Color};"
     >
         <!-- NavBar of tab buttons to bring up the different editor panes -->
         <button
@@ -340,14 +353,18 @@ The verse on image component.
     </div>
 
     <!-- Pane for the current editor -->
-    <div id="editorsPane" class="dy-w-64 dy-carousel dy-rounded-box">
+    <div
+        id="editorsPane"
+        class="dy-w-64 dy-carousel dy-rounded-box"
+        style="background-color: {temp_DEBUG_Color}; z-index: 3; border: 1px solid cyan;"
+    >
         <div
             id="image_selector_pane"
             class="dy-carousel-item editor_pane flex-wrap"
-            style="width:100%;"
+            style="width:100%; --imgWidth: {voi_width / 4}px;"
         >
             <!-- Camera roll button -->
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center" style="height: {this.width};">
                 <button
                     class="dy-btn-sm dy-btn-ghost"
                     on:click={() => console.log('Open camera roll')}
@@ -355,15 +372,17 @@ The verse on image component.
                     <ImagesIcon color={$monoIconColor} />
                 </button>
             </div>
-            <!-- DEBUG: make this automatically pull from the images -->
-            <img src={base + '/backgrounds/aaron-burden-vKBdY7e7KFk-unsplash-1080.jpg'} />
-            <img src={base + '/backgrounds/cross-66700_1920-pixabay-1080.jpg'} />
-            <img src={base + '/backgrounds/damian-patkowski-T-LfvX-7IVg-unsplash-1080.jpg'} />
-            <img src={base + '/backgrounds/desert-1731660-pexels-1080.jpg'} />
-            <img src={base + '/backgrounds/aaron-burden-6jYoil2GhVk-unsplash-1080.jpg'} />
+            {#each config.backgroundImages as imgObj}
+                <img
+                    src={base + '/backgrounds/' + imgObj.filename}
+                    on:click={() => {
+                        voi_imgSrc = imgObj.filename;
+                    }}
+                />
+            {/each}
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item editorPane items-center">
             <div class="flex flex-row items-center">
                 <!-- Bold button -->
                 <button
@@ -417,9 +436,32 @@ The verse on image component.
                     />
                 </div>
             </div>
+
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div
+                id="DEBUG_COLORS"
+                class="flex flex-row"
+                style="border: 1px solid pink; background-color: black;"
+                on:click={() => {
+                    let thm = $theme;
+                    let data = $s[thm]['name'];
+                    console.log('=', data);
+                }}
+            >
+                <div
+                    style="width:50px; height:50px; border: 1px solid red; background-color: {$theme[
+                        'DialogBackgroundColor'
+                    ]};"
+                />
+                <div
+                    style="width:50px; height:50px; border: 1px solid green; background-color: {$theme[
+                        'ImageTabsBackgroundColor'
+                    ]};"
+                />
+            </div>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
@@ -460,11 +502,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_lineHeight}
+                        bind:value={voi_lineHeight_x10}
                         {barColor}
                         {progressColor}
-                        min="0"
-                        max="7"
+                        min="10"
+                        max="70"
                     />
                 </div>
             </div>
@@ -486,34 +528,36 @@ The verse on image component.
             </div>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 3</h1>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 4</h1>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 5</h1>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 6</h1>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 7</h1>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 8</h1>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane">
             <h1 style="width:100%;">Editor Content 9</h1>
         </div>
     </div>
+
+    <div style="background-color: {temp_DEBUG_Color}; flex: 1 1 auto; z-index: 3;" />
 </div>
 
 <style>
@@ -541,9 +585,8 @@ The verse on image component.
     }
 
     #editorTabs button {
-        border: 0px solid cyan;
         height: 2.7rem;
-        min-width: 20vw;
+        min-width: var(--tabWidth);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -556,6 +599,7 @@ The verse on image component.
 
     .editorPane {
         flex-direction: column;
+        width: 100%;
     }
 
     .editorPane_button {
@@ -572,6 +616,7 @@ The verse on image component.
 
     #image_selector_pane > * {
         width: 25%;
+        height: var(--imgWidth);
         padding: 0.125rem;
     }
 </style>
