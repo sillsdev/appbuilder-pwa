@@ -176,7 +176,7 @@ The verse on image component.
     let dragging = false;
     let offsetX, offsetY;
 
-    function handleMouseMove(event) {
+    function voiTextBox_handleMouseMove(event) {
         if (dragging) {
             voi_textPosX = event.clientX - offsetX;
             voi_textPosY = event.clientY - offsetY;
@@ -191,18 +191,18 @@ The verse on image component.
         }
     }
 
-    function handleMouseDown(event) {
+    function voiTextBox_handleMouseDown(event) {
         dragging = true;
         offsetX = event.clientX - voi_textPosX; // Update offsetX
         offsetY = event.clientY - voi_textPosY; // Update offsetY
 
         function handleMouseUp() {
             dragging = false;
-            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mousemove', voiTextBox_handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         }
 
-        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mousemove', voiTextBox_handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
     }
 </script>
@@ -256,11 +256,11 @@ The verse on image component.
                 transform: translate({voi_textPosX}px, {voi_textPosY}px);
             "
                 bind:this={voi_textBox}
-                on:mousedown={handleMouseDown}
-                on:touchstart={(event) => handleMouseDown(event.touches[0])}
+                on:mousedown={voiTextBox_handleMouseDown}
+                on:touchstart={(event) => voiTextBox_handleMouseDown(event.touches[0])}
                 on:touchmove={(event) => {
                     event.preventDefault();
-                    handleMouseMove(event.touches[0]);
+                    voiTextBox_handleMouseMove(event.touches[0]);
                 }}
                 on:touchend={() => {
                     dragging = false;
@@ -276,7 +276,7 @@ The verse on image component.
         id="editorTabs"
         class="flex flex-row flex-nowrap"
         style="
-            overflow-x:scroll;
+            overflow-x: scroll;
             z-index: 3;
             --tabWidth: {voi_width / 5}px; 
             background-color: {temp_DEBUG_Color};"
@@ -356,7 +356,7 @@ The verse on image component.
     <div
         id="editorsPane"
         class="dy-w-64 dy-carousel dy-rounded-box"
-        style="background-color: {temp_DEBUG_Color}; z-index: 3; border: 1px solid cyan;"
+        style="background-color: {temp_DEBUG_Color}; z-index: 3; overflow-x: hidden; border: 1px solid cyan;"
     >
         <div
             id="image_selector_pane"
