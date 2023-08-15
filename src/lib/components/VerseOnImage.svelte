@@ -61,7 +61,39 @@ The verse on image component.
     let voi_txtPadding = '0px';
     let voi_textAlign = 'center';
     let voi_textBoxWidth;
+    let voi_textBoxHeight;
     $: voi_textBox_maxHeight = voi_height - voi_textPosY;
+
+    $: update_voi_textBoxHeight(
+        txtFormatted,
+        voi_fontSize,
+        voi_font,
+        voi_bold,
+        voi_italic,
+        voi_letterSpacing,
+        voi_lineHeight_x100,
+        voi_lineHeight,
+        voi_txtPadding,
+        voi_textAlign,
+        voi_textBoxWidth
+    );
+
+    function update_voi_textBoxHeight(
+        txtFormatted,
+        voi_fontSize,
+        voi_font,
+        voi_bold,
+        voi_italic,
+        voi_letterSpacing,
+        voi_lineHeight_x100,
+        voi_lineHeight,
+        voi_txtPadding,
+        voi_textAlign,
+        voi_textBoxWidth
+    ) {
+        voi_textBoxHeight = voi_textBox ? voi_textBox.clientHeight : '[voi_textBox = false]';
+        /*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
+    }
 
     $: render(voi_imgSrc);
 
