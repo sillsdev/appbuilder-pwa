@@ -1,5 +1,5 @@
 import { referenceStore } from './store-types';
-import { writable, get } from 'svelte/store';
+import { writable, get, derived } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 import { pk } from './pk';
 import config from '../config';
@@ -108,6 +108,19 @@ export async function getVerseText(item) {
     }
     return block.text;
 }
+
+export const fontChoices = derived(refs, ($refs) => {
+    console.log('Refs:', $refs);
+    const bookFonts = config.bookCollections
+        .find((x) => x.id === $refs.collection)
+        .books.find((x) => x.id === $refs.book).fonts;
+    console.log('BookFonts', bookFonts);
+    const colFonts = config.bookCollections.find((x) => x.id === $refs.collection).fonts;
+    console.log('ColFonts', colFonts);
+    const allFonts = [...new Set(config.fonts.map((x) => x.family))];
+    console.log('AllFonts', allFonts);
+    return bookFonts.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
+});
 
 function createSelectedVerses() {
     const external = writable([]);

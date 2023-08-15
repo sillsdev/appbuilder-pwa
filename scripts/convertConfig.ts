@@ -32,6 +32,7 @@ type BookCollection = {
         section: string; // Pentateuch
         chapters: number;
         chaptersN: string; // 1-34
+        fonts: string[];
         file: string;
         audio: BookCollectionAudio[];
         styles?: {
@@ -50,6 +51,7 @@ type BookCollection = {
         numeralSystem: string;
         verseNumbers: string;
     };
+    fonts: string[];
     languageCode: string;
     languageName?: string;
     footer?: HTML; //
@@ -441,6 +443,12 @@ function convertConfig(dataDir: string, verbose: number) {
             }
             const bkStyles = book.querySelector('styles');
             const styles = bkStyles ? parseStyles(bkStyles, verbose) : undefined;
+            const fontChoiceTag = book.querySelector('font-choice');
+            const fonts = fontChoiceTag
+                ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family')).map(
+                      (x) => x.innerHTML
+                  )
+                : [];
 
             books.push({
                 chapters: parseInt(
@@ -448,6 +456,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 ),
                 chaptersN: book.getElementsByTagName('cn')[0].attributes.getNamedItem('value')!
                     .value,
+                fonts,
                 id: book.attributes.getNamedItem('id')!.value,
                 type: book.attributes.getNamedItem('type')?.value,
                 name: book.getElementsByTagName('n')[0]?.innerHTML,
@@ -465,12 +474,16 @@ function convertConfig(dataDir: string, verbose: number) {
             ? collectionNameTags[0].innerHTML
             : undefined;
         if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
-        data.traits['has-glossary'] =
-            data.bookCollections.filter(
-                (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
-            ).length > 0;
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
         if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
+        const fontChoiceTag = tag.getElementsByTagName('font-choice')[0];
+        if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
+        const fonts = fontChoiceTag
+            ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family')).map(
+                  (x) => x.innerHTML
+              )
+            : [];
+
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
         if (verbose >= 3) console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
         if (!writingSystem) {
@@ -509,6 +522,7 @@ function convertConfig(dataDir: string, verbose: number) {
             collectionDescription,
             features,
             books,
+            fonts,
             languageCode,
             languageName,
             footer,
@@ -539,6 +553,11 @@ function convertConfig(dataDir: string, verbose: number) {
         });
         if (verbose >= 3) console.log(`.... collection: `, JSON.stringify(data.bookCollections[0]));
     }
+    // After all the book collections have been parsed, we can determine some traits
+    data.traits['has-glossary'] =
+        data.bookCollections.filter(
+            (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
+        ).length > 0;
     if (verbose)
         console.log(
             `Converted ${data.bookCollections.length} book collections with [${data.bookCollections
