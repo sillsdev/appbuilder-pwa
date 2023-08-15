@@ -50,14 +50,14 @@ The verse on image component.
     let cnv_background;
     let voi_textBox;
     $: txtFormatted = verses;
-    let voi_fontSize = 20;
+    let voi_fontSize = 13;
     $: voi_font = voi_fontSize + 'px Comic Sans MS';
     let voi_fontColor = $s['ui.text-on-image']['color'];
     let voi_bold = $s['ui.text-on-image']['font-weight'] == 'bold';
     let voi_italic = $s['ui.text-on-image']['font-style'] == 'italic';
     let voi_letterSpacing = 0;
-    let voi_lineHeight_x10 = 10;
-    $: voi_lineHeight = voi_lineHeight_x10 / 10;
+    let voi_lineHeight_x100 = 0;
+    $: voi_lineHeight = 1 + voi_lineHeight_x100 / 100;
     let voi_txtPadding = '0px';
     let voi_textAlign = 'center';
     let voi_textBoxWidth;
@@ -242,10 +242,10 @@ The verse on image component.
                 max-height: {voi_textBox_maxHeight};
                 color: {voi_fontColor};
                 font: {voi_font};
-                font-size: {voi_fontSize};
+                font-size: {voi_fontSize}pt;
                 {voi_bold ? 'font-weight: bold;' : ''}
                 {voi_italic ? 'font-style: italic;' : ''}
-                letter-spacing: {voi_letterSpacing}px;
+                letter-spacing: {voi_letterSpacing / 100}em;
                 line-height: {voi_lineHeight};
                 padding: {voi_txtPadding};
                 text-align: {voi_textAlign};
@@ -360,7 +360,6 @@ The verse on image component.
             z-index: 3; 
             overflow-x: hidden; 
             touch-action: none;
-            border: 1px solid cyan;
         "
     >
         <div
@@ -437,7 +436,7 @@ The verse on image component.
                         {barColor}
                         {progressColor}
                         min="0"
-                        max="25"
+                        max="20"
                     />
                 </div>
             </div>
@@ -484,11 +483,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_lineHeight_x10}
+                        bind:value={voi_lineHeight_x100}
                         {barColor}
                         {progressColor}
-                        min="10"
-                        max="70"
+                        min="-20"
+                        max="100"
                     />
                 </div>
             </div>
