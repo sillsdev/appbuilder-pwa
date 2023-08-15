@@ -29,8 +29,6 @@ The verse on image component.
     $: progressColor = $themeColors['SliderProgressColor'];
     $: unselectedColor = 'grey';
 
-    /*DEBUG*/ const temp_DEBUG_Color = 'WhiteSmoke';
-
     $: viewportWidth_in_px = Math.max(
         document.documentElement.clientWidth || 0,
         window.innerWidth || 0
@@ -279,7 +277,7 @@ The verse on image component.
             overflow-x: scroll;
             z-index: 3;
             --tabWidth: {voi_width / 5}px; 
-            background-color: {temp_DEBUG_Color};
+            background-color: {$themeColors['ImageTabsBackgroundColor']};
         "
     >
         <!-- NavBar of tab buttons to bring up the different editor panes -->
@@ -358,7 +356,7 @@ The verse on image component.
         id="editorsPane"
         class="dy-w-64 dy-carousel dy-rounded-box"
         style="
-            background-color: {temp_DEBUG_Color}; 
+            background-color: {$themeColors['DialogBackgroundColor']}; 
             z-index: 3; 
             overflow-x: hidden; 
             touch-action: none;
@@ -442,29 +440,6 @@ The verse on image component.
                         max="25"
                     />
                 </div>
-            </div>
-
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div
-                id="DEBUG_COLORS"
-                class="flex flex-row"
-                style="border: 1px solid pink; background-color: black;"
-                on:click={() => {
-                    let thm = $theme;
-                    let data = $s[thm]['name'];
-                    console.log('=', data);
-                }}
-            >
-                <div
-                    style="width:50px; height:50px; border: 1px solid red; background-color: {$theme[
-                        'DialogBackgroundColor'
-                    ]};"
-                />
-                <div
-                    style="width:50px; height:50px; border: 1px solid green; background-color: {$theme[
-                        'ImageTabsBackgroundColor'
-                    ]};"
-                />
             </div>
         </div>
 
@@ -564,7 +539,11 @@ The verse on image component.
         </div>
     </div>
 
-    <div style="background-color: {temp_DEBUG_Color}; flex: 1 1 auto; z-index: 3;" />
+    <div
+        style="background-color: {$themeColors[
+            'DialogBackgroundColor'
+        ]}; flex: 1 1 auto; z-index: 3;"
+    />
 </div>
 
 <style>
