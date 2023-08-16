@@ -8,15 +8,16 @@ The navbar component. We have sliders that update reactively to both font size a
     import Slider from './Slider.svelte';
     import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
     import {
-        language,
-        languages,
-        theme,
-        monoIconColor,
-        themes,
         bodyFontSize,
         bodyLineHeight,
-        direction,
-        themeColors
+        currentFont,
+        fontChoices,
+        language,
+        languages,
+        monoIconColor,
+        theme,
+        themeColors,
+        themes
     } from '$lib/data/stores';
     import config from '$lib/data/config';
 
@@ -34,11 +35,13 @@ The navbar component. We have sliders that update reactively to both font size a
         'rem; inset-inline-end:1rem;';
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
+    $: showFonts = $fontChoices.length > 1;
 
     const showFontSize = config.mainFeatures['text-font-size-slider'];
     const showLineHeight = config.mainFeatures['text-line-height-slider'];
     const showThemes = themes.length > 1;
-    const showTextAppearence = showFontSize || showLineHeight || showThemes;
+
+    $: showTextAppearence = showFontSize || showLineHeight || showThemes || showFonts;
 
     // TEMP: Use TextAppearance button to rotate through languages to test i18n
     const arrayRotate = (arr) => {
@@ -127,6 +130,18 @@ The navbar component. We have sliders that update reactively to both font size a
                         <div class="text-md text-{$monoIconColor} place-self-end">
                             {formatLineHeight($bodyLineHeight)}
                         </div>
+                    </div>
+                {/if}
+                {#if showFonts}
+                    <div class="grid gap-4 items-center range-row m-2">
+                        <ImageIcon.FontChoice color={$monoIconColor} size="1.5rem" />
+                        <button
+                            class="dy-btn-sm col-span-2 rounded"
+                            style:border="1px dotted"
+                            style:font-family={$currentFont}
+                            style:font-size="large"
+                            >{config.fonts.find((x) => x.family === $currentFont).name}</button
+                        >
                     </div>
                 {/if}
                 <!-- Theme Selction buttons-->
