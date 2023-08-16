@@ -36,13 +36,6 @@ Book Collection Selector component.
         };
     }
 
-    export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
-    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    $: positioningCSS =
-        'position:absolute; top:' +
-        (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; inset-inline-end:1rem;';
-
     function handleOk() {
         const selectedLayout = getSelectedLayout();
         $refs.docSet = selectedLayout.primaryDocSet;

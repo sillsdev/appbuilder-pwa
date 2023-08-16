@@ -19,7 +19,7 @@ Custom list of collections for the LayoutOptions menu
     }
 </script>
 
-<ul class="dy-menu dy-menu-compact">
+<ul class="dy-menu dy-menu-sm">
     {#each docSets as d}
         <!-- svelte-ignore a11y-missing-attribute -->
         <li>
