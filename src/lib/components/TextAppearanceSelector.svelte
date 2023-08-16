@@ -14,17 +14,19 @@ The navbar component. We have sliders that update reactively to both font size a
         fontChoices,
         language,
         languages,
+        modal,
         monoIconColor,
         theme,
         themeColors,
-        themes
+        themes,
+        MODAL_FONT
     } from '$lib/data/stores';
     import config from '$lib/data/config';
 
     let modalId = 'textAppearanceSelector';
-    let modal;
+    let modalThis;
     export function showModal() {
-        modal.showModal();
+        modalThis.showModal();
     }
 
     export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
@@ -97,7 +99,7 @@ The navbar component. We have sliders that update reactively to both font size a
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
-    <Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
+    <Modal bind:this={modalThis} id={modalId} useLabel={false} addCSS={positioningCSS}
         ><!--addCSS is a prop for injecting CSS into the modal-->
         <svelte:fragment slot="content">
             <div class="grid gap-4">
@@ -140,6 +142,8 @@ The navbar component. We have sliders that update reactively to both font size a
                             style:border="1px dotted"
                             style:font-family={$currentFont}
                             style:font-size="large"
+                            style:color={$monoIconColor}
+                            on:click={() => modal.open(MODAL_FONT)}
                             >{config.fonts.find((x) => x.family === $currentFont).name}</button
                         >
                     </div>
