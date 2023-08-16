@@ -40,7 +40,6 @@ Font Selector component.
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <a
                         on:click={() => handleClick(font)}
-                        class:dy-active={font === selectedFont}
                         style:background-color={font === selectedFont
                             ? $themeColors['ButtonSelectedColor']
                             : ''}
