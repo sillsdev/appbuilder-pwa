@@ -8,22 +8,25 @@ The navbar component. We have sliders that update reactively to both font size a
     import Slider from './Slider.svelte';
     import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
     import {
-        language,
-        languages,
-        theme,
-        monoIconColor,
-        themes,
         bodyFontSize,
         bodyLineHeight,
-        direction,
-        themeColors
+        currentFont,
+        fontChoices,
+        language,
+        languages,
+        modal,
+        monoIconColor,
+        theme,
+        themeColors,
+        themes,
+        MODAL_FONT
     } from '$lib/data/stores';
     import config from '$lib/data/config';
 
     let modalId = 'textAppearanceSelector';
-    let modal;
+    let modalThis;
     export function showModal() {
-        modal.showModal();
+        modalThis.showModal();
     }
 
     export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
@@ -34,11 +37,13 @@ The navbar component. We have sliders that update reactively to both font size a
         'rem; inset-inline-end:1rem;';
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
+    $: showFonts = $fontChoices.length > 1;
 
     const showFontSize = config.mainFeatures['text-font-size-slider'];
     const showLineHeight = config.mainFeatures['text-line-height-slider'];
     const showThemes = themes.length > 1;
-    const showTextAppearence = showFontSize || showLineHeight || showThemes;
+
+    $: showTextAppearence = showFontSize || showLineHeight || showThemes || showFonts;
 
     // TEMP: Use TextAppearance button to rotate through languages to test i18n
     const arrayRotate = (arr) => {
@@ -94,7 +99,7 @@ The navbar component. We have sliders that update reactively to both font size a
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
-    <Modal bind:this={modal} id={modalId} useLabel={false} addCSS={positioningCSS}
+    <Modal bind:this={modalThis} id={modalId} useLabel={false} addCSS={positioningCSS}
         ><!--addCSS is a prop for injecting CSS into the modal-->
         <svelte:fragment slot="content">
             <div class="grid gap-4">
@@ -127,6 +132,20 @@ The navbar component. We have sliders that update reactively to both font size a
                         <div class="text-md text-{$monoIconColor} place-self-end">
                             {formatLineHeight($bodyLineHeight)}
                         </div>
+                    </div>
+                {/if}
+                {#if showFonts}
+                    <div class="grid gap-4 items-center range-row m-2">
+                        <ImageIcon.FontChoice color={$monoIconColor} size="1.5rem" />
+                        <button
+                            class="dy-btn-sm col-span-2 rounded"
+                            style:border="1px dotted"
+                            style:font-family={$currentFont}
+                            style:font-size="large"
+                            style:color={$monoIconColor}
+                            on:click={() => modal.open(MODAL_FONT)}
+                            >{config.fonts.find((x) => x.family === $currentFont).name}</button
+                        >
                     </div>
                 {/if}
                 <!-- Theme Selction buttons-->

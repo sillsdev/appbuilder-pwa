@@ -9,13 +9,15 @@
         MODAL_COLLECTION,
         MODAL_NOTE,
         MODAL_TEXT_APPERANCE,
-        NAVBAR_HEIGHT
+        NAVBAR_HEIGHT,
+        MODAL_FONT
     } from '$lib/data/stores';
     import { base } from '$app/paths';
     import '$lib/app.css';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
+    import FontSelector from '$lib/components/FontSelector.svelte';
 
     $: $modal, showModal();
 
@@ -33,6 +35,9 @@
                     case MODAL_TEXT_APPERANCE:
                         textAppearanceSelector.showModal();
                         break;
+                    case MODAL_FONT:
+                        fontSelector.showModal();
+                        break;
                 }
             });
             modal.clear();
@@ -41,6 +46,7 @@
 
     let textAppearanceSelector;
     let collectionSelector;
+    let fontSelector;
     let noteDialog;
 </script>
 
@@ -62,6 +68,8 @@
 
     <!-- Collection Selector Menu -->
     <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
+
+    <FontSelector bind:this={fontSelector} />
 </div>
 
 <Sidebar on:showModal={showModal}>

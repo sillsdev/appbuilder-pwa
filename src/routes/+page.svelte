@@ -10,9 +10,11 @@
         bodyLineHeight,
         bookmarks,
         convertStyle,
+        currentFont,
         direction,
         firstLaunch,
         footnotes,
+        fontChoices,
         highlights,
         mainScroll,
         audioHighlightElements,
@@ -141,6 +143,7 @@
         selectedVerses: selectedVerses,
         verseLayout: $userSettings['verse-layout'],
         viewShowVerses: $userSettings['verse-numbers'],
+        font: $currentFont,
         proskomma: $page.data?.proskomma
     };
 

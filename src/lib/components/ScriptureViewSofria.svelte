@@ -35,6 +35,7 @@ TODO:
     export let selectedVerses: any;
     export let verseLayout: any;
     export let viewShowVerses: boolean;
+    export let font: string;
     export let proskomma: Proskomma;
 
     let container: HTMLElement;
@@ -1303,6 +1304,7 @@ TODO:
         id="content"
         bind:this={bookRoot}
         class:hidden={loading}
+        style:font-family={font}
         style:font-size={fontSize}
         style:line-height={lineHeight}
         class="single"
