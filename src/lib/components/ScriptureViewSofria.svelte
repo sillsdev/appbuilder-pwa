@@ -1294,8 +1294,6 @@ TODO:
         performance.mark('query-end');
         performance.measure('query-duration', 'query-start', 'query-end');
     })();
-
-    $: console.log('ScriptureViewSofria: font=', font);
 </script>
 
 <article class="container" bind:this={container}>

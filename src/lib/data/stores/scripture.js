@@ -111,7 +111,6 @@ export async function getVerseText(item) {
 
 export const currentFont = writable(config.fonts[0].family);
 export const fontChoices = derived(refs, ($refs) => {
-    console.log('refs', $refs);
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book).fonts;
@@ -119,8 +118,12 @@ export const fontChoices = derived(refs, ($refs) => {
     const allFonts = [...new Set(config.fonts.map((x) => x.family))];
     const currentFonts =
         bookFonts.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
-    console.log('currentFonts', currentFonts);
-    currentFont.set(currentFonts[0]);
+    currentFont.update((current) => {
+        if (currentFonts.indexOf(current) === -1) {
+            return currentFonts[0];
+        }
+        return current;
+    });
     return currentFonts;
 });
 

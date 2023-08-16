@@ -130,7 +130,6 @@
     const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
-    $: console.log('Page: fontChoices=', $fontChoices);
     $: viewSettings = {
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
