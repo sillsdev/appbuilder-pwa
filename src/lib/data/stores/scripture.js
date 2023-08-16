@@ -109,17 +109,19 @@ export async function getVerseText(item) {
     return block.text;
 }
 
+export const currentFont = writable(config.fonts[0].family);
 export const fontChoices = derived(refs, ($refs) => {
-    console.log('Refs:', $refs);
+    console.log('refs', $refs);
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book).fonts;
-    console.log('BookFonts', bookFonts);
     const colFonts = config.bookCollections.find((x) => x.id === $refs.collection).fonts;
-    console.log('ColFonts', colFonts);
     const allFonts = [...new Set(config.fonts.map((x) => x.family))];
-    console.log('AllFonts', allFonts);
-    return bookFonts.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
+    const currentFonts =
+        bookFonts.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
+    console.log('currentFonts', currentFonts);
+    currentFont.set(currentFonts[0]);
+    return currentFonts;
 });
 
 function createSelectedVerses() {

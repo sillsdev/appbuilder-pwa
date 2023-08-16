@@ -35,6 +35,7 @@ TODO:
     export let selectedVerses: any;
     export let verseLayout: any;
     export let viewShowVerses: boolean;
+    export let font: string;
     export let proskomma: Proskomma;
 
     let container: HTMLElement;
@@ -1293,6 +1294,8 @@ TODO:
         performance.mark('query-end');
         performance.measure('query-duration', 'query-start', 'query-end');
     })();
+
+    $: console.log('ScriptureViewSofria: font=', font);
 </script>
 
 <article class="container" bind:this={container}>
@@ -1303,6 +1306,7 @@ TODO:
         id="content"
         bind:this={bookRoot}
         class:hidden={loading}
+        style:font-family={font}
         style:font-size={fontSize}
         style:line-height={lineHeight}
         class="single"

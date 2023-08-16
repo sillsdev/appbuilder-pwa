@@ -10,9 +10,11 @@
         bodyLineHeight,
         bookmarks,
         convertStyle,
+        currentFont,
         direction,
         firstLaunch,
         footnotes,
+        fontChoices,
         highlights,
         mainScroll,
         audioHighlightElements,
@@ -128,6 +130,7 @@
     const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
+    $: console.log('Page: fontChoices=', $fontChoices);
     $: viewSettings = {
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
@@ -141,6 +144,7 @@
         selectedVerses: selectedVerses,
         verseLayout: $userSettings['verse-layout'],
         viewShowVerses: $userSettings['verse-numbers'],
+        font: $currentFont,
         proskomma: $page.data?.proskomma
     };
 
