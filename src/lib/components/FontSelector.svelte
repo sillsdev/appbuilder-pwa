@@ -17,9 +17,10 @@ Font Selector component.
 
     const modalId = 'fontSelector';
     let modal;
-    let selectedFont = $currentFont;
+    let selectedFont;
 
     export function showModal() {
+        selectedFont = $currentFont;
         modal.showModal();
     }
     function handleClick(font) {
