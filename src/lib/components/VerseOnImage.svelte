@@ -60,7 +60,8 @@ The verse on image component.
     $: voi_lineHeight = 1 + voi_lineHeight_x100 / 100;
     let voi_txtPadding = '0px';
     let voi_textAlign = 'center';
-    let voi_textBoxWidth;
+    let voi_textBoxWidthPercent = 84;
+    $: voi_textBoxWidth = (voi_width * voi_textBoxWidthPercent) / 100;
     let voi_textBoxHeight;
     $: voi_textBox_maxHeight = voi_height - voi_textPosY;
 
@@ -79,17 +80,17 @@ The verse on image component.
     );
 
     function update_voi_textBoxHeight(
-        txtFormatted,
-        voi_fontSize,
-        voi_font,
-        voi_bold,
-        voi_italic,
-        voi_letterSpacing,
-        voi_lineHeight_x100,
-        voi_lineHeight,
-        voi_txtPadding,
-        voi_textAlign,
-        voi_textBoxWidth
+        txtFormatted = '',
+        voi_fontSize = '',
+        voi_font = '',
+        voi_bold = '',
+        voi_italic = '',
+        voi_letterSpacing = '',
+        voi_lineHeight_x100 = '',
+        voi_lineHeight = '',
+        voi_txtPadding = '',
+        voi_textAlign = '',
+        voi_textBoxWidth = ''
     ) {
         voi_textBoxHeight = voi_textBox ? voi_textBox.clientHeight : '[voi_textBox = false]';
         /*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
@@ -112,8 +113,6 @@ The verse on image component.
         verses = await selectedVerses.getCompositeText();
 
         voi_imgSrc = config.backgroundImages[0].filename;
-
-        /*DEBUG*/ voi_textBoxWidth = voi_parentDiv.clientWidth * 0.75;
 
         centerButton(0);
     });
@@ -531,11 +530,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_textBoxWidth}
+                        bind:value={voi_textBoxWidthPercent}
                         {barColor}
                         {progressColor}
-                        min="1"
-                        max={voi_width}
+                        min="20"
+                        max={100}
                     />
                 </div>
             </div>
