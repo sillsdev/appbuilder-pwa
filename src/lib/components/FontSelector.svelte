@@ -25,7 +25,6 @@ Font Selector component.
     function handleClick(font) {
         selectedFont = font;
     }
-    function handleCancel() {}
     function handleOk() {
         $currentFont = selectedFont;
     }
@@ -56,8 +55,7 @@ Font Selector component.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <button
                 style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
+                class="dy-btn dy-btn-sm dy-btn-ghost no-animation">{$t['Button_Cancel']}</button
             >
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <button
