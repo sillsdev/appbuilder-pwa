@@ -76,9 +76,6 @@
     <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
 
     <FontSelector bind:this={fontSelector} />
-
-    <!-- VerseOnImage Menu -->
-    <VerseOnImage bind:this={verseOnImage} />
 </div>
 
 <Sidebar on:showModal={showModal}>

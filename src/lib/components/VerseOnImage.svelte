@@ -24,7 +24,7 @@ The verse on image component.
     import config from '$lib/data/config';
     import { toPng } from 'html-to-image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
-    import ColorPicker from 'simple-color-picker';
+    import ColorPicker from 'svelte-awesome-color-picker';
 
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
@@ -61,7 +61,6 @@ The verse on image component.
     let voi_refItalic = $s['ui.text-on-image']['font-style'] == 'italic';
     let voi_refFontPercent = 80;
     let voi_fontColor = $s['ui.text-on-image']['color'];
-    let voi_colorPicker;
     let voi_letterSpacing = 0;
     let voi_lineHeight_x100 = 0;
     $: voi_lineHeight = 1 + voi_lineHeight_x100 / 100;
@@ -72,7 +71,7 @@ The verse on image component.
     let voi_textBoxHeight;
     $: voi_textBox_maxHeight = voi_height - voi_textPosY;
     let voi_textShadow_mode = 'glow';
-    let voi_textShadow_value = 15; //DEBUG: should be 75% of max
+    let voi_textShadow_value = 15;
     $: voi_textShadow =
         voi_textShadow_mode == 'none'
             ? ''
@@ -83,6 +82,10 @@ The verse on image component.
                     'px ' +
                     (voi_fontSize * voi_textShadow_value) / 100
                   : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black'; //DEBUG: from Android: Shadow size goes 0 to 0.2.
+    let voi_imageBrightness = 100;
+    let voi_imageContrast = 100;
+    let voi_imageSaturation = 100;
+    let voi_imageBlur = 0;
 
     $: update_voi_textBoxHeight(
         txtFormatted,
@@ -115,16 +118,38 @@ The verse on image component.
         /*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
     }
 
-    $: render(voi_imgSrc);
+    $: render(
+        voi_imgSrc,
+        voi_imageBrightness,
+        voi_imageContrast,
+        voi_imageSaturation,
+        voi_imageBlur
+    );
 
-    function render(imgSrc) {
+    function render(imgSrc, imgBrightness, imgContrast, imgSaturation, imgBlur) {
         if (!cnv) return;
         cnv_background = new Image();
         cnv_background.src = base + '/backgrounds/' + imgSrc;
         // Make sure the image is loaded first otherwise nothing will draw.
         cnv_background.onload = function () {
             const context = cnv.getContext('2d');
+            // context.filter = `brightness(${ingBrightness}%) contrast(${imgContrast}) saturate(${imgSaturation}%)`;
+            context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
             context.drawImage(cnv_background, 0, 0, cnv.width, cnv.height);
+
+            // // //Contrast
+            // // context.globalCompositeOperation = 'color';
+            // // context.fillStyle = `rgba(${voi_imageContrast}%, ${voi_imageContrast}%, ${voi_imageContrast}%, 1)`;
+            // // context.fillRect(0, 0, cnv.width, cnv.height); // apply the contrast comp filter
+
+            // //Saturation
+            // context.globalCompositeOperation = 'saturation';
+            // context.fillStyle = 'hsl(0,' + imgSaturation + '%,50%)'; // saturation at 100%
+            // context.fillRect(0, 0, cnv.width, cnv.height); // apply the saturation comp filter
+
+            // context.globalCompositeOperation = 'source-over'; // restore default comp
+
+            /*DEBUG*/ console.log(context.filter);
         };
     }
 
@@ -132,17 +157,6 @@ The verse on image component.
         verses = await selectedVerses.getCompositeText();
 
         voi_imgSrc = config.backgroundImages[0].filename;
-
-        voi_colorPicker = new ColorPicker({
-            color: '#FF0000',
-            background: '#454545',
-            // el: document.getElementsByTagName('colorPickerContainer'),
-            width: 200,
-            height: 200
-            // window: document.getElementsByTagName('colorPickerContainer').contentWindow
-        });
-
-        // voi_colorPicker.appendTo('#colorPickerContainer');
 
         centerButton(0);
     });
@@ -532,6 +546,7 @@ The verse on image component.
 
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
+                <!-- Left align button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
@@ -542,6 +557,8 @@ The verse on image component.
                         color={voi_textAlign == 'left' ? progressColor : unselectedColor}
                     />
                 </button>
+
+                <!-- Center align button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
@@ -552,6 +569,8 @@ The verse on image component.
                         color={voi_textAlign == 'center' ? progressColor : unselectedColor}
                     />
                 </button>
+
+                <!-- Right align button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
@@ -598,8 +617,14 @@ The verse on image component.
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
-            <div id="colorPickerContainer" class="colorPicker" />
-            <h1 style="width:100%;">Editor Content 3</h1>
+            <!-- Color Picker -->
+            <ColorPicker
+                isPopup="false"
+                toRight="true"
+                label="Test Label For Now"
+                bind:color={voi_fontColor}
+            />
+            <h1 style="width:100%;">Editor Content 3 - Color</h1>
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
@@ -615,6 +640,8 @@ The verse on image component.
                         color={voi_textShadow_mode == 'none' ? progressColor : unselectedColor}
                     />
                 </button>
+
+                <!-- Text shadow toggle -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
@@ -625,6 +652,8 @@ The verse on image component.
                         color={voi_textShadow_mode == 'shadow' ? progressColor : unselectedColor}
                     />
                 </button>
+
+                <!-- Text glow toggle -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
@@ -655,11 +684,71 @@ The verse on image component.
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
-            <h1 style="width:100%;">Editor Content 5</h1>
+            <!-- Image brightness slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.Brightness color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_imageBrightness}
+                        {barColor}
+                        {progressColor}
+                        min="20"
+                        max="180"
+                    />
+                </div>
+            </div>
+
+            <!-- Image contrast slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.Contrast color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_imageContrast}
+                        {barColor}
+                        {progressColor}
+                        min="10"
+                        max="190"
+                    />
+                </div>
+            </div>
+
+            <!-- Image saturation slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.Saturation color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_imageSaturation}
+                        {barColor}
+                        {progressColor}
+                        min="0"
+                        max="200"
+                    />
+                </div>
+            </div>
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
-            <h1 style="width:100%;">Editor Content 6</h1>
+            <!-- Image blur slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.Blur color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_imageBlur}
+                        {barColor}
+                        {progressColor}
+                        min="0"
+                        max="15"
+                    />
+                </div>
+            </div>
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
@@ -757,26 +846,5 @@ The verse on image component.
         width: 100%;
         height: var(--imgWidth);
         padding: 0.125rem;
-    }
-
-    .Scp {
-        border: 10px solid pink;
-    }
-
-    #colorPickerContainer .Scp-hue {
-        border: 10px solid pink;
-    }
-
-    #colorPickerContainer .Scp-hSelector {
-        border: 10px solid pink;
-        transform: translateX(198px);
-    }
-
-    #colorPickerContainer div .Scp {
-        border: 10px solid pink;
-    }
-
-    div.colorPicker div.Scp {
-        border: 3px solid teal;
     }
 </style>
