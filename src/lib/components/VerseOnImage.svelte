@@ -24,6 +24,7 @@ The verse on image component.
     import config from '$lib/data/config';
     import { toPng } from 'html-to-image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
+    import ColorPicker from 'simple-color-picker';
 
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
@@ -50,11 +51,17 @@ The verse on image component.
     let cnv_background;
     let voi_textBox;
     $: txtFormatted = verses;
+    let voi_verseBold = $s['ui.text-on-image']['font-weight'] == 'bold';
+    let voi_verseItalic = $s['ui.text-on-image']['font-style'] == 'italic';
     let voi_fontSize = 13;
-    $: voi_font = voi_fontSize + 'px Comic Sans MS';
+    let voi_fontSizeMin = 10;
+    let voi_fontSizeMax = 60;
+    let voi_font = '';
+    let voi_refBold = '';
+    let voi_refItalic = $s['ui.text-on-image']['font-style'] == 'italic';
+    let voi_refFontPercent = 80;
     let voi_fontColor = $s['ui.text-on-image']['color'];
-    let voi_bold = $s['ui.text-on-image']['font-weight'] == 'bold';
-    let voi_italic = $s['ui.text-on-image']['font-style'] == 'italic';
+    let voi_colorPicker;
     let voi_letterSpacing = 0;
     let voi_lineHeight_x100 = 0;
     $: voi_lineHeight = 1 + voi_lineHeight_x100 / 100;
@@ -64,13 +71,25 @@ The verse on image component.
     $: voi_textBoxWidth = (voi_width * voi_textBoxWidthPercent) / 100;
     let voi_textBoxHeight;
     $: voi_textBox_maxHeight = voi_height - voi_textPosY;
+    let voi_textShadow_mode = 'glow';
+    let voi_textShadow_value = 15; //DEBUG: should be 75% of max
+    $: voi_textShadow =
+        voi_textShadow_mode == 'none'
+            ? ''
+            : (voi_textShadow_mode == 'shadow'
+                  ? (voi_fontSize * voi_textShadow_value) / 100 +
+                    'px ' +
+                    (voi_fontSize * voi_textShadow_value) / 100 +
+                    'px ' +
+                    (voi_fontSize * voi_textShadow_value) / 100
+                  : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black'; //DEBUG: from Android: Shadow size goes 0 to 0.2.
 
     $: update_voi_textBoxHeight(
         txtFormatted,
         voi_fontSize,
         voi_font,
-        voi_bold,
-        voi_italic,
+        voi_verseBold,
+        voi_verseItalic,
         voi_letterSpacing,
         voi_lineHeight_x100,
         voi_lineHeight,
@@ -114,8 +133,21 @@ The verse on image component.
 
         voi_imgSrc = config.backgroundImages[0].filename;
 
+        voi_colorPicker = new ColorPicker({
+            color: '#FF0000',
+            background: '#454545',
+            // el: document.getElementsByTagName('colorPickerContainer'),
+            width: 200,
+            height: 200
+            // window: document.getElementsByTagName('colorPickerContainer').contentWindow
+        });
+
+        // voi_colorPicker.appendTo('#colorPickerContainer');
+
         centerButton(0);
     });
+
+    // Share button feature:
 
     export function shareCanvas() {
         // // DEFAULT
@@ -145,24 +177,7 @@ The verse on image component.
             });
     }
 
-    function getLines(ctx, text, maxWidth) {
-        var words = text.split(' ');
-        var lines = [];
-        var currentLine = words[0];
-
-        for (var i = 1; i < words.length; i++) {
-            var word = words[i];
-            var width = ctx.measureText(currentLine + ' ' + word).width;
-            if (width < maxWidth) {
-                currentLine += ' ' + word;
-            } else {
-                lines.push(currentLine);
-                currentLine = word;
-            }
-        }
-        lines.push(currentLine);
-        return lines;
-    }
+    // EditorTabs centering feature:
 
     let active_editor_index = -1;
 
@@ -199,6 +214,8 @@ The verse on image component.
         active_editor_index = n;
         button.classList.add('activeButton');
     }
+
+    // voi_textBox Dragability:
 
     let voi_textPosX = 0;
     let voi_textPosY = 0;
@@ -261,29 +278,32 @@ The verse on image component.
                 style="position: relative; z-index: 1;"
             />
 
+            {(console.log('(from above) voi_textBoxHeight=', voi_textBoxHeight), '')}
             <p
                 id="verseOnImageTextDiv"
                 style="
-                border: 1px solid lightgreen;
-                position: absolute;
-                z-index: 2;
-                width: {voi_textBoxWidth}px;
-                height: auto;
-                max-width: {voi_width}px;
-                max-height: {voi_textBox_maxHeight};
-                color: {voi_fontColor};
-                font: {voi_font};
-                font-size: {voi_fontSize}pt;
-                {voi_bold ? 'font-weight: bold;' : ''}
-                {voi_italic ? 'font-style: italic;' : ''}
-                letter-spacing: {voi_letterSpacing / 100}em;
-                line-height: {voi_lineHeight};
-                padding: {voi_txtPadding};
-                text-align: {voi_textAlign};
-                overflow: hidden;
-                user-drag: none;
-                transform: translate({voi_textPosX}px, {voi_textPosY}px);
-            "
+                    border: 1px solid lightgreen;
+                    position: absolute;
+                    z-index: 2;
+                    width: {voi_textBoxWidth}px;
+                    height: auto;
+                    max-width: {voi_width}px;
+                    max-height: {voi_textBox_maxHeight};
+                    color: {voi_fontColor};
+                    font-family: {voi_font};
+                    font-size: {voi_fontSize}pt;
+                    {voi_verseBold ? 'font-weight: bold;' : ''}
+                    {voi_verseItalic ? 'font-style: italic;' : ''}
+                    letter-spacing: {voi_letterSpacing / 100}em;
+                    line-height: {voi_lineHeight};
+                    padding: {voi_txtPadding};
+                    text-align: {voi_textAlign};
+                    text-shadow: {voi_textShadow};
+                    overflow: hidden;
+                    user-drag: none;
+                    transform: translate({voi_textPosX}px, {voi_textPosY}px);
+                "
+                class="flex flex-col"
                 bind:this={voi_textBox}
                 on:mousedown={voiTextBox_handleMouseDown}
                 on:touchstart={(event) => voiTextBox_handleMouseDown(event.touches[0])}
@@ -296,6 +316,26 @@ The verse on image component.
                 }}
             >
                 {txtFormatted}
+                <span
+                    id="verseOnImageRefDiv"
+                    class="flex flex-col justify-center items-center"
+                    style="height: {voi_fontSize * 1.5}pt;"
+                >
+                    <span
+                        class="flex flex-col justify-center items-center"
+                        style="
+                            font-size: {(voi_fontSize * voi_refFontPercent) / 100}pt;
+                            {voi_refBold ? 'font-weight: bold;' : 'font-weight: normal;'}
+                            {voi_refItalic ? 'font-style: italic;' : 'font-style: normal;'}
+                            height: {voi_fontSize}pt;
+                            width: {voi_textBoxWidth}px;
+                            position: absolute;
+                            bottom: 0;
+                        "
+                    >
+                        {reference}
+                    </span>
+                </span>
             </p>
         </div>
     </div>
@@ -306,6 +346,8 @@ The verse on image component.
         class="flex flex-row flex-nowrap"
         style="
             overflow-x: scroll;
+            overflow-y: visible;
+            min-height: 2.7rem;
             z-index: 3;
             --tabWidth: {voi_width / 5}px; 
             background-color: {$themeColors['ImageTabsBackgroundColor']};
@@ -388,33 +430,46 @@ The verse on image component.
         class="dy-w-64 dy-carousel dy-rounded-box"
         style="
             background-color: {$themeColors['DialogBackgroundColor']}; 
-            z-index: 3; 
+            z-index: 3;
             overflow-x: hidden; 
+            overflow-y: auto;
             touch-action: none;
         "
     >
         <div
             id="image_selector_pane"
-            class="dy-carousel-item editor_pane flex-wrap"
-            style="width:100%; --imgWidth: {voi_width / 4}px;"
+            class="dy-carousel-item editor_pane"
+            style="
+                width:100%;
+                height: auto;
+                --imgWidth: {voi_width / 4}px; 
+                overflow-y: auto;
+                border: 0px solid blue;
+            "
         >
-            <!-- Camera roll button -->
-            <div class="flex items-center justify-center" style="height: {this.width};">
-                <button
-                    class="dy-btn-sm dy-btn-ghost"
-                    on:click={() => console.log('Open camera roll')}
+            <div class="grid grid-cols-4" style="height: fit-content;">
+                <!-- Camera roll button -->
+                <div
+                    class="flex items-center justify-center image_selector_pane_box"
+                    style="height: {this.width};"
                 >
-                    <ImagesIcon color={$monoIconColor} />
-                </button>
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        on:click={() => console.log('Open camera roll')}
+                    >
+                        <ImagesIcon color={$monoIconColor} />
+                    </button>
+                </div>
+                {#each config.backgroundImages as imgObj}
+                    <img
+                        src={base + '/backgrounds/' + imgObj.filename}
+                        class="image_selector_pane_box"
+                        on:click={() => {
+                            voi_imgSrc = imgObj.filename;
+                        }}
+                    />
+                {/each}
             </div>
-            {#each config.backgroundImages as imgObj}
-                <img
-                    src={base + '/backgrounds/' + imgObj.filename}
-                    on:click={() => {
-                        voi_imgSrc = imgObj.filename;
-                    }}
-                />
-            {/each}
         </div>
 
         <div class="dy-carousel-item editorPane items-center">
@@ -423,20 +478,22 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
-                        voi_bold = !voi_bold;
+                        voi_verseBold = !voi_verseBold;
                     }}
                 >
-                    <ImageIcon.FormatBold color={voi_bold ? progressColor : unselectedColor} />
+                    <ImageIcon.FormatBold color={voi_verseBold ? progressColor : unselectedColor} />
                 </button>
 
                 <!-- Italic button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
-                        voi_italic = !voi_italic;
+                        voi_verseItalic = !voi_verseItalic;
                     }}
                 >
-                    <ImageIcon.FormatItalic color={voi_italic ? progressColor : unselectedColor} />
+                    <ImageIcon.FormatItalic
+                        color={voi_verseItalic ? progressColor : unselectedColor}
+                    />
                 </button>
             </div>
 
@@ -450,8 +507,8 @@ The verse on image component.
                         bind:value={voi_fontSize}
                         {barColor}
                         {progressColor}
-                        min="10"
-                        max="250"
+                        min={voi_fontSizeMin}
+                        max={voi_fontSizeMax}
                     />
                 </div>
             </div>
@@ -541,11 +598,60 @@ The verse on image component.
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
+            <div id="colorPickerContainer" class="colorPicker" />
             <h1 style="width:100%;">Editor Content 3</h1>
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
-            <h1 style="width:100%;">Editor Content 4</h1>
+            <div class="flex flex-row items-center">
+                <!-- Text Shadow None Toggle -->
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_textShadow_mode = 'none';
+                    }}
+                >
+                    <ImageIcon.TextShadowNone
+                        color={voi_textShadow_mode == 'none' ? progressColor : unselectedColor}
+                    />
+                </button>
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_textShadow_mode = 'shadow';
+                    }}
+                >
+                    <ImageIcon.TextShadow
+                        color={voi_textShadow_mode == 'shadow' ? progressColor : unselectedColor}
+                    />
+                </button>
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_textShadow_mode = 'glow';
+                    }}
+                >
+                    <ImageIcon.TextGlow
+                        color={voi_textShadow_mode == 'glow' ? progressColor : unselectedColor}
+                    />
+                </button>
+            </div>
+
+            <!-- Shadow slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.ResizeArrows color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_textShadow_value}
+                        {barColor}
+                        {progressColor}
+                        min="0"
+                        max="20"
+                    />
+                </div>
+            </div>
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
@@ -557,15 +663,47 @@ The verse on image component.
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
-            <h1 style="width:100%;">Editor Content 7</h1>
-        </div>
+            <div class="flex flex-row items-center">
+                <!-- Ref bold button -->
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_refBold = !voi_refBold;
+                        console.log('voi_refBold=', voi_refBold);
+                    }}
+                >
+                    <ImageIcon.FormatBold color={voi_refBold ? progressColor : unselectedColor} />
+                </button>
 
-        <div class="dy-carousel-item items-center editorPane">
-            <h1 style="width:100%;">Editor Content 8</h1>
-        </div>
+                <!-- Ref italic button -->
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_refItalic = !voi_refItalic;
+                        console.log('voi_refItalic=', voi_refItalic);
+                    }}
+                >
+                    <ImageIcon.FormatItalic
+                        color={voi_refItalic ? progressColor : unselectedColor}
+                    />
+                </button>
+            </div>
 
-        <div class="dy-carousel-item items-center editorPane">
-            <h1 style="width:100%;">Editor Content 9</h1>
+            <!-- Refrence font size slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <TextAppearanceIcon color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_refFontPercent}
+                        {barColor}
+                        {progressColor}
+                        min="50"
+                        max="100"
+                    />
+                </div>
+            </div>
         </div>
     </div>
 
@@ -615,9 +753,30 @@ The verse on image component.
         padding: 1rem 1rem 0rem 1rem;
     }
 
-    #image_selector_pane > * {
-        width: 25%;
+    .image_selector_pane_box {
+        width: 100%;
         height: var(--imgWidth);
         padding: 0.125rem;
+    }
+
+    .Scp {
+        border: 10px solid pink;
+    }
+
+    #colorPickerContainer .Scp-hue {
+        border: 10px solid pink;
+    }
+
+    #colorPickerContainer .Scp-hSelector {
+        border: 10px solid pink;
+        transform: translateX(198px);
+    }
+
+    #colorPickerContainer div .Scp {
+        border: 10px solid pink;
+    }
+
+    div.colorPicker div.Scp {
+        border: 3px solid teal;
     }
 </style>
