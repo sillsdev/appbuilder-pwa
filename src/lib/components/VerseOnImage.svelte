@@ -380,7 +380,7 @@ The verse on image component.
             on:click={() => centerButton(1)}
             class:activeButton={active_editor_index == 1}
         >
-            <TextAppearanceIcon
+            <ImageIcon.FontChoice
                 color={active_editor_index == 1 ? progressColor : unselectedColor}
             />
         </button>
@@ -389,7 +389,7 @@ The verse on image component.
             on:click={() => centerButton(2)}
             class:activeButton={active_editor_index == 2}
         >
-            <ImageIcon.FormatAlignCenter
+            <TextAppearanceIcon
                 color={active_editor_index == 2 ? progressColor : unselectedColor}
             />
         </button>
@@ -398,7 +398,7 @@ The verse on image component.
             on:click={() => centerButton(3)}
             class:activeButton={active_editor_index == 3}
         >
-            <ImageIcon.FormatColorFill
+            <ImageIcon.FormatAlignCenter
                 color={active_editor_index == 3 ? progressColor : unselectedColor}
             />
         </button>
@@ -407,7 +407,7 @@ The verse on image component.
             on:click={() => centerButton(4)}
             class:activeButton={active_editor_index == 4}
         >
-            <ImageIcon.TextShadow
+            <ImageIcon.FormatColorFill
                 color={active_editor_index == 4 ? progressColor : unselectedColor}
             />
         </button>
@@ -416,7 +416,7 @@ The verse on image component.
             on:click={() => centerButton(5)}
             class:activeButton={active_editor_index == 5}
         >
-            <ImageIcon.Brightness
+            <ImageIcon.TextShadow
                 color={active_editor_index == 5 ? progressColor : unselectedColor}
             />
         </button>
@@ -425,15 +425,24 @@ The verse on image component.
             on:click={() => centerButton(6)}
             class:activeButton={active_editor_index == 6}
         >
-            <ImageIcon.Blur color={active_editor_index == 6 ? progressColor : unselectedColor} />
+            <ImageIcon.Brightness
+                color={active_editor_index == 6 ? progressColor : unselectedColor}
+            />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(7)}
             class:activeButton={active_editor_index == 7}
         >
+            <ImageIcon.Blur color={active_editor_index == 7 ? progressColor : unselectedColor} />
+        </button>
+        <button
+            class="dy-btn-sm dy-btn-ghost"
+            on:click={() => centerButton(8)}
+            class:activeButton={active_editor_index == 8}
+        >
             <ImageIcon.TextWidth
-                color={active_editor_index == 7 ? progressColor : unselectedColor}
+                color={active_editor_index == 8 ? progressColor : unselectedColor}
             />
         </button>
     </div>
@@ -484,6 +493,10 @@ The verse on image component.
                     />
                 {/each}
             </div>
+        </div>
+
+        <div class="dy-carousel-item items-center editorPane">
+            <h1 style="width:100%;">Font selector EditorPane</h1>
         </div>
 
         <div class="dy-carousel-item editorPane items-center">
@@ -624,7 +637,7 @@ The verse on image component.
                 label="Test Label For Now"
                 bind:color={voi_fontColor}
             />
-            <h1 style="width:100%;">Editor Content 3 - Color</h1>
+            <h1 style="width:100%;">Color selector EditorPane</h1>
         </div>
 
         <div class="dy-carousel-item items-center editorPane">
