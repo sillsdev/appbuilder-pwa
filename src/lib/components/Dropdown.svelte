@@ -6,7 +6,6 @@ A simple dropdown menu from DaisyUI.
     import { s, convertStyle } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
     export let cols = 6;
-    export let useCustomBtn = false;
     export let direction = 'bottom';
     const dispatch = createEventDispatcher();
 </script>
@@ -32,30 +31,3 @@ A simple dropdown menu from DaisyUI.
         <slot name="content" />
     </div>
 </div>
-
-<style>
-    .custom-btn {
-        display: inline-flex;
-        cursor: pointer;
-        user-select: none;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        transition-property: color, background-color, border-color, text-decoration-color, fill,
-            stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
-        transition-duration: 200ms;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: var(--rounded-btn, 0.5rem);
-        height: 3rem;
-        line-height: 1em;
-        min-height: 3rem;
-        border-width: 1px;
-        border-color: transparent;
-        background-color: transparent;
-        color: currentColor;
-        --tw-shadow: 0 0 #0000;
-        --tw-shadow-colored: 0 0 #0000;
-        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-            var(--tw-shadow);
-    }
-</style>

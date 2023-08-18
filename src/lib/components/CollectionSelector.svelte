@@ -7,9 +7,18 @@ Book Collection Selector component.
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import config from '$lib/data/config';
-    import { convertStyle, refs, layout, selectedLayouts, s, t } from '$lib/data/stores';
+    import {
+        convertStyle,
+        refs,
+        layout,
+        LAYOUT_SINGLE,
+        LAYOUT_TWO,
+        LAYOUT_VERSE_BY_VERSE,
+        selectedLayouts,
+        s,
+        t
+    } from '$lib/data/stores';
     import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
-    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const modalId = 'collectionSelector';
     let modal;
@@ -35,13 +44,6 @@ Book Collection Selector component.
             auxDocSets: collections.slice(1).map((x) => x.id)
         };
     }
-
-    export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
-    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    $: positioningCSS =
-        'position:absolute; top:' +
-        (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; inset-inline-end:1rem;';
 
     function handleOk() {
         const selectedLayout = getSelectedLayout();
