@@ -4,6 +4,7 @@ Custom list of collections for the LayoutOptions menu
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
+    import CollectionListItem from './CollectionListItem.svelte';
     // array of all selectable docsets
     export let docSets: App.CollectionEntry[] = [];
     // selected docset to highlight
@@ -19,23 +20,11 @@ Custom list of collections for the LayoutOptions menu
 </script>
 
 <div>
-    {#each docSets as d}
+    {#each docSets as collection}
         <!-- svelte-ignore a11y-missing-attribute -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div
-            on:click={() => handleClick(d)}
-            class="layout-item-block {selectedLayout.id === d.id ? 'layout-item-selected' : ''}"
-        >
-            <div class="layout-text-block">
-                <div class="layout-item-name">
-                    {d.name}
-                </div>
-                {#if d.description}
-                    <div class="layout-item-description">
-                        {d.description}
-                    </div>
-                {/if}
-            </div>
+        <div on:click={() => handleClick(collection)}>
+            <CollectionListItem {collection} selected={selectedLayout.id === collection.id} />
         </div>
     {/each}
 </div>

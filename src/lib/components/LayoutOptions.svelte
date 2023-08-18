@@ -6,6 +6,7 @@ Displays the three different layout option menus.
     import { createEventDispatcher } from 'svelte';
     import Dropdown from './Dropdown.svelte';
     import CollectionList from './CollectionList.svelte';
+    import CollectionListItem from './CollectionListItem.svelte';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import {
@@ -102,18 +103,7 @@ Displays the three different layout option menus.
                     </div>
                     <Dropdown direction="right">
                         <svelte:fragment slot="label">
-                            <div class="layout-item-block" style:box-shadow="unset">
-                                <div class="layout-text-block normal-case text-left">
-                                    <div class="layout-item-name">
-                                        {collection.name}
-                                    </div>
-                                    {#if collection.description}
-                                        <div class="layout-item-description">
-                                            {collection.description}
-                                        </div>
-                                    {/if}
-                                </div>
-                            </div>
+                            <CollectionListItem {collection} />
                             <div class="layout-dropdown-right">
                                 <DropdownIcon color={$s['ui.layouts.selector'].color} />
                             </div>
@@ -143,18 +133,7 @@ Displays the three different layout option menus.
                 </div>
                 <Dropdown direction="right">
                     <svelte:fragment slot="label">
-                        <div class="layout-item-block" style:box-shadow="unset">
-                            <div class="layout-text-block normal-case text-left">
-                                <div class="layout-item-name">
-                                    {collection.name}
-                                </div>
-                                {#if collection.description}
-                                    <div class="layout-item-description">
-                                        {collection.description}
-                                    </div>
-                                {/if}
-                            </div>
-                        </div>
+                        <CollectionListItem {collection} />
                         <div>
                             <DropdownIcon color={$s['ui.layouts.selector'].color} />
                         </div>
