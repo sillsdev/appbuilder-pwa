@@ -24,6 +24,7 @@ The verse on image component.
     import config from '$lib/data/config';
     import { toPng } from 'html-to-image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
+    import FontList from '$lib/components/FontList.svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
 
     $: barColor = $themeColors['SliderBarColor'];
@@ -118,6 +119,11 @@ The verse on image component.
         /*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
     }
 
+    $: colorPrint(voi_fontColor);
+    function colorPrint(clr) {
+        console.log('clr=', clr);
+    }
+
     $: render(
         voi_imgSrc,
         voi_imageBrightness,
@@ -133,23 +139,8 @@ The verse on image component.
         // Make sure the image is loaded first otherwise nothing will draw.
         cnv_background.onload = function () {
             const context = cnv.getContext('2d');
-            // context.filter = `brightness(${ingBrightness}%) contrast(${imgContrast}) saturate(${imgSaturation}%)`;
             context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
             context.drawImage(cnv_background, 0, 0, cnv.width, cnv.height);
-
-            // // //Contrast
-            // // context.globalCompositeOperation = 'color';
-            // // context.fillStyle = `rgba(${voi_imageContrast}%, ${voi_imageContrast}%, ${voi_imageContrast}%, 1)`;
-            // // context.fillRect(0, 0, cnv.width, cnv.height); // apply the contrast comp filter
-
-            // //Saturation
-            // context.globalCompositeOperation = 'saturation';
-            // context.fillStyle = 'hsl(0,' + imgSaturation + '%,50%)'; // saturation at 100%
-            // context.fillRect(0, 0, cnv.width, cnv.height); // apply the saturation comp filter
-
-            // context.globalCompositeOperation = 'source-over'; // restore default comp
-
-            /*DEBUG*/ console.log(context.filter);
         };
     }
 
@@ -161,18 +152,19 @@ The verse on image component.
         centerButton(0);
     });
 
+    function setInitialFontSize(percentOfHeight) {
+        let tempFontSize = voi_fontSize;
+        if (voi_textBoxHeight < cnv.clientHeight * (percentOfHeight / 100)) {
+            voi_fontSize = voi_fontSize + 1;
+        }
+        /*DEBUG*/ console.log(
+            `tbH=${voi_textBox.clientHeight} voiH=${voi_height} fontSize=${voi_fontSize}`
+        );
+    }
+
     // Share button feature:
-
     export function shareCanvas() {
-        // // DEFAULT
-        // cnv.toBlob((blob) => {
-        //     const file = new File([blob], reference + '.png', { type: 'image/png' });
-        //     shareImage(reference, verses, reference + '.png', file);
-        // });
-
-        // USING html-to-image
         var node = document.getElementById('verseOnImgPreview');
-
         toPng(node)
             .then(function (dataUrl) {
                 fetch(dataUrl)
@@ -292,11 +284,10 @@ The verse on image component.
                 style="position: relative; z-index: 1;"
             />
 
-            {(console.log('(from above) voi_textBoxHeight=', voi_textBoxHeight), '')}
             <p
                 id="verseOnImageTextDiv"
                 style="
-                    border: 1px solid lightgreen;
+                    border: 3px solid lightgreen;
                     position: absolute;
                     z-index: 2;
                     width: {voi_textBoxWidth}px;
@@ -459,6 +450,7 @@ The verse on image component.
             touch-action: none;
         "
     >
+        <!-- Image Selector -->
         <div
             id="image_selector_pane"
             class="dy-carousel-item editor_pane"
@@ -495,10 +487,21 @@ The verse on image component.
             </div>
         </div>
 
+        <!-- Font Selector Pane -->
         <div class="dy-carousel-item items-center editorPane">
+            <FontList />
             <h1 style="width:100%;">Font selector EditorPane</h1>
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                on:click={() => {
+                    setInitialFontSize(80);
+                }}
+            >
+                <ImagesIcon color="purple" />
+            </button>
         </div>
 
+        <!-- Font Editor Pane -->
         <div class="dy-carousel-item editorPane items-center">
             <div class="flex flex-row items-center">
                 <!-- Bold button -->
@@ -557,6 +560,7 @@ The verse on image component.
             </div>
         </div>
 
+        <!-- Text Alignemnt and Width and Line Height Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <!-- Left align button -->
@@ -629,17 +633,18 @@ The verse on image component.
             </div>
         </div>
 
-        <div class="dy-carousel-item items-center editorPane">
+        <!-- Font Color Pane -->
+        <div class="dy-carousel-item editorPane">
             <!-- Color Picker -->
             <ColorPicker
-                isPopup="false"
-                toRight="true"
+                toRight={false}
                 label="Test Label For Now"
-                bind:color={voi_fontColor}
+                isInput={false}
+                bind:hex={voi_fontColor}
             />
-            <h1 style="width:100%;">Color selector EditorPane</h1>
         </div>
 
+        <!-- Text Shadow/Glow Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <!-- Text Shadow None Toggle -->
@@ -696,6 +701,7 @@ The verse on image component.
             </div>
         </div>
 
+        <!-- Image Editor Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <!-- Image brightness slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
@@ -746,6 +752,7 @@ The verse on image component.
             </div>
         </div>
 
+        <!-- Image Blur Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <!-- Image blur slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
@@ -764,6 +771,7 @@ The verse on image component.
             </div>
         </div>
 
+        <!-- Refrence Formatting Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <!-- Ref bold button -->
