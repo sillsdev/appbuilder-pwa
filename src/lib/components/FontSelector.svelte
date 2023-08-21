@@ -4,53 +4,26 @@ Font Selector component.
 -->
 <script>
     import Modal from './Modal.svelte';
-    import config from '$lib/data/config';
-    import {
-        convertStyle,
-        currentFont,
-        fontChoices,
-        monoIconColor,
-        s,
-        t,
-        themeColors
-    } from '$lib/data/stores';
+    import FontList from './FontList.svelte';
+    import { convertStyle, currentFont, s, t } from '$lib/data/stores';
 
     const modalId = 'fontSelector';
     let modal;
-    let selectedFont;
+    let fontList;
 
     export function showModal() {
-        selectedFont = $currentFont;
+        fontList.selectedFont = $currentFont;
         modal.showModal();
     }
-    function handleClick(font) {
-        selectedFont = font;
-    }
+
     function handleOk() {
-        $currentFont = selectedFont;
+        $currentFont = fontList.selectedFont;
     }
 </script>
 
 <Modal bind:this={modal} id={modalId} useLabel={false}>
     <svelte:fragment slot="content">
-        <ul class="dy-menu">
-            {#each $fontChoices as font}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <li style:font-family={font} style:font-size="large">
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <a
-                        on:click={() => handleClick(font)}
-                        style:background-color={font === selectedFont
-                            ? $themeColors['ButtonSelectedColor']
-                            : ''}
-                        style:color={$monoIconColor}
-                        style:font-famly={font}
-                    >
-                        {config.fonts.find((x) => x.family === font).name}
-                    </a>
-                </li>
-            {/each}
-        </ul>
+        <FontList bind:this={fontList} selectedFont={$currentFont} />
         <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <button
