@@ -17,6 +17,8 @@ The verse on image component.
         selectedVerses,
         windowSize,
         direction,
+        fontChoices,
+        currentFont,
         s
     } from '$lib/data/stores';
     import { shareImage } from '$lib/data/share';
@@ -57,11 +59,11 @@ The verse on image component.
     let voi_fontSize = 13;
     let voi_fontSizeMin = 10;
     let voi_fontSizeMax = 60;
-    let voi_font = '';
+    let voi_font = $currentFont;
     let voi_refBold = '';
     let voi_refItalic = $s['ui.text-on-image']['font-style'] == 'italic';
     let voi_refFontPercent = 80;
-    let voi_fontColor = $s['ui.text-on-image']['color'];
+    let voi_fontColor = standardize_color(String($s['ui.text-on-image']['color']));
     let voi_letterSpacing = 0;
     let voi_lineHeight_x100 = 0;
     $: voi_lineHeight = 1 + voi_lineHeight_x100 / 100;
@@ -82,7 +84,7 @@ The verse on image component.
                     (voi_fontSize * voi_textShadow_value) / 100 +
                     'px ' +
                     (voi_fontSize * voi_textShadow_value) / 100
-                  : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black'; //DEBUG: from Android: Shadow size goes 0 to 0.2.
+                  : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black';
     let voi_imageBrightness = 100;
     let voi_imageContrast = 100;
     let voi_imageSaturation = 100;
@@ -119,9 +121,10 @@ The verse on image component.
         /*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
     }
 
-    $: colorPrint(voi_fontColor);
-    function colorPrint(clr) {
-        console.log('clr=', clr);
+    function standardize_color(str) {
+        var ctx = document.createElement('canvas').getContext('2d');
+        ctx.fillStyle = str;
+        return ctx.fillStyle;
     }
 
     $: render(
@@ -158,8 +161,15 @@ The verse on image component.
             voi_fontSize = voi_fontSize + 1;
         }
         /*DEBUG*/ console.log(
-            `tbH=${voi_textBox.clientHeight} voiH=${voi_height} fontSize=${voi_fontSize}`
+            `tbH=${voi_textBox.clientHeight} voiHx${percentOfHeight}%=${
+                cnv.clientHeight * (percentOfHeight / 100)
+            } fontSize=${voi_fontSize}`
         );
+    }
+
+    function handleFontChange(f) {
+        voi_font = f;
+        /*DEBUG*/ console.log('font=', f);
     }
 
     // Share button feature:
@@ -170,8 +180,6 @@ The verse on image component.
                 fetch(dataUrl)
                     .then((response) => response.blob())
                     .then((blob) => {
-                        // Now you have the Blob and can use it as needed
-                        /*DEBUG*/ console.log(blob);
                         shareImage(reference, verses, reference + '.png', blob);
                     })
                     .catch((error) => {
@@ -271,7 +279,7 @@ The verse on image component.
             id="verseOnImgPreview"
             bind:this={voi_parentDiv}
             class="flex flex-col"
-            style="border: 0px solid cyan; width:{voi_width}px; height:{voi_height}px;"
+            style="width:{voi_width}px; height:{voi_height}px;"
         >
             <!-- Preview display of the image and text -->
 
@@ -287,7 +295,6 @@ The verse on image component.
             <p
                 id="verseOnImageTextDiv"
                 style="
-                    border: 3px solid lightgreen;
                     position: absolute;
                     z-index: 2;
                     width: {voi_textBoxWidth}px;
@@ -307,6 +314,7 @@ The verse on image component.
                     overflow: hidden;
                     user-drag: none;
                     transform: translate({voi_textPosX}px, {voi_textPosY}px);
+                    border: 3px solid lightgreen;
                 "
                 class="flex flex-col"
                 bind:this={voi_textBox}
@@ -459,7 +467,6 @@ The verse on image component.
                 height: auto;
                 --imgWidth: {voi_width / 4}px; 
                 overflow-y: auto;
-                border: 0px solid blue;
             "
         >
             <div class="grid grid-cols-4" style="height: fit-content;">
@@ -470,7 +477,9 @@ The verse on image component.
                 >
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => console.log('Open camera roll')}
+                        on:click={() => {
+                            /*DEBUG*/ console.log('Open camera roll');
+                        }}
                     >
                         <ImagesIcon color={$monoIconColor} />
                     </button>
@@ -489,16 +498,13 @@ The verse on image component.
 
         <!-- Font Selector Pane -->
         <div class="dy-carousel-item items-center editorPane">
-            <FontList />
-            <h1 style="width:100%;">Font selector EditorPane</h1>
-            <button
-                class="dy-btn-sm dy-btn-ghost"
-                on:click={() => {
-                    setInitialFontSize(80);
+            <FontList
+                bind:selectedFont={voi_font}
+                on:menuaction={(font) => {
+                    /*DEBUG*/ console.log('fDump=', font.detail.font);
+                    handleFontChange(font.detail.font);
                 }}
-            >
-                <ImagesIcon color="purple" />
-            </button>
+            />
         </div>
 
         <!-- Font Editor Pane -->
@@ -634,7 +640,7 @@ The verse on image component.
         </div>
 
         <!-- Font Color Pane -->
-        <div class="dy-carousel-item editorPane">
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
             <!-- Color Picker -->
             <ColorPicker
                 toRight={false}
@@ -779,7 +785,6 @@ The verse on image component.
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
                         voi_refBold = !voi_refBold;
-                        console.log('voi_refBold=', voi_refBold);
                     }}
                 >
                     <ImageIcon.FormatBold color={voi_refBold ? progressColor : unselectedColor} />
@@ -790,7 +795,6 @@ The verse on image component.
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     on:click={() => {
                         voi_refItalic = !voi_refItalic;
-                        console.log('voi_refItalic=', voi_refItalic);
                     }}
                 >
                     <ImageIcon.FormatItalic
