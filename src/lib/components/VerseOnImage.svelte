@@ -489,7 +489,7 @@ The verse on image component.
             on:click={() => centerButton(8)}
             class:activeButton={active_editor_index == 8}
         >
-            <ImageIcon.TextWidth
+            <ImageIcon.Reference
                 color={active_editor_index == 8 ? progressColor : unselectedColor}
             />
         </button>
