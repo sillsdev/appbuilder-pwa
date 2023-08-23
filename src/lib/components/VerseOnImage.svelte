@@ -147,25 +147,74 @@ The verse on image component.
         };
     }
 
+    /**
+     * 1. Start with the inital size of the text being 7% of the height of the image.
+     * 2. For larger passages of text, change the initial size until the height of the
+     * text is < 80% of the height.
+     * 3. Change the size until you get to 90% of the height and use that as the max size.
+     *
+     * This is an approximation and it is possible for the text to grow larger than the image
+     * due to different text properties.  It is okay.
+     *
+     * The text has to re-render in order to get the text height at the different sizes so we
+     * need to use the `ResizeObserver` and there are three passes through the `ResizeObserver`.
+     * 1. decrease the percentage by 1/2% until we get to 80%. We will already be there with shorter text. (fontSize = undefined)
+     * 2. increate the percentage by 2% until we get to 90%. (fontSize defined, fontSizeMax = undefined)
+     * 3. reset back to the initial text size we figured out in #1 so that we can center the text. (fontsize and fontSizeMax define)
+     */
+    function initFontSizesAndCenterText() {
+        const textOverlay = document.getElementById('verseOnImageTextDiv');
+        const textDisplay = textOverlay.style.display;
+        let fontSize;
+        let fontSizeMax;
+        textOverlay.style.display = 'none'; // hide until done calculating sizes
+
+        const getFontSize = (percent, height) => {
+            const px2pt = (px) => (px * 72) / 96;
+            return px2pt((percent * height) / 100);
+        };
+
+        let fontSizePercent = 7;
+        voi_fontSize = getFontSize(fontSizePercent, voi_height);
+
+        const adjustFontSize = () => {
+            if (!fontSize) {
+                if (textOverlay.offsetHeight > 0.8 * voi_height && fontSizePercent > 0.5) {
+                    fontSizePercent -= 0.5;
+                    voi_fontSize = getFontSize(fontSizePercent, voi_height);
+                } else {
+                    fontSize = voi_fontSize;
+                    fontSizePercent += 2.0;
+                    voi_fontSize = getFontSize(fontSizePercent, voi_height);
+                }
+            } else if (!fontSizeMax) {
+                if (textOverlay.offsetHeight < 0.9 * voi_height) {
+                    fontSizePercent += 2.0;
+                    voi_fontSize = getFontSize(fontSizePercent, voi_height);
+                } else {
+                    fontSizeMax = voi_fontSize;
+                    voi_fontSizeMax = fontSizeMax;
+                    voi_fontSize = fontSize;
+                }
+            } else {
+                voi_textPosX = (voi_width - textOverlay.offsetWidth) / 2;
+                voi_textPosY = (voi_height - textOverlay.offsetHeight) / 2;
+                resizeObserver.unobserve(textOverlay);
+                textOverlay.style.display = textDisplay;
+            }
+        };
+        const resizeObserver = new ResizeObserver(adjustFontSize);
+        resizeObserver.observe(textOverlay);
+    }
+
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
 
         voi_imgSrc = config.backgroundImages[0].filename;
+        initFontSizesAndCenterText();
 
         centerButton(0);
     });
-
-    function setInitialFontSize(percentOfHeight) {
-        let tempFontSize = voi_fontSize;
-        if (voi_textBoxHeight < cnv.clientHeight * (percentOfHeight / 100)) {
-            voi_fontSize = voi_fontSize + 1;
-        }
-        /*DEBUG*/ console.log(
-            `tbH=${voi_textBox.clientHeight} voiHx${percentOfHeight}%=${
-                cnv.clientHeight * (percentOfHeight / 100)
-            } fontSize=${voi_fontSize}`
-        );
-    }
 
     function handleFontChange(f) {
         voi_font = f;
