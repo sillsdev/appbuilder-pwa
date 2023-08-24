@@ -118,7 +118,7 @@ The verse on image component.
         voi_textBoxWidth = ''
     ) {
         voi_textBoxHeight = voi_textBox ? voi_textBox.clientHeight : '[voi_textBox = false]';
-        /*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
+        //*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
     }
 
     function standardize_color(str) {
@@ -138,7 +138,7 @@ The verse on image component.
     function render(imgSrc, imgBrightness, imgContrast, imgSaturation, imgBlur) {
         if (!cnv) return;
         cnv_background = new Image();
-        cnv_background.src = base + '/backgrounds/' + imgSrc;
+        cnv_background.src = imgSrc;
         // Make sure the image is loaded first otherwise nothing will draw.
         cnv_background.onload = function () {
             const context = cnv.getContext('2d');
@@ -210,7 +210,7 @@ The verse on image component.
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
 
-        voi_imgSrc = config.backgroundImages[0].filename;
+        voi_imgSrc = base + '/backgrounds/' + config.backgroundImages[0].filename;
         initFontSizesAndCenterText();
 
         centerButton(0);
@@ -518,7 +518,7 @@ The verse on image component.
                 overflow-y: auto;
             "
         >
-            <div class="grid grid-cols-4" style="height: fit-content;">
+            <div id="image_selector_grid" class="grid grid-cols-4" style="height: fit-content;">
                 <!-- Camera roll button -->
                 <div
                     class="flex items-center justify-center image_selector_pane_box"
@@ -526,19 +526,39 @@ The verse on image component.
                 >
                     <button
                         class="dy-btn-sm dy-btn-ghost"
+                        style="cursor: pointer;"
                         on:click={() => {
+                            document.getElementById('fileInput').click();
                             /*DEBUG*/ console.log('Open camera roll');
                         }}
                     >
                         <ImagesIcon color={$monoIconColor} />
                     </button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        id="fileInput"
+                        style="display: none; visibility: none;"
+                        on:change={(event) => {
+                            const selectedFile = event.target.files[0];
+                            if (selectedFile) {
+                                const newImg = document.createElement('img');
+                                newImg.src = URL.createObjectURL(selectedFile);
+                                newImg.style.padding = '0.125rem';
+                                newImg.addEventListener('click', () => {
+                                    voi_imgSrc = newImg.src;
+                                });
+                                document.getElementById('image_selector_grid').appendChild(newImg);
+                            }
+                        }}
+                    />
                 </div>
                 {#each config.backgroundImages as imgObj}
                     <img
                         src={base + '/backgrounds/' + imgObj.filename}
                         class="image_selector_pane_box"
-                        on:click={() => {
-                            voi_imgSrc = imgObj.filename;
+                        on:click={(event) => {
+                            voi_imgSrc = base + '/backgrounds/' + imgObj.filename;
                         }}
                     />
                 {/each}
@@ -916,9 +936,16 @@ The verse on image component.
         padding: 1rem 1rem 0rem 1rem;
     }
 
-    .image_selector_pane_box {
+    /* .image_selector_pane_box {
         width: 100%;
         height: var(--imgWidth);
         padding: 0.125rem;
+    } */
+
+    #image_selector_grid img {
+        width: 100%;
+        height: var(--imgWidth);
+        padding: 0.125rem;
+        border: 1px dashed blue;
     }
 </style>
