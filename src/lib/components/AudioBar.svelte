@@ -22,7 +22,7 @@ TODO:
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
-        if (!hasTiming && $playMode === 'repeatSelection') {
+        if (!hasTiming && $playMode.mode === 'repeatSelection') {
             playMode.reset();
         }
     }
@@ -60,7 +60,6 @@ TODO:
     $: mayResetPlayMode($refs.hasAudio?.timing);
     $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
-
 <div class={audioBarClass} style:background-color={backgroundColor}>
     <div class="dy-button-group audio-repeat">
         {#if showRepeatMode}
@@ -68,7 +67,7 @@ TODO:
                 class="dy-btn-sm dy-btn-ghost"
                 on:click={() => playMode.next($refs.hasAudio?.timingFile)}
             >
-                <svelte:component this={playModeIconOptions[$playMode]} color={iconColor} />
+                <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
             </button>
         {/if}
     </div>

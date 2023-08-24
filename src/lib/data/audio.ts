@@ -1,8 +1,15 @@
 import config from '$lib/data/config';
-import { audioHighlightElements } from '$lib/data/stores/audio.js';
+import {
+    audioHighlightElements,
+    playMode,
+    defaultPlayMode,
+    PLAYMODE_CONTINUE,
+    PLAYMODE_STOP,
+    PLAYMODE_REPEAT_PAGE,
+    PLAYMODE_REPEAT_SELECTION
+} from '$lib/data/stores';
 import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/data/stores';
 import { MRUCache } from '$lib/data/mrucache';
-
 interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;
@@ -22,6 +29,8 @@ audioPlayerStore.subscribe(async (value) => {
     currentAudioPlayer = value;
     await getAudio();
 });
+export let currentPlayMode;
+playMode.subscribe((value) => (currentPlayMode = value));
 // produces the cache key for the mru audio cache
 function cacheKey(collection, book, chapter) {
     return `${collection}-${book}-${chapter}`;
@@ -130,6 +139,92 @@ export function seek(position) {
         play();
     }
 }
+let warmdown = undefined;
+function handlePlayMode() {
+    if (warmdown) {
+        warmdown--;
+        if (warmdown === 0) {
+            if (currentPlayMode.mode === PLAYMODE_CONTINUE) {
+                skip(1);
+                playMode.set({ ...currentPlayMode, continue: true });
+            } else if (currentPlayMode.mode === PLAYMODE_REPEAT_PAGE) {
+                seek(0);
+            } else if (currentPlayMode.mode === PLAYMODE_REPEAT_SELECTION) {
+                seek(currentPlayMode.range.start);
+                play();
+            }
+            warmdown = undefined;
+        }
+        return;
+    }
+    if (currentAudioPlayer.audio.ended) {
+        if (currentPlayMode.mode === PLAYMODE_STOP) {
+            pause();
+        } else {
+            warmdown = 5;
+        }
+        return;
+    }
+    if (currentPlayMode.mode === PLAYMODE_CONTINUE && currentPlayMode.continue) {
+        playMode.set({ ...currentPlayMode, continue: false });
+        play();
+    }
+    if (currentPlayMode.mode === PLAYMODE_REPEAT_SELECTION) {
+        if (currentPlayMode.range === defaultPlayMode.range) {
+            const resultArray = getCurrentVerseTiming();
+            if (resultArray.start === undefined || resultArray.end === undefined) {
+                return;
+            }
+            playMode.set({
+                ...currentPlayMode,
+                range: { start: resultArray.start, end: resultArray.end }
+            });
+        }
+        if (currentAudioPlayer.progress + 0.05 > currentPlayMode.range.end) {
+            pause();
+            warmdown = 5;
+        }
+    }
+}
+// gets the current verse start and end tag
+function getCurrentVerseTiming() {
+    let end;
+    let start;
+    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+        const timing = currentAudioPlayer.timing[i];
+        if (
+            currentAudioPlayer.progress >= timing.starttime &&
+            currentAudioPlayer.progress < timing.endtime
+        ) {
+            const verseNumber = parseInt(timing.tag, 10);
+            for (let k = i + 1; k >= 0; k--) {
+                const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
+                if (startVerseNumber !== verseNumber) {
+                    start = currentAudioPlayer.timing[k + 1].tag;
+                    break;
+                }
+                if (k === 0) {
+                    start = currentAudioPlayer.timing.tag;
+                    break;
+                }
+            }
+            for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
+                const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
+                if (endVerseNumber !== verseNumber) {
+                    end = currentAudioPlayer.timing[j - 1].tag;
+                    break;
+                }
+                if (j === currentAudioPlayer.timing.length - 1) {
+                    end = currentAudioPlayer.timing.tag;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    return getVerseTimingRange(start, end);
+}
+// function get range of current index all labels of the current verse playing
 // calls updatehighlights() to see if highlights need to be change
 function updateTime() {
     if (!currentAudioPlayer.loaded) {
@@ -142,9 +237,7 @@ function updateTime() {
     if (currentAudioPlayer.timing && currentAudioPlayer.progress) {
         updateHighlights();
     }
-    if (currentAudioPlayer.audio.ended) {
-        toggleTimeRunning();
-    }
+    handlePlayMode();
 }
 // calls updateTime() every 100ms
 function toggleTimeRunning() {
@@ -294,4 +387,22 @@ export function seekToVerse(verseClicked) {
     }
     //forces highlighting change
     updateTime();
+}
+// takes a start and end tag and returns the range of times
+function getVerseTimingRange(startverse, endverse) {
+    const elements = currentAudioPlayer.timing;
+    let start;
+    for (let i = 0; i < elements.length; i++) {
+        const tag = currentAudioPlayer.timing[i].tag;
+        if (startverse === tag) {
+            const newstarttime = currentAudioPlayer.timing[i].starttime;
+            start = newstarttime;
+        }
+        if (endverse === tag) {
+            const newendtime = currentAudioPlayer.timing[i].endtime;
+            const end = newendtime;
+            const range = { start, end };
+            return range;
+        }
+    }
 }
