@@ -118,7 +118,6 @@ The verse on image component.
         voi_textBoxWidth = ''
     ) {
         voi_textBoxHeight = voi_textBox ? voi_textBox.clientHeight : '[voi_textBox = false]';
-        //*DEBUG*/ console.log('voi_textBoxHeight=', voi_textBoxHeight);
     }
 
     function standardize_color(str) {
@@ -218,7 +217,6 @@ The verse on image component.
 
     function handleFontChange(f) {
         voi_font = f;
-        /*DEBUG*/ console.log('font=', f);
     }
 
     // Share button feature:
@@ -544,11 +542,7 @@ The verse on image component.
                             if (selectedFile) {
                                 const newImg = document.createElement('img');
                                 newImg.src = URL.createObjectURL(selectedFile);
-                                newImg.style.padding = '0.125rem';
-                                newImg.addEventListener('click', () => {
-                                    voi_imgSrc = newImg.src;
-                                });
-                                document.getElementById('image_selector_grid').appendChild(newImg);
+                                voi_imgSrc = newImg.src;
                             }
                         }}
                     />
@@ -570,7 +564,6 @@ The verse on image component.
             <FontList
                 bind:selectedFont={voi_font}
                 on:menuaction={(font) => {
-                    /*DEBUG*/ console.log('fDump=', font.detail.font);
                     handleFontChange(font.detail.font);
                 }}
             />
@@ -936,16 +929,9 @@ The verse on image component.
         padding: 1rem 1rem 0rem 1rem;
     }
 
-    /* .image_selector_pane_box {
-        width: 100%;
-        height: var(--imgWidth);
-        padding: 0.125rem;
-    } */
-
     #image_selector_grid img {
         width: 100%;
         height: var(--imgWidth);
         padding: 0.125rem;
-        border: 1px dashed blue;
     }
 </style>
