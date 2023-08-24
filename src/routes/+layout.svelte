@@ -11,6 +11,7 @@
         MODAL_TEXT_APPERANCE,
         MODAL_FONT,
         MODAL_VERSE_ON_IMAGE,
+        MODAL_CROP,
         NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { base } from '$app/paths';
@@ -20,6 +21,7 @@
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
+    import CropImage from '$lib/components/CropImage.svelte';
 
     $: $modal, showModal();
 
@@ -43,6 +45,9 @@
                     case MODAL_VERSE_ON_IMAGE:
                         verseOnImage.showModal();
                         break;
+                    case MODAL_CROP:
+                        cropImage.showModal();
+                        break;
                 }
             });
             modal.clear();
@@ -54,6 +59,7 @@
     let fontSelector;
     let noteDialog;
     let verseOnImage;
+    let cropImage;
 </script>
 
 <svelte:head>
@@ -76,6 +82,16 @@
     <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
 
     <FontSelector bind:this={fontSelector} />
+
+    <CropImage
+        bind:this={cropImage}
+        imgSrc={voi_imgSrc}
+        triggerCrop={crop_trigger}
+        cropTop={crop_sourceX}
+        cropLeft={crop_sourceY}
+        cropWidth={crop_sourceWidth}
+        cropHeight={crop_sourceHeight}
+    />
 </div>
 
 <Sidebar on:showModal={showModal}>
