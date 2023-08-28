@@ -32,7 +32,7 @@ test(`Evaulating ${test0}`, () => {
     expect(parseText(test0)).toStrictEqual([
         [
             {
-                phrase: 'John 3',
+                phrase: test0,
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -46,7 +46,7 @@ test(`Evaulating ${test1}`, () => {
     expect(parseText(test1)).toStrictEqual([
         [
             {
-                phrase: 'John 3:16',
+                phrase: test1,
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -58,10 +58,11 @@ test(`Evaulating ${test1}`, () => {
 
 // John 3:16; 3:17
 test(`Evaulating ${test2}`, () => {
+    const parts = test2.split(`${cls} `);
     expect(parseText(test2)).toStrictEqual([
         [
             {
-                phrase: 'John 3:16',
+                phrase: parts[0],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -70,7 +71,7 @@ test(`Evaulating ${test2}`, () => {
         ],
         [
             {
-                phrase: '3:17',
+                phrase: parts[1],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -85,14 +86,14 @@ test(`Evaulating ${test3}`, () => {
     expect(parseText(test3)).toStrictEqual([
         [
             {
-                phrase: 'John 3:16-17',
+                phrase: test3,
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
                 verse: '16'
             },
             {
-                phrase: 'John 3:16-17',
+                phrase: test3,
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -102,36 +103,13 @@ test(`Evaulating ${test3}`, () => {
     ]);
 });
 
-// // John 3:16,17
-// test(`Evaulating ${test4}`, () => {
-//     expect(parseText(test4)).toStrictEqual([
-//         [
-//             {
-//                 phrase: 'John 3:16',
-//                 docSet: docSet,
-//                 book: 'JHN',
-//                 chapter: '3',
-//                 verse: '16'
-//             }
-//         ],
-//         [
-//             {
-//                 phrase: '17',
-//                 docSet: docSet,
-//                 book: 'JHN',
-//                 chapter: '3',
-//                 verse: '16'
-//             }
-//         ]
-//     ]);
-// });
-
-// John 3:16; 3:17-18
-test(`Evaulating ${test5}`, () => {
-    expect(parseText(test5)).toStrictEqual([
+// John 3:16,17
+test.todo(`Evaulating ${test4}`, () => {
+    const parts = test4.split(`${lov}`);
+    expect(parseText(test4)).toStrictEqual([
         [
             {
-                phrase: 'John 3:16',
+                phrase: parts[0],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -140,14 +118,39 @@ test(`Evaulating ${test5}`, () => {
         ],
         [
             {
-                phrase: '3:17-18',
+                phrase: parts[1],
+                docSet: docSet,
+                book: 'JHN',
+                chapter: '3',
+                verse: '16'
+            }
+        ]
+    ]);
+});
+
+// John 3:16; 3:17-18
+test(`Evaulating ${test5}`, () => {
+    const parts = test5.split(`${cls} `);
+    expect(parseText(test5)).toStrictEqual([
+        [
+            {
+                phrase: parts[0],
+                docSet: docSet,
+                book: 'JHN',
+                chapter: '3',
+                verse: '16'
+            }
+        ],
+        [
+            {
+                phrase: parts[1],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
                 verse: '17'
             },
             {
-                phrase: '3:17-18',
+                phrase: parts[1],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -159,10 +162,11 @@ test(`Evaulating ${test5}`, () => {
 
 // John 3:16; 3:17; 1 Corinthians 1:1
 test(`Evaulating ${test6}`, () => {
+    const parts = test6.split(`${cls} `);
     expect(parseText(test6)).toStrictEqual([
         [
             {
-                phrase: 'John 3:16',
+                phrase: parts[0],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -171,7 +175,7 @@ test(`Evaulating ${test6}`, () => {
         ],
         [
             {
-                phrase: '3:17',
+                phrase: parts[1],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
@@ -180,7 +184,7 @@ test(`Evaulating ${test6}`, () => {
         ],
         [
             {
-                phrase: '1 Corinthians 1:1',
+                phrase: parts[2],
                 docSet: docSet,
                 book: '1CO',
                 chapter: '1',
@@ -192,17 +196,18 @@ test(`Evaulating ${test6}`, () => {
 
 // John 3:16-5:13; 32:6-9
 test(`Evaulating ${test7}`, () => {
+    const parts = test7.split(`${cls} `);
     expect(parseText(test7)).toStrictEqual([
         [
             {
-                phrase: 'John 3:16-5:13',
+                phrase: parts[0],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '3',
                 verse: '16'
             },
             {
-                phrase: 'John 3:16-5:13',
+                phrase: parts[0],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '5',
@@ -211,14 +216,14 @@ test(`Evaulating ${test7}`, () => {
         ],
         [
             {
-                phrase: '32:6-9',
+                phrase: parts[1],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '32',
                 verse: '6'
             },
             {
-                phrase: '32:6-9',
+                phrase: parts[1],
                 docSet: docSet,
                 book: 'JHN',
                 chapter: '32',
