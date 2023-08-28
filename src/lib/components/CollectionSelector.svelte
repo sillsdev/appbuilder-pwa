@@ -57,7 +57,7 @@ Book Collection Selector component.
 </script>
 
 <!--addCSS is a prop for injecting CSS into the modal-->
-<Modal bind:this={modal} id={modalId} useLabel={false}>
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS="height: 75%">
     <svelte:fragment slot="content">
         <TabsMenu
             bind:this={tabMenu}
@@ -83,19 +83,17 @@ Book Collection Selector component.
             }}
             scroll={false}
         />
-        <div class="flex w-full justify-between dy-modal-action">
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <button
-                style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
-            >
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <button
-                style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleOk()}>{$t['Button_OK']}</button
-            >
-        </div>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <button
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost no-animation fixed bottom-4 left-4"
+            on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
+        >
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <button
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost no-animation fixed bottom-4 right-4"
+            on:click={() => handleOk()}>{$t['Button_OK']}</button
+        >
     </svelte:fragment>
 </Modal>

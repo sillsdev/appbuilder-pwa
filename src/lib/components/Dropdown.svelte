@@ -25,7 +25,7 @@ A simple dropdown menu from DaisyUI.
         class="dy-dropdown-content z-[1] dy-menu drop-shadow-lg mx-2.5 bg-base-100"
         class:min-w-[21rem]={cols == 6}
         class:min-w-[17.25rem]={cols == 5}
-        style={convertStyle($s['ui.background'])}
+        style={convertStyle($s['ui.dialog'])}
         on:blur={() => dispatch('nav-end')}
     >
         <slot name="content" />

@@ -79,7 +79,7 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div id="container" data-color-theme={$theme} class="layout">
+<div id="container" data-color-theme={$theme} class="layout" style:background-color="unset">
     <!-- Single Pane -->
     {#if layoutOption === LAYOUT_SINGLE}
         <div class="layout-title">
@@ -150,3 +150,9 @@ Displays the three different layout option menus.
         {/each}
     {/if}
 </div>
+
+<style>
+    div.layout-title {
+        padding-top: 1rem;
+    }
+</style>
