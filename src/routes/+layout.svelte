@@ -46,6 +46,7 @@
                         verseOnImage.showModal();
                         break;
                     case MODAL_CROP:
+                        cropImage.data = data;
                         cropImage.showModal();
                         break;
                 }
@@ -83,15 +84,7 @@
 
     <FontSelector bind:this={fontSelector} />
 
-    <CropImage
-        bind:this={cropImage}
-        imgSrc={voi_imgSrc}
-        triggerCrop={crop_trigger}
-        cropTop={crop_sourceX}
-        cropLeft={crop_sourceY}
-        cropWidth={crop_sourceWidth}
-        cropHeight={crop_sourceHeight}
-    />
+    <CropImage bind:this={cropImage} />
 </div>
 
 <Sidebar on:showModal={showModal}>
