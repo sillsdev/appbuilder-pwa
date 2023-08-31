@@ -160,6 +160,7 @@ function handlePlayMode() {
     if (currentAudioPlayer.audio.ended) {
         if (currentPlayMode.mode === PLAYMODE_STOP) {
             pause();
+            audioPlayerStore.set(currentAudioPlayer);
         } else {
             warmdown = 5;
         }
