@@ -42,7 +42,7 @@ The production build can be deployed to a public webserver for testing using [Su
 
 ### Testing
 
-Scripture App Builder PWA uses [Vitest](https://vitest.dev/guide/) for unit tests. See that added test files and tests adhere to the [Front End Testing Style Guide](https://github.com/nikeshghimire77/unit-testing-styleguide). 
+Scripture App Builder PWA uses [Vitest](https://vitest.dev/guide/) for unit tests. See that added test files and tests adhere to the [Front End Testing Style Guide](https://github.com/nikeshghimire77/unit-testing-styleguide).
 
 ```bash
 ├── scripts
