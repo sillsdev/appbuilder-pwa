@@ -102,7 +102,20 @@ The verse on image component.
         crop_destWidth,
         crop_destHeight;
 
-    export let crop_trigger = false;
+    let newImg;
+
+    $: applyCrop(newImg);
+
+    function applyCrop(img) {
+        /*DEBUG*/ console.log('ApplyCrop triggered.');
+        if (img) {
+            img.onload = function () {
+                //DEBUG WORKHEREFIRST: this is not getting triggered when the modal is closed.
+                cnv_background = newImg;
+                /*DEBUG*/ console.log('newImg result = ', newImg);
+            };
+        }
+    }
 
     $: update_voi_textBoxHeight(
         txtFormatted,
@@ -164,6 +177,7 @@ The verse on image component.
         img.onload = function () {
             cnv_background = img;
         };
+        /*DBEUG*/ console.log('src= ', imgSrc);
     }
 
     /**
@@ -560,14 +574,15 @@ The verse on image component.
                         on:change={(event) => {
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
-                                const newImg = new Image();
-                                newImg.onload = function () {
-                                    cnv_background = newImg;
-                                };
+                                newImg = new Image();
+                                // newImg.onload = function () {
+                                //     //DEBUG WORKHEREFIRST: this is not getting triggered when the modal is closed.
+                                //     cnv_background = newImg;
+                                //     /*DEBUG*/ console.log('newImg result = ', newImg);
+                                // };
                                 /*DEBUG*/ console.log('Open Crop Modal');
                                 let selectedSrc = URL.createObjectURL(selectedFile);
-                                modal.open(MODAL_CROP, { selectedSrc, newImg, cnv });
-                                // newImg.src = URL.createObjectURL(selectedFile);
+                                modal.open(MODAL_CROP, { selectedSrc, newImg, cnv }); // must not be actually binding the modal-internal references to the {} params being passed in, because $: applyCrop(newImg); is not seeing any change to newImg...
                             }
                         }}
                     />
