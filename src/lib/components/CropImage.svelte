@@ -17,7 +17,12 @@ The navbar component. We have sliders that update reactively to both font size a
         modalThis.showModal();
     }
 
-    export let data = { newImg: undefined, cnv: undefined, selectedSrc: undefined };
+    export let data = {
+        newImg: undefined,
+        cnv: undefined,
+        selectedSrc: undefined,
+        newSrc: undefined
+    };
     $: cropped_image = data.newImg;
     $: main_canvas = data.cnv;
     $: src = data.selectedSrc;
@@ -53,9 +58,10 @@ The navbar component. We have sliders that update reactively to both font size a
         temp_img.onload = function () {
             ctx = temp_canvas.getContext('2d');
 
-            ctx.drawImage(temp_canvas, 0, 0, main_canvas.width, main_canvas.height); //TODO: make width canvas.width and height auto
+            ctx.drawImage(temp_img, 0, 0, main_canvas.width, temp_img.height); //TODO: make width canvas.width and height auto
             /*DEBUG*/ console.log('Crop ctx=', ctx);
             /*DEBUG*/ console.log('Crop w&h=', main_canvas.width, main_canvas.height);
+            /*DEBUG*/ console.log('Crop img=', temp_img);
         };
     }
 
@@ -112,16 +118,17 @@ The navbar component. We have sliders that update reactively to both font size a
         ctx.clearRect(0, 0, main_canvas.width, main_canvas.height);
         ctx.drawImage(
             temp_img,
-            crop_sourceX,
-            crop_sourceY,
-            crop_sourceWidth,
-            crop_sourceHeight,
+            cropLeft,
+            cropTop,
+            cropWidth,
+            cropHeight,
             0,
             0,
             main_canvas.width,
             main_canvas.height
         );
         cropped_image = ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
+        /*DEBUG*/ console.log('Crop result = ', cropped_image);
     }
 </script>
 
@@ -130,24 +137,33 @@ The navbar component. We have sliders that update reactively to both font size a
     bind:this={modalThis}
     id={modalId}
     useLabel={false}
-    addCSS={''}
+    addCSS="width: 100vw; padding: 0px;"
     on:close={() => {
         console.log('Crop modal closed.');
     }}
     ><!--addCSS is a prop for injecting CSS into the modal-->
     <svelte:fragment slot="content">
-        <div style="width: 100vw; height: 80vh; border: 5px soild green;">
-            <canvas bind:this={temp_canvas} />
+        <div
+            id="crop_temp_canvas_container"
+            style="width: 100vw; height: 80vh; border: 5px soild green; background-color: yellow;"
+        >
+            <canvas
+                bind:this={temp_canvas}
+                width={main_canvas ? main_canvas.width : undefined}
+                height={main_canvas ? main_canvas.height : undefined}
+                style="background-color: grey;"
+            />
 
             <div
                 class="crop-box"
                 style="
-                top: {cropTop}px;
-                left: {cropLeft}px;
-                width: {cropWidth}px;
-                height: {cropHeight}px;
-                border: 5px solid white;
-            "
+                    position: absolute;
+                    top: {cropTop}px;
+                    left: {cropLeft}px;
+                    width: {cropWidth}px;
+                    height: {cropHeight}px;
+                    border: 5px solid white;
+                "
                 on:touchstart={startDragging}
                 on:touchmove={isDragging ? drag : pinch}
                 on:touchend={stopDragging}
