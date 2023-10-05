@@ -18,12 +18,11 @@ The navbar component. We have sliders that update reactively to both font size a
     }
 
     export let data = {
-        newImg: undefined,
+        applyCrop: undefined,
         cnv: undefined,
-        selectedSrc: undefined,
-        newSrc: undefined
+        selectedSrc: undefined
     };
-    $: cropped_image = data.newImg;
+    $: applyCrop = data.applyCrop;
     $: main_canvas = data.cnv;
     $: src = data.selectedSrc;
 
@@ -127,8 +126,9 @@ The navbar component. We have sliders that update reactively to both font size a
             main_canvas.width,
             main_canvas.height
         );
-        cropped_image = ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
+        const cropped_image = ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
         /*DEBUG*/ console.log('Crop result = ', cropped_image);
+        createImageBitmap(cropped_image).then((croppedBitmap) => applyCrop(croppedBitmap));
     }
 </script>
 

@@ -102,19 +102,10 @@ The verse on image component.
         crop_destWidth,
         crop_destHeight;
 
-    let newImg;
-
-    $: applyCrop(newImg);
-
     function applyCrop(img) {
         /*DEBUG*/ console.log('ApplyCrop triggered.');
-        if (img) {
-            img.onload = function () {
-                //DEBUG WORKHEREFIRST: this is not getting triggered when the modal is closed.
-                cnv_background = newImg;
-                /*DEBUG*/ console.log('newImg result = ', newImg);
-            };
-        }
+        cnv_background = img;
+        /*DEBUG*/ console.log('newImg result = ', img);
     }
 
     $: update_voi_textBoxHeight(
@@ -574,7 +565,6 @@ The verse on image component.
                         on:change={(event) => {
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
-                                newImg = new Image();
                                 // newImg.onload = function () {
                                 //     //DEBUG WORKHEREFIRST: this is not getting triggered when the modal is closed.
                                 //     cnv_background = newImg;
@@ -582,7 +572,7 @@ The verse on image component.
                                 // };
                                 /*DEBUG*/ console.log('Open Crop Modal');
                                 let selectedSrc = URL.createObjectURL(selectedFile);
-                                modal.open(MODAL_CROP, { selectedSrc, newImg, cnv }); // must not be actually binding the modal-internal references to the {} params being passed in, because $: applyCrop(newImg); is not seeing any change to newImg...
+                                modal.open(MODAL_CROP, { selectedSrc, applyCrop, cnv }); // must not be actually binding the modal-internal references to the {} params being passed in, because $: applyCrop(newImg); is not seeing any change to newImg...
                             }
                         }}
                     />
