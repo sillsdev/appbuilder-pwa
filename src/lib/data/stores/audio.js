@@ -35,9 +35,10 @@ export const PLAYMODE_STOP = 'stop';
 export const PLAYMODE_REPEAT_PAGE = 'repeatPage';
 export const PLAYMODE_REPEAT_SELECTION = 'repeatSelection';
 
+export const defaultPlayModeRange = { start: 0, end: 0 };
 export const defaultPlayMode = {
     mode: config.mainFeatures['audio-goto-next-chapter'] ? PLAYMODE_CONTINUE : PLAYMODE_STOP,
-    range: { start: 0, end: 0 },
+    range: defaultPlayModeRange,
     continue: false
 };
 function createPlayMode() {
@@ -47,22 +48,28 @@ function createPlayMode() {
         set: external.set,
         next: (hasTiming) => {
             const { mode, range } = get(external);
-            let next = mode;
+            let nextMode = mode;
+            let nextRange = range;
             switch (mode) {
                 case PLAYMODE_CONTINUE:
-                    next = PLAYMODE_STOP;
+                    nextMode = PLAYMODE_STOP;
                     break;
                 case PLAYMODE_STOP:
-                    next = PLAYMODE_REPEAT_PAGE;
+                    nextMode = PLAYMODE_REPEAT_PAGE;
                     break;
                 case PLAYMODE_REPEAT_PAGE:
-                    next = hasTiming ? PLAYMODE_REPEAT_SELECTION : PLAYMODE_CONTINUE;
+                    if (hasTiming) {
+                        nextMode = PLAYMODE_REPEAT_SELECTION;
+                        nextRange = defaultPlayModeRange;
+                    } else {
+                        nextMode = PLAYMODE_CONTINUE;
+                    }
                     break;
                 case PLAYMODE_REPEAT_SELECTION:
-                    next = PLAYMODE_CONTINUE;
+                    nextMode = PLAYMODE_CONTINUE;
                     break;
             }
-            external.set({ mode: next, range });
+            external.set({ mode: nextMode, range: nextRange });
         },
         reset: () => {
             external.set(defaultPlayMode);

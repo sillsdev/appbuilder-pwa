@@ -30,7 +30,16 @@ audioPlayerStore.subscribe(async (value) => {
     await getAudio();
 });
 export let currentPlayMode;
-playMode.subscribe((value) => (currentPlayMode = value));
+playMode.subscribe((value) => {
+    if (
+        currentPlayMode &&
+        currentPlayMode.mode !== value.mode &&
+        value.mode === PLAYMODE_REPEAT_SELECTION
+    ) {
+        value.range = getCurrentVerseTiming();
+    }
+    currentPlayMode = value;
+});
 // produces the cache key for the mru audio cache
 function cacheKey(collection, book, chapter) {
     return `${collection}-${book}-${chapter}`;
@@ -134,6 +143,7 @@ export function seek(position) {
     pause();
     currentAudioPlayer.audio.currentTime = position;
     currentAudioPlayer.progress = position;
+    playMode.set({ ...currentPlayMode, range: getCurrentVerseTiming() });
     audioPlayerStore.set(currentAudioPlayer);
     if (playing === true) {
         play();
