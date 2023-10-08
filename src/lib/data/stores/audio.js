@@ -30,31 +30,49 @@ export const audioPlayerDefault = {
 };
 export const audioPlayer = writable({ ...audioPlayerDefault });
 
+export const PLAYMODE_CONTINUE = 'continue';
+export const PLAYMODE_STOP = 'stop';
+export const PLAYMODE_REPEAT_PAGE = 'repeatPage';
+export const PLAYMODE_REPEAT_SELECTION = 'repeatSelection';
+
+export const defaultPlayModeRange = { start: 0, end: 0 };
+export const defaultPlayMode = {
+    mode: config.mainFeatures['audio-goto-next-chapter'] ? PLAYMODE_CONTINUE : PLAYMODE_STOP,
+    range: defaultPlayModeRange,
+    continue: false
+};
 function createPlayMode() {
-    const external = writable(config.mainFeatures['audio-goto-next-chapter'] ? 'continue' : 'stop');
+    const external = writable(defaultPlayMode);
     return {
         subscribe: external.subscribe,
+        set: external.set,
         next: (hasTiming) => {
-            const cur = get(external);
-            let next = cur;
-            switch (cur) {
-                case 'continue':
-                    next = 'stop';
+            const { mode, range } = get(external);
+            let nextMode = mode;
+            let nextRange = range;
+            switch (mode) {
+                case PLAYMODE_CONTINUE:
+                    nextMode = PLAYMODE_STOP;
                     break;
-                case 'stop':
-                    next = 'repeatPage';
+                case PLAYMODE_STOP:
+                    nextMode = PLAYMODE_REPEAT_PAGE;
                     break;
-                case 'repeatPage':
-                    next = hasTiming ? 'repeatSelection' : 'continue';
+                case PLAYMODE_REPEAT_PAGE:
+                    if (hasTiming) {
+                        nextMode = PLAYMODE_REPEAT_SELECTION;
+                        nextRange = defaultPlayModeRange;
+                    } else {
+                        nextMode = PLAYMODE_CONTINUE;
+                    }
                     break;
-                case 'repeatSelection':
-                    next = 'continue';
+                case PLAYMODE_REPEAT_SELECTION:
+                    nextMode = PLAYMODE_CONTINUE;
                     break;
             }
-            external.set(next);
+            external.set({ mode: nextMode, range: nextRange });
         },
         reset: () => {
-            external.set('continue');
+            external.set(defaultPlayMode);
         }
     };
 }
