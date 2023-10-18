@@ -43,6 +43,7 @@ TODO:
     import { shareText, shareImage } from '$lib/data/share';
     import { base } from '$app/paths';
     import { play, seekToVerse } from '$lib/data/audio';
+
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -198,9 +199,13 @@ TODO:
                     </button>
                 {/if}
                 {#if isTextOnImageEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                    <a
+                        href="{base}/image"
+                        class="dy-btn-sm dy-btn-ghost"
+                        style="text-decoration:none; display:flex; align-items:center;"
+                    >
                         <ImageIcon.Image color={barIconColor} />
-                    </button>
+                    </a>
                 {/if}
                 {#if isHighlightEnabled}
                     <button

@@ -49,6 +49,7 @@
         "proskomma-tools": "^0.0.5",
         "rimraf": "^5",
         "svelte": "^3",
+        "svelte-awesome-color-picker": "^2.4.7",
         "svelte-check": "^3",
         "svelte-eslint-parser": "^0.30",
         "svelte-french-toast": "^1.0.3",
@@ -61,5 +62,8 @@
     },
     "volta": {
         "node": "16.17.0"
+    },
+    "dependencies": {
+        "html-to-image": "^1.11.11"
     }
 }
