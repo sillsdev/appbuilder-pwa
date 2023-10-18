@@ -13,8 +13,9 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
 
-    $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
-    $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
+    $: book = $nextRef.book || $refs.book;
+    $: chapter = $nextRef.chapter || $refs.chapter;
+    $: console.log('book', book, 'chapter', chapter);
 
     const listView = $userSettings['book-selection'] === 'list';
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
@@ -137,7 +138,7 @@ The navbar component.
         let hasIntroduction = books.find((x) => x.bookCode === book).hasIntroduction;
         return [
             {
-                rows: hasIntroduction
+                rows: books.find((x) => x.bookCode === book).hasIntroduction
                     ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
                     : null,
                 cells: Object.keys(chapters).map((x) => ({ label: x, id: x }))
@@ -172,7 +173,14 @@ The navbar component.
                     [c]: {
                         component: SelectGrid,
                         props: {
-                            options: chapterGridGroup(chapters)
+                            options: [
+                                {
+                                    rows: books.find((x) => x.bookCode === book).hasIntroduction
+                                        ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                                        : null,
+                                    cells: Object.keys(chapters).map((x) => ({ label: x, id: x }))
+                                }
+                            ]
                         },
                         visible: showChapterSelector
                     },
@@ -181,14 +189,19 @@ The navbar component.
                         props: {
                             options: [
                                 {
-                                    cells: Object.keys(chapters[chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
+                                    cells: chapters[chapter]
+                                        ? Object.keys(chapters[chapter]).map((x) => ({
+                                              label: x,
+                                              id: x
+                                          }))
+                                        : ''
                                 }
                             ]
                         },
-                        visible: showChapterSelector && showVerseSelector
+                        visible:
+                            chapters[chapter] !== undefined &&
+                            showChapterSelector &&
+                            showVerseSelector
                     }
                 }}
                 on:menuaction={navigateReference}
