@@ -67,7 +67,7 @@
     <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
     <!-- Collection Selector Menu -->
-    <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
+    <CollectionSelector bind:this={collectionSelector} />
 
     <FontSelector bind:this={fontSelector} />
 </div>

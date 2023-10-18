@@ -7,9 +7,18 @@ Book Collection Selector component.
     import LayoutOptions from './LayoutOptions.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import config from '$lib/data/config';
-    import { convertStyle, refs, layout, selectedLayouts, s, t } from '$lib/data/stores';
+    import {
+        convertStyle,
+        refs,
+        layout,
+        LAYOUT_SINGLE,
+        LAYOUT_TWO,
+        LAYOUT_VERSE_BY_VERSE,
+        selectedLayouts,
+        s,
+        t
+    } from '$lib/data/stores';
     import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
-    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
 
     const modalId = 'collectionSelector';
     let modal;
@@ -36,13 +45,6 @@ Book Collection Selector component.
         };
     }
 
-    export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
-    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    $: positioningCSS =
-        'position:absolute; top:' +
-        (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; inset-inline-end:1rem;';
-
     function handleOk() {
         const selectedLayout = getSelectedLayout();
         $refs.docSet = selectedLayout.primaryDocSet;
@@ -55,7 +57,7 @@ Book Collection Selector component.
 </script>
 
 <!--addCSS is a prop for injecting CSS into the modal-->
-<Modal bind:this={modal} id={modalId} useLabel={false}>
+<Modal bind:this={modal} id={modalId} useLabel={false} addCSS="height: 75%">
     <svelte:fragment slot="content">
         <TabsMenu
             bind:this={tabMenu}
@@ -81,19 +83,17 @@ Book Collection Selector component.
             }}
             scroll={false}
         />
-        <div class="flex w-full justify-between dy-modal-action">
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <button
-                style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
-            >
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <button
-                style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleOk()}>{$t['Button_OK']}</button
-            >
-        </div>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <button
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost no-animation fixed bottom-5 left-5"
+            on:click={() => handleCancel()}>{$t['Button_Cancel']}</button
+        >
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <button
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost no-animation fixed bottom-5 right-5"
+            on:click={() => handleOk()}>{$t['Button_OK']}</button
+        >
     </svelte:fragment>
 </Modal>
