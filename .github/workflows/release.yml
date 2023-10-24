@@ -1,0 +1,28 @@
+name: Create Release on Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          !(example_data)/** # Exclude 'example_data' folder
+          !.gitignore
+          !.prettier*
+          !.eslint*
+          !.npmrc
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Get Release URL
+      run: echo "Release URL: ${{ steps.create_release.outputs.upload_url }}"
