@@ -3,7 +3,15 @@ name: Release
 on:
     push:
         tags:
-            - '*'
+            - 'v*'
+    workflow_dispatch:
+        inputs:
+            logLevel:
+                description: 'Log Level'
+                required: true
+                default: 'warning'
+            tags:
+                description: 'Tags'
 
 jobs:
     create_release:
@@ -14,14 +22,9 @@ jobs:
 
             - name: Create Release
               id: create_release
-              uses: phuonghuynh/action-ghrelease@v1.1.0
+              uses: ncipollo/release-action
               with:
-                  files: |
-                      !(example_data)/** # Exclude 'example_data' folder
-                      !.gitignore
-                      !.prettier*
-                      !.eslint*
-                      !.npmrc
+                  artifacts: '!(example_data)/**,!.gitignore,!.prettier*,!.eslint*,!.npmrc'
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Get Release URL
