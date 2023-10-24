@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check out the code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v1.1.0
       with:
         files: |
           !(example_data)/** # Exclude 'example_data' folder
