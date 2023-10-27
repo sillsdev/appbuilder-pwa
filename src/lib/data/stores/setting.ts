@@ -162,8 +162,8 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     }
 
     const hasAudioSourceWitbDownload =
-        Object.keys(config.audio?.sources || []).filter((key) =>
-            config.audio.sources[key].accessMethods?.includes('download')
+        Object.keys(config.audio?.sources || []).filter(
+            (key) => config.audio.sources[key].accessMethods?.includes('download')
         ).length > 0;
     if (config.mainFeatures['settings-audio-download-mode'] && hasAudioSourceWitbDownload) {
         settings.push({
