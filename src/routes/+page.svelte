@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
@@ -13,8 +13,6 @@
         currentFont,
         direction,
         firstLaunch,
-        footnotes,
-        fontChoices,
         highlights,
         mainScroll,
         audioHighlightElements,
@@ -54,15 +52,10 @@
     import { page } from '$app/stores';
     import { onDestroy, onMount } from 'svelte';
 
-    function doSwipe(
-        event: CustomEvent<{
-            direction: 'left' | 'top' | 'right' | 'bottom';
-            target: EventTarget;
-        }>
-    ) {
+    function doSwipe(event){
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
-        (refs as any).skip(event.detail.direction === 'right' ? -1 : 1);
+        (refs).skip(event.detail.direction === 'right' ? -1 : 1);
         if (prev !== $refs) {
             addHistory({
                 collection: $refs.collection,
@@ -73,7 +66,7 @@
     }
 
     function prevChapter() {
-        (refs as any).skip(-1);
+        (refs).skip(-1);
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
@@ -81,7 +74,7 @@
         });
     }
     function nextChapter() {
-        (refs as any).skip(1);
+        (refs).skip(1);
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
@@ -95,15 +88,7 @@
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
     let lastPinch = 1.0;
-    function doPinch(
-        event: CustomEvent<{
-            scale: number;
-            center: {
-                x: number;
-                y: number;
-            };
-        }>
-    ) {
+    function doPinch() {
         const currPinch = event.detail.scale;
         bodyFontSize.update((fontSize) => {
             if (Math.abs(currPinch - lastPinch) > 0.1) {
@@ -165,8 +150,8 @@
     const key = {};
 
     let group = 'default';
-    let scrollId: string;
-    let scrollMod: any;
+    let scrollId;
+    let scrollMod;
     const unSub = scrolls.subscribe((val, mod) => {
         scrollId = val;
         scrollMod = mod;
@@ -174,7 +159,7 @@
     onDestroy(unSub);
 
     /**scrolls element with id into view*/
-    const scrollTo = (id: string) => {
+    const scrollTo = (id) => {
         if (scrollMod === key) return;
         if (!id) return;
         document
@@ -187,7 +172,7 @@
 
     let lastVerseInView = '';
     const handleScroll = (() => {
-        let scrollTimer: NodeJS.Timeout;
+        let scrollTimer;
         return (trigger) => {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -216,7 +201,7 @@
 
     $: highlightColor = $themeColors['TextHighlightColor'];
     /**updates highlight*/
-    const updateHighlight = (elementIds, color: string) => {
+    const updateHighlight = (elementIds, color) => {
         let container = document.getElementsByClassName('container')[0];
         // Remove highlighting for currently highlighted verses
         const elements = container?.getElementsByClassName('highlighting');
@@ -268,6 +253,7 @@
                 <ChapterSelector />
             </div>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div
                 slot="right-buttons"
                 class="flex flex-nowrap"
@@ -295,6 +281,7 @@
                     <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
 
                     <!-- Text Appearance Selector Button -->
+                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <label
                         for="textAppearanceSelector"
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
@@ -311,6 +298,7 @@
 
                     <!-- Collection Selector Button -->
                     {#if showCollectionNavbar && enoughCollections}
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                         <label
                             for="collectionSelector"
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
@@ -341,6 +329,7 @@
     </div>
     {#if showCollectionViewer && enoughCollections}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
             class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
             style:top={navBarHeight}
