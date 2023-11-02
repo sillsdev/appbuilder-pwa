@@ -75,6 +75,7 @@ A component to display menu options in a grid.
         <div class="mx-2" style={headerStyle}>{group.header}</div>
     {/if}
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+    <!-- svelte-ignore a11y-interactive-supports-focus -->
     <div
         on:touchstart={handleHover}
         on:touchmove={handleTouchMove}
@@ -84,10 +85,12 @@ A component to display menu options in a grid.
         class="grid grid-cols-{cols} gap-1 m-2"
         class:grid-cols-5={cols == 5}
         class:grid-cols-6={cols == 6}
+        role="menu"
     >
         {#if group.rows}
             {#each group.rows as row}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-interactive-supports-focus -->
                 <span
                     on:click={() => handleClick(row.id)}
                     id={row.id}
@@ -98,6 +101,7 @@ A component to display menu options in a grid.
                     style:background-color={hovered === row.id
                         ? hoverColor
                         : bookCollectionColor(row.id, 'ui.button.chapter-intro')}
+                    role="button"
                 >
                     {row.label}
                 </span>
@@ -105,6 +109,7 @@ A component to display menu options in a grid.
         {/if}
         {#each group.cells as cell}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <span
                 on:click={() => handleClick(cell.id)}
                 id={cell.id}

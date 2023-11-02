@@ -25,6 +25,7 @@ Font list component.
         <!-- svelte-ignore a11y-missing-attribute -->
         <li style:font-family={font} style:font-size="large">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-interactive-supports-focus -->
             <a
                 on:click={() => handleClick(font)}
                 style:background-color={font === selectedFont
@@ -32,6 +33,7 @@ Font list component.
                     : ''}
                 style:color={$monoIconColor}
                 style:font-famly={font}
+                role="button"
             >
                 {config.fonts.find((x) => x.family === font).name}
             </a>

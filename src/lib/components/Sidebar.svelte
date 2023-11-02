@@ -76,7 +76,8 @@ The sidebar/drawer.
         <!-- Page content here -->
         <slot />
     </div>
-    <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer}>
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer} role="navigation">
         <div class="dy-drawer-overlay" />
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content"

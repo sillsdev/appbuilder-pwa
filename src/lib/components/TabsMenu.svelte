@@ -36,6 +36,7 @@ A component to display tabbed menus.
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-interactive-supports-focus -->
                 <a
                     on:click|preventDefault={() => setActive(opt)}
                     style:border-color={active === opt ? '#FFFFFF' : ''}
@@ -43,6 +44,7 @@ A component to display tabbed menus.
                         ? 'dy-tab-active'
                         : ''}"
                     style:background="none"
+                    role="button"
                 >
                     {#if options[opt].tab}
                         <svelte:component
