@@ -29,10 +29,12 @@ A component to display menu options in a list.
                     {#if ri * group.cells.length + ci < group.cells.length}
                         <tr>
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-interactive-supports-focus -->
                             <span
                                 on:click={() =>
                                     handleClick(group.cells[ri * group.cells.length + ci].id)}
                                 class="menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
+                                role="button"
                             >
                                 {group.cells[ri * group.cells.length + ci].label}
                             </span></tr

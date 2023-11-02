@@ -24,12 +24,14 @@ Custom list of collections for the LayoutOptions menu
         <!-- svelte-ignore a11y-missing-attribute -->
         <li>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-interactive-supports-focus -->
             <a
                 on:click={() => handleClick(d)}
                 style:background-color={selectedLayouts.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}
                 class="flex justify-between"
+                role="button"
             >
                 <div style={$s['ui.layouts.selector']}>
                     <div style={convertStyle($s['ui.layouts.title'])}>

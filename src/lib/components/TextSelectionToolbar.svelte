@@ -144,46 +144,58 @@ TODO:
             {#if showHightlightPens}
                 <div class="pen-grid grid grid-rows-1 gap-2 my-2">
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenYellow']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(1)}
+                        role="button"
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenGreen']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(2)}
+                        role="button"
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenBlue']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(3)}
+                        role="button"
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenOrange']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(4)}
+                        role="button"
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenPink']}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(5)}
+                        role="button"
                     />
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={'white'}
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(6)}
+                        role="button"
                     />
                 </div>
             {:else}
