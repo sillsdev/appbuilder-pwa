@@ -62,32 +62,26 @@ TODO:
 </script>
 
 <div class={audioBarClass} style:background-color={backgroundColor}>
-    <div class="dy-button-group audio-repeat">
-        {#if showRepeatMode}
-            <button
-                class="dy-btn-sm dy-btn-ghost"
-                on:click={() => playMode.next($refs.hasAudio?.timingFile)}
-            >
-                <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
-            </button>
-        {/if}
-    </div>
+    {#if showRepeatMode}
+        <button
+            class="audio-control-buttons"
+            on:click={() => playMode.next($refs.hasAudio?.timingFile)}
+        >
+            <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
+        </button>
+    {/if}
     <!-- Play Controls -->
-    <div class="dy-btn-group audio-controls" style:direction="ltr">
-        <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(-1)}>
+    <div class="audio-controls" style:direction="ltr">
+        <button class="audio-control-buttons" on:click={() => skip(-1)}>
             <AudioIcon.Prev color={iconColor} />
         </button>
 
         {#if $refs.hasAudio?.timingFile}
-            <button class="dy-btn-sm dy-btn-ghost" on:click={() => changeVerse(-1)}>
+            <button class="audio-control-buttons" on:click={() => changeVerse(-1)}>
                 <AudioIcon.RW color={iconColor} />
             </button>
         {/if}
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            class:dy-btn-lg={config.mainFeatures['audio-play-button-size'] === 'large'}
-            on:click={() => playPause()}
-        >
+        <button class="audio-control-buttons" on:click={() => playPause()}>
             {#if !$audioPlayer.playing}
                 <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
             {:else}
@@ -95,15 +89,15 @@ TODO:
             {/if}
         </button>
         {#if $refs.hasAudio?.timingFile}
-            <button class="dy-btn-sm dy-btn-ghost" on:click={() => changeVerse(1)}>
+            <button class="audio-control-buttons" on:click={() => changeVerse(1)}>
                 <AudioIcon.FF color={iconColor} />
             </button>
         {/if}
-        <button class="dy-btn-sm dy-btn-ghost" on:click={() => skip(1)}>
+        <button class="audio-control-buttons" on:click={() => skip(1)}>
             <AudioIcon.Skip color={iconColor} />
         </button>
     </div>
-    <div class="dy-button-group audio-speed">
+    <div class="audio-speed audio-control-buttons">
         {#if showSpeed}
             <AudioPlaybackSpeed />
         {/if}
@@ -163,10 +157,16 @@ TODO:
         place-self: center;
     }
     .audio-controls {
+        display: inline-flex;
         grid-row: 1;
         grid-column: 2;
         place-self: center;
         align-items: center;
+    }
+    .audio-control-buttons {
+        margin-inline-start: 12px;
+        margin-inline-end: 12px;
+        place-self: center;
     }
     .audio-speed {
         grid-row: 1;
