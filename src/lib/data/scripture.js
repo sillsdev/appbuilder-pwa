@@ -6,7 +6,7 @@ import { pk } from '$lib/data/stores/pk';
 import config from '$lib/data/config';
 // import { refs } from '$lib/data/stores/scripture';
 
-export async function initProskomma() {
+export async function initProskomma({ fetch }) {
     let proskomma = get(pk);
     if (!proskomma) {
         proskomma = new Proskomma();
@@ -15,14 +15,14 @@ export async function initProskomma() {
         if (!docSet) {
             docSet = config.bookCollections[0].languageCode + '_' + config.bookCollections[0].id;
         }
-        await loadDocSet(proskomma, docSet);
+        await loadDocSet(proskomma, docSet, fetch);
         pk.set(proskomma);
     }
 
     return proskomma;
 }
 
-export async function loadDocSet(proskomma, docSet) {
+export async function loadDocSet(proskomma, docSet, fetch) {
     performance.mark('pk-fetch-start');
     // console.log('fetch %o pkf', docSet);
     const res = await fetch(`${base}/collections/${docSet}.pkf`).then((r) => {
