@@ -106,7 +106,7 @@ The navbar component. We have sliders that update reactively to both font size a
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
                     <div class="grid gap-4 items-center range-row m-2">
-                        <TextAppearanceIcon color={$monoIconColor} size="1.5rem" />
+                        <TextAppearanceIcon color={$monoIconColor} />
                         <Slider
                             bind:value={$bodyFontSize}
                             {barColor}
@@ -121,7 +121,7 @@ The navbar component. We have sliders that update reactively to both font size a
                 {/if}
                 {#if showLineHeight}
                     <div class="grid gap-4 items-center range-row m-2">
-                        <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1.5rem" />
+                        <ImageIcon.FormatLineSpacing color={$monoIconColor} />
                         <Slider
                             bind:value={$bodyLineHeight}
                             {barColor}
@@ -136,7 +136,7 @@ The navbar component. We have sliders that update reactively to both font size a
                 {/if}
                 {#if showFonts}
                     <div class="grid gap-4 items-center range-row m-2">
-                        <ImageIcon.FontChoice color={$monoIconColor} size="1.5rem" />
+                        <ImageIcon.FontChoice color={$monoIconColor} />
                         <button
                             class="dy-btn-sm col-span-2 rounded"
                             style:border="1px dotted"
