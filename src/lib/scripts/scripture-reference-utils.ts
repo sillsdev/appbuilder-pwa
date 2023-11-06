@@ -36,35 +36,77 @@ export function parseText(text: string) {
     const docSet = ref.docSet;
     let book: string, chapter: string;
 
+    // Clean book titles to escape any characters that the regex would misrecognize
     for (const [key, value] of Object.entries(allBookNames)) {
         escapedBookNames[key] = (value as string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    // ToDo: List of verses separator parsing
+    /**
+     * The regex pattern follows this structure in which each element in parentheses is a capture group and where '?' means 0 or more occurances:
+     * (Book)? (Chapter1)?:(Verse1)?(roc|rov|lov)?(Chapter2|Verse2)?:(Verse2)?
+     *
+     * These capture groups are then organized into a match object:
+     * Reference = [OriginalString, Book, Chapter1, Verse1, range seperator | list seperator, Chapter2 | Verse2, Verse2]
+     *
+     * If they do not exist in the string their placements are filled with 'undefined'
+     * ex. John 3:16
+     * [
+     *    'John 3:16',
+     *    'John',
+     *    '3',
+     *    '16',
+     *    undefined,
+     *    undefined,
+     *    undefined,
+     *    ...
+     * ]
+     */
     const regex = new RegExp(
         `(${Object.values(escapedBookNames).join(
             '|'
-        )})?\\s?(\\d+)?${cvs}?(\\d+)?(${roc}|${rov})?(\\d+)?${cvs}?(\\d+)?`
+        )})?\\s?(\\d+)?${cvs}?(\\d+)?(${roc}|${rov}|${lov})?(\\d+)?${cvs}?(\\d+)?`
     );
 
+    // Iterate through elements of the reference string seperated by the chapter list seperator.
     for (const reference of text.split(`${cls} `).map((x) => x.match(regex))) {
+        console.log(reference);
         book = Object.keys(allBookNames).find((key) => allBookNames[key] === reference[1]) ?? book;
         chapter = reference[2] ?? chapter;
+
+        // Root reference
         subResult.push({
-            phrase: reference[0],
+            phrase: reference[0].split(`${lov}`)[0],
             docSet: docSet,
             book: book,
             chapter: chapter,
             verse: reference[3]
         });
-        if (reference[4] === rov || reference[4] === roc) {
-            subResult.push({
-                phrase: reference[0],
-                docSet: docSet,
-                book: book,
-                chapter: reference[6] ? reference[5] : chapter,
-                verse: reference[6] ?? reference[5]
-            });
+
+        // Additional reference cases
+        switch (reference[4]) {
+            case rov:
+            case roc:
+                subResult.push({
+                    phrase: reference[0],
+                    docSet: docSet,
+                    book: book,
+                    chapter: reference[6] ? reference[5] : chapter,
+                    verse: reference[6] ?? reference[5]
+                });
+                break;
+            case lov:
+                result.push(subResult);
+                subResult = [];
+                subResult.push({
+                    phrase: reference[0].split(`${lov}`)[1],
+                    docSet: docSet,
+                    book: book,
+                    chapter: chapter,
+                    verse: reference[5]
+                });
+                break;
+            default:
+                break;
         }
         result.push(subResult);
         subResult = [];

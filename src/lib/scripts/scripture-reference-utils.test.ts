@@ -102,7 +102,7 @@ describe('Scripture Reference Utilities', () => {
         });
 
         // John 3:16,17
-        test.todo(`with a reference containing a list of verses:\t\t${test4}`, () => {
+        test(`with a reference containing a list of verses:\t\t${test4}`, () => {
             const parts = test4.split(`${lov}`);
             expect(parseText(test4)).toStrictEqual([
                 [
@@ -120,7 +120,7 @@ describe('Scripture Reference Utilities', () => {
                         docSet: docSet,
                         book: 'JHN',
                         chapter: '3',
-                        verse: '16'
+                        verse: '17'
                     }
                 ]
             ]);
