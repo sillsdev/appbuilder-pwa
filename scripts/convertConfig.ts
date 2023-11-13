@@ -901,6 +901,25 @@ function convertConfig(dataDir: string, verbose: number) {
     };
     */
 
+    return filterFeaturesNotReady(data);
+}
+
+function filterFeaturesNotReady(data: ConfigData) {
+    // Search is not done
+    data.mainFeatures['search'] = false;
+
+    // User Accounts is not done
+    data.mainFeatures['user-accounts'] = false;
+
+    // Two pane and Verse-By-Verse are not done
+    if (data.layouts) {
+        for (const layout of data.layouts) {
+            if (layout.mode === 'two' || layout.mode === 'verse-by-verse') {
+                layout.enabled = false;
+            }
+        }
+    }
+
     return data;
 }
 
