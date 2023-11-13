@@ -382,7 +382,9 @@
             </div>
         </div>
     </div>
-    <StackView />
+    <div class="flex justify-center">
+        <StackView />
+    </div>
     {#if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
             <TextSelectionToolbar />

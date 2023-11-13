@@ -14,6 +14,9 @@ function createStack() {
         },
         pop: () => {
             external.set(get(external).slice(1));
+        },
+        reset: () => {
+            external.set([]);
         }
     };
 }
@@ -86,27 +89,36 @@ export function getReference(item) {
     return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
-export async function getVerseText(item) {
+export async function getVerseText(item, item2 = undefined) {
     const proskomma = get(pk);
-    const scriptureCV = `${item.chapter}:${item.verse}`;
+    const scriptureCV =
+        item2 !== undefined
+            ? item.chapter === item2.chapter
+                ? `${item.chapter}:${item.verse}-${item2.verse}`
+                : `${item.chapter}:${item.verse}-${item2.chapter}:${item2.verse}`
+            : `${item.chapter}:${item.verse}`;
+    console.log('getVerseText', scriptureCV);
     const query = `{
-        docSet (id: "${item.docSet}") {
-            document(bookCode:"${item.book}") {
-                mainSequence {
-                    blocks(withScriptureCV: "${scriptureCV}") {
-                        text(withScriptureCV: "${scriptureCV}" normalizeSpace:true )
-                    }
-                }
-            }
-        }
-    }`;
+      docSet (id: "${item.docSet}") {
+          document(bookCode:"${item.book}") {
+              mainSequence {
+                  blocks(withScriptureCV: "${scriptureCV}") {
+                      text(withScriptureCV: "${scriptureCV}" normalizeSpace:true )
+                  }
+              }
+          }
+      }
+  }`;
+    console.log(query);
 
     const { data } = await proskomma.gqlQuery(query);
-    const block = data.docSet.document.mainSequence.blocks[0];
-    if (block === null) {
-        return '';
+    let text = [];
+    for (const block of data.docSet.document.mainSequence.blocks) {
+        if (block.text) {
+            text.push(block.text);
+        }
     }
-    return block.text;
+    return text.join(' ');
 }
 
 export const currentFont = writable(config.fonts[0].family);

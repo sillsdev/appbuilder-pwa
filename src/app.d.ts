@@ -8,11 +8,20 @@ declare namespace App {
     // interface Platform {}
     // interface Session {}
     // interface Stuff {}
+
+    interface Reference {
+        docSet: string;
+        book: string;
+        chapter: string;
+        verse: string;
+    }
+
     interface Paragraph {
         [key: number]: {
             [key: string]: string;
         };
     }
+
     interface BibleText {
         title: string;
         book: string;
@@ -20,6 +29,7 @@ declare namespace App {
         bookmark: string;
         paragraphs: Paragraph[];
     }
+
     interface Highlight {
         id: string;
         reference: string;

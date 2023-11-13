@@ -40,6 +40,18 @@ Run `npm run build:examples` to build an app with the example data.
 The production build can be viewed by running `npm run preview`.
 The production build can be deployed to a public webserver for testing using [Surge](https://surge.sh).
 
+### Testing
+
+Scripture App Builder PWA uses [Vitest](https://vitest.dev/guide/) for unit tests. See that added test files and tests adhere to the [Front End Testing Style Guide](https://github.com/nikeshghimire77/unit-testing-styleguide).
+
+```bash
+├── scripts
+│   ├── scripture-reference-utils.test.ts
+│   └── scripture-reference-utils.ts
+```
+
+Run `npm test` to run created test files.
+
 ### Deployment
 
 This project is configured by default with the static adaptor, which will allow deployment on any platform that requires a static site.

@@ -69,6 +69,9 @@ const config = {
                 rollupNodePolyFill()
             ]
         }
+    },
+    test: {
+        environment: 'jsdom'
     }
 };
 export default config;
