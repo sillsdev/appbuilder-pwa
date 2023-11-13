@@ -7,7 +7,7 @@
 import { get } from 'svelte/store';
 import { refs } from '$lib/data/stores';
 import { describe, test, expect } from 'vitest';
-import { parseText, allBookNames, cvs, rov, lov, roc, cls } from './scripture-reference-utils';
+import { parseText, allBookNames, cvs, rov, vls, roc, cls } from './scripture-reference-utils';
 
 describe('Scripture Reference Utilities', () => {
     describe('parseText()', () => {
@@ -20,11 +20,13 @@ describe('Scripture Reference Utilities', () => {
         const test1 = `${book1} 3${cvs}16`; // John 3:16
         const test2 = `${book1} 3${cvs}16${cls} 3${cvs}17`; // John 3:16; 3:17
         const test3 = `${book1} 3${cvs}16${rov}17`; // John 3:16-17
-        const test4 = `${book1} 3${cvs}16${lov}17`; // John 3:16,17
+        const test4 = `${book1} 3${cvs}16${vls}17`; // John 3:16,17
         const test5 = `${book1} 3${cvs}16${cls} 3${cvs}17${rov}18`; // John 3:16; 3:17-18
         const test6 = `${book1} 3${cvs}16${cls} 3${cvs}17${cls} ${book2} 1${cvs}1`; // John 3:16; 3:17; 1 Corinthians 1:1
         const test7 = `${book1} 3${cvs}16${roc}5${cvs}13${cls} 32${cvs}6${rov}9`; // John 3:16-5:13; 32:6-9
         const test8 = `${book3} 6`; // Jude 6
+        const test9 = `${book1} 3${cvs}16${vls}17${vls}18${vls}19`; // John 3:16,17,18,19
+        const test10 = `${book1} 3${cvs}16${vls}17${vls}18${vls}19`; // John 3:16,19-4:1,2-3
 
         test(`with a simple book and chapter reference:\t\t${test0}`, () => {
             expect(parseText(test0)).toStrictEqual([
@@ -103,7 +105,7 @@ describe('Scripture Reference Utilities', () => {
 
         // John 3:16,17
         test(`with a reference containing a list of verses:\t\t${test4}`, () => {
-            const parts = test4.split(`${lov}`);
+            const parts = test4.split(`${vls}`);
             expect(parseText(test4)).toStrictEqual([
                 [
                     {
@@ -240,6 +242,49 @@ describe('Scripture Reference Utilities', () => {
                         book: 'JUD',
                         chapter: '1',
                         verse: '6'
+                    }
+                ]
+            ]);
+        });
+
+        // John 3:16,17,18,19
+        test(`with a long list of verses in a reference:\t\t${test9}`, () => {
+            const parts = test9.split(`${vls}`);
+            expect(parseText(test4)).toStrictEqual([
+                [
+                    {
+                        phrase: parts[0],
+                        docSet: docSet,
+                        book: 'JHN',
+                        chapter: '3',
+                        verse: '16'
+                    }
+                ],
+                [
+                    {
+                        phrase: parts[1],
+                        docSet: docSet,
+                        book: 'JHN',
+                        chapter: '3',
+                        verse: '17'
+                    }
+                ],
+                [
+                    {
+                        phrase: parts[2],
+                        docSet: docSet,
+                        book: 'JHN',
+                        chapter: '3',
+                        verse: '18'
+                    }
+                ],
+                [
+                    {
+                        phrase: parts[3],
+                        docSet: docSet,
+                        book: 'JHN',
+                        chapter: '3',
+                        verse: '19'
                     }
                 ]
             ]);

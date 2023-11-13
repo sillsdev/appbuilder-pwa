@@ -19,9 +19,9 @@ export const features: any = collection.features;
 
 export const cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
 export const rov = features['ref-verse-range-separator']; // Range of verses separator
-export const lov = features['ref-verse-list-separator']; // List of verses separator
 export const roc = features['ref-chapter-range-separator']; // Range of chapters separator
 export const cls = features['ref-chapter-list-separator']; // Chapter list separator
+export const vls = features['ref-verse-list-separator']; // Verse list separator
 
 /**
  * Function for taking an input string of references
@@ -43,10 +43,10 @@ export function parseText(text: string) {
 
     /**
      * The regex pattern follows this structure in which each element in parentheses is a capture group and where '?' means 0 or more occurances:
-     * (Book)? (Chapter1)?:(Verse1)?(roc|rov|lov)?(Chapter2|Verse2)?:(Verse2)?
+     * (Book)? (Chapter1)?:(Verse1)?(roc|rov)?(Chapter2|Verse2)?:(Verse2)?
      *
      * These capture groups are then organized into a match object:
-     * Reference = [OriginalString, Book, Chapter1, Verse1, range seperator | list seperator, Chapter2 | Verse2, Verse2]
+     * Reference = [OriginalString, Book, Chapter1, Verse1, range separator | list separator, Chapter2 | Verse2, Verse2]
      *
      * If they do not exist in the string their placements are filled with 'undefined'
      * ex. John 3:16
@@ -61,52 +61,37 @@ export function parseText(text: string) {
      *    ...
      * ]
      */
-    const regex = new RegExp(
+    const referenceRegex = new RegExp(
         `(${Object.values(escapedBookNames).join(
             '|'
-        )})?\\s?(\\d+)?${cvs}?(\\d+)?(${roc}|${rov}|${lov})?(\\d+)?${cvs}?(\\d+)?`
+        )})?\\s?(\\d+)?${cvs}?(\\d+)?(${roc}|${rov})?(\\d+)?${cvs}?(\\d+)?`
     );
+    const refSeparatorRegex = new RegExp(`${cls}\\s|${vls}`);
 
-    // Iterate through elements of the reference string seperated by the chapter list seperator.
-    for (const reference of text.split(`${cls} `).map((x) => x.match(regex))) {
+    // Iterate through elements of the reference string seperated by the chapter list separator.
+    for (const reference of text.split(`${cls} `).map((x) => x.match(referenceRegex))) {
         console.log(reference);
         book = Object.keys(allBookNames).find((key) => allBookNames[key] === reference[1]) ?? book;
         chapter = reference[2] ?? chapter;
 
-        // Root reference
+        // root reference
         subResult.push({
-            phrase: reference[0].split(`${lov}`)[0],
+            phrase: reference[0].split(vls)[0],
             docSet: docSet,
             book: book,
             chapter: chapter,
             verse: reference[3]
         });
 
-        // Additional reference cases
-        switch (reference[4]) {
-            case rov:
-            case roc:
-                subResult.push({
-                    phrase: reference[0],
-                    docSet: docSet,
-                    book: book,
-                    chapter: reference[6] ? reference[5] : chapter,
-                    verse: reference[6] ?? reference[5]
-                });
-                break;
-            case lov:
-                result.push(subResult);
-                subResult = [];
-                subResult.push({
-                    phrase: reference[0].split(`${lov}`)[1],
-                    docSet: docSet,
-                    book: book,
-                    chapter: chapter,
-                    verse: reference[5]
-                });
-                break;
-            default:
-                break;
+        // Separator cases
+        if (reference[4] === rov || reference[4] === roc) {
+            subResult.push({
+                phrase: reference[0],
+                docSet: docSet,
+                book: book,
+                chapter: reference[6] ? reference[5] : chapter,
+                verse: reference[6] ?? reference[5]
+            });
         }
         result.push(subResult);
         subResult = [];
