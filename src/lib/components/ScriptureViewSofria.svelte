@@ -514,6 +514,11 @@ TODO:
                             workspace.tableCellElement = null;
                             workspace.rowCellNumber = 0;
                             deselectAllElements(selectedVerses);
+
+                            const div = document.createElement('div');
+                            div.setAttribute('data-verse', 'start');
+                            div.setAttribute('data-phrase', 'none');
+                            workspace.root.append(div);
                         }
                     }
                 ],

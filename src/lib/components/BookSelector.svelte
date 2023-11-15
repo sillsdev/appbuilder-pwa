@@ -80,7 +80,7 @@ The navbar component.
     }
 
     async function completeNavigation() {
-        $refs = { book: $nextRef.book, chapter: $nextRef.chapter };
+        $refs = { book: $nextRef.book, chapter: $nextRef.chapter, verse: $nextRef.verse };
         addHistory({
             collection: $refs.collection,
             book: $nextRef.book,

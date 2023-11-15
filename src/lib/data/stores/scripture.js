@@ -34,12 +34,14 @@ const initReference =
     '_' +
     config.bookCollections[0].id +
     '.' +
-    startReference;
+    startReference +
+    '.' +
+    '1';
 setDefaultStorage('refs', initReference);
 
 export const refs = referenceStore(localStorage.refs);
 refs.subscribe((value) => {
-    localStorage.refs = value.docSet + '.' + value.book + '.' + value.chapter;
+    localStorage.refs = value.docSet + '.' + value.book + '.' + value.chapter + '.' + value.verse;
 });
 
 function createNextRef() {

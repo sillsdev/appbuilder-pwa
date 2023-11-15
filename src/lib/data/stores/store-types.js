@@ -3,22 +3,22 @@ import { catalog } from '../catalog';
 import config from '../config';
 
 export function parseReference(ref) {
-    if (!ref) return { docSet: '', book: '', chapter: '' };
+    if (!ref) return { docSet: '', book: '', chapter: '', verse: '' };
     const parts = ref.split('.');
     if (parts.length === 2) {
         // After everyone has converted to full references, remove this check
         const defaultDocSet =
             config.bookCollections[0].languageCode + '_' + config.bookCollections[0].id;
-        return { docSet: defaultDocSet, book: parts[0], chapter: parts[1] };
+        return { docSet: defaultDocSet, book: parts[0], chapter: parts[1], verse: '1' };
     }
-    return { docSet: parts[0], book: parts[1], chapter: parts[2] };
+    return { docSet: parts[0], book: parts[1], chapter: parts[2], verse: '1' };
 }
 
 /**stores references and some useful derived information.*/
 export const referenceStore = (initReference) => {
-    const internal = writable({ ds: '', b: '', c: '', n: 0 });
+    const internal = writable({ ds: '', b: '', c: '', v: '', n: 0 });
     /**sets internal state based on info available in catalog*/
-    const setInternal = ({ docSet, book, chapter }) => {
+    const setInternal = ({ docSet, book, chapter, verse }) => {
         const original = get(internal);
         const docSets = catalog.map((ds) => ds.id);
         if (!docSet || !docSets.includes(docSet))
@@ -42,6 +42,7 @@ export const referenceStore = (initReference) => {
             ds: docSet,
             b: book,
             c: chapter,
+            v: verse,
             n: length
         });
     };
@@ -53,6 +54,7 @@ export const referenceStore = (initReference) => {
         collection: $internal.ds.split('_')[1],
         book: $internal.b,
         chapter: $internal.c,
+        verse: $internal.v,
         chapterVerses: `${$internal.c}:1-${$internal.n}`,
         numVerses: $internal.n,
         hasAudio:

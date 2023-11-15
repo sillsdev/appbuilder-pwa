@@ -30,7 +30,7 @@
         NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
-    import { updateAudioPlayer } from '$lib/data/audio';
+    import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
     import { parseReference } from '$lib/data/stores/store-types';
     import {
         AudioIcon,
@@ -133,6 +133,8 @@
     };
 
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    let scrollingDiv;
+
     let showOverlowMenu = false; //Controls the visibility of the extraButtons div on mobile
     function handleMenuClick(event) {
         showOverlowMenu = false;
@@ -155,13 +157,17 @@
     const unSub = scrolls.subscribe((val, mod) => {
         scrollId = val;
         scrollMod = mod;
+        console.log("View ScrollID ID " + scrollId);
     }, group);
     onDestroy(unSub);
 
     /**scrolls element with id into view*/
     const scrollTo = (id) => {
+        console.log("View scrollto: %s", id);
         if (scrollMod === key) return;
         if (!id) return;
+        let queryId = `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`;
+        console.log("View query: %s", queryId);
         document
             .querySelector(
                 `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
@@ -170,9 +176,43 @@
     };
     $: scrollTo(scrollId);
 
+    const updateScroll = (() => {
+        console.log("Got here too")
+        let updateTimer;
+        return () => {
+            console.log("Got to return");
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(() => {
+                console.log("View main: %d %d", scrollingDiv.scrollTop, scrollingDiv.clientHeight);
+                $mainScroll = { top: scrollingDiv.scrollTop, height: scrollingDiv.clientHeight };
+            }, 50);
+        };
+    })();
+
+    /**Scroll to start of chapter when reference changes*/
+    const newRefScroll = (() => {
+        let updateTimer;
+        return () => {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(() => {
+                let verse = $refs.verse;
+                if (verse === '' || verse === '1') {
+                    scrolls.set("start-none");
+                } else {
+                    let verseID = verse + '-a';
+                    let audioID = verse + 'a';
+                    scrolls.set(verseID);
+                    seekToVerse(audioID);
+                }
+            }, 500);
+        };
+    })();
+
+
     let lastVerseInView = '';
     const handleScroll = (() => {
         let scrollTimer;
+        console.log("handleScroll");
         return (trigger) => {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -182,7 +222,9 @@
                         const win = document
                             .getElementsByClassName('container')[0]
                             ?.getBoundingClientRect();
-
+                        console.log("HandleScroll %d %d %d %d %d", rect.top, rect.bottom, win.top, $mainScroll.top, $mainScroll.height);
+                        console.log("HandleScroll " + (rect.top - win.top >= $mainScroll.top &&
+                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top));
                         return (
                             rect.top - win.top >= $mainScroll.top &&
                             rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
@@ -191,15 +233,17 @@
                     .map(
                         (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
                     );
-
+                console.log("View scrolls set: %o %o %o", items[0], group, key);
                 scrolls.set(items[0], group, key);
                 lastVerseInView = items.pop();
+                console.log("LVIV: " + lastVerseInView);
             }, 500);
         };
     })();
     $: handleScroll([$mainScroll, $refs]);
 
     $: highlightColor = $themeColors['TextHighlightColor'];
+    let currentVerse = "";
     /**updates highlight*/
     const updateHighlight = (elementIds, color) => {
         let container = document.getElementsByClassName('container')[0];
@@ -219,20 +263,25 @@
             }
             element.setAttribute('style', 'background-color: ' + color + ';');
             element.classList.add('highlighting');
+            const verseSegment = `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}`;
+            if (verseSegment !== currentVerse) {
+                currentVerse = verseSegment;
+                if (
+                    `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}` ===
+                    lastVerseInView
+                    ) {
+                    element?.scrollIntoView();
+                }
+            }
         }
-
-        // todo implement scrolling
-        // if (
-        //     `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
-        //     lastVerseInView
-        // )
-        //     el?.scrollIntoView();
     };
 
     $: updateHighlight($audioHighlightElements, highlightColor);
     $: updateAudioPlayer($refs);
+    $: newRefScroll($refs);
     const navBarHeight = NAVBAR_HEIGHT;
     onMount(() => {
+        updateScroll();
         if ($firstLaunch) {
             if (showCollectionsOnFirstLaunch && enoughCollections) {
                 modal.open(MODAL_COLLECTION);
@@ -340,7 +389,7 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto">
+    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv} on:scroll={updateScroll}>
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button

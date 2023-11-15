@@ -47,7 +47,8 @@ The navbar component.
     }
 
     function completeNavigation() {
-        $refs.chapter = $nextRef.chapter;
+        $refs = { chapter: $nextRef.chapter, verse: $nextRef.verse };
+        
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
