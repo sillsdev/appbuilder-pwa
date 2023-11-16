@@ -144,7 +144,7 @@ export function seek(position) {
     if (currentAudioPlayer.audio) {
         currentAudioPlayer.audio.currentTime = position;
     } else {
-        console.log("audio seek: current audio player audio missing ");
+        console.log('audio seek: current audio player audio missing ');
     }
     currentAudioPlayer.progress = position;
     playMode.set({ ...currentPlayMode, range: getCurrentVerseTiming() });
