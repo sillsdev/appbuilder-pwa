@@ -186,7 +186,7 @@
         clearTimeout(updateTimer);
         updateTimer = setTimeout(() => {
             seekToVerse(id);
-        }, 1500);    
+        }, 1000);    
     };
     /**Scroll to start of chapter when reference changes*/
     const newRefScroll = (() => {
