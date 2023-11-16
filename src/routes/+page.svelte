@@ -2,7 +2,6 @@
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
-    import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioPlayer,
         audioActive,
@@ -398,22 +397,23 @@
                 </button>
             </div>
             <div class="basis-5/6 max-w-screen-md">
-                <ScrolledContent>
-                    <div
-                        slot="scrolled-content"
-                        class="max-w-screen-md mx-auto"
-                        use:pinch
-                        on:pinch={doPinch}
-                        use:swipe={{
-                            timeframe: 300,
-                            minSwipeDistance: 60,
-                            touchAction: 'pan-y'
-                        }}
-                        on:swipe={doSwipe}
-                    >
-                        <ScriptureViewSofria {...viewSettings} />
-                    </div>
-                </ScrolledContent>
+                <div class="p-2 w-full">
+                    <main>
+                        <div
+                            class="max-w-screen-md mx-auto"
+                            use:pinch
+                            on:pinch={doPinch}
+                            use:swipe={{
+                                timeframe: 300,
+                                minSwipeDistance: 60,
+                                touchAction: 'pan-y'
+                            }}
+                            on:swipe={doSwipe}
+                        >
+                            <ScriptureViewSofria {...viewSettings} />
+                        </div>
+                    </main>
+                </div>
             </div>
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
