@@ -157,17 +157,13 @@
     const unSub = scrolls.subscribe((val, mod) => {
         scrollId = val;
         scrollMod = mod;
-        console.log("View ScrollID ID " + scrollId);
     }, group);
     onDestroy(unSub);
 
     /**scrolls element with id into view*/
     const scrollTo = (id) => {
-        console.log("View scrollto: %s", id);
         if (scrollMod === key) return;
         if (!id) return;
-        let queryId = `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`;
-        console.log("View query: %s", queryId);
         document
             .querySelector(
                 `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
@@ -177,18 +173,22 @@
     $: scrollTo(scrollId);
 
     const updateScroll = (() => {
-        console.log("Got here too")
         let updateTimer;
         return () => {
-            console.log("Got to return");
             clearTimeout(updateTimer);
             updateTimer = setTimeout(() => {
-                console.log("View main: %d %d", scrollingDiv.scrollTop, scrollingDiv.clientHeight);
                 $mainScroll = { top: scrollingDiv.scrollTop, height: scrollingDiv.clientHeight };
             }, 50);
         };
     })();
 
+    function delayedSeek(id) {
+        let updateTimer;
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(() => {
+            seekToVerse(id);
+        }, 1500);    
+    };
     /**Scroll to start of chapter when reference changes*/
     const newRefScroll = (() => {
         let updateTimer;
@@ -202,17 +202,16 @@
                     let verseID = verse + '-a';
                     let audioID = verse + 'a';
                     scrolls.set(verseID);
-                    seekToVerse(audioID);
+                    updateAudioPlayer($refs);
+                    delayedSeek(audioID);
                 }
-            }, 500);
+            }, 50);
         };
     })();
-
 
     let lastVerseInView = '';
     const handleScroll = (() => {
         let scrollTimer;
-        console.log("handleScroll");
         return (trigger) => {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -222,9 +221,6 @@
                         const win = document
                             .getElementsByClassName('container')[0]
                             ?.getBoundingClientRect();
-                        console.log("HandleScroll %d %d %d %d %d", rect.top, rect.bottom, win.top, $mainScroll.top, $mainScroll.height);
-                        console.log("HandleScroll " + (rect.top - win.top >= $mainScroll.top &&
-                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top));
                         return (
                             rect.top - win.top >= $mainScroll.top &&
                             rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
@@ -233,10 +229,8 @@
                     .map(
                         (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
                     );
-                console.log("View scrolls set: %o %o %o", items[0], group, key);
                 scrolls.set(items[0], group, key);
                 lastVerseInView = items.pop();
-                console.log("LVIV: " + lastVerseInView);
             }, 500);
         };
     })();
@@ -270,7 +264,9 @@
                     `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}` ===
                     lastVerseInView
                     ) {
-                    element?.scrollIntoView();
+                    element?.scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 }
             }
         }

@@ -10,17 +10,12 @@
         const r = main.getBoundingClientRect();
         const t = r.top;
         const b = r.bottom;
-        let value = Math.max(0, t > 0 ? Math.min(elH, H - t) : Math.min(b, H))
-        console.log("inViewport %d %d %d %d %d %d", elH, H, r, t, b, value );
-
         return [-t, Math.max(0, t > 0 ? Math.min(elH, H - t) : Math.min(b, H))];
     }
     export var updated = false;
     export const updateScroll = (() => {
-        console.log("Got here");
         let updateTimer: NodeJS.Timeout;
         return () => {
-            console.log("Got there");
             clearTimeout(updateTimer);
             updateTimer = setTimeout(() => {
                 // let viewVal = inViewport();

@@ -141,7 +141,9 @@ export function changeVerse(direction) {
 export function seek(position) {
     const playing = currentAudioPlayer.playing;
     pause();
-    currentAudioPlayer.audio.currentTime = position;
+    if (currentAudioPlayer.audio) {
+        currentAudioPlayer.audio.currentTime = position;
+    }
     currentAudioPlayer.progress = position;
     playMode.set({ ...currentPlayMode, range: getCurrentVerseTiming() });
     audioPlayerStore.set(currentAudioPlayer);
