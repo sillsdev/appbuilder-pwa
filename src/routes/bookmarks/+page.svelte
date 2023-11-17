@@ -76,6 +76,7 @@
                 collection: b.collection,
                 book: b.book,
                 chapter: b.chapter,
+                verse: b.verse,
                 reference: b.reference,
                 text: b.text,
                 date: formatDate(new Date(b.date)),

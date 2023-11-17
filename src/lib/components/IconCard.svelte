@@ -13,13 +13,14 @@ TODO:
     export let collection = '';
     export let book = '';
     export let chapter = '';
+    export let verse = '';
     export let reference = '';
     export let text = '';
     export let date = '';
     export let actions = [''];
     export let src = '';
     export let alt = '';
-
+console.log("IconCard book: %o chapter: %o reference: %o", book, chapter, reference);
     const bc = config.bookCollections.find((x) => x.id === collection);
     const textDirection = bc.style.textDirection;
     $: justifyEnd = textDirection.toLowerCase() === 'rtl' && $direction === 'ltr';
@@ -41,7 +42,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter })}
+                on:click={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
             </a>
@@ -55,7 +56,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter })}
+                on:click={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {text}
             </a>
