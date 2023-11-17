@@ -394,7 +394,10 @@ export function seekToVerse(verseClicked) {
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
-        if (verseClicked === tag) {
+        // Handle timing tags that are just the verse number
+        let containsAlpha = /[a-z]/.test(tag);
+        const adjustedTag = containsAlpha ? tag : tag + 'a';
+        if (verseClicked === adjustedTag) {
             const newtime = currentAudioPlayer.timing[i].starttime;
             seek(newtime);
             break;

@@ -171,16 +171,6 @@
     };
     $: scrollTo(scrollId);
 
-    const updateScroll = (() => {
-        let updateTimer;
-        return () => {
-            clearTimeout(updateTimer);
-            updateTimer = setTimeout(() => {
-                $mainScroll = { top: scrollingDiv.scrollTop, height: scrollingDiv.clientHeight };
-            }, 50);
-        };
-    })();
-
     function delayedSeek(id) {
         let updateTimer;
         clearTimeout(updateTimer);
@@ -207,34 +197,21 @@
             }, 50);
         };
     })();
-
     let lastVerseInView = '';
-    const handleScroll = (() => {
-        let scrollTimer;
-        return (trigger) => {
-            clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(() => {
-                const items = Array.from(document.getElementsByClassName('scroll-item'))
-                    .filter((it, i) => {
-                        const rect = it.getBoundingClientRect();
-                        const win = document
-                            .getElementsByClassName('container')[0]
-                            ?.getBoundingClientRect();
-                        return (
-                            rect.top - win.top >= $mainScroll.top &&
-                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
-                        );
-                    })
-                    .map(
-                        (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
-                    );
-                scrolls.set(items[0], group, key);
-                lastVerseInView = items.pop();
-            }, 500);
-        };
-    })();
-    $: handleScroll([$mainScroll, $refs]);
-
+    function elementIsVisible(el) {
+        var value = true;
+        if (el.classList.contains('scroll-item')) {
+            const rect = el.getBoundingClientRect();
+            const win = document
+                        .getElementsByClassName('container')[0]
+                        ?.getBoundingClientRect();
+            const scrollTop = scrollingDiv.scrollTop;
+            const scrollHeight = scrollingDiv.clientHeight;
+            value = rect.top - win.top >= scrollTop &&
+                    rect.bottom - win.top <= scrollHeight + scrollTop;
+        }
+        return value;
+    }
     $: highlightColor = $themeColors['TextHighlightColor'];
     let currentVerse = "";
     /**updates highlight*/
@@ -250,7 +227,9 @@
         }
 
         for (const elementId of elementIds) {
-            const element = document.getElementById(elementId);
+            let containsAlpha = /[a-z]/.test(elementId);
+            const adjustedId = containsAlpha ? elementId : elementId + 'a';
+            const element = document.getElementById(adjustedId);
             if (element === null) {
                 break;
             }
@@ -259,10 +238,7 @@
             const verseSegment = `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}`;
             if (verseSegment !== currentVerse) {
                 currentVerse = verseSegment;
-                if (
-                    `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}` ===
-                    lastVerseInView
-                    ) {
+                if (!elementIsVisible(element)) {
                     element?.scrollIntoView({
                         behavior: 'smooth'
                     });
@@ -276,7 +252,6 @@
     $: newRefScroll($refs);
     const navBarHeight = NAVBAR_HEIGHT;
     onMount(() => {
-        updateScroll();
         if ($firstLaunch) {
             if (showCollectionsOnFirstLaunch && enoughCollections) {
                 modal.open(MODAL_COLLECTION);
@@ -384,7 +359,7 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv} on:scroll={updateScroll}>
+    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv}>
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
