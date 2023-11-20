@@ -197,9 +197,7 @@
             }, 50);
         };
     })();
-    let lastVerseInView = '';
-    function elementIsVisible(el) {
-        var value = true;
+    function makeElementVisible(el) {
         if (el.classList.contains('scroll-item')) {
             const rect = el.getBoundingClientRect();
             const win = document
@@ -207,10 +205,12 @@
                         ?.getBoundingClientRect();
             const scrollTop = scrollingDiv.scrollTop;
             const scrollHeight = scrollingDiv.clientHeight;
-            value = rect.top - win.top >= scrollTop &&
-                    rect.bottom - win.top <= scrollHeight + scrollTop;
+            const isVisible = rect.top - win.top - 30 >= scrollTop &&
+                    rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
+            if (!isVisible) {
+                scrollingDiv.scrollTo({top: rect.top -win.top - 30, behavior: "smooth"});
+            }
         }
-        return value;
     }
     $: highlightColor = $themeColors['TextHighlightColor'];
     let currentVerse = "";
@@ -238,11 +238,7 @@
             const verseSegment = `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}`;
             if (verseSegment !== currentVerse) {
                 currentVerse = verseSegment;
-                if (!elementIsVisible(element)) {
-                    element?.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
+                makeElementVisible(element);
             }
         }
     };
