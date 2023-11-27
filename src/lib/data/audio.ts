@@ -141,7 +141,11 @@ export function changeVerse(direction) {
 export function seek(position) {
     const playing = currentAudioPlayer.playing;
     pause();
-    currentAudioPlayer.audio.currentTime = position;
+    if (currentAudioPlayer.audio) {
+        currentAudioPlayer.audio.currentTime = position;
+    } else {
+        console.log('audio seek: current audio player audio missing ');
+    }
     currentAudioPlayer.progress = position;
     playMode.set({ ...currentPlayMode, range: getCurrentVerseTiming() });
     audioPlayerStore.set(currentAudioPlayer);
@@ -390,7 +394,10 @@ export function seekToVerse(verseClicked) {
     const elements = currentAudioPlayer.timing;
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
-        if (verseClicked === tag) {
+        // Handle timing tags that are just the verse number
+        let containsAlpha = /[a-z]/.test(tag);
+        const adjustedTag = containsAlpha ? tag : tag + 'a';
+        if (verseClicked === adjustedTag) {
             const newtime = currentAudioPlayer.timing[i].starttime;
             seek(newtime);
             break;

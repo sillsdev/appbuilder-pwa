@@ -81,6 +81,7 @@
                 docSet: h.docSet,
                 book: h.book,
                 chapter: h.chapter,
+                verse: h.verse,
                 reference: h.reference,
                 text: h.text,
                 date: formatDate(new Date(h.date)),

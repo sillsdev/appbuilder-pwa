@@ -14,6 +14,7 @@ TODO:
     export let reference = '';
     export let text = '';
     export let date = '';
+    export let verse = '';
     export let actions = [''];
     export let penColor = 1;
 </script>
@@ -25,7 +26,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter })}
+                on:click={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
             </a>
@@ -35,7 +36,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter })}
+                on:click={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {text}
             </a>

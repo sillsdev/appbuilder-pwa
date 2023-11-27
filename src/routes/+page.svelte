@@ -2,7 +2,6 @@
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
-    import ScrolledContent from '$lib/components/ScrolledContent.svelte';
     import {
         audioPlayer,
         audioActive,
@@ -30,7 +29,7 @@
         NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
-    import { updateAudioPlayer } from '$lib/data/audio';
+    import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
     import { parseReference } from '$lib/data/stores/store-types';
     import {
         AudioIcon,
@@ -133,6 +132,8 @@
     };
 
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    let scrollingDiv;
+
     let showOverlowMenu = false; //Controls the visibility of the extraButtons div on mobile
     function handleMenuClick(event) {
         showOverlowMenu = false;
@@ -170,36 +171,49 @@
     };
     $: scrollTo(scrollId);
 
-    let lastVerseInView = '';
-    const handleScroll = (() => {
-        let scrollTimer;
-        return (trigger) => {
-            clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(() => {
-                const items = Array.from(document.getElementsByClassName('scroll-item'))
-                    .filter((it, i) => {
-                        const rect = it.getBoundingClientRect();
-                        const win = document
-                            .getElementsByClassName('container')[0]
-                            ?.getBoundingClientRect();
-
-                        return (
-                            rect.top - win.top >= $mainScroll.top &&
-                            rect.bottom - win.top <= $mainScroll.height + $mainScroll.top
-                        );
-                    })
-                    .map(
-                        (el) => `${el.getAttribute('data-verse')}-${el.getAttribute('data-phrase')}`
-                    );
-
-                scrolls.set(items[0], group, key);
-                lastVerseInView = items.pop();
-            }, 500);
+    function delayedSeek(id) {
+        let updateTimer;
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(() => {
+            seekToVerse(id);
+        }, 1000);    
+    };
+    /**Scroll to start of chapter when reference changes*/
+    const newRefScroll = (() => {
+        let updateTimer;
+        return () => {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(() => {
+                let verse = $refs.verse;
+                if (verse === '' || verse === '1') {
+                    scrolls.set("start-none");
+                } else {
+                    let verseID = verse + '-a';
+                    let audioID = verse + 'a';
+                    scrolls.set(verseID);
+                    updateAudioPlayer($refs);
+                    delayedSeek(audioID);
+                }
+            }, 50);
         };
     })();
-    $: handleScroll([$mainScroll, $refs]);
-
+    function makeElementVisible(el) {
+        if (el.classList.contains('scroll-item')) {
+            const rect = el.getBoundingClientRect();
+            const win = document
+                        .getElementsByClassName('container')[0]
+                        ?.getBoundingClientRect();
+            const scrollTop = scrollingDiv.scrollTop;
+            const scrollHeight = scrollingDiv.clientHeight;
+            const isVisible = rect.top - win.top - 30 >= scrollTop &&
+                    rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
+            if (!isVisible) {
+                scrollingDiv.scrollTo({top: rect.top -win.top - 30, behavior: "smooth"});
+            }
+        }
+    }
     $: highlightColor = $themeColors['TextHighlightColor'];
+    let currentVerse = "";
     /**updates highlight*/
     const updateHighlight = (elementIds, color) => {
         let container = document.getElementsByClassName('container')[0];
@@ -213,24 +227,25 @@
         }
 
         for (const elementId of elementIds) {
-            const element = document.getElementById(elementId);
+            let containsAlpha = /[a-z]/.test(elementId);
+            const adjustedId = containsAlpha ? elementId : elementId + 'a';
+            const element = document.getElementById(adjustedId);
             if (element === null) {
                 break;
             }
             element.setAttribute('style', 'background-color: ' + color + ';');
             element.classList.add('highlighting');
+            const verseSegment = `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}`;
+            if (verseSegment !== currentVerse) {
+                currentVerse = verseSegment;
+                makeElementVisible(element);
+            }
         }
-
-        // todo implement scrolling
-        // if (
-        //     `${el?.getAttribute('data-verse')}-${el?.getAttribute('data-phrase')}` ===
-        //     lastVerseInView
-        // )
-        //     el?.scrollIntoView();
     };
 
     $: updateHighlight($audioHighlightElements, highlightColor);
     $: updateAudioPlayer($refs);
+    $: newRefScroll($refs);
     const navBarHeight = NAVBAR_HEIGHT;
     onMount(() => {
         if ($firstLaunch) {
@@ -340,7 +355,7 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto">
+    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv}>
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
@@ -353,22 +368,23 @@
                 </button>
             </div>
             <div class="basis-5/6 max-w-screen-md">
-                <ScrolledContent>
-                    <div
-                        slot="scrolled-content"
-                        class="max-w-screen-md mx-auto"
-                        use:pinch
-                        on:pinch={doPinch}
-                        use:swipe={{
-                            timeframe: 300,
-                            minSwipeDistance: 60,
-                            touchAction: 'pan-y'
-                        }}
-                        on:swipe={doSwipe}
-                    >
-                        <ScriptureViewSofria {...viewSettings} />
-                    </div>
-                </ScrolledContent>
+                <div class="p-2 w-full">
+                    <main>
+                        <div
+                            class="max-w-screen-md mx-auto"
+                            use:pinch
+                            on:pinch={doPinch}
+                            use:swipe={{
+                                timeframe: 300,
+                                minSwipeDistance: 60,
+                                touchAction: 'pan-y'
+                            }}
+                            on:swipe={doSwipe}
+                        >
+                            <ScriptureViewSofria {...viewSettings} />
+                        </div>
+                    </main>
+                </div>
             </div>
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button

@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     let main: HTMLElement;
 
-    const updateScroll = (() => {
+    export const updateScroll = (() => {
         let updateTimer: NodeJS.Timeout;
         return () => {
             clearTimeout(updateTimer);
@@ -16,7 +16,7 @@
     onMount(updateScroll);
 </script>
 
-<div class="p-2 w-full" bind:this={main} on:scroll={updateScroll}>
+<div class="p-2 w-full" bind:this={main} on:scroll={updateScroll} >
     <main>
         <slot name="scrolled-content" />
     </main>
