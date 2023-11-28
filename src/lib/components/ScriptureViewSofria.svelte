@@ -154,6 +154,8 @@ TODO:
     const addGraftText = (workspace, text) => {
         if (workspace.textType.includes('note_caller')) {
             workspace.footnoteDiv.setAttribute('nc', text);
+        } else if (workspace.usfmWrapperType === 'fig') {
+             // Ignore figure graft for now   
         } else {
             const div = addTextNode(workspace.footnoteDiv, text, workspace);
             workspace.footnoteDiv = div.cloneNode(true);
@@ -785,6 +787,9 @@ TODO:
                                         workspace.headerText += text;
                                         break;
                                     }
+                                    case 'fig': {
+                                        break;
+                                    }
                                     default: {
                                         const blockType = context.sequences[0].block.subType;
                                         if (
@@ -887,6 +892,9 @@ TODO:
                                         workspace.textType.push('introduction');
                                         break;
                                     }
+                                    case 'fig': {
+                                        workspace.textType.push('fig');
+                                    }
                                     default: {
                                         break;
                                     }
@@ -955,6 +963,14 @@ TODO:
                                             workspace.textType.pop();
                                         }
                                         break;
+                                    case 'fig': {
+                                        //const textTypeF = workspace.textType.pop();
+                                        // if (textTypeF != 'fig') {
+                                        //     console.log('Fig texttype mismatch!!! %o', textTypeF);
+                                        // }
+                                        workspace.textType.pop();
+                                        break;
+                                    }
                                     default: {
                                         break;
                                     }
