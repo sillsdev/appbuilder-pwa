@@ -894,6 +894,7 @@ TODO:
                                     }
                                     case 'fig': {
                                         workspace.textType.push('fig');
+                                        break;
                                     }
                                     default: {
                                         break;
