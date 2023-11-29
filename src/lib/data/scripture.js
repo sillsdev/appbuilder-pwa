@@ -40,7 +40,7 @@ export async function loadDocSet(proskomma, docSet, fetch) {
     }
 }
 
-export async function loadDocSetIfNotLoaded(proskomma, docSet) {
+export async function loadDocSetIfNotLoaded(proskomma, docSet, fetch) {
     performance.mark('pk-query-docset-start');
     const docslist = await proskomma.gqlQuery('{docSets { id } }');
     performance.mark('pk-query-docset-end');
@@ -58,6 +58,6 @@ export async function loadDocSetIfNotLoaded(proskomma, docSet) {
     }
 
     if (!found) {
-        await loadDocSet(proskomma, docSet);
+        await loadDocSet(proskomma, docSet, fetch);
     }
 }

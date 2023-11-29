@@ -467,7 +467,7 @@ TODO:
     ) => {
         // Is it possible that this could be called and proskomma is not set yet?
         if (!proskomma) return;
-        await loadDocSetIfNotLoaded(proskomma, docSet);
+        await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
 
         const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const cl = new SofriaRenderFromProskomma({
