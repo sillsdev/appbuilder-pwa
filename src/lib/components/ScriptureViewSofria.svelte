@@ -432,6 +432,14 @@ TODO:
         return source;
     }
     function addFigureDiv(source: string, workspace: any) {
+        if (
+            workspace.phraseDiv != null &&
+            workspace.phraseDiv.innerText !== ''
+        ) {
+            appendPhrase(workspace);
+        }
+        workspace.phraseDiv = null;
+
         const imageSource = base + '/illustrations/' + source;
         const divFigure = document.createElement('div');
         divFigure.classList.add('image-block');
@@ -439,9 +447,10 @@ TODO:
         spanFigure.classList.add('image');
         const figureImg = document.createElement('img');
         figureImg.setAttribute('src', imageSource);
+        figureImg.style.display = 'inline-block';
         spanFigure.appendChild(figureImg);
         divFigure.appendChild(spanFigure);
-        workspace.paragraphDiv.appendChild(divFigure);
+        workspace.figureDiv = divFigure;
         checkImageExists(imageSource, divFigure);
     }
 
@@ -537,6 +546,7 @@ TODO:
                             workspace.phraseDiv = null;
                             workspace.videoDiv = null;
                             workspace.footnoteDiv = null;
+                            workspace.figureDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
                             workspace.titleText = [];
@@ -594,8 +604,8 @@ TODO:
                             //     context.sequences[0].block,
                             //     context.sequences[0].type
                             // );
-                            preprocessAction('startPara', workspace);
                             const sequenceType = context.sequences[0].type;
+                            preprocessAction('startPara', workspace);
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -825,6 +835,14 @@ TODO:
                                         break;
                                     }
                                     case 'fig': {
+                                        const divFigureText = document.createElement('div');
+                                        divFigureText.classList.add('caption');
+                                        const spanFigureText = document.createElement('span');
+                                        spanFigureText.classList.add('caption');
+                                        const spanFigureTextNode = document.createTextNode(text);
+                                        spanFigureText.append(spanFigureTextNode);
+                                        divFigureText.append(spanFigureText);
+                                        workspace.figureDiv.append(divFigureText);
                                         break;
                                     }
                                     default: {
@@ -1049,7 +1067,7 @@ TODO:
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            console.log('Block Graft End %o %o', graftRecord, currentBlock);
                         }
                     }
                 ],
@@ -1198,6 +1216,10 @@ TODO:
                                 }
                                 case 'usfm': {
                                     workspace.textType.pop();
+                                    let usfmType = element.subType.split(':')[1];
+                                    if (usfmType === 'fig') {
+                                        workspace.paragraphDiv.appendChild(workspace.figureDiv);
+                                    }
                                     workspace.usfmWrapperType = '';
                                     break;
                                 }
