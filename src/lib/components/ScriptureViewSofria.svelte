@@ -11,6 +11,7 @@ TODO:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+    import { base } from '$app/paths';
     import { footnotes } from '$lib/data/stores';
     import { generateHTML } from '$lib/scripts/scripture-reference-utils';
     import {
@@ -419,6 +420,42 @@ TODO:
             spanFooter.innerHTML = footer;
             divFooterLine.appendChild(spanFooter);
             container.appendChild(divFooter);
+        }
+    }
+    function figureSource(element: any) {
+        let source: any;
+        if ('src' in element.atts) {
+            source = element.atts['src'][0];
+        } else if ('unknownDefault_fig' in element.atts) {
+            source = element.atts['unknownDefault_fig'][0];
+        }
+        return source;
+    }
+    function addFigureDiv(source: string, workspace: any) {
+        const imageSource = base + '/illustrations/' + source;
+        const divFigure = document.createElement('div');
+        divFigure.classList.add('image-block');
+        const spanFigure = document.createElement('span');
+        spanFigure.classList.add('image');
+        const figureImg = document.createElement('img');
+        figureImg.setAttribute('src', imageSource);
+        spanFigure.appendChild(figureImg);
+        divFigure.appendChild(spanFigure);
+        workspace.paragraphDiv.appendChild(divFigure);
+        checkImageExists(imageSource, divFigure);
+    }
+
+    async function checkImageExists(src: string, div: HTMLElement) {
+        try {
+            const response = await fetch(src, { method: 'HEAD' });
+
+            if (!response.ok) {
+                // The file does not exist
+                div.style.display = 'none';
+            }
+        } catch (error) {
+            // An error occurred (e.g., network error)
+            console.error('Error checking image existence:', error);
         }
     }
     function preprocessAction(action: string, workspace: any) {
@@ -1109,15 +1146,23 @@ TODO:
                                 case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
-                                    workspace.textType.push('usfm');
-                                    if (!workspace.textType.includes('footnote')) {
-                                        if (workspace.lastPhraseTerminated === true) {
-                                            // console.log('footnote start phrase');
-                                            workspace.phraseDiv = startPhrase(workspace);
+                                    console.log('start wrapper usfmType: %o ', usfmType);
+                                    if (usfmType === 'fig') {
+                                        let source = figureSource(element);
+                                        if (source) {
+                                            addFigureDiv(source, workspace);
                                         }
+                                    } else {
+                                        workspace.textType.push('usfm');
+                                        if (!workspace.textType.includes('footnote')) {
+                                            if (workspace.lastPhraseTerminated === true) {
+                                                // console.log('footnote start phrase');
+                                                workspace.phraseDiv = startPhrase(workspace);
+                                            }
+                                        }
+                                        workspace.usfmWrapperType = usfmType;
+                                        // console.log('setting wrapper type to (%o)', usfmType);
                                     }
-                                    workspace.usfmWrapperType = usfmType;
-                                    // console.log('setting wrapper type to (%o)', usfmType);
                                     break;
                                 }
                                 case 'cell': {
