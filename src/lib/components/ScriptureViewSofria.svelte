@@ -12,7 +12,7 @@ TODO:
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes } from '$lib/data/stores';
+    import { footnotes, isBibleBook } from '$lib/data/stores';
     import { generateHTML } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
@@ -36,6 +36,8 @@ TODO:
     export let references: any;
     export let selectedVerses: any;
     export let verseLayout: any;
+    export let viewShowBibleImages: string;
+    export let viewShowIllustrations: boolean;
     export let viewShowVerses: boolean;
     export let font: string;
     export let proskomma: Proskomma;
@@ -431,6 +433,11 @@ TODO:
         }
         return source;
     }
+    function showImage() {
+        const showBibleImage = viewShowBibleImages === 'normal';
+        const showImages = currentIsBibleBook && showBibleImage && viewShowIllustrations;
+        return showImages;
+    }
     function addFigureDiv(source: string, workspace: any) {
         if (
             workspace.phraseDiv != null &&
@@ -451,7 +458,11 @@ TODO:
         spanFigure.appendChild(figureImg);
         divFigure.appendChild(spanFigure);
         workspace.figureDiv = divFigure;
-        checkImageExists(imageSource, divFigure);
+        if (showImage()) {
+            checkImageExists(imageSource, divFigure);
+        } else {
+            divFigure.style.display = 'none';
+        }
     }
 
     async function checkImageExists(src: string, div: HTMLElement) {
@@ -1354,6 +1365,8 @@ TODO:
     $: currentBook = references.book;
 
     $: currentDocSet = references.docSet;
+
+    $: currentIsBibleBook = isBibleBook(references);
 
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
