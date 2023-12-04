@@ -460,8 +460,6 @@ TODO:
         workspace.figureDiv = divFigure;
         if (showImage()) {
             checkImageExists(imageSource, divFigure);
-        } else {
-            divFigure.style.display = 'none';
         }
     }
 
@@ -1229,7 +1227,9 @@ TODO:
                                     workspace.textType.pop();
                                     let usfmType = element.subType.split(':')[1];
                                     if (usfmType === 'fig') {
-                                        workspace.paragraphDiv.appendChild(workspace.figureDiv);
+                                        if (showImage()) {
+                                            workspace.paragraphDiv.appendChild(workspace.figureDiv);
+                                        }
                                     }
                                     workspace.usfmWrapperType = '';
                                     break;
