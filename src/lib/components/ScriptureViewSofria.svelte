@@ -1067,7 +1067,7 @@ TODO:
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
                         }
                     }
                 ],
@@ -1164,7 +1164,7 @@ TODO:
                                 case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
-                                    console.log('start wrapper usfmType: %o ', usfmType);
+                                    // console.log('start wrapper usfmType: %o ', usfmType);
                                     if (usfmType === 'fig') {
                                         let source = figureSource(element);
                                         if (source) {
