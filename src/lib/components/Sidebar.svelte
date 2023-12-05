@@ -57,6 +57,16 @@ The sidebar/drawer.
         config.mainFeatures['share-apple-app-link'];
     const showAccount = firebaseConfig && config.mainFeatures['user-accounts'];
 
+    function imageSrcSet(base, images) {
+        const baseSize = Number(images[0].width);
+        return images.map(image => {
+            const size = Number(image.width);
+            const multiplier = (size/baseSize);
+            const multiplierString = multiplier === 1 ? "" : " " + (multiplier % 1 === 0 ? multiplier.toFixed(0) : multiplier.toFixed(1)) + "x";
+            return `${base}/${image.file}${multiplierString}`;
+        }).join(", ");
+    }
+
     $: textColor = $s['ui.drawer.item.text']['color'];
     $: iconColor = $s['ui.drawer.item.icon']['color'];
     $: contentBackgroundColor = $s['ui.background']['background-color'];
@@ -189,10 +199,9 @@ The sidebar/drawer.
                             rel="noreferrer"
                         >
                             <picture>
-                                {#if item.images.length === 3}
+                                {#if item.images.length > 1}
                                     <source
-                                        srcset="{base}/icons/menu-items/{item.images[1]
-                                            .file} 2x, {base}/icons/menu-items/{item.images[2].file} 3x"
+                                        srcset={imageSrcSet(`${base}/icons/menu-items`, item.images)}
                                     />
                                 {/if}
                                 <img
