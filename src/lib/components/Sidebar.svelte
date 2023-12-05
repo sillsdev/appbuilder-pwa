@@ -189,10 +189,12 @@ The sidebar/drawer.
                             rel="noreferrer"
                         >
                             <picture>
-                                <source
-                                    srcset="{base}/icons/menu-items/{item.images[1]
-                                        .file} 2x, {base}/icons/menu-items/{item.images[2].file} 3x"
-                                />
+                                {#if item.images.length === 3}
+                                    <source
+                                        srcset="{base}/icons/menu-items/{item.images[1]
+                                            .file} 2x, {base}/icons/menu-items/{item.images[2].file} 3x"
+                                    />
+                                {/if}
                                 <img
                                     src="{base}/icons/menu-items/{item.images[0].file}"
                                     height="24"
