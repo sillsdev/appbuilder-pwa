@@ -685,13 +685,22 @@ function convertConfig(dataDir: string, verbose: number) {
                               .getNamedItem('ref')!
                               .value.split('|')[0]
                       };
+            const tagWidth = tag.attributes.getNamedItem('width')
+                ? parseInt(tag.attributes.getNamedItem('width')!.value)
+                : 0;
+            const tagHeight = tag.attributes.getNamedItem('height')
+                ? parseInt(tag.attributes.getNamedItem('width')!.value)
+                : 0;
+            const onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
+                ? tag.getElementsByTagName('online-url')[0]?.innerHTML
+                : '';
             data.videos.push({
                 id: tag.attributes.getNamedItem('id')!.value,
-                width: parseInt(tag.attributes.getNamedItem('width')!.value),
-                height: parseInt(tag.attributes.getNamedItem('height')!.value),
+                width: tagWidth,
+                height: tagHeight,
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
                 thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
-                onlineUrl: decodeFromXml(tag.getElementsByTagName('online-url')[0]?.innerHTML),
+                onlineUrl: decodeFromXml(onlineUrlHTML),
                 placement
             });
         }
