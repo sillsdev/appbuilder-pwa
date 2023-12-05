@@ -126,6 +126,8 @@
         references: $refs,
         selectedVerses: selectedVerses,
         verseLayout: $userSettings['verse-layout'],
+        viewShowBibleImages: $userSettings['display-images-in-bible-text'],
+        viewShowIllustrations: config.mainFeatures['show-illustrations'],
         viewShowVerses: $userSettings['verse-numbers'],
         font: $currentFont,
         proskomma: $page.data?.proskomma

@@ -11,7 +11,8 @@ TODO:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
-    import { footnotes } from '$lib/data/stores';
+    import { base } from '$app/paths';
+    import { footnotes, isBibleBook } from '$lib/data/stores';
     import { generateHTML } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
@@ -35,6 +36,8 @@ TODO:
     export let references: any;
     export let selectedVerses: any;
     export let verseLayout: any;
+    export let viewShowBibleImages: string;
+    export let viewShowIllustrations: boolean;
     export let viewShowVerses: boolean;
     export let font: string;
     export let proskomma: Proskomma;
@@ -421,6 +424,58 @@ TODO:
             container.appendChild(divFooter);
         }
     }
+    function figureSource(element: any) {
+        let source: any;
+        if ('src' in element.atts) {
+            source = element.atts['src'][0];
+        } else if ('unknownDefault_fig' in element.atts) {
+            source = element.atts['unknownDefault_fig'][0];
+        }
+        return source;
+    }
+    function showImage() {
+        const showBibleImage = viewShowBibleImages === 'normal';
+        const showImages = currentIsBibleBook && showBibleImage && viewShowIllustrations;
+        return showImages;
+    }
+    function addFigureDiv(source: string, workspace: any) {
+        if (
+            workspace.phraseDiv != null &&
+            workspace.phraseDiv.innerText !== ''
+        ) {
+            appendPhrase(workspace);
+        }
+        workspace.phraseDiv = null;
+
+        const imageSource = base + '/illustrations/' + source;
+        const divFigure = document.createElement('div');
+        divFigure.classList.add('image-block');
+        const spanFigure = document.createElement('span');
+        spanFigure.classList.add('image');
+        const figureImg = document.createElement('img');
+        figureImg.setAttribute('src', imageSource);
+        figureImg.style.display = 'inline-block';
+        spanFigure.appendChild(figureImg);
+        divFigure.appendChild(spanFigure);
+        workspace.figureDiv = divFigure;
+        if (showImage()) {
+            checkImageExists(imageSource, divFigure);
+        }
+    }
+
+    async function checkImageExists(src: string, div: HTMLElement) {
+        try {
+            const response = await fetch(src, { method: 'HEAD' });
+
+            if (!response.ok) {
+                // The file does not exist
+                div.style.display = 'none';
+            }
+        } catch (error) {
+            // An error occurred (e.g., network error)
+            console.error('Error checking image existence:', error);
+        }
+    }
     function preprocessAction(action: string, workspace: any) {
         // Table ends if row ended and anything other than start row follows it
         if (!workspace.inRow && workspace.inTable && !(action === 'startRow')) {
@@ -500,6 +555,7 @@ TODO:
                             workspace.phraseDiv = null;
                             workspace.videoDiv = null;
                             workspace.footnoteDiv = null;
+                            workspace.figureDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
                             workspace.titleText = [];
@@ -557,8 +613,8 @@ TODO:
                             //     context.sequences[0].block,
                             //     context.sequences[0].type
                             // );
-                            preprocessAction('startPara', workspace);
                             const sequenceType = context.sequences[0].type;
+                            preprocessAction('startPara', workspace);
                             if (
                                 processText(
                                     workspace.introductionGraft,
@@ -788,6 +844,14 @@ TODO:
                                         break;
                                     }
                                     case 'fig': {
+                                        const divFigureText = document.createElement('div');
+                                        divFigureText.classList.add('caption');
+                                        const spanFigureText = document.createElement('span');
+                                        spanFigureText.classList.add('caption');
+                                        const spanFigureTextNode = document.createTextNode(text);
+                                        spanFigureText.append(spanFigureTextNode);
+                                        divFigureText.append(spanFigureText);
+                                        workspace.figureDiv.append(divFigureText);
                                         break;
                                     }
                                     default: {
@@ -1109,15 +1173,23 @@ TODO:
                                 case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
-                                    workspace.textType.push('usfm');
-                                    if (!workspace.textType.includes('footnote')) {
-                                        if (workspace.lastPhraseTerminated === true) {
-                                            // console.log('footnote start phrase');
-                                            workspace.phraseDiv = startPhrase(workspace);
+                                    // console.log('start wrapper usfmType: %o ', usfmType);
+                                    if (usfmType === 'fig') {
+                                        let source = figureSource(element);
+                                        if (source) {
+                                            addFigureDiv(source, workspace);
                                         }
+                                    } else {
+                                        workspace.textType.push('usfm');
+                                        if (!workspace.textType.includes('footnote')) {
+                                            if (workspace.lastPhraseTerminated === true) {
+                                                // console.log('footnote start phrase');
+                                                workspace.phraseDiv = startPhrase(workspace);
+                                            }
+                                        }
+                                        workspace.usfmWrapperType = usfmType;
+                                        // console.log('setting wrapper type to (%o)', usfmType);
                                     }
-                                    workspace.usfmWrapperType = usfmType;
-                                    // console.log('setting wrapper type to (%o)', usfmType);
                                     break;
                                 }
                                 case 'cell': {
@@ -1153,6 +1225,12 @@ TODO:
                                 }
                                 case 'usfm': {
                                     workspace.textType.pop();
+                                    let usfmType = element.subType.split(':')[1];
+                                    if (usfmType === 'fig') {
+                                        if (showImage()) {
+                                            workspace.paragraphDiv.appendChild(workspace.figureDiv);
+                                        }
+                                    }
                                     workspace.usfmWrapperType = '';
                                     break;
                                 }
@@ -1287,6 +1365,8 @@ TODO:
     $: currentBook = references.book;
 
     $: currentDocSet = references.docSet;
+
+    $: currentIsBibleBook = isBibleBook(references);
 
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
