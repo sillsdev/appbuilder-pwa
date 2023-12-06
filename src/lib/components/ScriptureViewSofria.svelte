@@ -408,6 +408,43 @@ TODO:
             addVideoLinks(document, videos);
         }
     }
+    function addIllustrations(illustrations) {
+        if (illustrations) {
+            illustrations.forEach((illustration, index) => {
+                // ref can be MAT 1:1 or MAT.1.1
+                let verse = illustration.placement.ref.split(/[:.]/).at(-1);
+                const illustrationBlockDiv = createIllustrationBlock(illustration.filename, illustration.placement.caption);
+                placeElement(document, container, illustrationBlockDiv, illustration.placement.pos, verse);
+            });
+        }
+    }
+    function createIllustrationBlock(source: string, caption?: string) {
+        const imageSource = base + '/illustrations/' + source;
+        const divFigure = document.createElement('div');
+        divFigure.classList.add('image-block');
+        const spanFigure = document.createElement('span');
+        spanFigure.classList.add('image');
+        const figureImg = document.createElement('img');
+        figureImg.setAttribute('src', imageSource);
+        figureImg.style.display = 'inline-block';
+        spanFigure.appendChild(figureImg);
+        divFigure.appendChild(spanFigure);
+        if (caption !== null && caption !== '') {
+            const divFigureText = createIllustrationCaptionBlock(caption);
+            divFigure.appendChild(divFigureText);
+        }
+        return divFigure;
+    }
+    function createIllustrationCaptionBlock(caption: string) {
+        const divFigureText = document.createElement('div');
+        divFigureText.classList.add('caption');
+        const spanFigureText = document.createElement('span');
+        spanFigureText.classList.add('caption');
+        const spanFigureTextNode = document.createTextNode(caption);
+        spanFigureText.append(spanFigureTextNode);
+        divFigureText.append(spanFigureText);
+        return divFigureText;
+    }
     function addFooter(document: Document, container: HTMLElement, docSet: string) {
         const collection = docSet.split('_')[1];
         const footer = config.bookCollections.find((x) => x.id === collection)?.footer;
@@ -446,17 +483,8 @@ TODO:
             appendPhrase(workspace);
         }
         workspace.phraseDiv = null;
-
+        const divFigure = createIllustrationBlock(source, null);
         const imageSource = base + '/illustrations/' + source;
-        const divFigure = document.createElement('div');
-        divFigure.classList.add('image-block');
-        const spanFigure = document.createElement('span');
-        spanFigure.classList.add('image');
-        const figureImg = document.createElement('img');
-        figureImg.setAttribute('src', imageSource);
-        figureImg.style.display = 'inline-block';
-        spanFigure.appendChild(figureImg);
-        divFigure.appendChild(spanFigure);
         workspace.figureDiv = divFigure;
         if (showImage()) {
             checkImageExists(imageSource, divFigure);
@@ -518,7 +546,8 @@ TODO:
         bookmarks: any[],
         notes: any[],
         highlights: any[],
-        videos: any[]
+        videos: any[],
+        illustrations: any[]
     ) => {
         // Is it possible that this could be called and proskomma is not set yet?
         if (!proskomma) return;
@@ -598,6 +627,7 @@ TODO:
                                 addBookmarkedVerses(bookmarks);
                                 addHighlightedVerses(highlights);
                                 addVideos(videos);
+                                addIllustrations(illustrations);
                             }
                             addFooter(document, container, docSet);
                         }
@@ -844,13 +874,7 @@ TODO:
                                         break;
                                     }
                                     case 'fig': {
-                                        const divFigureText = document.createElement('div');
-                                        divFigureText.classList.add('caption');
-                                        const spanFigureText = document.createElement('span');
-                                        spanFigureText.classList.add('caption');
-                                        const spanFigureTextNode = document.createTextNode(text);
-                                        spanFigureText.append(spanFigureTextNode);
-                                        divFigureText.append(spanFigureText);
+                                        const divFigureText = createIllustrationCaptionBlock(text);
                                         workspace.figureDiv.append(divFigureText);
                                         break;
                                     }
@@ -1356,6 +1380,18 @@ TODO:
         );
         return videos;
     }
+
+    function illustrationsForChapter(docSet: string, bookCode: string, chapter: string) {
+        let collection = docSet.split('_')[1];
+        let illustrations = config.illustrations?.filter(
+            (x) =>
+                x.placement &&
+                x.placement.collection === collection &&
+                (x.placement.ref.startsWith(bookCode + ' ' + chapter + ':') ||
+                    x.placement.ref.startsWith(bookCode + '.' + chapter + '.'))
+        );
+        return illustrations;
+    }
     $: fontSize = bodyFontSize + 'px';
 
     $: lineHeight = bodyLineHeight + '%';
@@ -1388,6 +1424,7 @@ TODO:
         const chapter = chapterToDisplay;
         const docSet = currentDocSet;
         const videos = videosForChapter(docSet, bookCode, chapter);
+        const illustrations = illustrationsForChapter(docSet, bookCode, chapter);
         query(
             docSet,
             bookCode,
@@ -1398,7 +1435,8 @@ TODO:
             bookmarks,
             notes,
             highlights,
-            videos
+            videos,
+            illustrations
         );
         performance.mark('query-end');
         performance.measure('query-duration', 'query-start', 'query-end');

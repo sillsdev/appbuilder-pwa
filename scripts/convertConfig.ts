@@ -154,6 +154,17 @@ export type ConfigData = {
             collection: string;
         };
     }[];
+    illustrations?: {
+        width: number;
+        height: number;
+        filename: string;
+        placement?: {
+            pos: string;
+            ref: string;
+            collection: string;
+            caption: string;
+        };
+    }[];
     defaultLayout?: string;
     layouts?: {
         mode: string;
@@ -689,7 +700,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 ? parseInt(tag.attributes.getNamedItem('width')!.value)
                 : 0;
             const tagHeight = tag.attributes.getNamedItem('height')
-                ? parseInt(tag.attributes.getNamedItem('width')!.value)
+                ? parseInt(tag.attributes.getNamedItem('height')!.value)
                 : 0;
             const onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
                 ? tag.getElementsByTagName('online-url')[0]?.innerHTML
@@ -705,7 +716,52 @@ function convertConfig(dataDir: string, verbose: number) {
             });
         }
     }
-
+    const imagesTags = document.getElementsByTagName('images');
+    if (imagesTags?.length > 0) {
+        data.illustrations = [];
+        for (const tag of imagesTags) {
+            const imageType = tag.attributes.getNamedItem('type')
+            ? tag.attributes.getNamedItem('type')!.value
+            : '';
+            if (imageType === 'illustration') {
+                const illustrationTags = tag.getElementsByTagName('image');
+                if (illustrationTags?.length > 0) {
+                    for (const image of illustrationTags) {
+                        const filename = image.getElementsByTagName('filename')[0]
+                            ? image.getElementsByTagName('filename')[0]?.innerHTML
+                            : image.innerHTML;
+                        const caption = image.getElementsByTagName('caption')[0]
+                            ? image.getElementsByTagName('caption')[0]?.innerHTML
+                            : '';
+                        const imageWidth = image.attributes.getNamedItem('width')
+                            ? parseInt(image.attributes.getNamedItem('width')!.value)
+                            : 0;
+                        const imageHeight = image.attributes.getNamedItem('height')
+                            ? parseInt(image.attributes.getNamedItem('height')!.value)
+                            : 0;
+                            const placementTag = image.getElementsByTagName('placement')[0];
+                            const placement =
+                                placementTag == undefined
+                                    ? undefined
+                                    : {
+                                          pos: placementTag.attributes.getNamedItem('pos')!.value,
+                                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                                          caption: placementTag.attributes.getNamedItem('caption') ? placementTag.attributes.getNamedItem('caption')!.value : '',
+                                          collection: placementTag.attributes
+                                              .getNamedItem('ref')!
+                                              .value.split('|')[0]
+                                      };
+                        data.illustrations.push({
+                            filename: filename,
+                            width: imageWidth,
+                            height: imageHeight,
+                            placement
+                        });
+                    }
+                }
+            }
+        }
+    }
     const layoutRoot = document.getElementsByTagName('layouts')[0];
     data.defaultLayout = layoutRoot?.attributes.getNamedItem('default')?.value;
 
