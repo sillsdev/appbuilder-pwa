@@ -721,8 +721,8 @@ function convertConfig(dataDir: string, verbose: number) {
         data.illustrations = [];
         for (const tag of imagesTags) {
             const imageType = tag.attributes.getNamedItem('type')
-            ? tag.attributes.getNamedItem('type')!.value
-            : '';
+                ? tag.attributes.getNamedItem('type')!.value
+                : '';
             if (imageType === 'illustration') {
                 const illustrationTags = tag.getElementsByTagName('image');
                 if (illustrationTags?.length > 0) {
@@ -730,27 +730,28 @@ function convertConfig(dataDir: string, verbose: number) {
                         const filename = image.getElementsByTagName('filename')[0]
                             ? image.getElementsByTagName('filename')[0]?.innerHTML
                             : image.innerHTML;
-                        const caption = image.getElementsByTagName('caption')[0]
-                            ? image.getElementsByTagName('caption')[0]?.innerHTML
-                            : '';
                         const imageWidth = image.attributes.getNamedItem('width')
                             ? parseInt(image.attributes.getNamedItem('width')!.value)
                             : 0;
                         const imageHeight = image.attributes.getNamedItem('height')
                             ? parseInt(image.attributes.getNamedItem('height')!.value)
                             : 0;
-                            const placementTag = image.getElementsByTagName('placement')[0];
-                            const placement =
-                                placementTag == undefined
-                                    ? undefined
-                                    : {
-                                          pos: placementTag.attributes.getNamedItem('pos')!.value,
-                                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                                          caption: placementTag.attributes.getNamedItem('caption') ? placementTag.attributes.getNamedItem('caption')!.value : '',
-                                          collection: placementTag.attributes
-                                              .getNamedItem('ref')!
-                                              .value.split('|')[0]
-                                      };
+                        const placementTag = image.getElementsByTagName('placement')[0];
+                        const placement =
+                            placementTag == undefined
+                                ? undefined
+                                : {
+                                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                                      ref: placementTag.attributes
+                                          .getNamedItem('ref')!
+                                          .value.split('|')[1],
+                                      caption: placementTag.attributes.getNamedItem('caption')
+                                          ? placementTag.attributes.getNamedItem('caption')!.value
+                                          : '',
+                                      collection: placementTag.attributes
+                                          .getNamedItem('ref')!
+                                          .value.split('|')[0]
+                                  };
                         data.illustrations.push({
                             filename: filename,
                             width: imageWidth,
