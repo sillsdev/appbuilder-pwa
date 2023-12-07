@@ -78,21 +78,7 @@ The navbar component.
         let count = Object.keys(chapters[chapter]).length;
         return count;
     }
-    let verseGridGroup = (chapters, chapter) => {
-        let verses = chapters[chapter];
-        if (!verses) {
-            return [];
-        }
-        let value = [
-            {
-                cells: Object.keys(chapters[chapter]).map((x) => ({
-                    label: x,
-                    id: x
-                }))
-            }
-        ];
-        return value;
-    }
+
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
@@ -147,7 +133,14 @@ The navbar component.
                                 component: SelectGrid,
                                 props: {
                                     cols: 5,
-                                    options: verseGridGroup(chapters, chapter)
+                                    options: [
+                                        {
+                                            cells: Object.keys(chapters[chapter]).map((x) => ({
+                                                label: x,
+                                                id: x
+                                            }))
+                                        }
+                                    ]
                                 },
                                 visible: showVerseSelector
                             }

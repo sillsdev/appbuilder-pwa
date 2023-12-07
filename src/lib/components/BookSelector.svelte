@@ -59,6 +59,7 @@ The navbar component.
                         $nextRef.chapter = 'i';
                         completeNavigation();
                     }
+                    $nextRef.chapter = '1';
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
@@ -144,22 +145,6 @@ The navbar component.
             }
         ];
     };
-
-    let verseGridGroup = (chapters, chapter) => {
-        let verses = chapters[chapter];
-        if (!verses) {
-            return [];
-        }
-        let value = [
-            {
-                cells: Object.keys(chapters[chapter]).map((x) => ({
-                    label: x,
-                    id: x
-                }))
-            }
-        ];
-        return value;
-    }
 </script>
 
 <!-- Book Selector -->
@@ -195,7 +180,14 @@ The navbar component.
                     [v]: {
                         component: SelectGrid,
                         props: {
-                            options: verseGridGroup(chapters, chapter)
+                            options: [
+                                {
+                                    cells: Object.keys(chapters[chapter]).map((x) => ({
+                                        label: x,
+                                        id: x
+                                    }))
+                                }
+                            ]
                         },
                         visible: showChapterSelector && showVerseSelector
                     }
