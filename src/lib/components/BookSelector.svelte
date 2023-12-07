@@ -59,6 +59,7 @@ The navbar component.
                         $nextRef.chapter = 'i';
                         completeNavigation();
                     }
+                    $nextRef.chapter = '1';
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
