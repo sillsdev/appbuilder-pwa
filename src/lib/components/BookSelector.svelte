@@ -31,7 +31,15 @@ The navbar component.
         .books.find((x) => x.id === book).name;
 
     function chapterCount(book) {
-        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        let count = 0;
+        // const bookType = config.bookCollections
+        //     .find((x) => x.id === $refs.collection)
+        //     .books.find((x) => x.id === book).type;
+        // if (bookType === 'songs') {
+        //     count = 0;
+        // } else {
+            count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        // }
         return count;
     }
 
@@ -144,6 +152,25 @@ The navbar component.
             }
         ];
     };
+
+    let verseGridGroup = (chapters, chapter) => {
+        console.log('chapters: %o chapter: %o', chapters, chapter);
+        let verses = chapters[chapter];
+        console.log('verses: %o', verses);
+        if (!verses) {
+            return [];
+        }
+        let value = [
+            {
+                cells: Object.keys(chapters[chapter]).map((x) => ({
+                    label: x,
+                    id: x
+                }))
+            }
+        ];
+        console.log('value: %o', value);
+        return value;
+    }
 </script>
 
 <!-- Book Selector -->
@@ -179,14 +206,15 @@ The navbar component.
                     [v]: {
                         component: SelectGrid,
                         props: {
-                            options: [
-                                {
-                                    cells: Object.keys(chapters[chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
-                                }
-                            ]
+                            options: verseGridGroup(chapters, chapter)
+                            // [
+                            //     {
+                            //         cells: Object.keys(chapters[chapter]).map((x) => ({
+                            //             label: x,
+                            //             id: x
+                            //         }))
+                            //     }
+                            // ]
                         },
                         visible: showChapterSelector && showVerseSelector
                     }
