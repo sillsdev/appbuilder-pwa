@@ -31,15 +31,7 @@ The navbar component.
         .books.find((x) => x.id === book).name;
 
     function chapterCount(book) {
-        let count = 0;
-        // const bookType = config.bookCollections
-        //     .find((x) => x.id === $refs.collection)
-        //     .books.find((x) => x.id === book).type;
-        // if (bookType === 'songs') {
-        //     count = 0;
-        // } else {
-            count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
-        // }
+        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
 
@@ -154,9 +146,7 @@ The navbar component.
     };
 
     let verseGridGroup = (chapters, chapter) => {
-        console.log('chapters: %o chapter: %o', chapters, chapter);
         let verses = chapters[chapter];
-        console.log('verses: %o', verses);
         if (!verses) {
             return [];
         }
@@ -168,7 +158,6 @@ The navbar component.
                 }))
             }
         ];
-        console.log('value: %o', value);
         return value;
     }
 </script>
@@ -207,14 +196,6 @@ The navbar component.
                         component: SelectGrid,
                         props: {
                             options: verseGridGroup(chapters, chapter)
-                            // [
-                            //     {
-                            //         cells: Object.keys(chapters[chapter]).map((x) => ({
-                            //             label: x,
-                            //             id: x
-                            //         }))
-                            //     }
-                            // ]
                         },
                         visible: showChapterSelector && showVerseSelector
                     }

@@ -79,9 +79,7 @@ The navbar component.
         return count;
     }
     let verseGridGroup = (chapters, chapter) => {
-        console.log('chapters: %o chapter: %o', chapters, chapter);
         let verses = chapters[chapter];
-        console.log('verses: %o', verses);
         if (!verses) {
             return [];
         }
@@ -93,7 +91,6 @@ The navbar component.
                 }))
             }
         ];
-        console.log('value: %o', value);
         return value;
     }
     /**list of books in current docSet*/
@@ -151,14 +148,6 @@ The navbar component.
                                 props: {
                                     cols: 5,
                                     options: verseGridGroup(chapters, chapter)
-                                    // [
-                                    //     {
-                                    //         cells: Object.keys(chapters[chapter]).map((x) => ({
-                                    //             label: x,
-                                    //             id: x
-                                    //         }))
-                                    //     }
-                                    // ]
                                 },
                                 visible: showVerseSelector
                             }
