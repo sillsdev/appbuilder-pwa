@@ -63,8 +63,10 @@
                 root.appendChild(iconDiv);
                 footnotes.push(root.outerHTML);
             }
-
-            // will not work since it does not have a reference to the start object...
+        } else if (event.target.classList.contains('ref-link')) {
+            const linkRef = event.target.getAttribute('ref');
+            console.log('REF-LINK %o', linkRef);
+        // will not work since it does not have a reference to the start object...
         } else if (document.getElementById('icon').contains(event.target)) {
             let start = JSON.parse(
                 document.getElementById('icon').firstChild.getAttribute('reference')

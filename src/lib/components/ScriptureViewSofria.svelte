@@ -24,6 +24,8 @@ TODO:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
+    import { getEmailHtmlFromMarkdownLink, getImageHtmlFromMarkdownLink, getReferenceHtmlFromMarkdownLink, getWebHtmlFromMarkdownLink, isEmailLink, isImageLink, isLocalAudioFile, isTelephoneNumberLink, isWebLink } from '$lib/scripts/markdown';
+    import { isBlank } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -196,14 +198,13 @@ TODO:
         return;
     };
     const usfmSpan = (parent: any, spanClass: string, phrase: string) => {
-        const spanElement = document.createElement('span');
+        let spanElement = document.createElement('span');
         let child;
         spanElement.classList.add(spanClass);
         if (spanClass === 'xt') {
             spanElement.innerHTML = generateHTML(phrase);
         } else {
-            child = document.createTextNode(phrase);
-            spanElement.appendChild(child);
+            spanElement = appendTextNode(spanElement, phrase);
         }
         parent.appendChild(spanElement);
         return parent;
@@ -216,8 +217,7 @@ TODO:
                     if (workspace.showWordsOfJesus) {
                         div = usfmSpan(div, usfmWrapperType, phrase);
                     } else {
-                        const textNode = document.createTextNode(phrase);
-                        div.appendChild(textNode);
+                        div = appendTextNode(div, phrase);
                     }
                     break;
                 }
@@ -231,8 +231,7 @@ TODO:
                 }
             }
         } else {
-            const textNode = document.createTextNode(phrase);
-            div.appendChild(textNode);
+            div = appendTextNode(div, phrase);
         }
         return div;
     };
@@ -285,6 +284,7 @@ TODO:
     // handles clicks on in-text notation superscripts
     function footnoteClickHandler(event) {
         if ($footnotes.length === 0) {
+            console.log("Footnote clicked");
             event.stopPropagation();
             const root = event.target.parentNode.parentNode;
             const footnote = root.querySelector(`div#${root.getAttribute('data-graft')}`);
@@ -371,6 +371,86 @@ TODO:
                 }
             }
         });
+    }
+    function appendTextNode(element: HTMLElement, input: string) {
+        let result = '';
+        let inputString = input;
+        const patternString = /(!?)\[([^\[]*?)\]\((.*?)\)/;
+        let match;
+
+        while ((match = patternString.exec(inputString)) !== null) {
+            // Append text segment with 1st part of string
+            const textSegment = inputString.substring(0, match.index);
+            if (textSegment.length > 0) {
+                const textNode = document.createTextNode(textSegment);
+                element.appendChild(textNode);
+            }
+            // Handle markdown
+            let excl = match[1];
+            let text = match[2];
+            let ref = match[3];
+            const link = ref;
+            if (isBlank(ref)) {
+                // Empty link reference, e.g. [text]()
+                // Output simple text without a link
+                const textNode = document.createTextNode(text);
+                element.appendChild(textNode);
+            } else if (isLocalAudioFile(ref)) {
+                console.log("LOCAL AUDIO");
+            } else if (isImageLink(ref, excl)) {
+                // Image ![alt text](image.png)
+                const imgLink = getImageHtmlFromMarkdownLink(ref, '', base);
+                element.appendChild(imgLink);
+                console.log('IMGLINK: %o', imgLink);
+            } else if (isWebLink(ref)) {
+                const webLink = getWebHtmlFromMarkdownLink(link, text);    
+                element.appendChild(webLink);
+                console.log('WEBLINK: %o', webLink.outerHTML);
+            } else if (isEmailLink(ref)) {
+                const emailLink = getEmailHtmlFromMarkdownLink(link, text);
+                element.appendChild(emailLink);
+                console.log('EMAILLINK: %o', emailLink.outerHTML);
+            } else if (isTelephoneNumberLink(ref)) {
+                const telLink = getEmailHtmlFromMarkdownLink(link, text);
+                element.appendChild(telLink);
+                console.log('TELLINK: %o', telLink.outerHTML);
+            } else {
+                const refLink = getReferenceHtmlFromMarkdownLink(link, text);
+                element.appendChild(refLink);
+                console.log('REFLINK: %o', refLink);
+            }
+            inputString = inputString.substring(match.index + match[0].length);
+            console.log("FOUND MARKDOWN E: %o T: %o R: %o", excl, text, ref);
+        }
+        if (inputString.length > 0) {
+            const textNode = document.createTextNode(inputString);
+            element.appendChild(textNode);
+        }
+        console.log('Markdown result: %o', element.outerHTML);
+        return element;
+    }
+    function createFootnoteDiv(workspace, element) {
+        const fnc = 'abcdefghijklmnopqrstuvwxyz';
+        let footnoteSpan = null;
+        let footnoteId = `X-${workspace.footnoteIndex + 1}`;
+        let footnoteDiv = document.createElement('div');
+        footnoteDiv.id = footnoteId;
+        footnoteDiv.style.display = 'none';
+        footnoteDiv.setAttribute('type', element.subType);
+
+        const div = workspace.phraseDiv.cloneNode(true);
+        footnoteSpan = document.createElement('span');
+        footnoteSpan.setAttribute('data-graft', footnoteId);
+        const a = document.createElement('a');
+        const sup = document.createElement('sup');
+        sup.classList.add('footnote');
+        sup.innerHTML = fnc.charAt(workspace.footnoteIndex);
+        a.appendChild(sup);
+        a.classList.add('cursor-pointer');
+        footnoteSpan.appendChild(a);
+        workspace.footnoteIndex++;
+        console.log('Create Footnote %o %o', footnoteSpan, footnoteDiv);
+        return [footnoteSpan, footnoteDiv];
     }
     function placeElement(
         document: Document,
@@ -463,6 +543,7 @@ TODO:
     }
     function figureSource(element: any) {
         let source: any;
+        console.log('Figure source element %o', element);
         if ('src' in element.atts) {
             source = element.atts['src'][0];
         } else if ('unknownDefault_fig' in element.atts) {
@@ -513,6 +594,7 @@ TODO:
     }
     // handles on click when interacting with the scripture view
     function onClick(e: any) {
+        console.log('ONClick %o %o', e, e.target.getAttribute('class'));
         switch (e.target.getAttribute('class')) {
             case 'v':
                 audioClickHandler(e);
@@ -521,11 +603,19 @@ TODO:
                 footnoteClickHandler(e);
                 break;
             default:
+                if (e.target.classList.contains('ref-link')) {
+                    const linkRef = e.target.getAttribute('ref');
+                    console.log('REF-LINK %o', linkRef);
+                    break;
+                }
                 if (!$audioPlayer.playing) {
                     onClickText(e, selectedVerses, maxSelections);
                 }
                 break;
         }
+    }
+    function onClickRef(e:any) {
+        console.log("DIV Clicked %o", e);
     }
     function chapterCount(book) {
         const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -638,11 +728,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Start Paragraph %o %o',
-                            //     context.sequences[0].block,
-                            //     context.sequences[0].type
-                            // );
+                            console.log(
+                                'Start Paragraph %o %o',
+                                context.sequences[0].block,
+                                context.sequences[0].type
+                            );
                             const sequenceType = context.sequences[0].type;
                             preprocessAction('startPara', workspace);
                             if (
@@ -683,7 +773,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('End paragraph: Sequence type ' + sequenceType);
+                            console.log('End paragraph: Sequence type ' + sequenceType);
                             // console.log(
                             //     'End Paragraph %o %o',
                             //     context.sequences[0].block,
@@ -770,7 +860,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('Start Verses %o %o', element.atts['number'], element);
+                            console.log('Start Verses %o %o', element.atts['number'], element);
                             preprocessAction('startVerses', workspace);
                             workspace.textType.push('verses');
                             if (!displayingIntroduction) {
@@ -793,7 +883,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('End Verses %o %o', element.atts['number'], element);
+                            console.log('End Verses %o %o', element.atts['number'], element);
                             /*const textTypeV = workspace.textType.pop(); */
                             // if (textTypeV != 'verses') {
                             //     console.log('Verses texttype mismatch!!! %o', textTypeV);
@@ -827,7 +917,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('Start Chapter %o %o', element.atts['number'], element);
+                            console.log('Start Chapter %o %o', element.atts['number'], element);
                             preprocessAction('startChapter', workspace);
                         }
                     }
@@ -838,7 +928,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('End Chapter %o %o', element.atts['number'], element);
+                            console.log('End Chapter %o %o', element.atts['number'], element);
                             preprocessAction('endChapter', workspace);
                         }
                     }
@@ -848,12 +938,12 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Text element: %o %o %o',
-                            //     context.sequences[0].element.type,
-                            //     context.sequences[0].element.text,
-                            //     context.sequences[0].block
-                            // );
+                            console.log(
+                                'Text element: %o %o %o',
+                                context.sequences[0].element.type,
+                                context.sequences[0].element.text,
+                                context.sequences[0].block
+                            );
                             // console.log('Text Type: %o', currentTextType(workspace));
                             preprocessAction('text', workspace);
                             if (
@@ -863,7 +953,8 @@ TODO:
                                     workspace.titleGraft
                                 )
                             ) {
-                                const text = context.sequences[0].element.text;
+                                let text = context.sequences[0].element.text;
+                                // text = processMarkdownLinks(text);
                                 switch (currentTextType(workspace)) {
                                     case 'title': {
                                         workspace.titleText += text;
@@ -949,7 +1040,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('start sequence %o', sequenceType);
+                            console.log('start sequence %o', sequenceType);
                             preprocessAction('startSequence', workspace);
                             if (
                                 processText(
@@ -999,7 +1090,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('End sequence |%o|', sequenceType);
+                            console.log('End sequence |%o|', sequenceType);
                             preprocessAction('endSequence', workspace);
                             if (
                                 processText(
@@ -1073,7 +1164,7 @@ TODO:
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            // console.log('Block Graft %o', environment.context.sequences[0].block);
+                            console.log('Block Graft %o', environment.context.sequences[0].block);
                             preprocessAction('blockGraft', environment.workspace);
                             const currentBlock = environment.context.sequences[0].block;
                             const graftRecord = {
@@ -1100,7 +1191,7 @@ TODO:
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            console.log('Block Graft End %o %o', graftRecord, currentBlock);
                         }
                     }
                 ],
@@ -1111,13 +1202,13 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            // console.log(
-                            //     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                            //     element.type,
-                            //     element.subType,
-                            //     element.sequence.id,
-                            //     environment.context.sequences[0].element
-                            // );
+                            console.log(
+                                'Inline Graft Type: %o, Subtype: %o, id: %o %o',
+                                element.type,
+                                element.subType,
+                                element.sequence.id,
+                                environment.context.sequences[0].element
+                            );
                             preprocessAction('inlineGraft', workspace);
                             let footnoteSpan = null;
                             const graftRecord = {
@@ -1127,25 +1218,9 @@ TODO:
                             };
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 workspace.textType.push('footnote');
-
-                                let footnoteId = `X-${workspace.footnoteIndex + 1}`;
-                                workspace.footnoteDiv = document.createElement('div');
-                                workspace.footnoteDiv.id = footnoteId;
-                                workspace.footnoteDiv.style.display = 'none';
-                                workspace.footnoteDiv.setAttribute('type', element.subType);
-
-                                const div = workspace.phraseDiv.cloneNode(true);
-                                // console.log('Footnote or xref');
-                                footnoteSpan = document.createElement('span');
-                                footnoteSpan.setAttribute('data-graft', footnoteId);
-                                const a = document.createElement('a');
-                                const sup = document.createElement('sup');
-                                sup.classList.add('footnote');
-                                sup.innerHTML = fnc.charAt(workspace.footnoteIndex);
-                                a.appendChild(sup);
-                                a.classList.add('cursor-pointer');
-                                footnoteSpan.appendChild(a);
-                                workspace.footnoteIndex++;
+                                const [span, footnoteDiv] = createFootnoteDiv(workspace, element);
+                                workspace.footnoteDiv = footnoteDiv.cloneNode(true);
+                                footnoteSpan = span;
                             } else if (element.subType === 'note_caller') {
                                 workspace.textType.push(element.subType);
                             }
@@ -1171,7 +1246,7 @@ TODO:
                                     console.log('note caller text type mismatch!!! %o', textTypeF);
                                 }
                             }
-                            // console.log('Inline Graft End');
+                            console.log('Inline Graft End');
                         }
                     }
                 ],
@@ -1180,7 +1255,7 @@ TODO:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Start Wrapper %o', context.sequences[0].element);
+                            console.log('Start Wrapper %o', context.sequences[0].element);
                             preprocessAction('startWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1236,7 +1311,7 @@ TODO:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('End Wrapper %o', context.sequences[0].element);
+                            console.log('End Wrapper %o', context.sequences[0].element);
                             preprocessAction('endWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
