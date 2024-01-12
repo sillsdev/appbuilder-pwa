@@ -22,10 +22,10 @@ export function getFilenameExt(filename: string): string {
     return extension;
 }
 export function filenameWithoutPath(filename: string): string {
-    let result: string = "";
+    let result: string = '';
     if (isNotBlank(filename)) {
-        const fname: string = filename.replace("\\", "/");
-        result = fname.includes("/") ? fname.substring(fname.lastIndexOf('/') + 1) : fname;
+        const fname: string = filename.replace('\\', '/');
+        result = fname.includes('/') ? fname.substring(fname.lastIndexOf('/') + 1) : fname;
     }
     return result;
 }
@@ -162,6 +162,15 @@ export function splitString(text: string, separator: string): string[] {
         if (index1 < text.length) {
             result.push(text.substring(index1));
         }
+    }
+
+    return result;
+}
+export function padWithInitialZeros(input: string, length: number): string {
+    let result: string = input;
+
+    while (result.length < length) {
+        result = '0' + result;
     }
 
     return result;

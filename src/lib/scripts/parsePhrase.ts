@@ -160,7 +160,7 @@ function findMarkdowns(input: string) {
     while ((match = patternString.exec(inputString)) !== null) {
         markdownFound = true;
         if (match.index > 0) {
-            nonMarkdownArray.push([phraseStart, phraseStart + match.index - 1]);   
+            nonMarkdownArray.push([phraseStart, phraseStart + match.index - 1]);
         }
         phraseStart = phraseStart + match.index + match[0].length;
         inputString = inputString.substring(match.index + match[0].length);
@@ -176,7 +176,7 @@ function charIsMarkdown(pos: number, markdownArray): boolean {
         if (from > pos) {
             break;
         }
-        if ((from <= pos) && (to >= pos )) {
+        if (from <= pos && to >= pos) {
             result = false;
             break;
         }
