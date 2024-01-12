@@ -1,6 +1,6 @@
 export function isNotBlank(str: string): boolean {
     let result: boolean;
-    if (str === null) {
+    if (str === null || str === undefined) {
         result = false;
     } else {
         result = str.length > 0 && str.trim().length > 0;
@@ -20,6 +20,14 @@ export function getFilenameExt(filename: string): string {
         }
     }
     return extension;
+}
+export function filenameWithoutPath(filename: string): string {
+    let result: string = "";
+    if (isNotBlank(filename)) {
+        const fname: string = filename.replace("\\", "/");
+        result = fname.includes("/") ? fname.substring(fname.lastIndexOf('/') + 1) : fname;
+    }
+    return result;
 }
 export function isPositiveInteger(str: string): boolean {
     let result: boolean;
@@ -59,9 +67,21 @@ export function stripNonDigits(input: string | null): string | null {
 
     return sb.join('');
 }
+export function stripAllExceptDigitsAndHyphens(input: string): string {
+    const sb: string[] = [];
+
+    for (let i = 0; i < input.length; i++) {
+        const c: string = input.charAt(i);
+        if (/[0-9-]/.test(c)) {
+            sb.push(c);
+        }
+    }
+
+    return sb.join('');
+}
 export function nextDigits(input: string | null, start: number): string {
     // Returns next digit string starting from the given start pos
-    let result: string = "";
+    let result: string = '';
 
     if (input !== null) {
         let numDigits: number = 0;
@@ -122,4 +142,27 @@ export function getIntFromString(input: string | null): number {
 
 export function isDigit(c: string): boolean {
     return /\d/.test(c);
+}
+
+export function splitString(text: string, separator: string): string[] {
+    // More efficient than String.split, since it does not use regex
+    const result: string[] = [];
+
+    if (text && text.length > 0) {
+        let index1: number = 0;
+        let index2: number = text.indexOf(separator);
+
+        while (index2 >= 0) {
+            const token: string = text.substring(index1, index2);
+            result.push(token);
+            index1 = index2 + 1;
+            index2 = text.indexOf(separator, index1);
+        }
+
+        if (index1 < text.length) {
+            result.push(text.substring(index1));
+        }
+    }
+
+    return result;
 }

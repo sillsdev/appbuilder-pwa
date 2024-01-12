@@ -5,8 +5,10 @@
 
 <script>
     import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
-    import config from '$lib/data/config';
+    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils';
 
+    import config from '$lib/data/config';
+    import { isNotBlank } from '$lib/scripts/stringUtils';
     let stack;
     let listening = false;
     $: PrimaryColor = $themeColors['PrimaryColor'];
@@ -29,7 +31,34 @@
     const openInNewIcon = () => {
         return `<svg fill='${PrimaryColor}' xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"/></svg>`;
     };
-
+    // handles clicks on in text markdown reference links
+    function referenceLinkClickHandler(event) {
+        const linkRef = event.target.getAttribute('ref');
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(linkRef);
+        const [fromVerse, toVerse, separator] = verseRanges[0];
+        if ((book === '') && (fromChapter === -1)) {
+            // Invalid link
+            return;
+        }
+        let refDocSet = refs.docSet;
+        if (isNotBlank(collection)) {
+            const refBc = config.bookCollections.find((x) => x.id === collection);
+            if (refBc) {
+                refDocSet = refBc.languageCode + '_' + refBc.id;
+            } else {
+                // Invalid collection
+                return;
+            }
+        }
+        let refVerse = fromVerse;
+        if (refVerse < 1) {
+            refVerse = 1;
+        }
+        console.log('REF-LINK %o %o %o %o %o %o', linkRef, collection, book, fromChapter, refVerse, refDocSet);
+        refs.set({ docSet: refDocSet, book: book, chapter: fromChapter.toString(), verse: refVerse.toString() });
+        footnotes.reset();
+        return;
+    }
     async function insideClick(event) {
         if (event.target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(event.target.getAttribute('data-start-ref'));
@@ -64,8 +93,7 @@
                 footnotes.push(root.outerHTML);
             }
         } else if (event.target.classList.contains('ref-link')) {
-            const linkRef = event.target.getAttribute('ref');
-            console.log('REF-LINK %o', linkRef);
+            referenceLinkClickHandler(event);
         // will not work since it does not have a reference to the start object...
         } else if (document.getElementById('icon').contains(event.target)) {
             let start = JSON.parse(

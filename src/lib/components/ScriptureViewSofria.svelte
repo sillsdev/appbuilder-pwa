@@ -12,8 +12,8 @@ TODO:
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, isBibleBook } from '$lib/data/stores';
-    import { generateHTML } from '$lib/scripts/scripture-reference-utils';
+    import { footnotes, isBibleBook, refs } from '$lib/data/stores';
+    import { generateHTML, getReferenceFromString } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
         deselectAllElements,
@@ -25,7 +25,7 @@ TODO:
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
     import { getEmailHtmlFromMarkdownLink, getImageHtmlFromMarkdownLink, getReferenceHtmlFromMarkdownLink, getWebHtmlFromMarkdownLink, isEmailLink, isImageLink, isLocalAudioFile, isTelephoneNumberLink, isWebLink } from '$lib/scripts/markdown';
-    import { isBlank } from '$lib/scripts/stringUtils';
+    import { isBlank, isNotBlank } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -46,6 +46,7 @@ TODO:
 
     let container: HTMLElement;
     let displayingIntroduction = false;
+    const fnc = 'abcdefghijklmnopqrstuvwxyz';
 
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
@@ -89,7 +90,6 @@ TODO:
     };
     const startPhrase = (workspace, indexOption = 'advance') => {
         // console.log('Start phrase!!!');
-        const fnc = 'abcdefghijklmnopqrstuvwxyz';
         // Add pending phrase to the paragraph before starting
         // new ones
         if (workspace.phraseDiv != null) {
@@ -197,14 +197,15 @@ TODO:
         }
         return;
     };
-    const usfmSpan = (parent: any, spanClass: string, phrase: string) => {
+    const usfmSpan = (parent: any, spanClass: string, phrase: string, audioClips) => {
         let spanElement = document.createElement('span');
         let child;
         spanElement.classList.add(spanClass);
         if (spanClass === 'xt') {
             spanElement.innerHTML = generateHTML(phrase);
         } else {
-            spanElement = appendTextNode(spanElement, phrase);
+            console.log('Append 1: ', phrase);
+            spanElement = appendTextNode(spanElement, phrase, audioClips);
         }
         parent.appendChild(spanElement);
         return parent;
@@ -215,23 +216,25 @@ TODO:
             switch (usfmWrapperType) {
                 case 'wj': {
                     if (workspace.showWordsOfJesus) {
-                        div = usfmSpan(div, usfmWrapperType, phrase);
+                        div = usfmSpan(div, usfmWrapperType, phrase, workspace.audioClips);
                     } else {
-                        div = appendTextNode(div, phrase);
+                        console.log('Append 2: ', phrase);
+                        div = appendTextNode(div, phrase, workspace.audioClips);
                     }
                     break;
                 }
                 case 'w': {
-                    div = usfmSpan(div, 'glossary', phrase);
+                    div = usfmSpan(div, 'glossary', phrase, workspace.audioClips);
                     break;
                 }
                 default: {
-                    div = usfmSpan(div, usfmWrapperType, phrase);
+                    div = usfmSpan(div, usfmWrapperType, phrase, workspace.audioClips);
                     break;
                 }
             }
         } else {
-            div = appendTextNode(div, phrase);
+            console.log('Append 3: ', phrase);
+            div = appendTextNode(div, phrase, workspace.audioClips);
         }
         return div;
     };
@@ -292,9 +295,34 @@ TODO:
             footnotes.push(parsed);
         }
     }
-
+    // handles clicks on in text markdown reference links
+    function referenceLinkClickHandler(event: any) {
+        const linkRef = event.target.getAttribute('ref');
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(linkRef);
+        const [fromVerse, toVerse, separator] = verseRanges[0];
+        if ((book === '') && (fromChapter === -1)) {
+            // Invalid link
+            return;
+        }
+        let refDocSet = currentDocSet;
+        if (isNotBlank(collection)) {
+            const refBc = config.bookCollections.find((x) => x.id === collection);
+            if (refBc) {
+                refDocSet = refBc.languageCode + '_' + refBc.id;
+            } else {
+                // Invalid collection
+                return;
+            }
+        }
+        let refVerse = fromVerse;
+        if (refVerse < 1) {
+            refVerse = 1;
+        }
+        console.log('REF-LINK %o %o %o %o %o %o', linkRef, collection, book, fromChapter, refVerse, refDocSet);
+        refs.set({ docSet: refDocSet, book: book, chapter: fromChapter.toString(), verse: refVerse.toString() });
+        return;
+    }
     function addNotesDiv(workspace) {
-        const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
         const notesSpan = document.createElement('span');
         notesSpan.id = 'notes' + workspace.currentVerse;
@@ -324,7 +352,6 @@ TODO:
         });
     }
     function addBookmarksDiv(workspace) {
-        const fnc = 'abcdefghijklmnopqrstuvwxyz';
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
         const bookmarksSpan = document.createElement('span');
         bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
@@ -372,14 +399,14 @@ TODO:
             }
         });
     }
-    function appendTextNode(element: HTMLElement, input: string) {
-        let result = '';
+    function appendTextNode(element: HTMLElement, input: string, audioClips) {
         let inputString = input;
         const patternString = /(!?)\[([^\[]*?)\]\((.*?)\)/;
         let match;
-
+        console.log('Input String: %o', inputString);
         while ((match = patternString.exec(inputString)) !== null) {
             // Append text segment with 1st part of string
+            console.log('MARKDOWN');
             const textSegment = inputString.substring(0, match.index);
             if (textSegment.length > 0) {
                 const textNode = document.createTextNode(textSegment);
@@ -396,7 +423,9 @@ TODO:
                 const textNode = document.createTextNode(text);
                 element.appendChild(textNode);
             } else if (isLocalAudioFile(ref)) {
-                console.log("LOCAL AUDIO");
+                console.log('h1');
+                audioClips.push(link);
+                console.log("LOCAL AUDIO %o", audioClips.length);
             } else if (isImageLink(ref, excl)) {
                 // Image ![alt text](image.png)
                 const imgLink = getImageHtmlFromMarkdownLink(ref, '', base);
@@ -430,7 +459,6 @@ TODO:
         return element;
     }
     function createFootnoteDiv(workspace, element) {
-        const fnc = 'abcdefghijklmnopqrstuvwxyz';
         let footnoteSpan = null;
         let footnoteId = `X-${workspace.footnoteIndex + 1}`;
         let footnoteDiv = document.createElement('div');
@@ -604,8 +632,7 @@ TODO:
                 break;
             default:
                 if (e.target.classList.contains('ref-link')) {
-                    const linkRef = e.target.getAttribute('ref');
-                    console.log('REF-LINK %o', linkRef);
+                    referenceLinkClickHandler(e);
                     break;
                 }
                 if (!$audioPlayer.playing) {
@@ -613,9 +640,6 @@ TODO:
                 }
                 break;
         }
-    }
-    function onClickRef(e:any) {
-        console.log("DIV Clicked %o", e);
     }
     function chapterCount(book) {
         const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -642,8 +666,7 @@ TODO:
         // Is it possible that this could be called and proskomma is not set yet?
         if (!proskomma) return;
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
-
-        const fnc = 'abcdefghijklmnopqrstuvwxyz';
+        console.log('DocSet %o', docSet);
         const cl = new SofriaRenderFromProskomma({
             proskomma,
             actions: {
@@ -679,6 +702,7 @@ TODO:
                             workspace.textType = [];
                             workspace.titleText = [];
                             workspace.headerText = [];
+                            workspace.audioClips = [];
                             workspace.usfmWrapperType = '';
                             workspace.showWordsOfJesus = showRedLetters;
                             workspace.lastPhraseTerminated = false;

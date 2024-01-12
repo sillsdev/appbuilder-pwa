@@ -1,6 +1,6 @@
-import { isNotBlank } from "./stringUtils";
+import { isNotBlank } from './stringUtils';
 
-function getIntFromNumberString(str: string): number {
+export function getIntFromNumberString(str: string): number {
     let result: number = 0;
 
     try {
@@ -23,7 +23,7 @@ function getIntFromNumberString(str: string): number {
 /**
  * Converts digits in the string to the default numeral system
  */
-function convertDigitsInStringToDefaultNumeralSystem(str: string): string {
+export function convertDigitsInStringToDefaultNumeralSystem(str: string): string {
     const sb: string[] = [];
 
     for (let i = 0; i < str.length; i++) {

@@ -7,85 +7,89 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
     const len = inner.length;
     let pos = 0;
     let phrase = '';
+    const nonMarkdownArray = findMarkdowns(inner);
     while (pos < len) {
         const c = inner.charAt(pos);
+        const isMarkdown = charIsMarkdown(pos, nonMarkdownArray);
         phrase += c;
-        let foundPhraseEndChar = isPhraseEndingChar(c, seprgx);
-        if (foundPhraseEndChar) {
-            foundPhraseEndChar = !char_is_number_separator(inner, pos);
-        }
-        if (foundPhraseEndChar) {
-            foundPhraseEndChar = !char_starts_phrase(inner, pos);
-        }
-        if (foundPhraseEndChar) {
-            // Not sure if we'll see this one but left it in
-            foundPhraseEndChar = !char_ends_html(phrase, pos);
-        }
-        if (foundPhraseEndChar) {
-            if (c === ' ') {
-                // Space as phrase end char
-                // We don't want the space highlighted, so move back one character
-                phrase = phrase.slice(0, -1);
-                pos--;
-            } else if (c === '\u0591') {
-                // Hebrew atnah
-                // Instead of employing sentence and phrase punctuation, all verses of Hebrew Scripture
-                // contain either one or two communication units.
-                // Most verses contain two of these units (there can never be more than two).
-                // An "atnah," or vertical wedge ^, marks the end of the first communication unit.
-                // The placement of the atnah in Hebrew, however, is under the first consonant
-                // of the last syllable in the first communication unit.
-
-                // Collect up more letters until we reach a word break
-                // TODO: this needs to be checked at some point. I'm not sure if the letter check
-                // here is sufficiently the same as the Character.isAlphabetic in the java code
-                while (pos < len - 1 && char_is_letter(inner.charAt(pos + 1))) {
-                    phrase += inner.charAt(pos + 1);
-                    pos++;
-                }
+        if (!isMarkdown) {
+            let foundPhraseEndChar = isPhraseEndingChar(c, seprgx);
+            if (foundPhraseEndChar) {
+                foundPhraseEndChar = !char_is_number_separator(inner, pos);
             }
+            if (foundPhraseEndChar) {
+                foundPhraseEndChar = !char_starts_phrase(inner, pos);
+            }
+            if (foundPhraseEndChar) {
+                // Not sure if we'll see this one but left it in
+                foundPhraseEndChar = !char_ends_html(phrase, pos);
+            }
+            if (foundPhraseEndChar) {
+                if (c === ' ') {
+                    // Space as phrase end char
+                    // We don't want the space highlighted, so move back one character
+                    phrase = phrase.slice(0, -1);
+                    pos--;
+                } else if (c === '\u0591') {
+                    // Hebrew atnah
+                    // Instead of employing sentence and phrase punctuation, all verses of Hebrew Scripture
+                    // contain either one or two communication units.
+                    // Most verses contain two of these units (there can never be more than two).
+                    // An "atnah," or vertical wedge ^, marks the end of the first communication unit.
+                    // The placement of the atnah in Hebrew, however, is under the first consonant
+                    // of the last syllable in the first communication unit.
 
-            if (pos < len - 1) {
-                let nextChar1 = pos < len - 1 ? inner.charAt(pos + 1) : 0;
-                let nextChar2 = pos < len - 2 ? inner.charAt(pos + 2) : 0;
-                while (
-                    isClosingSpeechChar(nextChar1) ||
-                    isClosingSpeechCharAfterSpace(nextChar1) ||
-                    (nextChar1 !== ' ' && isPhraseEndingChar(nextChar1, seprgx)) ||
-                    (nextChar1 === ' ' &&
-                        (isClosingSpeechCharAfterSpace(nextChar2) ||
-                            isClosingParenthesisChar(nextChar2)))
-                ) {
-                    if (nextChar1 === ' ') {
-                        // Next string was a space and then a closing speech character or closing parenthesis
-                        phrase += nextChar1;
-                        phrase += nextChar2;
-                        pos += 2;
-                    } else {
-                        phrase += nextChar1;
+                    // Collect up more letters until we reach a word break
+                    // TODO: this needs to be checked at some point. I'm not sure if the letter check
+                    // here is sufficiently the same as the Character.isAlphabetic in the java code
+                    while (pos < len - 1 && char_is_letter(inner.charAt(pos + 1))) {
+                        phrase += inner.charAt(pos + 1);
                         pos++;
                     }
-                    if (pos < len - 1) {
-                        nextChar1 = pos < len - 1 ? inner.charAt(pos + 1) : 0;
-                        nextChar2 = pos < len - 2 ? inner.charAt(pos + 2) : 0;
-                    } else {
-                        break;
+                }
+
+                if (pos < len - 1) {
+                    let nextChar1 = pos < len - 1 ? inner.charAt(pos + 1) : 0;
+                    let nextChar2 = pos < len - 2 ? inner.charAt(pos + 2) : 0;
+                    while (
+                        isClosingSpeechChar(nextChar1) ||
+                        isClosingSpeechCharAfterSpace(nextChar1) ||
+                        (nextChar1 !== ' ' && isPhraseEndingChar(nextChar1, seprgx)) ||
+                        (nextChar1 === ' ' &&
+                            (isClosingSpeechCharAfterSpace(nextChar2) ||
+                                isClosingParenthesisChar(nextChar2)))
+                    ) {
+                        if (nextChar1 === ' ') {
+                            // Next string was a space and then a closing speech character or closing parenthesis
+                            phrase += nextChar1;
+                            phrase += nextChar2;
+                            pos += 2;
+                        } else {
+                            phrase += nextChar1;
+                            pos++;
+                        }
+                        if (pos < len - 1) {
+                            nextChar1 = pos < len - 1 ? inner.charAt(pos + 1) : 0;
+                            nextChar2 = pos < len - 2 ? inner.charAt(pos + 2) : 0;
+                        } else {
+                            break;
+                        }
                     }
                 }
-            }
-            // If there are 3 or fewer characters left in the phrase, collect them up
-            if (len - pos < 4) {
-                phrase += inner.substring(pos + 1);
-                pos = len - 1;
-            }
+                // If there are 3 or fewer characters left in the phrase, collect them up
+                if (len - pos < 4) {
+                    phrase += inner.substring(pos + 1);
+                    pos = len - 1;
+                }
 
-            // Collect up any spaces.
-            while (pos < len - 1 && inner.charAt(pos + 1) === ' ') {
-                phrase += ' ';
-                pos++;
+                // Collect up any spaces.
+                while (pos < len - 1 && inner.charAt(pos + 1) === ' ') {
+                    phrase += ' ';
+                    pos++;
+                }
+                phrases.push(phrase);
+                phrase = '';
             }
-            phrases.push(phrase);
-            phrase = '';
         }
         pos++;
     }
@@ -145,6 +149,39 @@ function convertCharCodesToString(inputChars: string) {
         }
     }
     return chars;
+}
+function findMarkdowns(input: string) {
+    const patternString = /(!?)\[([^\[]*?)\]\((.*?)\)/;
+    let inputString = input;
+    let match;
+    let markdownFound = false;
+    const nonMarkdownArray = [];
+    let phraseStart = 0;
+    while ((match = patternString.exec(inputString)) !== null) {
+        markdownFound = true;
+        if (match.index > 0) {
+            nonMarkdownArray.push([phraseStart, phraseStart + match.index - 1]);   
+        }
+        phraseStart = phraseStart + match.index + match[0].length;
+        inputString = inputString.substring(match.index + match[0].length);
+    }
+    if (phraseStart < input.length) {
+        nonMarkdownArray.push([phraseStart, input.length - 1]);
+    }
+    return nonMarkdownArray;
+}
+function charIsMarkdown(pos: number, markdownArray): boolean {
+    let result = true;
+    for (const [from, to] of markdownArray) {
+        if (from > pos) {
+            break;
+        }
+        if ((from <= pos) && (to >= pos )) {
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 const char_is_numeric = (c: string) => {
     return /^\d$/.test(c);

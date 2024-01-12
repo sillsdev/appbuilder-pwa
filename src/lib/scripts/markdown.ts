@@ -15,13 +15,15 @@ export function isTelephoneNumberLink(ref: string): boolean {
 export function isLocalAudioFile(ref: string): boolean {
     let result = false;
     const refLower = ref.toLowerCase();
-
+    console.log('LOCAL AUDIO CHECK 1 %o', refLower);
     if (!refLower.startsWith('http')) {
         const ext = getFilenameExt(refLower);
+        console.log('LOCAL AUDIO CHECK %o', ext);
         if (ext != null) {
             result = ext === 'mp3' || ext === 'ogg' || ext === 'wav';
         }
     }
+    console.log("RETURNING");
     return result;
 }
 export function isImageLink(ref: string, excl: string): boolean {
@@ -66,7 +68,16 @@ export function getTelephoneHtmlFromMarkdownLink(link: string, text: string): HT
     a.innerHTML = text;
     return a;
 }
-export function getImageHtmlFromMarkdownLink(link: string, stylePrefix: string, base: string): HTMLElement {
+export function getAudioHtmlFromMarkdownLink(link: string, text: string): HTMLElement {
+    const a = document.createElement('audio');
+    return a;
+
+}
+export function getImageHtmlFromMarkdownLink(
+    link: string,
+    stylePrefix: string,
+    base: string
+): HTMLElement {
     let imgFilename = link;
     if (!imgFilename.includes('/')) {
         imgFilename = base + '/illustrations/' + imgFilename;
@@ -81,7 +92,7 @@ export function getImageHtmlFromMarkdownLink(link: string, stylePrefix: string, 
     div.appendChild(img);
     return div;
 }
-export function getReferenceHtmlFromMarkdownLink(link: string, text: string) : HTMLElement {
+export function getReferenceHtmlFromMarkdownLink(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.classList.add('web-link');
     a.classList.add('ref-link');
