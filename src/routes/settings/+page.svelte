@@ -19,7 +19,7 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh; font-family: initial;">
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh; font-family: initial;" dir={$direction}>
     <div class="navbar">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
@@ -52,7 +52,7 @@
                             />
                         </label>
                         {#if setting.summary}
-                            <div class="settings-summary py-0 pl-1">
+                            <div class="settings-summary py-0 ps-1">
                                 {$t[setting.summary]}
                             </div>
                         {/if}
