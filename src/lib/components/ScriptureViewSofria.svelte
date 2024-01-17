@@ -24,8 +24,8 @@ TODO:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
-    import { getAudioHtmlFromMarkdownLink, getEmailHtmlFromMarkdownLink, getImageHtmlFromMarkdownLink, getReferenceHtmlFromMarkdownLink, getWebHtmlFromMarkdownLink, isEmailLink, isImageLink, isLocalAudioFile, isTelephoneNumberLink, isWebLink } from '$lib/scripts/markdown';
-    import { isBlank, isNotBlank } from '$lib/scripts/stringUtils';
+    import { getAudioLinkHtml, getEmailLinkHtml, getReferenceLinkHtml, getTelephoneLinkHtml, getWebLinkHtml} from '$lib/scripts/markdown';
+    import { isNotBlank } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -197,14 +197,15 @@ TODO:
         }
         return;
     };
-    const usfmSpan = (parent: any, spanClass: string, phrase: string, audioClips) => {
-        let spanElement = document.createElement('span');
+    const usfmSpan = (parent: any, spanClass: string, phrase: string) => {
+        const spanElement = document.createElement('span');
         let child;
         spanElement.classList.add(spanClass);
         if (spanClass === 'xt') {
             spanElement.innerHTML = generateHTML(phrase);
         } else {
-            spanElement = appendTextNode(spanElement, phrase, audioClips);
+            child = document.createTextNode(phrase);
+            spanElement.appendChild(child);
         }
         parent.appendChild(spanElement);
         return parent;
@@ -215,23 +216,25 @@ TODO:
             switch (usfmWrapperType) {
                 case 'wj': {
                     if (workspace.showWordsOfJesus) {
-                        div = usfmSpan(div, usfmWrapperType, phrase, workspace.audioClips);
+                        div = usfmSpan(div, usfmWrapperType, phrase);
                     } else {
-                        div = appendTextNode(div, phrase, workspace.audioClips);
+                        const textNode = document.createTextNode(phrase);
+                        div.appendChild(textNode);
                     }
                     break;
                 }
                 case 'w': {
-                    div = usfmSpan(div, 'glossary', phrase, workspace.audioClips);
+                    div = usfmSpan(div, 'glossary', phrase);
                     break;
                 }
                 default: {
-                    div = usfmSpan(div, usfmWrapperType, phrase, workspace.audioClips);
+                    div = usfmSpan(div, usfmWrapperType, phrase);
                     break;
                 }
             }
         } else {
-            div = appendTextNode(div, phrase, workspace.audioClips);
+            const textNode = document.createTextNode(phrase);
+            div.appendChild(textNode);
         }
         return div;
     };
@@ -394,57 +397,6 @@ TODO:
             }
         });
     }
-    function appendTextNode(element: HTMLElement, input: string, audioClips) {
-        let inputString = input;
-        const patternString = /(!?)\[([^\[]*?)\]\((.*?)\)/;
-        let match;
-        while ((match = patternString.exec(inputString)) !== null) {
-            // Append text segment with 1st part of string
-            const textSegment = inputString.substring(0, match.index);
-            if (textSegment.length > 0) {
-                const textNode = document.createTextNode(textSegment);
-                element.appendChild(textNode);
-            }
-            // Handle markdown
-            let excl = match[1];
-            let text = match[2];
-            let ref = match[3];
-            const link = ref;
-            if (isBlank(ref)) {
-                // Empty link reference, e.g. [text]()
-                // Output simple text without a link
-                const textNode = document.createTextNode(text);
-                element.appendChild(textNode);
-            } else if (isLocalAudioFile(ref)) {
-                audioClips.push(link);
-                const [audioEntry, audioLink] = getAudioHtmlFromMarkdownLink(link, text, audioClips.length);
-                element.appendChild(audioEntry);
-                element.appendChild(audioLink);
-            } else if (isImageLink(ref, excl)) {
-                // Image ![alt text](image.png)
-                const imgLink = getImageHtmlFromMarkdownLink(ref, '', base);
-                element.appendChild(imgLink);
-            } else if (isWebLink(ref)) {
-                const webLink = getWebHtmlFromMarkdownLink(link, text);    
-                element.appendChild(webLink);
-            } else if (isEmailLink(ref)) {
-                const emailLink = getEmailHtmlFromMarkdownLink(link, text);
-                element.appendChild(emailLink);
-            } else if (isTelephoneNumberLink(ref)) {
-                const telLink = getEmailHtmlFromMarkdownLink(link, text);
-                element.appendChild(telLink);
-            } else {
-                const refLink = getReferenceHtmlFromMarkdownLink(link, text);
-                element.appendChild(refLink);
-            }
-            inputString = inputString.substring(match.index + match[0].length);
-        }
-        if (inputString.length > 0) {
-            const textNode = document.createTextNode(inputString);
-            element.appendChild(textNode);
-        }
-        return element;
-    }
     function createFootnoteDiv(workspace, element) {
         let footnoteSpan = null;
         let footnoteId = `X-${workspace.footnoteIndex + 1}`;
@@ -599,6 +551,16 @@ TODO:
             console.error('Error checking image existence:', error);
         }
     }
+    function appendMilestoneElement(workspace: any, reflink: HTMLElement, pop: boolean) {
+        if (workspace.textType.includes('footnote')) {
+            workspace.footnoteDiv.appendChild(reflink);
+        } else {
+            workspace.phraseDiv.appendChild(reflink);
+        }
+        if (pop) {
+            workspace.textType.pop();
+        }
+    }
     function preprocessAction(action: string, workspace: any) {
         // Table ends if row ended and anything other than start row follows it
         if (!workspace.inRow && workspace.inTable && !(action === 'startRow')) {
@@ -674,6 +636,8 @@ TODO:
                             workspace.firstVerse = true;
                             workspace.currentVerse = 'none';
                             workspace.currentPhraseIndex = 0;
+                            workspace.milestoneLink = '';
+                            workspace.milestoneText = '';
                             workspace.lastPhrase = 'a';
                             workspace.introductionGraft = false;
                             workspace.titleGraft = false;
@@ -738,11 +702,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Start Paragraph %o %o',
-                            //     context.sequences[0].block,
-                            //     context.sequences[0].type
-                            // );
+                            console.log(
+                                'Start Paragraph %o %o',
+                                context.sequences[0].block,
+                                context.sequences[0].type
+                            );
                             const sequenceType = context.sequences[0].type;
                             preprocessAction('startPara', workspace);
                             if (
@@ -783,7 +747,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('End paragraph: Sequence type ' + sequenceType);
+                            console.log('End paragraph: Sequence type ' + sequenceType);
                             // console.log(
                             //     'End Paragraph %o %o',
                             //     context.sequences[0].block,
@@ -870,7 +834,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('Start Verses %o %o', element.atts['number'], element);
+                            console.log('Start Verses %o %o', element.atts['number'], element);
                             preprocessAction('startVerses', workspace);
                             workspace.textType.push('verses');
                             if (!displayingIntroduction) {
@@ -893,7 +857,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('End Verses %o %o', element.atts['number'], element);
+                            console.log('End Verses %o %o', element.atts['number'], element);
                             /*const textTypeV = workspace.textType.pop(); */
                             // if (textTypeV != 'verses') {
                             //     console.log('Verses texttype mismatch!!! %o', textTypeV);
@@ -927,7 +891,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('Start Chapter %o %o', element.atts['number'], element);
+                            console.log('Start Chapter %o %o', element.atts['number'], element);
                             preprocessAction('startChapter', workspace);
                         }
                     }
@@ -938,7 +902,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('End Chapter %o %o', element.atts['number'], element);
+                            console.log('End Chapter %o %o', element.atts['number'], element);
                             preprocessAction('endChapter', workspace);
                         }
                     }
@@ -948,12 +912,12 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Text element: %o %o %o',
-                            //     context.sequences[0].element.type,
-                            //     context.sequences[0].element.text,
-                            //     context.sequences[0].block
-                            // );
+                            console.log(
+                                'Text element: %o %o %o',
+                                context.sequences[0].element.type,
+                                context.sequences[0].element.text,
+                                context.sequences[0].block
+                            );
                             // console.log('Text Type: %o', currentTextType(workspace));
                             preprocessAction('text', workspace);
                             if (
@@ -977,6 +941,14 @@ TODO:
                                     case 'fig': {
                                         const divFigureText = createIllustrationCaptionBlock(text);
                                         workspace.figureDiv.append(divFigureText);
+                                        break;
+                                    }
+                                    case 'audioc':
+                                    case 'reflink':
+                                    case 'tellink':
+                                    case 'elink':
+                                    case 'weblink': {
+                                        workspace.milestoneText = text;
                                         break;
                                     }
                                     default: {
@@ -1011,7 +983,7 @@ TODO:
                         description: 'Meta Content',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Meta Content %o', context.sequences[0].element);
+                            console.log('Meta Content %o', context.sequences[0].element);
                             preprocessAction('metaContent', workspace);
                         }
                     }
@@ -1022,11 +994,11 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log(
-                            //     'Mark: SubType %o, Atts: %o',
-                            //     element.subType,
-                            //     element.atts
-                            // );
+                            console.log(
+                                'Mark: SubType %o, Atts: %o',
+                                element.subType,
+                                element.atts
+                            );
                             preprocessAction('mark', workspace);
                             if (
                                 processText(
@@ -1050,7 +1022,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('start sequence %o', sequenceType);
+                            console.log('start sequence %o', sequenceType);
                             preprocessAction('startSequence', workspace);
                             if (
                                 processText(
@@ -1085,6 +1057,9 @@ TODO:
                                         workspace.textType.push('fig');
                                         break;
                                     }
+                                    case 'footnote': {
+                                        workspace.textType.push('footnote');
+                                    }
                                     default: {
                                         break;
                                     }
@@ -1100,7 +1075,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('End sequence |%o|', sequenceType);
+                            console.log('End sequence |%o|', sequenceType);
                             preprocessAction('endSequence', workspace);
                             if (
                                 processText(
@@ -1161,6 +1136,10 @@ TODO:
                                         workspace.textType.pop();
                                         break;
                                     }
+                                    case 'footnote': {
+                                        workspace.textType.pop();
+                                        break;
+                                    }
                                     default: {
                                         break;
                                     }
@@ -1174,7 +1153,7 @@ TODO:
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            // console.log('Block Graft %o', environment.context.sequences[0].block);
+                            console.log('Block Graft %o', environment.context.sequences[0].block);
                             preprocessAction('blockGraft', environment.workspace);
                             const currentBlock = environment.context.sequences[0].block;
                             const graftRecord = {
@@ -1212,13 +1191,13 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            // console.log(
-                            //     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                            //     element.type,
-                            //     element.subType,
-                            //     element.sequence.id,
-                            //     environment.context.sequences[0].element
-                            // );
+                            console.log(
+                                'Inline Graft Type: %o, Subtype: %o, id: %o %o',
+                                element.type,
+                                element.subType,
+                                element.sequence.id,
+                                environment.context.sequences[0].element
+                            );
                             preprocessAction('inlineGraft', workspace);
                             let footnoteSpan = null;
                             const graftRecord = {
@@ -1256,7 +1235,7 @@ TODO:
                                     // console.log('note caller text type mismatch!!! %o', textTypeF);
                                 }
                             }
-                            // console.log('Inline Graft End');
+                            console.log('Inline Graft End');
                         }
                     }
                 ],
@@ -1265,7 +1244,7 @@ TODO:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Start Wrapper %o', context.sequences[0].element);
+                            console.log('Start Wrapper %o', context.sequences[0].element);
                             preprocessAction('startWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1321,7 +1300,7 @@ TODO:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('End Wrapper %o', context.sequences[0].element);
+                            console.log('End Wrapper %o', context.sequences[0].element);
                             preprocessAction('endWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1364,17 +1343,49 @@ TODO:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Start Milestone %o', context.sequences[0].element);
+                            console.log('Start Milestone %o', context.sequences[0].element);
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
-                            if (element.subType === 'usfm:zvideo') {
-                                const id = element.atts['id'][0];
-                                const video = config.videos.find((x) => x.id === id);
-                                workspace.videoDiv = createVideoBlock(
-                                    document,
-                                    video,
-                                    workspace.currentVideoIndex++
-                                );
+                            switch (element.subType) {
+                                case 'usfm:zvideo': {
+                                    const id = element.atts['id'][0];
+                                    const video = config.videos.find((x) => x.id === id);
+                                    workspace.videoDiv = createVideoBlock(
+                                        document,
+                                        video,
+                                        workspace.currentVideoIndex++
+                                    );
+                                    break;
+                                }
+                                case 'usfm:zaudioc': {
+                                    workspace.textType.push('audioc');
+                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    workspace.audioClips.push(workspace.milestoneLink);
+                                    break;
+                                }
+                                case 'usfm:zreflink': {
+                                    workspace.textType.push('reflink');
+                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    break;
+                                }
+                                case 'usfm:zweblink': {
+                                    workspace.textType.push('weblink');
+                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    break;
+                                }
+                                case 'usfm:ztellink': {
+                                    workspace.textType.push('tellink');
+                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    break;
+                                }
+                                case 'usfm:zelink': {
+                                    workspace.textType.push('elink');
+                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    break;
+                                }
+                                default: {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1384,8 +1395,42 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('End Milestone %o', context.sequences[0].element);
+                            console.log('End Milestone %o', context.sequences[0].element);
                             preprocessAction('endMilestone', workspace);
+                            const element = context.sequences[0].element;
+                            switch (element.subType) {
+                                case 'usfm:zaudioc': {
+                                    const [audioEntry, audioLink] = getAudioLinkHtml(workspace.milestoneLink, workspace.milestoneText, workspace.audioClips.length);
+                                    appendMilestoneElement(workspace, audioEntry, false);
+                                    appendMilestoneElement(workspace, audioLink, true);
+                                    break;
+                                }
+                                case 'usfm:zreflink': {
+                                    const reflink = getReferenceLinkHtml(workspace.milestoneLink, workspace.milestoneText);
+                                    appendMilestoneElement(workspace, reflink, true);
+                                    break;
+                                }
+                                case 'usfm:zweblink': {
+                                    const reflink = getWebLinkHtml(workspace.milestoneLink, workspace.milestoneText);
+                                    appendMilestoneElement(workspace, reflink, true);
+                                    break;
+                                }
+                                case 'usfm:ztellink': {
+                                    const reflink = getTelephoneLinkHtml(workspace.milestoneLink, workspace.milestoneText);
+                                    appendMilestoneElement(workspace, reflink, true);
+                                    break;
+                                }
+                                case 'usfm:zelink': {
+                                    const reflink = getEmailLinkHtml(workspace.milestoneLink, workspace.milestoneText);
+                                    appendMilestoneElement(workspace, reflink, true);
+                                    break;
+                                }
+                                default: {
+                                    break;
+                                }
+                            }
+                            workspace.milestoneLink = '';
+                            workspace.milestoneText = '';
                         }
                     }
                 ],
