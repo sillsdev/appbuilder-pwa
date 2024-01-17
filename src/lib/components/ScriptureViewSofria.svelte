@@ -702,11 +702,11 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
-                                'Start Paragraph %o %o',
-                                context.sequences[0].block,
-                                context.sequences[0].type
-                            );
+                            // console.log(
+                            //     'Start Paragraph %o %o',
+                            //     context.sequences[0].block,
+                            //     context.sequences[0].type
+                            // );
                             const sequenceType = context.sequences[0].type;
                             preprocessAction('startPara', workspace);
                             if (
@@ -747,7 +747,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('End paragraph: Sequence type ' + sequenceType);
+                            // console.log('End paragraph: Sequence type ' + sequenceType);
                             // console.log(
                             //     'End Paragraph %o %o',
                             //     context.sequences[0].block,
@@ -834,7 +834,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log('Start Verses %o %o', element.atts['number'], element);
+                            // console.log('Start Verses %o %o', element.atts['number'], element);
                             preprocessAction('startVerses', workspace);
                             workspace.textType.push('verses');
                             if (!displayingIntroduction) {
@@ -857,7 +857,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log('End Verses %o %o', element.atts['number'], element);
+                            // console.log('End Verses %o %o', element.atts['number'], element);
                             /*const textTypeV = workspace.textType.pop(); */
                             // if (textTypeV != 'verses') {
                             //     console.log('Verses texttype mismatch!!! %o', textTypeV);
@@ -890,8 +890,8 @@ TODO:
                         description: 'Start Chapter',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            const element = context.sequences[0].element;
-                            console.log('Start Chapter %o %o', element.atts['number'], element);
+                            // const element = context.sequences[0].element;
+                            // console.log('Start Chapter %o %o', element.atts['number'], element);
                             preprocessAction('startChapter', workspace);
                         }
                     }
@@ -901,8 +901,8 @@ TODO:
                         description: 'End Chapter',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            const element = context.sequences[0].element;
-                            console.log('End Chapter %o %o', element.atts['number'], element);
+                            // const element = context.sequences[0].element;
+                            // console.log('End Chapter %o %o', element.atts['number'], element);
                             preprocessAction('endChapter', workspace);
                         }
                     }
@@ -912,12 +912,12 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log(
-                                'Text element: %o %o %o',
-                                context.sequences[0].element.type,
-                                context.sequences[0].element.text,
-                                context.sequences[0].block
-                            );
+                            // console.log(
+                            //     'Text element: %o %o %o',
+                            //     context.sequences[0].element.type,
+                            //     context.sequences[0].element.text,
+                            //     context.sequences[0].block
+                            // );
                             // console.log('Text Type: %o', currentTextType(workspace));
                             preprocessAction('text', workspace);
                             if (
@@ -983,7 +983,7 @@ TODO:
                         description: 'Meta Content',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Meta Content %o', context.sequences[0].element);
+                            // console.log('Meta Content %o', context.sequences[0].element);
                             preprocessAction('metaContent', workspace);
                         }
                     }
@@ -994,11 +994,11 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            console.log(
-                                'Mark: SubType %o, Atts: %o',
-                                element.subType,
-                                element.atts
-                            );
+                            // console.log(
+                            //     'Mark: SubType %o, Atts: %o',
+                            //     element.subType,
+                            //     element.atts
+                            // );
                             preprocessAction('mark', workspace);
                             if (
                                 processText(
@@ -1022,7 +1022,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('start sequence %o', sequenceType);
+                            // console.log('start sequence %o', sequenceType);
                             preprocessAction('startSequence', workspace);
                             if (
                                 processText(
@@ -1076,7 +1076,7 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            console.log('End sequence |%o|', sequenceType);
+                            // console.log('End sequence |%o|', sequenceType);
                             preprocessAction('endSequence', workspace);
                             if (
                                 processText(
@@ -1154,7 +1154,7 @@ TODO:
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            console.log('Block Graft %o', environment.context.sequences[0].block);
+                            // console.log('Block Graft %o', environment.context.sequences[0].block);
                             preprocessAction('blockGraft', environment.workspace);
                             const currentBlock = environment.context.sequences[0].block;
                             const graftRecord = {
@@ -1181,7 +1181,7 @@ TODO:
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
                         }
                     }
                 ],
@@ -1192,13 +1192,13 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            console.log(
-                                'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                                element.type,
-                                element.subType,
-                                element.sequence.id,
-                                environment.context.sequences[0].element
-                            );
+                            // console.log(
+                            //     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
+                            //     element.type,
+                            //     element.subType,
+                            //     element.sequence.id,
+                            //     environment.context.sequences[0].element
+                            // );
                             preprocessAction('inlineGraft', workspace);
                             let footnoteSpan = null;
                             const graftRecord = {
@@ -1236,7 +1236,7 @@ TODO:
                                     // console.log('note caller text type mismatch!!! %o', textTypeF);
                                 }
                             }
-                            console.log('Inline Graft End');
+                            // console.log('Inline Graft End');
                         }
                     }
                 ],
@@ -1245,7 +1245,7 @@ TODO:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Start Wrapper %o', context.sequences[0].element);
+                            // console.log('Start Wrapper %o', context.sequences[0].element);
                             preprocessAction('startWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1301,7 +1301,7 @@ TODO:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('End Wrapper %o', context.sequences[0].element);
+                            // console.log('End Wrapper %o', context.sequences[0].element);
                             preprocessAction('endWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1344,7 +1344,7 @@ TODO:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('Start Milestone %o', context.sequences[0].element);
+                            // console.log('Start Milestone %o', context.sequences[0].element);
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
                             switch (element.subType) {
@@ -1396,7 +1396,7 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            console.log('End Milestone %o', context.sequences[0].element);
+                            // console.log('End Milestone %o', context.sequences[0].element);
                             preprocessAction('endMilestone', workspace);
                             const element = context.sequences[0].element;
                             switch (element.subType) {
