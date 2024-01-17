@@ -151,7 +151,7 @@ function convertCharCodesToString(inputChars: string) {
     return chars;
 }
 function findMarkdowns(input: string) {
-    const patternString = /(!?)\[([^\[]*?)\]\((.*?)\)/;
+    const patternString = /(!?)\[([^[]*?)\]\((.*?)\)/;
     let inputString = input;
     let match;
     let markdownFound = false;

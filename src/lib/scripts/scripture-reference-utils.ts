@@ -250,7 +250,7 @@ function parseVerseRangeString(input: string): [number, number, string] {
         inputToUse = input.replace('\u2013', '-');
         // Replace any non-default numeral system digits
         inputToUse = convertDigitsInStringToDefaultNumeralSystem(inputToUse);
-        const VERSE_RANGE_PATTERN: RegExp = /(\d+(\w?))(?:\u200F?([\-,])(\d+(\w?)))?/;
+        const VERSE_RANGE_PATTERN: RegExp = /(\d+(\w?))(?:\u200F?([-,])(\d+(\w?)))?/;
         const match: RegExpMatchArray | null = inputToUse.match(VERSE_RANGE_PATTERN);
 
         if (match) {

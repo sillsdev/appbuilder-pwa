@@ -1059,6 +1059,7 @@ TODO:
                                     }
                                     case 'footnote': {
                                         workspace.textType.push('footnote');
+                                        break;
                                     }
                                     default: {
                                         break;
