@@ -24,8 +24,8 @@ TODO:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
-    import { getAudioLinkHtml, getEmailLinkHtml, getReferenceLinkHtml, getTelephoneLinkHtml, getWebLinkHtml} from '$lib/scripts/markdown';
-    import { isNotBlank } from '$lib/scripts/stringUtils';
+    import { getAudioLinkHtml, getEmailLinkHtml, getReferenceLinkHtml, getTelephoneLinkHtml, getWebLinkHtml} from '$lib/scripts/milestoneLinks';
+    import { isBlank, isNotBlank } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -297,7 +297,7 @@ TODO:
     // handles clicks on in text markdown reference links
     function referenceLinkClickHandler(event: any) {
         const linkRef = event.target.getAttribute('ref');
-        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(linkRef);
+        let [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(linkRef);
         const [fromVerse, toVerse, separator] = verseRanges[0];
         if ((book === '') && (fromChapter === -1)) {
             // Invalid link
@@ -312,6 +312,9 @@ TODO:
                 // Invalid collection
                 return;
             }
+        }
+        if (book === '') {
+            book = currentBook;
         }
         let refVerse = fromVerse;
         if (refVerse < 1) {

@@ -1,4 +1,4 @@
-import { filenameWithoutPath, getFilenameExt, padWithInitialZeros } from './stringUtils';
+import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 
 export function getWebLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');

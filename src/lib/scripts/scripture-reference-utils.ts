@@ -187,18 +187,23 @@ export function getReferenceFromString(
         if (m) {
             // Book collection and book
             bookId = m[1];
-
             // Chapter number or range
-            const chapter: string = m[2];
+            let chapter: string = m[2];
+            // Verse or verse range
+            let verses: string = m[3];
+
+            // For case of only verse chapter in reference
+            if (!containsRomanScriptLetter(m[1])) {
+                bookId = '';
+                chapter = m[1];
+                verses = m[2];
+            }
             if (isPositiveInteger(chapter)) {
                 fromChapter = getIntFromString(chapter);
                 toChapter = fromChapter;
             } else {
                 [fromChapter, toChapter] = parseChapterRange(chapter);
             }
-            // Verse or verse range
-            const verses: string = m[3];
-
             if (isNotBlank(verses)) {
                 verseRanges = parseVerseRange(verses);
             }
