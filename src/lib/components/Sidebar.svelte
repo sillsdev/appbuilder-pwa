@@ -22,7 +22,6 @@ The sidebar/drawer.
     import {
         s,
         t,
-        themeColors,
         language,
         languageDefault,
         showDesktopSidebar,
@@ -71,7 +70,6 @@ The sidebar/drawer.
     $: iconColor = $s['ui.drawer.item.icon']['color'];
     $: contentBackgroundColor = $s['ui.background']['background-color'];
     $: drawerBackgroundColor = $s['ui.drawer']['background-color'];
-    $: contentTextColor = $themeColors['TextColor'];
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />
@@ -79,7 +77,7 @@ The sidebar/drawer.
 <div
     class="dy-drawer"
     class:dy-drawer-mobile={$showDesktopSidebar}
-    class:dy-drawer-end={$direction === 'rtl'}
+    dir={$direction}
 >
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div class="dy-drawer-content flex flex-col" style:background-color={contentBackgroundColor}>
@@ -90,7 +88,7 @@ The sidebar/drawer.
     <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer} role="navigation">
         <div class="dy-drawer-overlay" />
         <ul
-            class="dy-menu p-1 w-3/4 sm:w-80 text-base-content"
+            class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
             style:background-color={drawerBackgroundColor}
             style:direction={$direction}
         >
@@ -225,17 +223,7 @@ The sidebar/drawer.
 </div>
 
 <style>
-    .dy-menu {
-        position: absolute;
-        top: 4rem;
-        min-height: calc(100vh - 4rem);
-        min-height: calc(100dvh - 4rem);
-    }
-    /* fixes the text items in rtl so that they are next to the icon */
-    .dy-menu li {
-        flex-direction: row;
-    }
-    a {
+    .dy-menu li a {
         text-decoration: none;
     }
     .fill {
