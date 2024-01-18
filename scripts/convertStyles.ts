@@ -41,6 +41,9 @@ export function convertStyles(dataDir: string, verbose: number) {
                     line = line.replace('padding-right', 'padding-inline-end');
                     line = line.replace('float: left', 'display: inline-block');
                 }
+                if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
+                    line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
+                }
                 return line;
             })
             .join('\n');
