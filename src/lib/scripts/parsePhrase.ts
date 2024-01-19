@@ -10,7 +10,6 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
     while (pos < len) {
         const c = inner.charAt(pos);
         phrase += c;
-    
         let foundPhraseEndChar = isPhraseEndingChar(c, seprgx);
         if (foundPhraseEndChar) {
             foundPhraseEndChar = !char_is_number_separator(inner, pos);
@@ -88,7 +87,6 @@ export const parsePhrase = (inner: any, seprgx: RegExp) => {
             phrases.push(phrase);
             phrase = '';
         }
-        
         pos++;
     }
     // If unterminated phrase present, add it to list
@@ -148,7 +146,6 @@ function convertCharCodesToString(inputChars: string) {
     }
     return chars;
 }
-
 const char_is_numeric = (c: string) => {
     return /^\d$/.test(c);
 };
