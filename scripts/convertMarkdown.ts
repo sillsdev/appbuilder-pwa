@@ -1,7 +1,24 @@
-import { convertDigitsInStringToDefaultNumeralSystem, getIntFromNumberString } from "./numeralUtils";
-import { containsRomanScriptLetter, getFilenameExt, getFirstDigitsAsInt, getIntFromString, isBlank, isNotBlank, isPositiveInteger, splitString, stripAllExceptDigitsAndHyphens } from "./stringUtils";
+import {
+    convertDigitsInStringToDefaultNumeralSystem,
+    getIntFromNumberString
+} from './numeralUtils';
+import {
+    containsRomanScriptLetter,
+    getFilenameExt,
+    getFirstDigitsAsInt,
+    getIntFromString,
+    isBlank,
+    isNotBlank,
+    isPositiveInteger,
+    splitString,
+    stripAllExceptDigitsAndHyphens
+} from './stringUtils';
 
-export function convertMarkdownsToMilestones(content: string, docSet: string, bookid: string): string {
+export function convertMarkdownsToMilestones(
+    content: string,
+    docSet: string,
+    bookid: string
+): string {
     let result: string = '';
     result = content;
     const sb = [];
@@ -117,12 +134,17 @@ function getTelHtmlFromMarkdownLink(link: string, text: string): string {
         ' \\ztellink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\ztellink-e\\* ';
     return result;
 }
-function getReferenceHtmlFromMarkdownLink(link: string, text: string, docSet: string, bookid: string): string {
+function getReferenceHtmlFromMarkdownLink(
+    link: string,
+    text: string,
+    docSet: string,
+    bookid: string
+): string {
     // \zreflink-s |link="ENGWEB.MAT.5.1"\*Beatitudes\zreflink-e\* \
     let result: string = '';
     const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(link);
     const [fromVerse, toVerse, separator] = verseRanges[0];
-    if ((book === '') && (fromChapter === -1)) {
+    if (book === '' && fromChapter === -1) {
         // Invalid link
         result = text;
     } else {
@@ -142,9 +164,14 @@ function getReferenceHtmlFromMarkdownLink(link: string, text: string, docSet: st
         if (refVerse < 1) {
             refVerse = 1;
         }
-        const reference = refCollection + '.' + refBook + '.' + refChapter.toString() + '.' + refVerse.toString();
+        const reference =
+            refCollection + '.' + refBook + '.' + refChapter.toString() + '.' + refVerse.toString();
         result =
-        ' \\zreflink-s | link="' + encodeURIComponent(reference) + '"\\*' + text + ' \\zreflink-e\\* ';
+            ' \\zreflink-s | link="' +
+            encodeURIComponent(reference) +
+            '"\\*' +
+            text +
+            ' \\zreflink-e\\* ';
     }
     return result;
 }
