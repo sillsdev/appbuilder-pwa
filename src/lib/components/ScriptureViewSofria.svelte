@@ -564,7 +564,6 @@ TODO:
     }
     // handles on click when interacting with the scripture view
     function onClick(e: any) {
-        // console.log('ONClick %o %o', e, e.target.getAttribute('class'));
         switch (e.target.getAttribute('class')) {
             case 'v':
                 audioClickHandler(e);
@@ -608,7 +607,6 @@ TODO:
         // Is it possible that this could be called and proskomma is not set yet?
         if (!proskomma) return;
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
-        // console.log('DocSet %o', docSet);
         const cl = new SofriaRenderFromProskomma({
             proskomma,
             actions: {
@@ -921,8 +919,7 @@ TODO:
                                     workspace.titleGraft
                                 )
                             ) {
-                                let text = context.sequences[0].element.text;
-                                // text = processMarkdownLinks(text);
+                                const text = context.sequences[0].element.text;
                                 switch (currentTextType(workspace)) {
                                     case 'title': {
                                         workspace.titleText += text;
