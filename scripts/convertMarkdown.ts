@@ -1,4 +1,7 @@
-export function convertMarkdownsToMilestones(content: string): string {
+import { convertDigitsInStringToDefaultNumeralSystem, getIntFromNumberString } from "./numeralUtils";
+import { containsRomanScriptLetter, getFilenameExt, getFirstDigitsAsInt, getIntFromString, isBlank, isNotBlank, isPositiveInteger, splitString, stripAllExceptDigitsAndHyphens } from "./stringUtils";
+
+export function convertMarkdownsToMilestones(content: string, docSet: string, bookid: string): string {
     let result: string = '';
     result = content;
     const sb = [];
@@ -34,7 +37,7 @@ export function convertMarkdownsToMilestones(content: string): string {
             const telLink = getTelHtmlFromMarkdownLink(link, text);
             sb.push(telLink);
         } else {
-            const refLink = getReferenceHtmlFromMarkdownLink(link, text);
+            const refLink = getReferenceHtmlFromMarkdownLink(link, text, docSet, bookid);
             sb.push(refLink);
         }
         inputString = inputString.substring(match.index + match[0].length);
@@ -114,32 +117,177 @@ function getTelHtmlFromMarkdownLink(link: string, text: string): string {
         ' \\ztellink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\ztellink-e\\* ';
     return result;
 }
-function getReferenceHtmlFromMarkdownLink(link: string, text: string): string {
+function getReferenceHtmlFromMarkdownLink(link: string, text: string, docSet: string, bookid: string): string {
     // \zreflink-s |link="ENGWEB.MAT.5.1"\*Beatitudes\zreflink-e\* \
-    const result =
-        ' \\zreflink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\zreflink-e\\* ';
-    return result;
-}
-function isNotBlank(str: string): boolean {
-    let result: boolean;
-    if (str === null || str === undefined) {
-        result = false;
+    let result: string = '';
+    const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(link);
+    const [fromVerse, toVerse, separator] = verseRanges[0];
+    if ((book === '') && (fromChapter === -1)) {
+        // Invalid link
+        result = text;
     } else {
-        result = str.length > 0 && str.trim().length > 0;
+        let refCollection = collection;
+        if (isBlank(refCollection)) {
+            refCollection = docSet;
+        }
+        let refBook = book;
+        if (isBlank(refBook)) {
+            refBook = bookid;
+        }
+        let refChapter = fromChapter;
+        if (refChapter < 1) {
+            refChapter = 1;
+        }
+        let refVerse = fromVerse;
+        if (refVerse < 1) {
+            refVerse = 1;
+        }
+        const reference = refCollection + '.' + refBook + '.' + refChapter.toString() + '.' + refVerse.toString();
+        result =
+        ' \\zreflink-s | link="' + encodeURIComponent(reference) + '"\\*' + text + ' \\zreflink-e\\* ';
     }
     return result;
 }
-function isBlank(str: string): boolean {
-    return !isNotBlank(str);
-}
-function getFilenameExt(filename: string): string {
-    let extension: string = '';
-    if (isNotBlank(filename)) {
-        const i = filename.lastIndexOf('.');
-        const p = Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\'));
-        if (i > p) {
-            extension = filename.substring(i + 1);
+
+function getReferenceFromString(
+    reference: string
+): [string, string, number, number, [number, number, string][]] {
+    let bookCollectionId: string;
+    let bookId: string;
+    let fromChapter: number;
+    let toChapter: number;
+    let verseRanges: [number, number, string][];
+
+    bookId = '';
+    fromChapter = -1;
+    toChapter = -1;
+    verseRanges = [[-1, -1, '']];
+    bookCollectionId = '';
+
+    if (isNotBlank(reference)) {
+        // Look for book collection code
+        let refToParse: string;
+
+        if (reference.includes('|')) {
+            const chPos: number = reference.indexOf('|');
+            bookCollectionId = reference.substring(0, chPos);
+            refToParse = reference.length > chPos + 1 ? reference.substring(chPos + 1) : '';
+        } else if (reference.includes('/')) {
+            const chPos: number = reference.indexOf('/');
+            bookCollectionId = reference.substring(0, chPos);
+            refToParse = reference.length > chPos + 1 ? reference.substring(chPos + 1) : '';
+        } else {
+            bookCollectionId = '';
+            refToParse = reference;
+
+            // Check if a period has been used as the book collection separator
+            // e.g., C01.REV.7.9
+            const components: string[] = splitString(reference, '.');
+            if (components.length > 2) {
+                if (
+                    containsRomanScriptLetter(components[0]) &&
+                    containsRomanScriptLetter(components[1])
+                ) {
+                    const chPos: number = reference.indexOf('.');
+                    bookCollectionId = reference.substring(0, chPos);
+                    refToParse = reference.substring(chPos + 1);
+                }
+            }
+        }
+        // Replace any %20 by periods
+        let ref: string = refToParse.replace('%20', '.');
+
+        // Replace any colons or spaces by periods
+        ref = ref.replace(':', '.');
+        ref = ref.replace(' ', '.');
+
+        // Replace any en-dashes by hyphens
+        ref = ref.replace('\u2013', '-');
+
+        // Replace non-breaking hyphens by ordinary hyphens
+        ref = ref.replace('\u2011', '-');
+
+        const pattern: RegExp = /(\w+)(?:.([0-9-]+))?(?:.([0-9-]+))?/;
+        const m: RegExpMatchArray | null = ref.match(pattern);
+        if (m) {
+            // Book collection and book
+            bookId = m[1];
+            // Chapter number or range
+            let chapter: string = m[2];
+            // Verse or verse range
+            let verses: string = m[3];
+
+            // For case of only verse chapter in reference
+            if (!containsRomanScriptLetter(m[1])) {
+                bookId = '';
+                chapter = m[1];
+                verses = m[2];
+            }
+            if (isPositiveInteger(chapter)) {
+                fromChapter = getIntFromString(chapter);
+                toChapter = fromChapter;
+            } else {
+                [fromChapter, toChapter] = parseChapterRange(chapter);
+            }
+            if (isNotBlank(verses)) {
+                verseRanges = parseVerseRange(verses);
+            }
         }
     }
-    return extension;
+    return [bookCollectionId, bookId, fromChapter, toChapter, verseRanges];
+}
+
+function parseChapterRange(chapterRange: string): [number, number] {
+    let fromChapter: number;
+    let toChapter: number;
+
+    if (isNotBlank(chapterRange)) {
+        let range: string = chapterRange.replace('\u2013', '-');
+        range = stripAllExceptDigitsAndHyphens(range);
+        const hyphenPos: number = range.indexOf('-');
+        if (hyphenPos > 0) {
+            fromChapter = getIntFromNumberString(range.substring(0, hyphenPos));
+            toChapter = getIntFromNumberString(range.substring(hyphenPos + 1));
+        } else {
+            fromChapter = getIntFromNumberString(range);
+            toChapter = fromChapter;
+        }
+    } else {
+        fromChapter = -1;
+        toChapter = -1;
+    }
+    return [fromChapter, toChapter];
+}
+function parseVerseRange(verseRange: string): [number, number, string][] {
+    const verseRanges: [number, number, string][] = [];
+
+    if (isNotBlank(verseRange)) {
+        const ranges: string[] = splitString(verseRange, ',');
+        for (const range of ranges) {
+            const vRange: [number, number, string] = parseVerseRangeString(range);
+            verseRanges.push(vRange);
+        }
+    }
+    return verseRanges;
+}
+function parseVerseRangeString(input: string): [number, number, string] {
+    let fromVerse: number = -1;
+    let toVerse: number = -1;
+    let separator: string = '';
+    let inputToUse: string = isNotBlank(input) ? input.trim() : '';
+    if (isNotBlank(input)) {
+        // Replace en-dash by hyphen
+        inputToUse = input.replace('\u2013', '-');
+        // Replace any non-default numeral system digits
+        inputToUse = convertDigitsInStringToDefaultNumeralSystem(inputToUse);
+        const VERSE_RANGE_PATTERN: RegExp = /(\d+(\w?))(?:\u200F?([-,])(\d+(\w?)))?/;
+        const match: RegExpMatchArray | null = inputToUse.match(VERSE_RANGE_PATTERN);
+
+        if (match) {
+            fromVerse = isNotBlank(match[1]) ? getFirstDigitsAsInt(match[1]) : -1;
+            separator = isNotBlank(match[3]) ? match[3] : '';
+            toVerse = isNotBlank(match[4]) ? getFirstDigitsAsInt(match[4]) : -1;
+        }
+    }
+    return [fromVerse, toVerse, separator];
 }

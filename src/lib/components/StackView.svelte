@@ -5,10 +5,9 @@
 
 <script>
     import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
-    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils';
 
     import config from '$lib/data/config';
-    import { isNotBlank } from '$lib/scripts/stringUtils';
+    import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
     let stack;
     let listening = false;
     $: PrimaryColor = $themeColors['PrimaryColor'];
@@ -34,28 +33,21 @@
     // handles clicks on in text markdown reference links
     function referenceLinkClickHandler(event) {
         const linkRef = event.target.getAttribute('ref');
-        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(linkRef);
-        const [fromVerse, toVerse, separator] = verseRanges[0];
-        if ((book === '') && (fromChapter === -1)) {
-            // Invalid link
+        const splitRef = splitString(linkRef, '.');
+        const splitSet = splitRef[0];
+        const refBook = splitRef[1];
+        const splitChapter = splitRef[2];
+        const splitVerse = splitRef[3];
+        
+        let refDocSet = refs.docSet;;
+        const refBc = config.bookCollections.find((x) => x.id === splitSet);
+        if (refBc) {
+            refDocSet = refBc.languageCode + '_' + refBc.id;
+        } else {
+            // Invalid collection
             return;
         }
-        let refDocSet = refs.docSet;
-        if (isNotBlank(collection)) {
-            const refBc = config.bookCollections.find((x) => x.id === collection);
-            if (refBc) {
-                refDocSet = refBc.languageCode + '_' + refBc.id;
-            } else {
-                // Invalid collection
-                return;
-            }
-        }
-        let refVerse = fromVerse;
-        if (refVerse < 1) {
-            refVerse = 1;
-        }
-        console.log('REF-LINK %o %o %o %o %o %o', linkRef, collection, book, fromChapter, refVerse, refDocSet);
-        refs.set({ docSet: refDocSet, book: book, chapter: fromChapter.toString(), verse: refVerse.toString() });
+        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse:splitVerse });
         footnotes.reset();
         return;
     }

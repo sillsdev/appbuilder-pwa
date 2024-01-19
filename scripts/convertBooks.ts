@@ -69,7 +69,7 @@ export async function convertBooks(
                             //custom zvideo milestone.
                             //ignore strong number references
                             content = replaceVideoTags(removeStrongNumberReferences(content));
-                            content = convertMarkdownsToMilestones(content);
+                            content = convertMarkdownsToMilestones(content, bcid, book.id);
 
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
