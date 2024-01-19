@@ -112,7 +112,7 @@ function getAudioHtmlFromMarkdownLink(link: string, text: string): string {
     return result;
 }
 function getImageHtmlFromMarkdownLink(link: string, text: string): string {
-    // \fig Pharisee|src="VB-John 1v22.jpg" size="span" ref="1.22"\fig*
+    // \fig Pharisee|src="VB-John 1v22.jpg" size="span"\fig*
     const result = '\\fig ' + text + '|src="' + link + '" size="span"\\fig*';
     return result;
 }
