@@ -1,6 +1,68 @@
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
+export function checkForMilestoneLinks(
+    textType: string[],
+    footnoteDiv: HTMLElement,
+    phraseDiv: HTMLElement,
+    milestoneText: string,
+    milestoneLink: string,
+    numberOfClips: number,
+    subType: string
+) {
+    switch (subType) {
+        case 'usfm:zaudioc': {
+            const [audioEntry, audioLink] = getAudioLinkHtml(
+                milestoneLink,
+                milestoneText,
+                numberOfClips
+            );
+            appendMilestoneElement(textType, footnoteDiv, phraseDiv, audioEntry, false);
+            appendMilestoneElement(textType, footnoteDiv, phraseDiv, audioLink, true);
+            break;
+        }
+        case 'usfm:zreflink': {
+            const reflink = getReferenceLinkHtml(milestoneLink, milestoneText);
+            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            break;
+        }
+        case 'usfm:zweblink': {
+            const reflink = getWebLinkHtml(milestoneLink, milestoneText);
+            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            break;
+        }
+        case 'usfm:ztellink': {
+            const reflink = getTelephoneLinkHtml(milestoneLink, milestoneText);
+            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            break;
+        }
+        case 'usfm:zelink': {
+            const reflink = getEmailLinkHtml(milestoneLink, milestoneText);
+            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
 
-export function getWebLinkHtml(link: string, text: string): HTMLElement {
+function appendMilestoneElement(
+    textType: string[],
+    footnoteDiv: HTMLElement,
+    phraseDiv: HTMLElement,
+    reflink: HTMLElement,
+    pop: boolean
+) {
+    if (textType.includes('footnote')) {
+        footnoteDiv.appendChild(reflink);
+    } else {
+        phraseDiv.appendChild(reflink);
+    }
+    if (pop) {
+        textType.pop();
+    }
+}
+
+function getWebLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.href = link;
     a.setAttribute('target', '_blank');
@@ -8,7 +70,7 @@ export function getWebLinkHtml(link: string, text: string): HTMLElement {
     a.innerHTML = text;
     return a;
 }
-export function getEmailLinkHtml(link: string, text: string): HTMLElement {
+function getEmailLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.href = link;
     a.setAttribute('target', '_blank');
@@ -16,7 +78,7 @@ export function getEmailLinkHtml(link: string, text: string): HTMLElement {
     a.innerHTML = text;
     return a;
 }
-export function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
+function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.href = link;
     a.setAttribute('target', '_blank');
@@ -24,7 +86,7 @@ export function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
     a.innerHTML = text;
     return a;
 }
-export function getAudioLinkHtml(
+function getAudioLinkHtml(
     link: string,
     text: string,
     clipNumber: number
@@ -41,7 +103,7 @@ export function getAudioLinkHtml(
     a.innerHTML = text;
     return [audio, a];
 }
-export function getReferenceLinkHtml(link: string, text: string): HTMLElement {
+function getReferenceLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.classList.add('web-link');
     a.classList.add('ref-link');

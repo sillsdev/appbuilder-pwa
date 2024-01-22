@@ -24,7 +24,7 @@ TODO:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
-    import { getAudioLinkHtml, getEmailLinkHtml, getReferenceLinkHtml, getTelephoneLinkHtml, getWebLinkHtml} from '$lib/scripts/milestoneLinks';
+    import { checkForMilestoneLinks} from '$lib/scripts/milestoneLinks';
     import { splitString } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
@@ -543,16 +543,6 @@ TODO:
         } catch (error) {
             // An error occurred (e.g., network error)
             console.error('Error checking image existence:', error);
-        }
-    }
-    function appendMilestoneElement(workspace: any, reflink: HTMLElement, pop: boolean) {
-        if (workspace.textType.includes('footnote')) {
-            workspace.footnoteDiv.appendChild(reflink);
-        } else {
-            workspace.phraseDiv.appendChild(reflink);
-        }
-        if (pop) {
-            workspace.textType.pop();
         }
     }
     function preprocessAction(action: string, workspace: any) {
@@ -1390,37 +1380,7 @@ TODO:
                             // console.log('End Milestone %o', context.sequences[0].element);
                             preprocessAction('endMilestone', workspace);
                             const element = context.sequences[0].element;
-                            switch (element.subType) {
-                                case 'usfm:zaudioc': {
-                                    const [audioEntry, audioLink] = getAudioLinkHtml(workspace.milestoneLink, workspace.milestoneText, workspace.audioClips.length);
-                                    appendMilestoneElement(workspace, audioEntry, false);
-                                    appendMilestoneElement(workspace, audioLink, true);
-                                    break;
-                                }
-                                case 'usfm:zreflink': {
-                                    const reflink = getReferenceLinkHtml(workspace.milestoneLink, workspace.milestoneText);
-                                    appendMilestoneElement(workspace, reflink, true);
-                                    break;
-                                }
-                                case 'usfm:zweblink': {
-                                    const reflink = getWebLinkHtml(workspace.milestoneLink, workspace.milestoneText);
-                                    appendMilestoneElement(workspace, reflink, true);
-                                    break;
-                                }
-                                case 'usfm:ztellink': {
-                                    const reflink = getTelephoneLinkHtml(workspace.milestoneLink, workspace.milestoneText);
-                                    appendMilestoneElement(workspace, reflink, true);
-                                    break;
-                                }
-                                case 'usfm:zelink': {
-                                    const reflink = getEmailLinkHtml(workspace.milestoneLink, workspace.milestoneText);
-                                    appendMilestoneElement(workspace, reflink, true);
-                                    break;
-                                }
-                                default: {
-                                    break;
-                                }
-                            }
+                            checkForMilestoneLinks(workspace.textType, workspace.footnoteDiv, workspace.phraseDiv, workspace.milestoneText, workspace.milestoneLink, workspace.audioClips.length, element.subType);
                             workspace.milestoneLink = '';
                             workspace.milestoneText = '';
                         }
