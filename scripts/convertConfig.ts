@@ -785,9 +785,12 @@ function convertConfig(dataDir: string, verbose: number) {
                 }
             }
             const layoutCollectionElements = layout.getElementsByTagName('layout-collection');
-            const layoutCollections = Array.from(layoutCollectionElements).map((element) => {
-                return element.attributes.getNamedItem('id')!.value;
-            });
+            const layoutCollections =
+                layoutCollectionElements.length > 0
+                    ? Array.from(layoutCollectionElements).map((element) => {
+                          return element.attributes.getNamedItem('id')!.value;
+                      })
+                    : [data.bookCollections[0].id];
 
             data.layouts.push({
                 mode,
