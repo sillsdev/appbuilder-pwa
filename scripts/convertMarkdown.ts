@@ -82,7 +82,7 @@ function isLocalAudioFile(ref: string): boolean {
     if (!refLower.startsWith('http')) {
         const ext = getFilenameExt(refLower);
         if (ext != null) {
-            result = ext === 'mp3' || ext === 'ogg' || ext === 'wav';
+            result = ext === 'mp3' || ext === 'wav';
         }
     }
     return result;
