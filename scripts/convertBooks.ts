@@ -7,6 +7,7 @@ import { readFile, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { SABProskomma } from '../sab-proskomma';
 import { queries, postQueries, freeze } from '../sab-proskomma-tools';
+import { convertMarkdownsToMilestones } from './convertMarkdown';
 
 /**
  * Loops through bookCollections property of configData.
@@ -68,6 +69,7 @@ export async function convertBooks(
                             //custom zvideo milestone.
                             //ignore strong number references
                             content = replaceVideoTags(removeStrongNumberReferences(content));
+                            content = convertMarkdownsToMilestones(content, bcid, book.id);
 
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
