@@ -82,7 +82,7 @@ function isLocalAudioFile(ref: string): boolean {
     if (!refLower.startsWith('http')) {
         const ext = getFilenameExt(refLower);
         if (ext != null) {
-            result = ext === 'mp3'|| ext === 'webm' || ext === 'ogg' || ext === 'wav';
+            result = ext === 'mp3' || ext === 'webm' || ext === 'ogg' || ext === 'wav';
         }
     }
     return result;
@@ -110,8 +110,13 @@ function getAudioHtmlFromMarkdownLink(link: string, text: string): string {
     let result = '';
     const refLower = link.toLowerCase();
     const ext = getFilenameExt(refLower);
-    if (ext === 'mp3'|| ext === 'wav') {
-        result = ' \\zaudioc-s | link="' + encodeURIComponent(link) + '" \\*' + text + ' \\zaudioc-e\\* ';
+    if (ext === 'mp3' || ext === 'wav') {
+        result =
+            ' \\zaudioc-s | link="' +
+            encodeURIComponent(link) +
+            '" \\*' +
+            text +
+            ' \\zaudioc-e\\* ';
     }
     return result;
 }
