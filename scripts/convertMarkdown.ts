@@ -82,7 +82,7 @@ function isLocalAudioFile(ref: string): boolean {
     if (!refLower.startsWith('http')) {
         const ext = getFilenameExt(refLower);
         if (ext != null) {
-            result = ext === 'mp3' || ext === 'wav';
+            result = ext === 'mp3'|| ext === 'webm' || ext === 'ogg' || ext === 'wav';
         }
     }
     return result;
@@ -107,8 +107,12 @@ function isImageLink(ref: string, excl: string): boolean {
 }
 function getAudioHtmlFromMarkdownLink(link: string, text: string): string {
     // \zaudioc-s | link="audioclip.mp3"\*audioclip.mp3\zaudioc-e\*
-    const result =
-        ' \\zaudioc-s | link="' + encodeURIComponent(link) + '" \\*' + text + ' \\zaudioc-e\\* ';
+    let result = '';
+    const refLower = link.toLowerCase();
+    const ext = getFilenameExt(refLower);
+    if (ext === 'mp3'|| ext === 'wav') {
+        result = ' \\zaudioc-s | link="' + encodeURIComponent(link) + '" \\*' + text + ' \\zaudioc-e\\* ';
+    }
     return result;
 }
 function getImageHtmlFromMarkdownLink(link: string, text: string): string {
