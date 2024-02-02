@@ -16,8 +16,13 @@ export function convertManifest(dataDir: string, verbose: number) {
         const lines = fileContents.split('\n');
         const updatedFileContents = lines
             .map((line) => {
-                if (line.indexOf('scope') && process.env.BUILD_BASE_PATH) {
-                    line = ` "scope" : "${process.env.BUILD_BASE_PATH}",`;
+                if (line.includes('start_url')) {
+                    const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '.';
+                    line = `  "start_url" : "${path}/",`;
+                }
+                if (line.includes('scope')) {
+                    const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '/';
+                    line = `  "scope" : "${path}",`;
                 }
                 return line;
             })
