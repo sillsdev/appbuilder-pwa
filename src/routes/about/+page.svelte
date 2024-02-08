@@ -15,7 +15,7 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div class="overflow-y-auto">
+    <div class="overflow-y-auto mx-auto max-w-screen-md">
         {@html data.partial}
     </div>
 </div>
