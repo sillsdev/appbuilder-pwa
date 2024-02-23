@@ -49,8 +49,17 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, afterUpdate } from 'svelte';
 
+    let savedScrollPosition = 0
+    function saveScrollPosition() {
+        savedScrollPosition = scrollingDiv.scrollTop;
+    }
+    afterUpdate(() => {
+        if (scrollingDiv) {
+            scrollingDiv.scrollTop = savedScrollPosition;
+        }
+    });
     function doSwipe(event){
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
@@ -357,7 +366,7 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv}>
+    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv} on:scroll={saveScrollPosition}>
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
