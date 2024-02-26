@@ -147,6 +147,7 @@
         proskomma: $page.data?.proskomma
     };
 
+    $: extraIconsBreakpoint = $userSettings['action-buttons-breakpoint'];
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv;
 
@@ -315,7 +316,11 @@
                         </button>
                     {/if}
                 </div>
-                <div id="extraButtons" class={showOverlowMenu ? 'flex' : 'hidden md:flex'}>
+                {(console.log('Breakpoint:', extraIconsBreakpoint), '')}
+                <div
+                    id="extraButtons"
+                    class={showOverlowMenu ? 'flex' : `hidden ${extraIconsBreakpoint}:flex`}
+                >
                     <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
 
                     <!-- Text Appearance Selector Button -->
@@ -348,7 +353,7 @@
                 {#if extraIconsExist}
                     <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
                     <button
-                        class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
+                        class={`${extraIconsBreakpoint}:hidden dy-btn dy-btn-ghost dy-btn-circle`}
                         on:click={() => {
                             showOverlowMenu = !showOverlowMenu;
                             event.stopPropagation();

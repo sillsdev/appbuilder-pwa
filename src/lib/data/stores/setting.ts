@@ -349,6 +349,24 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             key: 'desktop-sidebar',
             defaultValue: false
         });
+
+        settings.push({
+            type: 'list',
+            category: SETTINGS_CATEGORY_INTERFACE,
+            title: 'Action Buttons Breakpoint',
+            key: 'action-buttons-breakpoint',
+            defaultValue: 'xs',
+            entries: [
+                '3xs (325px)',
+                '2xs (400px)',
+                'xs (475px)',
+                'sm (640px)',
+                'md (768px)',
+                'lg (1024px)',
+                'xl (1280px)'
+            ],
+            values: ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl']
+        });
     }
     return settings;
 })();
