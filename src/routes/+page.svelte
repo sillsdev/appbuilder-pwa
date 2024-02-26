@@ -49,8 +49,22 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, afterUpdate } from 'svelte';
 
+    let savedScrollPosition = 0
+    function saveScrollPosition() {
+        if (scrollingDiv) {
+            savedScrollPosition = scrollingDiv.scrollTop;
+        }
+    }
+    afterUpdate(() => {
+        if (scrollingDiv) {
+            scrollingDiv.scrollTop = savedScrollPosition;
+        }
+    });
+    refs.subscribe(value => {
+        savedScrollPosition = 0
+    });
     function doSwipe(event){
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
@@ -165,11 +179,11 @@
     const scrollTo = (id) => {
         if (scrollMod === key) return;
         if (!id) return;
-        document
+        let el = document
             .querySelector(
                 `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
-            )
-            ?.scrollIntoView();
+            );
+        makeElementVisible(el);
     };
     $: scrollTo(scrollId);
 
@@ -199,18 +213,25 @@
             }, 50);
         };
     })();
+     
     function makeElementVisible(el) {
-        if (el.classList.contains('scroll-item')) {
-            const rect = el.getBoundingClientRect();
-            const win = document
-                        .getElementsByClassName('container')[0]
-                        ?.getBoundingClientRect();
-            const scrollTop = scrollingDiv.scrollTop;
-            const scrollHeight = scrollingDiv.clientHeight;
-            const isVisible = rect.top - win.top - 30 >= scrollTop &&
-                    rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
-            if (!isVisible) {
-                scrollingDiv.scrollTo({top: rect.top -win.top - 30, behavior: "smooth"});
+        if (el) {
+            if (el.classList.contains('scroll-item')) {
+                const rect = el.getBoundingClientRect();
+                const win = document
+                            .getElementsByClassName('container')[0]
+                            ?.getBoundingClientRect();
+                const scrollTop = scrollingDiv.scrollTop;
+                const scrollHeight = scrollingDiv.clientHeight;
+                const isVisible = rect.top - win.top - 30 >= scrollTop &&
+                        rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
+                if (!isVisible) {
+                    let newTop = rect.top - win.top - 30;
+                    scrollingDiv.scrollTo({top: newTop, behavior: "smooth"});
+                    if (newTop > 0) {
+                        savedScrollPosition = newTop;
+                    }
+                }
             }
         }
     }
@@ -357,7 +378,7 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv}>
+    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv} on:scroll={saveScrollPosition}>
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
