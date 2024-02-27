@@ -178,7 +178,12 @@ TODO:
                 phrases[0] = text;
             }
             for (let i = 0; i < phrases.length; i++) {
+                if (workspace.lastPhraseTerminated) {
+                    // console.log('Add text start phrase (terminated)');
+                    workspace.phraseDiv = startPhrase(workspace);
+                }
                 if (workspace.phraseDiv === null) {
+                    // console.log('Add text start phrase (null)');
                     workspace.phraseDiv = startPhrase(workspace, 'keep');
                 }
                 let div = workspace.phraseDiv.cloneNode(true);
@@ -1205,7 +1210,9 @@ TODO:
                                 div.appendChild(footnoteSpan);
                                 workspace.phraseDiv = div.cloneNode(true);
                                 if (workspace.lastPhraseTerminated) {
+                                    // console.log('Add text start phrase (graft)');
                                     workspace.phraseDiv = startPhrase(workspace);
+                                    workspace.lastPhraseTerminated = false;
                                 }
                                 const textTypeF = workspace.textType.pop();
                                 // if (textTypeF != 'footnote') {
@@ -1253,8 +1260,9 @@ TODO:
                                         workspace.textType.push('usfm');
                                         if (!workspace.textType.includes('footnote')) {
                                             if (workspace.lastPhraseTerminated === true) {
-                                                // console.log('footnote start phrase');
+                                                // console.log('not footnote start phrase');
                                                 workspace.phraseDiv = startPhrase(workspace);
+                                                workspace.lastPhraseTerminated = false;
                                             }
                                         }
                                         workspace.usfmWrapperType = usfmType;
