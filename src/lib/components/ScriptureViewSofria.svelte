@@ -1260,7 +1260,7 @@ TODO:
                                         workspace.textType.push('usfm');
                                         if (!workspace.textType.includes('footnote')) {
                                             if (workspace.lastPhraseTerminated === true) {
-                                                console.log('not footnote start phrase');
+                                                // console.log('not footnote start phrase');
                                                 workspace.phraseDiv = startPhrase(workspace);
                                                 workspace.lastPhraseTerminated = false;
                                             }
