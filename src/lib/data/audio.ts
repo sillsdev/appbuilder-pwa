@@ -332,7 +332,17 @@ export function updatePlaybackSpeed(playbackSpeed) {
         currentAudioPlayer.audio.playbackRate = parseFloat(playbackSpeed);
     }
 }
-
+function getDamId(audioSource: any) {
+    let damId = audioSource.damId;
+    if (damId.endsWith('-opus16')) {
+        // Check to see if the browser can handle webm files.
+        const audio = new Audio();
+        if (!audio.canPlayType('audio/webm')) {
+            damId = damId.replace(/-opus16$/, '');
+        }
+    }
+    return damId;
+}
 export async function getAudioSourceInfo(item: {
     collection: string;
     book: string;
@@ -355,7 +365,8 @@ export async function getAudioSourceInfo(item: {
         // if (source.accessMethods.includes('download')) {
         //    // TODO: Figure out how to use Cache API to download audio to PWA
         // }
-        const request = `${dbp4}/api/bibles/filesets/${audioSource.damId}/${item.book}/${item.chapter}?v=4&key=${audioSource.key}`;
+        const damId = getDamId(audioSource);
+        const request = `${dbp4}/api/bibles/filesets/${damId}/${item.book}/${item.chapter}?v=4&key=${audioSource.key}`;
         const response = await fetch(request, {
             method: 'GET',
             headers: {
