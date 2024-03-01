@@ -60,6 +60,32 @@ export function updateAudioPlayer(item: { collection: string; book: string; chap
     }
     audioPlayerStore.set(audioPlayer);
 }
+// some browsers don't support all sources (e.g. Mobile Safari doesn't support webm)
+function createAudio(audioSource: string): HTMLAudioElement {
+    const audio: HTMLAudioElement = new Audio();
+
+    // If you do 'new Audio(audioSource)', it won't look at additional sources
+    var source = document.createElement('source');
+    source.src = audioSource;
+    audio.appendChild(source);
+
+    // webm isn't supported by MobileSafari, so add fallback for caf and mp3 (like static PWA)
+    if (/\.webm$/i.test(audioSource)) {
+        // Create additional source elements
+        var sourceCaf = document.createElement('source');
+        sourceCaf.src = audioSource.replace(/\.webm$/i, '.caf');
+        sourceCaf.type = 'audio/x-caf';
+
+        var sourceMp3 = document.createElement('source');
+        sourceMp3.src = audioSource.replace(/\.webm$/i, '.mp3');
+        sourceMp3.type = 'audio/mpeg';
+
+        // Add additional source elements to the audio element
+        audio.appendChild(sourceCaf);
+        audio.appendChild(sourceMp3);
+    }
+    return audio;
+}
 //gets the current audio
 async function getAudio() {
     if (currentAudioPlayer.loaded) {
@@ -75,7 +101,7 @@ async function getAudio() {
         return;
     }
     currentAudioPlayer.timing = audioSourceInfo.timing;
-    const a = new Audio(audioSourceInfo.source);
+    const a = createAudio(audioSourceInfo.source);
     a.onloadedmetadata = () => {
         currentAudioPlayer.duration = a.duration;
         currentAudioPlayer.timeIndex = 0;
