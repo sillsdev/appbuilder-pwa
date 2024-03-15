@@ -7,13 +7,27 @@
 import { get } from 'svelte/store';
 import config from '$lib/data/config';
 import { refs } from '../data/stores/scripture';
+import { catalog } from '$lib/data/catalog';
+import {
+    ciEquals,
+    getFirstDigitsAsInt,
+    getIntFromString,
+    isBlank,
+    isDefined,
+    isNotBlank,
+    isPositiveInteger,
+    nullToEmpty
+} from './stringUtils';
+import { getIntFromNumberString } from './numeralUtils';
+import { PassThrough } from 'stream';
 
 export const ref: any = get(refs);
 export const collection: any = config.bookCollections.find((x) => x.id === ref.collection);
 export const allBookNames: any = Object.fromEntries(collection.books.map((x) => [x.id, x.name]));
 export const features: any = collection.features;
+export const showScriptureLinks = true; //config.mainFeatures['show-scripture-refs'];
 
-// In text reference seperators
+// In text reference separators
 
 // These may need to be preprocessed to check escape characters
 
@@ -22,55 +36,6 @@ export const rov = features['ref-verse-range-separator']; // Range of verses sep
 export const lov = features['ref-verse-list-separator']; // List of verses separator
 export const roc = features['ref-chapter-range-separator']; // Range of chapters separator
 export const cls = features['ref-chapter-list-separator']; // Chapter list separator
-
-/**
- * Function for taking an input string of references
- * returning an array of reference objects
- * @param text: A string of scripture references ex. 'John 3:16; 3:20-22'
- * @returns A multidimensional array of App.Reference objects
- */
-export function parseText(text: string) {
-    const result = [];
-    let subResult = [];
-    const escapedBookNames = {};
-    const docSet = ref.docSet;
-    let book: string, chapter: string;
-
-    for (const [key, value] of Object.entries(allBookNames)) {
-        escapedBookNames[key] = (value as string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    // ToDo: List of verses separator parsing
-    const regex = new RegExp(
-        `(${Object.values(escapedBookNames).join(
-            '|'
-        )})?\\s?(\\d+)?${cvs}?(\\d+)?(${roc}|${rov})?(\\d+)?${cvs}?(\\d+)?`
-    );
-
-    for (const reference of text.split(`${cls} `).map((x) => x.match(regex))) {
-        book = Object.keys(allBookNames).find((key) => allBookNames[key] === reference[1]) ?? book;
-        chapter = reference[2] ?? chapter;
-        subResult.push({
-            phrase: reference[0],
-            docSet: docSet,
-            book: book,
-            chapter: chapter,
-            verse: reference[3]
-        });
-        if (reference[4] === rov || reference[4] === roc) {
-            subResult.push({
-                phrase: reference[0],
-                docSet: docSet,
-                book: book,
-                chapter: reference[6] ? reference[5] : chapter,
-                verse: reference[6] ?? reference[5]
-            });
-        }
-        result.push(subResult);
-        subResult = [];
-    }
-    return result;
-}
 
 /**
  * Function to generate an inline anchor tag from a preprocessed string reference
@@ -99,14 +64,689 @@ export function generateAnchor(start, end = undefined) {
  * that navigate to provided reference
  * @param reference: the string containing the reference
  */
-export function generateHTML(references: string) {
-    const refs = parseText(references);
-    const spans = [];
-    for (const reference of refs) {
-        for (let i = 0; i < reference.length; i += 2) {
-            spans.push(generateAnchor(reference[i], reference[i + 1]));
+export function generateHTML(crossRef: string, bookId: string = '') {
+    const currentBookId = isBlank(bookId) ? ref.book : bookId;
+    const docSet = ref.docSet;
+    const contentToMatch = '\\xt ' + crossRef + '\\xt*';
+    const referencePattern =
+        '\\\\(\\+?)xt[ \\xA0]([\\s\\S\\xA0]*?)(?:\\|([\\s\\S]*?))?\\\\\\1xt\\*';
+    const referenceRegEx = new RegExp(referencePattern, 'g');
+    let referenceMatches: RegExpExecArray | null;
+    let sb: string = '';
+    let lastIndex = 0;
+    while ((referenceMatches = referenceRegEx.exec(contentToMatch)) !== null) {
+        const ref = referenceMatches[2];
+        const linkRef = referenceMatches[3];
+        const targetRef = isNotBlank(linkRef) ? linkRef : ref;
+        const displayText = isNotBlank(linkRef) ? ref : null;
+        let parseCvs = cvs;
+        let parseRov = rov;
+        if (isNotBlank(linkRef)) {
+            parseCvs = ':';
+            parseRov = '-';
         }
+        const referenceHTML = processScriptureRef(
+            targetRef,
+            docSet,
+            currentBookId,
+            displayText,
+            parseCvs,
+            parseRov
+        );
+        sb += contentToMatch.substring(lastIndex, referenceMatches.index);
+        sb += referenceHTML;
+        lastIndex += referenceMatches.index + referenceMatches[0].length;
     }
-    const result = spans.map((span) => span.outerHTML).join('; ');
+    sb += contentToMatch.substring(lastIndex);
+    return sb;
+}
+function processScriptureRef(
+    reference: string,
+    docSet: string,
+    bookId: string,
+    displayText: string,
+    parseCvs: string,
+    parseRov: string
+): string {
+    let result: string = '';
+    if (showScriptureLinks) {
+        const pattern = getScriptureReferencePatternForBook(parseCvs, parseRov);
+        result = processScriptureRefLinks(
+            pattern,
+            reference,
+            docSet,
+            bookId,
+            displayText,
+            parseCvs,
+            parseRov
+        );
+    } else {
+        result = reference;
+    }
     return result;
+}
+function processScriptureRefLinks(
+    pattern: string,
+    reference: string,
+    docSet: string,
+    bookId: string,
+    displayText: string,
+    parseCvs: string,
+    parseRov: string
+): string {
+    const results: any[] = [];
+    let prevBookId = bookId;
+    const referenceRegEx = new RegExp(pattern, 'g');
+    let referenceMatches: RegExpExecArray | null;
+    const refResults: RegExpExecArray[] = [];
+    const replacements: string[] = [];
+    let replacement: string = '';
+    let refLink: string = '';
+    let matchIndex: number = 0;
+    while ((referenceMatches = referenceRegEx.exec(reference)) !== null) {
+        const isNumberOnly = isPositiveInteger(referenceMatches[0]);
+        let bookName = referenceMatches[2];
+        let bookId: string = null;
+        if (!isNumberOnly) {
+            if (isNotBlank(bookName)) {
+                // We have found a possible book name
+                bookId = getBookIdFromBookName(bookName);
+                prevBookId = null;
+
+                if (!isDefined(bookId) && isNotBlank(displayText)) {
+                    // If book name was not found, check to see if it is a book id
+                    if (checkBookId(bookName)) {
+                        bookId = bookName;
+                    }
+                }
+
+                // TODO: Check unmatched names DisplayWriter 5027
+            } else {
+                bookId = prevBookId;
+                bookName = '';
+            }
+        }
+        if (isDefined(bookId)) {
+            let replace = '';
+            const bookNameWithSp = isBlank(bookName) ? '' : bookName + ' ';
+
+            const extraBefore = nullToEmpty(referenceMatches[1]);
+            const extraAfter = nullToEmpty(referenceMatches[13]);
+
+            if (isDefined(referenceMatches[3])) {
+                // Model 1
+                // Chapter ranges with verse numbers, e.g. 1:1—3:10
+                const fromChapter = referenceMatches[4];
+                const fromVerse = referenceMatches[5];
+                const sep = referenceMatches[6];
+                const toChapter = referenceMatches[7];
+                const toVerse = referenceMatches[8];
+
+                const fromChapterNum = getFirstDigitsAsInt(fromChapter);
+                const toChapterNum = getFirstDigitsAsInt(toChapter);
+                const refText =
+                    extraBefore +
+                    bookNameWithSp +
+                    fromChapter +
+                    cvs +
+                    fromVerse +
+                    sep +
+                    toChapter +
+                    cvs +
+                    toVerse +
+                    extraAfter;
+                const model1Reference = createReference(
+                    '',
+                    docSet,
+                    bookId,
+                    fromChapter,
+                    toChapter,
+                    fromVerse,
+                    toVerse
+                );
+                replace = getLinkText(model1Reference, displayText, refText);
+            } else if (isDefined(referenceMatches[9])) {
+                // Model 2
+                // Chapter & verses, e.g. 1:2-3, 10
+                // Also 1-2 (where this could be a chapter range or a verse range for a single chapter book)
+
+                // Chapter Number
+                let chapter = referenceMatches[10];
+                let chapterNum = getIntFromNumberString(chapter);
+
+                // Separator between the first two numbers
+                // This could be a chapter/verse separator or a range separator
+                let sep = nullToEmpty(referenceMatches[11]);
+                if (sep === '\u2011' && parseRov === '-') {
+                    sep = '-';
+                }
+
+                let verses = referenceMatches[12];
+                const maxChapters = getNumChaptersFromBookId(bookId);
+                if (maxChapters === 1) {
+                    // One chapter books, like Philemon, Obadiah, etc.
+                    // The number in the chapter position is the verse number in the one-chapter book.
+
+                    chapterNum = 1;
+                    if (!isDefined(verses)) {
+                        // Single verse number
+                        verses = chapter;
+                    } else if (sep === parseRov) {
+                        // Verse range
+                        verses = chapter + sep + verses;
+                    }
+                    chapter = '';
+                }
+
+                if (!isDefined(verses)) {
+                    // Chapter only - no verse numbers
+                    // e.g. Matthew 5
+                    const lastVerse = lastVerseInChapter(bookId, chapter, docSet);
+                    const refText = extraBefore + bookNameWithSp + chapter + extraAfter;
+                    const chapterOnlyReference = createReference(
+                        '',
+                        docSet,
+                        bookId,
+                        chapter,
+                        '',
+                        '1',
+                        lastVerse
+                    );
+                    replace = getLinkText(chapterOnlyReference, displayText, refText);
+                    console.log('Chapter only - no verses ', refText);
+                } else if (sep === roc && maxChapters > 1) {
+                    // Chapter range
+                    // There was no chapter-verse separator
+                    // e.g. Matthew 5—7
+                    // or a list of chapter ranges, Luke 1—3, 10—12
+                    // (where the chapter list separator is the same as a verse list separator, such as a comma)
+                    const chapterList = chapter + roc + verses;
+                    replace = parseChapterList(
+                        reference,
+                        displayText,
+                        docSet,
+                        bookId,
+                        bookNameWithSp,
+                        extraBefore,
+                        extraAfter,
+                        chapterList
+                    );
+                    console.log('Chapter range');
+                } else if (sep === parseCvs || maxChapters === 1) {
+                    // Verse range
+                    // e.g. Matthew 5:1-3, 8-10
+                    // or verses in a one-chapter book, e.g. 3 John 3, 7
+                    // Parse list of verses, e.g. 1-4, 5, 8-9
+                    replace = parseVerseList(
+                        reference,
+                        displayText,
+                        docSet,
+                        bookId,
+                        bookNameWithSp,
+                        extraBefore,
+                        extraAfter,
+                        chapter,
+                        chapterNum,
+                        verses,
+                        parseCvs,
+                        parseRov
+                    );
+                } else {
+                    // No change
+                    replace = referenceMatches[9];
+                }
+            }
+
+            // append replacement
+            replacement = replace;
+            replacements.push(replace);
+            prevBookId = bookId;
+        } else if (isNumberOnly && isNotBlank(prevBookId)) {
+            // We have a number on its own, e.g. the chapter "4" in "Mat 3:1-2; 4;"
+            bookId = prevBookId;
+            const chapterNum = getIntFromString(referenceMatches[0]);
+            const maxChapters = getNumChaptersFromBookId(bookId);
+            let replace: string = '';
+
+            if (chapterNum <= maxChapters) {
+                const refText = chapterNum.toString();
+                const chapterFrom = chapterNum.toString();
+                const lastVerse = lastVerseInChapter(bookId, chapterFrom, docSet);
+                const reference = createReference(
+                    '',
+                    docSet,
+                    bookId,
+                    chapterFrom,
+                    '',
+                    '1',
+                    lastVerse
+                );
+                replace = getLinkText(reference, displayText, refText);
+            } else {
+                replace = isNotBlank(displayText) ? displayText : referenceMatches[0];
+            }
+            // append replacement
+            replacement = replace;
+            replacements.push(replace);
+        } else {
+            const replace = isNotBlank(displayText) ? displayText : referenceMatches[0];
+            replacement = replace;
+            replacements.push(replace);
+        }
+        refLink += reference.substring(matchIndex, referenceMatches.index);
+        refLink += replacement;
+        matchIndex = referenceMatches.index + referenceMatches[0].length;
+    }
+    refLink += reference.substring(matchIndex);
+    return refLink;
+}
+function getScriptureReferencePatternForBook(parseCvs: string, parseRov: string): string {
+    const extraMaterial = '()'; // TODO: get extra material from features DisplayWriter 4750
+    const sepChapterVs = parseCvs === '.' ? '\\.' : parseCvs;
+    const sepVerseList = lov === '.' ? '\\.' : lov;
+
+    const optionalRtlMark = '[\\u200f]?';
+    const chapterNumberGroup = '(\\d{1,3})';
+    const verseNumber = '\\d{1,3}';
+    const verseNumberGroup = '(\\d{1,3})';
+    const bookName = getBookNamePattern();
+
+    // Model 1
+    // Chapter ranges with verse numbers, e.g. 1:1—3:10
+    let chapterRangeSep = roc;
+    if (chapterRangeSep === '-') {
+        // If it is a hyphen, also handle non-breaking hyphens
+        chapterRangeSep = chapterRangeSep + '|' + '\\u2011';
+    }
+    const model1 =
+        chapterNumberGroup +
+        sepChapterVs +
+        verseNumberGroup +
+        '(' +
+        chapterRangeSep +
+        ')' +
+        chapterNumberGroup +
+        sepChapterVs +
+        verseNumberGroup;
+    // Model 2
+    // Chapter & verses, e.g. 1:2-3, 10
+    // Also 1-2 (where this could be a chapter range or a verse range for a single chapter book)
+    let rangeSepChars = roc;
+    if (!(roc === parseRov)) {
+        const sepVerseRange = parseRov === '-' ? '\\-' : parseRov;
+        rangeSepChars = rangeSepChars + '|' + sepVerseRange;
+    }
+    if (roc === '-' || parseRov === '-') {
+        // If we have a hyphen, also handle non-breaking hyphens
+        rangeSepChars = rangeSepChars + '|' + '\\u2011';
+    }
+    // Negative lookahead: In this type of lookahead the regex engine searches for a particular element
+    // which may be a character or characters or a group after the item matched. If that particular element
+    // is not present then the regex declares the match as a match otherwise it simply rejects that match.
+    // e.g. exclude including "14" as a verse in Gen 1:2, 14:8
+    // e.g. exclude including "1" as a verse in Exo 7:2, 1Pe 2:3
+    // e.g. exclude including "2" as a verse in Exodus 1:8, 2 Peter 1:3
+    // \p{Lu} matches any kind of uppercase letter from any language
+    const negLookaheadForChapterVerseSep =
+        '(?!' + '(\\d*' + sepChapterVs + '\\d)|(\\d?\\p{Lu})|(\\d?\\s\\p{Lu}))';
+    const verseRange =
+        verseNumber +
+        negLookaheadForChapterVerseSep +
+        '(?:' +
+        optionalRtlMark +
+        '(?:' +
+        rangeSepChars +
+        ')' +
+        verseNumber +
+        ')?';
+    const verses =
+        '(' +
+        verseRange + // first verse range
+        '(?:' +
+        sepVerseList +
+        '\\s?' +
+        verseRange +
+        ')*' + // 0 or more subsequent verse ranges
+        ')';
+    const separator = '([' + rangeSepChars + sepChapterVs + '])'; // includes range separator as well as chapter/verse separator
+    const model2 = chapterNumberGroup + '(?:' + optionalRtlMark + separator + verses + ')?';
+
+    // Regex is book name followed by either model 1 or model 2.
+    const models = '(' + model1 + ')|(' + model2 + ')';
+    let regex = extraMaterial + '(?:(' + bookName + ')\\s)?' + '(?:' + models + ')' + extraMaterial;
+
+    // Append negative lookahead to make sure match is not in the attributes of an HTML tag
+    // Without this, the pattern was matching href="G-0-34" etc.
+    // See http://stackoverflow.com/a/18622606
+    const negLookahead = '(?![^<]*>|[^<>]*</)';
+    regex = regex + negLookahead;
+    return regex;
+}
+function getBookNamePattern(): string {
+    // TODO: get non word characters in book (DisplayWriter 4737)
+    const nonWordCharsInBookName = ' ';
+    const bookNamePattern =
+        '(?:[123] )?[\\w\\p{L}][\\w\\p{L}\\p{M}\\s' + nonWordCharsInBookName + ']*';
+    return bookNamePattern;
+}
+function getScriptureReferencePatternForChapterList(): string {
+    // Example:
+    // 4—6, 8—9
+    const chapterNumber = '\\d{1,3}';
+    const optionalRtlMark = '[\\u200f]?';
+    let rangeSepChars = roc;
+    if (roc === '-') {
+        rangeSepChars = rangeSepChars + '\\u2011';
+    }
+    const chapterListPattern =
+        '(' +
+        chapterNumber +
+        ')' +
+        '(?:' +
+        optionalRtlMark +
+        '[' +
+        rangeSepChars +
+        '](' +
+        chapterNumber +
+        '))?';
+    return chapterListPattern;
+}
+function getScriptureReferencePatternForVerseList(parseRov: string): string {
+    const verseNumber = '\\d{1,3}';
+    const optionalRtlMark = '[\\u200f]?';
+
+    let rangeSepChars = parseRov;
+    if (rangeSepChars === '-') {
+        // If we have a hyphen, also handle non-breaking hyphens
+        rangeSepChars = rangeSepChars + '\\u2011';
+    }
+    const verseListPattern =
+        '(' +
+        verseNumber +
+        ')' +
+        '(?:' +
+        optionalRtlMark +
+        '[' +
+        rangeSepChars +
+        '](' +
+        verseNumber +
+        '))?';
+
+    // Example:
+    // 4-6, 8, 10, 13, 15-20
+
+    // Matches:
+    // 4   6
+    // 8
+    // 10
+    // 13
+    // 15  20
+    return verseListPattern;
+}
+function getBookIdFromBookName(bookName: string): string | null {
+    let value: string;
+    let i = 0;
+    while (i < collection.books.length) {
+        if (
+            ciEquals(collection.books[i].name, bookName) ||
+            ciEquals(collection.books[i].abbreviation, bookName) ||
+            ciEquals(collection.books[i].abbreviation + '.', bookName)
+        ) {
+            value = collection.books[i].id;
+            break;
+        }
+        // TODO: Test with BC that actually has additional names defined
+        if (isDefined(collection.books[i].additionalNames)) {
+            let j = 0;
+            while (j < collection.books[i].additionalNames.length) {
+                if (ciEquals(collection.books[i].additionalNames[j].name, bookName)) {
+                    value = collection.books[i].id;
+                    break;
+                }
+                j++;
+            }
+            if (isDefined(value)) {
+                break;
+            }
+        }
+        i++;
+    }
+    return value;
+}
+function checkBookId(bookId: string): boolean {
+    // TODO: implement
+    return true;
+}
+function getNumChaptersFromBookId(bookId: string): number {
+    const numberOfChapters = collection.books.find((x) => x.id === bookId)?.chapters || 0;
+    return numberOfChapters;
+}
+function parseChapterList(
+    reference: string,
+    displayText: string,
+    docSet: string,
+    bookId: string,
+    bookNameWithSp: string,
+    extraBefore: string,
+    extraAfter: string,
+    chapterList: string
+): string {
+    const chapterListPattern = getScriptureReferencePatternForChapterList();
+    let isFirstChapterRange = true;
+    let numberChapterRanges = 0;
+    let rangeIndex = 0;
+    let replace = '';
+
+    const chapterRegEx = new RegExp(chapterListPattern, 'g');
+    let chapterMatch: RegExpExecArray | null;
+    const chapterMatches: any[] = [];
+
+    while ((chapterMatch = chapterRegEx.exec(chapterList)) !== null) {
+        numberChapterRanges++;
+        chapterMatches.push(chapterMatch);
+    }
+    // Reset lastIndex to 0 to start matching from the beginning
+    chapterRegEx.lastIndex = 0;
+
+    for (let i = 0; i < numberChapterRanges; i++) {
+        const currentMatch = chapterMatches[i];
+        const chapterFrom = currentMatch[1];
+        const chapterTo = currentMatch[2];
+        const hasRtl = reference.includes('\u200F');
+
+        let chapterRange = chapterFrom;
+        if (isDefined(chapterTo)) {
+            if (hasRtl) {
+                chapterRange = chapterFrom + '\u200f' + roc + chapterTo;
+            } else {
+                chapterRange = chapterRange + roc + chapterTo;
+            }
+        }
+        // Kind of copying SAB functionality here.  When you display the dropdown with the text,
+        // it only displays the first chapter, which makes sense because there is a practical
+        // limit to how much you want to view in a dropdown.
+        const lastVerse = lastVerseInChapter(bookId, chapterFrom, docSet);
+        const chapterReference = createReference(
+            '',
+            docSet,
+            bookId,
+            chapterFrom,
+            chapterFrom,
+            '1',
+            lastVerse
+        );
+        let refText: string;
+        if (isFirstChapterRange) {
+            refText = bookNameWithSp + chapterRange;
+            refText = extraBefore + refText;
+            if (rangeIndex == numberChapterRanges - 1) {
+                refText = refText + extraAfter;
+            }
+            replace = getLinkText(chapterReference, displayText, refText);
+            isFirstChapterRange = false;
+        } else {
+            // Subsequent chapter number or range following chapter list separator (e.g. comma)
+            refText = chapterRange;
+            if (rangeIndex == numberChapterRanges - 1) {
+                refText = refText + extraAfter;
+            }
+            replace = replace + lov + getLinkText(chapterReference, displayText, refText);
+        }
+        rangeIndex++;
+    }
+    return replace;
+}
+function parseVerseList(
+    reference: string,
+    displayText: string,
+    docSet: string,
+    bookId: string,
+    bookNameWithSp: string,
+    extraBefore: string,
+    extraAfter: string,
+    chapter: string,
+    chapterNum: number,
+    verses: string,
+    parseCvs: string,
+    parseRov: string
+): string {
+    let replace: string = '';
+    let numberVerseRanges = 0;
+    let rangeIndex = 0;
+    let isFirstVerseRange = true;
+    const containsRtlMark = reference.includes('\u200F');
+    const verseListPattern = getScriptureReferencePatternForVerseList(parseRov);
+
+    const verseRegEx = new RegExp(verseListPattern, 'g');
+    let verseMatch: RegExpExecArray | null;
+    const verseMatches: any[] = [];
+
+    while ((verseMatch = verseRegEx.exec(verses)) !== null) {
+        numberVerseRanges++;
+        verseMatches.push(verseMatch);
+    }
+    // Reset lastIndex to 0 to start matching from the beginning
+    verseRegEx.lastIndex = 0;
+
+    for (let i = 0; i < numberVerseRanges; i++) {
+        const verseMatch = verseMatches[i];
+        const verseFrom = verseMatch[1];
+        const verseTo = verseMatch[2];
+        const hasRtl = containsRtlMark;
+
+        let verseRange = verseFrom;
+        if (isDefined(verseTo)) {
+            if (hasRtl) {
+                verseRange = verseFrom + '\u200f' + parseRov + verseTo;
+            } else {
+                verseRange = verseRange + parseRov + verseTo;
+            }
+        }
+
+        const verseReference = createReference(
+            '',
+            docSet,
+            bookId,
+            chapterNum.toString(),
+            '',
+            verseFrom,
+            verseTo
+        );
+        let refText = '';
+        if (isFirstVerseRange) {
+            // First verse number or verse range
+            refText = bookNameWithSp + chapter;
+            refText = refText.trim();
+
+            if (isNotBlank(verseRange)) {
+                if (containsRtlMark) {
+                    refText = refText + '\u200f';
+                }
+
+                if (isBlank(chapter)) {
+                    refText = refText + ' ' + verseRange;
+                    refText = refText.trim();
+                } else {
+                    refText = refText + parseCvs + verseRange;
+                }
+            }
+
+            refText = extraBefore + refText;
+            if (rangeIndex == numberVerseRanges - 1) {
+                refText = refText + extraAfter;
+            }
+            replace = getLinkText(verseReference, displayText, refText);
+            isFirstVerseRange = false;
+        } else {
+            // Subsequent verse number or range following verse separator (e.g. comma)
+            refText = verseRange;
+            if (rangeIndex == numberVerseRanges - 1) {
+                refText = refText + extraAfter;
+            }
+            replace = replace + lov + getLinkText(verseReference, displayText, refText);
+        }
+
+        rangeIndex++;
+    }
+    return replace;
+}
+function getLinkText(reference: any, displayText: string, refText: string): string {
+    let value = '';
+    let phrase = refText;
+    if (isNotBlank(displayText)) {
+        phrase = displayText;
+    }
+    reference.text = phrase;
+
+    const startAnchor = {
+        phrase: reference.text,
+        docSet: reference.collection,
+        book: reference.bookId,
+        chapter: reference.fromChapter,
+        verse: reference.fromVerse
+    };
+    const noEndAnchor = isBlank(reference.toChapter) && isBlank(reference.toVerse);
+    const endAnchor = noEndAnchor
+        ? undefined
+        : {
+              phrase: reference.text,
+              docSet: reference.collection,
+              book: reference.bookId,
+              chapter: isNotBlank(reference.toChapter)
+                  ? reference.toChapter
+                  : reference.fromChapter,
+              verse: isNotBlank(reference.toVerse) ? reference.toVerse : reference.fromVerse
+          };
+    const anchor = generateAnchor(startAnchor, endAnchor);
+    value = anchor.outerHTML;
+    return value;
+}
+function lastVerseInChapter(book: string, chapter: string, docSet: string): string {
+    if (!chapter || chapter === 'i') {
+        return '0';
+    }
+    const books = catalog.find((d) => d.id === docSet).documents;
+    const chapters = books.find((d) => d.bookCode === book).versesByChapters;
+    const verses = Object.keys(chapters[chapter]);
+    const lastVerse = verses[verses.length - 1];
+    return lastVerse;
+}
+export function createReference(
+    referenceText: string,
+    collection: string,
+    bookId: string,
+    fromChapter: string,
+    toChapter: string,
+    fromVerse: string,
+    toVerse: string
+): any {
+    const reference = {};
+    reference['text'] = referenceText;
+    reference['collection'] = collection;
+    reference['bookId'] = bookId;
+    reference['fromChapter'] = fromChapter;
+    reference['toChapter'] = toChapter;
+    reference['fromVerse'] = fromVerse;
+    reference['toVerse'] = toVerse;
+    return reference;
 }

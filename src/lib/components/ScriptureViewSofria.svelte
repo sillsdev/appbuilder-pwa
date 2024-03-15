@@ -207,7 +207,7 @@ TODO:
         let child;
         spanElement.classList.add(spanClass);
         if (spanClass === 'xt') {
-            spanElement.innerHTML = generateHTML(phrase);
+            spanElement.innerHTML = phrase;
         } else {
             child = document.createTextNode(phrase);
             spanElement.appendChild(child);
@@ -295,7 +295,13 @@ TODO:
             event.stopPropagation();
             const root = event.target.parentNode.parentNode;
             const footnote = root.querySelector(`div#${root.getAttribute('data-graft')}`);
-            const parsed = footnote.innerHTML;
+            const workingSpan = footnote.cloneNode(true);
+            const spans = workingSpan.querySelectorAll('span.xt');
+            // Loop through each span and modify its inner HTML
+            spans.forEach(span => {
+                span.innerHTML = generateHTML(span.innerHTML); // Change inner HTML as needed
+            });
+            const parsed = workingSpan.innerHTML;
             footnotes.push(parsed);
         }
     }
@@ -1203,6 +1209,7 @@ TODO:
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;
                             environment.context.renderer.renderSequence(environment);
+                            // Runs after all segments in graft have run
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 const div = workspace.phraseDiv.cloneNode(true);

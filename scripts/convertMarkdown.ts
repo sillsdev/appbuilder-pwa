@@ -270,7 +270,13 @@ function getReferenceFromString(
             }
         }
     }
-    return [bookCollectionId, bookId, fromChapter, toChapter, verseRanges];
+    return [
+        bookCollectionId.toUpperCase(),
+        bookId.toUpperCase(),
+        fromChapter,
+        toChapter,
+        verseRanges
+    ];
 }
 
 function parseChapterRange(chapterRange: string): [number, number] {
