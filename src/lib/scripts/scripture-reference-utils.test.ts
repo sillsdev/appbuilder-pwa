@@ -9,18 +9,18 @@ import { refs } from '$lib/data/stores';
 import { describe, test, expect, beforeEach, it } from 'vitest';
 import {
     generateHTML,
-    allBookNames,
     cvs,
     rov,
     lov,
     roc,
     cls,
-    createReference
+    collection
 } from './scripture-reference-utils';
 
 describe('Scripture Reference Utilities', () => {
     describe('generateHTML', () => {
         const ref: any = get(refs);
+        const allBookNames = Object.fromEntries(collection.books.map((x) => [x.id, x.name]));
         const docSet = ref.docSet;
         const book1 = allBookNames['JHN'];
         const book2 = allBookNames['1CO'];

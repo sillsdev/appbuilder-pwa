@@ -1,7 +1,7 @@
 /**
  * TypeScript file for parsing and handling text references found in text.
  *
- * @author Jake Colbert
+ * @author Jake Colbert & David Moore
  **/
 
 import { get } from 'svelte/store';
@@ -20,21 +20,20 @@ import {
 } from './stringUtils';
 import { getIntFromNumberString } from './numeralUtils';
 
-export const ref: any = get(refs);
-export const collection: any = config.bookCollections.find((x) => x.id === ref.collection);
-export const allBookNames: any = Object.fromEntries(collection.books.map((x) => [x.id, x.name]));
-export const features: any = collection.features;
+export let ref: any = get(refs);
+export let collection: any = config.bookCollections.find((x) => x.id === ref.collection);
+export let features: any = collection.features;
 export const showScriptureLinks = true; //config.mainFeatures['show-scripture-refs'];
 
 // In text reference separators
 
 // These may need to be preprocessed to check escape characters
 
-export const cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
-export const rov = features['ref-verse-range-separator']; // Range of verses separator
-export const lov = features['ref-verse-list-separator']; // List of verses separator
-export const roc = features['ref-chapter-range-separator']; // Range of chapters separator
-export const cls = features['ref-chapter-list-separator']; // Chapter list separator
+export let cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
+export let rov = features['ref-verse-range-separator']; // Range of verses separator
+export let lov = features['ref-verse-list-separator']; // List of verses separator
+export let roc = features['ref-chapter-range-separator']; // Range of chapters separator
+export let cls = features['ref-chapter-list-separator']; // Chapter list separator
 
 /**
  * Function to generate an inline anchor tag from a preprocessed string reference
@@ -57,13 +56,23 @@ export function generateAnchor(start, end = undefined) {
     anchor.setAttribute('data-end-ref', JSON.stringify(end));
     return anchor;
 }
-
+function initGlobals() {
+    ref = get(refs);
+    collection = config.bookCollections.find((x) => x.id === ref.collection);
+    features = collection.features;
+    cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
+    rov = features['ref-verse-range-separator']; // Range of verses separator
+    lov = features['ref-verse-list-separator']; // List of verses separator
+    roc = features['ref-chapter-range-separator']; // Range of chapters separator
+    cls = features['ref-chapter-list-separator']; // Chapter list separator
+}
 /**
  * Function to generate HTML wrapper with inline span tags
  * that navigate to provided reference
  * @param reference: the string containing the reference
  */
 export function generateHTML(crossRef: string, bookId: string = '') {
+    initGlobals()
     const currentBookId = isBlank(bookId) ? ref.book : bookId;
     const docSet = ref.docSet;
     const contentToMatch = '\\xt ' + crossRef + '\\xt*';
@@ -252,7 +261,6 @@ function processScriptureRefLinks(
                         lastVerse
                     );
                     replace = getLinkText(chapterOnlyReference, displayText, refText);
-                    console.log('Chapter only - no verses ', refText);
                 } else if (sep === roc && maxChapters > 1) {
                     // Chapter range
                     // There was no chapter-verse separator
@@ -270,7 +278,6 @@ function processScriptureRefLinks(
                         extraAfter,
                         chapterList
                     );
-                    console.log('Chapter range');
                 } else if (sep === parseCvs || maxChapters === 1) {
                     // Verse range
                     // e.g. Matthew 5:1-3, 8-10
