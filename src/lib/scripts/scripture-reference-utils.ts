@@ -72,7 +72,7 @@ function initGlobals() {
  * @param reference: the string containing the reference
  */
 export function generateHTML(crossRef: string, bookId: string = '') {
-    initGlobals()
+    initGlobals();
     const currentBookId = isBlank(bookId) ? ref.book : bookId;
     const docSet = ref.docSet;
     const contentToMatch = '\\xt ' + crossRef + '\\xt*';

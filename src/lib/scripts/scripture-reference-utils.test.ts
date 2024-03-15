@@ -7,15 +7,7 @@
 import { get } from 'svelte/store';
 import { refs } from '$lib/data/stores';
 import { describe, test, expect, beforeEach, it } from 'vitest';
-import {
-    generateHTML,
-    cvs,
-    rov,
-    lov,
-    roc,
-    cls,
-    collection
-} from './scripture-reference-utils';
+import { generateHTML, cvs, rov, lov, roc, cls, collection } from './scripture-reference-utils';
 
 describe('Scripture Reference Utilities', () => {
     describe('generateHTML', () => {
