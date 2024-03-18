@@ -5,9 +5,9 @@
  **/
 
 import { get } from 'svelte/store';
-import config from '$lib/data/config';
-import { refs } from '../data/stores/scripture';
-import { catalog } from '$lib/data/catalog';
+import config from '../data/config';
+import { catalog } from '../data/catalog';
+import { getVerseText, refs, themeColors } from '../data/stores';
 import {
     ciEquals,
     getFirstDigitsAsInt,
@@ -23,7 +23,7 @@ import { getIntFromNumberString } from './numeralUtils';
 export let ref: any = get(refs);
 export let collection: any = config.bookCollections.find((x) => x.id === ref.collection);
 export let features: any = collection.features;
-export const showScriptureLinks = true; //config.mainFeatures['show-scripture-refs'];
+export let showScriptureLinks = features['show-scripture-refs']; // Show scripture reference links
 
 // In text reference separators
 
@@ -47,9 +47,12 @@ export let cls = features['ref-chapter-list-separator']; // Chapter list separat
  *    verse: string;
  * }
  */
-export function generateAnchor(start, end = undefined) {
+export function generateAnchor(refClass: string, start, end = undefined): HTMLElement {
     const anchor = document.createElement('a');
     anchor.classList.add('cursor-pointer');
+    if (isNotBlank(refClass)) {
+        anchor.classList.add(refClass);
+    }
     anchor.href = '#';
     anchor.innerHTML = start.phrase;
     anchor.setAttribute('data-start-ref', JSON.stringify(start));
@@ -65,13 +68,14 @@ function initGlobals() {
     lov = features['ref-verse-list-separator']; // List of verses separator
     roc = features['ref-chapter-range-separator']; // Range of chapters separator
     cls = features['ref-chapter-list-separator']; // Chapter list separator
+    showScriptureLinks = features['show-scripture-refs']; // Show scripture reference links
 }
 /**
  * Function to generate HTML wrapper with inline span tags
  * that navigate to provided reference
  * @param reference: the string containing the reference
  */
-export function generateHTML(crossRef: string, bookId: string = '') {
+export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
     initGlobals();
     const currentBookId = isBlank(bookId) ? ref.book : bookId;
     const docSet = ref.docSet;
@@ -99,7 +103,8 @@ export function generateHTML(crossRef: string, bookId: string = '') {
             currentBookId,
             displayText,
             parseCvs,
-            parseRov
+            parseRov,
+            refClass
         );
         sb += contentToMatch.substring(lastIndex, referenceMatches.index);
         sb += referenceHTML;
@@ -114,7 +119,8 @@ function processScriptureRef(
     bookId: string,
     displayText: string,
     parseCvs: string,
-    parseRov: string
+    parseRov: string,
+    refClass: string
 ): string {
     let result: string = '';
     if (showScriptureLinks) {
@@ -126,7 +132,8 @@ function processScriptureRef(
             bookId,
             displayText,
             parseCvs,
-            parseRov
+            parseRov,
+            refClass
         );
     } else {
         result = reference;
@@ -140,7 +147,8 @@ function processScriptureRefLinks(
     bookId: string,
     displayText: string,
     parseCvs: string,
-    parseRov: string
+    parseRov: string,
+    refClass: string
 ): string {
     const results: any[] = [];
     let prevBookId = bookId;
@@ -212,7 +220,7 @@ function processScriptureRefLinks(
                     fromVerse,
                     toVerse
                 );
-                replace = getLinkText(model1Reference, displayText, refText);
+                replace = getLinkText(model1Reference, displayText, refText, refClass);
             } else if (isDefined(referenceMatches[9])) {
                 // Model 2
                 // Chapter & verses, e.g. 1:2-3, 10
@@ -260,7 +268,7 @@ function processScriptureRefLinks(
                         '1',
                         lastVerse
                     );
-                    replace = getLinkText(chapterOnlyReference, displayText, refText);
+                    replace = getLinkText(chapterOnlyReference, displayText, refText, refClass);
                 } else if (sep === roc && maxChapters > 1) {
                     // Chapter range
                     // There was no chapter-verse separator
@@ -276,7 +284,8 @@ function processScriptureRefLinks(
                         bookNameWithSp,
                         extraBefore,
                         extraAfter,
-                        chapterList
+                        chapterList,
+                        refClass
                     );
                 } else if (sep === parseCvs || maxChapters === 1) {
                     // Verse range
@@ -295,7 +304,8 @@ function processScriptureRefLinks(
                         chapterNum,
                         verses,
                         parseCvs,
-                        parseRov
+                        parseRov,
+                        refClass
                     );
                 } else {
                     // No change
@@ -327,7 +337,7 @@ function processScriptureRefLinks(
                     '1',
                     lastVerse
                 );
-                replace = getLinkText(reference, displayText, refText);
+                replace = getLinkText(reference, displayText, refText, refClass);
             } else {
                 replace = isNotBlank(displayText) ? displayText : referenceMatches[0];
             }
@@ -535,7 +545,8 @@ function parseChapterList(
     bookNameWithSp: string,
     extraBefore: string,
     extraAfter: string,
-    chapterList: string
+    chapterList: string,
+    refClass: string
 ): string {
     const chapterListPattern = getScriptureReferencePatternForChapterList();
     let isFirstChapterRange = true;
@@ -588,7 +599,7 @@ function parseChapterList(
             if (rangeIndex == numberChapterRanges - 1) {
                 refText = refText + extraAfter;
             }
-            replace = getLinkText(chapterReference, displayText, refText);
+            replace = getLinkText(chapterReference, displayText, refText, refClass);
             isFirstChapterRange = false;
         } else {
             // Subsequent chapter number or range following chapter list separator (e.g. comma)
@@ -596,7 +607,7 @@ function parseChapterList(
             if (rangeIndex == numberChapterRanges - 1) {
                 refText = refText + extraAfter;
             }
-            replace = replace + lov + getLinkText(chapterReference, displayText, refText);
+            replace = replace + lov + getLinkText(chapterReference, displayText, refText, refClass);
         }
         rangeIndex++;
     }
@@ -614,7 +625,8 @@ function parseVerseList(
     chapterNum: number,
     verses: string,
     parseCvs: string,
-    parseRov: string
+    parseRov: string,
+    refClass: string
 ): string {
     let replace: string = '';
     let numberVerseRanges = 0;
@@ -681,7 +693,7 @@ function parseVerseList(
             if (rangeIndex == numberVerseRanges - 1) {
                 refText = refText + extraAfter;
             }
-            replace = getLinkText(verseReference, displayText, refText);
+            replace = getLinkText(verseReference, displayText, refText, refClass);
             isFirstVerseRange = false;
         } else {
             // Subsequent verse number or range following verse separator (e.g. comma)
@@ -689,14 +701,19 @@ function parseVerseList(
             if (rangeIndex == numberVerseRanges - 1) {
                 refText = refText + extraAfter;
             }
-            replace = replace + lov + getLinkText(verseReference, displayText, refText);
+            replace = replace + lov + getLinkText(verseReference, displayText, refText, refClass);
         }
 
         rangeIndex++;
     }
     return replace;
 }
-function getLinkText(reference: any, displayText: string, refText: string): string {
+function getLinkText(
+    reference: any,
+    displayText: string,
+    refText: string,
+    refClass: string
+): string {
     let value = '';
     let phrase = refText;
     if (isNotBlank(displayText)) {
@@ -723,7 +740,7 @@ function getLinkText(reference: any, displayText: string, refText: string): stri
                   : reference.fromChapter,
               verse: isNotBlank(reference.toVerse) ? reference.toVerse : reference.fromVerse
           };
-    const anchor = generateAnchor(startAnchor, endAnchor);
+    const anchor = generateAnchor(refClass, startAnchor, endAnchor);
     value = anchor.outerHTML;
     return value;
 }
@@ -755,4 +772,39 @@ export function createReference(
     reference['fromVerse'] = fromVerse;
     reference['toVerse'] = toVerse;
     return reference;
+}
+export async function createFootnote(start, end): Promise<string> {
+    const colors = get(themeColors);
+    const primaryColor = colors['PrimaryColor'];
+    const root = document.createElement('div');
+    const textDiv = document.createElement('div');
+    const iconDiv = document.createElement('div');
+    const icon = document.createElement('button');
+
+    iconDiv.id = 'icon';
+
+    const referenceSpan = document.createElement('span');
+    const footnoteSpan = document.createElement('span');
+
+    root.classList.add('flex', 'flex-row', 'justify-space-between');
+    referenceSpan.classList.add('fr');
+    footnoteSpan.classList.add('ft');
+    icon.setAttribute('reference', JSON.stringify(start));
+    icon.classList.add('p-2');
+
+    const svgInnerHTML = `<svg fill='${primaryColor}' xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"/></svg>`;
+    icon.innerHTML = svgInnerHTML;
+    referenceSpan.innerText = `${start.phrase} `;
+
+    console.log(start, end);
+    footnoteSpan.innerText = await getVerseText(start, end);
+
+    textDiv.appendChild(referenceSpan);
+    textDiv.appendChild(footnoteSpan);
+    iconDiv.appendChild(icon);
+
+    root.appendChild(textDiv);
+    root.appendChild(iconDiv);
+
+    return root.outerHTML;
 }

@@ -36,7 +36,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3)', () => {
             let result;
             beforeEach(() => {
-                result = generateHTML(test0, 'MAT');
+                result = generateHTML(test0, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -61,7 +61,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter with text (John 3)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test9, 'MAT');
+                result = generateHTML(test9, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -86,7 +86,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3:16)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test1, 'MAT');
+                result = generateHTML(test1, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -109,7 +109,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test2, 'MAT');
+                result = generateHTML(test2, '', 'MAT');
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -144,7 +144,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter range (John 3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test3, 'MAT');
+                result = generateHTML(test3, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -169,7 +169,7 @@ describe('Scripture Reference Utilities', () => {
         describe('chapter range (3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test10, 'MAT');
+                result = generateHTML(test10, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -195,7 +195,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test4, 'MAT');
+                result = generateHTML(test4, '', 'MAT');
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -231,7 +231,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test5, 'MAT');
+                result = generateHTML(test5, '', 'MAT');
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -270,7 +270,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test6, 'MAT');
+                result = generateHTML(test6, '', 'MAT');
                 results = result.split('</a>');
             });
             it('has three results', () => {
@@ -317,7 +317,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter verse chapter verse range (John 3:16-5:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test11, 'MAT');
+                result = generateHTML(test11, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -346,7 +346,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test7, 'MAT');
+                result = generateHTML(test7, '', 'MAT');
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -390,7 +390,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Single chapter book (Jude 6)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test8, 'MAT');
+                result = generateHTML(test8, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -413,7 +413,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test12, 'MAT');
+                result = generateHTML(test12, '', 'MAT');
                 results = result.split('</a>');
             });
             it('has three results', () => {
@@ -463,7 +463,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book abbreviation used (Exo 3:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test13, 'MAT');
+                result = generateHTML(test13, '', 'MAT');
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
