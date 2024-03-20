@@ -34,6 +34,7 @@ export let rov = features['ref-verse-range-separator']; // Range of verses separ
 export let lov = features['ref-verse-list-separator']; // List of verses separator
 export let roc = features['ref-chapter-range-separator']; // Range of chapters separator
 export let cls = features['ref-chapter-list-separator']; // Chapter list separator
+export let extras = features['ref-extra-material'];
 
 /**
  * Function to generate an inline anchor tag from a preprocessed string reference
@@ -69,6 +70,13 @@ function initGlobals() {
     roc = features['ref-chapter-range-separator']; // Range of chapters separator
     cls = features['ref-chapter-list-separator']; // Chapter list separator
     showScriptureLinks = features['show-scripture-refs']; // Show scripture reference links
+    extras = features['ref-extra-material'];
+    if (isNotBlank(extras)) {
+        // Reorder by length, otherwise if we have "See |See also", the See also will not be matched
+        sortExtraMaterialMatchesByLength();
+        // Escape the special chars that we use in regular expressions (apart from the pipe |)
+        escapeExtraMaterialSpecialCharactersForRegEx();
+    }
 }
 /**
  * Function to generate HTML wrapper with inline span tags
@@ -171,12 +179,11 @@ function processScriptureRefLinks(
 
                 if (!isDefined(bookId) && isNotBlank(displayText)) {
                     // If book name was not found, check to see if it is a book id
-                    if (checkBookId(bookName)) {
-                        bookId = bookName;
+                    const checkedId = checkBookId(bookName);
+                    if (isNotBlank(checkedId)) {
+                        bookId = checkedId;
                     }
                 }
-
-                // TODO: Check unmatched names DisplayWriter 5027
             } else {
                 bookId = prevBookId;
                 bookName = '';
@@ -357,7 +364,7 @@ function processScriptureRefLinks(
     return refLink;
 }
 function getScriptureReferencePatternForBook(parseCvs: string, parseRov: string): string {
-    const extraMaterial = '()'; // TODO: get extra material from features DisplayWriter 4750
+    const extraMaterial = isNotBlank(extras) ? '(' + extras + ')?' : '()';
     const sepChapterVs = parseCvs === '.' ? '\\.' : parseCvs;
     const sepVerseList = lov === '.' ? '\\.' : lov;
 
@@ -439,8 +446,8 @@ function getScriptureReferencePatternForBook(parseCvs: string, parseRov: string)
     return regex;
 }
 function getBookNamePattern(): string {
-    // TODO: get non word characters in book (DisplayWriter 4737)
-    const nonWordCharsInBookName = ' ';
+    let nonWordCharsInBookName = getNonWordCharactersInBookNames();
+    nonWordCharsInBookName = nonWordCharsInBookName.replace(/-/g, '\\-');
     const bookNamePattern =
         '(?:[123] )?[\\w\\p{L}][\\w\\p{L}\\p{M}\\s' + nonWordCharsInBookName + ']*';
     return bookNamePattern;
@@ -511,7 +518,6 @@ function getBookIdFromBookName(bookName: string): string | null {
             value = collection.books[i].id;
             break;
         }
-        // TODO: Test with BC that actually has additional names defined
         if (isDefined(collection.books[i].additionalNames)) {
             let j = 0;
             while (j < collection.books[i].additionalNames.length) {
@@ -529,9 +535,17 @@ function getBookIdFromBookName(bookName: string): string | null {
     }
     return value;
 }
-function checkBookId(bookId: string): boolean {
-    // TODO: implement
-    return true;
+function checkBookId(bookId: string): string {
+    let value: string = '';
+    let i = 0;
+    while (i < collection.books.length) {
+        if (ciEquals(collection.books[i].id, bookId)) {
+            value = collection.books[i].id;
+            break;
+        }
+        i++;
+    }
+    return value;
 }
 function getNumChaptersFromBookId(bookId: string): number {
     const numberOfChapters = collection.books.find((x) => x.id === bookId)?.chapters || 0;
@@ -772,6 +786,66 @@ export function createReference(
     reference['fromVerse'] = fromVerse;
     reference['toVerse'] = toVerse;
     return reference;
+}
+function sortExtraMaterialMatchesByLength() {
+    const matches = extras.split('|');
+    const stringLengthComparator = function (o1: string, o2: string) {
+        return o2.length - o1.length;
+    };
+
+    matches.sort(stringLengthComparator);
+
+    let sb = '';
+    matches.forEach(function (match, index) {
+        if (index > 0) {
+            sb += '|';
+        }
+        sb += match;
+    });
+    extras = sb;
+}
+function escapeExtraMaterialSpecialCharactersForRegEx() {
+    extras = extras.replace('\\', '\\\\');
+    extras = extras.replace('+', '\\+');
+    extras = extras.replace('.', '\\.');
+    extras = extras.replace('?', '\\?');
+    extras = extras.replace('*', '\\*');
+    extras = extras.replace('^', '\\^');
+    extras = extras.replace('$', '\\$');
+    extras = extras.replace('(', '\\(');
+    extras = extras.replace(')', '\\)');
+    extras = extras.replace('[', '\\[');
+    extras = extras.replace(']', '\\]');
+}
+function getNonWordCharactersInBookNames(): string {
+    const chars = new Set();
+    let i = 0;
+    while (i < collection.books.length) {
+        const bookName = collection.books[i].name;
+        const bookAbbrev = collection.books[i].abbreviation;
+        const bookAdditionalNames = collection.books[i].additionalNames;
+        let nonWordChars = isDefined(bookName) ? bookName.replace(/[^\p{L}\p{M}]/gu, '') : '';
+        addCharsToSet(nonWordChars, chars);
+        nonWordChars = isDefined(bookAbbrev) ? bookAbbrev.replace(/[^\p{L}\p{M}]/gu, '') : '';
+        addCharsToSet(nonWordChars, chars);
+        if (isDefined(bookAdditionalNames)) {
+            let j = 0;
+            while (j < bookAdditionalNames.length) {
+                const name = bookAdditionalNames[j];
+                nonWordChars = isDefined(name) ? name.replace(/[^\p{L}\p{M}]/gu, '') : '';
+                addCharsToSet(nonWordChars, chars);
+                j++;
+            }
+        }
+        i++;
+    }
+    return Array.from(chars).join('');
+}
+
+function addCharsToSet(nonWordChars, chars) {
+    for (let i = 0; i < nonWordChars.length; i++) {
+        chars.add(nonWordChars.charAt(i));
+    }
 }
 export async function handleHeaderLinkPressed(start, end): Promise<string> {
     const colors = get(themeColors);
