@@ -38,8 +38,8 @@
         const refBook = splitRef[1];
         const splitChapter = splitRef[2];
         const splitVerse = splitRef[3];
-        
-        let refDocSet = refs.docSet;;
+
+        let refDocSet = refs.docSet;
         const refBc = config.bookCollections.find((x) => x.id === splitSet);
         if (refBc) {
             refDocSet = refBc.languageCode + '_' + refBc.id;
@@ -47,7 +47,7 @@
             // Invalid collection
             return;
         }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse:splitVerse });
+        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
         footnotes.reset();
         return;
     }
@@ -86,7 +86,7 @@
             }
         } else if (event.target.classList.contains('ref-link')) {
             referenceLinkClickHandler(event);
-        // will not work since it does not have a reference to the start object...
+            // will not work since it does not have a reference to the start object...
         } else if (document.getElementById('icon').contains(event.target)) {
             let start = JSON.parse(
                 document.getElementById('icon').firstChild.getAttribute('reference')
@@ -114,6 +114,7 @@
 <div bind:this={stack} class="absolute max-w-screen-md w-5/6 bottom-8 dy-stack">
     {#each $footnotes as item}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
             id="container"
             class="footnote rounded h-40 drop-shadow-lg overflow-y-auto"
