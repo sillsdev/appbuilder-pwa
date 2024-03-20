@@ -8,7 +8,7 @@
 
     import config from '$lib/data/config';
     import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
-    import { createFootnote } from '$lib/scripts/scripture-reference-utils';
+    import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     let stack;
     let listening = false;
     $: PrimaryColor = $themeColors['PrimaryColor'];
@@ -63,7 +63,7 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const footnoteHTML = await createFootnote(start, end);
+                const footnoteHTML = await handleHeaderLinkPressed(start, end);
                 footnotes.push(footnoteHTML);
             }
         } else if (event.target.classList.contains('ref-link')) {

@@ -773,7 +773,7 @@ export function createReference(
     reference['toVerse'] = toVerse;
     return reference;
 }
-export async function createFootnote(start, end): Promise<string> {
+export async function handleHeaderLinkPressed(start, end): Promise<string> {
     const colors = get(themeColors);
     const primaryColor = colors['PrimaryColor'];
     const root = document.createElement('div');
@@ -796,7 +796,6 @@ export async function createFootnote(start, end): Promise<string> {
     icon.innerHTML = svgInnerHTML;
     referenceSpan.innerText = `${start.phrase} `;
 
-    console.log(start, end);
     footnoteSpan.innerText = await getVerseText(start, end);
 
     textDiv.appendChild(referenceSpan);

@@ -13,7 +13,7 @@ TODO:
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { footnotes, isBibleBook, refs } from '$lib/data/stores';
-    import { generateHTML, createFootnote } from '$lib/scripts/scripture-reference-utils';
+    import { generateHTML, handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
         deselectAllElements,
@@ -335,7 +335,7 @@ TODO:
         if (config.mainFeatures['scripture-refs-display'] === 'viewer') {
             navigate(start);
         } else {
-            const footnoteHTML = await createFootnote(start, end);
+            const footnoteHTML = await handleHeaderLinkPressed(start, end);
             footnotes.push(footnoteHTML);
         } 
     }
