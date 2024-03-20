@@ -6,16 +6,19 @@
 
 import { get } from 'svelte/store';
 import { refs } from '$lib/data/stores';
-import { describe, test, expect } from 'vitest';
-import { parseText, allBookNames, cvs, rov, lov, roc, cls } from './scripture-reference-utils';
+import { describe, test, expect, beforeEach, it } from 'vitest';
+import { generateHTML, cvs, rov, lov, roc, cls, collection } from './scripture-reference-utils';
 
 describe('Scripture Reference Utilities', () => {
-    describe('parseText()', () => {
+    describe('generateHTML', () => {
         const ref: any = get(refs);
+        const allBookNames = Object.fromEntries(collection.books.map((x) => [x.id, x.name]));
         const docSet = ref.docSet;
         const book1 = allBookNames['JHN'];
         const book2 = allBookNames['1CO'];
         const book3 = allBookNames['JUD'];
+        const book4 = allBookNames['EXO'];
+        const book5 = allBookNames['MAT'];
         const test0 = `${book1} 3`; // John 3
         const test1 = `${book1} 3${cvs}16`; // John 3:16
         const test2 = `${book1} 3${cvs}16${cls} 3${cvs}17`; // John 3:16; 3:17
@@ -25,224 +28,459 @@ describe('Scripture Reference Utilities', () => {
         const test6 = `${book1} 3${cvs}16${cls} 3${cvs}17${cls} ${book2} 1${cvs}1`; // John 3:16; 3:17; 1 Corinthians 1:1
         const test7 = `${book1} 3${cvs}16${roc}5${cvs}13${cls} 32${cvs}6${rov}9`; // John 3:16-5:13; 32:6-9
         const test8 = `${book3} 6`; // Jude 6
-
-        test(`with a simple book and chapter reference:\t\t${test0}`, () => {
-            expect(parseText(test0)).toStrictEqual([
-                [
-                    {
-                        phrase: test0,
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: undefined
-                    }
-                ]
-            ]);
+        const test9 = `text| ${book1} 3`; // John 3
+        const test10 = `3${cvs}16${rov}17`; // 3:16-17
+        const test11 = `${book1} 3${cvs}16${roc}5${cvs}13`; // John 3:16-5:13
+        const test12 = `${book4} 20${cvs}13${cls} ${book5} 5${cvs}17${lov}20${rov}22`; // Exodus 20:13; Matthew 5:17,20-22
+        const test13 = `Exo 3${cvs}13`; // Exo 3:13
+        describe('Simple book chapter (John 3)', () => {
+            let result;
+            beforeEach(() => {
+                result = generateHTML(test0, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>John 3</a>');
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has a start verse', () => {
+                expect(result).toContain('verse&quot;:&quot;1&quot;');
+            });
+            it('has an end verse', () => {
+                expect(result).toContain('verse&quot;:&quot;36&quot;');
+            });
         });
-
-        test(`with a book, chapter, and verse reference:\t\t${test1}`, () => {
-            expect(parseText(test1)).toStrictEqual([
-                [
-                    {
-                        phrase: test1,
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    }
-                ]
-            ]);
+        describe('Simple book chapter with text (John 3)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test9, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>text</a>');
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has a start verse', () => {
+                expect(result).toContain('verse&quot;:&quot;1&quot;');
+            });
+            it('has an end verse', () => {
+                expect(result).toContain('verse&quot;:&quot;36&quot;');
+            });
         });
-
-        // John 3:16; 3:17
-        test(`with a reference inheriting the first's book:\t\t${test2}`, () => {
-            const parts = test2.split(`${cls} `);
-            expect(parseText(test2)).toStrictEqual([
-                [
-                    {
-                        phrase: parts[0],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    }
-                ],
-                [
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '17'
-                    }
-                ]
-            ]);
+        describe('Simple book chapter (John 3:16)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test1, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>John 3:16</a>');
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has a start verse', () => {
+                expect(result).toContain('verse&quot;:&quot;16&quot;');
+            });
         });
-
-        // John 3:16-17
-        test(`with a reference containing a range of verses:\t\t${test3}`, () => {
-            expect(parseText(test3)).toStrictEqual([
-                [
-                    {
-                        phrase: test3,
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    },
-                    {
-                        phrase: test3,
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '17'
-                    }
-                ]
-            ]);
+        describe('Book with two chapter verse (John 3:16 3:17)', () => {
+            let result: any;
+            let results: string[];
+            beforeEach(() => {
+                result = generateHTML(test2, '', 'MAT');
+                results = result.split('</a>');
+            });
+            it('has two results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(2);
+            });
+            it('first has valid text', () => {
+                expect(results[0]).toContain('>John 3:16');
+            });
+            it('first has book ID', () => {
+                expect(results[0]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('first has chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('first has verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('second has valid text', () => {
+                expect(results[1]).toContain('>3:17');
+            });
+            it('second has book ID', () => {
+                expect(results[1]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('second has chapter', () => {
+                expect(results[1]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('second has verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;17&quot;');
+            });
         });
-
-        // John 3:16,17
-        test.todo(`with a reference containing a list of verses:\t\t${test4}`, () => {
-            const parts = test4.split(`${lov}`);
-            expect(parseText(test4)).toStrictEqual([
-                [
-                    {
-                        phrase: parts[0],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    }
-                ],
-                [
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    }
-                ]
-            ]);
+        describe('Book chapter range (John 3:16-17)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test3, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>John 3:16-17</a>');
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has from verse', () => {
+                expect(result).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('has to verse', () => {
+                expect(result).toContain('verse&quot;:&quot;17&quot;');
+            });
         });
-
-        // John 3:16; 3:17-18
-        test(`with a range of verses and inheritence:\t\t${test5}`, () => {
-            const parts = test5.split(`${cls} `);
-            expect(parseText(test5)).toStrictEqual([
-                [
-                    {
-                        phrase: parts[0],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    }
-                ],
-                [
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '17'
-                    },
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '18'
-                    }
-                ]
-            ]);
+        describe('chapter range (3:16-17)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test10, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>3:16-17</a>');
+            });
+            it('has current book ID', () => {
+                expect(result).toContain('book&quot;:&quot;MAT&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has from verse', () => {
+                expect(result).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('has to verse', () => {
+                expect(result).toContain('verse&quot;:&quot;17&quot;');
+            });
         });
-
-        // John 3:16; 3:17; 1 Corinthians 1:1
-        test(`with a third reference that shouldn't inherit:\t\t${test6}`, () => {
-            const parts = test6.split(`${cls} `);
-            expect(parseText(test6)).toStrictEqual([
-                [
-                    {
-                        phrase: parts[0],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    }
-                ],
-                [
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '17'
-                    }
-                ],
-                [
-                    {
-                        phrase: parts[2],
-                        docSet: docSet,
-                        book: '1CO',
-                        chapter: '1',
-                        verse: '1'
-                    }
-                ]
-            ]);
+        describe('Book with two chapter and verse list (John 3:16,17)', () => {
+            let result: any;
+            let results: string[];
+            beforeEach(() => {
+                result = generateHTML(test4, '', 'MAT');
+                results = result.split('</a>');
+            });
+            it('has two results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(2);
+            });
+            it('first has valid text', () => {
+                expect(results[0]).toContain('>John 3:16');
+            });
+            it('first has book ID', () => {
+                expect(results[0]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('first has chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('first has verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('second has valid text', () => {
+                expect(results[1]).toContain('>17');
+            });
+            it('second has book ID', () => {
+                expect(results[1]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('second has chapter', () => {
+                expect(results[1]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('second has verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;17&quot;');
+            });
         });
-
-        // John 3:16-5:13; 32:6-9
-        test(`with a reference containing a chapter range:\t\t${test7}`, () => {
-            const parts = test7.split(`${cls} `);
-            expect(parseText(test7)).toStrictEqual([
-                [
-                    {
-                        phrase: parts[0],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '3',
-                        verse: '16'
-                    },
-                    {
-                        phrase: parts[0],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '5',
-                        verse: '13'
-                    }
-                ],
-                [
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '32',
-                        verse: '6'
-                    },
-                    {
-                        phrase: parts[1],
-                        docSet: docSet,
-                        book: 'JHN',
-                        chapter: '32',
-                        verse: '9'
-                    }
-                ]
-            ]);
+        describe('Book with two chapter verse (John 3:16 3:17-18)', () => {
+            let result: any;
+            let results: string[];
+            beforeEach(() => {
+                result = generateHTML(test5, '', 'MAT');
+                results = result.split('</a>');
+            });
+            it('has two results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(2);
+            });
+            it('first has valid text', () => {
+                expect(results[0]).toContain('>John 3:16');
+            });
+            it('first has book ID', () => {
+                expect(results[0]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('first has chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('first has verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('second has valid text', () => {
+                expect(results[1]).toContain('>3:17-18');
+            });
+            it('second has book ID', () => {
+                expect(results[1]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('second has chapter', () => {
+                expect(results[1]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('second has from verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;17&quot;');
+            });
+            it('second has to verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;18&quot;');
+            });
         });
-
-        test.todo(`with a book that contains a single chapter:\t\t${test8}`, () => {
-            expect(parseText(test8)).toStrictEqual([
-                [
-                    {
-                        phrase: test8,
-                        docSet: docSet,
-                        book: 'JUD',
-                        chapter: '1',
-                        verse: '6'
-                    }
-                ]
-            ]);
+        describe('Book with two chapter verse (John 3:16; 3:17; 1 Corinthians 1:1)', () => {
+            let result: any;
+            let results: string[];
+            beforeEach(() => {
+                result = generateHTML(test6, '', 'MAT');
+                results = result.split('</a>');
+            });
+            it('has three results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(3);
+            });
+            it('first has valid text', () => {
+                expect(results[0]).toContain('>John 3:16');
+            });
+            it('first has book ID', () => {
+                expect(results[0]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('first has chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('first has verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('second has valid text', () => {
+                expect(results[1]).toContain('>3:17');
+            });
+            it('second has book ID', () => {
+                expect(results[1]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('second has chapter', () => {
+                expect(results[1]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('second has from verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;17&quot;');
+            });
+            it('third has valid text', () => {
+                expect(results[2]).toContain('>1 Corinthians 1:1');
+            });
+            it('third has book ID', () => {
+                expect(results[2]).toContain('book&quot;:&quot;1CO&quot;');
+            });
+            it('third has chapter', () => {
+                expect(results[2]).toContain('chapter&quot;:&quot;1&quot;');
+            });
+            it('third has verse', () => {
+                expect(results[2]).toContain('verse&quot;:&quot;1&quot;');
+            });
+        });
+        describe('Book chapter verse chapter verse range (John 3:16-5:13)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test11, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain(`>John 3:16${roc}5:13</a>`);
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('has from chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has from verse', () => {
+                expect(result).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('has to chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;5&quot;');
+            });
+            it('has to verse', () => {
+                expect(result).toContain('verse&quot;:&quot;13&quot;');
+            });
+        });
+        describe('Book chapter verse chapter verse range with chapter verse range (John 3:16-5:13; 32:6-9)', () => {
+            let result: any;
+            let results: string[];
+            beforeEach(() => {
+                result = generateHTML(test7, '', 'MAT');
+                results = result.split('</a>');
+            });
+            it('has two results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(2);
+            });
+            it('first has valid text', () => {
+                expect(results[0]).toContain(`>John 3:16${roc}5:13`);
+            });
+            it('first has book ID', () => {
+                expect(results[0]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('first has chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('first has verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;16&quot;');
+            });
+            it('first has to chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;5&quot;');
+            });
+            it('first has to verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;13&quot;');
+            });
+            it('second has valid text', () => {
+                expect(results[1]).toContain(`>32:6-9`);
+            });
+            it('second has book ID', () => {
+                expect(results[1]).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('second has chapter', () => {
+                expect(results[1]).toContain('chapter&quot;:&quot;32&quot;');
+            });
+            it('second has from verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;6&quot;');
+            });
+            it('second has to verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;9&quot;');
+            });
+        });
+        describe('Single chapter book (Jude 6)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test8, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>Jude 6</a>');
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;JUD&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;1&quot;');
+            });
+            it('has verse', () => {
+                expect(result).toContain('verse&quot;:&quot;6&quot;');
+            });
+        });
+        describe('Complex entry (Exodus 20:13; Matthew 5:17,20-22)', () => {
+            let result: any;
+            let results: string[];
+            beforeEach(() => {
+                result = generateHTML(test12, '', 'MAT');
+                results = result.split('</a>');
+            });
+            it('has three results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(3);
+            });
+            it('first has valid text', () => {
+                expect(results[0]).toContain(`>Exodus 20:13`);
+            });
+            it('first has current book ID', () => {
+                expect(results[0]).toContain('book&quot;:&quot;EXO&quot;');
+            });
+            it('first has chapter', () => {
+                expect(results[0]).toContain('chapter&quot;:&quot;20&quot;');
+            });
+            it('first has from verse', () => {
+                expect(results[0]).toContain('verse&quot;:&quot;13&quot;');
+            });
+            it('second has valid text', () => {
+                expect(results[1]).toContain(`>Matthew 5:17`);
+            });
+            it('second has book ID', () => {
+                expect(results[1]).toContain('book&quot;:&quot;MAT&quot;');
+            });
+            it('second has chapter', () => {
+                expect(results[1]).toContain('chapter&quot;:&quot;5&quot;');
+            });
+            it('second has from verse', () => {
+                expect(results[1]).toContain('verse&quot;:&quot;17&quot;');
+            });
+            it('third has valid text', () => {
+                expect(results[2]).toContain(`>20-22`);
+            });
+            it('third has book ID', () => {
+                expect(results[2]).toContain('book&quot;:&quot;MAT&quot;');
+            });
+            it('third has chapter', () => {
+                expect(results[2]).toContain('chapter&quot;:&quot;5&quot;');
+            });
+            it('third has from verse', () => {
+                expect(results[2]).toContain('verse&quot;:&quot;20&quot;');
+            });
+            it('third has to verse', () => {
+                expect(results[2]).toContain('verse&quot;:&quot;22&quot;');
+            });
+        });
+        describe('Book abbreviation used (Exo 3:13)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTML(test13, '', 'MAT');
+            });
+            it('has one result', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(1);
+            });
+            it('has valid text', () => {
+                expect(result).toContain('>Exo 3:13</a>');
+            });
+            it('has book ID', () => {
+                expect(result).toContain('book&quot;:&quot;EXO&quot;');
+            });
+            it('has chapter', () => {
+                expect(result).toContain('chapter&quot;:&quot;3&quot;');
+            });
+            it('has verse', () => {
+                expect(result).toContain('verse&quot;:&quot;13&quot;');
+            });
         });
     });
 });

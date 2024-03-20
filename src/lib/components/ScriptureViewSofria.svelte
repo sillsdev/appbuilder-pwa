@@ -13,7 +13,7 @@ TODO:
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { footnotes, isBibleBook, refs } from '$lib/data/stores';
-    import { generateHTML } from '$lib/scripts/scripture-reference-utils';
+    import { generateHTML, handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
         deselectAllElements,
@@ -207,7 +207,7 @@ TODO:
         let child;
         spanElement.classList.add(spanClass);
         if (spanClass === 'xt') {
-            spanElement.innerHTML = generateHTML(phrase);
+            spanElement.innerHTML = phrase;
         } else {
             child = document.createTextNode(phrase);
             spanElement.appendChild(child);
@@ -295,7 +295,13 @@ TODO:
             event.stopPropagation();
             const root = event.target.parentNode.parentNode;
             const footnote = root.querySelector(`div#${root.getAttribute('data-graft')}`);
-            const parsed = footnote.innerHTML;
+            const workingSpan = footnote.cloneNode(true);
+            const spans = workingSpan.querySelectorAll('span.xt');
+            // Loop through each span and modify its inner HTML
+            spans.forEach(span => {
+                span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+            });
+            const parsed = workingSpan.innerHTML;
             footnotes.push(parsed);
         }
     }
@@ -318,6 +324,29 @@ TODO:
         }
         refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse:splitVerse });
         return;
+    }
+    async function headerLinkClickReference(event: any) {
+        event.stopPropagation();
+        let start = JSON.parse(event.target.getAttribute('data-start-ref'));
+        let end =
+            event.target.getAttribute('data-end-ref') === 'undefined'
+                ? undefined
+                : JSON.parse(event.target.getAttribute('data-end-ref'));
+        if (config.mainFeatures['scripture-refs-display'] === 'viewer') {
+            navigate(start);
+        } else {
+            const footnoteHTML = await handleHeaderLinkPressed(start, end);
+            footnotes.push(footnoteHTML);
+        } 
+    }
+    function navigate(reference) {
+        refs.set({
+            docSet: reference.docSet,
+            book: reference.book,
+            chapter: reference.chapter,
+            verse: reference.verse
+        });
+        footnotes.reset();
     }
     function addNotesDiv(workspace) {
         const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
@@ -571,6 +600,9 @@ TODO:
                     referenceLinkClickHandler(e);
                     break;
                 }
+                if (e.target.classList.contains('header-ref')) {
+                    headerLinkClickReference(e);
+                }
                 if (!$audioPlayer.playing) {
                     onClickText(e, selectedVerses, maxSelections);
                 }
@@ -670,7 +702,7 @@ TODO:
                             if (!displayingIntroduction) {
                                 var els = document.getElementsByTagName('div');
                                 for (var i = 0; i < els.length; i++) {
-                                    if (els[i].classList.contains('seltxt') && els[i].id != '') {
+                                    if ((els[i].classList.contains('seltxt') && els[i].id != '') || (els[i].classList.contains('r'))) {
                                         els[i].addEventListener('click', onClick, false);
                                     }
                                 }
@@ -797,7 +829,11 @@ TODO:
                                     );
                                     const innerDiv = document.createElement('div');
                                     innerDiv.id = prefix + count;
-                                    innerDiv.innerText = workspace.headerText;
+                                    if (headingParaClass == 'r') {
+                                        innerDiv.innerHTML = workspace.headerText;
+                                    } else {
+                                        innerDiv.innerText = workspace.headerText;
+                                    }
                                     div.appendChild(innerDiv);
                                     workspace.root.appendChild(div);
                                     workspace.headerText = '';
@@ -921,7 +957,15 @@ TODO:
                                         break;
                                     }
                                     case 'heading': {
-                                        workspace.headerText += text;
+                                        const blockType = context.sequences[0].block.subType;
+                                        if (
+                                            blockType.includes('usfm:r')
+                                        ) {
+                                            const refText = generateHTML(text, 'header-ref');
+                                            workspace.headerText += refText;
+                                        } else {
+                                            workspace.headerText += text;
+                                        }
                                         break;
                                     }
                                     case 'fig': {
@@ -1203,6 +1247,7 @@ TODO:
                             const cachedSequencePointer = workspace.currentSequence;
                             workspace.currentSequence = graftRecord.sequence;
                             environment.context.renderer.renderSequence(environment);
+                            // Runs after all segments in graft have run
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 const div = workspace.phraseDiv.cloneNode(true);

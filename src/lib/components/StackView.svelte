@@ -8,6 +8,7 @@
 
     import config from '$lib/data/config';
     import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
+    import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     let stack;
     let listening = false;
     $: PrimaryColor = $themeColors['PrimaryColor'];
@@ -22,7 +23,8 @@
         refs.set({
             docSet: reference.docSet,
             book: reference.book,
-            chapter: reference.chapter
+            chapter: reference.chapter,
+            verse: reference.verse
         });
         footnotes.reset();
     }
@@ -61,28 +63,8 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const root = document.createElement('div');
-                const textDiv = document.createElement('div');
-                const iconDiv = document.createElement('div');
-                iconDiv.id = 'icon';
-                const referenceSpan = document.createElement('span');
-                const footnoteSpan = document.createElement('span');
-                const icon = document.createElement('button');
-                root.classList.add('flex', 'flex-row', 'justify-space-between');
-                referenceSpan.classList.add('fr');
-                footnoteSpan.classList.add('ft');
-                icon.setAttribute('reference', JSON.stringify(start));
-                icon.classList.add('p-2');
-                icon.innerHTML = openInNewIcon();
-                referenceSpan.innerText = `${start.phrase} `;
-                console.log(start, end);
-                footnoteSpan.innerText = await getVerseText(start, end);
-                textDiv.appendChild(referenceSpan);
-                textDiv.appendChild(footnoteSpan);
-                iconDiv.appendChild(icon);
-                root.appendChild(textDiv);
-                root.appendChild(iconDiv);
-                footnotes.push(root.outerHTML);
+                const footnoteHTML = await handleHeaderLinkPressed(start, end);
+                footnotes.push(footnoteHTML);
             }
         } else if (event.target.classList.contains('ref-link')) {
             referenceLinkClickHandler(event);
