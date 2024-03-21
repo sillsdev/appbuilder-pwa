@@ -31,7 +31,7 @@ A component to display tabbed menus.
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs" style={convertStyle($s['ui.selector.tabs'])}>
+    <div class="dy-tabs mb-1" style={convertStyle($s['ui.selector.tabs'])}>
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y-missing-attribute -->

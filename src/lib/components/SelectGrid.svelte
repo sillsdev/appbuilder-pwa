@@ -5,6 +5,7 @@ A component to display menu options in a grid.
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { s, refs, themeBookColors, themeColors, convertStyle } from '$lib/data/stores';
+    import { isNotBlank } from '$lib/scripts/stringUtils';
     import config from '$lib/data/config';
     export let options: App.GridGroup[] = [];
     export let cols = 6;
@@ -72,7 +73,9 @@ A component to display menu options in a grid.
 
 {#each options as group}
     {#if group.header}
-        <div class="mx-2" style={headerStyle}>{group.header}</div>
+        <div class="mx-2"
+        class:my-2={isNotBlank(group.header)} 
+        style={headerStyle}>{group.header}</div>
     {/if}
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <!-- svelte-ignore a11y-interactive-supports-focus -->
@@ -82,7 +85,7 @@ A component to display menu options in a grid.
         on:touchend={handleHoverEnd}
         on:mouseover={handleHover}
         on:mouseout={handleHoverEnd}
-        class="grid grid-cols-{cols} gap-1 m-2"
+        class="grid grid-cols-{cols} gap-1"
         class:grid-cols-5={cols == 5}
         class:grid-cols-6={cols == 6}
         role="menu"
