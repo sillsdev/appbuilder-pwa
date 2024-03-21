@@ -147,6 +147,12 @@
         proskomma: $page.data?.proskomma
     };
 
+    $: stackSettings = {
+        bodyFontSize: $bodyFontSize,
+        bodyLineHeight: $bodyLineHeight,
+        font: $currentFont,
+    }
+
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv;
 
@@ -422,7 +428,7 @@
         </div>
     </div>
     <div class="flex justify-center">
-        <StackView />
+        <StackView {...stackSettings}/>
     </div>
     {#if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
