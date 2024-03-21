@@ -9,6 +9,9 @@
     import config from '$lib/data/config';
     import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
+    export let bodyFontSize;
+    export let bodyLineHeight;
+    export let font;
     let stack;
     let listening = false;
     $: PrimaryColor = $themeColors['PrimaryColor'];
@@ -87,6 +90,10 @@
         }
     }
     $: toggleListener($footnotes);
+
+    $: fontSize = bodyFontSize + 'px';
+
+    $: lineHeight = bodyLineHeight + '%';
 </script>
 
 <!--
@@ -102,7 +109,13 @@
             class="footnote rounded h-40 drop-shadow-lg overflow-y-auto"
             on:click|stopPropagation={insideClick}
         >
-            <div id="container" class="footnote">{@html item}</div>
+            <div
+                id="container" 
+                class="footnote"
+                style:font-family={font}
+                style:font-size={fontSize}
+                style:line-height={lineHeight}
+            >{@html item}</div>
         </div>
     {/each}
 </div>
