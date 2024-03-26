@@ -920,6 +920,15 @@ function filterFeaturesNotReady(data: ConfigData) {
         }
     }
 
+    // Verse on image is not done
+    data.mainFeatures['text-on-image'] = false;
+
+    // Share is not done
+    data.mainFeatures['share-app-link'] = false;
+    data.mainFeatures['share-download-app-link'] = false;
+    data.mainFeatures['share-apk-file'] = false;
+    data.mainFeatures['share-apple-app-link'] = false;
+
     return data;
 }
 
