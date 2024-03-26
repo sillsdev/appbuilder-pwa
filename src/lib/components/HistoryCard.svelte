@@ -30,7 +30,13 @@ TODO:
     <a
         style="text-decoration:none;"
         href="{base}/"
-        on:click={() => refs.set({ docSet, book: history.book, chapter: history.chapter, verse: history.verse })}
+        on:click={() =>
+            refs.set({
+                docSet,
+                book: history.book,
+                chapter: history.chapter,
+                verse: history.verse
+            })}
     >
         <div
             class="history-card grid grid-cols-1"

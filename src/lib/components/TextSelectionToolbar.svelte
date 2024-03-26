@@ -29,19 +29,15 @@ TODO:
         refs,
         modal,
         MODAL_NOTE,
-        notes,
         selectedVerses,
         theme,
         themeColors,
-        highlights,
-        bookmarks,
         audioActive
     } from '$lib/data/stores';
     import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
-    import { shareText, shareImage } from '$lib/data/share';
-    import { base } from '$app/paths';
+    import { shareText } from '$lib/data/share';
     import { play, seekToVerse } from '$lib/data/audio';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
@@ -50,7 +46,6 @@ TODO:
     const isHighlightEnabled = config?.mainFeatures['annotation-highlights'];
     const isNotesEnabled = config?.mainFeatures['annotation-notes'];
 
-    let isHighlight = false;
     let selectedVerseInBookmarks = -1;
     let showHightlightPens = false;
 
