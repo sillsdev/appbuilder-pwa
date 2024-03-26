@@ -34,6 +34,7 @@
             });
         } else {
             await addNote({
+                docSet: $selectedVerses[0].docSet,
                 collection: $selectedVerses[0].collection,
                 book: $selectedVerses[0].book,
                 chapter: $selectedVerses[0].chapter,
