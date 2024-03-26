@@ -20,13 +20,6 @@ TODO:
     export let actions = [''];
     export let src = '';
     export let alt = '';
-    console.log(
-        'IconCard docSet: %o book: %o chapter: %o reference: %o',
-        docSet,
-        book,
-        chapter,
-        reference
-    );
     const bc = config.bookCollections.find((x) => x.id === collection);
     const textDirection = bc.style.textDirection;
     $: justifyEnd = textDirection.toLowerCase() === 'rtl' && $direction === 'ltr';
@@ -48,10 +41,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => {
-                    console.log('IconCard go to:', { docSet, book, chapter, verse });
-                    refs.set({ docSet, book, chapter, verse });
-                }}
+                on:click={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
             </a>
