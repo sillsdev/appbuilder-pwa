@@ -51,7 +51,7 @@
     import { page } from '$app/stores';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
 
-    let savedScrollPosition = 0
+    let savedScrollPosition = 0;
     function saveScrollPosition() {
         if (scrollingDiv) {
             savedScrollPosition = scrollingDiv.scrollTop;
@@ -62,13 +62,13 @@
             scrollingDiv.scrollTop = savedScrollPosition;
         }
     });
-    refs.subscribe(value => {
-        savedScrollPosition = 0
+    refs.subscribe((value) => {
+        savedScrollPosition = 0;
     });
-    function doSwipe(event){
+    function doSwipe(event) {
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
-        (refs).skip(event.detail.direction === 'right' ? -1 : 1);
+        refs.skip(event.detail.direction === 'right' ? -1 : 1);
         if (prev !== $refs) {
             addHistory({
                 collection: $refs.collection,
@@ -79,7 +79,7 @@
     }
 
     function prevChapter() {
-        (refs).skip(-1);
+        refs.skip(-1);
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
@@ -87,7 +87,7 @@
         });
     }
     function nextChapter() {
-        (refs).skip(1);
+        refs.skip(1);
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
@@ -141,6 +141,7 @@
         selectedVerses: selectedVerses,
         verseLayout: $userSettings['verse-layout'],
         viewShowBibleImages: $userSettings['display-images-in-bible-text'],
+        viewShowBibleVideos: $userSettings['display-videos-in-bible-text'],
         viewShowIllustrations: config.mainFeatures['show-illustrations'],
         viewShowVerses: $userSettings['verse-numbers'],
         font: $currentFont,
@@ -150,8 +151,8 @@
     $: stackSettings = {
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
-        font: $currentFont,
-    }
+        font: $currentFont
+    };
 
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv;
@@ -185,10 +186,9 @@
     const scrollTo = (id) => {
         if (scrollMod === key) return;
         if (!id) return;
-        let el = document
-            .querySelector(
-                `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
-            );
+        let el = document.querySelector(
+            `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
+        );
         makeElementVisible(el);
     };
     $: scrollTo(scrollId);
@@ -198,8 +198,8 @@
         clearTimeout(updateTimer);
         updateTimer = setTimeout(() => {
             seekToVerse(id);
-        }, 1000);    
-    };
+        }, 1000);
+    }
     /**Scroll to start of chapter when reference changes*/
     const newRefScroll = (() => {
         let updateTimer;
@@ -208,7 +208,7 @@
             updateTimer = setTimeout(() => {
                 let verse = $refs.verse;
                 if (verse === '' || verse === '1') {
-                    scrolls.set("start-none");
+                    scrolls.set('start-none');
                 } else {
                     let verseID = verse + '-a';
                     let audioID = verse + 'a';
@@ -219,21 +219,22 @@
             }, 50);
         };
     })();
-     
+
     function makeElementVisible(el) {
         if (el) {
             if (el.classList.contains('scroll-item')) {
                 const rect = el.getBoundingClientRect();
                 const win = document
-                            .getElementsByClassName('container')[0]
-                            ?.getBoundingClientRect();
+                    .getElementsByClassName('container')[0]
+                    ?.getBoundingClientRect();
                 const scrollTop = scrollingDiv.scrollTop;
                 const scrollHeight = scrollingDiv.clientHeight;
-                const isVisible = rect.top - win.top - 30 >= scrollTop &&
-                        rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
+                const isVisible =
+                    rect.top - win.top - 30 >= scrollTop &&
+                    rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
                 if (!isVisible) {
                     let newTop = rect.top - win.top - 30;
-                    scrollingDiv.scrollTo({top: newTop, behavior: "smooth"});
+                    scrollingDiv.scrollTo({ top: newTop, behavior: 'smooth' });
                     if (newTop > 0) {
                         savedScrollPosition = newTop;
                     }
@@ -242,7 +243,7 @@
         }
     }
     $: highlightColor = $themeColors['TextHighlightColor'];
-    let currentVerse = "";
+    let currentVerse = '';
     /**updates highlight*/
     const updateHighlight = (elementIds, color) => {
         let container = document.getElementsByClassName('container')[0];
@@ -264,7 +265,9 @@
             }
             element.setAttribute('style', 'background-color: ' + color + ';');
             element.classList.add('highlighting');
-            const verseSegment = `${element?.getAttribute('data-verse')}-${element?.getAttribute('data-phrase')}`;
+            const verseSegment = `${element?.getAttribute('data-verse')}-${element?.getAttribute(
+                'data-phrase'
+            )}`;
             if (verseSegment !== currentVerse) {
                 currentVerse = verseSegment;
                 makeElementVisible(element);
@@ -384,7 +387,12 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class:borderimg={showBorder} class="overflow-y-auto" bind:this={scrollingDiv} on:scroll={saveScrollPosition}>
+    <div
+        class:borderimg={showBorder}
+        class="overflow-y-auto"
+        bind:this={scrollingDiv}
+        on:scroll={saveScrollPosition}
+    >
         <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
@@ -428,7 +436,7 @@
         </div>
     </div>
     <div class="flex justify-center">
-        <StackView {...stackSettings}/>
+        <StackView {...stackSettings} />
     </div>
     {#if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">

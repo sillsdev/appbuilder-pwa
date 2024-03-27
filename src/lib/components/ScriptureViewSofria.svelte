@@ -24,7 +24,7 @@ TODO:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
-    import { checkForMilestoneLinks} from '$lib/scripts/milestoneLinks';
+    import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { splitString } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
@@ -39,6 +39,7 @@ TODO:
     export let selectedVerses: any;
     export let verseLayout: any;
     export let viewShowBibleImages: string;
+    export let viewShowBibleVideos: string;
     export let viewShowIllustrations: boolean;
     export let viewShowVerses: boolean;
     export let font: string;
@@ -160,7 +161,7 @@ TODO:
         if (workspace.textType.includes('note_caller')) {
             workspace.footnoteDiv.setAttribute('nc', text);
         } else if (workspace.usfmWrapperType === 'fig') {
-             // Ignore figure graft for now   
+            // Ignore figure graft for now
         } else {
             const div = addTextNode(workspace.footnoteDiv, text, workspace);
             workspace.footnoteDiv = div.cloneNode(true);
@@ -298,7 +299,7 @@ TODO:
             const workingSpan = footnote.cloneNode(true);
             const spans = workingSpan.querySelectorAll('span.xt');
             // Loop through each span and modify its inner HTML
-            spans.forEach(span => {
+            spans.forEach((span) => {
                 span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
             const parsed = workingSpan.innerHTML;
@@ -313,7 +314,7 @@ TODO:
         const refBook = splitRef[1];
         const splitChapter = splitRef[2];
         const splitVerse = splitRef[3];
-        
+
         let refDocSet = currentDocSet;
         const refBc = config.bookCollections.find((x) => x.id === splitSet);
         if (refBc) {
@@ -322,7 +323,7 @@ TODO:
             // Invalid collection
             return;
         }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse:splitVerse });
+        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
         return;
     }
     async function headerLinkClickReference(event: any) {
@@ -337,7 +338,7 @@ TODO:
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end);
             footnotes.push(footnoteHTML);
-        } 
+        }
     }
     function navigate(reference) {
         refs.set({
@@ -488,8 +489,17 @@ TODO:
             illustrations.forEach((illustration, index) => {
                 // ref can be MAT 1:1 or MAT.1.1
                 let verse = illustration.placement.ref.split(/[:.]/).at(-1);
-                const illustrationBlockDiv = createIllustrationBlock(illustration.filename, illustration.placement.caption);
-                placeElement(document, container, illustrationBlockDiv, illustration.placement.pos, verse);
+                const illustrationBlockDiv = createIllustrationBlock(
+                    illustration.filename,
+                    illustration.placement.caption
+                );
+                placeElement(
+                    document,
+                    container,
+                    illustrationBlockDiv,
+                    illustration.placement.pos,
+                    verse
+                );
             });
         }
     }
@@ -550,11 +560,13 @@ TODO:
         const showImages = currentIsBibleBook && showBibleImage && viewShowIllustrations;
         return showImages;
     }
+    function showVideo() {
+        const showBibleVideo = viewShowBibleVideos === 'normal';
+        const showVideos = currentIsBibleBook && showBibleVideo;
+        return showVideos;
+    }
     function addFigureDiv(source: string, workspace: any) {
-        if (
-            workspace.phraseDiv != null &&
-            workspace.phraseDiv.innerText !== ''
-        ) {
+        if (workspace.phraseDiv != null && workspace.phraseDiv.innerText !== '') {
             appendPhrase(workspace);
         }
         workspace.phraseDiv = null;
@@ -702,15 +714,22 @@ TODO:
                             if (!displayingIntroduction) {
                                 var els = document.getElementsByTagName('div');
                                 for (var i = 0; i < els.length; i++) {
-                                    if ((els[i].classList.contains('seltxt') && els[i].id != '') || (els[i].classList.contains('r'))) {
+                                    if (
+                                        (els[i].classList.contains('seltxt') && els[i].id != '') ||
+                                        els[i].classList.contains('r')
+                                    ) {
                                         els[i].addEventListener('click', onClick, false);
                                     }
                                 }
                                 addNotedVerses(notes);
                                 addBookmarkedVerses(bookmarks);
                                 addHighlightedVerses(highlights);
-                                addVideos(videos);
-                                addIllustrations(illustrations);
+                                if (showVideo()) {
+                                    addVideos(videos);
+                                }
+                                if (showImage()) {
+                                    addIllustrations(illustrations);
+                                }
                             }
                             addFooter(document, container, docSet);
                         }
@@ -958,9 +977,7 @@ TODO:
                                     }
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
-                                        if (
-                                            blockType.includes('usfm:r')
-                                        ) {
+                                        if (blockType.includes('usfm:r')) {
                                             const refText = generateHTML(text, 'header-ref');
                                             workspace.headerText += refText;
                                         } else {
@@ -1394,28 +1411,38 @@ TODO:
                                 }
                                 case 'usfm:zaudioc': {
                                     workspace.textType.push('audioc');
-                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    workspace.milestoneLink = decodeURIComponent(
+                                        element.atts['link'][0]
+                                    );
                                     workspace.audioClips.push(workspace.milestoneLink);
                                     break;
                                 }
                                 case 'usfm:zreflink': {
                                     workspace.textType.push('reflink');
-                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    workspace.milestoneLink = decodeURIComponent(
+                                        element.atts['link'][0]
+                                    );
                                     break;
                                 }
                                 case 'usfm:zweblink': {
                                     workspace.textType.push('weblink');
-                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    workspace.milestoneLink = decodeURIComponent(
+                                        element.atts['link'][0]
+                                    );
                                     break;
                                 }
                                 case 'usfm:ztellink': {
                                     workspace.textType.push('tellink');
-                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    workspace.milestoneLink = decodeURIComponent(
+                                        element.atts['link'][0]
+                                    );
                                     break;
                                 }
                                 case 'usfm:zelink': {
                                     workspace.textType.push('elink');
-                                    workspace.milestoneLink = decodeURIComponent(element.atts['link'][0]);
+                                    workspace.milestoneLink = decodeURIComponent(
+                                        element.atts['link'][0]
+                                    );
                                     break;
                                 }
                                 default: {
@@ -1433,7 +1460,15 @@ TODO:
                             // console.log('End Milestone %o', context.sequences[0].element);
                             preprocessAction('endMilestone', workspace);
                             const element = context.sequences[0].element;
-                            checkForMilestoneLinks(workspace.textType, workspace.footnoteDiv, workspace.phraseDiv, workspace.milestoneText, workspace.milestoneLink, workspace.audioClips.length, element.subType);
+                            checkForMilestoneLinks(
+                                workspace.textType,
+                                workspace.footnoteDiv,
+                                workspace.phraseDiv,
+                                workspace.milestoneText,
+                                workspace.milestoneLink,
+                                workspace.audioClips.length,
+                                element.subType
+                            );
                             workspace.milestoneLink = '';
                             workspace.milestoneText = '';
                         }
