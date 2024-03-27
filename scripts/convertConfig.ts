@@ -716,6 +716,7 @@ function convertConfig(dataDir: string, verbose: number) {
             });
         }
     }
+    data.traits['has-video'] = data.videos && data.videos.length > 0;
     const imagesTags = document.getElementsByTagName('images');
     if (imagesTags?.length > 0) {
         data.illustrations = [];
@@ -928,6 +929,16 @@ function filterFeaturesNotReady(data: ConfigData) {
     data.mainFeatures['share-download-app-link'] = false;
     data.mainFeatures['share-apk-file'] = false;
     data.mainFeatures['share-apple-app-link'] = false;
+
+    // Some settings are not done
+    data.mainFeatures['settings-glossary-links'] = false;
+    data.mainFeatures['settings-verse-of-the-day'] = false;
+    data.mainFeatures['settings-verse-of-the-day-time'] = false;
+    data.mainFeatures['settings-verse-of-the-day-book-collection'] = false;
+    data.mainFeatures['settings-daily-reminder'] = false;
+    data.mainFeatures['settings-daily-reminder-time'] = false;
+    data.mainFeatures['settings-keep-screen-on'] = false;
+    data.mainFeatures['settings-share-usage-data'] = false;
 
     return data;
 }

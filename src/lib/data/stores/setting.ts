@@ -102,7 +102,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             title: 'Settings_Display_Videos_In_Bible_Text',
             key: 'display-videos-in-bible-text',
             defaultValue: config.mainFeatures['display-videos-in-bible-text'] || 'normal',
-            entries: ['Settings_Display_Images_Normal', 'Settings_Display_Images_Hidden'],
+            entries: ['Settings_Display_Videos_Normal', 'Settings_Display_Videos_Hidden'],
             values: ['normal', 'hidden']
         });
     }
