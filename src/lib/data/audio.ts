@@ -10,6 +10,7 @@ import {
 } from '$lib/data/stores';
 import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/data/stores';
 import { MRUCache } from '$lib/data/mrucache';
+import { base } from '$app/paths';
 interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;
@@ -388,7 +389,7 @@ export async function getAudioSourceInfo(item: {
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
-        const timeFilePath = `/timings/${audio.timingFile}`;
+        const timeFilePath = `${base}/timings/${audio.timingFile}`;
         const response = await fetch(timeFilePath);
         if (!response.ok) {
             throw new Error('Failed to read file');
