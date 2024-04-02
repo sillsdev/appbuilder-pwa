@@ -16,8 +16,8 @@ import {
 
 export function convertMarkdownsToMilestones(
     content: string,
-    docSet: string,
-    bookid: string
+    bcId: string,
+    bookId: string
 ): string {
     let result: string = '';
     result = content;
@@ -54,7 +54,7 @@ export function convertMarkdownsToMilestones(
             const telLink = getTelHtmlFromMarkdownLink(link, text);
             sb.push(telLink);
         } else {
-            const refLink = getReferenceHtmlFromMarkdownLink(link, text, docSet, bookid);
+            const refLink = getReferenceHtmlFromMarkdownLink(link, text, bcId, bookId);
             sb.push(refLink);
         }
         inputString = inputString.substring(match.index + match[0].length);
@@ -146,7 +146,7 @@ function getTelHtmlFromMarkdownLink(link: string, text: string): string {
 function getReferenceHtmlFromMarkdownLink(
     link: string,
     text: string,
-    docSet: string,
+    bcId: string,
     bookid: string
 ): string {
     // \zreflink-s |link="ENGWEB.MAT.5.1"\*Beatitudes\zreflink-e\* \
@@ -159,7 +159,7 @@ function getReferenceHtmlFromMarkdownLink(
     } else {
         let refCollection = collection;
         if (isBlank(refCollection)) {
-            refCollection = docSet;
+            refCollection = bcId;
         }
         let refBook = book;
         if (isBlank(refBook)) {
