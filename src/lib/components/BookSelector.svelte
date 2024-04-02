@@ -110,24 +110,27 @@ The navbar component.
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
-                let label = book[bookLabel] || book.name;
-                let cell = { label: label, id: book.id };
-                let group = book.testament || '';
-                if (lastGroup == null || group !== lastGroup) {
-                    // Create new group
-                    groups.push({
-                        header: book.testament
-                            ? $t['Book_Group_' + book.testament]
-                            : lastGroup == null
-                            ? '' // use empty string so that first group doesn't have header (e.g. INT)
-                            : '\u00A0', // use &nbsp; so we have a blank space for additional books at the end
-                        cells: [cell]
-                    });
-                    lastGroup = group;
-                } else {
-                    // Add Book to last group
-                    let cells = groups[groups.length - 1].cells;
-                    groups[groups.length - 1].cells = [...cells, cell];
+                // Include books only in the catalog (i.e. only supported book types)
+                if (books.find((x) => x.bookCode === book.id)) {
+                    let label = book[bookLabel] || book.name;
+                    let cell = { label: label, id: book.id };
+                    let group = book.testament || '';
+                    if (lastGroup == null || group !== lastGroup) {
+                        // Create new group
+                        groups.push({
+                            header: book.testament
+                                ? $t['Book_Group_' + book.testament]
+                                : lastGroup == null
+                                ? '' // use empty string so that first group doesn't have header (e.g. INT)
+                                : '\u00A0', // use &nbsp; so we have a blank space for additional books at the end
+                            cells: [cell]
+                        });
+                        lastGroup = group;
+                    } else {
+                        // Add Book to last group
+                        let cells = groups[groups.length - 1].cells;
+                        groups[groups.length - 1].cells = [...cells, cell];
+                    }
                 }
             });
 

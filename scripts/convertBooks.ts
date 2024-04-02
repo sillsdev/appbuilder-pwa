@@ -16,15 +16,35 @@ import { convertMarkdownsToMilestones } from './convertMarkdown';
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 
-function replaceVideoTags(text: string): string {
-    return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
+function replaceVideoTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\video (.*)/g, '\\zvideo |id="$1"\\*');
 }
 
-function removeStrongNumberReferences(text: string): string {
+// This is the start of supporting story books, but it still fails if there is no chapter.
+function replacePageTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\page (.*)/g, '\\zpage |id="$1"\\*');
+}
+
+function removeStrongNumberReferences(text: string, _bcId: string, _bookId: string): string {
     //remove strong number references
     // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
     // \v 4  \wj  \+w Blessed|strong="G3107"\+w* \+w are|strong="G3107"\+w* \+w those|strong="G3588"\+w* \+w who|strong="G3588"\+w* \+w mourn|strong="G3996"\+w*,\wj*  (Matt 5:4 WEBBE)
     return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
+}
+
+const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[] = [
+    removeStrongNumberReferences,
+    replaceVideoTags,
+    replacePageTags,
+    convertMarkdownsToMilestones
+];
+
+function applyFilters(text: string, bcId: string, bookId: string): string {
+    let filteredText = text;
+    for (const filterFn of filterFunctions) {
+        filteredText = filterFn(filteredText, bcId, bookId);
+    }
+    return filteredText;
 }
 
 export async function convertBooks(
@@ -48,14 +68,21 @@ export async function convertBooks(
             console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
         }
         usedLangs.add(lang);
-        const bcid = collection.id;
-        const docSet = lang + '_' + bcid;
+        const bcId = collection.id;
+        process.stdout.write(`  ${bcId}:`);
+        const docSet = lang + '_' + bcId;
         if (verbose)
             console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
         /**array of promises of Proskomma mutations*/
         const docs: Promise<void>[] = [];
         //loop through books in collection
+        const ignoredBooks = [];
         for (const book of collection.books) {
+            if (book.type) {
+                // Ignore non-default books for now
+                ignoredBooks.push(book.id);
+                continue;
+            }
             //push new Proskomma mutation to docs array
             docs.push(
                 new Promise<void>((resolve) => {
@@ -65,11 +92,8 @@ export async function convertBooks(
                         'utf8',
                         (err, content) => {
                             if (err) throw err;
-                            //video tags in SAB are not USFM. Replacement then with
-                            //custom zvideo milestone.
-                            //ignore strong number references
-                            content = replaceVideoTags(removeStrongNumberReferences(content));
-                            content = convertMarkdownsToMilestones(content, bcid, book.id);
+                            process.stdout.write(` ${book.id}`);
+                            content = applyFilters(content, bcId, book.id);
 
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
@@ -80,7 +104,7 @@ export async function convertBooks(
                                     addDocument(
                                         selectors: [
                                             {key: "lang", value: "${lang}"}, 
-                                            {key: "abbr", value: "${bcid}"}
+                                            {key: "abbr", value: "${bcId}"}
                                         ], 
                                         contentType: "${book.file.split('.').pop()}", 
                                         content: """${content}""",
@@ -108,7 +132,17 @@ export async function convertBooks(
                                         );
                                     //if the document is not added successfully, the response returned by Proskomma includes an error message
                                     if (!r.data?.addDocument) {
-                                        console.log(JSON.stringify(r));
+                                        const bookPath = path.join(
+                                            dataDir,
+                                            'books',
+                                            collection.id,
+                                            book.file
+                                        );
+                                        throw Error(
+                                            `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(
+                                                r
+                                            )}`
+                                        );
                                     }
                                     resolve();
                                 }
@@ -121,6 +155,10 @@ export async function convertBooks(
         if (verbose) console.time('convert ' + collection.id);
         //wait for documents to finish being added to Proskomma
         await Promise.all(docs);
+        if (ignoredBooks.length > 0) {
+            process.stdout.write(` -- Not Supported: ${ignoredBooks.join(' ')}`);
+        }
+        process.stdout.write('\n');
         if (verbose) console.timeEnd('convert ' + collection.id);
         //start freezing process and map promise to docSet name
         const frozen = freeze(pk);
