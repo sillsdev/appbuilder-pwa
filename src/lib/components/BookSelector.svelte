@@ -148,6 +148,20 @@ The navbar component.
             }
         ];
     };
+    let verseGridGroup = (chapter) => {
+        let selectedChapter = chapters[chapter];
+        if (verseCount(chapter) === 0 ) {
+            return [];
+        }
+        return [
+            {
+                cells: Object.keys(selectedChapter).map((x) => ({
+                    label: x,
+                    id: x
+                }))
+            }
+        ];
+    }
 </script>
 
 <!-- Book Selector -->
@@ -183,14 +197,7 @@ The navbar component.
                     [v]: {
                         component: SelectGrid,
                         props: {
-                            options: [
-                                {
-                                    cells: Object.keys(chapters[chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
-                                }
-                            ]
+                            options: verseGridGroup(chapter)
                         },
                         visible: showChapterSelector && showVerseSelector
                     }
