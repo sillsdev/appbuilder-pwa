@@ -79,7 +79,6 @@ The navbar component.
         return count;
     }
     let verseGridGroup = (chapter) => {
-        console.log('V Chapter %o %o', chapter, verseCount(book, chapter));
         let selectedChapter = chapters[chapter];
         if (verseCount(book, chapter) === 0 ) {
             return [];
@@ -149,7 +148,7 @@ The navbar component.
                                     cols: 5,
                                     options: verseGridGroup(chapter)
                                 },
-                                visible: showVerseSelector
+                                visible: showVerseSelector  && (verseCount(book, chapter) > 0)
                             }
                         }}
                         on:menuaction={navigateReference}
