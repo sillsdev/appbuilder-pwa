@@ -28,6 +28,9 @@ type BookCollection = {
         type?: string;
         name: string;
         abbreviation: string;
+        additionalNames?: {
+            name: string;
+        }[];
         testament: string;
         section: string; // Pentateuch
         chapters: number;
@@ -228,7 +231,20 @@ function parseConfigValue(value: any) {
     // else {} // " " split array, string, enum or time
     return value;
 }
-
+function parseAdditionalNames(namesTag: Element, verbose: number) {
+    const additionalNames = [];
+    const nameTags = namesTag?.getElementsByTagName('name');
+    for (const tag of nameTags) {
+        const name = tag.innerHTML;
+        additionalNames.push({
+            name
+        }); 
+        if (verbose) {
+            console.log('Book Additional Name added: ', name);
+        }
+    }
+    return additionalNames;
+}
 function parseStyles(stylesTag: Element, verbose: number) {
     const styles = [];
     const styleTags = stylesTag?.getElementsByTagName('style');
@@ -460,7 +476,9 @@ function convertConfig(dataDir: string, verbose: number) {
                       (x) => x.innerHTML
                   )
                 : [];
-
+            const bkAdditionalNames = book.querySelector('additional-names');
+            const additionalNames = bkAdditionalNames ? parseAdditionalNames(bkAdditionalNames, verbose) : undefined;
+    
             books.push({
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
@@ -471,6 +489,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 id: book.attributes.getNamedItem('id')!.value,
                 type: book.attributes.getNamedItem('type')?.value,
                 name: book.getElementsByTagName('n')[0]?.innerHTML,
+                additionalNames,
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
