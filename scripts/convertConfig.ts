@@ -238,7 +238,7 @@ function parseAdditionalNames(namesTag: Element, verbose: number) {
         const name = tag.innerHTML;
         additionalNames.push({
             name
-        }); 
+        });
         if (verbose) {
             console.log('Book Additional Name added: ', name);
         }
@@ -477,8 +477,10 @@ function convertConfig(dataDir: string, verbose: number) {
                   )
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
-            const additionalNames = bkAdditionalNames ? parseAdditionalNames(bkAdditionalNames, verbose) : undefined;
-    
+            const additionalNames = bkAdditionalNames
+                ? parseAdditionalNames(bkAdditionalNames, verbose)
+                : undefined;
+
             books.push({
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
