@@ -831,7 +831,7 @@ function getNonWordCharactersInBookNames(): string {
         if (isDefined(bookAdditionalNames)) {
             let j = 0;
             while (j < bookAdditionalNames.length) {
-                const name = bookAdditionalNames[j];
+                const name = bookAdditionalNames[j].name;
                 nonWordChars = isDefined(name) ? name.replace(/[^\p{L}\p{M}]/gu, '') : '';
                 addCharsToSet(nonWordChars, chars);
                 j++;
