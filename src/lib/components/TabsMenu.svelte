@@ -8,14 +8,15 @@ A component to display tabbed menus.
     import { createEventDispatcher } from 'svelte';
     import { s, convertStyle } from '$lib/data/stores';
 
-    export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true } };
+    export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true, showTab: false } };
     export let active = Object.keys(options).filter((x) => options[x].visible)[0];
     export let scroll = true;
     export let height = '50vh';
 
     const dispatch = createEventDispatcher();
-    const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
-
+    const hasVisibleTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
+    const hasTabsToShow = Object.keys(options).filter((x) => options[x].showTab).length > 1;
+    const hasTabs = hasVisibleTabs || hasTabsToShow;
     function handleMenuaction({ detail }: CustomEvent) {
         dispatch('menuaction', {
             text: detail.text,

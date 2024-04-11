@@ -15,11 +15,12 @@ The navbar component.
 
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-
-    const listView = $userSettings['book-selection'] === 'list';
+    $: verseCount = getVerseCount(chapter,chapters);
+    
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = $userSettings['verse-selection'];
-
+    $: listView = $userSettings['book-selection'] === 'list';
+    $: showVerseSelectorSetting = $userSettings['verse-selection'];
+ 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
@@ -30,12 +31,14 @@ The navbar component.
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === book).name;
 
+    $: showVerseSelector = showVerseSelectorSetting && (verseCount > 0);
+
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
 
-    function verseCount(chapter) {
+    function getVerseCount(chapter, chapters) {
         if (!chapter || chapter === 'i') {
             return 0;
         }
@@ -63,7 +66,7 @@ The navbar component.
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
-                    if (verseCount($nextRef.chapter) === 0 || !showVerseSelector) {
+                    if (getVerseCount($nextRef.chapter, chapters) === 0 || !showVerseSelectorSetting) {
                         completeNavigation();
                     } else {
                         bookSelector.setActive(v);
@@ -150,7 +153,7 @@ The navbar component.
     };
     let verseGridGroup = (chapter) => {
         let selectedChapter = chapters[chapter];
-        if (verseCount(chapter) === 0 ) {
+        if (verseCount === 0 ) {
             return [];
         }
         return [

@@ -19,6 +19,7 @@ The navbar component.
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: showVerseSelector = $userSettings['verse-selection'];
+    $: verseCount = getVerseCount(book, chapter);
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -30,7 +31,7 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (verseCount(book, $nextRef.chapter) === 0 || !showVerseSelector) {
+                if (getVerseCount(book, $nextRef.chapter) === 0 || !showVerseSelector) {
                     completeNavigation();
                 } else {
                     chapterSelector.setActive(v);
@@ -63,13 +64,13 @@ The navbar component.
         nextRef.reset();
     }
 
-    function chapterCount(book) {
+    function getChapterCount(book) {
         let books = catalog.find((d) => d.id === $refs.docSet).documents;
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
 
-    function verseCount(book, chapter) {
+    function getVerseCount(book, chapter) {
         if (!chapter || chapter === 'i') {
             return 0;
         }
@@ -80,7 +81,7 @@ The navbar component.
     }
     let verseGridGroup = (chapter) => {
         let selectedChapter = chapters[chapter];
-        if (verseCount(book, chapter) === 0 ) {
+        if (verseCount === 0 ) {
             return [];
         }
         return [
@@ -97,7 +98,7 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     $: showSelector =
-        config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
+        config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
 </script>
 
@@ -140,7 +141,8 @@ The navbar component.
                                         }
                                     ]
                                 },
-                                visible: true
+                                visible: true,
+                                showTab: true
                             },
                             [v]: {
                                 component: SelectGrid,
@@ -148,7 +150,8 @@ The navbar component.
                                     cols: 5,
                                     options: verseGridGroup(chapter)
                                 },
-                                visible: showVerseSelector  && (verseCount(book, chapter) > 0)
+                                visible: showVerseSelector  && (verseCount > 0),
+                                showTab: true
                             }
                         }}
                         on:menuaction={navigateReference}
