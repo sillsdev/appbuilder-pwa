@@ -731,7 +731,7 @@ TODO:
                                     addIllustrations(illustrations);
                                 }
                             }
-                            addFooter(document, container, docSet);
+                            addFooter(document, workspace.root, docSet);
                         }
                     }
                 ],
