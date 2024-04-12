@@ -19,7 +19,7 @@ The navbar component.
     
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
     $: listView = $userSettings['book-selection'] === 'list';
-    $: showVerseSelectorSetting = $userSettings['verse-selection'];
+    $: showVerseSelector = $userSettings['verse-selection'];
  
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -30,8 +30,6 @@ The navbar component.
     $: label = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === book).name;
-
-    $: showVerseSelector = showVerseSelectorSetting && (verseCount > 0);
 
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -66,14 +64,21 @@ The navbar component.
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
-                    if (getVerseCount($nextRef.chapter, chapters) === 0 || !showVerseSelectorSetting) {
+                    if (!showVerseSelector) {
                         completeNavigation();
                     } else {
                         bookSelector.setActive(v);
                     }
                     break;
                 case v:
-                    $nextRef.verse = e.detail.text;
+                    if (e.detail.text === 'i') {
+                        // Chapter getting set because if you just select verse
+                        // from introduction, both blank goes to chapter 1
+                        $nextRef.chapter = 'i';
+                        $nextRef.verse = '';
+                    } else {
+                        $nextRef.verse = e.detail.text;
+                    }
                     completeNavigation();
                     break;
                 default:
@@ -152,18 +157,31 @@ The navbar component.
         ];
     };
     let verseGridGroup = (chapter) => {
+        let value;
         let selectedChapter = chapters[chapter];
-        if (verseCount === 0 ) {
-            return [];
+        if (chapter === 'i') {
+            value = [
+                { 
+                    cells: [{
+                        label: $t['Chapter_Introduction_Symbol'],
+                        id: 'i'
+                    }]
+                }
+            ];
+        } else if (verseCount === 0 ) {
+            value = [];
         }
-        return [
-            {
-                cells: Object.keys(selectedChapter).map((x) => ({
-                    label: x,
-                    id: x
-                }))
-            }
-        ];
+        else {
+            value = [
+                {
+                    cells: Object.keys(selectedChapter).map((x) => ({
+                        label: x,
+                        id: x
+                    }))
+                }
+            ];
+        }
+        return value;
     }
 </script>
 

@@ -48,7 +48,6 @@ declare namespace App {
             component: any;
             props: any;
             visible: boolean;
-            showTab: boolean;
         };
     }
 

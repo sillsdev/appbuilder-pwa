@@ -31,14 +31,21 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (getVerseCount(book, $nextRef.chapter) === 0 || !showVerseSelector) {
+                if (!showVerseSelector) {
                     completeNavigation();
                 } else {
                     chapterSelector.setActive(v);
                 }
                 break;
             case v:
-                $nextRef.verse = e.detail.text;
+                if (e.detail.text === 'i') {
+                    // Chapter getting set because if you just select verse
+                    // from introduction, both blank goes to chapter 1
+                    $nextRef.chapter = 'i';
+                    $nextRef.verse = '';
+                } else {
+                    $nextRef.verse = e.detail.text;
+                }
                 completeNavigation();
                 break;
             default:
@@ -80,18 +87,30 @@ The navbar component.
         return count;
     }
     let verseGridGroup = (chapter) => {
+        let value = [];
         let selectedChapter = chapters[chapter];
-        if (verseCount === 0 ) {
-            return [];
+        if (chapter === 'i') {
+            value = [
+                { 
+                    cells: [{
+                        label: $t['Chapter_Introduction_Symbol'],
+                        id: 'i'
+                    }]
+                }
+            ];
+        } else if (verseCount === 0 ) {
+            value = [];
+        } else {
+            value = [
+                {
+                    cells: Object.keys(selectedChapter).map((x) => ({
+                        label: x,
+                        id: x
+                    }))
+                }
+            ];
         }
-        return [
-            {
-                cells: Object.keys(selectedChapter).map((x) => ({
-                    label: x,
-                    id: x
-                }))
-            }
-        ];
+        return value;
     }
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
@@ -141,8 +160,7 @@ The navbar component.
                                         }
                                     ]
                                 },
-                                visible: true,
-                                showTab: true
+                                visible: true
                             },
                             [v]: {
                                 component: SelectGrid,
@@ -150,8 +168,7 @@ The navbar component.
                                     cols: 5,
                                     options: verseGridGroup(chapter)
                                 },
-                                visible: showVerseSelector  && (verseCount > 0),
-                                showTab: true
+                                visible: showVerseSelector 
                             }
                         }}
                         on:menuaction={navigateReference}
