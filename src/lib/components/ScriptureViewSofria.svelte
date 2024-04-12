@@ -25,7 +25,7 @@ TODO:
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
-    import { splitString } from '$lib/scripts/stringUtils';
+    import { isDefined, splitString } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -157,15 +157,20 @@ TODO:
             }
         }
     };
-    const addGraftText = (workspace, text) => {
-        if (workspace.textType.includes('note_caller')) {
-            workspace.footnoteDiv.setAttribute('nc', text);
-        } else if (workspace.usfmWrapperType === 'fig') {
-            // Ignore figure graft for now
+    const addGraftText = (workspace, text, textType, usfmType) => {
+        if (workspace.textType.includes(textType)){
+            if (isDefined(workspace.footnoteDiv)) {
+                if (workspace.textType.includes('note_caller')) {
+                    workspace.footnoteDiv.setAttribute('nc', text);
+                } else {
+                    const div = addTextNode(workspace.footnoteDiv, text, workspace);
+                    workspace.footnoteDiv = div.cloneNode(true);
+                }
+            }
         } else {
-            const div = addTextNode(workspace.footnoteDiv, text, workspace);
-            workspace.footnoteDiv = div.cloneNode(true);
+            console.log('%s ignored: %s', usfmType, text);
         }
+        
     };
     const addText = (workspace, text) => {
         // console.log('Adding text:', text);
@@ -1000,16 +1005,12 @@ TODO:
                                     }
                                     default: {
                                         const blockType = context.sequences[0].block.subType;
-                                        if (
-                                            blockType.includes('usfm:x') ||
-                                            blockType.includes('usfm:f')
-                                        ) {
-                                            if (workspace.textType.includes('note_caller')) {
-                                                workspace.footnoteDiv.setAttribute('nc', text);
-                                            } else {
-                                                addGraftText(workspace, text);
-                                            }
-                                            // Graft Text
+
+                                        if (blockType.includes('usfm:x')) {
+                                            addGraftText(workspace,text, 'xref', 'usfm:x');
+                                        // Footnote Text
+                                        } else if (blockType.includes('usfm:f')) {
+                                            addGraftText(workspace,text, 'footnote', 'usfm:f');
                                         } else if (blockType === 'usfm:ip') {
                                             // Introduction
                                             addText(workspace, text);
@@ -1022,6 +1023,7 @@ TODO:
                                     }
                                 }
                             }
+                            // console.log('End text');
                         }
                     }
                 ],
@@ -1108,6 +1110,10 @@ TODO:
                                         workspace.textType.push('footnote');
                                         break;
                                     }
+                                    case 'xref': {
+                                        workspace.textType.push('xref');
+                                        break;
+                                    }
                                     default: {
                                         break;
                                     }
@@ -1185,6 +1191,10 @@ TODO:
                                         break;
                                     }
                                     case 'footnote': {
+                                        workspace.textType.pop();
+                                        break;
+                                    }
+                                    case 'xref': {
                                         workspace.textType.pop();
                                         break;
                                     }
