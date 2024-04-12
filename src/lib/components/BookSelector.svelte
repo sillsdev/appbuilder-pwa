@@ -15,11 +15,12 @@ The navbar component.
 
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-
-    const listView = $userSettings['book-selection'] === 'list';
+    $: verseCount = getVerseCount(chapter,chapters);
+    
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
-    const showVerseSelector = $userSettings['verse-selection'];
-
+    $: listView = $userSettings['book-selection'] === 'list';
+    $: showVerseSelector = $userSettings['verse-selection'];
+ 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
@@ -35,7 +36,7 @@ The navbar component.
         return count;
     }
 
-    function verseCount(chapter) {
+    function getVerseCount(chapter, chapters) {
         if (!chapter || chapter === 'i') {
             return 0;
         }
@@ -63,14 +64,21 @@ The navbar component.
                     break;
                 case c:
                     $nextRef.chapter = e.detail.text;
-                    if (verseCount($nextRef.chapter) === 0 || !showVerseSelector) {
+                    if (!showVerseSelector) {
                         completeNavigation();
                     } else {
                         bookSelector.setActive(v);
                     }
                     break;
                 case v:
-                    $nextRef.verse = e.detail.text;
+                    if (e.detail.text === 'i') {
+                        // Chapter getting set because if you just select verse
+                        // from introduction, both blank goes to chapter 1
+                        $nextRef.chapter = 'i';
+                        $nextRef.verse = '';
+                    } else {
+                        $nextRef.verse = e.detail.text;
+                    }
                     completeNavigation();
                     break;
                 default:
@@ -148,6 +156,33 @@ The navbar component.
             }
         ];
     };
+    let verseGridGroup = (chapter) => {
+        let value;
+        let selectedChapter = chapters[chapter];
+        if (chapter === 'i') {
+            value = [
+                { 
+                    cells: [{
+                        label: $t['Chapter_Introduction_Symbol'],
+                        id: 'i'
+                    }]
+                }
+            ];
+        } else if (verseCount === 0 ) {
+            value = [];
+        }
+        else {
+            value = [
+                {
+                    cells: Object.keys(selectedChapter).map((x) => ({
+                        label: x,
+                        id: x
+                    }))
+                }
+            ];
+        }
+        return value;
+    }
 </script>
 
 <!-- Book Selector -->
@@ -183,14 +218,7 @@ The navbar component.
                     [v]: {
                         component: SelectGrid,
                         props: {
-                            options: [
-                                {
-                                    cells: Object.keys(chapters[chapter]).map((x) => ({
-                                        label: x,
-                                        id: x
-                                    }))
-                                }
-                            ]
+                            options: verseGridGroup(chapter)
                         },
                         visible: showChapterSelector && showVerseSelector
                     }

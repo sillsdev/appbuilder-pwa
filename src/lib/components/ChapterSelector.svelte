@@ -19,6 +19,7 @@ The navbar component.
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: showVerseSelector = $userSettings['verse-selection'];
+    $: verseCount = getVerseCount(book, chapter);
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -30,14 +31,21 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (verseCount(book, $nextRef.chapter) === 0 || !showVerseSelector) {
+                if (!showVerseSelector) {
                     completeNavigation();
                 } else {
                     chapterSelector.setActive(v);
                 }
                 break;
             case v:
-                $nextRef.verse = e.detail.text;
+                if (e.detail.text === 'i') {
+                    // Chapter getting set because if you just select verse
+                    // from introduction, both blank goes to chapter 1
+                    $nextRef.chapter = 'i';
+                    $nextRef.verse = '';
+                } else {
+                    $nextRef.verse = e.detail.text;
+                }
                 completeNavigation();
                 break;
             default:
@@ -63,13 +71,13 @@ The navbar component.
         nextRef.reset();
     }
 
-    function chapterCount(book) {
+    function getChapterCount(book) {
         let books = catalog.find((d) => d.id === $refs.docSet).documents;
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
 
-    function verseCount(book, chapter) {
+    function getVerseCount(book, chapter) {
         if (!chapter || chapter === 'i') {
             return 0;
         }
@@ -78,13 +86,38 @@ The navbar component.
         let count = Object.keys(chapters[chapter]).length;
         return count;
     }
-
+    let verseGridGroup = (chapter) => {
+        let value = [];
+        let selectedChapter = chapters[chapter];
+        if (chapter === 'i') {
+            value = [
+                { 
+                    cells: [{
+                        label: $t['Chapter_Introduction_Symbol'],
+                        id: 'i'
+                    }]
+                }
+            ];
+        } else if (verseCount === 0 ) {
+            value = [];
+        } else {
+            value = [
+                {
+                    cells: Object.keys(selectedChapter).map((x) => ({
+                        label: x,
+                        id: x
+                    }))
+                }
+            ];
+        }
+        return value;
+    }
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     $: showSelector =
-        config.mainFeatures['show-chapter-number-on-app-bar'] && chapterCount($refs.book) > 0;
+        config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];
 </script>
 
@@ -133,16 +166,9 @@ The navbar component.
                                 component: SelectGrid,
                                 props: {
                                     cols: 5,
-                                    options: [
-                                        {
-                                            cells: Object.keys(chapters[chapter]).map((x) => ({
-                                                label: x,
-                                                id: x
-                                            }))
-                                        }
-                                    ]
+                                    options: verseGridGroup(chapter)
                                 },
-                                visible: showVerseSelector
+                                visible: showVerseSelector 
                             }
                         }}
                         on:menuaction={navigateReference}
