@@ -32,11 +32,48 @@ function removeStrongNumberReferences(text: string, _bcId: string, _bookId: stri
     return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
 }
 
+function removeMissingFigures(text: string, _bcId: string, _bookId: string): string {
+    // Regular expression to match \fig markers
+    const figRegex = /\\fig\s(.*?)\\fig\*/g;
+
+    // Replace each \fig marker with the appropriate action
+    return text.replace(figRegex, (match, figContent) => {
+        // Split the content of the \fig marker by pipe (|)
+        const parts = figContent.split('|');
+
+        // Extract the image source from the first part
+        let imageSource;
+        if (parts[1].includes('src="')) {
+            imageSource = parts[1].match(/src="([^"]+)"/)[1];
+        } else {
+            imageSource = parts[1];
+        }
+
+        // Check if the image source is missing
+        if (isImageMissing(imageSource)) {
+            // Image is missing, return an empty string to strip the \fig marker
+            return '';
+        } else {
+            // Image is present, return the original \fig marker
+            return match;
+        }
+    });
+}
+
+// Function to check if an image is missing
+function isImageMissing(imageSource: string): boolean {
+    // Your logic to determine if the image is missing
+    // For example, you can use AJAX request to check if the image exists
+    // Here, I'm assuming a simple check by presence of src attribute
+    return !existsSync(path.join('data', 'illustrations', imageSource));
+}
+
 const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
     replacePageTags,
-    convertMarkdownsToMilestones
+    convertMarkdownsToMilestones,
+    removeMissingFigures
 ];
 
 function applyFilters(text: string, bcId: string, bookId: string): string {
