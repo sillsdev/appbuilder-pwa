@@ -158,7 +158,7 @@ TODO:
         }
     };
     const addGraftText = (workspace, text, textType, usfmType) => {
-        if (workspace.textType.includes(textType)){
+        if (workspace.textType.includes(textType)) {
             if (isDefined(workspace.footnoteDiv)) {
                 if (workspace.textType.includes('note_caller')) {
                     workspace.footnoteDiv.setAttribute('nc', text);
@@ -170,7 +170,6 @@ TODO:
         } else {
             console.log('%s ignored: %s', usfmType, text);
         }
-        
     };
     const addText = (workspace, text) => {
         // console.log('Adding text:', text);
@@ -1007,10 +1006,10 @@ TODO:
                                         const blockType = context.sequences[0].block.subType;
 
                                         if (blockType.includes('usfm:x')) {
-                                            addGraftText(workspace,text, 'xref', 'usfm:x');
-                                        // Footnote Text
+                                            addGraftText(workspace, text, 'xref', 'usfm:x');
+                                            // Footnote Text
                                         } else if (blockType.includes('usfm:f')) {
-                                            addGraftText(workspace,text, 'footnote', 'usfm:f');
+                                            addGraftText(workspace, text, 'footnote', 'usfm:f');
                                         } else if (blockType === 'usfm:ip') {
                                             // Introduction
                                             addText(workspace, text);
@@ -1554,6 +1553,7 @@ TODO:
         let collection = docSet.split('_')[1];
         let videos = config.videos?.filter(
             (x) =>
+                x.placement &&
                 x.placement.collection === collection &&
                 (x.placement.ref.startsWith(bookCode + ' ' + chapter + ':') ||
                     x.placement.ref.startsWith(bookCode + '.' + chapter + '.'))
