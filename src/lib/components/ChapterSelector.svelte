@@ -56,7 +56,7 @@ The navbar component.
 
     function completeNavigation() {
         $refs = { chapter: $nextRef.chapter, verse: $nextRef.verse };
-        
+
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
@@ -83,6 +83,9 @@ The navbar component.
         }
         let books = catalog.find((d) => d.id === $refs.docSet).documents;
         let chapters = books.find((d) => d.bookCode === book).versesByChapters;
+        if (!chapters || Object.keys(chapters).length === 0) {
+            return 0;
+        }
         let count = Object.keys(chapters[chapter]).length;
         return count;
     }
@@ -91,14 +94,16 @@ The navbar component.
         let selectedChapter = chapters[chapter];
         if (chapter === 'i') {
             value = [
-                { 
-                    cells: [{
-                        label: $t['Chapter_Introduction_Symbol'],
-                        id: 'i'
-                    }]
+                {
+                    cells: [
+                        {
+                            label: $t['Chapter_Introduction_Symbol'],
+                            id: 'i'
+                        }
+                    ]
                 }
             ];
-        } else if (verseCount === 0 ) {
+        } else if (verseCount === 0) {
             value = [];
         } else {
             value = [
@@ -111,7 +116,7 @@ The navbar component.
             ];
         }
         return value;
-    }
+    };
     /**list of books in current docSet*/
     $: books = catalog.find((d) => d.id === $refs.docSet).documents;
     /**list of chapters in current book*/
@@ -168,7 +173,7 @@ The navbar component.
                                     cols: 5,
                                     options: verseGridGroup(chapter)
                                 },
-                                visible: showVerseSelector 
+                                visible: showVerseSelector
                             }
                         }}
                         on:menuaction={navigateReference}

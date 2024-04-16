@@ -15,12 +15,12 @@ The navbar component.
 
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-    $: verseCount = getVerseCount(chapter,chapters);
-    
+    $: verseCount = getVerseCount(chapter, chapters);
+
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
     $: listView = $userSettings['book-selection'] === 'list';
     $: showVerseSelector = $userSettings['verse-selection'];
- 
+
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
     $: c = $t.Selector_Chapter;
@@ -37,7 +37,7 @@ The navbar component.
     }
 
     function getVerseCount(chapter, chapters) {
-        if (!chapter || chapter === 'i') {
+        if (!chapter || chapter === 'i' || !chapters || Object.keys(chapters).length === 0) {
             return 0;
         }
         let count = Object.keys(chapters[chapter]).length;
@@ -161,17 +161,18 @@ The navbar component.
         let selectedChapter = chapters[chapter];
         if (chapter === 'i') {
             value = [
-                { 
-                    cells: [{
-                        label: $t['Chapter_Introduction_Symbol'],
-                        id: 'i'
-                    }]
+                {
+                    cells: [
+                        {
+                            label: $t['Chapter_Introduction_Symbol'],
+                            id: 'i'
+                        }
+                    ]
                 }
             ];
-        } else if (verseCount === 0 ) {
+        } else if (verseCount === 0) {
             value = [];
-        }
-        else {
+        } else {
             value = [
                 {
                     cells: Object.keys(selectedChapter).map((x) => ({
@@ -182,7 +183,7 @@ The navbar component.
             ];
         }
         return value;
-    }
+    };
 </script>
 
 <!-- Book Selector -->
