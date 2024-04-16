@@ -357,7 +357,7 @@ function defaultUserSettings() {
     return userPreferenceSettings.reduce((defaults, setting) => {
         defaults[setting.key] = setting.defaultValue;
         return defaults;
-    });
+    }, {});
 }
 mergeDefaultStorage('userSettings', defaultUserSettings());
 export const userSettings = writable(JSON.parse(localStorage.userSettings));
