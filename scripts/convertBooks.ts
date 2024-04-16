@@ -84,6 +84,7 @@ function applyFilters(text: string, bcId: string, bookId: string): string {
     return filteredText;
 }
 
+const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,
@@ -115,7 +116,7 @@ export async function convertBooks(
         //loop through books in collection
         const ignoredBooks = [];
         for (const book of collection.books) {
-            if (book.type) {
+            if (book.type && unsupportedBookTypes.includes(book.type)) {
                 // Ignore non-default books for now
                 ignoredBooks.push(book.id);
                 continue;
