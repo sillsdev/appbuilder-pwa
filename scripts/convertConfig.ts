@@ -687,10 +687,10 @@ function convertConfig(dataDir: string, verbose: number) {
                     .split('|');
                 data.audio.sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
 
-                if (type === 'download')
+                if (type === 'download') {
                     data.audio.sources[id].address =
-                        source.getElementsByTagName('address')[0].innerHTML;
-                else if (type === 'fcbh') {
+                        source.getElementsByTagName('address')[0]?.innerHTML;
+                } else if (type === 'fcbh') {
                     data.audio.sources[id].key = source.getElementsByTagName('key')[0].innerHTML;
                     data.audio.sources[id].damId =
                         source.getElementsByTagName('dam-id')[0].innerHTML;
