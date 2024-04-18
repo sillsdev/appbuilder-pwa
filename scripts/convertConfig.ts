@@ -305,6 +305,14 @@ function dirEmpty(path: PathLike): boolean {
     return empty;
 }
 
+function isValidUrl(url: string): boolean {
+    try {
+        return Boolean(new URL(url));
+    } catch (e) {
+        return false;
+    }
+}
+
 function removeCData(data: string) {
     return data.replace('<![CDATA[', '').replace(']]>', '');
 }
@@ -687,10 +695,12 @@ function convertConfig(dataDir: string, verbose: number) {
                     .split('|');
                 data.audio.sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
 
-                if (type === 'download') {
-                    data.audio.sources[id].address =
-                        source.getElementsByTagName('address')[0]?.innerHTML;
-                } else if (type === 'fcbh') {
+                const address = source.getElementsByTagName('address')[0]?.innerHTML;
+                if (isValidUrl(address)) {
+                    data.audio.sources[id].address = address;
+                }
+
+                if (type === 'fcbh') {
                     data.audio.sources[id].key = source.getElementsByTagName('key')[0].innerHTML;
                     data.audio.sources[id].damId =
                         source.getElementsByTagName('dam-id')[0].innerHTML;
