@@ -5,7 +5,7 @@ import { convertMarkdownsToMilestones } from './convertMarkdown';
 
 describe('convertMarkdown', () => {
     const data = readFileSync(
-        path.join('example_data', 'books', 'C01', '01GENengWEBbd.usfm'),
+        path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'),
         'utf8'
     );
     let modifiedContent: string;

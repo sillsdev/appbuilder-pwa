@@ -12,7 +12,7 @@ TODO:
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, isBibleBook, refs } from '$lib/data/stores';
+    import { footnotes, isBibleBook, refs, glossary } from '$lib/data/stores';
     import { generateHTML, handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
@@ -25,7 +25,7 @@ TODO:
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import { audioPlayer } from '$lib/data/stores';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
-    import { isDefined, splitString } from '$lib/scripts/stringUtils';
+    import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -42,6 +42,7 @@ TODO:
     export let viewShowBibleVideos: string;
     export let viewShowIllustrations: boolean;
     export let viewShowVerses: boolean;
+    export let viewShowGlossaryWords: boolean;
     export let font: string;
     export let proskomma: Proskomma;
 
@@ -207,15 +208,33 @@ TODO:
         }
         return;
     };
-    const usfmSpan = (parent: any, spanClass: string, phrase: string) => {
+    const usfmSpan = (parent: any, spanClass: string, phrase: string, lemma: string = '') => {
         const spanElement = document.createElement('span');
         let child;
         spanElement.classList.add(spanClass);
-        if (spanClass === 'xt') {
-            spanElement.innerHTML = phrase;
-        } else {
-            child = document.createTextNode(phrase);
-            spanElement.appendChild(child);
+        switch (spanClass) {
+            case 'xt': {
+                spanElement.innerHTML = phrase;
+                break;
+            }
+            case 'glossary': {
+                const aElement = document.createElement('a');
+                let href = phrase;
+                if (isNotBlank(lemma)) {
+                    href = lemma;
+                }
+                aElement.setAttribute('href', href.trim());
+                const refText = document.createTextNode(phrase);
+                aElement.classList.add('glossary');
+                aElement.appendChild(refText);
+                spanElement.appendChild(aElement);
+                break;
+            }
+            default: {
+                child = document.createTextNode(phrase);
+                spanElement.appendChild(child);
+                break;
+            }
         }
         parent.appendChild(spanElement);
         return parent;
@@ -234,7 +253,12 @@ TODO:
                     break;
                 }
                 case 'w': {
-                    div = usfmSpan(div, 'glossary', phrase);
+                    const lemma = workspace.lemma;
+                    if (viewShowGlossaryWords) {
+                        div = usfmSpan(div, 'glossary', phrase, lemma);
+                    } else {
+                        div = usfmSpan(div, usfmWrapperType, phrase);
+                    }
                     break;
                 }
                 default: {
@@ -343,6 +367,34 @@ TODO:
             const footnoteHTML = await handleHeaderLinkPressed(start, end);
             footnotes.push(footnoteHTML);
         }
+    }
+    function glossaryClickHandler(event: any) {
+        event.stopPropagation();
+        event.preventDefault();
+        const glossaryLink = event.target.getAttribute('href');
+        $glossary.then(glossaryResults => {
+            if (isDefined(glossaryResults.data.docSets[0].document)) {
+                glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
+                    if (ciEquals(block.key, glossaryLink)) {
+                        if ($footnotes.length === 0) {
+                            const glossaryDiv = document.createElement('div');
+                            glossaryDiv.classList.add('txs');
+                            const glossarySpan = document.createElement('span');
+                            glossarySpan.classList.add('k');
+                            const titleText = document.createTextNode(glossaryLink);
+                            glossarySpan.append(block.key);
+                            glossaryDiv.append(glossarySpan);
+                            const blockText = block.text.slice(glossaryLink.length);
+                            const glossaryText = document.createTextNode(blockText);
+                            glossaryDiv.append(glossaryText);
+                            const glossaryHTML = glossaryDiv.outerHTML;
+                            footnotes.push(glossaryHTML); 
+                        }
+                    }
+                });
+            }
+
+        });
     }
     function navigate(reference) {
         refs.set({
@@ -611,6 +663,9 @@ TODO:
             case 'footnote':
                 footnoteClickHandler(e);
                 break;
+            case 'glossary':
+                glossaryClickHandler(e);
+                break;
             default:
                 if (e.target.classList.contains('ref-link')) {
                     referenceLinkClickHandler(e);
@@ -639,6 +694,7 @@ TODO:
         bookCode: string,
         chapter: string,
         showVerses: boolean,
+        showGlossaryLinks: boolean,
         showRedLetters: boolean,
         versePerLine: boolean,
         bookmarks: any[],
@@ -699,6 +755,7 @@ TODO:
                             workspace.tableRowElement = null;
                             workspace.tableCellElement = null;
                             workspace.rowCellNumber = 0;
+                            workspace.lemma = '';
                             deselectAllElements(selectedVerses);
 
                             const div = document.createElement('div');
@@ -1329,6 +1386,14 @@ TODO:
                                         }
                                     } else {
                                         workspace.textType.push('usfm');
+                                        if (usfmType === 'w') {
+                                            // Glossary - Check for lemma
+                                            let lemma = '';
+                                            if (isDefined(element.atts['lemma'])) {
+                                                lemma = element.atts['lemma'][0];
+                                            }
+                                            workspace.lemma = lemma;
+                                        }
                                         if (!workspace.textType.includes('footnote')) {
                                             if (workspace.lastPhraseTerminated === true) {
                                                 // console.log('not footnote start phrase');
@@ -1610,6 +1675,7 @@ TODO:
             bookCode,
             chapter,
             viewShowVerses,
+            viewShowGlossaryWords,
             redLetters,
             versePerLine,
             bookmarks,

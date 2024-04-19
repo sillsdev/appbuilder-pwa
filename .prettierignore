@@ -12,6 +12,7 @@ src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 static
 example_data
+test_data
 
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml

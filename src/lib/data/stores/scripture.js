@@ -1,6 +1,8 @@
 import { referenceStore } from './store-types';
 import { writable, get, derived } from 'svelte/store';
 import { setDefaultStorage } from './storage';
+import { loadDocSetIfNotLoaded } from '../scripture';
+import { isDefined } from '../../scripts/stringUtils';
 import { pk } from './pk';
 import config from '../config';
 
@@ -132,8 +134,37 @@ export async function getVerseText(item, item2 = undefined) {
     return text.join(' ');
 }
 
+export const docSet = derived(refs, ($refs) => $refs.docSet);
+export const glossary = derived (docSet, async ($docSet) => {
+    const proskomma = get(pk);
+    await loadDocSetIfNotLoaded(proskomma, $docSet, fetch);
+    const glossaryQuery = '{docSets(ids: "' + $docSet + '") ' +
+                            '{ document(bookCode: "GLO")' + 
+                                '{ mainBlocks ' + 
+                                    '{ ' + 
+                                        'text ' +
+                                        'tokens(withScopes: "span/k") ' + 
+                                        '{ ' + 
+                                            'payload ' + 
+                                        '} ' + 
+                                    '} ' + 
+                                '} ' + 
+                            '} ' + 
+                          '} ';
+    const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
+    if (isDefined(glossaryResults.data.docSets[0].document)) {
+        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
+            let key = '';
+            block.tokens.forEach((token) => {
+                key = key + token.payload;
+            });
+            block.key = key.trim();
+        });
+    }
+    return glossaryResults;
+});
 export const currentFont = writable(config.fonts[0].family);
-export const fontChoices = derived(refs, ($refs) => {
+export const fontChoices = derived(refs, ($refs)  => {
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book).fonts;
