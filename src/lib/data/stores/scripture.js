@@ -135,22 +135,25 @@ export async function getVerseText(item, item2 = undefined) {
 }
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
-export const glossary = derived (docSet, async ($docSet) => {
+export const glossary = derived(docSet, async ($docSet) => {
     const proskomma = get(pk);
     await loadDocSetIfNotLoaded(proskomma, $docSet, fetch);
-    const glossaryQuery = '{docSets(ids: "' + $docSet + '") ' +
-                            '{ document(bookCode: "GLO")' + 
-                                '{ mainBlocks ' + 
-                                    '{ ' + 
-                                        'text ' +
-                                        'tokens(withScopes: "span/k") ' + 
-                                        '{ ' + 
-                                            'payload ' + 
-                                        '} ' + 
-                                    '} ' + 
-                                '} ' + 
-                            '} ' + 
-                          '} ';
+    const glossaryQuery =
+        '{docSets(ids: "' +
+        $docSet +
+        '") ' +
+        '{ document(bookCode: "GLO")' +
+        '{ mainBlocks ' +
+        '{ ' +
+        'text ' +
+        'tokens(withScopes: "span/k") ' +
+        '{ ' +
+        'payload ' +
+        '} ' +
+        '} ' +
+        '} ' +
+        '} ' +
+        '} ';
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
         glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
@@ -164,7 +167,7 @@ export const glossary = derived (docSet, async ($docSet) => {
     return glossaryResults;
 });
 export const currentFont = writable(config.fonts[0].family);
-export const fontChoices = derived(refs, ($refs)  => {
+export const fontChoices = derived(refs, ($refs) => {
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book).fonts;

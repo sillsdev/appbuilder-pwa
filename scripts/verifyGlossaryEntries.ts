@@ -1,9 +1,6 @@
-import { ciEquals } from "./stringUtils";
+import { ciEquals } from './stringUtils';
 
-export function verifyGlossaryEntries(
-    content: string,
-    glossary: string[]
-): string {
+export function verifyGlossaryEntries(content: string, glossary: string[]): string {
     // Regular expression pattern
     const regex = /\\w\s*([^\\]+)\s*\\w\*/;
     let result: string = '';
@@ -12,7 +9,7 @@ export function verifyGlossaryEntries(
     let inputString = content;
     let match;
     // Loop through all matches
-    while ((match = regex.exec(inputString )) !== null) {
+    while ((match = regex.exec(inputString)) !== null) {
         // Append text segment with 1st part of string
         sb.push(inputString.substring(0, match.index));
         // match[1] contains the text between \k and \k*
@@ -49,7 +46,7 @@ function entryToMatch(match: string): string {
     }
     return result;
 }
-function textFromMatch(match:string): string {
+function textFromMatch(match: string): string {
     const parts = match.split('|');
     return parts[0];
 }

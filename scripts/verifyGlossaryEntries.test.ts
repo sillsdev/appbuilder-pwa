@@ -5,10 +5,7 @@ import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 describe('verifyGlossaryEntries', () => {
     // Tests using Genesis 1: 1 & 2
-    const data = readFileSync(
-        path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'),
-        'utf8'
-    );
+    const data = readFileSync(path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'), 'utf8');
     describe('with all entries in the glossary', () => {
         let modifiedContent: string;
         beforeEach(() => {
@@ -18,11 +15,13 @@ describe('verifyGlossaryEntries', () => {
         it('leaves in place simple entry', () => {
             expect(modifiedContent).toContain('Now the \\w serpent\\w* was more');
         });
-        it ('leaves in place entry with an extra space', () => {
+        it('leaves in place entry with an extra space', () => {
             expect(modifiedContent).toContain('more \\w subtle \\w*than any animal');
         });
-        it ('leaves in place entry using lemma', () => {
-            expect(modifiedContent).toContain('We may eat fruit from the \\w trees|tree \\w* of the garden');
+        it('leaves in place entry using lemma', () => {
+            expect(modifiedContent).toContain(
+                'We may eat fruit from the \\w trees|tree \\w* of the garden'
+            );
         });
     });
     describe('with all entries case mismatch', () => {
@@ -34,11 +33,13 @@ describe('verifyGlossaryEntries', () => {
         it('leaves in place simple entry', () => {
             expect(modifiedContent).toContain('Now the \\w serpent\\w* was more');
         });
-        it ('leaves in place entry with an extra space', () => {
+        it('leaves in place entry with an extra space', () => {
             expect(modifiedContent).toContain('more \\w subtle \\w*than any animal');
         });
-        it ('leaves in place entry using lemma', () => {
-            expect(modifiedContent).toContain('We may eat fruit from the \\w trees|tree \\w* of the garden');
+        it('leaves in place entry using lemma', () => {
+            expect(modifiedContent).toContain(
+                'We may eat fruit from the \\w trees|tree \\w* of the garden'
+            );
         });
     });
     describe('with one mismatch', () => {
@@ -50,10 +51,10 @@ describe('verifyGlossaryEntries', () => {
         it('leaves in place simple entry', () => {
             expect(modifiedContent).toContain('Now the \\w serpent\\w* was more');
         });
-        it ('leaves in place entry with an extra space', () => {
+        it('leaves in place entry with an extra space', () => {
             expect(modifiedContent).toContain('more \\w subtle \\w*than any animal');
         });
-        it ('removes when matches first but not lemma', () => {
+        it('removes when matches first but not lemma', () => {
             expect(modifiedContent).toContain('We may eat fruit from the trees of the garden');
         });
     });
@@ -66,11 +67,13 @@ describe('verifyGlossaryEntries', () => {
         it('leaves in place simple entry', () => {
             expect(modifiedContent).toContain('Now the \\w serpent\\w* was more');
         });
-        it ('removes mismatched entry', () => {
+        it('removes mismatched entry', () => {
             expect(modifiedContent).toContain('more subtle than any animal');
         });
-        it ('leaves in place entry using lemma', () => {
-            expect(modifiedContent).toContain('We may eat fruit from the \\w trees|tree \\w* of the garden');
+        it('leaves in place entry using lemma', () => {
+            expect(modifiedContent).toContain(
+                'We may eat fruit from the \\w trees|tree \\w* of the garden'
+            );
         });
     });
     describe('with empty glossary', () => {
@@ -82,10 +85,10 @@ describe('verifyGlossaryEntries', () => {
         it('removes simple entry', () => {
             expect(modifiedContent).toContain('Now the serpent was more');
         });
-        it ('removes entry with an extra space', () => {
+        it('removes entry with an extra space', () => {
             expect(modifiedContent).toContain('more subtle than any animal');
         });
-        it ('removes entry using lemma', () => {
+        it('removes entry using lemma', () => {
             expect(modifiedContent).toContain('We may eat fruit from the trees of the garden');
         });
     });

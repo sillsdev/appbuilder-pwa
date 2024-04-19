@@ -60,7 +60,6 @@ export async function loadDocSetIfNotLoaded(proskomma, docSet, fetch) {
     if (!found) {
         try {
             await loadDocSet(proskomma, docSet, fetch);
-        } catch (e) {
-        }
+        } catch (e) {}
     }
 }

@@ -31,7 +31,8 @@ function loadGlossary(collection: any, configData: ConfigTaskOutput, dataDir: st
         if (book.type && book.type === 'glossary') {
             const glossaryContent = readFileSync(
                 path.join(dataDir, 'books', collection.id, book.file),
-                'utf8');
+                'utf8'
+            );
             // Regular expression pattern
             const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
             let match;
