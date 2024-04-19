@@ -219,11 +219,12 @@ TODO:
             }
             case 'glossary': {
                 const aElement = document.createElement('a');
-                let href = phrase;
+                let matchWord = phrase;
                 if (isNotBlank(lemma)) {
-                    href = lemma;
+                    matchWord = lemma;
                 }
-                aElement.setAttribute('href', href.trim());
+                aElement.setAttribute('match', matchWord.trim());
+                aElement.setAttribute('href', ' ');
                 const refText = document.createTextNode(phrase);
                 aElement.classList.add('glossary');
                 aElement.appendChild(refText);
@@ -371,7 +372,7 @@ TODO:
     function glossaryClickHandler(event: any) {
         event.stopPropagation();
         event.preventDefault();
-        const glossaryLink = event.target.getAttribute('href');
+        const glossaryLink = event.target.getAttribute('match');
         $glossary.then(glossaryResults => {
             if (isDefined(glossaryResults.data.docSets[0].document)) {
                 glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {

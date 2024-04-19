@@ -33,7 +33,7 @@ function loadGlossary(collection: any, configData: ConfigTaskOutput, dataDir: st
                 path.join(dataDir, 'books', collection.id, book.file),
                 'utf8');
             // Regular expression pattern
-            const regex = /\\k([^\\]+)\\k\*/g;
+            const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
             let match;
             // Loop through all matches
             while ((match = regex.exec(glossaryContent)) !== null) {
