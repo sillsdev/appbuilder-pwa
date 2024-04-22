@@ -93,15 +93,6 @@ export function getReference(item) {
     return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
-export function isBibleBook(item) {
-    const bookTestament =
-        config.bookCollections
-            .find((x) => x.id === item.collection)
-            .books.find((x) => x.id === item.book)?.testament || '';
-    const bibleBook = bookTestament === 'NT' || bookTestament === 'OT' || bookTestament === 'DC';
-    return bibleBook;
-}
-
 export async function getVerseText(item, item2 = undefined) {
     const proskomma = get(pk);
     const scriptureCV =

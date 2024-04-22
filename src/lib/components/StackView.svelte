@@ -66,7 +66,7 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const footnoteHTML = await handleHeaderLinkPressed(start, end);
+                const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
                 footnotes.push(footnoteHTML);
             }
         } else if (event.target.classList.contains('ref-link')) {

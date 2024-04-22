@@ -847,8 +847,7 @@ function addCharsToSet(nonWordChars, chars) {
         chars.add(nonWordChars.charAt(i));
     }
 }
-export async function handleHeaderLinkPressed(start, end): Promise<string> {
-    const colors = get(themeColors);
+export async function handleHeaderLinkPressed(start, end, colors): Promise<string> {
     const primaryColor = colors['PrimaryColor'];
     const root = document.createElement('div');
     const textDiv = document.createElement('div');

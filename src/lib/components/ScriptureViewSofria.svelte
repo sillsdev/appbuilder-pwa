@@ -12,8 +12,8 @@ TODO:
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, isBibleBook, refs, glossary } from '$lib/data/stores';
-    import { generateHTML, handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
+    import { footnotes, refs } from '$lib/data/stores';
+    import { generateHTML, handleHeaderLinkPressed, isBibleBook } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
         deselectAllElements,
@@ -36,7 +36,9 @@ TODO:
     export let maxSelections: any;
     export let redLetters: boolean;
     export let references: any;
+    export let glossary: any;
     export let selectedVerses: any;
+    export let themeColors: any;
     export let verseLayout: any;
     export let viewShowBibleImages: string;
     export let viewShowBibleVideos: string;
@@ -365,7 +367,7 @@ TODO:
         if (config.mainFeatures['scripture-refs-display'] === 'viewer') {
             navigate(start);
         } else {
-            const footnoteHTML = await handleHeaderLinkPressed(start, end);
+            const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
             footnotes.push(footnoteHTML);
         }
     }
@@ -373,7 +375,7 @@ TODO:
         event.stopPropagation();
         event.preventDefault();
         const glossaryLink = event.target.getAttribute('match');
-        $glossary.then(glossaryResults => {
+        glossary.then(glossaryResults => {
             if (isDefined(glossaryResults.data.docSets[0].document)) {
                 glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
                     if (ciEquals(block.key, glossaryLink)) {
