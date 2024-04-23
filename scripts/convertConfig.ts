@@ -350,20 +350,21 @@ function convertConfig(dataDir: string, verbose: number) {
 
     // Fonts
     const fontTags = document.getElementsByTagName('fonts')[0].getElementsByTagName('font');
+    const fontFamilies: string[] = [];
     data.fonts = [];
 
     for (const tag of fontTags) {
-        data.fonts.push({
-            family: tag.attributes.getNamedItem('family')!.value,
-            name: tag.getElementsByTagName('font-name')[0]?.innerHTML,
-            file: tag.getElementsByTagName('f')[0].innerHTML,
-            fontStyle: tag
-                .querySelector('sd[property=font-style]')!
-                .attributes.getNamedItem('value')!.value,
-            fontWeight: tag
-                .querySelector('sd[property=font-weight]')!
-                .attributes.getNamedItem('value')!.value
-        });
+        const family = tag.attributes.getNamedItem('family')!.value;
+        const name = tag.getElementsByTagName('font-name')[0]?.innerHTML;
+        const file = tag.getElementsByTagName('f')[0].innerHTML;
+        const fontStyle = tag
+            .querySelector('sd[property=font-style]')!
+            .attributes.getNamedItem('value')!.value;
+        const fontWeight = tag
+            .querySelector('sd[property=font-weight]')!
+            .attributes.getNamedItem('value')!.value;
+        fontFamilies.push(family);
+        data.fonts.push({ family, name, file, fontStyle, fontWeight });
     }
     if (verbose) console.log(`Converted ${data.fonts.length} fonts`);
 
@@ -472,9 +473,9 @@ function convertConfig(dataDir: string, verbose: number) {
             const styles = bkStyles ? parseStyles(bkStyles, verbose) : undefined;
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
-                ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family')).map(
-                      (x) => x.innerHTML
-                  )
+                ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
+                      .filter((x) => fontFamilies.includes(x.innerHTML))
+                      .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -511,9 +512,9 @@ function convertConfig(dataDir: string, verbose: number) {
         const fontChoiceTag = tag.getElementsByTagName('font-choice')[0];
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
-            ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family')).map(
-                  (x) => x.innerHTML
-              )
+            ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
+                  .filter((x) => fontFamilies.includes(x.innerHTML))
+                  .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
