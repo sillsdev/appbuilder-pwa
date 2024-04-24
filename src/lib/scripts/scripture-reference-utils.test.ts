@@ -483,4 +483,45 @@ describe('Scripture Reference Utilities', () => {
             });
         });
     });
+    describe('isBibleBook', () => {
+        let item: { collection: string; book: string };
+        beforeEach(() => {
+            item = { collection: 'C01', book: 'MRK' };
+        });
+        it('returns true if reference is for NT Bible book', () => {
+            const result = isBibleBook(item, config);
+            expect(result).toEqual(true);
+        });
+        it('returns true if reference is for DC Bible book', () => {
+            const book = config.bookCollections
+                .find((x) => x.id === 'C01')
+                .books.find((x) => x.id === 'MRK');
+            book.testament = 'DC';
+            const result = isBibleBook(item, config);
+            expect(result).toEqual(true);
+        });
+        it('returns false if reference is for no testament', () => {
+            const book = config.bookCollections
+                .find((x) => x.id === 'C01')
+                .books.find((x) => x.id === 'MRK');
+            book.testament = undefined;
+            const result = isBibleBook(item, config);
+            expect(result).toEqual(false);
+        });
+        afterEach(() => {
+            const book = config.bookCollections
+                .find((x) => x.id === 'C01')
+                .books.find((x) => x.id === 'MRK');
+            book.testament = 'NT';
+        });
+        describe('OT Bible Book', () => {
+            beforeEach(() => {
+                item = { collection: 'C01', book: 'GEN' };
+            })
+            it('returns true', () => {
+                const result = isBibleBook(item, config);
+                expect(result).toEqual(true);
+            });
+        })
+    });
 });
