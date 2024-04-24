@@ -529,11 +529,11 @@ describe('Scripture Reference Utilities', () => {
         describe('OT Bible Book', () => {
             beforeEach(() => {
                 item = { collection: 'C01', book: 'GEN' };
-            })
+            });
             it('returns true', () => {
                 const result = isBibleBook(item, config);
                 expect(result).toEqual(true);
             });
-        })
+        });
     });
 });
