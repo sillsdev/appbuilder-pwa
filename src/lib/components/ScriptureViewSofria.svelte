@@ -5,6 +5,9 @@ TODO:
 - find a way to scroll smoothly, as CSS only option does not work as expected.
 - save graft info so that references can be handled
 - parse introduction for references
+LOGGING:
+- add logs entry to local storage with this value (and change 1 to 0 to disable topic)
+    { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
 <script lang="ts">
     import type { Proskomma } from 'proskomma-core';
@@ -12,7 +15,7 @@ TODO:
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, refs } from '$lib/data/stores';
+    import { footnotes, refs, logs } from '$lib/data/stores';
     import { generateHTML, handleHeaderLinkPressed, isBibleBook } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
@@ -93,7 +96,9 @@ TODO:
         return workspace.textType[workspace.textType.length - 1];
     };
     const startPhrase = (workspace, indexOption = 'advance') => {
-        // console.log('Start phrase!!!');
+        if ($logs.scripture?.phrase) {
+            console.log('Start phrase!!!');
+        }
         // Add pending phrase to the paragraph before starting
         // new ones
         if (workspace.phraseDiv != null) {
@@ -171,11 +176,13 @@ TODO:
                 }
             }
         } else {
-            console.log('%s ignored: %s', usfmType, text);
+            console.warn('%s ignored: %s', usfmType, text);
         }
     };
     const addText = (workspace, text) => {
-        // console.log('Adding text:', text);
+        if ($logs.scripture?.text) {
+            console.log('Adding text:', text);
+        }
         if (!onlySpaces(text)) {
             let phrases = [];
             if (!workspace.introductionGraft && references.hasAudio) {
@@ -187,11 +194,15 @@ TODO:
             }
             for (let i = 0; i < phrases.length; i++) {
                 if (workspace.lastPhraseTerminated) {
-                    // console.log('Add text start phrase (terminated)');
+                    if ($logs.scripture?.text) {
+                        console.log('Add text start phrase (terminated)');
+                    }
                     workspace.phraseDiv = startPhrase(workspace);
                 }
                 if (workspace.phraseDiv === null) {
-                    // console.log('Add text start phrase (null)');
+                    if ($logs.scripture?.text) {
+                        console.log('Add text start phrase (null)');
+                    }
                     workspace.phraseDiv = startPhrase(workspace, 'keep');
                 }
                 let div = workspace.phraseDiv.cloneNode(true);
@@ -199,7 +210,9 @@ TODO:
                 div = addTextNode(div, phrase, workspace);
                 if (i < phrases.length - 1) {
                     workspace.phraseDiv = div.cloneNode(true);
-                    // console.log('Add text start phrase');
+                    if ($logs.scripture?.text) {
+                        console.log('Add text start phrase');
+                    }
                     workspace.phraseDiv = startPhrase(workspace);
                 } else {
                     workspace.phraseDiv = div.cloneNode(true);
@@ -504,7 +517,9 @@ TODO:
         a.classList.add('cursor-pointer');
         footnoteSpan.appendChild(a);
         workspace.footnoteIndex++;
-        // console.log('Create Footnote %o %o', footnoteSpan, footnoteDiv);
+        if ($logs.scripture?.footnote) {
+            console.log('Create Footnote %o %o', footnoteSpan, footnoteDiv);
+        }
         return [footnoteSpan, footnoteDiv];
     }
     function placeElement(
@@ -688,7 +703,9 @@ TODO:
         return count;
     }
     let bookRoot = document.createElement('div');
-    // console.log('START: %o', bookRoot);
+    if ($logs.scripture?.root) {
+        console.log('START: %o', bookRoot);
+    }
     let loading = true;
 
     const output = {};
@@ -717,11 +734,13 @@ TODO:
                         description: 'Set up; Book heading',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Start Document: %o, %o',
-                            //     context,
-                            //     context.document.metadata.document
-                            // );
+                            if ($logs.scripture?.document) {
+                                console.log(
+                                    'Start Document: %o, %o',
+                                    context,
+                                    context.document.metadata.document
+                                );
+                            }
                             preprocessAction('startDocument', workspace);
                             bookRoot.replaceChildren();
                             workspace.root = bookRoot;
@@ -773,7 +792,9 @@ TODO:
                         description: 'Set up',
                         test: () => true,
                         action: ({ context, workspace, output }) => {
-                            // console.log('End Document');
+                            if ($logs.scripture?.document) {
+                                console.log('End Document');
+                            }
                             preprocessAction('endDocument', workspace);
                             if (!displayingIntroduction) {
                                 var els = document.getElementsByTagName('div');
@@ -804,11 +825,13 @@ TODO:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Start Paragraph %o %o',
-                            //     context.sequences[0].block,
-                            //     context.sequences[0].type
-                            // );
+                            if ($logs.scripture?.paragraph) {
+                                console.log(
+                                    'Start Paragraph %o %o',
+                                    context.sequences[0].block,
+                                    context.sequences[0].type
+                                );
+                            }
                             const sequenceType = context.sequences[0].type;
                             preprocessAction('startPara', workspace);
                             if (
@@ -826,15 +849,19 @@ TODO:
 
                                     if (workspace.currentVerse != 'none') {
                                         workspace.phraseDiv = startPhrase(workspace);
-                                        // console.log(
-                                        //     'Paragraph Start phrase: %o',
-                                        //     workspace.phraseDiv
-                                        // );
+                                        if ($logs.scripture?.paragraph) {
+                                            console.log(
+                                                'Paragraph Start phrase: %o',
+                                                workspace.phraseDiv
+                                            );
+                                        }
                                     }
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
                                 } else if (sequenceType == 'introduction') {
-                                    // console.log('Introduction start phrase');
+                                    if ($logs.scripture?.paragraph) {
+                                        console.log('Introduction start phrase');
+                                    }
                                     workspace.phraseDiv = startPhrase(workspace, 'keep');
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
@@ -849,12 +876,14 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('End paragraph: Sequence type ' + sequenceType);
-                            // console.log(
-                            //     'End Paragraph %o %o',
-                            //     context.sequences[0].block,
-                            //     context.sequences[0].type
-                            // );
+                            if ($logs.scripture?.paragraph) {
+                                console.log('End paragraph: Sequence type ' + sequenceType);
+                                console.log(
+                                    'End Paragraph %o %o',
+                                    context.sequences[0].block,
+                                    context.sequences[0].type
+                                );
+                            }
                             preprocessAction('endPara', workspace);
                             if (
                                 processText(
@@ -864,7 +893,9 @@ TODO:
                                 )
                             ) {
                                 if (sequenceType == 'main') {
-                                    // console.log("End main paragraph");
+                                    if ($logs.scripture?.paragraph) {
+                                        console.log('End main paragraph');
+                                    }
                                     if (
                                         workspace.phraseDiv != null &&
                                         workspace.phraseDiv.innerText !== ''
@@ -940,19 +971,25 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('Start Verses %o %o', element.atts['number'], element);
+                            if ($logs.scripture?.verses) {
+                                console.log('Start Verses %o %o', element.atts['number'], element);
+                            }
                             preprocessAction('startVerses', workspace);
                             workspace.textType.push('verses');
                             if (!displayingIntroduction) {
                                 workspace.lastPhraseTerminated = false;
                                 workspace.currentVerse = element.atts.number;
-                                // console.log('verses %o start phrase', element.atts.number);
+                                if ($logs.scripture?.verses) {
+                                    console.log('verses %o start phrase', element.atts.number);
+                                }
                                 workspace.phraseDiv = startPhrase(workspace, 'reset');
                                 if (versePerLine) {
                                     workspace.verseDiv = document.createElement('div');
                                     workspace.verseDiv.classList.add('verse-block');
                                 }
-                                // console.log('IN: %o', workspace.phraseDiv);
+                                if ($logs.scripture?.verses) {
+                                    console.log('IN: %o', workspace.phraseDiv);
+                                }
                             }
                         }
                     }
@@ -963,11 +1000,13 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log('End Verses %o %o', element.atts['number'], element);
-                            /*const textTypeV = workspace.textType.pop(); */
-                            // if (textTypeV != 'verses') {
-                            //     console.log('Verses texttype mismatch!!! %o', textTypeV);
-                            // }
+                            if ($logs.scripture?.verses) {
+                                console.log('End Verses %o %o', element.atts['number'], element);
+                                /*const textTypeV = workspace.textType.pop(); */
+                                // if (textTypeV != 'verses') {
+                                //     console.log('Verses texttype mismatch!!! %o', textTypeV);
+                                // }
+                            }
                             preprocessAction('endVerses', workspace);
                             workspace.textType.pop();
                             if (!displayingIntroduction) {
@@ -996,8 +1035,10 @@ TODO:
                         description: 'Start Chapter',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // const element = context.sequences[0].element;
-                            // console.log('Start Chapter %o %o', element.atts['number'], element);
+                            if ($logs.scripture?.chapter) {
+                                const element = context.sequences[0].element;
+                                console.log('Start Chapter %o %o', element.atts['number'], element);
+                            }
                             preprocessAction('startChapter', workspace);
                         }
                     }
@@ -1007,8 +1048,10 @@ TODO:
                         description: 'End Chapter',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // const element = context.sequences[0].element;
-                            // console.log('End Chapter %o %o', element.atts['number'], element);
+                            if ($logs.scripture?.chapter) {
+                                const element = context.sequences[0].element;
+                                console.log('End Chapter %o %o', element.atts['number'], element);
+                            }
                             preprocessAction('endChapter', workspace);
                         }
                     }
@@ -1018,13 +1061,15 @@ TODO:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log(
-                            //     'Text element: %o %o %o',
-                            //     context.sequences[0].element.type,
-                            //     context.sequences[0].element.text,
-                            //     context.sequences[0].block
-                            // );
-                            // console.log('Text Type: %o', currentTextType(workspace));
+                            if ($logs.scripture?.text) {
+                                console.log(
+                                    'Text element: %o %o %o',
+                                    context.sequences[0].element.type,
+                                    context.sequences[0].element.text,
+                                    context.sequences[0].block
+                                );
+                                console.log('Text Type: %o', currentTextType(workspace));
+                            }
                             preprocessAction('text', workspace);
                             if (
                                 processText(
@@ -1082,7 +1127,9 @@ TODO:
                                     }
                                 }
                             }
-                            // console.log('End text');
+                            if ($logs.scripture?.text) {
+                                console.log('End text');
+                            }
                         }
                     }
                 ],
@@ -1091,7 +1138,9 @@ TODO:
                         description: 'Meta Content',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Meta Content %o', context.sequences[0].element);
+                            if ($logs.scripture?.meta) {
+                                console.log('Meta Content %o', context.sequences[0].element);
+                            }
                             preprocessAction('metaContent', workspace);
                         }
                     }
@@ -1102,11 +1151,13 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            // console.log(
-                            //     'Mark: SubType %o, Atts: %o',
-                            //     element.subType,
-                            //     element.atts
-                            // );
+                            if ($logs.scripture?.mark) {
+                                console.log(
+                                    'Mark: SubType %o, Atts: %o',
+                                    element.subType,
+                                    element.atts
+                                );
+                            }
                             preprocessAction('mark', workspace);
                             if (
                                 processText(
@@ -1130,7 +1181,9 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('start sequence %o', sequenceType);
+                            if ($logs.scripture?.sequence) {
+                                console.log('start sequence %o', sequenceType);
+                            }
                             preprocessAction('startSequence', workspace);
                             if (
                                 processText(
@@ -1177,7 +1230,9 @@ TODO:
                                         break;
                                     }
                                 }
-                                // console.log('Processed: %o', workspace.textType);
+                                if ($logs.scripture?.sequence) {
+                                    console.log('Processed: %o', workspace.textType);
+                                }
                             }
                         }
                     }
@@ -1188,7 +1243,9 @@ TODO:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            // console.log('End sequence |%o|', sequenceType);
+                            if ($logs.scripture?.sequence) {
+                                console.log('End sequence |%o|', sequenceType);
+                            }
                             preprocessAction('endSequence', workspace);
                             if (
                                 processText(
@@ -1206,7 +1263,9 @@ TODO:
                                         workspace.textType.pop();
                                         const div = workspace.titleBlockDiv;
                                         div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                                        // console.log('TITLE DIV %o', div);
+                                        if ($logs.scripture?.sequence) {
+                                            console.log('TITLE DIV %o', div);
+                                        }
                                         workspace.root.append(div);
                                         break;
                                     }
@@ -1270,7 +1329,12 @@ TODO:
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            // console.log('Block Graft %o', environment.context.sequences[0].block);
+                            if ($logs.scripture?.blockGraft) {
+                                console.log(
+                                    'Block Graft %o',
+                                    environment.context.sequences[0].block
+                                );
+                            }
                             preprocessAction('blockGraft', environment.workspace);
                             const currentBlock = environment.context.sequences[0].block;
                             const graftRecord = {
@@ -1278,7 +1342,9 @@ TODO:
                                 sequence: {}
                             };
                             if (currentBlock.subType === 'introduction') {
-                                // console.log('*** START INTRODUCTION ***');
+                                if ($logs.scripture?.blockGraft) {
+                                    console.log('*** START INTRODUCTION ***');
+                                }
                                 environment.workspace.introductionGraft = true;
                                 environment.workspace.introductionIndex = 1;
                             } else if (currentBlock.subType === 'title') {
@@ -1292,12 +1358,16 @@ TODO:
                                 environment.workspace.currentSequence = cachedSequencePointer;
                             }
                             if (currentBlock.subType === 'introduction') {
-                                // console.log('*** END INTRODUCTION');
+                                if ($logs.scripture?.blockGraft) {
+                                    console.log('*** END INTRODUCTION');
+                                }
                                 environment.workspace.introductionGraft = false;
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            // console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            if ($logs.scripture?.blockGraft) {
+                                console.log('Block Graft End %o %o', graftRecord, currentBlock);
+                            }
                         }
                     }
                 ],
@@ -1308,13 +1378,15 @@ TODO:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            // console.log(
-                            //     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                            //     element.type,
-                            //     element.subType,
-                            //     element.sequence.id,
-                            //     environment.context.sequences[0].element
-                            // );
+                            if ($logs.scripture?.inlineGraft) {
+                                console.log(
+                                    'Inline Graft Type: %o, Subtype: %o, id: %o %o',
+                                    element.type,
+                                    element.subType,
+                                    element.sequence.id,
+                                    environment.context.sequences[0].element
+                                );
+                            }
                             preprocessAction('inlineGraft', workspace);
                             let footnoteSpan = null;
                             const graftRecord = {
@@ -1355,7 +1427,9 @@ TODO:
                                     // console.log('note caller text type mismatch!!! %o', textTypeF);
                                 }
                             }
-                            // console.log('Inline Graft End');
+                            if ($logs.scripture?.inlineGraft) {
+                                console.log('Inline Graft End');
+                            }
                         }
                     }
                 ],
@@ -1364,7 +1438,9 @@ TODO:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Start Wrapper %o', context.sequences[0].element);
+                            if ($logs.scripture?.wrapper) {
+                                console.log('Start Wrapper %o', context.sequences[0].element);
+                            }
                             preprocessAction('startWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1381,7 +1457,9 @@ TODO:
                                 case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
-                                    // console.log('start wrapper usfmType: %o ', usfmType);
+                                    if ($logs.scripture?.wrapper) {
+                                        console.log('start wrapper usfmType: %o ', usfmType);
+                                    }
                                     if (usfmType === 'fig') {
                                         let source = figureSource(element);
                                         if (source) {
@@ -1429,7 +1507,9 @@ TODO:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('End Wrapper %o', context.sequences[0].element);
+                            if ($logs.scripture?.wrapper) {
+                                console.log('End Wrapper %o', context.sequences[0].element);
+                            }
                             preprocessAction('endWrapper', workspace);
                             let element = context.sequences[0].element;
                             let subType = element.subType;
@@ -1472,7 +1552,9 @@ TODO:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Start Milestone %o', context.sequences[0].element);
+                            if ($logs.scripture?.milestone) {
+                                console.log('Start Milestone %o', context.sequences[0].element);
+                            }
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
                             switch (element.subType) {
@@ -1534,7 +1616,9 @@ TODO:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('End Milestone %o', context.sequences[0].element);
+                            if ($logs.scripture?.milestone) {
+                                console.log('End Milestone %o', context.sequences[0].element);
+                            }
                             preprocessAction('endMilestone', workspace);
                             const element = context.sequences[0].element;
                             checkForMilestoneLinks(
@@ -1556,7 +1640,9 @@ TODO:
                         description: 'Start Row',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('Start Row %o', context.sequences[0].element);
+                            if ($logs.scripture?.row) {
+                                console.log('Start Row %o', context.sequences[0].element);
+                            }
                             preprocessAction('startRow', workspace);
                             if (!workspace.inTable) {
                                 workspace.tableElement = document.createElement('table');
@@ -1573,7 +1659,9 @@ TODO:
                         description: 'End Row',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            // console.log('End Row %o', context.sequences[0].element);
+                            if ($logs.scripture?.row) {
+                                console.log('End Row %o', context.sequences[0].element);
+                            }
                             preprocessAction('endRow', workspace);
                             workspace.tableElement.appendChild(workspace.tableRowElement);
                             workspace.rowCellNumber = 0;
@@ -1595,7 +1683,9 @@ TODO:
             'pk-query-books-end'
         );
 
-        // console.log('docsResult %o', docsResult);
+        if ($logs.scripture?.docResult) {
+            console.log('docsResult %o', docsResult);
+        }
         const bookLookup = {};
         for (const docRecord of docsResult.data.documents) {
             if (docRecord.docSetId === docSet) {
@@ -1614,7 +1704,9 @@ TODO:
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
         loading = false;
-        // console.log('DONE %o', root);
+        if ($logs.scripture?.root) {
+            console.log('DONE %o', bookRoot);
+        }
     };
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {

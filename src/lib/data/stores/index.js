@@ -3,6 +3,7 @@ export * from './audio';
 export * from './collection';
 export * from './interface';
 export * from './localization';
+export * from './log';
 export * from './scripture';
 export * from './setting';
 export * from './theme';
