@@ -121,6 +121,16 @@ export function generateHTML(crossRef: string, refClass: string, bookId: string 
     sb += contentToMatch.substring(lastIndex);
     return sb;
 }
+export function isBibleBook(item, testConfig: any = null) {
+    const runtimeConfig = testConfig ?? config;
+    const bookTestament =
+        runtimeConfig.bookCollections
+            .find((x) => x.id === item.collection)
+            .books.find((x) => x.id === item.book)?.testament || '';
+    const bibleBook = bookTestament === 'NT' || bookTestament === 'OT' || bookTestament === 'DC';
+    return bibleBook;
+}
+
 function processScriptureRef(
     reference: string,
     docSet: string,
