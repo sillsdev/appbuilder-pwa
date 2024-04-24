@@ -1,14 +1,13 @@
 /**
  * Vitest file for reference parsing utilities
  *
- * @Author Jake Colbert
+ * @Author Jake Colbert & David Moore
  */
 
-import { describe, test, expect, beforeEach, it, vi } from 'vitest';
+import { describe, expect, beforeEach, afterEach, it } from 'vitest';
 import { generateHTMLTest, isBibleBook } from './scripture-reference-utils';
 import config from '../../../test_data/data/config';
 import { catalog } from '../../../test_data/data/catalog';
-import { afterEach } from 'node:test';
 
 describe('Scripture Reference Utilities', () => {
     describe('generateHTMLTest', () => {
