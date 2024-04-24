@@ -35,7 +35,7 @@ export const referenceStore = (initReference) => {
             chapter = Object.keys(versesByChapters).includes(original.c) ? original.c : '1';
 
         let length = 1;
-        if (chapter != 'i') {
+        if (chapter != 'i' && Object.keys(versesByChapters).length > 0) {
             length = Object.keys(versesByChapters[chapter]).length;
         }
         internal.set({
