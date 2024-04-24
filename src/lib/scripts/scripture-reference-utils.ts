@@ -7,7 +7,7 @@
 import { get } from 'svelte/store';
 import config from '../data/config';
 import { catalog } from '../data/catalog';
-import { getVerseText, refs, themeColors } from '../data/stores';
+import { getVerseText, refs } from '../data/stores';
 import {
     ciEquals,
     getFirstDigitsAsInt,
@@ -20,21 +20,23 @@ import {
 } from './stringUtils';
 import { getIntFromNumberString } from './numeralUtils';
 
-export let ref: any = get(refs);
-export let collection: any = config.bookCollections.find((x) => x.id === ref.collection);
-export let features: any = collection.features;
-export let showScriptureLinks = features['show-scripture-refs']; // Show scripture reference links
+let ref: any;
+let bookCollections: any;
+let collection: any;
+let features: any;
+let showScriptureLinks; // Show scripture reference links
+let runtimeCatalog;
 
 // In text reference separators
 
 // These may need to be preprocessed to check escape characters
 
-export let cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
-export let rov = features['ref-verse-range-separator']; // Range of verses separator
-export let lov = features['ref-verse-list-separator']; // List of verses separator
-export let roc = features['ref-chapter-range-separator']; // Range of chapters separator
-export let cls = features['ref-chapter-list-separator']; // Chapter list separator
-export let extras = features['ref-extra-material'];
+let cvs: string; // Chapter verse separator
+let rov: string; // Range of verses separator
+let lov: string; // List of verses separator
+let roc: string; // Range of chapters separator
+let cls: string; // Chapter list separator
+let extras: string;
 
 /**
  * Function to generate an inline anchor tag from a preprocessed string reference
@@ -61,8 +63,7 @@ export function generateAnchor(refClass: string, start, end = undefined): HTMLEl
     return anchor;
 }
 function initGlobals() {
-    ref = get(refs);
-    collection = config.bookCollections.find((x) => x.id === ref.collection);
+    collection = bookCollections.find((x) => x.id === ref.collection);
     features = collection.features;
     cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
     rov = features['ref-verse-range-separator']; // Range of verses separator
@@ -84,6 +85,25 @@ function initGlobals() {
  * @param reference: the string containing the reference
  */
 export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
+    ref = get(refs);
+    runtimeCatalog = catalog;
+    bookCollections = config.bookCollections;
+    return generateHTMLMain(crossRef, refClass, bookId);
+}
+export function generateHTMLTest(
+    crossRef: string,
+    refClass: string,
+    bookId: string = '',
+    testRefs: any = null,
+    testCollections: any = null,
+    testCatalog: any = null
+) {
+    ref = testRefs;
+    runtimeCatalog = testCatalog;
+    bookCollections = testCollections;
+    return generateHTMLMain(crossRef, refClass, bookId);
+}
+export function generateHTMLMain(crossRef: string, refClass: string, bookId: string = '') {
     initGlobals();
     const currentBookId = isBlank(bookId) ? ref.book : bookId;
     const docSet = ref.docSet;
@@ -772,7 +792,7 @@ function lastVerseInChapter(book: string, chapter: string, docSet: string): stri
     if (!chapter || chapter === 'i') {
         return '0';
     }
-    const books = catalog.find((d) => d.id === docSet).documents;
+    const books = runtimeCatalog.find((d) => d.id === docSet).documents;
     const chapters = books.find((d) => d.bookCode === book).versesByChapters;
     const verses = Object.keys(chapters[chapter]);
     const lastVerse = verses[verses.length - 1];
@@ -858,6 +878,7 @@ function addCharsToSet(nonWordChars, chars) {
     }
 }
 export async function handleHeaderLinkPressed(start, end, colors): Promise<string> {
+    console.log('HandleHeaderLinkPressed start: %o end: %o colors: %o', start, end, colors);
     const primaryColor = colors['PrimaryColor'];
     const root = document.createElement('div');
     const textDiv = document.createElement('div');

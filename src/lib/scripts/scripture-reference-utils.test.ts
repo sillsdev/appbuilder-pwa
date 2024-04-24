@@ -4,16 +4,23 @@
  * @Author Jake Colbert
  */
 
-import { get } from 'svelte/store';
-import { refs } from '$lib/data/stores';
-import { describe, test, expect, beforeEach, it } from 'vitest';
-import { generateHTML, cvs, rov, lov, roc, cls, collection } from './scripture-reference-utils';
+import { describe, test, expect, beforeEach, it, vi } from 'vitest';
+import { generateHTMLTest, isBibleBook } from './scripture-reference-utils';
+import config from '../../../test_data/data/config';
+import { catalog } from '../../../test_data/data/catalog';
+import { afterEach } from 'node:test';
 
 describe('Scripture Reference Utilities', () => {
-    describe('generateHTML', () => {
-        const ref: any = get(refs);
+    describe('generateHTMLTest', () => {
+        const collection: any = config.bookCollections.find((x) => x.id === 'C01');
+        const features = collection.features;
+        const cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
+        const rov = features['ref-verse-range-separator']; // Range of verses separator
+        const lov = features['ref-verse-list-separator']; // List of verses separator
+        const roc = features['ref-chapter-range-separator']; // Range of chapters separator
+        const cls = features['ref-chapter-list-separator']; // Chapter list separator
         const allBookNames = Object.fromEntries(collection.books.map((x) => [x.id, x.name]));
-        const docSet = ref.docSet;
+        const docSet = 'eng_C01';
         const book1 = allBookNames['JHN'];
         const book2 = allBookNames['1CO'];
         const book3 = allBookNames['JUD'];
@@ -33,10 +40,15 @@ describe('Scripture Reference Utilities', () => {
         const test11 = `${book1} 3${cvs}16${roc}5${cvs}13`; // John 3:16-5:13
         const test12 = `${book4} 20${cvs}13${cls} ${book5} 5${cvs}17${lov}20${rov}22`; // Exodus 20:13; Matthew 5:17,20-22
         const test13 = `Exo 3${cvs}13`; // Exo 3:13
+        const ref: { docSet: string; book: string; collection: string } = {
+            docSet: 'eng_C01',
+            book: 'MAT',
+            collection: 'C01'
+        };
         describe('Simple book chapter (John 3)', () => {
             let result;
             beforeEach(() => {
-                result = generateHTML(test0, '', 'MAT');
+                result = generateHTMLTest(test0, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -61,7 +73,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter with text (John 3)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test9, '', 'MAT');
+                result = generateHTMLTest(test9, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -86,7 +98,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3:16)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test1, '', 'MAT');
+                result = generateHTMLTest(test1, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -109,7 +121,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test2, '', 'MAT');
+                result = generateHTMLTest(test2, '', 'MAT', ref, config.bookCollections, catalog);
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -144,7 +156,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter range (John 3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test3, '', 'MAT');
+                result = generateHTMLTest(test3, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -169,7 +181,7 @@ describe('Scripture Reference Utilities', () => {
         describe('chapter range (3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test10, '', 'MAT');
+                result = generateHTMLTest(test10, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -195,7 +207,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test4, '', 'MAT');
+                result = generateHTMLTest(test4, '', 'MAT', ref, config.bookCollections, catalog);
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -231,7 +243,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test5, '', 'MAT');
+                result = generateHTMLTest(test5, '', 'MAT', ref, config.bookCollections, catalog);
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -270,7 +282,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test6, '', 'MAT');
+                result = generateHTMLTest(test6, '', 'MAT', ref, config.bookCollections, catalog);
                 results = result.split('</a>');
             });
             it('has three results', () => {
@@ -317,7 +329,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter verse chapter verse range (John 3:16-5:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test11, '', 'MAT');
+                result = generateHTMLTest(test11, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -346,7 +358,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test7, '', 'MAT');
+                result = generateHTMLTest(test7, '', 'MAT', ref, config.bookCollections, catalog);
                 results = result.split('</a>');
             });
             it('has two results', () => {
@@ -390,7 +402,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Single chapter book (Jude 6)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test8, '', 'MAT');
+                result = generateHTMLTest(test8, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
@@ -413,7 +425,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTML(test12, '', 'MAT');
+                result = generateHTMLTest(test12, '', 'MAT', ref, config.bookCollections, catalog);
                 results = result.split('</a>');
             });
             it('has three results', () => {
@@ -463,7 +475,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book abbreviation used (Exo 3:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTML(test13, '', 'MAT');
+                result = generateHTMLTest(test13, '', 'MAT', ref, config.bookCollections, catalog);
             });
             it('has one result', () => {
                 const linkCount = result.match(/<a/g).length;
