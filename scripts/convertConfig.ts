@@ -38,6 +38,7 @@ type BookCollection = {
         fonts: string[];
         file: string;
         audio: BookCollectionAudio[];
+        features: any;
         styles?: {
             name: string;
             category?: string;
@@ -477,6 +478,16 @@ function convertConfig(dataDir: string, verbose: number) {
                 });
                 if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
             }
+            const bookFeaturesTag = book
+                .querySelector('features[type=book]')
+                ?.getElementsByTagName('e');
+            const bookFeatures: any = {};
+            if (bookFeaturesTag) {
+                for (const bookFeature of bookFeaturesTag) {
+                    bookFeatures[bookFeature.attributes.getNamedItem('name')!.value] =
+                        parseConfigValue(bookFeature.attributes.getNamedItem('value')!.value);
+                }
+            }
             const bkStyles = book.querySelector('styles');
             const styles = bkStyles ? parseStyles(bkStyles, verbose) : undefined;
             const fontChoiceTag = book.querySelector('font-choice');
@@ -506,6 +517,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
+                features: bookFeatures,
                 styles
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
