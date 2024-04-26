@@ -45,7 +45,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
-    import { getFeatureValueString } from '$lib/scripts/configUtils';
+    import { getFeatureValueString, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import { pinch, swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
@@ -98,6 +98,9 @@
 
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
+    $: viewShowVerses =
+        $userSettings['verse-numbers'] &&
+        getFeatureValueBoolean('show-verse-numbers', $refs.collection, $refs.book);
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -146,7 +149,7 @@
         viewShowBibleImages: $userSettings['display-images-in-bible-text'],
         viewShowBibleVideos: $userSettings['display-videos-in-bible-text'],
         viewShowIllustrations: config.mainFeatures['show-illustrations'],
-        viewShowVerses: $userSettings['verse-numbers'],
+        viewShowVerses,
         viewShowGlossaryWords: $userSettings['glossary-words'],
         font: $currentFont,
         proskomma: $page.data?.proskomma
