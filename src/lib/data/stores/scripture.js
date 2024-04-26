@@ -126,9 +126,16 @@ export async function getVerseText(item, item2 = undefined) {
 }
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
+/*
+ *  glossary is returning a Promise
+ */
 export const glossary = derived(docSet, async ($docSet) => {
     const proskomma = get(pk);
     await loadDocSetIfNotLoaded(proskomma, $docSet, fetch);
+    // This query returns the text strings in the glossary along with the tokens
+    // marked with a \k that are the words in the glossary.  Each glossary text
+    // segment starts with the glossary word and then the definition.  If no glossary
+    // book is present in the book collection, the document section is undefined.
     const glossaryQuery =
         '{docSets(ids: "' +
         $docSet +
