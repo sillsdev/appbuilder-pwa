@@ -963,7 +963,6 @@ function filterFeaturesNotReady(data: ConfigData) {
     data.mainFeatures['share-apple-app-link'] = false;
 
     // Some settings are not done
-    data.mainFeatures['settings-glossary-links'] = false;
     data.mainFeatures['settings-verse-of-the-day'] = false;
     data.mainFeatures['settings-verse-of-the-day-time'] = false;
     data.mainFeatures['settings-verse-of-the-day-book-collection'] = false;

@@ -4,10 +4,7 @@ import path from 'path';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 
 describe('convertMarkdown', () => {
-    const data = readFileSync(
-        path.join('example_data', 'books', 'C01', '01GENengWEBbd.usfm'),
-        'utf8'
-    );
+    const data = readFileSync(path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'), 'utf8');
     let modifiedContent: string;
     beforeEach(() => {
         modifiedContent = convertMarkdownsToMilestones(data, 'C01', 'GEN');

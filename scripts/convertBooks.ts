@@ -3,11 +3,12 @@
 
 import { ConfigTaskOutput } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
-import { readFile, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { SABProskomma } from '../sab-proskomma';
 import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
+import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 /**
  * Loops through bookCollections property of configData.
@@ -24,7 +25,26 @@ function replaceVideoTags(text: string, _bcId: string, _bookId: string): string 
 function replacePageTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\page (.*)/g, '\\zpage |id="$1"\\*');
 }
-
+function loadGlossary(collection: any, configData: ConfigTaskOutput, dataDir: string): string[] {
+    const glossary: string[] = [];
+    for (const book of collection.books) {
+        if (book.type && book.type === 'glossary') {
+            const glossaryContent = readFileSync(
+                path.join(dataDir, 'books', collection.id, book.file),
+                'utf8'
+            );
+            // Regular expression pattern
+            const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
+            let match;
+            // Loop through all matches
+            while ((match = regex.exec(glossaryContent)) !== null) {
+                // match[1] contains the text between \k and \k*
+                glossary.push(match[1]);
+            }
+        }
+    }
+    return glossary;
+}
 function removeStrongNumberReferences(text: string, _bcId: string, _bookId: string): string {
     //remove strong number references
     // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
@@ -102,6 +122,7 @@ export async function convertBooks(
     for (const collection of collections!) {
         const pk = new SABProskomma();
         const lang = collection.languageCode;
+        let bcGlossary: string[] = [];
         if (verbose && usedLangs.has(lang)) {
             console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
         }
@@ -115,6 +136,10 @@ export async function convertBooks(
         const docs: Promise<void>[] = [];
         //loop through books in collection
         const ignoredBooks = [];
+        // If the collection has a glossary, load it
+        if (configData.data.traits['has-glossary']) {
+            bcGlossary = loadGlossary(collection, configData, dataDir);
+        }
         for (const book of collection.books) {
             if (book.type && unsupportedBookTypes.includes(book.type)) {
                 // Ignore non-default books for now
@@ -132,7 +157,9 @@ export async function convertBooks(
                             if (err) throw err;
                             process.stdout.write(` ${book.id}`);
                             content = applyFilters(content, bcId, book.id);
-
+                            if (configData.data.traits['has-glossary']) {
+                                content = verifyGlossaryEntries(content, bcGlossary);
+                            }
                             //query Proskomma with a mutation to add a document
                             //more efficient than original pk.addDocument call
                             //as it can be run asynchronously

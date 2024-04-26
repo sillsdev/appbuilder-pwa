@@ -10,6 +10,7 @@ data
 src/config.js
 static
 example_data
+test_data
 
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml

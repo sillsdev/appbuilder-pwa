@@ -175,3 +175,18 @@ export function padWithInitialZeros(input: string, length: number): string {
 
     return result;
 }
+function ciEqualsInner(a: string, b: string) {
+    return a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0;
+}
+
+export function ciEquals(a: any, b: any) {
+    if (typeof a !== 'string' || typeof b !== 'string') {
+        return a === b;
+    }
+
+    //      v--- feature detection
+    return ciEqualsInner('A', 'a')
+        ? ciEqualsInner(a, b)
+        : /*  fallback approach here  */
+          a.toUpperCase() === b.toUpperCase();
+}

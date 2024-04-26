@@ -66,13 +66,13 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const footnoteHTML = await handleHeaderLinkPressed(start, end);
+                const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
                 footnotes.push(footnoteHTML);
             }
         } else if (event.target.classList.contains('ref-link')) {
             referenceLinkClickHandler(event);
             // will not work since it does not have a reference to the start object...
-        } else if (document.getElementById('icon').contains(event.target)) {
+        } else if (document.getElementById('icon')?.contains(event.target)) {
             let start = JSON.parse(
                 document.getElementById('icon').firstChild.getAttribute('reference')
             );

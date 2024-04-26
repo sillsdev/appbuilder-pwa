@@ -12,6 +12,7 @@
         currentFont,
         direction,
         firstLaunch,
+        glossary,
         highlights,
         mainScroll,
         audioHighlightElements,
@@ -138,12 +139,15 @@
         maxSelections: config.mainFeatures['annotation-max-select'],
         redLetters: $userSettings['red-letters'],
         references: $refs,
+        glossary: $glossary,
         selectedVerses: selectedVerses,
+        themeColors: $themeColors,
         verseLayout: $userSettings['verse-layout'],
         viewShowBibleImages: $userSettings['display-images-in-bible-text'],
         viewShowBibleVideos: $userSettings['display-videos-in-bible-text'],
         viewShowIllustrations: config.mainFeatures['show-illustrations'],
         viewShowVerses: $userSettings['verse-numbers'],
+        viewShowGlossaryWords: $userSettings['glossary-words'],
         font: $currentFont,
         proskomma: $page.data?.proskomma
     };

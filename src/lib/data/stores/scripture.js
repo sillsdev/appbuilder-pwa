@@ -1,6 +1,8 @@
 import { referenceStore } from './store-types';
 import { writable, get, derived } from 'svelte/store';
 import { setDefaultStorage } from './storage';
+import { loadDocSetIfNotLoaded } from '../scripture';
+import { isDefined } from '../../scripts/stringUtils';
 import { pk } from './pk';
 import config from '../config';
 
@@ -91,15 +93,6 @@ export function getReference(item) {
     return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
-export function isBibleBook(item) {
-    const bookTestament =
-        config.bookCollections
-            .find((x) => x.id === item.collection)
-            .books.find((x) => x.id === item.book)?.testament || '';
-    const bibleBook = bookTestament === 'NT' || bookTestament === 'OT' || bookTestament === 'DC';
-    return bibleBook;
-}
-
 export async function getVerseText(item, item2 = undefined) {
     const proskomma = get(pk);
     const scriptureCV =
@@ -132,6 +125,45 @@ export async function getVerseText(item, item2 = undefined) {
     return text.join(' ');
 }
 
+export const docSet = derived(refs, ($refs) => $refs.docSet);
+/*
+ *  glossary is returning a Promise
+ */
+export const glossary = derived(docSet, async ($docSet) => {
+    const proskomma = get(pk);
+    await loadDocSetIfNotLoaded(proskomma, $docSet, fetch);
+    // This query returns the text strings in the glossary along with the tokens
+    // marked with a \k that are the words in the glossary.  Each glossary text
+    // segment starts with the glossary word and then the definition.  If no glossary
+    // book is present in the book collection, the document section is undefined.
+    const glossaryQuery =
+        '{docSets(ids: "' +
+        $docSet +
+        '") ' +
+        '{ document(bookCode: "GLO")' +
+        '{ mainBlocks ' +
+        '{ ' +
+        'text ' +
+        'tokens(withScopes: "span/k") ' +
+        '{ ' +
+        'payload ' +
+        '} ' +
+        '} ' +
+        '} ' +
+        '} ' +
+        '} ';
+    const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
+    if (isDefined(glossaryResults.data.docSets[0].document)) {
+        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
+            let key = '';
+            block.tokens.forEach((token) => {
+                key = key + token.payload;
+            });
+            block.key = key.trim();
+        });
+    }
+    return glossaryResults;
+});
 export const currentFont = writable(config.fonts[0].family);
 export const fontChoices = derived(refs, ($refs) => {
     const bookFonts = config.bookCollections
