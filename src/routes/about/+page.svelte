@@ -16,6 +16,8 @@
         </Navbar>
     </div>
     <div class="overflow-y-auto mx-auto max-w-screen-md">
-        {@html data.partial}
+        <div id="container" class="about">
+            {@html data.partial}
+        </div>
     </div>
 </div>
