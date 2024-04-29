@@ -7,7 +7,8 @@ export function getFeatureValueBoolean(feature: string, bc: string, book: string
     }
     const bookCollectionFeatures = config.bookCollections.find((x) => x.id === bc)?.features;
     if (bookCollectionFeatures != null) {
-        if (bookCollectionFeatures[feature] != null) {
+        const bookCollectionFeature = bookCollectionFeatures[feature];
+        if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
             value = bookCollectionFeatures[feature];
         }
     }
@@ -15,10 +16,12 @@ export function getFeatureValueBoolean(feature: string, bc: string, book: string
         .find((x) => x.id === bc)
         .books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
-        if (bookFeatures[feature] != null) {
+        const bookFeature = bookFeatures[feature];
+        if (bookFeature != null && bookFeature !== 'inherit') {
             value = bookFeatures[feature];
         }
     }
+
     // console.log('getFeatureValueBoolean %o %o', feature, value);
     return value;
 }
@@ -29,7 +32,8 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
     }
     const bookCollectionFeatures = config.bookCollections.find((x) => x.id === bc)?.features;
     if (bookCollectionFeatures != null) {
-        if (bookCollectionFeatures[feature] != null) {
+        const bookCollectionFeature = bookCollectionFeatures[feature];
+        if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
             value = bookCollectionFeatures[feature];
         }
     }
@@ -37,7 +41,8 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
         .find((x) => x.id === bc)
         .books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
-        if (bookFeatures[feature] != null) {
+        const bookFeature = bookFeatures[feature];
+        if (bookFeature != null && bookFeature !== 'inherit') {
             value = bookFeatures[feature];
         }
     }
