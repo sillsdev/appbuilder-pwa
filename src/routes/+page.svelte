@@ -131,7 +131,12 @@
     const showCollectionsOnFirstLaunch = config.mainFeatures['layout-config-first-launch'];
     const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
-    $: showBorder = config.traits['has-borders'] && $userSettings['show-border'];
+    $: showBorderSetting = getFeatureValueString(
+            'show-border',
+            $refs.collection,
+            $refs.book
+        );
+    $: showBorder = config.traits['has-borders'] && $userSettings['show-border'] && (showBorderSetting !== 'no');
     $: viewSettings = {
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
