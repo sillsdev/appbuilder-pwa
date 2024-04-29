@@ -29,7 +29,10 @@
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
-        NAVBAR_HEIGHT
+        NAVBAR_HEIGHT,
+
+        audioPlayerDefault
+
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
@@ -433,7 +436,8 @@
                     <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
                 </button>
             </div>
-            <div class="basis-5/6 max-w-screen-md">
+            <!-- svelte-ignore a11y-no-static-element-interactions-->
+            <div on:dblclick={() => alert("Double clicked")} class="basis-5/6 max-w-screen-md">
                 <div class="p-2 w-full">
                     <main>
                         <div
