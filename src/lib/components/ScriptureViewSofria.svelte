@@ -29,6 +29,7 @@ LOGGING:
     import { audioPlayer } from '$lib/data/stores';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
+    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -303,26 +304,45 @@ LOGGING:
             workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
         }
     }
-    function handleVerseLabel(element, showVerseNumbers, workspace) {
-        if (workspace.firstVerse === true && workspace.chapterNumText !== '') {
-            workspace.paragraphDiv.className = 'm';
-            const div = document.createElement('div');
-            div.classList.add('c-drop');
-            div.innerText = workspace.chapterNumText;
-            workspace.paragraphDiv.appendChild(div);
-            workspace.firstVerse = false;
-        } else if (showVerseNumbers === true) {
+    function addVerseNumber(workspace: any, element: any, showVerseNumbers: boolean) {
+        if (showVerseNumbers === true) {
             var spanV = document.createElement('span');
             spanV.classList.add('v');
             spanV.innerText = element.atts['number'];
             var spanVsp = document.createElement('span');
             spanVsp.classList.add('vsp');
             spanVsp.innerText = '\u00A0'; // &nbsp
-            var div = workspace.phraseDiv.cloneNode(true);
-            div.appendChild(spanV.cloneNode(true));
-            div.appendChild(spanVsp.cloneNode(true));
-            workspace.phraseDiv = div.cloneNode(true);
+            workspace.phraseDiv.appendChild(spanV);
+            workspace.phraseDiv.appendChild(spanVsp);
         }
+    }
+    function handleVerseLabel(element, showVerseNumbers, workspace) {
+        if (workspace.firstVerse === true && workspace.chapterNumText !== '') {
+            const div = document.createElement('div');
+            const chapterNumberFormatSetting = getFeatureValueString(
+                'chapter-number-format',
+                references.collection,
+                references.book
+            );
+            if (chapterNumberFormatSetting === 'drop-cap') {
+                workspace.paragraphDiv.className = 'm';
+                div.classList.add('c-drop');
+                div.innerText = workspace.chapterNumText;
+                workspace.paragraphDiv.appendChild(div);
+                if (!config.mainFeatures['hide-verse-number-1']) {
+                    addVerseNumber(workspace, element, showVerseNumbers);
+                }
+            } else {
+                // chapter at top of page
+                div.classList.add('c');
+                div.innerText = workspace.chapterNumText;
+                workspace.root.appendChild(div);
+                addVerseNumber(workspace, element, showVerseNumbers);
+            }
+        } else {
+            addVerseNumber(workspace, element, showVerseNumbers);
+        }
+        workspace.firstVerse = false;
     }
     // handles clicks on verse numbers
     function audioClickHandler(click) {
@@ -1167,7 +1187,15 @@ LOGGING:
                                 )
                             ) {
                                 if (element.subType === 'chapter_label') {
-                                    workspace.chapterNumText = element.atts['number'];
+                                    if (getFeatureValueBoolean(
+                                        'show-chapter-numbers',
+                                        references.collection,
+                                        references.book
+                                    )){
+                                        workspace.chapterNumText = element.atts['number'];
+                                    } else {
+                                        workspace.chapterNumText = '';
+                                    }
                                 } else if (element.subType === 'verses_label') {
                                     handleVerseLabel(element, showVerses, workspace);
                                 }
