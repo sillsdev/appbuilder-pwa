@@ -1,7 +1,8 @@
 import config from '$lib/data/config';
 
 export function getFeatureValueBoolean(feature: string, bc: string, book: string): boolean {
-    let value = false;
+    let returnValue = false;
+    let value: any = '';
     if (config.mainFeatures[feature] != null) {
         value = config.mainFeatures[feature];
     }
@@ -22,8 +23,12 @@ export function getFeatureValueBoolean(feature: string, bc: string, book: string
         }
     }
 
-    // console.log('getFeatureValueBoolean %o %o', feature, value);
-    return value;
+    if (value === true || value === 'yes') {
+        returnValue = true;
+    }
+    // console.log('getFeatureValueBoolean %o %o %o', feature, value, returnValue);
+
+    return returnValue;
 }
 export function getFeatureValueString(feature: string, bc: string, book: string): string {
     let value = '';
