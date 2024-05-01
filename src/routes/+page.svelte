@@ -169,6 +169,12 @@
         font: $currentFont
     };
 
+    $: fullscreen = false;
+
+    function toggleFullscreen() {
+      fullscreen = !fullscreen && config.mainFeatures['full-screen-double-tap'];
+    }
+
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv;
 
@@ -322,8 +328,8 @@
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
-    <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation} showBackButton={showBackButton}>
+    <div class="navbar {fullscreen ? 'hidden' : ''}">
+        <Navbar>
             <div
                 slot="left-buttons"
                 class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}
@@ -437,7 +443,7 @@
                 </button>
             </div>
             <!-- svelte-ignore a11y-no-static-element-interactions-->
-            <div on:dblclick={() => alert("Double clicked")} class="basis-5/6 max-w-screen-md">
+            <div on:dblclick={() => toggleFullscreen()} class="basis-5/6 max-w-screen-md">
                 <div class="p-2 w-full">
                     <main>
                         <div
