@@ -1,13 +1,15 @@
 import config from '$lib/data/config';
 
 export function getFeatureValueBoolean(feature: string, bc: string, book: string): boolean {
-    let value = false;
+    let returnValue = false;
+    let value: any = '';
     if (config.mainFeatures[feature] != null) {
         value = config.mainFeatures[feature];
     }
     const bookCollectionFeatures = config.bookCollections.find((x) => x.id === bc)?.features;
     if (bookCollectionFeatures != null) {
-        if (bookCollectionFeatures[feature] != null) {
+        const bookCollectionFeature = bookCollectionFeatures[feature];
+        if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
             value = bookCollectionFeatures[feature];
         }
     }
@@ -15,12 +17,18 @@ export function getFeatureValueBoolean(feature: string, bc: string, book: string
         .find((x) => x.id === bc)
         .books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
-        if (bookFeatures[feature] != null) {
+        const bookFeature = bookFeatures[feature];
+        if (bookFeature != null && bookFeature !== 'inherit') {
             value = bookFeatures[feature];
         }
     }
-    // console.log('getFeatureValueBoolean %o %o', feature, value);
-    return value;
+
+    if (value === true || value === 'yes') {
+        returnValue = true;
+    }
+    // console.log('getFeatureValueBoolean %o %o %o', feature, value, returnValue);
+
+    return returnValue;
 }
 export function getFeatureValueString(feature: string, bc: string, book: string): string {
     let value = '';
@@ -29,7 +37,8 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
     }
     const bookCollectionFeatures = config.bookCollections.find((x) => x.id === bc)?.features;
     if (bookCollectionFeatures != null) {
-        if (bookCollectionFeatures[feature] != null) {
+        const bookCollectionFeature = bookCollectionFeatures[feature];
+        if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
             value = bookCollectionFeatures[feature];
         }
     }
@@ -37,7 +46,8 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
         .find((x) => x.id === bc)
         .books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
-        if (bookFeatures[feature] != null) {
+        const bookFeature = bookFeatures[feature];
+        if (bookFeature != null && bookFeature !== 'inherit') {
             value = bookFeatures[feature];
         }
     }
