@@ -67,7 +67,7 @@ export class SABProskomma extends Proskomma {
             {
                 name: 'abbr',
                 type: 'string',
-                regex: '^[A-Za-z0-9]+$'
+                regex: '^[A-Za-z0-9 -]+$'
             }
         ];
         this.validateSelectors();
