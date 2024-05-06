@@ -1,4 +1,4 @@
-enum NumeralSystem {
+export enum NumeralSystem {
     DEFAULT = 'Default',
     BENGALI = 'Bengali',
     DEVANAGARI = 'Devanagari',
@@ -21,15 +21,11 @@ enum NumeralSystem {
     TIBETAN = 'Tibetan'
 }
 
-namespace NumeralSystem {
-    export function fromString(text: string): NumeralSystem {
-        const system = Object.values(NumeralSystem).find((system) => system === text);
-        return (system as NumeralSystem) || NumeralSystem.DEFAULT;
-    }
-
-    export function getStringList(): string[] {
-        return Object.values(NumeralSystem) as string[];
-    }
+export function fromString(text: string): NumeralSystem {
+    const system = Object.values(NumeralSystem).find((system) => system === text);
+    return (system as NumeralSystem) || NumeralSystem.DEFAULT;
 }
 
-export { NumeralSystem };
+export function getStringList(): string[] {
+    return Object.values(NumeralSystem) as string[];
+}
