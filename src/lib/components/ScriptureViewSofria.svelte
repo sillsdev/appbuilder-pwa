@@ -16,7 +16,11 @@ LOGGING:
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { footnotes, refs, logs } from '$lib/data/stores';
-    import { generateHTML, handleHeaderLinkPressed, isBibleBook } from '$lib/scripts/scripture-reference-utils';
+    import {
+        generateHTML,
+        handleHeaderLinkPressed,
+        isBibleBook
+    } from '$lib/scripts/scripture-reference-utils';
     import {
         onClickText,
         deselectAllElements,
@@ -29,7 +33,12 @@ LOGGING:
     import { audioPlayer } from '$lib/data/stores';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
-    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import {
+        getFeatureValueBoolean,
+        getFeatureValueString,
+        getStyle
+    } from '$lib/scripts/configUtils';
+    import * as numerals from '$lib/scripts/numeralSystem';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -308,7 +317,7 @@ LOGGING:
         if (showVerseNumbers === true) {
             var spanV = document.createElement('span');
             spanV.classList.add('v');
-            spanV.innerText = element.atts['number'];
+            spanV.innerText = numerals.formatNumber(numeralSystem, element.atts['number']);
             var spanVsp = document.createElement('span');
             spanVsp.classList.add('vsp');
             spanVsp.innerText = '\u00A0'; // &nbsp
@@ -408,7 +417,7 @@ LOGGING:
         event.stopPropagation();
         event.preventDefault();
         const glossaryLink = event.target.getAttribute('match');
-        glossary.then(glossaryResults => {
+        glossary.then((glossaryResults) => {
             if (isDefined(glossaryResults.data.docSets[0].document)) {
                 glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
                     if (ciEquals(block.key, glossaryLink)) {
@@ -424,12 +433,11 @@ LOGGING:
                             const glossaryText = document.createTextNode(blockText);
                             glossaryDiv.append(glossaryText);
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push(glossaryHTML); 
+                            footnotes.push(glossaryHTML);
                         }
                     }
                 });
             }
-
         });
     }
     function navigate(reference) {
@@ -1187,12 +1195,17 @@ LOGGING:
                                 )
                             ) {
                                 if (element.subType === 'chapter_label') {
-                                    if (getFeatureValueBoolean(
-                                        'show-chapter-numbers',
-                                        references.collection,
-                                        references.book
-                                    )){
-                                        workspace.chapterNumText = element.atts['number'];
+                                    if (
+                                        getFeatureValueBoolean(
+                                            'show-chapter-numbers',
+                                            references.collection,
+                                            references.book
+                                        )
+                                    ) {
+                                        workspace.chapterNumText = numerals.formatNumber(
+                                            numeralSystem,
+                                            element.atts['number']
+                                        );
                                     } else {
                                         workspace.chapterNumText = '';
                                     }
@@ -1771,6 +1784,10 @@ LOGGING:
     $: currentDocSet = references.docSet;
 
     $: currentIsBibleBook = isBibleBook(references);
+
+    $: numeralSystem = numerals.systemFromString(
+        getStyle(config, 'numeralSystem', references.collection, currentBook) || 'Default'
+    );
 
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
