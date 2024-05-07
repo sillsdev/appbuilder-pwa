@@ -57,3 +57,23 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
 export function hasFeature(feature: string) {
     return config.mainFeatures[feature] != null;
 }
+
+// Make config a parameter for testing.
+export function getStyle(configData: any, option: string, bc: string, book: string): string {
+    const bcData = configData.bookCollections.find((x) => x.id === bc);
+    const bookData = bcData.books.find((x) => x.id === book);
+    // Use the style of the book, if defined.
+    if (
+        bookData.style != null &&
+        bookData.style[option] != null &&
+        bookData.style[option] !== 'inherit'
+    ) {
+        return bookData.style[option];
+    }
+    // Otherwise, fall back on the collection style
+    if (bcData.style != null && bcData.style[option] != null) {
+        return bcData.style[option];
+    }
+    // No style was found.
+    return '';
+}

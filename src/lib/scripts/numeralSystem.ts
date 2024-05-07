@@ -26,12 +26,12 @@ export const NumeralSystemData = {
 
 export type NumeralSystem = (typeof NumeralSystemData)[keyof typeof NumeralSystemData];
 
-export function fromString(text: string): NumeralSystem {
+export function systemFromString(text: string): NumeralSystem {
     const system = Object.values(NumeralSystemData).find((system) => system.name === text);
     return system || NumeralSystemData.DEFAULT;
 }
 
-export function getStringList(): string[] {
+export function systemNames(): string[] {
     return Object.values(NumeralSystemData).map((system) => system.name);
 }
 

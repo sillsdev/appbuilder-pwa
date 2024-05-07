@@ -3,11 +3,11 @@ import { describe, expect, test } from 'vitest';
 import * as num from './numeralSystem';
 
 test('fromString returns Oriya correctly', () => {
-    expect(num.fromString('Oriya')).toBe(num.NumeralSystemData.ORIYA);
+    expect(num.systemFromString('Oriya')).toBe(num.NumeralSystemData.ORIYA);
 });
 
 test('fromString returns default when string does not match', () => {
-    expect(num.fromString('bogus')).toBe(num.NumeralSystemData.DEFAULT);
+    expect(num.systemFromString('bogus')).toBe(num.NumeralSystemData.DEFAULT);
 });
 
 test('formatNumber to default', () => {
