@@ -20,6 +20,15 @@ type BookCollectionAudio = {
     timingFile: string;
 };
 
+type Style = {
+    font: string;
+    textSize: number;
+    lineHeight: number;
+    textDirection: string;
+    numeralSystem: string;
+    verseNumbers: string;
+};
+
 type BookCollection = {
     id: string;
     features: any;
@@ -39,6 +48,7 @@ type BookCollection = {
         file: string;
         audio: BookCollectionAudio[];
         features: any;
+        style?: Style;
         styles?: {
             name: string;
             category?: string;
@@ -47,14 +57,7 @@ type BookCollection = {
             };
         }[];
     }[];
-    style?: {
-        font: string;
-        textSize: number;
-        lineHeight: number;
-        textDirection: string;
-        numeralSystem: string;
-        verseNumbers: string;
-    };
+    style?: Style;
     fonts: string[];
     languageCode: string;
     languageName?: string;
@@ -287,6 +290,29 @@ function parseStyles(stylesTag: Element, verbose: number) {
 
     return styles;
 }
+function parseStylesInfo(stylesInfoTag: Element, verbose: number): Style {
+    return {
+        font: stylesInfoTag.getElementsByTagName('text-font')[0].attributes.getNamedItem('family')!
+            .value,
+        lineHeight: parseInt(
+            stylesInfoTag.getElementsByTagName('line-height')[0].attributes.getNamedItem('value')!
+                .value
+        ),
+        numeralSystem: stylesInfoTag
+            .getElementsByTagName('numeral-system')[0]
+            .attributes.getNamedItem('value')!.value,
+        textDirection: stylesInfoTag
+            .getElementsByTagName('text-direction')[0]
+            .attributes.getNamedItem('value')!.value,
+        textSize: parseInt(
+            stylesInfoTag.getElementsByTagName('text-size')[0].attributes.getNamedItem('value')!
+                .value
+        ),
+        verseNumbers: stylesInfoTag
+            .getElementsByTagName('verse-number-style')[0]
+            .attributes.getNamedItem('value')!.value
+    };
+}
 
 function parseTrait(tag: Element, name: string): string {
     const traitTags = tag.getElementsByTagName('trait');
@@ -488,6 +514,8 @@ function convertConfig(dataDir: string, verbose: number) {
                         parseConfigValue(bookFeature.attributes.getNamedItem('value')!.value);
                 }
             }
+            const bkStyle = book.getElementsByTagName('styles-info')[0];
+            const style = bkStyle ? parseStylesInfo(bkStyle, verbose) : undefined;
             const bkStyles = book.querySelector('styles');
             const styles = bkStyles ? parseStyles(bkStyles, verbose) : undefined;
             const fontChoiceTag = book.querySelector('font-choice');
@@ -518,6 +546,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 audio,
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
+                style,
                 styles
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
@@ -579,29 +608,7 @@ function convertConfig(dataDir: string, verbose: number) {
             languageCode,
             languageName,
             footer,
-            style: {
-                font: stylesTag
-                    .getElementsByTagName('text-font')[0]
-                    .attributes.getNamedItem('family')!.value,
-                lineHeight: parseInt(
-                    stylesTag
-                        .getElementsByTagName('line-height')[0]
-                        .attributes.getNamedItem('value')!.value
-                ),
-                numeralSystem: stylesTag
-                    .getElementsByTagName('numeral-system')[0]
-                    .attributes.getNamedItem('value')!.value,
-                textDirection: stylesTag
-                    .getElementsByTagName('text-direction')[0]
-                    .attributes.getNamedItem('value')!.value,
-                textSize: parseInt(
-                    stylesTag.getElementsByTagName('text-size')[0].attributes.getNamedItem('value')!
-                        .value
-                ),
-                verseNumbers: stylesTag
-                    .getElementsByTagName('verse-number-style')[0]
-                    .attributes.getNamedItem('value')!.value
-            },
+            style: parseStylesInfo(stylesTag, verbose),
             styles
         });
         if (verbose >= 3) console.log(`.... collection: `, JSON.stringify(data.bookCollections[0]));
