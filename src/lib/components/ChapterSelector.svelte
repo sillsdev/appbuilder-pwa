@@ -11,6 +11,7 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
+    import * as numerals from '$lib/scripts/numeralSystem';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -20,6 +21,7 @@ The navbar component.
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: showVerseSelector = $userSettings['verse-selection'];
     $: verseCount = getVerseCount(book, chapter);
+    $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -109,7 +111,7 @@ The navbar component.
             value = [
                 {
                     cells: Object.keys(selectedChapter).map((x) => ({
-                        label: x,
+                        label: numerals.formatNumber(numeralSystem, x),
                         id: x
                     }))
                 }
@@ -159,7 +161,7 @@ The navbar component.
                                                   ]
                                                 : null,
                                             cells: Object.keys(chapters).map((x) => ({
-                                                label: x,
+                                                label: numerals.formatNumber(numeralSystem, x),
                                                 id: x
                                             }))
                                         }

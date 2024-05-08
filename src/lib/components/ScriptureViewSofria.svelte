@@ -1785,9 +1785,7 @@ LOGGING:
 
     $: currentIsBibleBook = isBibleBook(references);
 
-    $: numeralSystem = numerals.systemFromString(
-        getStyle(config, 'numeralSystem', references.collection, currentBook) || 'Default'
-    );
+    $: numeralSystem = numerals.systemForBook(config, references.collection, currentBook);
 
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
