@@ -33,7 +33,7 @@ Custom list of collections for the LayoutOptions menu
                 class="flex justify-between"
                 role="button"
             >
-                <div style={$s['ui.layouts.selector']}>
+                <div style={convertStyle($s['ui.layouts.selector'])}>
                     <div style={convertStyle($s['ui.layouts.title'])}>
                         {d.name}
                     </div>
