@@ -133,7 +133,7 @@ The navbar component.
     <Dropdown on:nav-end={resetNavigation} cols="5">
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
-                {chapter}
+                {numerals.formatNumber(numeralSystem, chapter)}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
