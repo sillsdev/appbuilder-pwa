@@ -12,10 +12,12 @@ The navbar component.
     import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
+    import * as numerals from '$lib/scripts/numeralSystem';
 
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: verseCount = getVerseCount(chapter, chapters);
+    $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
     $: listView = $userSettings['book-selection'] === 'list';
@@ -152,7 +154,10 @@ The navbar component.
                 rows: hasIntroduction
                     ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
                     : null,
-                cells: Object.keys(chapters).map((x) => ({ label: x, id: x }))
+                cells: Object.keys(chapters).map((x) => ({
+                    label: numerals.formatNumber(numeralSystem, x),
+                    id: x
+                }))
             }
         ];
     };
@@ -176,7 +181,7 @@ The navbar component.
             value = [
                 {
                     cells: Object.keys(selectedChapter).map((x) => ({
-                        label: x,
+                        label: numerals.formatNumber(numeralSystem, x),
                         id: x
                     }))
                 }

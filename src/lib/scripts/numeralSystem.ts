@@ -1,3 +1,5 @@
+import { getStyle } from './configUtils';
+
 /**
  * Represent numbers in an internathional numeral system.
  */
@@ -33,6 +35,11 @@ export function systemFromString(text: string): NumeralSystem {
 
 export function systemNames(): string[] {
     return Object.values(NumeralSystemData).map((system) => system.name);
+}
+
+export function systemForBook(config: any, collection: string, book: string): NumeralSystem {
+    const system = getStyle(config, 'numeralSystem', collection, book);
+    return systemFromString(system);
 }
 
 export function formatNumber(system: NumeralSystem, value: string): any {
