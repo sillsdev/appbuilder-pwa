@@ -63,9 +63,14 @@ function removeMissingFigures(text: string, _bcId: string, _bookId: string): str
 
         // Extract the image source from the first part
         let imageSource;
-        if (parts[1].includes('src="')) {
+        if (parts.length < 2) {
+            // \fig filename.jpg\fig*
+            imageSource = figContent;
+        } else if (parts[1].includes('src="')) {
+            // \fig Caption|src="filename.jpg"\fig*
             imageSource = parts[1].match(/src="([^"]+)"/)[1];
         } else {
+            // \fig Caption|filename.jpg\fig*
             imageSource = parts[1];
         }
 
