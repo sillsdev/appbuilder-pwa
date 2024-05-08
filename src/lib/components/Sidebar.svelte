@@ -28,7 +28,8 @@ The sidebar/drawer.
         direction,
         modal,
         MODAL_TEXT_APPERANCE,
-        MODAL_COLLECTION
+        MODAL_COLLECTION,
+        theme
     } from '$lib/data/stores';
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -58,12 +59,19 @@ The sidebar/drawer.
 
     function imageSrcSet(base, images) {
         const baseSize = Number(images[0].width);
-        return images.map(image => {
-            const size = Number(image.width);
-            const multiplier = (size/baseSize);
-            const multiplierString = multiplier === 1 ? "" : " " + (multiplier % 1 === 0 ? multiplier.toFixed(0) : multiplier.toFixed(1)) + "x";
-            return `${base}/${image.file}${multiplierString}`;
-        }).join(", ");
+        return images
+            .map((image) => {
+                const size = Number(image.width);
+                const multiplier = size / baseSize;
+                const multiplierString =
+                    multiplier === 1
+                        ? ''
+                        : ' ' +
+                          (multiplier % 1 === 0 ? multiplier.toFixed(0) : multiplier.toFixed(1)) +
+                          'x';
+                return `${base}/${image.file}${multiplierString}`;
+            })
+            .join(', ');
     }
 
     $: textColor = $s['ui.drawer.item.text']['color'];
@@ -74,11 +82,7 @@ The sidebar/drawer.
 
 <svelte:window on:keydown={closeOnEscape} />
 
-<div
-    class="dy-drawer"
-    class:dy-drawer-mobile={$showDesktopSidebar}
-    dir={$direction}
->
+<div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div class="dy-drawer-content flex flex-col" style:background-color={contentBackgroundColor}>
         <!-- Page content here -->
@@ -196,10 +200,13 @@ The sidebar/drawer.
                             target="_blank"
                             rel="noreferrer"
                         >
-                            <picture>
+                            <picture class:invert={$theme === 'Dark'}>
                                 {#if item.images.length > 1}
                                     <source
-                                        srcset={imageSrcSet(`${base}/icons/menu-items`, item.images)}
+                                        srcset={imageSrcSet(
+                                            `${base}/icons/menu-items`,
+                                            item.images
+                                        )}
                                     />
                                 {/if}
                                 <img
