@@ -72,17 +72,19 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     videoImg.setAttribute('src', 'video_play_01.svg');
     videoLink.appendChild(videoImg);
     videoContainerDiv.appendChild(videoLink);
-
-    const videoTitleDiv = document.createElement('div');
-    videoTitleDiv.classList.add('video-title');
-    const videoTitleSpan = document.createElement('span');
-    videoTitleSpan.classList.add('video-title');
-    const textNode = document.createTextNode(video.title);
-    videoTitleSpan.appendChild(textNode);
-    videoTitleDiv.appendChild(videoTitleSpan);
-
     videoBlockDiv.appendChild(videoContainerDiv);
-    videoBlockDiv.appendChild(videoTitleDiv);
+
+    if (video.title) {
+        const videoTitleDiv = document.createElement('div');
+        videoTitleDiv.classList.add('video-title');
+        const videoTitleSpan = document.createElement('span');
+        videoTitleSpan.classList.add('video-title');
+        const textNode = document.createTextNode(video.title);
+        videoTitleSpan.appendChild(textNode);
+        videoTitleDiv.appendChild(videoTitleSpan);
+        videoBlockDiv.appendChild(videoTitleDiv);
+    }
+
     return videoBlockDiv;
 }
 
