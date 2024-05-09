@@ -14,6 +14,8 @@
     let title;
     let text;
 
+    $: heading = editing ? $t[title] ?? '' : note?.reference ?? '';
+
     export function showModal() {
         if (note !== undefined) {
             text = note.text;
@@ -59,7 +61,7 @@
                     class="annotation-item-title w-full pb-3"
                     style:font-weight={editing ? 'normal' : 'bold'}
                 >
-                    {$t[title]}
+                    {heading}
                 </div>
                 {#if !editing}
                     <button
