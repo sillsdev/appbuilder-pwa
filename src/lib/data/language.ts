@@ -7,14 +7,16 @@ export function getLanguages() {
     return Object.keys(config.interfaceLanguages.writingSystems);
 }
 
-// Get the best language to use as a default.
-//
-// Use the desired language if it is listed in `available`.
-// Otherwise, use a similar language if available (ex: en-US instead of en-UK)
-// Otherwise, use the fallback language.
-export function findLanguage(desired: string, fallback: string, available: string[]): string {
+/**
+ * Find the language in `available` that matches `desired`.
+ *
+ * If `available` contains `desired`, return `desired`.
+ * Otherwise, return a similar language in `available` (ex: en-US instead of en-UK)
+ * Otherwise, return null
+ */
+export function findLanguage(desired: string, available: string[]): string {
     let bestSimilarity = 0;
-    let bestMatch = fallback;
+    let bestMatch: string = null;
     available.forEach((lang) => {
         let similarity = compareLanguages(lang, desired);
         if (similarity > bestSimilarity) {
@@ -25,23 +27,44 @@ export function findLanguage(desired: string, fallback: string, available: strin
     return bestMatch;
 }
 
-// Choose a default language from among those available.
+/**
+ * Get the first language in `preferred` that matches a language in `available`.
+ */
+export function findBestLanguage(
+    preferred: readonly string[],
+    fallback: string,
+    available: string[]
+): string {
+    let best = fallback;
+    for (let i = 0; i < preferred.length; i++) {
+        let match = findLanguage(preferred[i], available);
+        if (match !== null) {
+            best = match;
+            break;
+        }
+    }
+    return best;
+}
+
+/** Choose a default language from among those available. */
 export function getDefaultLanguage(): string {
     const fallbackLanguage = config.translationMappings.defaultLang;
     if (config.interfaceLanguages.useSystemLanguage) {
-        const systemLanguage = window.navigator.language;
-        return findLanguage(systemLanguage, fallbackLanguage, getLanguages());
+        const systemLanguages = window.navigator.languages;
+        return findBestLanguage(systemLanguages, fallbackLanguage, getLanguages());
     }
     return fallbackLanguage;
 }
 
-// Return a score representing how similar the two language codes are.
-//
-// The following languages are ranked in their similarity with 'en-US':
-//      en-US   (Perfect match)
-//      en      (More general)
-//      en-UK   (Different locale)
-//      fr      (Completely different)
+/**
+ * Return a score representing how similar the two language codes are.
+ *
+ * The following languages are ranked in their similarity with 'en-US':
+ *      en-US   (Perfect match)
+ *      en      (More general)
+ *      en-UK   (Different locale)
+ *      fr      (Completely different)
+ */
 function compareLanguages(lang1: string, lang2: string): number {
     let parts1 = lang1.split('-');
     let parts2 = lang2.split('-');
