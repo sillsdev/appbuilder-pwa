@@ -1665,10 +1665,11 @@ LOGGING:
                             }
                             preprocessAction('endMilestone', workspace);
                             const element = context.sequences[0].element;
+                            console.log(workspace);
                             checkForMilestoneLinks(
                                 workspace.textType,
                                 workspace.footnoteDiv,
-                                workspace.phraseDiv,
+                                workspace.phraseDiv ?? workspace.paragraphDiv,
                                 workspace.milestoneText,
                                 workspace.milestoneLink,
                                 workspace.audioClips.length,
