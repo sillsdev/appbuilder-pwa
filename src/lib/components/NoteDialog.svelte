@@ -2,27 +2,32 @@
 
 <script>
     import Modal from './Modal.svelte';
-    import { t, selectedVerses } from '$lib/data/stores';
+    import { EditIcon } from '$lib/icons';
+    import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
     import { editNote, addNote } from '$lib/data/notes';
 
     export let note = undefined;
+    export let editing = false;
+
     let id = 'note';
     let modal;
     let title;
-    let textArea;
+    let text;
 
     export function showModal() {
         if (note !== undefined) {
-            textArea.value = note.text;
+            text = note.text;
             title = 'Annotation_Note_Edit';
         } else {
+            editing = true;
             title = 'Annotation_Note_Add';
         }
         modal.showModal();
     }
 
     function reset() {
-        textArea.value = '';
+        text = '';
+        editing = false;
         selectedVerses.reset();
     }
 
@@ -30,7 +35,7 @@
         if (note !== undefined) {
             await editNote({
                 note: note,
-                newText: textArea.value
+                newText: text
             });
         } else {
             await addNote({
@@ -39,7 +44,7 @@
                 book: $selectedVerses[0].book,
                 chapter: $selectedVerses[0].chapter,
                 verse: $selectedVerses[0].verse,
-                text: textArea.value,
+                text,
                 reference: $selectedVerses[0].reference
             });
         }
@@ -50,9 +55,31 @@
 <Modal bind:this={modal} {id} useLabel={false}>
     <svelte:fragment slot="content">
         <div id="container" class="flex flex-col justify-evenly">
-            <div class="annotation-item-title w-full pb-3">{$t[title]}</div>
+            <div class="w-full flex justify-between">
+                <div
+                    class="annotation-item-title w-full pb-3"
+                    style:font-weight={editing ? 'normal' : 'bold'}
+                >
+                    {$t[title]}
+                </div>
+                {#if !editing}
+                    <button
+                        on:click={() => {
+                            editing = true;
+                        }}
+                    >
+                        <EditIcon />
+                    </button>
+                {/if}
+            </div>
             <div>
-                <textarea bind:this={textArea} class="dy-textarea w-full" />
+                {#if editing}
+                    <textarea bind:value={text} class="dy-textarea w-full" />
+                {:else}
+                    <pre
+                        style:font-family={$currentFont}
+                        style:font-size="{$bodyFontSize}px">{text}</pre>
+                {/if}
             </div>
             <div class="w-full flex mt-4 justify-between">
                 <button on:click={reset} class="dy-btn dy-btn-sm dy-btn-ghost"
