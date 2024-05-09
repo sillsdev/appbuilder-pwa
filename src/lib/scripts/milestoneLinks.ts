@@ -2,7 +2,7 @@ import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 export function checkForMilestoneLinks(
     textType: string[],
     footnoteDiv: HTMLElement,
-    phraseDiv: HTMLElement,
+    parentDiv: HTMLElement,
     milestoneText: string,
     milestoneLink: string,
     numberOfClips: number,
@@ -15,28 +15,28 @@ export function checkForMilestoneLinks(
                 milestoneText,
                 numberOfClips
             );
-            appendMilestoneElement(textType, footnoteDiv, phraseDiv, audioEntry, false);
-            appendMilestoneElement(textType, footnoteDiv, phraseDiv, audioLink, true);
+            appendMilestoneElement(textType, footnoteDiv, parentDiv, audioEntry, false);
+            appendMilestoneElement(textType, footnoteDiv, parentDiv, audioLink, true);
             break;
         }
         case 'usfm:zreflink': {
             const reflink = getReferenceLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
         case 'usfm:zweblink': {
             const reflink = getWebLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
         case 'usfm:ztellink': {
             const reflink = getTelephoneLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
         case 'usfm:zelink': {
             const reflink = getEmailLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, phraseDiv, reflink, true);
+            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
         default: {
@@ -48,14 +48,14 @@ export function checkForMilestoneLinks(
 function appendMilestoneElement(
     textType: string[],
     footnoteDiv: HTMLElement,
-    phraseDiv: HTMLElement,
+    parentDiv: HTMLElement,
     reflink: HTMLElement,
     pop: boolean
 ) {
     if (textType.includes('footnote')) {
         footnoteDiv.appendChild(reflink);
     } else {
-        phraseDiv.appendChild(reflink);
+        parentDiv.appendChild(reflink);
     }
     if (pop) {
         textType.pop();
