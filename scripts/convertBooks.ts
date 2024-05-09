@@ -18,12 +18,12 @@ import { verifyGlossaryEntries } from './verifyGlossaryEntries';
  */
 
 function replaceVideoTags(text: string, _bcId: string, _bookId: string): string {
-    return text.replace(/\\video (.*)/g, '\\zvideo |id="$1"\\*');
+    return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 
 // This is the start of supporting story books, but it still fails if there is no chapter.
 function replacePageTags(text: string, _bcId: string, _bookId: string): string {
-    return text.replace(/\\page (.*)/g, '\\zpage |id="$1"\\*');
+    return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
 }
 function loadGlossary(collection: any, configData: ConfigTaskOutput, dataDir: string): string[] {
     const glossary: string[] = [];
