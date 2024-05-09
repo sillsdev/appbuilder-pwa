@@ -48,6 +48,7 @@ type BookCollection = {
         file: string;
         audio: BookCollectionAudio[];
         features: any;
+        footer?: HTML;
         style?: Style;
         styles?: {
             name: string;
@@ -529,6 +530,12 @@ function convertConfig(dataDir: string, verbose: number) {
                 ? parseAdditionalNames(bkAdditionalNames, verbose)
                 : undefined;
 
+            const footerTags = book.getElementsByTagName('footer');
+            const footer = footerTags[0]?.innerHTML.length
+                ? removeCData(footerTags[0].innerHTML)
+                : undefined;
+            if (verbose >= 2) console.log(`.... footer: `, footer);
+
             books.push({
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
@@ -547,7 +554,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
                 style,
-                styles
+                styles,
+                footer
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }
