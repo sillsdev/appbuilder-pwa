@@ -1,6 +1,6 @@
 <svelte:options accessors={true} />
 
-<script>
+<script lang="ts">
     import Modal from './Modal.svelte';
     import { EditIcon } from '$lib/icons';
     import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
@@ -11,8 +11,8 @@
 
     let id = 'note';
     let modal;
-    let title;
-    let text;
+    let title: string;
+    let text: string;
 
     $: heading = editing ? $t[title] ?? '' : note?.reference ?? '';
 
@@ -73,13 +73,19 @@
                     </button>
                 {/if}
             </div>
-            <div>
+            <div style:word-wrap="break-word">
                 {#if editing}
                     <textarea bind:value={text} class="dy-textarea w-full" />
-                {:else}
-                    <pre
-                        style:font-family={$currentFont}
-                        style:font-size="{$bodyFontSize}px">{text}</pre>
+                {:else if text !== undefined}
+                    {#each text.split(/\r?\n/) as line}
+                        {#if line}
+                            <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                                {line}
+                            </p>
+                        {:else}
+                            <br />
+                        {/if}
+                    {/each}
                 {/if}
             </div>
             {#if editing}
