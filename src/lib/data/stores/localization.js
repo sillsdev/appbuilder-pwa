@@ -4,7 +4,8 @@ import { getLanguages } from '$lib/data/language';
 import config from '../config';
 
 /** localization */
-export const languageDefault = userSettings['interface-language']?.defaultValue;
+export const languageDefault =
+    userSettings['interface-language']?.defaultValue ?? config.translationMappings.defaultLang;
 export const languages = getLanguages();
 export const language = derived(
     userSettings,

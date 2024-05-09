@@ -1,6 +1,6 @@
 import { writable, readable, get } from 'svelte/store';
 import { setDefaultStorage, mergeDefaultStorage } from './storage';
-import { getDefaultLanguage, getLanguages } from '$lib/data/language';
+import { getDefaultLanguage } from '$lib/data/language';
 import config from '../config';
 
 export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
