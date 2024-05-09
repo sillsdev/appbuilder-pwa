@@ -20,7 +20,8 @@ The navbar component.
     $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
-    $: listView = $userSettings['book-selection'] === 'list';
+    $: listView =
+        ($userSettings['book-selection'] ?? config.mainFeatures['book-select']) === 'list';
     $: showVerseSelector = $userSettings['verse-selection'];
 
     // Translated book, chapter, and verse tab labels
