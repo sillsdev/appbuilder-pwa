@@ -109,7 +109,7 @@ function applyFilters(text: string, bcId: string, bookId: string): string {
     return filteredText;
 }
 
-const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz'];
 export async function convertBooks(
     dataDir: string,
     configData: ConfigTaskOutput,

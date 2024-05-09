@@ -56,15 +56,20 @@ The navbar component.
             document.activeElement.blur();
         } else {
             switch (e.detail.tab) {
-                case b:
+                case b: {
                     bookSelector.setActive(c);
                     $nextRef.book = e.detail.text;
-                    if (chapterCount($nextRef.book) === 0) {
+                    const count = chapterCount($nextRef.book);
+                    if (count === 0) {
                         $nextRef.chapter = 'i';
                         completeNavigation();
                     }
                     $nextRef.chapter = '1';
+                    if (count === 1) {
+                        completeNavigation();
+                    }
                     break;
+                }
                 case c:
                     $nextRef.chapter = e.detail.text;
                     if (!showVerseSelector) {
