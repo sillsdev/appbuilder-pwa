@@ -48,11 +48,10 @@
                 reference: $selectedVerses[0].reference
             });
         }
-        reset();
     }
 </script>
 
-<Modal bind:this={modal} {id} useLabel={false}>
+<Modal bind:this={modal} {id} on:close={reset} useLabel={false}>
     <svelte:fragment slot="content">
         <div id="container" class="flex flex-col justify-evenly">
             <div class="w-full flex justify-between">
@@ -81,14 +80,14 @@
                         style:font-size="{$bodyFontSize}px">{text}</pre>
                 {/if}
             </div>
-            <div class="w-full flex mt-4 justify-between">
-                <button on:click={reset} class="dy-btn dy-btn-sm dy-btn-ghost"
-                    >{$t['Button_Cancel']}</button
-                >
-                <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
-                    >{$t['Button_OK']}</button
-                >
-            </div>
+            {#if editing}
+                <div class="w-full flex mt-4 justify-between">
+                    <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
+                    <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
+                        >{$t['Button_OK']}</button
+                    >
+                </div>
+            {/if}
         </div>
     </svelte:fragment>
 </Modal>
