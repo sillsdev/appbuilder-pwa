@@ -2,6 +2,7 @@ import { readFileSync, existsSync, PathLike, readdirSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
+import { convertMarkdownsToHTML } from './convertMarkdown';
 
 /**
  * TODO:
@@ -353,6 +354,21 @@ function changeSpToRem(propValue: string) {
     return newPropValue;
 }
 
+function convertFooter(markdown: string | undefined, appdef: Document): string | undefined {
+    const footer = markdown?.length ? convertMarkdownsToHTML(removeCData(markdown)) : undefined;
+    const appName = appdef.getElementsByTagName('app-name')[0].innerHTML;
+    const versionName = appdef.getElementsByTagName('version')[0].getAttribute('name');
+    const appDefinition = appdef.getElementsByTagName('app-definition')[0];
+    const programType = appDefinition.getAttribute('type');
+    const programVersion = appDefinition.getAttribute('program-version');
+    return footer
+        ?.replace(/\\n/g, '<br />')
+        ?.replace(/%app-name%/g, appName ?? '')
+        ?.replace(/%version-name%/g, versionName ?? '')
+        ?.replace(/%program-type%/g, programType ?? '')
+        ?.replace(/%program-version%/g, programVersion ?? '');
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
@@ -531,9 +547,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 : undefined;
 
             const footerTags = book.getElementsByTagName('footer');
-            const footer = footerTags[0]?.innerHTML.length
-                ? removeCData(footerTags[0].innerHTML)
-                : undefined;
+            const footer = convertFooter(footerTags[0]?.innerHTML, document);
             if (verbose >= 2) console.log(`.... footer: `, footer);
 
             books.push({
@@ -597,9 +611,7 @@ function convertConfig(dataDir: string, verbose: number) {
             : undefined;
         if (verbose >= 2) console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
         const footerTags = tag.getElementsByTagName('footer');
-        const footer = footerTags[0]?.innerHTML.length
-            ? removeCData(footerTags[0].innerHTML)
-            : undefined;
+        const footer = convertFooter(footerTags[0]?.innerHTML, document);
         if (verbose >= 2) console.log(`.. footer: `, footer);
 
         const bcStyles = tag.querySelector('styles');
