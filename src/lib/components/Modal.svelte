@@ -24,7 +24,13 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     </label>
 {/if}
 
-<dialog bind:this={dialog} {id} class="dy-modal cursor-pointer" style:direction={$direction}>
+<dialog
+    bind:this={dialog}
+    {id}
+    on:close
+    class="dy-modal cursor-pointer"
+    style:direction={$direction}
+>
     <form
         method="dialog"
         style={convertStyle($s['ui.dialog']) + addCSS}
