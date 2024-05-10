@@ -14,6 +14,11 @@ import {
     stripAllExceptDigitsAndHyphens
 } from './stringUtils';
 
+enum ConversionFormat {
+    HTML,
+    USFM
+}
+
 export function convertMarkdownsToMilestones(
     content: string,
     bcId: string,
@@ -38,23 +43,23 @@ export function convertMarkdownsToMilestones(
             // Output simple text without a link
             sb.push(text);
         } else if (isLocalAudioFile(ref)) {
-            const zaudioc = getAudioHtmlFromMarkdownLink(link, text);
+            const zaudioc = audioUSFM(link, text);
             sb.push(zaudioc);
         } else if (isImageLink(ref, excl)) {
             // Image ![alt text](image.png)
-            const fig = getImageHtmlFromMarkdownLink(ref, text);
+            const fig = imageUSFM(ref, text);
             sb.push(fig);
         } else if (isWebLink(ref)) {
-            const webLink = getWebHtmlFromMarkdownLink(link, text);
+            const webLink = weblinkUSFM(link, text);
             sb.push(webLink);
         } else if (isEmailLink(ref)) {
-            const emailLink = getEmailHtmlFromMarkdownLink(link, text);
+            const emailLink = emailUSFM(link, text);
             sb.push(emailLink);
         } else if (isTelephoneNumberLink(ref)) {
-            const telLink = getTelHtmlFromMarkdownLink(link, text);
+            const telLink = telUSFM(link, text);
             sb.push(telLink);
         } else {
-            const refLink = getReferenceHtmlFromMarkdownLink(link, text, bcId, bookId);
+            const refLink = referenceUSFM(link, text, bcId, bookId);
             sb.push(refLink);
         }
         inputString = inputString.substring(match.index + match[0].length);
@@ -62,6 +67,36 @@ export function convertMarkdownsToMilestones(
     sb.push(inputString);
     result = sb.join('');
     return result;
+}
+
+export function convertMarkdownsToHTML(content: string): string {
+    const sb = [];
+    const patternString = /(!?)\[([^[]*?)\]\((.*?)\)/;
+    let match;
+    while ((match = patternString.exec(content)) !== null) {
+        // Append text segment with 1st part of string
+        sb.push(content.substring(0, match.index));
+        // Handle markdown
+        const excl = match[1];
+        const text = match[2];
+        const ref = match[3];
+        const link = ref;
+        if (isBlank(ref)) {
+            // Empty link reference, e.g. [text]()
+            // Output simple text without a link
+            sb.push(text);
+        } else if (isImageLink(ref, excl)) {
+            // Image ![alt text](image.png)
+            const fig = `<img src="${ref}" alt="${text}">`;
+            sb.push(fig);
+        } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
+            const link = `<a href="${ref}">${text}</a>`;
+            sb.push(link);
+        }
+        content = content.substring(match.index + match[0].length);
+    }
+    sb.push(content);
+    return sb.join('');
 }
 
 function isEmailLink(ref: string): boolean {
@@ -105,7 +140,7 @@ function isImageLink(ref: string, excl: string): boolean {
     }
     return result;
 }
-function getAudioHtmlFromMarkdownLink(link: string, text: string): string {
+function audioUSFM(link: string, text: string): string {
     // \zaudioc-s | link="audioclip.mp3"\*audioclip.mp3\zaudioc-e\*
     let result = '';
     const refLower = link.toLowerCase();
@@ -120,35 +155,30 @@ function getAudioHtmlFromMarkdownLink(link: string, text: string): string {
     }
     return result;
 }
-function getImageHtmlFromMarkdownLink(link: string, text: string): string {
+function imageUSFM(link: string, text: string): string {
     // \fig Pharisee|src="VB-John 1v22.jpg" size="span"\fig*
     const result = '\\fig ' + text + '|src="' + link + '" size="span"\\fig*';
     return result;
 }
-function getWebHtmlFromMarkdownLink(link: string, text: string): string {
+function weblinkUSFM(link: string, text: string): string {
     // \zweblink-s | link="https://www.sil.org/"\*Web Link \zweblink-e\*
     const result =
         ' \\zweblink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\zweblink-e\\* ';
     return result;
 }
-function getEmailHtmlFromMarkdownLink(link: string, text: string): string {
+function emailUSFM(link: string, text: string): string {
     // \zelink-s | link="mailto:david_moore1@sil.org"\*EMAIL DAVID \zelink-e\*
     const result =
         ' \\zelink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\zelink-e\\* ';
     return result;
 }
-function getTelHtmlFromMarkdownLink(link: string, text: string): string {
+function telUSFM(link: string, text: string): string {
     // \ztellink-s | link="tel:6144323864"\*CAMB \ztellink-e\*
     const result =
         ' \\ztellink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\ztellink-e\\* ';
     return result;
 }
-function getReferenceHtmlFromMarkdownLink(
-    link: string,
-    text: string,
-    bcId: string,
-    bookid: string
-): string {
+function referenceUSFM(link: string, text: string, bcId: string, bookid: string): string {
     // \zreflink-s |link="ENGWEB.MAT.5.1"\*Beatitudes\zreflink-e\* \
     let result: string = '';
     const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(link);

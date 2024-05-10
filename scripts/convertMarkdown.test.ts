@@ -1,9 +1,9 @@
 import { describe, expect, beforeEach, it, test } from 'vitest';
 import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { convertMarkdownsToMilestones } from './convertMarkdown';
+import { convertMarkdownsToHTML, convertMarkdownsToMilestones } from './convertMarkdown';
 
-describe('convertMarkdown', () => {
+describe('convertMarkdownsToMilestones', () => {
     const data = readFileSync(path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'), 'utf8');
     let modifiedContent: string;
     beforeEach(() => {
@@ -64,5 +64,95 @@ describe('convertMarkdown', () => {
         expect(modifiedContent).toContain(
             '\\zreflink-s | link="C01.GEN.7.1"\\*Just chapter verse \\zreflink-e\\*'
         );
+    });
+});
+
+describe('convertMarkdownsToHTML', () => {
+    describe('converting image markdown', () => {
+        const out = convertMarkdownsToHTML(
+            'This is my image: ![The serpent](Serpent.png) More text'
+        );
+
+        const prefix = 'This is my image: <img';
+        const postfix = '> More text';
+
+        it('has correct prefix', () => {
+            expect(out.substring(0, prefix.length)).toBe(prefix);
+        });
+        it('has correct postfix', () => {
+            expect(out.substring(out.length - postfix.length, out.length)).toBe(postfix);
+        });
+        it('has src attribute', () => {
+            expect(out.substring(prefix.length, out.length - postfix.length)).contains(
+                'src="Serpent.png"'
+            );
+        });
+        it('has alt attribute', () => {
+            expect(out.substring(prefix.length, out.length - postfix.length)).contains(
+                'alt="The serpent"'
+            );
+        });
+    });
+    describe('converting web link markdown', () => {
+        const out = convertMarkdownsToHTML(
+            'Please visit our [website](https://www.sil.org/) for more info.'
+        );
+
+        const prefix = 'Please visit our <a';
+        const postfix = '>website</a> for more info.';
+        it('has correct prefix', () => {
+            expect(out.substring(0, prefix.length)).toBe(prefix);
+        });
+        it('has correct postfix', () => {
+            expect(out.substring(out.length - postfix.length, out.length)).toBe(postfix);
+        });
+        it('has href attribute', () => {
+            expect(out.substring(prefix.length, out.length - postfix.length)).contains(
+                'href="https://www.sil.org/"'
+            );
+        });
+    });
+    describe('converting web link markdown', () => {
+        const out = convertMarkdownsToHTML(
+            'Please [EMAIL DAVID](mailto:david_moore1@sil.org) with all your questions'
+        );
+
+        const prefix = 'Please <a';
+        const postfix = '>EMAIL DAVID</a> with all your questions';
+        it('has correct prefix', () => {
+            expect(out.substring(0, prefix.length)).toBe(prefix);
+        });
+        it('has correct postfix', () => {
+            expect(out.substring(out.length - postfix.length, out.length)).toBe(postfix);
+        });
+        it('has href attribute', () => {
+            expect(out.substring(prefix.length, out.length - postfix.length)).contains(
+                'href="mailto:david_moore1@sil.org"'
+            );
+        });
+    });
+    describe('converting telephone link markdown', () => {
+        const out = convertMarkdownsToHTML(
+            'Please [call us](tel:6145551212) with all your questions'
+        );
+
+        const prefix = 'Please <a';
+        const postfix = '>call us</a> with all your questions';
+        it('has correct prefix', () => {
+            expect(out.substring(0, prefix.length)).toBe(prefix);
+        });
+        it('has correct postfix', () => {
+            expect(out.substring(out.length - postfix.length, out.length)).toBe(postfix);
+        });
+        it('has href attribute', () => {
+            expect(out.substring(prefix.length, out.length - postfix.length)).contains(
+                'href="tel:6145551212"'
+            );
+        });
+    });
+    it('converts empty link to simple text', () => {
+        const input = 'This [link]() does nothing';
+        const out = convertMarkdownsToHTML(input);
+        expect(out).toBe('This link does nothing');
     });
 });
