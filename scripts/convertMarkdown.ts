@@ -14,11 +14,6 @@ import {
     stripAllExceptDigitsAndHyphens
 } from './stringUtils';
 
-enum ConversionFormat {
-    HTML,
-    USFM
-}
-
 export function convertMarkdownsToMilestones(
     content: string,
     bcId: string,
