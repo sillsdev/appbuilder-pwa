@@ -1,5 +1,6 @@
 import { writable, readable, get } from 'svelte/store';
 import { setDefaultStorage, mergeDefaultStorage } from './storage';
+import { getDefaultLanguage } from '$lib/data/language';
 import config from '../config';
 
 export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
@@ -317,7 +318,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_INTERFACE,
             title: 'Settings_Interface_Language',
             key: 'interface-language',
-            defaultValue: config.translationMappings.defaultLang,
+            defaultValue: getDefaultLanguage(),
             entries,
             values
         });
