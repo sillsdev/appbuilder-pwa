@@ -155,4 +155,9 @@ describe('convertMarkdownsToHTML', () => {
         const out = convertMarkdownsToHTML(input);
         expect(out).toBe('This link does nothing');
     });
+    it('does not convert invalid link', () => {
+        const input = 'This [link](anisondfsao) is bogus';
+        const out = convertMarkdownsToHTML(input);
+        expect(out).toBe(input);
+    });
 });

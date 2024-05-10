@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {
     convertDigitsInStringToDefaultNumeralSystem,
     getIntFromNumberString
@@ -14,57 +15,32 @@ import {
     stripAllExceptDigitsAndHyphens
 } from './stringUtils';
 
+enum ConversionFormat {
+    HTML,
+    USFM
+}
+
 export function convertMarkdownsToMilestones(
     content: string,
     bcId: string,
     bookId: string
 ): string {
-    let result: string = '';
-    result = content;
-    const sb = [];
-    let inputString = content;
-    const patternString = /(!?)\[([^[]*?)\]\((.*?)\)/;
-    let match;
-    while ((match = patternString.exec(inputString)) !== null) {
-        // Append text segment with 1st part of string
-        sb.push(inputString.substring(0, match.index));
-        // Handle markdown
-        const excl = match[1];
-        const text = match[2];
-        const ref = match[3];
-        const link = ref;
-        if (isBlank(ref)) {
-            // Empty link reference, e.g. [text]()
-            // Output simple text without a link
-            sb.push(text);
-        } else if (isLocalAudioFile(ref)) {
-            const zaudioc = audioUSFM(link, text);
-            sb.push(zaudioc);
-        } else if (isImageLink(ref, excl)) {
-            // Image ![alt text](image.png)
-            const fig = imageUSFM(ref, text);
-            sb.push(fig);
-        } else if (isWebLink(ref)) {
-            const webLink = weblinkUSFM(link, text);
-            sb.push(webLink);
-        } else if (isEmailLink(ref)) {
-            const emailLink = emailUSFM(link, text);
-            sb.push(emailLink);
-        } else if (isTelephoneNumberLink(ref)) {
-            const telLink = telUSFM(link, text);
-            sb.push(telLink);
-        } else {
-            const refLink = referenceUSFM(link, text, bcId, bookId);
-            sb.push(refLink);
-        }
-        inputString = inputString.substring(match.index + match[0].length);
-    }
-    sb.push(inputString);
-    result = sb.join('');
-    return result;
+    return convertMarkdown(content, ConversionFormat.USFM, bcId, bookId);
 }
 
 export function convertMarkdownsToHTML(content: string): string {
+    return convertMarkdown(content, ConversionFormat.HTML);
+}
+
+function convertMarkdown(
+    content: string,
+    conversion: ConversionFormat,
+    bcId: string | null = null,
+    bookId: string | null = null
+): string {
+    if (conversion === ConversionFormat.USFM) {
+        assert(bcId && bookId, 'Book and Collection IDs must be specified for USFM conversion');
+    }
     const sb = [];
     const patternString = /(!?)\[([^[]*?)\]\((.*?)\)/;
     let match;
@@ -72,26 +48,70 @@ export function convertMarkdownsToHTML(content: string): string {
         // Append text segment with 1st part of string
         sb.push(content.substring(0, match.index));
         // Handle markdown
-        const excl = match[1];
-        const text = match[2];
-        const ref = match[3];
-        const link = ref;
-        if (isBlank(ref)) {
-            // Empty link reference, e.g. [text]()
-            // Output simple text without a link
-            sb.push(text);
-        } else if (isImageLink(ref, excl)) {
-            // Image ![alt text](image.png)
-            const fig = `<img src="${ref}" alt="${text}">`;
-            sb.push(fig);
-        } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
-            const link = `<a href="${ref}">${text}</a>`;
-            sb.push(link);
+        if (conversion === ConversionFormat.HTML) {
+            sb.push(htmlLink(match[1], match[2], match[3]));
+        } else if (conversion === ConversionFormat.USFM) {
+            sb.push(usfmLink(match[1], match[2], match[3], bcId as string, bookId as string));
         }
         content = content.substring(match.index + match[0].length);
     }
     sb.push(content);
     return sb.join('');
+}
+
+/**
+ * Convert a markdown link to USFM
+ * @param excl An empty string, or an exclamation mark indicating
+ * the link is an embedded image.
+ * @param alt The link's alt text.
+ * @param ref The link's target.
+ * @param bcId The ID of the current book selection
+ * @param bookId The ID of the current book
+ * @returns A USFM tag equivalent to the given markdown link.
+ */
+function usfmLink(excl: string, alt: string, ref: string, bcId: string, bookId: string): string {
+    if (isBlank(ref)) {
+        // Empty link reference, e.g. [alt]()
+        // Output simple text without a link
+        return alt;
+    } else if (isLocalAudioFile(ref)) {
+        return audioUSFM(ref, alt);
+    } else if (isImageLink(ref, excl)) {
+        // Image ![alt text](image.png)
+        return imageUSFM(ref, alt);
+    } else if (isWebLink(ref)) {
+        return weblinkUSFM(ref, alt);
+    } else if (isEmailLink(ref)) {
+        return emailUSFM(ref, alt);
+    } else if (isTelephoneNumberLink(ref)) {
+        return telUSFM(ref, alt);
+    } else {
+        return referenceUSFM(ref, alt, bcId, bookId);
+    }
+}
+
+/**
+ * Convert a markdown link to HTML
+ * @param excl An empty string, or an exclamation mark indicating
+ * the link is an embedded image.
+ * @param alt The link's alt text.
+ * @param ref The link's target.
+ * @returns
+ */
+function htmlLink(excl: string, alt: string, ref: string): string {
+    if (isBlank(ref)) {
+        // Empty link reference, e.g. [text]()
+        // Output simple text without a link
+        return alt;
+    } else if (isImageLink(ref, excl)) {
+        // Image ![alt text](image.png)
+        return `<img src="${ref}" alt="${alt}">`;
+    } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
+        return `<a href="${ref}">${alt}</a>`;
+    } else {
+        // Not a known link type. Return the makrdown element as is.
+        return `${excl}[${alt}](${ref})`;
+    }
 }
 
 function isEmailLink(ref: string): boolean {
