@@ -4,8 +4,10 @@ import { getLanguages } from '$lib/data/language';
 import config from '../config';
 
 /** localization */
-export const languageDefault =
-    userSettings['interface-language']?.defaultValue ?? config.translationMappings.defaultLang;
+
+// If a word can't be translated in the current language, use languageDefault.
+export const languageDefault = config.translationMappings.defaultLang;
+
 export const languages = getLanguages();
 export const language = derived(
     userSettings,
