@@ -238,6 +238,22 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
+    const catalogPath = path.join('static', 'collections', 'catalog');
+    if (!existsSync(catalogPath)) {
+        if (verbose) console.log('creating: ' + catalogPath);
+        mkdirSync(catalogPath, { recursive: true });
+    }
+    entries.forEach((entry) => {
+        writeFileSync(
+            path.join(catalogPath, entry.data.docSets[0].id + '.js'),
+            `export const catalog = ${JSON.stringify(
+                postQueries.parseChapterVerseMapInDocSets({
+                    docSets: [entry.data.docSets[0]]
+                })[0]
+            )}`
+        );
+    });
+    // For backwards compatibility until we get get the new catalogs working.
     writeFileSync(
         path.join('src', 'lib', 'data', 'catalog.js'),
         `export const catalog = ${JSON.stringify(
@@ -250,10 +266,6 @@ export async function convertBooks(
         )};`
     );
     if (verbose) console.time('freeze');
-    if (!existsSync(path.join('static', 'collections'))) {
-        if (verbose) console.log('creating: ' + path.join('static', 'collections'));
-        mkdirSync(path.join('static', 'collections'));
-    }
     //write frozen archives for import
     //const vals = await Promise.all(freezer.values());
     //write frozen archives
