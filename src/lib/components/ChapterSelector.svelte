@@ -9,7 +9,7 @@ The navbar component.
     import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
-    import { catalog } from '$lib/data/catalog';
+    import { catalog } from '$lib/data/stores/catalog';
     import config from '$lib/data/config';
     import * as numerals from '$lib/scripts/numeralSystem';
 
@@ -74,7 +74,7 @@ The navbar component.
     }
 
     function getChapterCount(book) {
-        let books = catalog.find((d) => d.id === $refs.docSet).documents;
+        let books = $catalog.documents;
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
@@ -83,7 +83,7 @@ The navbar component.
         if (!chapter || chapter === 'i') {
             return 0;
         }
-        let books = catalog.find((d) => d.id === $refs.docSet).documents;
+        let books = $catalog.documents;
         let chapters = books.find((d) => d.bookCode === book).versesByChapters;
         if (!chapters || Object.keys(chapters).length === 0) {
             return 0;
@@ -120,7 +120,7 @@ The navbar component.
         return value;
     };
     /**list of books in current docSet*/
-    $: books = catalog.find((d) => d.id === $refs.docSet).documents;
+    $: books = $catalog.documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     $: showSelector =

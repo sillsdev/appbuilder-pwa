@@ -245,12 +245,12 @@ export async function convertBooks(
     }
     entries.forEach((entry) => {
         writeFileSync(
-            path.join(catalogPath, entry.data.docSets[0].id + '.js'),
-            `export const catalog = ${JSON.stringify(
+            path.join(catalogPath, entry.data.docSets[0].id + '.json'),
+            JSON.stringify(
                 postQueries.parseChapterVerseMapInDocSets({
                     docSets: [entry.data.docSets[0]]
                 })[0]
-            )}`
+            )
         );
     });
     // For backwards compatibility until we get get the new catalogs working.

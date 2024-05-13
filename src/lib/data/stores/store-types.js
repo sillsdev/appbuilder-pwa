@@ -1,5 +1,5 @@
 import { writable, derived, get } from 'svelte/store';
-import { catalog } from '../catalog';
+import { catalog } from './catalog';
 import config from '../config';
 
 export function parseReference(ref) {
@@ -20,17 +20,18 @@ export const referenceStore = (initReference) => {
     /**sets internal state based on info available in catalog*/
     const setInternal = ({ docSet, book, chapter, verse }) => {
         const original = get(internal);
-        const docSets = catalog.map((ds) => ds.id);
+        const currentCatalog = get(catalog);
+        const docSets = config.bookCollections.map((bc) => `${bc.languageCode}_${bc.id}`);
         if (!docSet || !docSets.includes(docSet))
             docSet = docSets.includes(original.ds) ? original.ds : docSets[0];
 
-        const books = catalog.find((ds) => docSet === ds.id).documents.map((b) => b.bookCode);
+        const books = currentCatalog.documents.map((b) => b.bookCode);
         if (!book || !books.includes(book))
             book = books.includes(original.b) ? original.b : books[0];
 
-        const versesByChapters = catalog
-            .find((ds) => docSet === ds.id)
-            .documents.find((b) => book === b.bookCode).versesByChapters;
+        const versesByChapters = currentCatalog.documents.find(
+            (b) => book === b.bookCode
+        ).versesByChapters;
         if (!chapter || (!Object.keys(versesByChapters).includes(chapter) && chapter != 'i'))
             chapter = Object.keys(versesByChapters).includes(original.c) ? original.c : '1';
 
@@ -48,68 +49,67 @@ export const referenceStore = (initReference) => {
     };
     setInternal(parseReference(initReference));
 
-    const external = derived(internal, ($internal) => ({
-        reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,
-        docSet: $internal.ds,
-        collection: $internal.ds.split('_')[1],
-        book: $internal.b,
-        chapter: $internal.c,
-        verse: $internal.v,
-        chapterVerses: `${$internal.c}:1-${$internal.n}`,
-        numVerses: $internal.n,
-        hasAudio:
-            config.traits['has-audio'] &&
-            config.bookCollections
-                .find((x) => x.id === $internal.ds.split('_')[1])
-                .books.find((x) => x.id === $internal.b)
-                .audio.find((x) => x.num == $internal.c),
+    const external = derived(internal, ($internal) => {
+        const currentCatalog = get(catalog);
+        return {
+            reference: `${$internal.b} ${$internal.c}${$internal.n ? '' : ':' + $internal.n}`,
+            docSet: $internal.ds,
+            collection: $internal.ds.split('_')[1],
+            book: $internal.b,
+            chapter: $internal.c,
+            verse: $internal.v,
+            chapterVerses: `${$internal.c}:1-${$internal.n}`,
+            numVerses: $internal.n,
+            hasAudio:
+                config.traits['has-audio'] &&
+                config.bookCollections
+                    .find((x) => x.id === $internal.ds.split('_')[1])
+                    .books.find((x) => x.id === $internal.b)
+                    .audio.find((x) => x.num == $internal.c),
 
-        title: catalog
-            .find((ds) => ds.id === $internal.ds)
-            .documents.find((b) => b.bookCode === $internal.b).toc,
-        name: catalog
-            .find((ds) => ds.id === $internal.ds)
-            .documents.find((b) => b.bookCode === $internal.b).h,
-        next: (() => {
-            let nextBook = null;
-            let nextChapter = null;
-            const books = catalog.find((ds) => ds.id === $internal.ds).documents;
-            const codes = books.map((b) => b.bookCode);
-            const i = codes.indexOf($internal.b);
-            const chapters = Object.keys(books[i].versesByChapters);
-            const j = chapters.indexOf($internal.c);
-            if (j + 1 >= chapters.length) {
-                if (i + 1 < codes.length) {
-                    nextBook = codes[i + 1];
-                    nextChapter = Object.keys(books[i + 1].versesByChapters)[0];
+            title: currentCatalog.documents.find((b) => b.bookCode === $internal.b).toc,
+            name: currentCatalog.documents.find((b) => b.bookCode === $internal.b).h,
+            next: (() => {
+                let nextBook = null;
+                let nextChapter = null;
+                const books = currentCatalog.documents;
+                const codes = books.map((b) => b.bookCode);
+                const i = codes.indexOf($internal.b);
+                const chapters = Object.keys(books[i].versesByChapters);
+                const j = chapters.indexOf($internal.c);
+                if (j + 1 >= chapters.length) {
+                    if (i + 1 < codes.length) {
+                        nextBook = codes[i + 1];
+                        nextChapter = Object.keys(books[i + 1].versesByChapters)[0];
+                    }
+                } else {
+                    nextChapter = chapters[j + 1];
+                    nextBook = codes[i];
                 }
-            } else {
-                nextChapter = chapters[j + 1];
-                nextBook = codes[i];
-            }
-            return { book: nextBook, chapter: nextChapter };
-        })(),
-        prev: (() => {
-            let prevBook = null;
-            let prevChapter = null;
-            const books = catalog.find((ds) => ds.id === $internal.ds).documents;
-            const codes = books.map((b) => b.bookCode);
-            const i = codes.indexOf($internal.b);
-            const chapters = Object.keys(books[i].versesByChapters);
-            const j = chapters.indexOf($internal.c);
-            if (j <= 0) {
-                if (i - 1 >= 0) {
-                    prevBook = codes[i - 1];
-                    const c2 = Object.keys(books[i - 1].versesByChapters);
-                    prevChapter = c2[c2.length - 1];
+                return { book: nextBook, chapter: nextChapter };
+            })(),
+            prev: (() => {
+                let prevBook = null;
+                let prevChapter = null;
+                const books = currentCatalog.documents;
+                const codes = books.map((b) => b.bookCode);
+                const i = codes.indexOf($internal.b);
+                const chapters = Object.keys(books[i].versesByChapters);
+                const j = chapters.indexOf($internal.c);
+                if (j <= 0) {
+                    if (i - 1 >= 0) {
+                        prevBook = codes[i - 1];
+                        const c2 = Object.keys(books[i - 1].versesByChapters);
+                        prevChapter = c2[c2.length - 1];
+                    }
+                } else {
+                    prevChapter = chapters[j - 1];
+                    prevBook = codes[i];
                 }
-            } else {
-                prevChapter = chapters[j - 1];
-                prevBook = codes[i];
-            }
-            return { book: prevBook, chapter: prevChapter };
-        })()
-    }));
+                return { book: prevBook, chapter: prevChapter };
+            })()
+        };
+    });
 
     const skip = (direction) => {
         const ref = get(external);

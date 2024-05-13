@@ -6,7 +6,7 @@
 
 import { get } from 'svelte/store';
 import config from '../data/config';
-import { catalog } from '../data/catalog';
+import { catalog, type CatalogData } from '../data/stores/catalog';
 import { getVerseText, refs } from '../data/stores';
 import {
     ciEquals,
@@ -25,7 +25,7 @@ let bookCollections: any;
 let collection: any;
 let features: any;
 let showScriptureLinks; // Show scripture reference links
-let runtimeCatalog;
+let runtimeCatalog: CatalogData;
 
 // In text reference separators
 
@@ -86,8 +86,8 @@ function initGlobals() {
  */
 export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
     ref = get(refs);
-    runtimeCatalog = catalog;
     bookCollections = config.bookCollections;
+    runtimeCatalog = get(catalog);
     return generateHTMLMain(crossRef, refClass, bookId);
 }
 export function generateHTMLTest(
@@ -792,7 +792,7 @@ function lastVerseInChapter(book: string, chapter: string, docSet: string): stri
     if (!chapter || chapter === 'i') {
         return '0';
     }
-    const books = runtimeCatalog.find((d) => d.id === docSet).documents;
+    const books = runtimeCatalog.documents;
     const chapters = books.find((d) => d.bookCode === book).versesByChapters;
     const verses = Object.keys(chapters[chapter]);
     const lastVerse = verses[verses.length - 1];

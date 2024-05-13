@@ -9,7 +9,7 @@ The navbar component.
     import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
-    import { catalog } from '$lib/data/catalog';
+    import { catalog } from '$lib/data/stores/catalog';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -115,7 +115,7 @@ The navbar component.
     }
 
     /**list of books in current docSet*/
-    $: books = catalog.find((d) => d.id === $refs.docSet).documents;
+    $: books = $catalog.documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 

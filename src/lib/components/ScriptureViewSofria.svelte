@@ -12,7 +12,7 @@ LOGGING:
 <script lang="ts">
     import type { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { catalog } from '$lib/data/catalog';
+    import { catalog } from '$lib/data/stores/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { footnotes, refs, logs, modal, MODAL_NOTE } from '$lib/data/stores';
@@ -1798,7 +1798,7 @@ LOGGING:
 
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
-    $: books = catalog.find((d) => d.id === currentDocSet).documents;
+    $: books = $catalog.documents;
     $: direction = config.bookCollections.find((x) => x.id === references.collection).style
         .textDirection;
 
