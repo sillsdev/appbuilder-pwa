@@ -407,7 +407,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     for (const tag of fontTags) {
         const family = tag.attributes.getNamedItem('family')!.value;
-        const name = tag.getElementsByTagName('font-name')[0]?.innerHTML;
+        const name = tag.getElementsByTagName('display-name')[0]?.innerHTML;
         const file = tag.getElementsByTagName('f')[0].innerHTML;
         const fontStyle = tag
             .querySelector('sd[property=font-style]')!
