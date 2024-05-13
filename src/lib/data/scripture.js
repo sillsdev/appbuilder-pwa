@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import { base } from '$app/paths';
-import { Proskomma } from 'proskomma-core';
-import { thaw } from '../scripts/thaw';
+import { SABProskomma } from '../../../sab-proskomma';
+import { thaw } from '$lib/scripts/thaw';
 import { pk } from '$lib/data/stores/pk';
 import config from '$lib/data/config';
 // import { refs } from '$lib/data/stores/scripture';
@@ -9,7 +9,7 @@ import config from '$lib/data/config';
 export async function initProskomma({ fetch }) {
     let proskomma = get(pk);
     if (!proskomma) {
-        proskomma = new Proskomma();
+        proskomma = new SABProskomma();
 
         let docSet; //get(refs).docSet;
         if (!docSet) {
