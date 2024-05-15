@@ -7,9 +7,11 @@ TODO:
 -->
 <script lang="ts">
     import { AudioIcon } from '$lib/icons';
-    import { refs, userSettings, s, playMode, direction, audioPlayer } from '$lib/data/stores';
+    import { refs, userSettings, s, playMode, direction, audioPlayer, t } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import config from '$lib/data/config';
+    import toast from 'svelte-french-toast';
+
     import {
         skip,
         playPause,
@@ -47,6 +49,32 @@ TODO:
         repeatPage: AudioIcon.Repeat,
         repeatSelection: AudioIcon.RepeatOne
     };
+
+    let lastPlayMode = '';
+
+    playMode.subscribe((value) => {
+        let key = '';
+
+        switch (value.mode) {
+            case 'stop':
+                key = 'Audio_Repeat_Off_Stop';
+                break;
+            case 'repeatPage':
+                key = 'Audio_Repeat_Page';
+                break;
+            case 'repeatSelection':
+                key = 'Audio_Repeat_Selection';
+                break;
+            case 'continue':
+                key = 'Audio_Repeat_Off_Continue';
+                break;
+        }
+
+        if (lastPlayMode !== '' && lastPlayMode !== value.mode) {
+            toast($t[key], { duration: 1500 });
+        }
+        lastPlayMode = value.mode;
+    });
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
