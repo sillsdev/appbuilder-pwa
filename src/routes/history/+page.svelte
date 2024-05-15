@@ -30,8 +30,13 @@
     </div>
 
     <div class="overflow-y-auto p-2.5">
-        {#each data.history.reverse() as h}
-            <HistoryCard history={h} />
-        {/each}
+        {#if data.history.length === 0}
+            <div class="history-message-none">{$t['History_None']}</div>
+            <div class="history-message-none-info">{$t['History_None_Info']}</div>
+        {:else}
+            {#each data.history.reverse() as h}
+                <HistoryCard history={h} />
+            {/each}
+        {/if}
     </div>
 </div>
