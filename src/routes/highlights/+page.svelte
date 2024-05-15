@@ -76,23 +76,28 @@
     </div>
 
     <div class="overflow-y-auto p-2.5">
-        {#each toSorted($page.data.highlights, sortOrder) as h}
-            {@const colorCard = {
-                docSet: h.docSet,
-                book: h.book,
-                chapter: h.chapter,
-                verse: h.verse,
-                reference: h.reference,
-                text: h.text,
-                date: formatDate(new Date(h.date)),
-                actions: [
-                    $t['Annotation_Menu_View'],
-                    $t['Annotation_Menu_Share'],
-                    $t['Annotation_Menu_Delete']
-                ],
-                penColor: h.penColor
-            }}
-            <ColorCard on:menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
-        {/each}
+        {#if $page.data.highlights.length === 0}
+            <div class="annotation-message-none">{$t['Annotation_Highlights_None']}</div>
+            <div class="annotation-message-none-info">{$t['Annotation_Highlights_None_Info']}</div>
+        {:else}
+            {#each toSorted($page.data.highlights, sortOrder) as h}
+                {@const colorCard = {
+                    docSet: h.docSet,
+                    book: h.book,
+                    chapter: h.chapter,
+                    verse: h.verse,
+                    reference: h.reference,
+                    text: h.text,
+                    date: formatDate(new Date(h.date)),
+                    actions: [
+                        $t['Annotation_Menu_View'],
+                        $t['Annotation_Menu_Share'],
+                        $t['Annotation_Menu_Delete']
+                    ],
+                    penColor: h.penColor
+                }}
+                <ColorCard on:menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
+            {/each}
+        {/if}
     </div>
 </div>

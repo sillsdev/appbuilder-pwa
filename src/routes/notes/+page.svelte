@@ -73,26 +73,31 @@
     </div>
 
     <div class="overflow-y-auto p-2.5">
-        {#each toSorted($page.data.notes, sortOrder) as n}
-            {@const iconCard = {
-                docSet: n.docSet,
-                collection: n.collection,
-                book: n.book,
-                chapter: n.chapter,
-                verse: n.verse,
-                reference: n.reference,
-                text: n.text,
-                date: formatDate(new Date(n.date)),
-                actions: [
-                    $t['Annotation_Menu_View'],
-                    $t['Annotation_Menu_Edit'],
-                    $t['Annotation_Menu_Share'],
-                    $t['Annotation_Menu_Delete']
-                ]
-            }}
-            <IconCard on:menuaction={(e) => handleMenuaction(e, n)} {...iconCard}>
-                <NoteIcon slot="icon" color={$monoIconColor} />
-            </IconCard>
-        {/each}
+        {#if $page.data.notes.length === 0}
+            <div class="annotation-message-none">{$t['Annotation_Notes_None']}</div>
+            <div class="annotation-message-none-info">{$t['Annotation_Notes_None_Info']}</div>
+        {:else}
+            {#each toSorted($page.data.notes, sortOrder) as n}
+                {@const iconCard = {
+                    docSet: n.docSet,
+                    collection: n.collection,
+                    book: n.book,
+                    chapter: n.chapter,
+                    verse: n.verse,
+                    reference: n.reference,
+                    text: n.text,
+                    date: formatDate(new Date(n.date)),
+                    actions: [
+                        $t['Annotation_Menu_View'],
+                        $t['Annotation_Menu_Edit'],
+                        $t['Annotation_Menu_Share'],
+                        $t['Annotation_Menu_Delete']
+                    ]
+                }}
+                <IconCard on:menuaction={(e) => handleMenuaction(e, n)} {...iconCard}>
+                    <NoteIcon slot="icon" color={$monoIconColor} />
+                </IconCard>
+            {/each}
+        {/if}
     </div>
 </div>
