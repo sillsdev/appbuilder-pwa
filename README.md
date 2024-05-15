@@ -5,11 +5,11 @@ A template for building a Progressive Web App with [Scripture App Builder](https
 ## Prerequisites
 
 -   Visual Studio Code
--   Node 16.17.0+ (we recommend using [Volta](https://volta.sh) to manage the Node versions)
+-   Node 20.9.0+ (we recommend using [Volta](https://volta.sh) to manage the Node versions)
 
 ## Usage
 
-You will need to download [Scripture App Builder 10.3.2](https://software.sil.org/scriptureappbuilder/download/) to use this project without the provided example data.
+You will need to download the latest version of [Scripture App Builder](https://software.sil.org/scriptureappbuilder/download/) to use this project without the provided example data.
 
 ### Develop
 
