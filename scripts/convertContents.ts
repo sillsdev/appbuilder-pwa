@@ -1,4 +1,4 @@
-import { link, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
@@ -51,7 +51,11 @@ function parseFeatureValue(value: any): any {
 }
 
 export function convertContents(dataDir: string, verbose: number) {
-    const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'contents.xml')).toString(), {
+    const contentsFile = path.join(dataDir, 'contents.xml');
+    if (!existsSync(contentsFile)) {
+        return data;
+    }
+    const dom = new jsdom.JSDOM(readFileSync(contentsFile).toString(), {
         contentType: 'text/xml'
     });
     const { document } = dom.window;
