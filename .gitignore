@@ -28,3 +28,4 @@ static/manifest.json
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js
+src/lib/data/contents.js
