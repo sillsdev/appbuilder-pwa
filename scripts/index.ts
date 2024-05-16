@@ -1,4 +1,5 @@
 import { ConvertConfig } from './convertConfig';
+import { ConvertBadges } from './convertBadges';
 import { ConvertManifest } from './convertManifest';
 import { ConvertMedia } from './convertMedia';
 import { ConvertBooks } from './convertBooks';
@@ -21,8 +22,8 @@ const suppliedDataDir = process.argv.find((arg) => arg.includes('--data-dir'));
 const dataDir = suppliedDataDir
     ? suppliedDataDir.split('=')[1]
     : process.argv.includes('--examples')
-    ? 'example_data'
-    : 'data';
+        ? 'example_data'
+        : 'data';
 
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
@@ -36,6 +37,7 @@ const verbose: number = verboseLevel
 
 const stepClasses: Task[] = [
     ConvertConfig,
+    ConvertBadges,
     ConvertStyles,
     ConvertManifest,
     ConvertMedia,
