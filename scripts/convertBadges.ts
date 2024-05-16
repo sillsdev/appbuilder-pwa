@@ -9,11 +9,8 @@ export async function convertBadges(
     verbose: number
 ) {
     /**badge languages from config*/
-    console.log("BadgesDir", badgesDir);
     const languages = Object.keys(configData.data.interfaceLanguages!.writingSystems);
     for (const language of languages) {
-        console.log("writingSystemLanguage", language)
-
         const srcFile = path.join(badgesDir, language + '_app_store.svg');
         const dstFile = path.join('static', 'badges', language + '_app_store.svg');
         if (existsSync(srcFile)) {
