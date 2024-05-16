@@ -7,7 +7,7 @@
     //export let language = 'english'; //try switch statement
     $: googlePlayBadge = `https://play.google.com/intl/en_us/badges/static/images/badges/${$language}_badge_web_generic.png`;
     $: appleStoreBadge = `${base}/badges/${$language}_app_store.svg`;
-    const badgeLanguages = ['en', 'fr'];
+    const badgeLanguages = ['en', 'es', 'fr', 'de'];
     const enAppleStoreBadge = `${base}/badges/en_app_store.svg`;
 </script>
 
