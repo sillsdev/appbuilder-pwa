@@ -4,7 +4,7 @@
     import { BookmarkIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { bookmarks, refs, t } from '$lib/data/stores';
+    import { refs, t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeBookmark, type BookmarkItem } from '$lib/data/bookmarks';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
