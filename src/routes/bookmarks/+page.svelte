@@ -70,26 +70,30 @@
     </div>
 
     <div id="bookmarks" class="overflow-y-auto p-2.5">
-        {#each toSorted($page.data.bookmarks, sortOrder) as b}
-            {@const iconCard = {
-                docSet: b.docSet,
-                collection: b.collection,
-                book: b.book,
-                chapter: b.chapter,
-                verse: b.verse,
-                reference: b.reference,
-                text: b.text,
-                date: formatDate(new Date(b.date)),
-                actions: [
-                    $t['Annotation_Menu_View'],
-                    $t['Annotation_Menu_Share'],
-                    $t['Annotation_Menu_Delete']
-                ]
-            }}
-
-            <IconCard on:menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
-                <BookmarkIcon slot="icon" color="#b10000" />
-            </IconCard>
-        {/each}
+        {#if $page.data.bookmarks.length === 0}
+            <div class="annotation-message-none">{$t['Annotation_Bookmarks_None']}</div>
+            <div class="annotation-message-none-info">{$t['Annotation_Bookmarks_None_Info']}</div>
+        {:else}
+            {#each toSorted($page.data.bookmarks, sortOrder) as b}
+                {@const iconCard = {
+                    docSet: b.docSet,
+                    collection: b.collection,
+                    book: b.book,
+                    chapter: b.chapter,
+                    verse: b.verse,
+                    reference: b.reference,
+                    text: b.text,
+                    date: formatDate(new Date(b.date)),
+                    actions: [
+                        $t['Annotation_Menu_View'],
+                        $t['Annotation_Menu_Share'],
+                        $t['Annotation_Menu_Delete']
+                    ]
+                }}
+                <IconCard on:menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
+                    <BookmarkIcon slot="icon" color="#b10000" />
+                </IconCard>
+            {/each}
+        {/if}
     </div>
 </div>
