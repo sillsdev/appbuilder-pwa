@@ -7,7 +7,7 @@
     //export let language = 'english'; //try switch statement
     $: googlePlayBadge = `https://play.google.com/intl/en_us/badges/static/images/badges/${$language}_badge_web_generic.png`;
     $: appleStoreBadge = `${base}/badges/${$language}_app_store.svg`;
-    const badgeLanguages = ['en', 'es', 'fr', 'de'];
+    const badgeLanguages = ['en', 'fr', 'de'];
     const enAppleStoreBadge = `${base}/badges/en_app_store.svg`;
 </script>
 
@@ -24,14 +24,14 @@
         </Navbar>
     </div>
     <div id="content" class="overflow-y-auto">
-        <div id="grid" class="flex flex-col sm:flex-row mt-12 justify-center gap-4 items-center">
-            <div id="google-play" class="w-56 md:w-72 lg:w-[28rem]">
-                {#if config.mainFeatures['share-app-link']}
+        <div id="grid" class="flex flex-col sm:flex-row mt-12 justify-center gap-8 items-center">
+            {#if config.mainFeatures['share-app-link']}
+                <div id="google-play" class="w-56 md:w-72 lg:w-[28rem]">
                     <img alt={$t['Share_App_Link']} src={googlePlayBadge} />
-                {/if}
-            </div>
-            <div id="apple-store" class="w-48 md:w-64 lg:w-96">
-                {#if config.mainFeatures['share-apple-app-link']}
+                </div>
+            {/if}
+            {#if config.mainFeatures['share-apple-app-link']}
+                <div id="apple-store" class="w-48 md:w-64 lg:w-96">
                     {#if badgeLanguages.includes($language)}
                         <img
                             alt={$t['share-apple-app-link']}
@@ -45,8 +45,8 @@
                             class="w-full h-auto"
                         />
                     {/if}
-                {/if}
-            </div>
+                </div>
+            {/if}
             <p />
         </div>
     </div>
