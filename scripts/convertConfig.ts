@@ -999,11 +999,7 @@ function filterFeaturesNotReady(data: ConfigData) {
     // Verse on image is not done
     data.mainFeatures['text-on-image'] = false;
 
-<<<<<<< HEAD
     // Share only implements links to apps on stores
-=======
-    //Share only implements links to apps on stores
->>>>>>> e6e2bc2 (Removed some unneeded comments. Added a needed one.)
     data.mainFeatures['share-download-app-link'] = false;
     data.mainFeatures['share-apk-file'] = false;
 

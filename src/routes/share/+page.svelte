@@ -24,7 +24,9 @@
     <div id="content" class="overflow-y-auto">
         <div id="grid" class="flex flex-col sm:flex-row mt-12 justify-center gap-8 items-center">
             {#if config.mainFeatures['share-app-link']}
-                <a href="https://play.google.com/store/apps/details?id=<package name>">
+                <a
+                    href="https://play.google.com/store/apps/details?id={config.package}&hl={$language}"
+                >
                     <div id="google-play" class="w-56 md:w-72 lg:w-[28rem]">
                         <img alt={$t['Share_App_Link']} src={googlePlayBadge} />
                     </div>
@@ -33,7 +35,11 @@
             {#if config.mainFeatures['share-apple-app-link']}
                 <div id="apple-store" class="w-48 md:w-64 lg:w-96">
                     {#if badgeLanguages.includes($language)}
-                        <a href="https://apps.apple.com/app/<share-apple-id>">
+                        <a
+                            href="https://apps.apple.com/app/{config.mainFeatures[
+                                'share-apple-id'
+                            ]}?l={$language}"
+                        >
                             <img
                                 alt={$t['share-apple-app-link']}
                                 src={appleStoreBadge}
@@ -41,7 +47,11 @@
                             />
                         </a>
                     {:else}
-                        <a href="https://apps.apple.com/app/<share-apple-id>">
+                        <a
+                            href="https://apps.apple.com/app/{config.mainFeatures[
+                                'share-apple-id'
+                            ]}"
+                        >
                             <img
                                 alt={$t['share-apple-app-link']}
                                 src={enAppleStoreBadge}
