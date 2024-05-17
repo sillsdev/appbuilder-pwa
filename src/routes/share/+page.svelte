@@ -4,7 +4,6 @@
     import config from '$lib/data/config';
     import { base } from '$app/paths';
 
-    //export let language = 'english'; //try switch statement
     $: googlePlayBadge = `https://play.google.com/intl/en_us/badges/static/images/badges/${$language}_badge_web_generic.png`;
     $: appleStoreBadge = `${base}/badges/${$language}_app_store.svg`;
     const badgeLanguages = ['en', 'fr', 'de', 'es'];
@@ -20,7 +19,6 @@
                 <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Share_App']}</div>
             </label>
             <!-- <div slot="right-buttons" /> -->
-            <!-- class="grid gap-4 items-center range-row m-2" -->
         </Navbar>
     </div>
     <div id="content" class="overflow-y-auto">
