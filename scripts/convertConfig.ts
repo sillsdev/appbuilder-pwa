@@ -381,7 +381,7 @@ function convertConfig(dataDir: string, verbose: number) {
     if (verbose) console.log(`Converting ${data.name}...`);
 
     // Package
-    data.package = document.getElementsByTagName('package')[0].innerHTML; //Does this work?
+    data.package = document.getElementsByTagName('package')[0].innerHTML;
     if (verbose) console.log(`Converting ${data.package}...`);
 
     // Features
@@ -1000,11 +1000,9 @@ function filterFeaturesNotReady(data: ConfigData) {
     // Verse on image is not done
     data.mainFeatures['text-on-image'] = false;
 
-    // Share is not done
-    // data.mainFeatures['share-app-link'] = false;
+    // Share only implements links to apps on stores
     data.mainFeatures['share-download-app-link'] = false;
     data.mainFeatures['share-apk-file'] = false;
-    // data.mainFeatures['share-apple-app-link'] = false;
 
     // Some settings are not done
     data.mainFeatures['settings-verse-of-the-day'] = false;
