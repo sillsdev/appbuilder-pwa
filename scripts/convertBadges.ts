@@ -1,7 +1,7 @@
-import { Promisable, Task, TaskOutput } from "./Task";
+import { Promisable, Task, TaskOutput } from './Task';
 import path from 'path';
-import { ConfigTaskOutput } from "./convertConfig";
-import { copyFile, existsSync } from "fs";
+import { ConfigTaskOutput } from './convertConfig';
+import { copyFile, existsSync } from 'fs';
 
 export async function convertBadges(
     badgesDir: string,
@@ -30,7 +30,7 @@ export class ConvertBadges extends Task {
     public badgesDir: string;
     constructor(dataDir: string) {
         super(dataDir);
-        this.badgesDir = path.join(__dirname, "badges");
+        this.badgesDir = path.join(__dirname, 'badges');
     }
     public run(
         verbose: number,
@@ -41,7 +41,7 @@ export class ConvertBadges extends Task {
 
         convertBadges(this.badgesDir, config, verbose);
         return {
-            taskName: "ConvertBadges",
+            taskName: 'ConvertBadges',
             files: []
         };
     }
