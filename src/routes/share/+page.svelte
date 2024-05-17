@@ -31,17 +31,21 @@
             {#if config.mainFeatures['share-apple-app-link']}
                 <div id="apple-store" class="w-48 md:w-64 lg:w-96">
                     {#if badgeLanguages.includes($language)}
-                        <img
-                            alt={$t['share-apple-app-link']}
-                            src={appleStoreBadge}
-                            class="w-full h-auto"
-                        />
+                        <a href="link">
+                            <img
+                                alt={$t['share-apple-app-link']}
+                                src={appleStoreBadge}
+                                class="w-full h-auto"
+                            />
+                        </a>
                     {:else}
-                        <img
-                            alt={$t['share-apple-app-link']}
-                            src={enAppleStoreBadge}
-                            class="w-full h-auto"
-                        />
+                        <a href="link">
+                            <img
+                                alt={$t['share-apple-app-link']}
+                                src={enAppleStoreBadge}
+                                class="w-full h-auto"
+                            />
+                        </a>
                     {/if}
                 </div>
             {/if}
