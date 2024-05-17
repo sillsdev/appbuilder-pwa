@@ -21,15 +21,16 @@ export class NavigationContext {
     prev: { book: string | null; chapter: string | null } = { book: null, chapter: null };
     initialized = false;
 
-    protected fetchCatalog: (docSet: string) => Promise<CatalogData>;
-    protected config: any;
+    protected fetchCatalog = loadCatalog;
+    protected config = configuration;
 
     private docSets: string[];
     private books: string[];
     private versesByChatper: { [chapter: string]: { [verse: string]: string } };
 
     async gotoInitial() {
-        this.init();
+        this.docSets = this.config.bookCollections.map((bc) => `${bc.languageCode}_${bc.id}`);
+        this.initialized = true;
         const start = this.config.mainFeatures['start-at-reference'];
         if (start) {
             await this.gotoReference(start);
@@ -42,14 +43,6 @@ export class NavigationContext {
                 '1'
             );
         }
-    }
-
-    private init() {
-        if (!this.fetchCatalog) this.fetchCatalog = loadCatalog;
-        if (!this.config) this.config = configuration;
-        if (!this.docSets)
-            this.docSets = this.config.bookCollections.map((bc) => `${bc.languageCode}_${bc.id}`);
-        this.initialized = true;
     }
 
     async gotoReference(reference: string) {

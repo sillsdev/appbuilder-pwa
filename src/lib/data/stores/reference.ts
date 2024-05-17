@@ -65,8 +65,13 @@ export const referenceStore = () => {
         update();
     };
 
+    const init = async () => {
+        await nav.gotoInitial();
+        update();
+    };
+
     return {
-        init: nav.gotoInitial,
+        init,
         subscribe: external.subscribe,
         set,
         setReference,
