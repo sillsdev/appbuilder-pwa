@@ -1,11 +1,11 @@
 import { ConvertConfig } from './convertConfig';
-import { ConvertBadges } from './convertBadges';
 import { ConvertManifest } from './convertManifest';
 import { ConvertMedia } from './convertMedia';
 import { ConvertBooks } from './convertBooks';
 import { ConvertAbout } from './convertAbout';
 import { ConvertFirebase } from './convertFirebase';
 import { ConvertStyles } from './convertStyles';
+import { ConvertBadges } from './convertBadges';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
@@ -37,12 +37,12 @@ const verbose: number = verboseLevel
 
 const stepClasses: Task[] = [
     ConvertConfig,
-    ConvertBadges,
     ConvertStyles,
     ConvertManifest,
     ConvertMedia,
     ConvertBooks,
     ConvertFirebase,
+    ConvertBadges,
     ConvertAbout
 ].map((x) => new x(dataDir));
 const allPaths = new Set(
