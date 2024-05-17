@@ -123,9 +123,9 @@ export function playPause() {
     audioPlayerStore.set(currentAudioPlayer);
 }
 // changes chapter
-export function skip(direction) {
+export async function skip(direction) {
     pause();
-    refs.skip(direction);
+    await refs.skip(direction);
 }
 // formats timing information
 export function format(seconds) {
@@ -137,7 +137,7 @@ export function format(seconds) {
     return `${minutes}:${seconds}`;
 }
 // changes the phrase of the audio
-export function changeVerse(direction) {
+export async function changeVerse(direction) {
     if (!currentAudioPlayer.loaded) return;
     const playing = currentAudioPlayer.playing;
     pause();
@@ -151,7 +151,7 @@ export function changeVerse(direction) {
             currentAudioPlayer.audio.currentTime = newtime;
             updateTime();
         } else {
-            skip(1);
+            await skip(1);
         }
     } else {
         if (currentAudioPlayer.timeIndex > 0) {
@@ -181,12 +181,12 @@ export function seek(position) {
     }
 }
 let warmdown = undefined;
-function handlePlayMode() {
+async function handlePlayMode() {
     if (warmdown) {
         warmdown--;
         if (warmdown === 0) {
             if (currentPlayMode.mode === PLAYMODE_CONTINUE) {
-                skip(1);
+                await skip(1);
                 playMode.set({ ...currentPlayMode, continue: true });
             } else if (currentPlayMode.mode === PLAYMODE_REPEAT_PAGE) {
                 seek(0);
@@ -268,7 +268,7 @@ function getCurrentVerseTiming() {
 }
 // function get range of current index all labels of the current verse playing
 // calls updatehighlights() to see if highlights need to be change
-function updateTime() {
+async function updateTime() {
     if (!currentAudioPlayer.loaded) {
         return;
     }
@@ -279,7 +279,7 @@ function updateTime() {
     if (currentAudioPlayer.timing && currentAudioPlayer.progress) {
         updateHighlights();
     }
-    handlePlayMode();
+    await handlePlayMode();
 }
 // calls updateTime() every 100ms
 function toggleTimeRunning() {

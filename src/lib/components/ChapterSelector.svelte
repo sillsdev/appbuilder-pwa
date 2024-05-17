@@ -9,7 +9,6 @@ The navbar component.
     import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
-    import { catalog } from '$lib/data/stores/catalog';
     import config from '$lib/data/config';
     import * as numerals from '$lib/scripts/numeralSystem';
 
@@ -29,12 +28,12 @@ The navbar component.
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
-    function navigateReference(e) {
+    async function navigateReference(e) {
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
                 if (!showVerseSelector) {
-                    completeNavigation();
+                    await completeNavigation();
                 } else {
                     chapterSelector.setActive(v);
                 }
@@ -48,7 +47,7 @@ The navbar component.
                 } else {
                     $nextRef.verse = e.detail.text;
                 }
-                completeNavigation();
+                await completeNavigation();
                 break;
             default:
                 console.log('Chapter navigateReference: Default');
@@ -56,8 +55,8 @@ The navbar component.
         }
     }
 
-    function completeNavigation() {
-        $refs = { chapter: $nextRef.chapter, verse: $nextRef.verse };
+    async function completeNavigation() {
+        await refs.set({ chapter: $nextRef.chapter, verse: $nextRef.verse });
 
         addHistory({
             collection: $refs.collection,
@@ -74,7 +73,7 @@ The navbar component.
     }
 
     function getChapterCount(book) {
-        let books = $catalog.documents;
+        let books = $refs.catalog.documents;
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
@@ -83,7 +82,7 @@ The navbar component.
         if (!chapter || chapter === 'i') {
             return 0;
         }
-        let books = $catalog.documents;
+        let books = $refs.catalog.documents;
         let chapters = books.find((d) => d.bookCode === book).versesByChapters;
         if (!chapters || Object.keys(chapters).length === 0) {
             return 0;
@@ -120,7 +119,7 @@ The navbar component.
         return value;
     };
     /**list of books in current docSet*/
-    $: books = $catalog.documents;
+    $: books = $refs.catalog.documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
     $: showSelector =

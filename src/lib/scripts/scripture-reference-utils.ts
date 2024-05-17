@@ -6,7 +6,7 @@
 
 import { get } from 'svelte/store';
 import config from '../data/config';
-import { catalog, type CatalogData } from '../data/stores/catalog';
+import type { CatalogData } from '../data/catalog';
 import { getVerseText, refs } from '../data/stores';
 import {
     ciEquals,
@@ -87,7 +87,7 @@ function initGlobals() {
 export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
     ref = get(refs);
     bookCollections = config.bookCollections;
-    runtimeCatalog = get(catalog);
+    runtimeCatalog = ref.catalog;
     return generateHTMLMain(crossRef, refClass, bookId);
 }
 export function generateHTMLTest(

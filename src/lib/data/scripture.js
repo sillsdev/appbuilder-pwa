@@ -3,9 +3,7 @@ import { base } from '$app/paths';
 import { Proskomma } from 'proskomma-core';
 import { thaw } from '../scripts/thaw';
 import { pk } from '$lib/data/stores/pk';
-import { loadCatalog } from '$lib/data/stores/catalog';
 import config from '$lib/data/config';
-// import { refs } from '$lib/data/stores/scripture';
 
 export async function initProskomma({ fetch }) {
     let proskomma = get(pk);
@@ -39,7 +37,6 @@ export async function loadDocSet(proskomma, docSet, fetch) {
         performance.mark('pk-thaw-end');
         performance.measure('pk-thaw-duration', 'pk-thaw-start', 'pk-thaw-end');
     }
-    await loadCatalog(docSet);
 }
 
 export async function loadDocSetIfNotLoaded(proskomma, docSet, fetch) {

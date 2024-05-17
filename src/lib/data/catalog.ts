@@ -1,5 +1,6 @@
-import { writable } from 'svelte/store';
 import { base } from '$app/paths';
+
+let fetchFn = fetch;
 
 export interface CatalogData {
     id: string;
@@ -23,10 +24,9 @@ export interface CatalogData {
     tags: {};
 }
 
-export const catalog = writable<CatalogData>();
-
-export async function loadCatalog(docSet: string) {
-    await fetch(`${base}/collections/catalog/${docSet}.json`)
+export async function loadCatalog(docSet: string): Promise<CatalogData> {
+    let result: CatalogData;
+    await fetchFn(`${base}/collections/catalog/${docSet}.json`)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(
@@ -36,9 +36,16 @@ export async function loadCatalog(docSet: string) {
             return response.json();
         })
         .then((data) => {
-            catalog.set(data);
+            result = data;
         })
         .catch((error) => {
             console.error(`Could not get catalog for ${docSet}:`, error);
         });
+    return result;
 }
+
+export default {
+    setFetch: (func) => {
+        fetchFn = func;
+    }
+};

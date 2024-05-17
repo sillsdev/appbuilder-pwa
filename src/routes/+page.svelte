@@ -31,7 +31,6 @@
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
-    import { parseReference } from '$lib/data/stores/store-types';
     import {
         AudioIcon,
         SearchIcon,
@@ -66,10 +65,10 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
-    function doSwipe(event) {
+    async function doSwipe(event) {
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
-        refs.skip(event.detail.direction === 'right' ? -1 : 1);
+        await refs.skip(event.detail.direction === 'right' ? -1 : 1);
         if (prev !== $refs) {
             addHistory({
                 collection: $refs.collection,
@@ -79,16 +78,16 @@
         }
     }
 
-    function prevChapter() {
-        refs.skip(-1);
+    async function prevChapter() {
+        await refs.skip(-1);
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
             chapter: $refs.chapter
         });
     }
-    function nextChapter() {
-        refs.skip(1);
+    async function nextChapter() {
+        await refs.skip(1);
         addHistory({
             collection: $refs.collection,
             book: $refs.book,
@@ -173,7 +172,7 @@
 
     // Process page parameters
     if ($page.data?.ref) {
-        refs.set(parseReference($page.data.ref));
+        refs.setReference($page.data.ref);
     }
     if ($page.data?.audio) {
         $audioActive = $page.data.audio === '1';

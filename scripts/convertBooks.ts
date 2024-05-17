@@ -253,18 +253,6 @@ export async function convertBooks(
             )
         );
     });
-    // For backwards compatibility until we get get the new catalogs working.
-    writeFileSync(
-        path.join('src', 'lib', 'data', 'catalog.js'),
-        `export const catalog = ${JSON.stringify(
-            entries.map(
-                (entry) =>
-                    postQueries.parseChapterVerseMapInDocSets({
-                        docSets: entry.data.docSets
-                    })[0]
-            )
-        )};`
-    );
     if (verbose) console.time('freeze');
     //write frozen archives for import
     //const vals = await Promise.all(freezer.values());

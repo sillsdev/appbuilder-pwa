@@ -12,7 +12,6 @@ LOGGING:
 <script lang="ts">
     import type { Proskomma } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { catalog } from '$lib/data/stores/catalog';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { footnotes, refs, logs, modal, MODAL_NOTE } from '$lib/data/stores';
@@ -30,15 +29,10 @@ LOGGING:
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import { findNote } from '$lib/data/notes';
     import { audioPlayer } from '$lib/data/stores';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
-    import {
-        getFeatureValueBoolean,
-        getFeatureValueString,
-        getStyle
-    } from '$lib/scripts/configUtils';
+    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
 
     export let audioPhraseEndChars: string;
@@ -1798,7 +1792,7 @@ LOGGING:
 
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
-    $: books = $catalog.documents;
+    $: books = $refs.catalog.documents;
     $: direction = config.bookCollections.find((x) => x.id === references.collection).style
         .textDirection;
 
