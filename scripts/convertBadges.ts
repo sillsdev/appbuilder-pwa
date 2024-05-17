@@ -1,18 +1,23 @@
 import { Promisable, Task, TaskOutput } from './Task';
 import path from 'path';
 import { ConfigTaskOutput } from './convertConfig';
-import { copyFile, existsSync } from 'fs';
+import { copyFile, existsSync, mkdirSync } from 'fs';
 
 export async function convertBadges(
     badgesDir: string,
     configData: ConfigTaskOutput,
     verbose: number
 ) {
+    const dstBadgeDir = path.join('static', 'badges');
+    if (!existsSync(dstBadgeDir)) {
+        mkdirSync(dstBadgeDir);
+    }
+
     /**badge languages from config*/
     const languages = Object.keys(configData.data.interfaceLanguages!.writingSystems);
     for (const language of languages) {
         const srcFile = path.join(badgesDir, language + '_app_store.svg');
-        const dstFile = path.join('static', 'badges', language + '_app_store.svg');
+        const dstFile = path.join(dstBadgeDir, language + '_app_store.svg');
         if (existsSync(srcFile)) {
             copyFile(srcFile, dstFile, function (err: any) {
                 if (err) throw err;
