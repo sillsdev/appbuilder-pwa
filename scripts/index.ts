@@ -6,6 +6,7 @@ import { ConvertBooks } from './convertBooks';
 import { ConvertAbout } from './convertAbout';
 import { ConvertFirebase } from './convertFirebase';
 import { ConvertStyles } from './convertStyles';
+import { ConvertBadges } from './convertBadges';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
@@ -43,6 +44,7 @@ const stepClasses: Task[] = [
     ConvertMedia,
     ConvertBooks,
     ConvertFirebase,
+    ConvertBadges,
     ConvertAbout
 ].map((x) => new x(dataDir));
 const allPaths = new Set(

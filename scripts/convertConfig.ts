@@ -81,6 +81,7 @@ type BookCollection = {
 
 export type ConfigData = {
     name?: string;
+    package?: string;
     mainFeatures?: any;
     fonts?: {
         name?: string;
@@ -378,6 +379,10 @@ function convertConfig(dataDir: string, verbose: number) {
     // Name
     data.name = document.getElementsByTagName('app-name')[0].innerHTML;
     if (verbose) console.log(`Converting ${data.name}...`);
+
+    // Package
+    data.package = document.getElementsByTagName('package')[0].innerHTML;
+    if (verbose) console.log(`Converting ${data.package}...`);
 
     // Features
     const mainFeatureTags = document
@@ -995,11 +1000,9 @@ function filterFeaturesNotReady(data: ConfigData) {
     // Verse on image is not done
     data.mainFeatures['text-on-image'] = false;
 
-    // Share is not done
-    data.mainFeatures['share-app-link'] = false;
+    // Share only implements links to apps on stores
     data.mainFeatures['share-download-app-link'] = false;
     data.mainFeatures['share-apk-file'] = false;
-    data.mainFeatures['share-apple-app-link'] = false;
 
     // Some settings are not done
     data.mainFeatures['settings-verse-of-the-day'] = false;

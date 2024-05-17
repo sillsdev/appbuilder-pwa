@@ -10,6 +10,7 @@ node_modules
 data/*
 !data/.empty
 static/sab-stylesheet.css
+static/badges
 static/fonts
 static/images
 static/audio
