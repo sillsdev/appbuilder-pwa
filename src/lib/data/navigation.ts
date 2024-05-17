@@ -1,4 +1,4 @@
-import { type CatalogData, loadCatalog } from './catalog';
+import { type CatalogData, loadCatalog } from './catalogData';
 import configuration from './config';
 
 /**
@@ -29,7 +29,6 @@ export class NavigationContext {
     private versesByChatper: { [chapter: string]: { [verse: string]: string } };
 
     async gotoInitial() {
-        console.log('hello world');
         this.init();
         const start = this.config.mainFeatures['start-at-reference'];
         if (start) {

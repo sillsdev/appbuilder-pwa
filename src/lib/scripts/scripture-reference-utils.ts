@@ -6,7 +6,7 @@
 
 import { get } from 'svelte/store';
 import config from '../data/config';
-import type { CatalogData } from '../data/catalog';
+import type { CatalogData } from '../data/catalogData';
 import { getVerseText, refs } from '../data/stores';
 import {
     ciEquals,

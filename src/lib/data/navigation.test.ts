@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { NavigationContext } from './navigation';
-import type { CatalogData } from './catalog';
+import type { CatalogData } from './catalogData';
 
 class TestNavigationContext extends NavigationContext {
     constructor(fetchCatalog: (docSet: string) => Promise<CatalogData>, config) {

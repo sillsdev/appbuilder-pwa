@@ -1,5 +1,5 @@
 import { initProskomma } from '$lib/data/scripture';
-import catalog from '$lib/data/catalog';
+import catalog from '$lib/data/catalogData';
 import { refs } from '$lib/data/stores/scripture';
 
 /** @type {import('./$types').PageLoad} */
