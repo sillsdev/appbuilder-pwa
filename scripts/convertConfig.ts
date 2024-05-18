@@ -30,35 +30,37 @@ type Style = {
     verseNumbers: string;
 };
 
-type BookCollection = {
+export type Book = {
+    id: string;
+    type?: string;
+    name: string;
+    abbreviation: string;
+    additionalNames?: {
+        name: string;
+    }[];
+    testament: string;
+    section: string; // Pentateuch
+    chapters: number;
+    chaptersN: string; // 1-34
+    fonts: string[];
+    file: string;
+    audio: BookCollectionAudio[];
+    features: any;
+    footer?: HTML;
+    style?: Style;
+    styles?: {
+        name: string;
+        category?: string;
+        properties: {
+            [key: string]: string;
+        };
+    }[];
+};
+
+export type BookCollection = {
     id: string;
     features: any;
-    books: {
-        id: string;
-        type?: string;
-        name: string;
-        abbreviation: string;
-        additionalNames?: {
-            name: string;
-        }[];
-        testament: string;
-        section: string; // Pentateuch
-        chapters: number;
-        chaptersN: string; // 1-34
-        fonts: string[];
-        file: string;
-        audio: BookCollectionAudio[];
-        features: any;
-        footer?: HTML;
-        style?: Style;
-        styles?: {
-            name: string;
-            category?: string;
-            properties: {
-                [key: string]: string;
-            };
-        }[];
-    }[];
+    books: Book[];
     style?: Style;
     fonts: string[];
     languageCode: string;
