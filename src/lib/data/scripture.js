@@ -4,7 +4,6 @@ import { Proskomma } from 'proskomma-core';
 import { thaw } from '../scripts/thaw';
 import { pk } from '$lib/data/stores/pk';
 import config from '$lib/data/config';
-// import { refs } from '$lib/data/stores/scripture';
 
 export async function initProskomma({ fetch }) {
     let proskomma = get(pk);

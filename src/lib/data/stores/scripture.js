@@ -1,4 +1,4 @@
-import { referenceStore } from './store-types';
+import { referenceStore } from './reference';
 import { writable, get, derived } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 import { loadDocSetIfNotLoaded } from '../scripture';
@@ -26,25 +26,7 @@ function createStack() {
 export const footnotes = createStack();
 
 /** current reference */
-const firstChapter =
-    config.bookCollections[0].books[0].id +
-    '.' +
-    config.bookCollections[0].books[0].chaptersN.split('-')[0];
-const startReference = config.mainFeatures['start-at-reference'] || firstChapter;
-const initReference =
-    config.bookCollections[0].languageCode +
-    '_' +
-    config.bookCollections[0].id +
-    '.' +
-    startReference +
-    '.' +
-    '1';
-setDefaultStorage('refs', initReference);
-
-export const refs = referenceStore(localStorage.refs);
-refs.subscribe((value) => {
-    localStorage.refs = value.docSet + '.' + value.book + '.' + value.chapter + '.' + value.verse;
-});
+export const refs = referenceStore();
 
 function createNextRef() {
     const external = writable({ book: '', chapter: '', verse: '' });
@@ -166,6 +148,7 @@ export const glossary = derived(docSet, async ($docSet) => {
 });
 export const currentFont = writable(config.fonts[0].family);
 export const fontChoices = derived(refs, ($refs) => {
+    if (!$refs.initialized) return [];
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book).fonts;

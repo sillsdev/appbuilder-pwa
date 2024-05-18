@@ -1,4 +1,5 @@
 <script lang="ts">
+    import catalog from '$lib/data/catalogData';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import {
         direction,
@@ -18,6 +19,12 @@
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
+
+    if (!$refs.initialized) {
+        catalog.setFetch(fetch);
+        // When this async function completes, $refs.intialized will be true.
+        refs.init();
+    }
 
     $: $modal, showModal();
 
@@ -53,32 +60,36 @@
 <svelte:head>
     <meta name="theme-color" content={$s['ui.bar.action']['background-color']} />
     <link rel="stylesheet" href="{base}/styles/sab-app.css" />
-    <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
+    {#if $refs.initialized}
+        <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
+    {/if}
     <link rel="stylesheet" href="{base}/override-sab.css" />
 </svelte:head>
 
-<div>
-    <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
+{#if $refs.initialized}
+    <div>
+        <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 
-    <!-- Add Note Menu -->
-    <NoteDialog bind:this={noteDialog} />
+        <!-- Add Note Menu -->
+        <NoteDialog bind:this={noteDialog} />
 
-    <!-- Text Appearance Options Menu -->
-    <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
+        <!-- Text Appearance Options Menu -->
+        <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
-    <!-- Collection Selector Menu -->
-    <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
+        <!-- Collection Selector Menu -->
+        <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
 
-    <FontSelector bind:this={fontSelector} />
-</div>
-
-<Sidebar on:showModal={showModal}>
-    <div
-        id="container"
-        data-color-theme={$theme}
-        style="height:100vh;height:100dvh;"
-        style:direction={$direction}
-    >
-        <slot />
+        <FontSelector bind:this={fontSelector} />
     </div>
-</Sidebar>
+
+    <Sidebar on:showModal={showModal}>
+        <div
+            id="container"
+            data-color-theme={$theme}
+            style="height:100vh;height:100dvh;"
+            style:direction={$direction}
+        >
+            <slot />
+        </div>
+    </Sidebar>
+{/if}

@@ -238,22 +238,22 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-    writeFileSync(
-        path.join('src', 'lib', 'data', 'catalog.js'),
-        `export const catalog = ${JSON.stringify(
-            entries.map(
-                (entry) =>
-                    postQueries.parseChapterVerseMapInDocSets({
-                        docSets: entry.data.docSets
-                    })[0]
-            )
-        )};`
-    );
-    if (verbose) console.time('freeze');
-    if (!existsSync(path.join('static', 'collections'))) {
-        if (verbose) console.log('creating: ' + path.join('static', 'collections'));
-        mkdirSync(path.join('static', 'collections'));
+    const catalogPath = path.join('static', 'collections', 'catalog');
+    if (!existsSync(catalogPath)) {
+        if (verbose) console.log('creating: ' + catalogPath);
+        mkdirSync(catalogPath, { recursive: true });
     }
+    entries.forEach((entry) => {
+        writeFileSync(
+            path.join(catalogPath, entry.data.docSets[0].id + '.json'),
+            JSON.stringify(
+                postQueries.parseChapterVerseMapInDocSets({
+                    docSets: [entry.data.docSets[0]]
+                })[0]
+            )
+        );
+    });
+    if (verbose) console.time('freeze');
     //write frozen archives for import
     //const vals = await Promise.all(freezer.values());
     //write frozen archives

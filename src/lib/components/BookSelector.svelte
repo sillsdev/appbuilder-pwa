@@ -9,7 +9,6 @@ The navbar component.
     import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
-    import { catalog } from '$lib/data/catalog';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -49,10 +48,10 @@ The navbar component.
     /**
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
-    function navigateReference(e) {
+    async function navigateReference(e) {
         if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
-            $refs = { book: $nextRef.book, chapter: 1 };
+            await refs.set({ book: $nextRef.book, chapter: 1 });
             document.activeElement.blur();
         } else {
             switch (e.detail.tab) {
@@ -62,18 +61,18 @@ The navbar component.
                     const count = chapterCount($nextRef.book);
                     if (count === 0) {
                         $nextRef.chapter = 'i';
-                        completeNavigation();
+                        await completeNavigation();
                     }
                     $nextRef.chapter = '1';
                     if (count === 1) {
-                        completeNavigation();
+                        await completeNavigation();
                     }
                     break;
                 }
                 case c:
                     $nextRef.chapter = e.detail.text;
                     if (!showVerseSelector) {
-                        completeNavigation();
+                        await completeNavigation();
                     } else {
                         bookSelector.setActive(v);
                     }
@@ -87,7 +86,7 @@ The navbar component.
                     } else {
                         $nextRef.verse = e.detail.text;
                     }
-                    completeNavigation();
+                    await completeNavigation();
                     break;
                 default:
                     console.log('Book navigateReference: Default');
@@ -97,7 +96,7 @@ The navbar component.
     }
 
     async function completeNavigation() {
-        $refs = { book: $nextRef.book, chapter: $nextRef.chapter, verse: $nextRef.verse };
+        await refs.set({ book: $nextRef.book, chapter: $nextRef.chapter, verse: $nextRef.verse });
         addHistory({
             collection: $refs.collection,
             book: $nextRef.book,
@@ -115,7 +114,7 @@ The navbar component.
     }
 
     /**list of books in current docSet*/
-    $: books = catalog.find((d) => d.id === $refs.docSet).documents;
+    $: books = $refs.catalog.documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
