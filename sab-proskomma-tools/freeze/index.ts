@@ -1,5 +1,5 @@
 import { gzipSync, strToU8 } from 'fflate';
-import { SABProskomma } from '../../sab-proskomma';
+import { SABProskomma } from '../../src/lib/sab-proskomma';
 
 const freeze = (pk: SABProskomma) => {
     const result: { [key: string]: Uint8Array } = {};

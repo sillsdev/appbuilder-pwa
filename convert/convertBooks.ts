@@ -5,7 +5,7 @@ import { ConfigData, ConfigTaskOutput, Book } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
 import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { SABProskomma } from '../sab-proskomma';
+import { SABProskomma } from '../src/lib/sab-proskomma';
 import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
