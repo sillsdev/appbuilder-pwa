@@ -41,7 +41,7 @@ export const referenceStore = () => {
             catalog: nav.catalog,
             initialized: nav.initialized
         });
-        setDefaultStorage('refs', nav.reference);
+        localStorage.refs = nav.reference;
     };
 
     const set = async ({ docSet, book, chapter, verse }) => {
@@ -66,7 +66,7 @@ export const referenceStore = () => {
     };
 
     const init = async () => {
-        await nav.gotoInitial();
+        await nav.gotoInitial(localStorage.refs);
         update();
     };
 

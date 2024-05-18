@@ -28,10 +28,10 @@ export class NavigationContext {
     private books: string[];
     private versesByChatper: { [chapter: string]: { [verse: string]: string } };
 
-    async gotoInitial() {
+    async gotoInitial(start: string = '') {
         this.docSets = this.config.bookCollections.map((bc) => `${bc.languageCode}_${bc.id}`);
         this.initialized = true;
-        const start = this.config.mainFeatures['start-at-reference'];
+        start = start || this.config.mainFeatures['start-at-reference'];
         if (start) {
             await this.gotoReference(start);
         } else {
@@ -59,14 +59,14 @@ export class NavigationContext {
         if (!this.initialized) {
             throw new Error('NavigationContext is not initialized; please call gotoInitial()');
         }
-        await this.updateReference(docSet, book, chapter, verse);
+        await this.updateLocation(docSet, book, chapter, verse);
         this.updateAudio();
         this.updateHeadings();
         this.updateNextPrev();
-        this.reference = `${this.docSet}.${this.book}.${this.chapter}.${this.verse}`;
+        this.updateReference();
     }
 
-    private async updateReference(docSet: string, book: string, chapter: string, verse: string) {
+    private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {
         let newBook = false;
         if (this.docSets.includes(docSet) && this.docSet !== docSet) {
             this.docSet = docSet;
@@ -121,6 +121,13 @@ export class NavigationContext {
         const document = this.catalog.documents.find((b) => b.bookCode === this.book);
         this.title = document.toc;
         this.name = document.h;
+    }
+
+    private updateReference() {
+        this.reference = [this.docSet, this.book, this.chapter].join('.');
+        if (this.verse) {
+            this.reference += '.' + this.verse;
+        }
     }
 
     private updateNextPrev() {

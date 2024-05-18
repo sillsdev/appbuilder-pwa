@@ -255,6 +255,19 @@ describe('goToInitial', async () => {
         });
     });
 
+    test('loads last reference if provided as argument', async () => {
+        const context = new TestNavigationContext(getTestCatalog, config);
+        await context.gotoInitial();
+        await context.goto('eng_C01', 'MRK', '2', '2');
+        const lastRef = context.reference;
+
+        const context2 = new TestNavigationContext(getTestCatalog, config);
+        await context2.gotoInitial(lastRef);
+        expect(context2.docSet).toBe('eng_C01');
+        expect(context2.book).toBe('MRK');
+        expect(context2.chapter).toBe('2');
+    });
+
     test('loads catalog for docset', () => {
         expect(navContext.catalog).toBe(catalog1);
     });
@@ -557,10 +570,19 @@ describe('goTo', () => {
         });
     });
 
-    test('reference has correct format', async () => {
-        const navContext = new TestNavigationContext(getTestCatalog, config);
-        await navContext.gotoInitial();
-        await navContext.goto('eng_C01', 'MAT', '2', '1');
-        expect(navContext.reference).toBe('eng_C01.MAT.2.1');
+    describe('reference', () => {
+        test('full reference', async () => {
+            const navContext = new TestNavigationContext(getTestCatalog, config);
+            await navContext.gotoInitial();
+            await navContext.goto('eng_C01', 'MAT', '2', '1');
+            expect(navContext.reference).toBe('eng_C01.MAT.2.1');
+        });
+
+        test('reference without verse', async () => {
+            const navContext = new TestNavigationContext(getTestCatalog, config);
+            await navContext.gotoInitial();
+            await navContext.goto('eng_C01', 'MAT', '2');
+            expect(navContext.reference).toBe('eng_C01.MAT.2');
+        });
     });
 });
