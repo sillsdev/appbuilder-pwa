@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import { ConfigTaskOutput } from './convertConfig';
+import { ConfigData, ConfigTaskOutput, Book } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
 import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
@@ -25,7 +25,7 @@ function replaceVideoTags(text: string, _bcId: string, _bookId: string): string 
 function replacePageTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
 }
-function loadGlossary(collection: any, configData: ConfigTaskOutput, dataDir: string): string[] {
+function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
         if (book.type && book.type === 'glossary') {
@@ -109,6 +109,15 @@ function applyFilters(text: string, bcId: string, bookId: string): string {
     return filteredText;
 }
 
+type ConvertBookContext = {
+    dataDir: string;
+    configData: ConfigData;
+    verbose: number;
+    lang: string;
+    docSet: string;
+    bcId: string;
+};
+
 const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
@@ -126,101 +135,57 @@ export async function convertBooks(
     //loop through collections
     for (const collection of collections!) {
         const pk = new SABProskomma();
-        const lang = collection.languageCode;
+        const context: ConvertBookContext = {
+            dataDir,
+            configData: configData.data,
+            verbose,
+            lang: collection.languageCode,
+            docSet: collection.languageCode + '_' + collection.id,
+            bcId: collection.id
+        };
         let bcGlossary: string[] = [];
-        if (verbose && usedLangs.has(lang)) {
-            console.warn(`Language ${lang} already used in another collection. Proceeding anyway.`);
+        if (verbose && usedLangs.has(context.lang)) {
+            console.warn(
+                `Language ${context.lang} already used in another collection. Proceeding anyway.`
+            );
         }
-        usedLangs.add(lang);
-        const bcId = collection.id;
-        process.stdout.write(`  ${bcId}:`);
-        const docSet = lang + '_' + bcId;
+        usedLangs.add(context.lang);
+        process.stdout.write(`  ${context.bcId}:`);
         if (verbose)
-            console.log('converting collection: ' + collection.id + ' to docSet: ' + docSet);
+            console.log(
+                'converting collection: ' + collection.id + ' to docSet: ' + context.docSet
+            );
         /**array of promises of Proskomma mutations*/
         const docs: Promise<void>[] = [];
         //loop through books in collection
         const ignoredBooks = [];
         // If the collection has a glossary, load it
         if (configData.data.traits['has-glossary']) {
-            bcGlossary = loadGlossary(collection, configData, dataDir);
+            bcGlossary = loadGlossary(collection, dataDir);
         }
         for (const book of collection.books) {
-            if (book.type && unsupportedBookTypes.includes(book.type)) {
-                // Ignore non-default books for now
+            let bookConverted = false;
+            switch (book.type) {
+                case 'story':
+                case 'songs':
+                case 'audio-only':
+                case 'bloom-player':
+                case 'undefined':
+                    break;
+                case 'quiz':
+                    //bookConverted = true;
+                    convertQuizBook(context, book);
+                    break;
+                default:
+                    bookConverted = true;
+                    convertScriptureBook(pk, context, book, bcGlossary, docs);
+                    break;
+            }
+            if (!bookConverted) {
+                // report which books were ignored at the end
                 ignoredBooks.push(book.id);
                 continue;
             }
-            //push new Proskomma mutation to docs array
-            docs.push(
-                new Promise<void>((resolve) => {
-                    //read usfm file
-                    readFile(
-                        path.join(dataDir, 'books', collection.id, book.file),
-                        'utf8',
-                        (err, content) => {
-                            if (err) throw err;
-                            process.stdout.write(` ${book.id}`);
-                            content = applyFilters(content, bcId, book.id);
-                            if (configData.data.traits['has-glossary']) {
-                                content = verifyGlossaryEntries(content, bcGlossary);
-                            }
-                            //query Proskomma with a mutation to add a document
-                            //more efficient than original pk.addDocument call
-                            //as it can be run asynchronously
-                            pk.gqlQuery(
-                                `
-                                mutation {
-                                    addDocument(
-                                        selectors: [
-                                            {key: "lang", value: "${lang}"}, 
-                                            {key: "abbr", value: "${bcId}"}
-                                        ], 
-                                        contentType: "${book.file.split('.').pop()}", 
-                                        content: """${content}""",
-                                        tags: [
-                                            "sections:${book.section}",
-                                            "testament:${book.testament}"
-                                        ]
-                                    )
-                                }`,
-                                (r: any) => {
-                                    //log if document added successfully
-                                    if (verbose)
-                                        console.log(
-                                            (r.data?.addDocument ? '' : 'failed: ') +
-                                                docSet +
-                                                ' <- ' +
-                                                book.name +
-                                                ': ' +
-                                                path.join(
-                                                    dataDir,
-                                                    'books',
-                                                    collection.id,
-                                                    book.file
-                                                )
-                                        );
-                                    //if the document is not added successfully, the response returned by Proskomma includes an error message
-                                    if (!r.data?.addDocument) {
-                                        const bookPath = path.join(
-                                            dataDir,
-                                            'books',
-                                            collection.id,
-                                            book.file
-                                        );
-                                        throw Error(
-                                            `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(
-                                                r
-                                            )}`
-                                        );
-                                    }
-                                    resolve();
-                                }
-                            );
-                        }
-                    );
-                })
-            );
         }
         if (verbose) console.time('convert ' + collection.id);
         //wait for documents to finish being added to Proskomma
@@ -232,7 +197,7 @@ export async function convertBooks(
         if (verbose) console.timeEnd('convert ' + collection.id);
         //start freezing process and map promise to docSet name
         const frozen = freeze(pk);
-        freezer.set(docSet, frozen[docSet]);
+        freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
     }
@@ -286,6 +251,86 @@ export async function convertBooks(
         files,
         taskName: 'ConvertBooks'
     };
+}
+
+function convertQuizBook(context: ConvertBookContext, book: Book) {
+    if (context.verbose) {
+        console.log('Converting QuizBook:', book.id);
+    }
+    //TODO: parse book into QuizBookData and save to /static
+}
+
+function convertScriptureBook(
+    pk: SABProskomma,
+    context: ConvertBookContext,
+    book: Book,
+    bcGlossary: string[],
+    docs: Promise<void>[]
+) {
+    //push new Proskomma mutation to docs array
+    docs.push(
+        new Promise<void>((resolve) => {
+            //read usfm file
+            readFile(
+                path.join(context.dataDir, 'books', context.bcId, book.file),
+                'utf8',
+                (err, content) => {
+                    if (err) throw err;
+                    process.stdout.write(` ${book.id}`);
+                    content = applyFilters(content, context.bcId, book.id);
+                    if (context.configData.traits['has-glossary']) {
+                        content = verifyGlossaryEntries(content, bcGlossary);
+                    }
+                    //query Proskomma with a mutation to add a document
+                    //more efficient than original pk.addDocument call
+                    //as it can be run asynchronously
+                    pk.gqlQuery(
+                        `mutation {
+                            addDocument(
+                                selectors: [
+                                    {key: "lang", value: "${context.lang}"}, 
+                                    {key: "abbr", value: "${context.bcId}"}
+                                ], 
+                                contentType: "${book.file.split('.').pop()}", 
+                                content: """${content}""",
+                                tags: [
+                                    "sections:${book.section}",
+                                    "testament:${book.testament}"
+                                ]
+                            )
+                        }`,
+                        (r: any) => {
+                            //log if document added successfully
+                            if (context.verbose)
+                                console.log(
+                                    (r.data?.addDocument ? '' : 'failed: ') +
+                                        context.docSet +
+                                        ' <- ' +
+                                        book.name +
+                                        ': ' +
+                                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                                );
+                            //if the document is not added successfully, the response returned by Proskomma includes an error message
+                            if (!r.data?.addDocument) {
+                                const bookPath = path.join(
+                                    context.dataDir,
+                                    'books',
+                                    context.bcId,
+                                    book.file
+                                );
+                                throw Error(
+                                    `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(
+                                        r
+                                    )}`
+                                );
+                            }
+                            resolve();
+                        }
+                    );
+                }
+            );
+        })
+    );
 }
 
 export interface BooksTaskOutput extends TaskOutput {
