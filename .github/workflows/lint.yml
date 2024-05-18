@@ -20,7 +20,7 @@ jobs:
                   node --version
                   npm --version
                   npm i
-                  cd scripts
+                  cd convert
                   npm i
 
             - name: Add config
