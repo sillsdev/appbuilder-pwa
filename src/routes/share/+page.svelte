@@ -1,13 +1,44 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, language } from '$lib/data/stores';
+    import { t, language, languageDefault } from '$lib/data/stores';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
+    import { page } from '$app/stores';
 
-    $: googlePlayBadge = `https://play.google.com/intl/en_us/badges/static/images/badges/${$language}_badge_web_generic.png`;
-    $: appleStoreBadge = `${base}/badges/${$language}_app_store.svg`;
-    const badgeLanguages = ['en', 'fr', 'de', 'es'];
-    const enAppleStoreBadge = `${base}/badges/en_app_store.svg`;
+    const googlePlayBadgesRoot = 'https://play.google.com/intl/en_us/badges/static/images/badges/';
+    const googlePlayBadgeSuffix = '_badge_web_generic.png';
+    let googlePlayStoreLanguage = 'en';
+    $: updateGooglePlayLanguage($language);
+    
+    $: googlePlayBadge = googlePlayBadgesRoot + googlePlayStoreLanguage + googlePlayBadgeSuffix;
+    $: appStoreBadge = `${base}/badges/${$language}_app_store.svg`;
+    const badgeLanguages = $page.data.languages;
+    const fallbackAppStoreLanguage = badgeLanguages.includes(languageDefault) ? languageDefault : 'en';
+    const fallbackAppStoreBadge = `${base}/badges/${fallbackAppStoreLanguage}_app_store.svg`;
+
+    async function updateGooglePlayLanguage(language: string): Promise<string> {
+        if (await verifyImageUrl(googlePlayBadgesRoot + language + googlePlayBadgeSuffix)) {
+            googlePlayStoreLanguage = language;
+            return;
+        }
+
+        if (await verifyImageUrl(googlePlayBadgesRoot + languageDefault + googlePlayBadgeSuffix)) {
+            googlePlayStoreLanguage = languageDefault;
+            return
+        }
+        
+        googlePlayStoreLanguage = 'en';
+    }
+
+    function verifyImageUrl(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+    });
+}
+
 </script>
 
 <!-- TODO: make share functional -->
@@ -27,7 +58,7 @@
                 <a
                     href="https://play.google.com/store/apps/details?id={config.package}&hl={$language}"
                 >
-                    <div id="google-play" class="w-56 md:w-72 lg:w-[28rem]">
+                    <div id="google-play" class="w-48 md:w-72 lg:w-[25rem]">
                         <img alt={$t['Share_App_Link']} src={googlePlayBadge} />
                     </div>
                 </a>
@@ -42,7 +73,7 @@
                         >
                             <img
                                 alt={$t['share-apple-app-link']}
-                                src={appleStoreBadge}
+                                src={appStoreBadge}
                                 class="w-full h-auto"
                             />
                         </a>
@@ -54,7 +85,7 @@
                         >
                             <img
                                 alt={$t['share-apple-app-link']}
-                                src={enAppleStoreBadge}
+                                src={fallbackAppStoreBadge}
                                 class="w-full h-auto"
                             />
                         </a>
