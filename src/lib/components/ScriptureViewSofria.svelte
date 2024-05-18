@@ -10,7 +10,7 @@ LOGGING:
     { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
 <script lang="ts">
-    import type { Proskomma } from 'proskomma-core';
+    import type { SABProskomma } from '$lib/sab-proskomma';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
@@ -54,7 +54,7 @@ LOGGING:
     export let viewShowVerses: boolean;
     export let viewShowGlossaryWords: boolean;
     export let font: string;
-    export let proskomma: Proskomma;
+    export let proskomma: SABProskomma;
 
     let container: HTMLElement;
     let displayingIntroduction = false;
