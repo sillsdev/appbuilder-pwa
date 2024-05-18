@@ -148,7 +148,7 @@ export const glossary = derived(docSet, async ($docSet) => {
 });
 export const currentFont = writable(config.fonts[0].family);
 export const fontChoices = derived(refs, ($refs) => {
-    if (!$refs.initialized) return undefined;
+    if (!$refs.initialized) return [];
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book).fonts;
