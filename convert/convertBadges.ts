@@ -1,7 +1,7 @@
 import { Promisable, Task, TaskOutput } from './Task';
 import path from 'path';
 import { ConfigTaskOutput } from './convertConfig';
-import { copyFile, existsSync, mkdirSync } from 'fs';
+import { copyFile, existsSync, mkdirSync, writeFileSync } from 'fs';
 
 export async function convertBadges(
     badgesDir: string,
@@ -13,18 +13,39 @@ export async function convertBadges(
         mkdirSync(dstBadgeDir);
     }
 
-    /**badge languages from config*/
+    // Badge languages from config
     const languages = Object.keys(configData.data.interfaceLanguages!.writingSystems);
+    // Make sure there is english for fallback
+    if (!languages.includes('en')) {
+        languages.push('en');
+    }
+    const foundLanguages = [];
     for (const language of languages) {
         const srcFile = path.join(badgesDir, language + '_app_store.svg');
         const dstFile = path.join(dstBadgeDir, language + '_app_store.svg');
         if (existsSync(srcFile)) {
+            foundLanguages.push(language);
             copyFile(srcFile, dstFile, function (err: any) {
                 if (err) throw err;
                 if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
             });
         }
     }
+
+    //write index file
+    writeFileSync(
+        path.join(dstBadgeDir, 'languages.json'),
+        `[${(() => {
+            //export badge languages as array
+            let s = '';
+            let i = 0;
+            for (const language of foundLanguages) {
+                s += '"' + language + '"' + (i + 1 < foundLanguages.length ? ', ' : '');
+                i++;
+            }
+            return s;
+        })()}]`
+    );
 }
 export interface BadgesTaskOutput extends TaskOutput {
     taskName: 'ConvertBadges';
