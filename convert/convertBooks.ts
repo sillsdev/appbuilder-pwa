@@ -296,6 +296,11 @@ type QuizAnswer = {
     text?: string;
     image?: string;
     audio?: string;
+    explanation?: {
+        //\ae
+        text: string;
+        audio?: string;
+    };
 };
 
 type QuizQuestion = {
@@ -304,7 +309,6 @@ type QuizQuestion = {
     image?: string;
     audio?: string;
     answers: QuizAnswer[];
-    answerExplanation?: string; //\ae
 };
 
 type Quiz = {
@@ -312,8 +316,8 @@ type Quiz = {
     name?: string; //\qn
     shortName?: string; //\qs
     columns?: number; //\ac
-    rightAnswerAudio?: string; //\ra
-    wrongAnswerAudio?: string; //\wa
+    rightAnswerAudio?: string[]; //\ra
+    wrongAnswerAudio?: string[]; //\wa
     questions: QuizQuestion[];
     scoreMessageBefore?: string; //\sb
     scoreMessageAfter?: string; //\sa
@@ -349,8 +353,12 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
         columns: quizSFM.match(/\\ac ([^\\\r\n]+)/i)?.at(1)
             ? parseInt(quizSFM.match(/\\ac ([^\\\r\n]+)/i)![1])
             : undefined,
-        rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/i)?.at(1),
-        wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/i)?.at(1),
+        rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map(m => {
+            return m.match(/\\ra ([^\\\r\n]+)/i)![1];
+        }),
+        wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/gi)?.map(m => {
+            return m.match(/\\wa ([^\\\r\n]+)/i)![1];
+        }),
         questions: [], //questions handled below
         scoreMessageBefore: quizSFM.match(/\\sb ([^\\\r\n]+)/i)?.at(1),
         scoreMessageAfter: quizSFM.match(/\\sa ([^\\\r\n]+)/i)?.at(1),
@@ -407,7 +415,15 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
                 }
                 break;
             case 'ae':
-                question.answerExplanation = parsed[2];
+                if (!question.answers[aCount - 1].explanation) {
+                    question.answers[aCount - 1].explanation = { text: "" }
+                }
+                if (hasAudioExtension(parsed[2])) {
+                    question.answers[aCount - 1].explanation!.audio = parsed[2];
+                }
+                else {
+                    question.answers[aCount - 1].explanation!.text = parsed[2];
+                }
                 break;
         }
     });
