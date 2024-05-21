@@ -26,6 +26,24 @@ function cloneDirectory(from: string, to: string, verbose: number, optional = fa
     }
 }
 
+/**
+ * Copies extra media assets from supplied data folder to static/assets
+ */
+function cloneToAssets(from: string[], verbose: number) {
+    from.forEach((f) => {
+        if (
+            cpSyncOptional(path.join('data', f), path.join('static', 'assets', f), {
+                recursive: true
+            })
+        ) {
+            if (verbose)
+                console.log(
+                    `copied ${path.join('data', f)} to ${path.join('static', 'assets', f)}`
+                );
+        } else if (verbose) console.log(`${path.join('data', f)} does not exist`);
+    });
+}
+
 export interface MediaTaskOutput extends TaskOutput {
     taskName: 'ConvertMedia';
 }
@@ -89,5 +107,7 @@ export class ConvertMedia extends Task {
                 !required.includes(p)
             );
         }
+
+        cloneToAssets(['quiz-right-answer.mp3', 'quiz-wrong-answer.mp3'], verbose);
     }
 }

@@ -9,6 +9,7 @@ import { SABProskomma } from '../src/lib/sab-proskomma';
 import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
+import { hasAudioExtension, hasImageExtension } from './stringUtils';
 
 /**
  * Loops through bookCollections property of configData.
@@ -109,6 +110,17 @@ function applyFilters(text: string, bcId: string, bookId: string): string {
     return filteredText;
 }
 
+//make final transformations to catalog entry before writing to file
+// 1. compress the chapter/verse map, if it exists
+// 2. add quizzes to entry, if defined for docset
+function transformCatalogEntry(entry: any, quizzes: any): any {
+    const ds = postQueries.parseChapterVerseMapInDocSets({
+        docSets: [entry.data.docSets[0]]
+    })[0];
+    ds.quizzes = quizzes[ds.id];
+    return ds;
+}
+
 type ConvertBookContext = {
     dataDir: string;
     configData: ConfigData;
@@ -130,6 +142,10 @@ export async function convertBooks(
     const freezer = new Map<string, any>();
     /**array of catalog query promises*/
     const catalogEntries: Promise<any>[] = [];
+    /**quizzes by book collection*/
+    const quizzes: any = {};
+    /**array of files to be written*/
+    const files: any[] = [];
 
     const usedLangs = new Set<string>();
     //loop through collections
@@ -163,6 +179,8 @@ export async function convertBooks(
         if (configData.data.traits['has-glossary']) {
             bcGlossary = loadGlossary(collection, dataDir);
         }
+        //add empty array of quizzes for book collection
+        quizzes[context.docSet] = [];
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
@@ -173,8 +191,18 @@ export async function convertBooks(
                 case 'undefined':
                     break;
                 case 'quiz':
-                    //bookConverted = true;
-                    convertQuizBook(context, book);
+                    bookConverted = true;
+                    quizzes[context.docSet].push({ id: book.id, name: book.name });
+                    files.push({
+                        path: path.join(
+                            'static',
+                            'collections',
+                            context.docSet,
+                            'quizzes',
+                            book.id + '.json'
+                        ),
+                        content: JSON.stringify(convertQuizBook(context, book))
+                    });
                     break;
                 default:
                     bookConverted = true;
@@ -200,6 +228,21 @@ export async function convertBooks(
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
+
+        //check if folder exists for collection
+        const collPath = path.join('static', 'collections', context.docSet);
+        if (!existsSync(collPath)) {
+            if (verbose) console.log('creating: ' + collPath);
+            mkdirSync(collPath, { recursive: true });
+        }
+        //add quizzes path if necessary
+        if (quizzes[context.docSet].length > 0) {
+            const qPath = path.join('static', 'collections', context.docSet, 'quizzes');
+            if (!existsSync(qPath)) {
+                if (verbose) console.log('creating: ' + qPath);
+                mkdirSync(qPath, { recursive: true });
+            }
+        }
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
@@ -211,18 +254,13 @@ export async function convertBooks(
     entries.forEach((entry) => {
         writeFileSync(
             path.join(catalogPath, entry.data.docSets[0].id + '.json'),
-            JSON.stringify(
-                postQueries.parseChapterVerseMapInDocSets({
-                    docSets: [entry.data.docSets[0]]
-                })[0]
-            )
+            JSON.stringify(transformCatalogEntry(entry, quizzes))
         );
     });
     if (verbose) console.time('freeze');
     //write frozen archives for import
     //const vals = await Promise.all(freezer.values());
     //write frozen archives
-    const files: any[] = [];
 
     //push files to be written to files array
     freezer.forEach((value, key) =>
@@ -253,11 +291,137 @@ export async function convertBooks(
     };
 }
 
-function convertQuizBook(context: ConvertBookContext, book: Book) {
+type QuizAnswer = {
+    //\aw or \ar
+    correct: boolean;
+    text?: string;
+    image?: string;
+    audio?: string;
+    explanation?: {
+        //\ae
+        text: string;
+        audio?: string;
+    };
+};
+
+type QuizQuestion = {
+    //\qu
+    text: string;
+    image?: string;
+    audio?: string;
+    answers: QuizAnswer[];
+};
+
+type Quiz = {
+    id: string; //\id
+    name?: string; //\qn
+    shortName?: string; //\qs
+    columns?: number; //\ac
+    rightAnswerAudio?: string[]; //\ra
+    wrongAnswerAudio?: string[]; //\wa
+    questions: QuizQuestion[];
+    scoreMessageBefore?: string; //\sb
+    scoreMessageAfter?: string; //\sa
+    commentary?: {
+        //\sc
+        rangeMin: number;
+        rangeMax?: number;
+        message: string;
+    }[];
+    passScore?: number; //\pm
+};
+
+function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
     if (context.verbose) {
         console.log('Converting QuizBook:', book.id);
     }
-    //TODO: parse book into QuizBookData and save to /static
+    const quizSFM = readFileSync(
+        path.join(context.dataDir, 'books', context.bcId, book.file),
+        'utf8'
+    );
+    const quiz: Quiz = {
+        id: quizSFM.match(/\\id ([^\\\r\n]+)/i)![1],
+        name: quizSFM.match(/\\qn ([^\\\r\n]+)/i)?.at(1),
+        shortName: quizSFM.match(/\\qs ([^\\\r\n]+)/i)?.at(1),
+        columns: quizSFM.match(/\\ac ([^\\\r\n]+)/i)?.at(1)
+            ? parseInt(quizSFM.match(/\\ac ([^\\\r\n]+)/i)![1])
+            : undefined,
+        rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map((m) => {
+            return m.match(/\\ra ([^\\\r\n]+)/i)![1];
+        }),
+        wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/gi)?.map((m) => {
+            return m.match(/\\wa ([^\\\r\n]+)/i)![1];
+        }),
+        questions: [], //questions handled below
+        scoreMessageBefore: quizSFM.match(/\\sb ([^\\\r\n]+)/i)?.at(1),
+        scoreMessageAfter: quizSFM.match(/\\sa ([^\\\r\n]+)/i)?.at(1),
+        commentary: quizSFM.match(/\\sc ([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/gi)?.map((m) => {
+            const parsed = m.match(/([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/i)!;
+            return {
+                rangeMin: parseInt(parsed[1]),
+                rangeMax: parsed[2] ? parseInt(parsed[2]) : undefined,
+                message: parsed[3]
+            };
+        }),
+        passScore: quizSFM.match(/\\pm ([0-9]+)/i)?.at(1)
+            ? parseInt(quizSFM.match(/\\pm ([0-9]+)/i)![1])
+            : undefined
+    };
+    let aCount = 0;
+    let question: QuizQuestion = { text: '', answers: [] };
+    let answer: QuizAnswer = { correct: false };
+    quizSFM.match(/\\(qu|aw|ar|ae) ([^\\\r\n]+)/gi)?.forEach((m) => {
+        const parsed = m.match(/\\(qu|aw|ar|ae) ([^\\\r\n]+)/i)!;
+        switch (parsed[1]) {
+            case 'qu':
+                if (aCount > 0) {
+                    quiz.questions.push(question);
+                    question = { text: '', answers: [] };
+                    aCount = 0;
+                }
+                if (hasImageExtension(parsed[2])) {
+                    question.image = parsed[2];
+                } else if (hasAudioExtension(parsed[2])) {
+                    question.audio = parsed[2];
+                } else {
+                    question.text = parsed[2];
+                }
+                break;
+            case 'ar':
+                if (!hasAudioExtension(parsed[2])) {
+                    answer.correct = true;
+                }
+            /**es-lint-ignore-no-fallthrough */
+            case 'aw':
+                //answer can have either an image, or text with optional audio
+                if (hasImageExtension(parsed[2])) {
+                    answer.image = parsed[2];
+                    question.answers.push(answer);
+                    answer = { correct: false };
+                    aCount++;
+                } else if (hasAudioExtension(parsed[2])) {
+                    question.answers[aCount - 1].audio = parsed[2];
+                } else {
+                    answer.text = parsed[2];
+                    question.answers.push(answer);
+                    answer = { correct: false };
+                    aCount++;
+                }
+                break;
+            case 'ae':
+                if (!question.answers[aCount - 1].explanation) {
+                    question.answers[aCount - 1].explanation = { text: '' };
+                }
+                if (hasAudioExtension(parsed[2])) {
+                    question.answers[aCount - 1].explanation!.audio = parsed[2];
+                } else {
+                    question.answers[aCount - 1].explanation!.text = parsed[2];
+                }
+                break;
+        }
+    });
+    quiz.questions.push(question);
+    return quiz;
 }
 
 function convertScriptureBook(

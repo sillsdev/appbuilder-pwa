@@ -474,12 +474,14 @@ function convertConfig(dataDir: string, verbose: number) {
     data.styles = parseStyles(mainStyles, verbose);
 
     // Traits
-    const traitTags = document.getElementsByTagName('traits')[0].getElementsByTagName('trait');
+    const traitTags = document.getElementsByTagName('traits')[0]?.getElementsByTagName('trait');
     data.traits = {};
 
-    for (const tag of traitTags) {
-        data.traits[tag.attributes.getNamedItem('name')!.value] =
-            tag.attributes.getNamedItem('value')?.value === 'true';
+    if (traitTags?.length > 0) {
+        for (const tag of traitTags) {
+            data.traits[tag.attributes.getNamedItem('name')!.value] =
+                tag.attributes.getNamedItem('value')?.value === 'true';
+        }
     }
     // Add traits
     data.traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
