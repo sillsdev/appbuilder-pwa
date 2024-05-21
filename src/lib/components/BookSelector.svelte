@@ -113,15 +113,18 @@ The navbar component.
         nextRef.reset();
     }
 
-    /**list of books in current docSet*/
+    /**list of books, quizzes, and quiz groups in current docSet*/
     $: books = $refs.catalog.documents;
+    $: quizzes = $refs.catalog.quizzes;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
     let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
+        let quizGroup = [];
         var lastGroup = null;
 
+        console.log(config.bookCollections);
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
@@ -146,8 +149,17 @@ The navbar component.
                         let cells = groups[groups.length - 1].cells;
                         groups[groups.length - 1].cells = [...cells, cell];
                     }
+                } else if (book.type == 'quiz' || 'Quiz') {
+                    quizGroup.push({
+                        label: book.name,
+                        id: book.id
+                    });
                 }
             });
+
+        if (quizGroup.length > 0) {
+            groups.push({ header: 'Quizzes', cells: quizGroup });
+        }
 
         return groups;
     };
