@@ -1,5 +1,4 @@
 <script>
-<<<<<<< HEAD
     function changeAnswerColor(id, textColor, backgroundColor) {
         var el = document.getElementById(id);
         if (el) {
@@ -101,8 +100,6 @@
     </div>
 </body>
 <!-- <script>
-=======
->>>>>>> b1bbc3e (Started a layout svelte page for layout of quiz GUI. May not be needed.)
     import { json } from 'appsrc\routesquiz';
     import {
         direction,
@@ -127,8 +124,4 @@
     <link rel="stylesheet" href="{base}/styles/sab-app.css" />
     <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
     <link rel="stylesheet" href="{base}/override-sab.css" />
-<<<<<<< HEAD
 </svelte:head> -->
-=======
-</svelte:head>
->>>>>>> b1bbc3e (Started a layout svelte page for layout of quiz GUI. May not be needed.)
