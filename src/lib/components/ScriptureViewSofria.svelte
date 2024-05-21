@@ -14,7 +14,7 @@ LOGGING:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, refs, logs, modal, MODAL_NOTE } from '$lib/data/stores';
+    import { footnotes, refs, logs, modal, MODAL_NOTE, userSettings } from '$lib/data/stores';
     import {
         generateHTML,
         handleHeaderLinkPressed,
@@ -55,6 +55,8 @@ LOGGING:
     export let viewShowGlossaryWords: boolean;
     export let font: string;
     export let proskomma: SABProskomma;
+
+    $: scriptureLogs = $userSettings['scripture-logs'] ? {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} : $logs['scripture'];
 
     let container: HTMLElement;
     let displayingIntroduction = false;
@@ -101,7 +103,7 @@ LOGGING:
         return workspace.textType[workspace.textType.length - 1];
     };
     const startPhrase = (workspace, indexOption = 'advance') => {
-        if ($logs.scripture?.phrase) {
+        if (scriptureLogs?.phrase) {
             console.log('Start phrase!!!');
         }
         // Add pending phrase to the paragraph before starting
@@ -185,7 +187,7 @@ LOGGING:
         }
     };
     const addText = (workspace, text) => {
-        if ($logs.scripture?.text) {
+        if (scriptureLogs?.text) {
             console.log('Adding text:', text);
         }
         if (!onlySpaces(text)) {
@@ -199,13 +201,13 @@ LOGGING:
             }
             for (let i = 0; i < phrases.length; i++) {
                 if (workspace.lastPhraseTerminated) {
-                    if ($logs.scripture?.text) {
+                    if (scriptureLogs?.text) {
                         console.log('Add text start phrase (terminated)');
                     }
                     workspace.phraseDiv = startPhrase(workspace);
                 }
                 if (workspace.phraseDiv === null) {
-                    if ($logs.scripture?.text) {
+                    if (scriptureLogs?.text) {
                         console.log('Add text start phrase (null)');
                     }
                     workspace.phraseDiv = startPhrase(workspace, 'keep');
@@ -215,7 +217,7 @@ LOGGING:
                 div = addTextNode(div, phrase, workspace);
                 if (i < phrases.length - 1) {
                     workspace.phraseDiv = div.cloneNode(true);
-                    if ($logs.scripture?.text) {
+                    if (scriptureLogs?.text) {
                         console.log('Add text start phrase');
                     }
                     workspace.phraseDiv = startPhrase(workspace);
@@ -548,7 +550,7 @@ LOGGING:
         a.classList.add('cursor-pointer');
         footnoteSpan.appendChild(a);
         workspace.footnoteIndex++;
-        if ($logs.scripture?.footnote) {
+        if (scriptureLogs?.footnote) {
             console.log('Create Footnote %o %o', footnoteSpan, footnoteDiv);
         }
         return [footnoteSpan, footnoteDiv];
@@ -734,7 +736,7 @@ LOGGING:
         return count;
     }
     let bookRoot = document.createElement('div');
-    if ($logs.scripture?.root) {
+    if (scriptureLogs?.root) {
         console.log('START: %o', bookRoot);
     }
     let loading = true;
@@ -765,7 +767,7 @@ LOGGING:
                         description: 'Set up; Book heading',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.document) {
+                            if (scriptureLogs?.document) {
                                 console.log(
                                     'Start Document: %o, %o',
                                     context,
@@ -823,7 +825,7 @@ LOGGING:
                         description: 'Set up',
                         test: () => true,
                         action: ({ context, workspace, output }) => {
-                            if ($logs.scripture?.document) {
+                            if (scriptureLogs?.document) {
                                 console.log('End Document');
                             }
                             preprocessAction('endDocument', workspace);
@@ -856,7 +858,7 @@ LOGGING:
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.paragraph) {
+                            if (scriptureLogs?.paragraph) {
                                 console.log(
                                     'Start Paragraph %o %o',
                                     context.sequences[0].block,
@@ -880,7 +882,7 @@ LOGGING:
 
                                     if (workspace.currentVerse != 'none') {
                                         workspace.phraseDiv = startPhrase(workspace);
-                                        if ($logs.scripture?.paragraph) {
+                                        if (scriptureLogs?.paragraph) {
                                             console.log(
                                                 'Paragraph Start phrase: %o',
                                                 workspace.phraseDiv
@@ -890,7 +892,7 @@ LOGGING:
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
                                 } else if (sequenceType == 'introduction') {
-                                    if ($logs.scripture?.paragraph) {
+                                    if (scriptureLogs?.paragraph) {
                                         console.log('Introduction start phrase');
                                     }
                                     workspace.phraseDiv = startPhrase(workspace, 'keep');
@@ -907,7 +909,7 @@ LOGGING:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            if ($logs.scripture?.paragraph) {
+                            if (scriptureLogs?.paragraph) {
                                 console.log('End paragraph: Sequence type ' + sequenceType);
                                 console.log(
                                     'End Paragraph %o %o',
@@ -924,7 +926,7 @@ LOGGING:
                                 )
                             ) {
                                 if (sequenceType == 'main') {
-                                    if ($logs.scripture?.paragraph) {
+                                    if (scriptureLogs?.paragraph) {
                                         console.log('End main paragraph');
                                     }
                                     if (
@@ -1002,7 +1004,7 @@ LOGGING:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            if ($logs.scripture?.verses) {
+                            if (scriptureLogs?.verses) {
                                 console.log('Start Verses %o %o', element.atts['number'], element);
                             }
                             preprocessAction('startVerses', workspace);
@@ -1010,7 +1012,7 @@ LOGGING:
                             if (!displayingIntroduction) {
                                 workspace.lastPhraseTerminated = false;
                                 workspace.currentVerse = element.atts.number;
-                                if ($logs.scripture?.verses) {
+                                if (scriptureLogs?.verses) {
                                     console.log('verses %o start phrase', element.atts.number);
                                 }
                                 workspace.phraseDiv = startPhrase(workspace, 'reset');
@@ -1018,7 +1020,7 @@ LOGGING:
                                     workspace.verseDiv = document.createElement('div');
                                     workspace.verseDiv.classList.add('verse-block');
                                 }
-                                if ($logs.scripture?.verses) {
+                                if (scriptureLogs?.verses) {
                                     console.log('IN: %o', workspace.phraseDiv);
                                 }
                             }
@@ -1031,7 +1033,7 @@ LOGGING:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            if ($logs.scripture?.verses) {
+                            if (scriptureLogs?.verses) {
                                 console.log('End Verses %o %o', element.atts['number'], element);
                                 /*const textTypeV = workspace.textType.pop(); */
                                 // if (textTypeV != 'verses') {
@@ -1066,7 +1068,7 @@ LOGGING:
                         description: 'Start Chapter',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.chapter) {
+                            if (scriptureLogs?.chapter) {
                                 const element = context.sequences[0].element;
                                 console.log('Start Chapter %o %o', element.atts['number'], element);
                             }
@@ -1079,7 +1081,7 @@ LOGGING:
                         description: 'End Chapter',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.chapter) {
+                            if (scriptureLogs?.chapter) {
                                 const element = context.sequences[0].element;
                                 console.log('End Chapter %o %o', element.atts['number'], element);
                             }
@@ -1092,7 +1094,7 @@ LOGGING:
                         description: 'Output text',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.text) {
+                            if (scriptureLogs?.text) {
                                 console.log(
                                     'Text element: %o %o %o',
                                     context.sequences[0].element.type,
@@ -1158,7 +1160,7 @@ LOGGING:
                                     }
                                 }
                             }
-                            if ($logs.scripture?.text) {
+                            if (scriptureLogs?.text) {
                                 console.log('End text');
                             }
                         }
@@ -1169,7 +1171,7 @@ LOGGING:
                         description: 'Meta Content',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.meta) {
+                            if (scriptureLogs?.meta) {
                                 console.log('Meta Content %o', context.sequences[0].element);
                             }
                             preprocessAction('metaContent', workspace);
@@ -1182,7 +1184,7 @@ LOGGING:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const element = context.sequences[0].element;
-                            if ($logs.scripture?.mark) {
+                            if (scriptureLogs?.mark) {
                                 console.log(
                                     'Mark: SubType %o, Atts: %o',
                                     element.subType,
@@ -1225,7 +1227,7 @@ LOGGING:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            if ($logs.scripture?.sequence) {
+                            if (scriptureLogs?.sequence) {
                                 console.log('start sequence %o', sequenceType);
                             }
                             preprocessAction('startSequence', workspace);
@@ -1274,7 +1276,7 @@ LOGGING:
                                         break;
                                     }
                                 }
-                                if ($logs.scripture?.sequence) {
+                                if (scriptureLogs?.sequence) {
                                     console.log('Processed: %o', workspace.textType);
                                 }
                             }
@@ -1287,7 +1289,7 @@ LOGGING:
                         test: () => true,
                         action: ({ context, workspace }) => {
                             const sequenceType = context.sequences[0].type;
-                            if ($logs.scripture?.sequence) {
+                            if (scriptureLogs?.sequence) {
                                 console.log('End sequence |%o|', sequenceType);
                             }
                             preprocessAction('endSequence', workspace);
@@ -1307,7 +1309,7 @@ LOGGING:
                                         workspace.textType.pop();
                                         const div = workspace.titleBlockDiv;
                                         div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                                        if ($logs.scripture?.sequence) {
+                                        if (scriptureLogs?.sequence) {
                                             console.log('TITLE DIV %o', div);
                                         }
                                         workspace.root.append(div);
@@ -1373,7 +1375,7 @@ LOGGING:
                         description: 'Block Graft',
                         test: () => true,
                         action: (environment) => {
-                            if ($logs.scripture?.blockGraft) {
+                            if (scriptureLogs?.blockGraft) {
                                 console.log(
                                     'Block Graft %o',
                                     environment.context.sequences[0].block
@@ -1386,7 +1388,7 @@ LOGGING:
                                 sequence: {}
                             };
                             if (currentBlock.subType === 'introduction') {
-                                if ($logs.scripture?.blockGraft) {
+                                if (scriptureLogs?.blockGraft) {
                                     console.log('*** START INTRODUCTION ***');
                                 }
                                 environment.workspace.introductionGraft = true;
@@ -1402,14 +1404,14 @@ LOGGING:
                                 environment.workspace.currentSequence = cachedSequencePointer;
                             }
                             if (currentBlock.subType === 'introduction') {
-                                if ($logs.scripture?.blockGraft) {
+                                if (scriptureLogs?.blockGraft) {
                                     console.log('*** END INTRODUCTION');
                                 }
                                 environment.workspace.introductionGraft = false;
                             } else if (currentBlock.subType === 'title') {
                                 environment.workspace.titleGraft = false;
                             }
-                            if ($logs.scripture?.blockGraft) {
+                            if (scriptureLogs?.blockGraft) {
                                 console.log('Block Graft End %o %o', graftRecord, currentBlock);
                             }
                         }
@@ -1422,7 +1424,7 @@ LOGGING:
                         action: (environment) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
-                            if ($logs.scripture?.inlineGraft) {
+                            if (scriptureLogs?.inlineGraft) {
                                 console.log(
                                     'Inline Graft Type: %o, Subtype: %o, id: %o %o',
                                     element.type,
@@ -1471,7 +1473,7 @@ LOGGING:
                                     // console.log('note caller text type mismatch!!! %o', textTypeF);
                                 }
                             }
-                            if ($logs.scripture?.inlineGraft) {
+                            if (scriptureLogs?.inlineGraft) {
                                 console.log('Inline Graft End');
                             }
                         }
@@ -1482,7 +1484,7 @@ LOGGING:
                         description: 'Start Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.wrapper) {
+                            if (scriptureLogs?.wrapper) {
                                 console.log('Start Wrapper %o', context.sequences[0].element);
                             }
                             preprocessAction('startWrapper', workspace);
@@ -1501,7 +1503,7 @@ LOGGING:
                                 case 'usfm': {
                                     // console.log('usfm Wrapper');
                                     let usfmType = element.subType.split(':')[1];
-                                    if ($logs.scripture?.wrapper) {
+                                    if (scriptureLogs?.wrapper) {
                                         console.log('start wrapper usfmType: %o ', usfmType);
                                     }
                                     if (usfmType === 'fig') {
@@ -1551,7 +1553,7 @@ LOGGING:
                         description: 'End Wrapper',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.wrapper) {
+                            if (scriptureLogs?.wrapper) {
                                 console.log('End Wrapper %o', context.sequences[0].element);
                             }
                             preprocessAction('endWrapper', workspace);
@@ -1596,7 +1598,7 @@ LOGGING:
                         description: 'Start Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.milestone) {
+                            if (scriptureLogs?.milestone) {
                                 console.log('Start Milestone %o', context.sequences[0].element);
                             }
                             preprocessAction('startMilestone', workspace);
@@ -1660,7 +1662,7 @@ LOGGING:
                         description: 'End Milestone',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.milestone) {
+                            if (scriptureLogs?.milestone) {
                                 console.log('End Milestone %o', context.sequences[0].element);
                             }
                             preprocessAction('endMilestone', workspace);
@@ -1684,7 +1686,7 @@ LOGGING:
                         description: 'Start Row',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.row) {
+                            if (scriptureLogs?.row) {
                                 console.log('Start Row %o', context.sequences[0].element);
                             }
                             preprocessAction('startRow', workspace);
@@ -1703,7 +1705,7 @@ LOGGING:
                         description: 'End Row',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            if ($logs.scripture?.row) {
+                            if (scriptureLogs?.row) {
                                 console.log('End Row %o', context.sequences[0].element);
                             }
                             preprocessAction('endRow', workspace);
@@ -1727,7 +1729,7 @@ LOGGING:
             'pk-query-books-end'
         );
 
-        if ($logs.scripture?.docResult) {
+        if (scriptureLogs?.docResult) {
             console.log('docsResult %o', docsResult);
         }
         const bookLookup = {};
@@ -1748,7 +1750,7 @@ LOGGING:
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
         loading = false;
-        if ($logs.scripture?.root) {
+        if (scriptureLogs?.root) {
             console.log('DONE %o', bookRoot);
         }
     };

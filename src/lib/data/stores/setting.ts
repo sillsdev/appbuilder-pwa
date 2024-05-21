@@ -351,6 +351,14 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             defaultValue: false
         });
     }
+
+    settings.push({
+        type: 'checkbox',
+        category: SETTINGS_CATEGORY_INTERFACE,
+        title: 'Scripture Logs',
+        key: 'scripture-logs',
+        defaultValue: false
+    });
     return settings;
 })();
 
