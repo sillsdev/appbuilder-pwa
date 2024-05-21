@@ -26,6 +26,7 @@ static/videos
 static/icons
 static/*.partial.html
 static/manifest.json
+static/assets
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js
