@@ -51,7 +51,6 @@
         "proskomma-core": "0.10.4",
         "proskomma-json-tools": "^0.8.4",
         "proskomma-tools": "^0.0.5",
-        "pwa-data-sandbox": "file:data-sandbox",
         "rimraf": "^5",
         "svelte": "^4",
         "svelte-check": "^3",
@@ -65,6 +64,10 @@
         "vite": "^4",
         "vitest": "^1.0.0"
     },
+    "workspaces": [
+        "convert",
+        "data-sandbox"
+    ],
     "volta": {
         "node": "20.9.0"
     }
