@@ -36,7 +36,10 @@ function cloneToAssets(from: string[], verbose: number) {
                 recursive: true
             })
         ) {
-            if (verbose) console.log(`copied ${path.join('data', f)} to ${path.join('static', 'assets', f)}`);
+            if (verbose)
+                console.log(
+                    `copied ${path.join('data', f)} to ${path.join('static', 'assets', f)}`
+                );
         } else if (verbose) console.log(`${path.join('data', f)} does not exist`);
     });
 }

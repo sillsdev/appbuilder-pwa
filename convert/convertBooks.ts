@@ -339,17 +339,17 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
         path.join(context.dataDir, 'books', context.bcId, book.file),
         'utf8'
     );
-    let quiz: Quiz = {
+    const quiz: Quiz = {
         id: quizSFM.match(/\\id ([^\\\r\n]+)/i)![1],
         name: quizSFM.match(/\\qn ([^\\\r\n]+)/i)?.at(1),
         shortName: quizSFM.match(/\\qs ([^\\\r\n]+)/i)?.at(1),
         columns: quizSFM.match(/\\ac ([^\\\r\n]+)/i)?.at(1)
             ? parseInt(quizSFM.match(/\\ac ([^\\\r\n]+)/i)![1])
             : undefined,
-        rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map(m => {
+        rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map((m) => {
             return m.match(/\\ra ([^\\\r\n]+)/i)![1];
         }),
-        wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/gi)?.map(m => {
+        wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/gi)?.map((m) => {
             return m.match(/\\wa ([^\\\r\n]+)/i)![1];
         }),
         questions: [], //questions handled below
@@ -391,6 +391,7 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
                 if (!hasAudioExtension(parsed[2])) {
                     answer.correct = true;
                 }
+            /**es-lint-ignore-no-fallthrough */
             case 'aw':
                 //answer can have either an image, or text with optional audio
                 if (hasImageExtension(parsed[2])) {
@@ -409,12 +410,11 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
                 break;
             case 'ae':
                 if (!question.answers[aCount - 1].explanation) {
-                    question.answers[aCount - 1].explanation = { text: "" }
+                    question.answers[aCount - 1].explanation = { text: '' };
                 }
                 if (hasAudioExtension(parsed[2])) {
                     question.answers[aCount - 1].explanation!.audio = parsed[2];
-                }
-                else {
+                } else {
                     question.answers[aCount - 1].explanation!.text = parsed[2];
                 }
                 break;
