@@ -22,6 +22,7 @@ export interface CatalogData {
         };
     }[];
     tags: {};
+    quizzes?: { [key: string]: { id: string; name: string }[] };
 }
 
 export async function loadCatalog(docSet: string): Promise<CatalogData> {
