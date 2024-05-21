@@ -11,8 +11,8 @@ import http from 'http';
 import path from 'path';
 import { typeDefs, resolvers } from 'proskomma-core';
 
-import { SABProskomma } from '../sab-proskomma';
-import { thaw } from '../scripts/thaw';
+import { SABProskomma } from '../src/lib/sab-proskomma';
+import { thaw } from '../src/lib/scripts/thaw';
 
 async function startApolloServer(typeDefs: any, resolvers: any) {
     const PORT = 2468;
