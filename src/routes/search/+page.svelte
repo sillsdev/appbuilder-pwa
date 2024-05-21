@@ -71,24 +71,23 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div>
-        <form>
-            <div class="dy-form-control m-4">
-                <label class="dy-input-group">
-                    <!-- svelte-ignore a11y-autofocus -->
+    <div class="flex justify-center min-h-screen bg-gray-100">
+        <form class="w-full max-w-md p-4">
+            <div class="dy-form-control mb-4">
+                <label class="dy-input-group w-full flex">
                     <input
                         autofocus
                         type="text"
                         placeholder={$t['Search']}
-                        class="dy-input dy-input-bordered"
+                        class="flex-grow px-4 py-2 mx-2 dy-input dy-input-bordered"
                         bind:value={searchText}
                     />
-                    <button on:click|preventDefault={submit} class="dy-btn">
+                    <button on:click|preventDefault={submit} class="dy-btn mx-2 flex-none">
                         <SearchIcon />
                     </button>
                 </label>
             </div>
-            <div class="dy-form-control w-full max-w-xs m-4">
+            <div class="dy-form-control max-w-xs m-4">
                 <label class="dy-label cursor-pointer">
                     <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
                     <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
