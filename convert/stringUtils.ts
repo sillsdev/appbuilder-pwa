@@ -21,6 +21,15 @@ export function getFilenameExt(filename: string): string {
     }
     return extension;
 }
+
+export function hasImageExtension(text: string): boolean {
+    return text.match(/\.(png|jpeg|jpg|webp)$/i) !== null;
+}
+
+export function hasAudioExtension(text: string): boolean {
+    return text.match(/\.(mp3|wav|ogg|webm)$/i) !== null;
+}
+
 export function filenameWithoutPath(filename: string): string {
     let result: string = '';
     if (isNotBlank(filename)) {

@@ -9,6 +9,7 @@ import { SABProskomma } from '../src/lib/sab-proskomma';
 import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
+import { hasAudioExtension, hasImageExtension } from './stringUtils';
 
 /**
  * Loops through bookCollections property of configData.
@@ -329,14 +330,6 @@ type Quiz = {
     }[];
     passScore?: number; //\pm
 };
-
-function hasImageExtension(text: string): boolean {
-    return text.match(/\.(png|jpeg|jpg|webp)$/i) !== null;
-}
-
-function hasAudioExtension(text: string): boolean {
-    return text.match(/\.(mp3|wav|ogg|webm)$/i) !== null;
-}
 
 function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
     if (context.verbose) {
