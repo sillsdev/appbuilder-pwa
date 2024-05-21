@@ -104,7 +104,8 @@ export function convertContents(dataDir: string, verbose: number) {
             const linkTags = itemTag.getElementsByTagName('link');
             const linkType = linkTags[0]?.attributes.getNamedItem('type')!.value;
             const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value ?? undefined;
-            const linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value ?? undefined;
+            const linkLocation =
+                linkTags[0]?.attributes.getNamedItem('location')?.value ?? undefined;
 
             const features: any = {};
 
