@@ -79,7 +79,9 @@
                         autofocus
                         type="text"
                         placeholder={$t['Search']}
-                        class="flex-grow px-4 py-2 mx-2 dy-input dy-input-bordered"
+                        class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
+                        style="min-width: 0"
+                        size="1"
                         bind:value={searchText}
                     />
                     <button on:click|preventDefault={submit} class="dy-btn mx-2 flex-none">
