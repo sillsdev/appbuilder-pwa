@@ -5,6 +5,8 @@
     import { clearHistory } from '$lib/data/history';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
+    // Use "export let data" instead of $page so that local data can
+    // be cleared during onClearHistory.
     export let data;
     async function onClearHistory() {
         await clearHistory();
