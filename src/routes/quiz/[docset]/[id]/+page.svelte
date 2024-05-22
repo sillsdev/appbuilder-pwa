@@ -4,7 +4,9 @@
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { quizData } from '$lib/routes/quiz/[docset]/[id]/+page.js';
+
+    /** @type {import('./$types').PageData} */
+    export let dataQuiz;
 
     async () => {
         const response = await fetch('$quiz/[docset]/[id]/+page.js');
@@ -28,31 +30,63 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div>
-        {#if quizData}
-            <h1>{quizData.name}</h1>
-            {#each quizData.questions as question, questionIndex}
-                <div>
-                    <p>{question.qu.text}</p>
-                    {#if question.qu.image}
-                        <img src={question.qu.image} alt="Question Image" />
-                    {/if}
-                    <div>
-                        {#each question.answers as answer, answerIndex}
-                            <button
-                                on:click={() => answerSelected(questionIndex, answerIndex)}
-                                style="margin-right: 10px;"
-                            >
-                                {answer.ar ? answer.ar : answer.aw}
-                            </button>
-                        {/each}
-                    </div>
-                </div>
-            {/each}
-            <button on:click={() => alert(`Your score: ${score}/${quizData.questions.length}`)}
-                >Submit</button
-            >
-        {/if}
-    </div>
+    <body class="quiz">
+        <div id="content">
+            <div class="quiz-question-number">1</div>
+            <div class="quiz-question-block">
+                <div class="quiz-question">Who was the father of Jacob?</div>
+            </div>
+            <table class="quiz-answer-block" width="100%">
+                <tr>
+                    <td width="100%">
+                        <div
+                            class="quiz-answer"
+                            id="answer-0"
+                            onClick="window.location.href = 'Q-ANSWER-0'"
+                        >
+                            Abraham
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100%">
+                        <div
+                            class="quiz-answer"
+                            id="answer-1"
+                            onClick="window.location.href = 'Q-ANSWER-1'"
+                        >
+                            Isaac
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100%">
+                        <div
+                            class="quiz-answer"
+                            id="answer-2"
+                            onClick="window.location.href = 'Q-ANSWER-2'"
+                        >
+                            Joseph
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100%">
+                        <div
+                            class="quiz-answer"
+                            id="answer-3"
+                            onClick="window.location.href = 'Q-ANSWER-3'"
+                        >
+                            Esau
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div
+                class="quiz-next-button arrow-ltr hidden"
+                id="next-button"
+                onClick="window.location.href = 'Q-NEXT'"
+            ></div>
+        </div>
+    </body>
 </div>
->
