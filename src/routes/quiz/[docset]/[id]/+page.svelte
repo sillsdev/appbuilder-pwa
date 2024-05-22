@@ -36,7 +36,7 @@
                     <td class="flex justify-center items-center">
                         <button
                             class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'Q-ANSWER-0')}
+                            on:click={() => (window.location.href = 'ANSWER-1')}
                         >
                             <div class="quiz-answer">ANSWER 1</div>
                         </button>
@@ -46,7 +46,7 @@
                     <td class="flex justify-center items-center">
                         <button
                             class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'Q-ANSWER-1')}
+                            on:click={() => (window.location.href = 'ANSWER-2')}
                         >
                             <div class="quiz-answer">ANSWER 2</div>
                         </button>
@@ -56,7 +56,7 @@
                     <td class="flex justify-center items-center">
                         <button
                             class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'Q-ANSWER-2')}
+                            on:click={() => (window.location.href = 'ANSWER-3')}
                         >
                             <div class="quiz-answer">ANSWER 3</div>
                         </button>
@@ -66,7 +66,7 @@
                     <td class="flex justify-center items-center">
                         <button
                             class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'Q-ANSWER-3')}
+                            on:click={() => (window.location.href = 'ANSWER-4')}
                         >
                             <div class="quiz-answer">ANSWER 4</div>
                         </button>
