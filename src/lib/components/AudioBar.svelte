@@ -92,7 +92,6 @@ TODO:
     <div class="toast-container">
         <Toaster />
     </div>
-
     {#if showRepeatMode}
         <button
             class="audio-control-buttons"

@@ -19,7 +19,6 @@
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
-    import { Toaster } from 'svelte-french-toast';
 
     if (!$refs.initialized) {
         catalog.setFetch(fetch);
