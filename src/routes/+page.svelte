@@ -443,6 +443,7 @@
             </div>
         </div>
     </div>
+
     <div class="flex justify-center">
         <StackView {...stackSettings} />
     </div>

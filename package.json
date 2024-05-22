@@ -65,5 +65,8 @@
     },
     "volta": {
         "node": "20.9.0"
+    },
+    "dependencies": {
+        "svelte-toast": "^1.0.0"
     }
 }
