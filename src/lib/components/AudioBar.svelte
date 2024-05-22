@@ -69,7 +69,7 @@ TODO:
         }
 
         if (lastPlayMode !== '' && lastPlayMode !== value.mode) {
-            toast($t[key], { duration: 1500000 });
+            toast($t[key], { duration: 1500 });
         }
         lastPlayMode = value.mode;
     }
