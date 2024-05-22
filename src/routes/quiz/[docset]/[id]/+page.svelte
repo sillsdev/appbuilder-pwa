@@ -34,7 +34,6 @@
             <table class="quiz-answer-block w-full">
                 <tr>
                     <td class="flex justify-center items-center">
-                        <!-- Apply centering style -->
                         <button
                             class="quiz-answer-button w-full"
                             on:click={() => (window.location.href = 'Q-ANSWER-0')}
@@ -45,7 +44,6 @@
                 </tr>
                 <tr>
                     <td class="flex justify-center items-center">
-                        <!-- Apply centering style -->
                         <button
                             class="quiz-answer-button w-full"
                             on:click={() => (window.location.href = 'Q-ANSWER-1')}
@@ -56,7 +54,6 @@
                 </tr>
                 <tr>
                     <td class="flex justify-center items-center">
-                        <!-- Apply centering style -->
                         <button
                             class="quiz-answer-button w-full"
                             on:click={() => (window.location.href = 'Q-ANSWER-2')}
@@ -67,7 +64,6 @@
                 </tr>
                 <tr>
                     <td class="flex justify-center items-center">
-                        <!-- Apply centering style -->
                         <button
                             class="quiz-answer-button w-full"
                             on:click={() => (window.location.href = 'Q-ANSWER-3')}
