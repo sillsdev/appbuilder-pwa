@@ -4,6 +4,7 @@
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { answerSelected } from './+layout.svelte';
+    import { page } from '$app/stores';
 
     let quizData;
 

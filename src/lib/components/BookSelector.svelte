@@ -49,6 +49,16 @@ The navbar component.
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
     async function navigateReference(e) {
+        if (
+            e.detail.tab == b &&
+            config.bookCollections
+                .find((x) => x.id === $refs.collection)
+                .books.find((x) => x.id == e.detail.text && x.type == 'quiz')
+        ) {
+            //NAV code goes here.
+            console.log('path/src/routes/quiz');
+            return;
+        }
         if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
             await refs.set({ book: $nextRef.book, chapter: 1 });
