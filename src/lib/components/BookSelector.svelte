@@ -55,8 +55,7 @@ The navbar component.
                 .find((x) => x.id === $refs.collection)
                 .books.find((x) => x.id == e.detail.text && x.type == 'quiz')
         ) {
-            //NAV code goes here.
-            console.log('path/src/routes/quiz');
+            window.location.href = '/path/src/routes/quiz/[id]';
             return;
         }
         if (!showChapterSelector) {
