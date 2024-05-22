@@ -55,7 +55,8 @@ The navbar component.
                 .find((x) => x.id === $refs.collection)
                 .books.find((x) => x.id == e.detail.text && x.type == 'quiz')
         ) {
-            window.location.href = path.join('static', 'collections', context.docSet, 'quizzes');
+            window.location.href = 'quiz/[docset]/[id]/';
+            return;
         }
         if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
