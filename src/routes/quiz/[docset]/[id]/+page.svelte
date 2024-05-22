@@ -29,7 +29,7 @@
         <div id="content">
             <div class="quiz-question-number">1</div>
             <div class="quiz-question-block">
-                <div class="quiz-question">Who was the father of Jacob?</div>
+                <div class="quiz-question">QUESTION GOES HERE</div>
             </div>
             <table class="quiz-answer-block" width="100%">
                 <tr>
@@ -39,7 +39,7 @@
                             id="answer-0"
                             onClick="window.location.href = 'Q-ANSWER-0'"
                         >
-                            Abraham
+                            ANSWER 1
                         </div>
                     </td>
                 </tr>
@@ -50,7 +50,7 @@
                             id="answer-1"
                             onClick="window.location.href = 'Q-ANSWER-1'"
                         >
-                            Isaac
+                            ANSWER 2
                         </div>
                     </td>
                 </tr>
@@ -61,7 +61,7 @@
                             id="answer-2"
                             onClick="window.location.href = 'Q-ANSWER-2'"
                         >
-                            Joseph
+                            ANSWER 3
                         </div>
                     </td>
                 </tr>
@@ -72,7 +72,7 @@
                             id="answer-3"
                             onClick="window.location.href = 'Q-ANSWER-3'"
                         >
-                            Esau
+                            ANSWER 4
                         </div>
                     </td>
                 </tr>
