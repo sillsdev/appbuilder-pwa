@@ -8,11 +8,6 @@
     /** @type {import('./$types').PageData} */
     export let dataQuiz;
 
-    async () => {
-        const response = await fetch('$quiz/[docset]/[id]/+page.js');
-        quizData = await response.json();
-    };
-
     let score = 0;
 
     // Remaining code stays the same...
