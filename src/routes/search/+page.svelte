@@ -75,6 +75,7 @@
         <form class="w-full max-w-md p-4">
             <div class="dy-form-control mb-4">
                 <label class="dy-input-group w-full flex">
+                    <!-- svelte-ignore a11y-autofocus -->
                     <input
                         autofocus
                         type="text"
