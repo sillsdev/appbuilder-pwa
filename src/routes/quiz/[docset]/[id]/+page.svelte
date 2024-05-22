@@ -4,11 +4,10 @@
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-
-    let quizData;
+    import { quizData } from '$lib/routes/quiz/[docset]/[id]/+page.js';
 
     async () => {
-        const response = await fetch('app/src/routes/quiz/quiz.json');
+        const response = await fetch('$quiz/[docset]/[id]/+page.js');
         quizData = await response.json();
     };
 
@@ -56,3 +55,4 @@
         {/if}
     </div>
 </div>
+>
