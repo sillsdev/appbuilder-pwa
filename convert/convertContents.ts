@@ -15,6 +15,7 @@ type ContentItem = {
     };
     imageFilename?: string;
     linkType?: string;
+    linkLocation?: string;
     linkTarget?: string;
     linkLocation?: string;
 };
@@ -49,6 +50,15 @@ function parseFeatureValue(value: any): any {
     }
     // else {} // " " split array, string, enum or time
     return value;
+}
+
+function decodeFromXml(input: string): string {
+    return input
+        .replace('&quot;', '"')
+        .replace('&apos;', "'")
+        .replace('&lt;', '<')
+        .replace('&gt;', '>')
+        .replace('&amp;', '&');
 }
 
 export function convertContents(dataDir: string, verbose: number) {
@@ -86,7 +96,7 @@ export function convertContents(dataDir: string, verbose: number) {
             if (titleTags?.length > 0) {
                 for (const titleTag of titleTags) {
                     const lang = titleTag.attributes.getNamedItem('lang')!.value;
-                    title[lang] = titleTag.innerHTML;
+                    title[lang] = decodeFromXml(titleTag.innerHTML);
                 }
             }
 
@@ -95,17 +105,16 @@ export function convertContents(dataDir: string, verbose: number) {
             if (subtitleTags?.length > 0) {
                 for (const subtitleTag of subtitleTags) {
                     const lang = subtitleTag.attributes.getNamedItem('lang')!.value;
-                    subtitle[lang] = subtitleTag.innerHTML;
+                    subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
                 }
             }
 
             const imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
 
             const linkTags = itemTag.getElementsByTagName('link');
-            const linkType = linkTags[0]?.attributes.getNamedItem('type')!.value;
-            const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value ?? undefined;
-            const linkLocation =
-                linkTags[0]?.attributes.getNamedItem('location')?.value ?? undefined;
+            const linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
+            const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value;
+            const linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
 
             const features: any = {};
 
@@ -123,6 +132,7 @@ export function convertContents(dataDir: string, verbose: number) {
                 subtitle,
                 imageFilename,
                 linkType,
+                linkLocation,
                 linkTarget,
                 linkLocation,
                 features
