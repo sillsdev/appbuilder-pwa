@@ -272,17 +272,17 @@ export async function convertBooks(
 
     //write index file
     writeFileSync(
-        path.join('static', 'collections', 'index.js'),
-        `export const collections = [${(() => {
+        path.join('static', 'collections', 'index.json'),
+        `[${(() => {
             //export collection names as array
             let s = '';
             let i = 0;
             for (const k of freezer.keys()) {
-                s += "'" + k + "'" + (i + 1 < freezer.size ? ', ' : '');
+                s += '"' + k + '"' + (i + 1 < freezer.size ? ', ' : '');
                 i++;
             }
             return s;
-        })()}];`
+        })()}]`
     );
     if (verbose) console.timeEnd('freeze');
     return {
