@@ -13,7 +13,7 @@
     // Remaining code stays the same...
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto,1fr] h-screen">
     <div class="navbar">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
@@ -31,49 +31,49 @@
             <div class="quiz-question-block">
                 <div class="quiz-question">QUESTION GOES HERE</div>
             </div>
-            <table class="quiz-answer-block" width="100%">
+            <table class="quiz-answer-block w-full">
                 <tr>
-                    <td width="100%">
-                        <div
-                            class="quiz-answer"
-                            id="answer-0"
-                            onClick="window.location.href = 'Q-ANSWER-0'"
+                    <td class="flex justify-center items-center">
+                        <!-- Apply centering style -->
+                        <button
+                            class="quiz-answer-button w-full"
+                            on:click={() => (window.location.href = 'Q-ANSWER-0')}
                         >
-                            ANSWER 1
-                        </div>
+                            <div class="quiz-answer">ANSWER 1</div>
+                        </button>
                     </td>
                 </tr>
                 <tr>
-                    <td width="100%">
-                        <div
-                            class="quiz-answer"
-                            id="answer-1"
-                            onClick="window.location.href = 'Q-ANSWER-1'"
+                    <td class="flex justify-center items-center">
+                        <!-- Apply centering style -->
+                        <button
+                            class="quiz-answer-button w-full"
+                            on:click={() => (window.location.href = 'Q-ANSWER-1')}
                         >
-                            ANSWER 2
-                        </div>
+                            <div class="quiz-answer">ANSWER 2</div>
+                        </button>
                     </td>
                 </tr>
                 <tr>
-                    <td width="100%">
-                        <div
-                            class="quiz-answer"
-                            id="answer-2"
-                            onClick="window.location.href = 'Q-ANSWER-2'"
+                    <td class="flex justify-center items-center">
+                        <!-- Apply centering style -->
+                        <button
+                            class="quiz-answer-button w-full"
+                            on:click={() => (window.location.href = 'Q-ANSWER-2')}
                         >
-                            ANSWER 3
-                        </div>
+                            <div class="quiz-answer">ANSWER 3</div>
+                        </button>
                     </td>
                 </tr>
                 <tr>
-                    <td width="100%">
-                        <div
-                            class="quiz-answer"
-                            id="answer-3"
-                            onClick="window.location.href = 'Q-ANSWER-3'"
+                    <td class="flex justify-center items-center">
+                        <!-- Apply centering style -->
+                        <button
+                            class="quiz-answer-button w-full"
+                            on:click={() => (window.location.href = 'Q-ANSWER-3')}
                         >
-                            ANSWER 4
-                        </div>
+                            <div class="quiz-answer">ANSWER 4</div>
+                        </button>
                     </td>
                 </tr>
             </table>
