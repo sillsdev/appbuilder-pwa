@@ -7,10 +7,9 @@ TODO:
 -->
 <script lang="ts">
     import { AudioIcon } from '$lib/icons';
-    import { refs, userSettings, s, playMode, direction, audioPlayer, t } from '$lib/data/stores';
+    import { refs, userSettings, s, playMode, audioPlayer, t, convertStyle } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import config from '$lib/data/config';
-    import toast, { Toaster } from 'svelte-french-toast';
 
     import {
         skip,
@@ -69,16 +68,33 @@ TODO:
         }
 
         if (lastPlayMode !== '' && lastPlayMode !== value.mode) {
-            toast($t[key], { duration: 1500 });
+            startShowHint($t[key]);
+            //toast($t[key], { duration: 1500 });
         }
         lastPlayMode = value.mode;
     }
     $: playModeChanged($playMode);
+    
+    let hintText = '';
+    let showHint = false;
+    let hintTimeoutId = null;
+    function startShowHint(text) {
+        showHint = true;
+        hintText = text;
+        if (hintTimeoutId) {
+            clearTimeout(hintTimeoutId);
+        }
+        hintTimeoutId = setTimeout(() => {
+            showHint = false;
+            hintTimeoutId = null;
+        }, 1500);
+    }
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
+    const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
     //$: durationDisplay = format($audioPlayer.duration);
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: iconPlayColor = $s['ui.bar.audio.play.icon']['color'];
@@ -88,10 +104,10 @@ TODO:
     $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
-<div class={audioBarClass} style:background-color={backgroundColor}>
-    <div class="toast-container">
-        <Toaster />
-    </div>
+<div class="relative {audioBarClass}" style:background-color={backgroundColor}>
+    {#if showHint}
+        <div style={hintStyle} class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md">{hintText}</div>
+    {/if}
     {#if showRepeatMode}
         <button
             class="audio-control-buttons"
