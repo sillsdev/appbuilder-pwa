@@ -291,7 +291,7 @@ export async function convertBooks(
     };
 }
 
-type QuizAnswer = {
+export type QuizAnswer = {
     //\aw or \ar
     correct: boolean;
     text?: string;
@@ -304,7 +304,7 @@ type QuizAnswer = {
     };
 };
 
-type QuizQuestion = {
+export type QuizQuestion = {
     //\qu
     text: string;
     image?: string;
@@ -312,7 +312,7 @@ type QuizQuestion = {
     answers: QuizAnswer[];
 };
 
-type Quiz = {
+export type Quiz = {
     id: string; //\id
     name?: string; //\qn
     shortName?: string; //\qs
@@ -468,11 +468,11 @@ function convertScriptureBook(
                             if (context.verbose)
                                 console.log(
                                     (r.data?.addDocument ? '' : 'failed: ') +
-                                        context.docSet +
-                                        ' <- ' +
-                                        book.name +
-                                        ': ' +
-                                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                                    context.docSet +
+                                    ' <- ' +
+                                    book.name +
+                                    ': ' +
+                                    path.join(context.dataDir, 'books', context.bcId, book.file)
                                 );
                             //if the document is not added successfully, the response returned by Proskomma includes an error message
                             if (!r.data?.addDocument) {
