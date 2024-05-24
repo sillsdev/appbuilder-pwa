@@ -48,7 +48,12 @@
                                 }}
                             >
                                 <div class="quiz-answer">
-                                    {answer.text || answer.image}
+                                    {#if answer.text}
+                                        {answer.text}
+                                    {/if}
+                                    {#if answer.image}
+                                        {answer.image}
+                                    {/if}
                                 </div>
                             </button>
                         </td>
