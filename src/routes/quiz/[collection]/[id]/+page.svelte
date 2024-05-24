@@ -6,11 +6,12 @@
     import { page } from '$app/stores';
 
     /** @type {import('./$types').PageData} */
-    export let dataQuiz;
+    export let data;
+
+    console.log(JSON.stringify(data, null, 4));
 
     let score = 0;
-
-    // Remaining code stays the same...
+    let questionNum = 0;
 </script>
 
 <div class="grid grid-rows-[auto,1fr] h-screen">
@@ -19,7 +20,7 @@
             <!-- <div slot="left-buttons" /> -->
             <label for="dropdown" slot="books">
                 <!-- CHECK ABOVE!!!! -->
-                <div class="btn btn-rectangel normal-case text-xl">{$t['Menu_Book_Quizzes']}</div>
+                <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
                 <!-- CHECK ABOVE!!!! -->
             </label>
             <!-- <div slot="right-buttons" /> -->
@@ -27,45 +28,33 @@
     </div>
     <body class="quiz">
         <div id="content">
-            <div class="quiz-question-number">1</div>
+            <div class="quiz-question-number"></div>
             <div class="quiz-question-block">
-                <div class="quiz-question">QUESTION GOES HERE</div>
+                <div class="quiz-question">
+                    {data.quiz.questions[questionNum].text}
+                    {#if data.quiz.questions[questionNum].image}
+                        {data.quiz.questions[questionNum].image}
+                    {/if}
+                </div>
             </div>
             <table class="w-[32rem]">
-                <tr>
-                    <td>
-                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-1')}>
-                            <div class="quiz-answer">ANSWER 1</div>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-2')}>
-                            <div class="quiz-answer">ANSWER 2</div>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-3')}>
-                            <div class="quiz-answer">ANSWER 3</div>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-4')}>
-                            <div class="quiz-answer">ANSWER 4</div>
-                        </button>
-                    </td>
-                </tr>
+                {#each data.quiz.questions[questionNum].answers as answer}
+                    <tr>
+                        <td>
+                            <button
+                                class="w-full"
+                                on:click={() => {
+                                    questionNum++;
+                                }}
+                            >
+                                <div class="quiz-answer">
+                                    {answer.text || answer.image}
+                                </div>
+                            </button>
+                        </td>
+                    </tr>
+                {/each}
             </table>
-            <div
-                class="quiz-next-button arrow-ltr hidden"
-                id="next-button"
-                onClick="window.location.href = 'Q-NEXT'"
-            ></div>
         </div>
     </body>
 </div>

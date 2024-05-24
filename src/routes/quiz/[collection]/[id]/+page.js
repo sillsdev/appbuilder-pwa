@@ -13,7 +13,7 @@ export async function load({ params }) {
         }
 
         const quizData = await response.json()
-        return { quizData };
+        return { quiz: quizData };
     }
     catch (error) {
         console.error("Error fetching quiz JSON file:", error);
