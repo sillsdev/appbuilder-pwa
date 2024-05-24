@@ -31,43 +31,31 @@
             <div class="quiz-question-block">
                 <div class="quiz-question">QUESTION GOES HERE</div>
             </div>
-            <table class="quiz-answer-block w-full">
+            <table class="w-[32rem]">
                 <tr>
-                    <td class="flex justify-center items-center">
-                        <button
-                            class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'ANSWER-1')}
-                        >
+                    <td>
+                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-1')}>
                             <div class="quiz-answer">ANSWER 1</div>
                         </button>
                     </td>
                 </tr>
                 <tr>
-                    <td class="flex justify-center items-center">
-                        <button
-                            class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'ANSWER-2')}
-                        >
+                    <td>
+                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-2')}>
                             <div class="quiz-answer">ANSWER 2</div>
                         </button>
                     </td>
                 </tr>
                 <tr>
-                    <td class="flex justify-center items-center">
-                        <button
-                            class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'ANSWER-3')}
-                        >
+                    <td>
+                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-3')}>
                             <div class="quiz-answer">ANSWER 3</div>
                         </button>
                     </td>
                 </tr>
                 <tr>
-                    <td class="flex justify-center items-center">
-                        <button
-                            class="quiz-answer-button w-full"
-                            on:click={() => (window.location.href = 'ANSWER-4')}
-                        >
+                    <td>
+                        <button class="w-full" on:click={() => (window.location.href = 'ANSWER-4')}>
                             <div class="quiz-answer">ANSWER 4</div>
                         </button>
                     </td>
