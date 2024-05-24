@@ -436,6 +436,8 @@ function convertConfig(dataDir: string, verbose: number) {
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
+        if (verbose >= 2) console.log(`. theme ${theme}`);
+
         data.themes.push({
             name: theme,
             enabled: tag.attributes.getNamedItem('enabled')?.value === 'true',
@@ -447,20 +449,29 @@ function convertConfig(dataDir: string, verbose: number) {
                     const name = color.getAttribute('name');
                     const value = cm?.getAttribute('value');
                     if (name && value) colors[name] = value;
+                    if (verbose >= 3) console.log(`.. colors[${name}]=${value} `);
                 }
+                if (verbose >= 3) console.log(`.. done with colorTags`);
                 Object.keys(colors).forEach((x) => {
+                    if (verbose >= 3) console.log(`.. ${x}: colors[${x}]=${colors[x]}`);
                     while (!colors[x].startsWith('#')) {
                         const key = colors[x];
                         const value = colors[key];
+                        if (value === x) {
+                            throw `Color value equals color name! Can't Resolve!\ncolor=${x}, theme=${theme}, value=${value} `;
+                        }
                         if (!value) {
                             break;
                         }
                         colors[x] = value;
                     }
                 });
+                if (verbose >= 3) console.log(`.. done with resolving colors`);
+                const type = cst.getAttribute('type')!;
+                if (verbose >= 2) console.log(`.. ${type}: ${JSON.stringify(colors)}`);
                 return {
-                    type: cst.getAttribute('type')!,
-                    colors: colors
+                    type,
+                    colors
                 };
             })
         });
