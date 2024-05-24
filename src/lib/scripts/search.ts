@@ -1,4 +1,5 @@
 import { pk } from '$lib/data/stores/pk';
+import { get } from 'svelte/store';
 
 export interface SearchResult {
     reference: {
@@ -39,7 +40,7 @@ interface VerseTexts {
 
 export async function search(
     phrase: string,
-    wholeWords: string,
+    wholeWords: boolean,
     docSet: string
 ): Promise<SearchResult[]> {
     const response = await doSearchQuery(phrase, wholeWords, docSet);
@@ -101,7 +102,7 @@ async function doSearchQuery(
           }
         }`;
     let result: GraphQLResponse;
-    await pk.gqlQuery(query, (r: GraphQLResponse) => (result = r));
+    await get(pk).gqlQuery(query, (r: GraphQLResponse) => (result = r));
     return result;
 }
 
