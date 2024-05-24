@@ -10,7 +10,6 @@ TODO:
     import { refs, userSettings, s, playMode, audioPlayer, t, convertStyle } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import config from '$lib/data/config';
-
     import {
         skip,
         playPause,
@@ -69,7 +68,6 @@ TODO:
 
         if (lastPlayMode !== '' && lastPlayMode !== value.mode) {
             startShowHint($t[key]);
-            //toast($t[key], { duration: 1500 });
         }
         lastPlayMode = value.mode;
     }
@@ -177,13 +175,11 @@ TODO:
         display: grid;
         grid-auto-columns: 3.125rem auto 3.125rem;
         grid-auto-rows: 4rem;
-        position: relative;
     }
     .audio-bar-progress {
         display: grid;
         grid-auto-columns: 3.125rem auto 3.125rem;
         grid-auto-rows: 3.125rem 1.875rem;
-        position: relative;
     }
     .audio-progress-value {
         grid-row: 2;
@@ -221,14 +217,5 @@ TODO:
         grid-row: 1;
         grid-column: 3;
         place-self: center;
-    }
-    .toast-container {
-        position: absolute;
-        bottom: calc(100% + 68px); /* Adjust as needed */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%; /* Adjust the width as needed */
-        display: flex;
-        justify-content: center;
     }
 </style>
