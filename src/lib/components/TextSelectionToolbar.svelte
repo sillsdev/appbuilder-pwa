@@ -105,19 +105,17 @@ TODO:
         $audioActive = true;
         selectedVerses.reset();
     }
-    function copy() {
-        const ref = selectedVerses.getCompositeReference();
-        selectedVerses.getCompositeText().then((text) => {
-            navigator.clipboard.writeText(text + '\n' + ref);
-            selectedVerses.reset();
-        });
+    async function copy() {
+        var copyText =
+            (await selectedVerses.getCompositeText()) +
+            '\n' +
+            selectedVerses.getCompositeReference();
+        navigator.clipboard.writeText(copyText);
         toast($t['Text_Copied'], {
-            duration: 1500,
-            position: 'bottom-center'
+            position: 'bottom-right'
         });
-        console.log('Toasting', $t['Text_Copied']);
+        selectedVerses.reset();
     }
-
     async function shareSelectedText() {
         const book = $selectedVerses[0].book;
         const reference = selectedVerses.getCompositeReference();
@@ -130,6 +128,7 @@ TODO:
     $: barIconColor = $s['ui.bar.text-select.icon']['color'];
 </script>
 
+<Toaster />
 <div
     class="h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={barBackgroundColor}
