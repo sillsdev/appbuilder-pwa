@@ -436,6 +436,8 @@ function convertConfig(dataDir: string, verbose: number) {
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
+        if (verbose >= 2) console.log(`. theme ${theme}`);
+
         data.themes.push({
             name: theme,
             enabled: tag.attributes.getNamedItem('enabled')?.value === 'true',
@@ -447,6 +449,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     const name = color.getAttribute('name');
                     const value = cm?.getAttribute('value');
                     if (name && value) colors[name] = value;
+                    if (verbose >= 3) console.log(`.. colors[${name}]=${value} `);
                 }
                 Object.keys(colors).forEach((x) => {
                     while (!colors[x].startsWith('#')) {
@@ -458,9 +461,11 @@ function convertConfig(dataDir: string, verbose: number) {
                         colors[x] = value;
                     }
                 });
+                const type = cst.getAttribute('type')!;
+                if (verbose >= 2) console.log(`.. ${type}: ${JSON.stringify(colors)}`);
                 return {
-                    type: cst.getAttribute('type')!,
-                    colors: colors
+                    type,
+                    colors
                 };
             })
         });
