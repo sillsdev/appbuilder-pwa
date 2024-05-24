@@ -7,7 +7,7 @@ TODO:
 -->
 <script lang="ts">
     import { AudioIcon } from '$lib/icons';
-    import { refs, userSettings, s, playMode, direction, audioPlayer } from '$lib/data/stores';
+    import { refs, userSettings, s, playMode, audioPlayer, t, convertStyle } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import config from '$lib/data/config';
     import {
@@ -47,11 +47,52 @@ TODO:
         repeatPage: AudioIcon.Repeat,
         repeatSelection: AudioIcon.RepeatOne
     };
+    let lastPlayMode = '';
+    function playModeChanged(value) {
+        let key = '';
+
+        switch (value.mode) {
+            case 'stop':
+                key = 'Audio_Repeat_Off_Stop';
+                break;
+            case 'repeatPage':
+                key = 'Audio_Repeat_Page';
+                break;
+            case 'repeatSelection':
+                key = 'Audio_Repeat_Selection';
+                break;
+            case 'continue':
+                key = 'Audio_Repeat_Off_Continue';
+                break;
+        }
+
+        if (lastPlayMode !== '' && lastPlayMode !== value.mode) {
+            startShowHint($t[key]);
+        }
+        lastPlayMode = value.mode;
+    }
+    $: playModeChanged($playMode);
+    
+    let hintText = '';
+    let showHint = false;
+    let hintTimeoutId = null;
+    function startShowHint(text) {
+        showHint = true;
+        hintText = text;
+        if (hintTimeoutId) {
+            clearTimeout(hintTimeoutId);
+        }
+        hintTimeoutId = setTimeout(() => {
+            showHint = false;
+            hintTimeoutId = null;
+        }, 1500);
+    }
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
+    const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
     //$: durationDisplay = format($audioPlayer.duration);
     $: iconColor = $s['ui.bar.audio.icon']['color'];
     $: iconPlayColor = $s['ui.bar.audio.play.icon']['color'];
@@ -61,7 +102,10 @@ TODO:
     $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
-<div class={audioBarClass} style:background-color={backgroundColor}>
+<div class="relative {audioBarClass}" style:background-color={backgroundColor}>
+    {#if showHint}
+        <div style={hintStyle} class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md">{hintText}</div>
+    {/if}
     {#if showRepeatMode}
         <button
             class="audio-control-buttons"
