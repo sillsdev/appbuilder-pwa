@@ -227,7 +227,43 @@ export async function convertBooks(
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
-        catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
+        catalogEntries.push(
+            pk.gqlQuery(queries.catalogQuery({ cv: true })).then((j) => {
+                if (j.data.nDocSets > 0) {
+                    return j;
+                } else {
+                    if (verbose) {
+                        console.log(` -- Empty DocSet: ${context.docSet}`);
+                    }
+                    // return empty version of appropriate docSet,
+                    // as the query failed due to lack of documents.
+                    return {
+                        data: {
+                            nDocSets: 1,
+                            nDocuments: 0,
+                            docSets: [
+                                {
+                                    id: context.docSet,
+                                    tagsKv: [],
+                                    selectors: [
+                                        {
+                                            key: 'lang',
+                                            value: context.lang
+                                        },
+                                        {
+                                            key: 'abbr',
+                                            value: context.bcId
+                                        }
+                                    ],
+                                    hasMapping: false,
+                                    documents: []
+                                }
+                            ]
+                        }
+                    };
+                }
+            })
+        );
 
         //check if folder exists for collection
         const collPath = path.join('static', 'collections', context.bcId);
