@@ -180,7 +180,7 @@ export async function convertBooks(
             bcGlossary = loadGlossary(collection, dataDir);
         }
         //add empty array of quizzes for book collection
-        quizzes[context.docSet] = [];
+        quizzes[context.bcId] = [];
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
@@ -192,12 +192,12 @@ export async function convertBooks(
                     break;
                 case 'quiz':
                     bookConverted = true;
-                    quizzes[context.docSet].push({ id: book.id, name: book.name });
+                    quizzes[context.bcId].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
                             'static',
                             'collections',
-                            context.docSet,
+                            context.bcId,
                             'quizzes',
                             book.id + '.json'
                         ),
@@ -230,14 +230,14 @@ export async function convertBooks(
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
 
         //check if folder exists for collection
-        const collPath = path.join('static', 'collections', context.docSet);
+        const collPath = path.join('static', 'collections', context.bcId);
         if (!existsSync(collPath)) {
             if (verbose) console.log('creating: ' + collPath);
             mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
-        if (quizzes[context.docSet].length > 0) {
-            const qPath = path.join('static', 'collections', context.docSet, 'quizzes');
+        if (quizzes[context.bcId].length > 0) {
+            const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
             if (!existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 mkdirSync(qPath, { recursive: true });
