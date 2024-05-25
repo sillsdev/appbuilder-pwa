@@ -1,6 +1,6 @@
 # appbuilder-pwa
 
-A template for building a Progressive Web App with [Scripture App Builder](https://softare.sil.org/scriptureappbuilder).
+A template for building a Progressive Web App with [Scripture App Builder](https://software.sil.org/scriptureappbuilder).
 
 ## Prerequisites
 
