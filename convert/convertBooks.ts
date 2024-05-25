@@ -299,15 +299,12 @@ export async function convertBooks(
     //write frozen archives
 
     //push files to be written to files array
-    freezer.forEach((value, key) => {
-        // don't write pkf if there is nothing to write
-        if (value) {
-            files.push({
-                path: path.join('static', 'collections', key + '.pkf'),
-                content: value
-            });
-        }
-    });
+    freezer.forEach((value, key) =>
+        files.push({
+            path: path.join('static', 'collections', key + '.pkf'),
+            content: value
+        })
+    );
 
     //write index file
     writeFileSync(
