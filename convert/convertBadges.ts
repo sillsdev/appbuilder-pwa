@@ -1,7 +1,7 @@
 import { Promisable, Task, TaskOutput } from './Task';
 import path from 'path';
 import { ConfigTaskOutput } from './convertConfig';
-import { copyFile, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { copyFile, existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 
 export async function convertBadges(
     badgesDir: string,
@@ -9,6 +9,13 @@ export async function convertBadges(
     verbose: number
 ) {
     const dstBadgeDir = path.join('static', 'badges');
+    if (!configData.data.mainFeatures['share-apple-app-link']) {
+        if (existsSync(dstBadgeDir)) {
+            rmSync(dstBadgeDir, { recursive: true });
+        }
+        return;
+    }
+
     if (!existsSync(dstBadgeDir)) {
         mkdirSync(dstBadgeDir);
     }
@@ -16,7 +23,7 @@ export async function convertBadges(
     // Badge languages from config
     const languages = Object.keys(configData.data.interfaceLanguages!.writingSystems);
     // Make sure there is english for fallback
-    if (!languages.includes('en')) {
+    if (languages.length > 1 && !languages.includes('en')) {
         languages.push('en');
     }
     const foundLanguages = [];
@@ -52,7 +59,7 @@ export interface BadgesTaskOutput extends TaskOutput {
 }
 
 export class ConvertBadges extends Task {
-    public triggerFiles: string[] = [];
+    public triggerFiles: string[] = ['appdef.xml'];
     public badgesDir: string;
     constructor(dataDir: string) {
         super(dataDir);
