@@ -1,4 +1,4 @@
-import { CopySyncOptions, cpSync } from 'fs';
+import { CopySyncOptions, cpSync, existsSync } from 'fs';
 import { rimraf } from 'rimraf';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
@@ -76,7 +76,14 @@ export class ConvertMedia extends Task {
     ): Promise<TaskOutput> {
         const modifiedDirectories = new Set<string>();
         for (const p of modifiedPaths) {
-            modifiedDirectories.add(p.split(path.sep)[0]);
+            // During the first run, paths are just the folders in the trigger files.
+            // During an update due to watch (especially switching projects), the paths
+            // include all the file names (appdef.xml, etc)
+            const parts = p.split(path.sep);
+            const subdir = parts[0];
+            if (this.triggerFiles.includes(subdir)) {
+                modifiedDirectories.add(subdir);
+            }
         }
         await this.convertMedia(this.dataDir, verbose, [...modifiedDirectories]);
         return {
