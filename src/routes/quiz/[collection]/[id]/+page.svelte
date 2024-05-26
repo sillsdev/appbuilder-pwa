@@ -38,6 +38,7 @@
                 </div>
             </div>
             <table class="w-[32rem]">
+                {#if} <!-- If statement checks if questions have all been answered. -->
                 {#each data.quiz.questions[questionNum].answers as answer}
                     <tr>
                         <td>
@@ -59,6 +60,7 @@
                         </td>
                     </tr>
                 {/each}
+                {/if}
             </table>
         </div>
     </body>
