@@ -37,15 +37,15 @@ const verbose: number = verboseLevel
     : 0;
 
 const stepClasses: Task[] = [
-    ConvertConfig
-    // ConvertContents,
-    // ConvertStyles,
-    // ConvertManifest,
-    // ConvertMedia,
-    // ConvertBooks,
-    // ConvertFirebase,
-    // ConvertBadges,
-    // ConvertAbout
+    ConvertConfig,
+    ConvertContents,
+    ConvertStyles,
+    ConvertManifest,
+    ConvertMedia,
+    ConvertBooks,
+    ConvertFirebase,
+    ConvertBadges,
+    ConvertAbout
 ].map((x) => new x(dataDir));
 const allPaths = new Set(
     stepClasses.reduce((acc, step) => acc.concat(step.triggerFiles), [] as string[])
@@ -143,7 +143,6 @@ if (process.argv.includes('--watch')) {
                                 /*await*/ // We don't need to await the file writes; next steps can continue running while writes occur
                                 Promise.all(
                                     out.files.map((f) => {
-                                        oldConsoleLog(`Write ${f.path}`);
                                         new Promise((r) => writeFile(f.path, f.content, r));
                                     })
                                 );
