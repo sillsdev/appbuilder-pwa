@@ -130,7 +130,7 @@ The navbar component.
                     let label = book[bookLabel] || book.name;
                     let cell = { label: label, id: book.id };
                     let group = book.testament || '';
-                    if (lastGroup == null || group !== lastGroup) {
+                    if ((lastGroup == null || group !== lastGroup) && config.mainFeatures['book-group-titles']) {
                         // Create new group
                         groups.push({
                             header: book.testament
