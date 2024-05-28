@@ -18,6 +18,23 @@
         audio.src = path;
         audio.play();
     }
+
+    function shuffle(array) {
+        let currentIndex = array.length,
+            randomIndex;
+
+        // While there remain elements to shuffle...
+        while (currentIndex != 0) {
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr] h-screen">
@@ -42,7 +59,7 @@
                         </div>
                         <div class="flex quiz-question-block justify-center">
                             <table class="mt-10">
-                                {#each data.quiz.questions[questionNum].answers as answer}
+                                {#each shuffle(data.quiz.questions[questionNum].answers) as answer}
                                     <tr>
                                         <td>
                                             <button
@@ -81,7 +98,7 @@
                         </div>
                         <div class="flex quiz-question-block justify-center">
                             <table class="mt-10">
-                                {#each data.quiz.questions[questionNum].answers as answer}
+                                {#each shuffle(data.quiz.questions[questionNum].answers) as answer}
                                     <tr>
                                         <td>
                                             <button
@@ -91,6 +108,9 @@
                                                         ? `${base}/clips/quiz-right-answer.mp3`
                                                         : `${base}/clips/quiz-wrong-answer.mp3`;
                                                     playSound(audioPath);
+                                                    if (answer.correct) {
+                                                        score++;
+                                                    }
                                                     questionNum++;
                                                 }}
                                             >
