@@ -34,7 +34,7 @@
     </div>
     <body class="quiz">
         <div id="content">
-            <div class="quiz-question-number"></div>
+            <div class="quiz-question-number">{questionNum + 1}</div>
             <div class="quiz-question-block">
                 <div class="quiz-question">
                     {data.quiz.questions[questionNum].text}
@@ -43,37 +43,45 @@
                     {/if}
                 </div>
             </div>
-            <table class="mt-10">
-                {#if data.quiz.questions[questionNum].answers}
-                    <!-- If statement checks if questions have all been answered. -->
-                    {#each data.quiz.questions[questionNum].answers as answer}
-                        <tr>
-                            <td>
-                                <button
-                                    class="flex-initial w-[32rem] mt-2 justify-center gap-8"
-                                    on:click={() => {
-                                        questionNum++;
-                                        if (answer.correct) {
-                                            playSound(`${base}/static/audio/quiz-right-answer.mp3`);
-                                        } else if (answer.incorrect) {
-                                            playSound(`${base}/static/audio/quiz-wrong-answer.mp3`);
-                                        }
-                                    }}
-                                >
-                                    <div class="quiz-answer flex- w-[32rem] justify-center">
-                                        {#if answer.text}
-                                            {answer.text}
-                                        {/if}
-                                        {#if answer.image}
-                                            {answer.image}
-                                        {/if}
-                                    </div>
-                                </button>
-                            </td>
-                        </tr>
-                    {/each}
-                {/if}
-            </table>
+            <div class="flex quiz-question-block justify-center">
+                <table class="mt-10">
+                    {#if data.quiz.questions[questionNum].answers}
+                        <!-- If statement checks if questions have all been answered. -->
+                        {#each data.quiz.questions[questionNum].answers as answer}
+                            <tr>
+                                <td>
+                                    <button
+                                        class="flex-initial w-[32rem] mt-2 gap-8"
+                                        on:click={() => {
+                                            questionNum++;
+                                            if (answer.correct) {
+                                                playSound(
+                                                    `${base}/static/audio/quiz-right-answer.mp3`
+                                                );
+                                            } else if (answer.incorrect) {
+                                                playSound(
+                                                    `${base}/static/audio/quiz-wrong-answer.mp3`
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        <div
+                                            class="quiz-answer flex- w-[32rem] justify-center items-center"
+                                        >
+                                            {#if answer.text}
+                                                {answer.text}
+                                            {/if}
+                                            {#if answer.image}
+                                                {answer.image}
+                                            {/if}
+                                        </div>
+                                    </button>
+                                </td>
+                            </tr>
+                        {/each}
+                    {/if}
+                </table>
+            </div>
         </div>
     </body>
 </div>
