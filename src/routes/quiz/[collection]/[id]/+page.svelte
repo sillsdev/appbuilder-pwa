@@ -64,7 +64,9 @@
                                         <td>
                                             <button
                                                 class="flex-initial w-[32rem] mt-2 gap-8 {answer.clicked &&
-                                                answer.correct
+                                                !answer.correct
+                                                    ? 'bg-red-500'
+                                                    : ''} {answer.clicked && answer.correct
                                                     ? 'bg-green-500'
                                                     : ''}"
                                                 on:click={() => {
@@ -76,7 +78,7 @@
                                                         score++;
                                                     }
                                                     //questionNum++;
-                                                    answer.clicked = true; // Marking the answer as clicked
+                                                    answer.clicked = true;
                                                 }}
                                             >
                                                 <div
@@ -107,7 +109,9 @@
                                         <td>
                                             <button
                                                 class="flex-initial w-[32rem] mt-2 gap-8 {answer.clicked &&
-                                                answer.correct
+                                                !answer.correct
+                                                    ? 'bg-red-500'
+                                                    : ''} {answer.clicked && answer.correct
                                                     ? 'bg-green-500'
                                                     : ''}"
                                                 on:click={() => {
@@ -119,7 +123,7 @@
                                                         score++;
                                                     }
                                                     questionNum++;
-                                                    answer.clicked = true; // Marking the answer as clicked
+                                                    answer.clicked = true;
                                                 }}
                                             >
                                                 <div
