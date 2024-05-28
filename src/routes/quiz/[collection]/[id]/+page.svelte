@@ -43,28 +43,26 @@
                         <div class="flex quiz-question-block justify-center">
                             <table class="mt-10">
                                 {#each data.quiz.questions[questionNum].answers as answer}
-                                    {#if answer.text}
-                                        <tr>
-                                            <td>
-                                                <button
-                                                    class="flex-initial w-[32rem] mt-2 gap-8"
-                                                    on:click={() => {
-                                                        const audioPath = answer.correct
-                                                            ? `${base}/clips/quiz-right-answer.mp3`
-                                                            : `${base}/clips/quiz-wrong-answer.mp3`;
-                                                        playSound(audioPath);
-                                                        questionNum++;
-                                                    }}
+                                    <tr>
+                                        <td>
+                                            <button
+                                                class="flex-initial w-[32rem] mt-2 gap-8"
+                                                on:click={() => {
+                                                    const audioPath = answer.correct
+                                                        ? `${base}/clips/quiz-right-answer.mp3`
+                                                        : `${base}/clips/quiz-wrong-answer.mp3`;
+                                                    playSound(audioPath);
+                                                    questionNum++;
+                                                }}
+                                            >
+                                                <div
+                                                    class="quiz-answer flex justify-center items-center"
                                                 >
-                                                    <div
-                                                        class="quiz-answer flex justify-center items-center"
-                                                    >
-                                                        {answer.text}
-                                                    </div>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {/if}
+                                                    {answer.text}
+                                                </div>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 {/each}
                             </table>
                         </div>
@@ -81,28 +79,26 @@
                         <div class="flex quiz-question-block justify-center">
                             <table class="mt-10">
                                 {#each data.quiz.questions[questionNum].answers as answer}
-                                    {#if answer.image}
-                                        <tr>
-                                            <td>
-                                                <button
-                                                    class="flex-initial w-[32rem] mt-2 gap-8"
-                                                    on:click={() => {
-                                                        const audioPath = answer.correct
-                                                            ? `${base}/clips/quiz-right-answer.mp3`
-                                                            : `${base}/clips/quiz-wrong-answer.mp3`;
-                                                        playSound(audioPath);
-                                                        questionNum++;
-                                                    }}
+                                    <tr>
+                                        <td>
+                                            <button
+                                                class="flex-initial w-[32rem] mt-2 gap-8"
+                                                on:click={() => {
+                                                    const audioPath = answer.correct
+                                                        ? `${base}/clips/quiz-right-answer.mp3`
+                                                        : `${base}/clips/quiz-wrong-answer.mp3`;
+                                                    playSound(audioPath);
+                                                    questionNum++;
+                                                }}
+                                            >
+                                                <div
+                                                    class="quiz-answer flex justify-center items-center"
                                                 >
-                                                    <div
-                                                        class="quiz-answer flex justify-center items-center"
-                                                    >
-                                                        {answer.image}
-                                                    </div>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {/if}
+                                                    {answer.image}
+                                                </div>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 {/each}
                             </table>
                         </div>
