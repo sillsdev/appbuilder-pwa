@@ -6,12 +6,11 @@
     import { SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture.js';
-    import { tick } from 'svelte';
 
     export let data;
 
     let searchText = '';
-    let matchWholeWords = true;
+    let matchWholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
     let searchPromise: Promise<SearchResult[]>;
     let showResults = false;
 
@@ -73,7 +72,7 @@
 
     function waitingText(): string {
         console.log('waiting for search');
-        return 'please wait...';
+        return $t['Search_Searching'];
     }
 </script>
 
@@ -109,31 +108,32 @@
                     </button>
                 </label>
             </div>
-            <div class="dy-form-control max-w-xs m-4">
-                <label class="dy-label cursor-pointer">
-                    <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
-                    <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
-                </label>
-            </div>
-            {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
-                <div class="dy-form-control">
-                    <div class="cursor-pointer">
-                        <div class="">Special characters</div>
-                        <div class="special-characters">
-                            {#each specialCharacters as character}
-                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                <div
-                                    class="special-character bg-primary"
-                                    on:click={() => (searchText += character)}
-                                >
-                                    {character}
-                                </div>
-                            {/each}
-                        </div>
-                    </div>
+            {#if config.mainFeatures['search-whole-words-show']}
+                <div class="dy-form-control max-w-xs m-4">
+                    <label class="dy-label cursor-pointer">
+                        <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
+                        <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
+                    </label>
                 </div>
             {/if}
+            <!-- Not fully implemented -->
+            <!-- {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0} -->
+            <!--     <div class="dy-form-control"> -->
+            <!--         <div class="cursor-pointer"> -->
+            <!--             <div class="">Special characters</div> -->
+            <!--             <div class="special-characters"> -->
+            <!--                 {#each specialCharacters as character} -->
+            <!--                     <div -->
+            <!--                         class="special-character bg-primary" -->
+            <!--                         on:click={() => (searchText += character)} -->
+            <!--                     > -->
+            <!--                         {character} -->
+            <!--                     </div> -->
+            <!--                 {/each} -->
+            <!--             </div> -->
+            <!--         </div> -->
+            <!--     </div> -->
+            <!-- {/if} -->
             <hr />
             {#if showResults}
                 <div class="overflow-y-auto">
