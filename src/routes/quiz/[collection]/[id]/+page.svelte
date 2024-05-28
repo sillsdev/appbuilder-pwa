@@ -54,15 +54,10 @@
                                         class="flex-initial w-[32rem] mt-2 gap-8"
                                         on:click={() => {
                                             questionNum++;
-                                            if (answer.correct) {
-                                                playSound(
-                                                    `${base}/static/audio/quiz-right-answer.mp3`
-                                                );
-                                            } else if (answer.incorrect) {
-                                                playSound(
-                                                    `${base}/static/audio/quiz-wrong-answer.mp3`
-                                                );
-                                            }
+                                            const audioPath = answer.correct
+                                                ? `${base}/audio/quiz-right-answer.mp3`
+                                                : `${base}/audio/quiz-wrong-answer.mp3`;
+                                            playSound(audioPath);
                                         }}
                                     >
                                         <div
