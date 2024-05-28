@@ -19,17 +19,14 @@
         audio.play();
     }
 
-    function shuffle(array) {
+    function shuffleAnswers(array) {
         let currentIndex = array.length,
             randomIndex;
 
-        // While there remain elements to shuffle...
         while (currentIndex != 0) {
-            // Pick a remaining element...
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex--;
 
-            // And swap it with the current element.
             [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
         }
 
@@ -59,7 +56,7 @@
                         </div>
                         <div class="flex quiz-question-block justify-center">
                             <table class="mt-10">
-                                {#each shuffle(data.quiz.questions[questionNum].answers) as answer}
+                                {#each shuffleAnswers(data.quiz.questions[questionNum].answers) as answer}
                                     <tr>
                                         <td>
                                             <button
@@ -98,7 +95,7 @@
                         </div>
                         <div class="flex quiz-question-block justify-center">
                             <table class="mt-10">
-                                {#each shuffle(data.quiz.questions[questionNum].answers) as answer}
+                                {#each shuffleAnswers(data.quiz.questions[questionNum].answers) as answer}
                                     <tr>
                                         <td>
                                             <button
