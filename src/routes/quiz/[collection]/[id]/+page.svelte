@@ -8,7 +8,7 @@
     /** @type {import('./$types').PageData} */
     export let data;
 
-    console.log(JSON.stringify(data, null, 4));
+    // console.log(JSON.stringify(data, null, 4));
 
     let score = 0;
     let questionNum = 0;
@@ -23,60 +23,92 @@
 <div class="grid grid-rows-[auto,1fr] h-screen">
     <div class="navbar">
         <Navbar>
-            <!-- <div slot="left-buttons" /> -->
             <label for="dropdown" slot="books">
-                <!-- CHECK ABOVE!!!! -->
                 <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
-                <!-- CHECK ABOVE!!!! -->
             </label>
-            <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
     <body class="quiz">
         <div id="content">
             <div class="quiz-question-number">{questionNum + 1}</div>
-            <div class="quiz-question-block">
-                <div class="quiz-question">
-                    {data.quiz.questions[questionNum].text}
-                    {#if data.quiz.questions[questionNum].image}
-                        {data.quiz.questions[questionNum].image}
-                    {/if}
-                </div>
-            </div>
-            <div class="flex quiz-question-block justify-center">
-                <table class="mt-10">
-                    {#if data.quiz.questions[questionNum].answers}
-                        <!-- If statement checks if questions have all been answered. -->
-                        {#each data.quiz.questions[questionNum].answers as answer}
-                            <tr>
-                                <td>
-                                    <button
-                                        class="flex-initial w-[32rem] mt-2 gap-8"
-                                        on:click={() => {
-                                            questionNum++;
-                                            const audioPath = answer.correct
-                                                ? `${base}/audio/quiz-right-answer.mp3`
-                                                : `${base}/audio/quiz-wrong-answer.mp3`;
-                                            playSound(audioPath);
-                                        }}
-                                    >
-                                        <div
-                                            class="quiz-answer flex- w-[32rem] justify-center items-center"
-                                        >
-                                            {#if answer.text}
-                                                {answer.text}
-                                            {/if}
-                                            {#if answer.image}
-                                                {answer.image}
-                                            {/if}
-                                        </div>
-                                    </button>
-                                </td>
-                            </tr>
-                        {/each}
-                    {/if}
-                </table>
-            </div>
+            {#if data.quiz.questions[questionNum].answers}
+                {#if data.quiz.questions[questionNum].answers.some((answer) => answer.text)}
+                    <div class="quiz-answer-block">
+                        <div class="quiz-question">
+                            {data.quiz.questions[questionNum].text}
+                            {#if data.quiz.questions[questionNum].image}
+                                {data.quiz.questions[questionNum].image}
+                            {/if}
+                        </div>
+                        <div class="flex quiz-question-block justify-center">
+                            <table class="mt-10">
+                                {#each data.quiz.questions[questionNum].answers as answer}
+                                    {#if answer.text}
+                                        <tr>
+                                            <td>
+                                                <button
+                                                    class="flex-initial w-[32rem] mt-2 gap-8"
+                                                    on:click={() => {
+                                                        const audioPath = answer.correct
+                                                            ? `${base}/clips/quiz-right-answer.mp3`
+                                                            : `${base}/clips/quiz-wrong-answer.mp3`;
+                                                        playSound(audioPath);
+                                                        questionNum++;
+                                                    }}
+                                                >
+                                                    <div
+                                                        class="quiz-answer flex justify-center items-center"
+                                                    >
+                                                        {answer.text}
+                                                    </div>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {/if}
+                                {/each}
+                            </table>
+                        </div>
+                    </div>
+                {/if}
+                {#if data.quiz.questions[questionNum].answers.some((answer) => answer.image)}
+                    <div class="quiz-answer-block">
+                        <div class="quiz-question">
+                            {data.quiz.questions[questionNum].text}
+                            {#if data.quiz.questions[questionNum].image}
+                                {data.quiz.questions[questionNum].image}
+                            {/if}
+                        </div>
+                        <div class="flex quiz-question-block justify-center">
+                            <table class="mt-10">
+                                {#each data.quiz.questions[questionNum].answers as answer}
+                                    {#if answer.image}
+                                        <tr>
+                                            <td>
+                                                <button
+                                                    class="flex-initial w-[32rem] mt-2 gap-8"
+                                                    on:click={() => {
+                                                        const audioPath = answer.correct
+                                                            ? `${base}/clips/quiz-right-answer.mp3`
+                                                            : `${base}/clips/quiz-wrong-answer.mp3`;
+                                                        playSound(audioPath);
+                                                        questionNum++;
+                                                    }}
+                                                >
+                                                    <div
+                                                        class="quiz-answer flex justify-center items-center"
+                                                    >
+                                                        {answer.image}
+                                                    </div>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {/if}
+                                {/each}
+                            </table>
+                        </div>
+                    </div>
+                {/if}
+            {/if}
         </div>
     </body>
 </div>
