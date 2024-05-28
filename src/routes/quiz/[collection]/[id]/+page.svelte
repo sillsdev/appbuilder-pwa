@@ -19,18 +19,21 @@
         audio.play();
     }
 
-    function shuffleAnswers(array) {
-        let currentIndex = array.length,
+    function shuffleAnswers(answerArray) {
+        let currentIndex = answerArray.length,
             randomIndex;
 
         while (currentIndex != 0) {
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex--;
 
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            [answerArray[currentIndex], answerArray[randomIndex]] = [
+                answerArray[randomIndex],
+                answerArray[currentIndex]
+            ];
         }
 
-        return array;
+        return answerArray;
     }
 </script>
 
@@ -60,7 +63,10 @@
                                     <tr>
                                         <td>
                                             <button
-                                                class="flex-initial w-[32rem] mt-2 gap-8"
+                                                class="flex-initial w-[32rem] mt-2 gap-8 {answer.clicked &&
+                                                answer.correct
+                                                    ? 'bg-green-500'
+                                                    : ''}"
                                                 on:click={() => {
                                                     const audioPath = answer.correct
                                                         ? `${base}/clips/quiz-right-answer.mp3`
@@ -69,7 +75,8 @@
                                                     if (answer.correct) {
                                                         score++;
                                                     }
-                                                    questionNum++;
+                                                    //questionNum++;
+                                                    answer.clicked = true; // Marking the answer as clicked
                                                 }}
                                             >
                                                 <div
@@ -99,7 +106,10 @@
                                     <tr>
                                         <td>
                                             <button
-                                                class="flex-initial w-[32rem] mt-2 gap-8"
+                                                class="flex-initial w-[32rem] mt-2 gap-8 {answer.clicked &&
+                                                answer.correct
+                                                    ? 'bg-green-500'
+                                                    : ''}"
                                                 on:click={() => {
                                                     const audioPath = answer.correct
                                                         ? `${base}/clips/quiz-right-answer.mp3`
@@ -109,6 +119,7 @@
                                                         score++;
                                                     }
                                                     questionNum++;
+                                                    answer.clicked = true; // Marking the answer as clicked
                                                 }}
                                             >
                                                 <div
