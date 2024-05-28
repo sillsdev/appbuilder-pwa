@@ -56,7 +56,26 @@ LOGGING:
     export let font: string;
     export let proskomma: SABProskomma;
 
-    $: scriptureLogs = $userSettings['scripture-logs'] ? {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} : $logs['scripture'];
+    $: scriptureLogs = $userSettings['scripture-logs']
+        ? {
+              root: 1,
+              docResult: 1,
+              document: 1,
+              paragraph: 1,
+              phrase: 1,
+              chapter: 1,
+              verses: 1,
+              text: 1,
+              sequence: 1,
+              wrapper: 1,
+              milestone: 1,
+              blockGraft: 1,
+              inlineGraft: 1,
+              mark: 1,
+              meta: 1,
+              row: 1
+          }
+        : $logs['scripture'];
 
     let container: HTMLElement;
     let displayingIntroduction = false;
@@ -639,7 +658,14 @@ LOGGING:
     }
     function addFooter(document: Document, container: HTMLElement, docSet: string) {
         const collection = docSet.split('_')[1];
-        const footer = config.bookCollections.find((x) => x.id === collection)?.footer;
+        let footer = config.bookCollections.find((x) => x.id === collection)?.footer;
+        const bookFooter = config.bookCollections
+            .find((x) => x.id === collection)
+            .books.find((x) => x.id === currentBook).footer;
+        if (bookFooter) {
+            footer = bookFooter;
+        }
+
         if (footer && container.getElementsByClassName('footer').length == 0) {
             const divFooter = document.createElement('div');
             divFooter.classList.add('footer');
