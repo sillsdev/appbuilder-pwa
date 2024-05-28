@@ -37,19 +37,25 @@
                     {/if}
                 </div>
             </div>
-            <table class="grid w-[32rem] justify-center mt-10">
+            <table class="mt-10">
                 {#if data.quiz.questions[questionNum].answers}
                     <!-- If statement checks if questions have all been answered. -->
                     {#each data.quiz.questions[questionNum].answers as answer}
                         <tr>
                             <td>
                                 <button
-                                    class="w-full"
+                                    class="flex-initial w-[32rem] mt-2 justify-center gap-8"
                                     on:click={() => {
+                                        {#if answer==ar}
+                                        audio plays
+                                        {/if}
+                                        {#else}
+                                        other audio [plays]
+                                        {/else}
                                         questionNum++;
                                     }}
                                 >
-                                    <div class="quiz-answer">
+                                    <div class="quiz-answer flex- w-[32rem] justify-center">
                                         {#if answer.text}
                                             {answer.text}
                                         {/if}
