@@ -37,29 +37,30 @@
                     {/if}
                 </div>
             </div>
-            <table class="w-[32rem]">
-                {#if} <!-- If statement checks if questions have all been answered. -->
-                {#each data.quiz.questions[questionNum].answers as answer}
-                    <tr>
-                        <td>
-                            <button
-                                class="w-full"
-                                on:click={() => {
-                                    questionNum++;
-                                }}
-                            >
-                                <div class="quiz-answer">
-                                    {#if answer.text}
-                                        {answer.text}
-                                    {/if}
-                                    {#if answer.image}
-                                        {answer.image}
-                                    {/if}
-                                </div>
-                            </button>
-                        </td>
-                    </tr>
-                {/each}
+            <table class="grid w-[32rem] justify-center mt-10">
+                {#if data.quiz.questions[questionNum].answers}
+                    <!-- If statement checks if questions have all been answered. -->
+                    {#each data.quiz.questions[questionNum].answers as answer}
+                        <tr>
+                            <td>
+                                <button
+                                    class="w-full"
+                                    on:click={() => {
+                                        questionNum++;
+                                    }}
+                                >
+                                    <div class="quiz-answer">
+                                        {#if answer.text}
+                                            {answer.text}
+                                        {/if}
+                                        {#if answer.image}
+                                            {answer.image}
+                                        {/if}
+                                    </div>
+                                </button>
+                            </td>
+                        </tr>
+                    {/each}
                 {/if}
             </table>
         </div>
