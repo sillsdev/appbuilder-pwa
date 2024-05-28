@@ -52,6 +52,9 @@
                                                         ? `${base}/clips/quiz-right-answer.mp3`
                                                         : `${base}/clips/quiz-wrong-answer.mp3`;
                                                     playSound(audioPath);
+                                                    if (answer.correct) {
+                                                        score++;
+                                                    }
                                                     questionNum++;
                                                 }}
                                             >
