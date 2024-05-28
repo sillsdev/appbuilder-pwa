@@ -14,7 +14,8 @@ export async function initProskomma({ fetch }) {
         if (!docSet) {
             docSet = config.bookCollections[0].languageCode + '_' + config.bookCollections[0].id;
         }
-        await loadDocSet(proskomma, docSet, fetch);
+        // Delay loading, allows page to render while waiting for data to load
+        // await loadDocSet(proskomma, docSet, fetch);
         pk.set(proskomma);
     }
 
