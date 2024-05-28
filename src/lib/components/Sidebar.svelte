@@ -27,6 +27,7 @@ The sidebar/drawer.
         languageDefault,
         showDesktopSidebar,
         direction,
+        refs,
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
@@ -126,7 +127,7 @@ The sidebar/drawer.
             {/if}
             {#if showSearch}
                 <li>
-                    <a href="{base}/search" style:color={textColor}>
+                    <a href="{base}/search/{$refs.docSet}" style:color={textColor}>
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </a>
                 </li>

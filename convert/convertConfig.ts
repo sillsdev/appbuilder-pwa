@@ -1046,9 +1046,6 @@ function convertConfig(dataDir: string, verbose: number) {
 }
 
 function filterFeaturesNotReady(data: ConfigData) {
-    // Search is not done
-    data.mainFeatures['search'] = false;
-
     // User Accounts is not done
     data.mainFeatures['user-accounts'] = false;
 
