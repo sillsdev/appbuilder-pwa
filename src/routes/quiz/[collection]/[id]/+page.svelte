@@ -12,6 +12,12 @@
 
     let score = 0;
     let questionNum = 0;
+
+    function playSound(path) {
+        const audio = new Audio();
+        audio.src = path;
+        audio.play();
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr] h-screen">
@@ -46,13 +52,12 @@
                                 <button
                                     class="flex-initial w-[32rem] mt-2 justify-center gap-8"
                                     on:click={() => {
-                                        {#if answer==ar}
-                                        audio plays
-                                        {/if}
-                                        {#else}
-                                        other audio [plays]
-                                        {/else}
                                         questionNum++;
+                                        if (answer.correct) {
+                                            playSound(`${base}/static/audio/quiz-right-answer.mp3`);
+                                        } else if (answer.incorrect) {
+                                            playSound(`${base}/static/audio/quiz-wrong-answer.mp3`);
+                                        }
                                     }}
                                 >
                                     <div class="quiz-answer flex- w-[32rem] justify-center">
