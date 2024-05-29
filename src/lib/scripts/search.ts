@@ -107,6 +107,19 @@ export class Search {
         const books = collectionData.books.map((bk) => bk.id);
 
         results.sort((a, b) => {
+            let x = books.indexOf(a.reference.bookCode);
+            let y = books.indexOf(b.reference.bookCode);
+            if (x === y) {
+                return 0;
+            }
+            // Books with unrecongnized book codes are listed last.
+            // (This may happen with song books).
+            if (x < 0) {
+                return 1;
+            }
+            if (y < 0) {
+                return -1;
+            }
             return books.indexOf(a.reference.bookCode) - books.indexOf(b.reference.bookCode);
         });
     }
