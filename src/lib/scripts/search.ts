@@ -52,14 +52,14 @@ export class Search {
     protected config = config;
 
     constructor(phrase: string, wholeWords: boolean, docSet: string, collection: string) {
-        this.phrase = phrase;
+        this.phrase = phrase.trim();
         this.wholeWords = wholeWords;
         this.docSet = docSet;
         this.collection = collection;
     }
 
     async makeQuery(): Promise<SearchResult[]> {
-        const params = this.searchParams(this.tokenize(this.phrase), this.wholeWords);
+        const params = this.searchParams(this.tokenize(this.phrase));
         const query = `
         {
           docSets(ids: ["${this.docSet}"]) {
@@ -79,7 +79,7 @@ export class Search {
         }`;
         let results: SearchResult[];
         await this.pk.gqlQuery(query, (r: GraphQLResponse) => {
-            results = this.parseResponse(r, this.phrase);
+            results = this.parseResponse(r);
         });
         return results;
     }
@@ -87,16 +87,14 @@ export class Search {
     /**
      * Extract search results from a GraphQL query response.
      */
-    private parseResponse(response: GraphQLResponse, searchString: string): SearchResult[] {
+    private parseResponse(response: GraphQLResponse): SearchResult[] {
         let results: SearchResult[] = [];
 
         for (const doc of response.data.docSets[0].documents) {
             const allTokens = doc.mainSequence.blocks.flatMap((block) => block.tokens) as any[];
             const verseTexts = this.textByVerses(allTokens);
 
-            results = results.concat(
-                this.resultsInVerses(verseTexts, searchString.trim(), doc.bookCode, doc.bookName)
-            );
+            results = results.concat(this.resultsInVerses(verseTexts, doc.bookCode, doc.bookName));
         }
 
         this.sortByBook(results);
@@ -118,7 +116,6 @@ export class Search {
      */
     private resultsInVerses(
         verseTexts: VerseTexts,
-        searchString: string,
         bookCode: string,
         bookName: string
     ): SearchResult[] {
@@ -126,7 +123,7 @@ export class Search {
 
         for (const verse of Object.keys(verseTexts)) {
             const text: string = verseTexts[verse].replaceAll('\n', '');
-            if (text.includes(searchString)) {
+            if (this.textMatchesQuery(text)) {
                 const ref = verse.split(':');
                 results.push({
                     reference: {
@@ -135,11 +132,19 @@ export class Search {
                         chapter: ref[0] ?? null,
                         verses: ref[1] ?? null
                     },
-                    chunks: this.splitChunks(searchString, text)
+                    chunks: this.splitChunks(text)
                 });
             }
         }
         return results;
+    }
+
+    private textMatchesQuery(text: string): boolean {
+        if (this.wholeWords) {
+            const pattern = new RegExp('\\b' + this.phrase + '\\b');
+            return pattern.test(text);
+        }
+        return text.includes(this.phrase);
     }
 
     /**
@@ -150,15 +155,15 @@ export class Search {
      *  splitChunks('brown', 'The quick brown fox')
      *      == ['The quick ', 'brown', ' fox']
      */
-    private splitChunks(searchString: string, text: string) {
-        const regex = new RegExp(`(${searchString})`);
+    private splitChunks(text: string) {
+        const regex = new RegExp(`(${this.phrase})`);
         const chunks = text
             .split(regex)
             .filter((part) => part)
             .map((part) => {
                 return {
                     content: part,
-                    matchesQuery: part === searchString
+                    matchesQuery: part === this.phrase
                 };
             });
         return chunks;
@@ -210,14 +215,14 @@ export class Search {
     /**
      * Get parameters for the GraphQL search query.
      */
-    protected searchParams(keywords: string[], wholeWords: boolean): string {
+    protected searchParams(keywords: string[]): string {
         const safeKeywords = keywords
             .map((wd) => wd.replaceAll('\\', '\\\\'))
             .map((wd) => wd.replaceAll('"', '\\"'));
-        const searchTerms = wholeWords
+        const searchTerms = this.wholeWords
             ? safeKeywords
             : safeKeywords.map((wd) => this.regexSafe(wd)).map((wd) => wd + '.*');
-        const param = wholeWords ? 'withChars' : 'withMatchingChars';
+        const param = this.wholeWords ? 'withChars' : 'withMatchingChars';
         return `${param}: ["${searchTerms.join('", "')}"]`;
     }
 
