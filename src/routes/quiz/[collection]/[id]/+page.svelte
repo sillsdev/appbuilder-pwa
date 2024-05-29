@@ -50,25 +50,20 @@
             <div class="quiz-question-number">{questionNum + 1}</div>
             {#if data.quiz.questions[questionNum].answers}
                 {#if data.quiz.questions[questionNum].answers.some((answer) => answer.text)}
-                    <div class="quiz-answer-block">
+                    <div class="quiz-question-block">
                         <div class="quiz-question">
                             {data.quiz.questions[questionNum].text}
                             {#if data.quiz.questions[questionNum].image}
                                 {data.quiz.questions[questionNum].image}
                             {/if}
                         </div>
-                        <div class="flex quiz-question-block justify-center">
+                        <div class="flex quiz-answer-block justify-center">
                             <table class="mt-10">
                                 {#each shuffleAnswers(data.quiz.questions[questionNum].answers) as answer}
                                     <tr>
                                         <td>
                                             <button
-                                                class="flex-initial w-[32rem] mt-2 gap-8 {answer.clicked &&
-                                                !answer.correct
-                                                    ? 'bg-red-500'
-                                                    : ''} {answer.clicked && answer.correct
-                                                    ? 'bg-green-500'
-                                                    : ''}"
+                                                class="flex-initial w-[32rem] mt-2 gap-8}"
                                                 on:click={() => {
                                                     const audioPath = answer.correct
                                                         ? `${base}/clips/quiz-right-answer.mp3`
@@ -77,12 +72,18 @@
                                                     if (answer.correct) {
                                                         score++;
                                                     }
+                                                    console.log(score);
                                                     //questionNum++;
                                                     answer.clicked = true;
                                                 }}
                                             >
                                                 <div
                                                     class="quiz-answer flex justify-center items-center"
+                                                    style="{answer.clicked && !answer.correct
+                                                        ? 'background-color: rgb(500,0,0)'
+                                                        : ''} {answer.clicked && answer.correct
+                                                        ? 'background-color: rgb(0,500,0)'
+                                                        : ''}"
                                                 >
                                                     {answer.text}
                                                 </div>
@@ -95,14 +96,14 @@
                     </div>
                 {/if}
                 {#if data.quiz.questions[questionNum].answers.some((answer) => answer.image)}
-                    <div class="quiz-answer-block">
+                    <div class="quiz-question-block">
                         <div class="quiz-question">
                             {data.quiz.questions[questionNum].text}
                             {#if data.quiz.questions[questionNum].image}
                                 {data.quiz.questions[questionNum].image}
                             {/if}
                         </div>
-                        <div class="flex quiz-question-block justify-center">
+                        <div class="flex quiz-answer-block justify-center">
                             <table class="mt-10">
                                 {#each shuffleAnswers(data.quiz.questions[questionNum].answers) as answer}
                                     <tr>
@@ -122,6 +123,7 @@
                                                     if (answer.correct) {
                                                         score++;
                                                     }
+                                                    console.log(score);
                                                     questionNum++;
                                                     answer.clicked = true;
                                                 }}
