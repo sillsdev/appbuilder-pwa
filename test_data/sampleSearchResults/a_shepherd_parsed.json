@@ -2,6 +2,7 @@
     {
         "reference": {
             "bookCode": "MAT",
+            "bookName": "Matthew",
             "chapter": "9",
             "verses": "36"
         },
@@ -23,6 +24,7 @@
     {
         "reference": {
             "bookCode": "MAT",
+            "bookName": "Matthew",
             "chapter": "25",
             "verses": "32"
         },
@@ -44,6 +46,7 @@
     {
         "reference": {
             "bookCode": "MRK",
+            "bookName": "Mark",
             "chapter": "6",
             "verses": "34"
         },
@@ -65,6 +68,7 @@
     {
         "reference": {
             "bookCode": "JHN",
+            "bookName": "John",
             "chapter": "10",
             "verses": "12"
         },

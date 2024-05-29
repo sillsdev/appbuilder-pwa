@@ -1,0 +1,24 @@
+[
+    {
+        "reference": {
+            "bookCode": null,
+            "bookName": "Christmas Carols",
+            "chapter": "1",
+            "verses": null
+        },
+        "chunks": [
+            {
+                "content": "Away in a ",
+                "matchesQuery": false
+            },
+            {
+                "content": "manger",
+                "matchesQuery": true
+            },
+            {
+                "content": ", no crib for a bed,",
+                "matchesQuery": false
+            }
+        ]
+    }
+]
