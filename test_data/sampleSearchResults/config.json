@@ -1,0 +1,22 @@
+{
+  "bookCollections": [
+    {
+      "id": "C01",
+      "books": [
+        {
+          "id": "MAT"
+        },
+        {
+          "id": "MRK"
+        },
+        {
+          "id": "LUK"
+        },
+        {
+          "id": "JHN"
+        }
+      ],
+      "languageCode": "eng"
+    }
+  ]
+}
