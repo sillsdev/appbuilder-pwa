@@ -2,7 +2,7 @@
     import config from '$lib/data/config';
     import { search, type SearchResult } from '$lib/scripts/search';
     import { getReference } from '$lib/data/stores/scripture';
-    import { t, bodyFontSize, currentFont } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
     import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture.js';
@@ -86,7 +86,7 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div class="flex justify-center bg-gray-100">
+    <div class="flex justify-center" style:background-color={$themeColors.BackgroundColor}>
         <form class="w-full max-w-md p-4">
             <div class="dy-form-control mb-4">
                 <label class="dy-input-group w-full flex">
@@ -96,22 +96,29 @@
                         type="text"
                         placeholder={$t['Search']}
                         class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
-                        style="min-width: 0"
+                        style:min-width="0"
+                        style={convertStyle($s['ui.search.entry-text'])}
+                        style:background-color={$themeColors.BackgroundColor}
+                        style:border-color={$themeColors.DividerColor}
                         size="1"
                         bind:value={searchText}
                     />
                     <button
                         on:click|preventDefault={submit}
                         class="dy-btn mx-2 flex-none bg-gray-200"
+                        style={convertStyle($s['ui.search.button'])}
+                        style:border-color={$themeColors.DividerColor}
                     >
-                        <SearchIcon />
+                        <SearchIcon color={$themeColors.SearchButtonTextColor} />
                     </button>
                 </label>
             </div>
             {#if config.mainFeatures['search-whole-words-show']}
                 <div class="dy-form-control max-w-xs m-4">
                     <label class="dy-label cursor-pointer">
-                        <span class="dy-label-text">{$t['Search_Match_Whole_Words']}</span>
+                        <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
+                            >{$t['Search_Match_Whole_Words']}</span
+                        >
                         <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
                     </label>
                 </div>
@@ -134,28 +141,28 @@
             <!--         </div> -->
             <!--     </div> -->
             <!-- {/if} -->
-            <hr />
+            <hr style:border-color={$themeColors.DividerColor} />
             {#if showResults}
                 <div class="overflow-y-auto">
                     {#await searchPromise}
-                        <p>{waitingText()}</p>
+                        <p style={convertStyle($s['ui.search.progress-label'])}>{waitingText()}</p>
                         <span class="spin" />
                     {:then results}
                         {#if results?.length}
                             {#each results.slice(0, 20) as result}
                                 <div class="py-8">
-                                    <h1 style:font-weight="bold" style:font-family={$currentFont}>
+                                    <h1 style={convertStyle($s['ui.search.results-reference'])}>
                                         {referenceString(result)}
                                     </h1>
-                                    <p
-                                        style:font-family={$currentFont}
-                                        style:font-size="{$bodyFontSize}px"
-                                    >
+                                    <p style={convertStyle($s['ui.search.results-context'])}>
                                         {#each result.chunks as chunk}
                                             <span
                                                 style:font-weight={chunk.matchesQuery
                                                     ? 'bold'
-                                                    : 'normal'}>{chunk.content}</span
+                                                    : 'normal'}
+                                                style:text-decoration={chunk.matchesQuery
+                                                    ? 'underline'
+                                                    : 'none'}>{chunk.content}</span
                                             >
                                         {/each}
                                     </p>
