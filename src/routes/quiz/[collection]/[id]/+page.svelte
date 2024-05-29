@@ -73,7 +73,9 @@
                                                         score++;
                                                     }
                                                     console.log(score);
-                                                    //questionNum++;
+                                                    setTimeout(() => {
+                                                        questionNum++;
+                                                    }, 1000);
                                                     answer.clicked = true;
                                                 }}
                                             >
@@ -124,7 +126,9 @@
                                                         score++;
                                                     }
                                                     console.log(score);
-                                                    questionNum++;
+                                                    setTimeout(() => {
+                                                        questionNum++;
+                                                    }, 1000);
                                                     answer.clicked = true;
                                                 }}
                                             >
