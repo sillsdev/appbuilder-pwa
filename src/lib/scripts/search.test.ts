@@ -32,8 +32,8 @@ class TestSearch extends Search {
         this.config = config;
     }
 
-    searchParams(keywords: string[], wholeWords: boolean): string {
-        return super.searchParams(keywords, wholeWords);
+    searchParams(keywords: string[]): string {
+        return super.searchParams(keywords);
     }
 
     tokenize(input: string): string[] {
@@ -46,48 +46,50 @@ class TestSearch extends Search {
 }
 
 describe('searchParams', () => {
-    const search = new TestSearch();
-
     describe('whole words', () => {
+        const search = new TestSearch('', true);
+
         test('one search word', () => {
-            const result = search.searchParams(['Lazarus'], true);
+            const result = search.searchParams(['Lazarus']);
             expect(result).toBe('withChars: ["Lazarus"]');
         });
 
         test('three search words', () => {
-            const result = search.searchParams(['Lazarus', 'Mary', 'Martha'], true);
+            const result = search.searchParams(['Lazarus', 'Mary', 'Martha']);
             expect(result).toBe('withChars: ["Lazarus", "Mary", "Martha"]');
         });
 
         test('quotation marks are escaped', () => {
-            const result = search.searchParams(['"Lazarus"', 'Mary', 'Martha'], true);
+            const result = search.searchParams(['"Lazarus"', 'Mary', 'Martha']);
             expect(result).toBe('withChars: ["\\"Lazarus\\"", "Mary", "Martha"]');
         });
 
         test('backslashes are escaped', () => {
-            const result = search.searchParams(['"Lazarus"\\', 'Mary', 'Martha'], true);
+            const result = search.searchParams(['"Lazarus"\\', 'Mary', 'Martha']);
             expect(result).toBe('withChars: ["\\"Lazarus\\"\\\\", "Mary", "Martha"]');
         });
     });
 
     describe('partial words', () => {
+        const search = new TestSearch('', false);
+
         test('one search word', () => {
-            const result = search.searchParams(['Laz'], false);
+            const result = search.searchParams(['Laz']);
             expect(result).toBe('withMatchingChars: ["Laz.*"]');
         });
 
         test('three search words', () => {
-            const result = search.searchParams(['Lazarus', 'Mary', 'Martha'], false);
+            const result = search.searchParams(['Lazarus', 'Mary', 'Martha']);
             expect(result).toBe('withMatchingChars: ["Lazarus.*", "Mary.*", "Martha.*"]');
         });
 
         test('quotation marks are escaped', () => {
-            const result = search.searchParams(['"Lazarus"', 'Mary', 'Martha'], false);
+            const result = search.searchParams(['"Lazarus"', 'Mary', 'Martha']);
             expect(result).toBe('withMatchingChars: ["\\"Lazarus\\".*", "Mary.*", "Martha.*"]');
         });
 
         test('backslashes are escaped', () => {
-            const result = search.searchParams(['Lazarus\\'], false);
+            const result = search.searchParams(['Lazarus\\']);
             // 4 backslashes in the GraphQL query
             //   = 2 backslashes in the resulting regex
             //   = 1 literal backslash
@@ -95,62 +97,62 @@ describe('searchParams', () => {
         });
 
         test('asterisks are escaped', () => {
-            const result = search.searchParams(['Laz*', 'Mary', 'Martha'], false);
+            const result = search.searchParams(['Laz*', 'Mary', 'Martha']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\*.*", "Mary.*", "Martha.*"]');
         });
 
         test('periods are escaped', () => {
-            const result = search.searchParams(['Laz.'], false);
+            const result = search.searchParams(['Laz.']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\..*"]');
         });
 
         test('question marks are escaped', () => {
-            const result = search.searchParams(['Laz?'], false);
+            const result = search.searchParams(['Laz?']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\?.*"]');
         });
 
         test('plus symbols are escaped', () => {
-            const result = search.searchParams(['Laz+'], false);
+            const result = search.searchParams(['Laz+']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\+.*"]');
         });
 
         test('square brakets are escaped', () => {
-            const result = search.searchParams(['Laz[]'], false);
+            const result = search.searchParams(['Laz[]']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\[\\\\].*"]');
         });
 
         test('carats are escaped', () => {
-            const result = search.searchParams(['Laz^'], false);
+            const result = search.searchParams(['Laz^']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\^.*"]');
         });
 
         test('dollar signs are escaped', () => {
-            const result = search.searchParams(['Laz$'], false);
+            const result = search.searchParams(['Laz$']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\$.*"]');
         });
 
         test('curly brakets are escaped', () => {
-            const result = search.searchParams(['Laz{}'], false);
+            const result = search.searchParams(['Laz{}']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\{\\\\}.*"]');
         });
 
         test('angle brakets are escaped', () => {
-            const result = search.searchParams(['Laz<>'], false);
+            const result = search.searchParams(['Laz<>']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\<\\\\>.*"]');
         });
 
         test('exclamation points are escaped', () => {
-            const result = search.searchParams(['Laz!'], false);
+            const result = search.searchParams(['Laz!']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\!.*"]');
         });
 
         test('pipes are escaped', () => {
-            const result = search.searchParams(['Laz|'], false);
+            const result = search.searchParams(['Laz|']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\|.*"]');
         });
 
         test('hyphens are escaped', () => {
-            const result = search.searchParams(['Laz-'], false);
+            const result = search.searchParams(['Laz-']);
             expect(result).toBe('withMatchingChars: ["Laz\\\\-.*"]');
         });
     });
@@ -244,5 +246,29 @@ describe('search results', () => {
         const search = new TestSearch('manger', true, 'eng_C01', 'C01', pk, config);
         const searchResults = await search.makeQuery();
         expect(searchResults).toEqual(results);
+    });
+
+    test('post-procecessing respects whole words', async () => {
+        const response = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/is_in.json').toString()
+        ) as GraphQLResponse;
+
+        const config = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/config.json').toString()
+        );
+
+        const pk = new TestProskomma(response);
+        const search = new TestSearch('is in', true, 'eng_C01', 'C01', pk, config);
+        const searchResults = await search.makeQuery();
+
+        // Matthew 21:38 contains the phrase "his inheritance", which should not match
+        // "is in" when searching whole words.
+        const badResults = searchResults.filter(
+            (r) =>
+                r.reference.bookCode === 'MAT' &&
+                r.reference.chapter === '21' &&
+                r.reference.verses === '38'
+        );
+        expect(badResults.length).toBe(0);
     });
 });
