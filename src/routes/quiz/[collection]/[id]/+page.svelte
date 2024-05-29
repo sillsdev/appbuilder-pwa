@@ -1,9 +1,7 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { page } from '$app/stores';
 
     /** @type {import('./$types').PageData} */
     export let data;
