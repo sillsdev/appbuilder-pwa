@@ -46,17 +46,17 @@
         </div>
         <body class="score">
             <div id="content">
-                <div class="">Your scored</div>
-                <div class="">
+                <div class="flex justify-center mt-15">Your scored</div>
+                <div class="flex justify-center mt-25">
                     {score}
                 </div>
-                <div class="">
+                <div class="flex justify-center mt-10">
                     out of {questionNum} questions.
                 </div>
                 {#if score == data.quiz.passScore || score > data.quiz.passScore}
-                    <div>You pass!</div>
+                    <div class="flex justify-center mt-50">You pass!</div>
                 {:else if score < data.quiz.passScore}
-                    <div>Oh, dear!</div>
+                    <div class="flex justify-center mt-50">Oh, dear!</div>
                 {/if}
             </div>
         </body>
