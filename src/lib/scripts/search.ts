@@ -6,6 +6,7 @@ import config from '$lib/data/config';
 export interface SearchResult {
     reference: {
         bookCode: string;
+        bookName: string;
         chapter: string;
         verses: string;
     };
@@ -22,7 +23,8 @@ export interface GraphQLResponse {
     data: {
         docSets: {
             documents: {
-                book: string;
+                bookCode: string;
+                bookName: string;
                 mainSequence: {
                     blocks: {
                         tokens: {
@@ -62,9 +64,10 @@ export class Search {
         {
           docSets(ids: ["${this.docSet}"]) {
             documents(${params} allChars: true) {
-              book: header(id: "bookCode")
+              bookCode: header(id: "bookCode")
+              bookName: header(id: "toc2")
               mainSequence {
-                blocks(${params} allChars: false) {
+                blocks(${params} allChars: true) {
                   tokens(includeContext: true) {
                     scopes(startsWith: ["chapter/" "verses/"])
                     payload
@@ -92,7 +95,7 @@ export class Search {
             const verseTexts = this.textByVerses(allTokens);
 
             results = results.concat(
-                this.resultsInVerses(verseTexts, searchString.trim(), doc.book)
+                this.resultsInVerses(verseTexts, searchString.trim(), doc.bookCode, doc.bookName)
             );
         }
 
@@ -116,7 +119,8 @@ export class Search {
     private resultsInVerses(
         verseTexts: VerseTexts,
         searchString: string,
-        bookCode: string
+        bookCode: string,
+        bookName: string
     ): SearchResult[] {
         const results: SearchResult[] = [];
 
@@ -126,9 +130,10 @@ export class Search {
                 const ref = verse.split(':');
                 results.push({
                     reference: {
-                        bookCode: bookCode,
-                        chapter: ref[0],
-                        verses: ref[1]
+                        bookCode,
+                        bookName,
+                        chapter: ref[0] ?? null,
+                        verses: ref[1] ?? null
                     },
                     chunks: this.splitChunks(searchString, text)
                 });
@@ -184,7 +189,11 @@ export class Search {
                 verse = s.split('/')[1];
             }
         }
-        return chapter + ':' + verse;
+        let ref = chapter;
+        if (verse) {
+            ref += ':' + verse;
+        }
+        return ref;
     }
 
     /**

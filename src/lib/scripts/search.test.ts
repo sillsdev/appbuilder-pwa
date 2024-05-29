@@ -226,4 +226,23 @@ describe('search results', () => {
             expect(searchResults).toEqual(results);
         });
     });
+
+    test('Christmas carol', async () => {
+        const response = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/manger.json').toString()
+        ) as GraphQLResponse;
+
+        const results = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/manger_parsed.json').toString()
+        ) as SearchResult[];
+
+        const config = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/config.json').toString()
+        );
+
+        const pk = new TestProskomma(response);
+        const search = new TestSearch('manger', true, 'eng_C01', 'C01', pk, config);
+        const searchResults = await search.makeQuery();
+        expect(searchResults).toEqual(results);
+    });
 });
