@@ -40,17 +40,23 @@
         <div class="navbar">
             <Navbar>
                 <label for="dropdown" slot="books">
-                    <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
+                    <div class="btn btn-rectangel normal-case text-xl">{'Score'}</div>
                 </label>
             </Navbar>
         </div>
         <body class="score">
             <div id="content">
-                Your scored {score} out of {questionNum} questions.
+                <div class="">Your scored</div>
+                <div class="">
+                    {score}
+                </div>
+                <div class="">
+                    out of {questionNum} questions.
+                </div>
                 {#if score == data.quiz.passScore || score > data.quiz.passScore}
-                    You pass!
+                    <div>You pass!</div>
                 {:else if score < data.quiz.passScore}
-                    Oh, dear!
+                    <div>Oh, dear!</div>
                 {/if}
             </div>
         </body>
