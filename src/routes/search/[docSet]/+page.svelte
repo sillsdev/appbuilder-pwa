@@ -1,7 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
     import { Search, type SearchResult } from '$lib/scripts/search';
-    import { getReference } from '$lib/data/stores/scripture';
     import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -65,12 +64,17 @@
     }
 
     function referenceString(result: SearchResult): string {
-        return getReference({
-            collection: data.collection,
-            book: result.reference.bookCode,
-            chapter: result.reference.chapter,
-            verse: result.reference.verses
-        });
+        const separator = config.bookCollections.find((x) => x.id === data.collection).features[
+            'ref-chapter-verse-separator'
+        ];
+        let reference = result.reference.bookName;
+        if (result.reference.chapter) {
+            reference += ' ' + result.reference.chapter;
+            if (result.reference.verses) {
+                reference += separator + result.reference.verses;
+            }
+        }
+        return reference;
     }
 
     function waitingText(): string {

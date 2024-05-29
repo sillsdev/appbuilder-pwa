@@ -1,0 +1,139 @@
+{
+  "data": {
+    "docSets": [
+      {
+        "documents": [
+          {
+            "bookCode": null,
+            "bookName": "Christmas Carols",
+            "mainSequence": {
+              "blocks": [
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "Away"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "in"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "manger"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "no"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "crib"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "for"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": "bed"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/1"
+                      ],
+                      "payload": ","
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "documents": []
+      }
+    ]
+  }
+}
