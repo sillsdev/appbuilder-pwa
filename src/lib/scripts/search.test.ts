@@ -271,4 +271,23 @@ describe('search results', () => {
         );
         expect(badResults.length).toBe(0);
     });
+
+    test('Unknown books listed last', async () => {
+        const response = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/born_in_bethlehem.json').toString()
+        ) as GraphQLResponse;
+
+        const results = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/born_in_bethlehem_parsed.json').toString()
+        ) as SearchResult[];
+
+        const config = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/config.json').toString()
+        );
+
+        const pk = new TestProskomma(response);
+        const search = new TestSearch('born in Bethlehem', true, 'eng_C01', 'C01', pk, config);
+        const searchResults = await search.makeQuery();
+        expect(searchResults).toEqual(results);
+    });
 });
