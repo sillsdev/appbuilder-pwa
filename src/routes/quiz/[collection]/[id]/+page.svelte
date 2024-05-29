@@ -38,7 +38,25 @@
 </script>
 
 {#if questionNum == data.quiz.questions.length}
-    <h1>Your score: {score}</h1>
+    <div class="grid grid-rows-[auto,1fr] h-screen">
+        <div class="navbar">
+            <Navbar>
+                <label for="dropdown" slot="books">
+                    <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
+                </label>
+            </Navbar>
+        </div>
+        <body class="score">
+            <div id="content">
+                Your scored {score} out of {questionNum} questions.
+                {#if score == data.quiz.passScore || score > data.quiz.passScore}
+                    You pass!
+                {:else if score < data.quiz.passScore}
+                    Oh, dear!
+                {/if}
+            </div>
+        </body>
+    </div>
 {:else}
     <div class="grid grid-rows-[auto,1fr] h-screen">
         <div class="navbar">
