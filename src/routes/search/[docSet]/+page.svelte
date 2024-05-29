@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { search, type SearchResult } from '$lib/scripts/search';
+    import { Search, type SearchResult } from '$lib/scripts/search';
     import { getReference } from '$lib/data/stores/scripture';
     import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
@@ -55,7 +55,10 @@
 
         const pk = await initProskomma({ fetch });
         await loadDocSetIfNotLoaded(pk, data.docSet, fetch);
-        const results = await search(searchText, matchWholeWords, data.docSet);
+
+        const search = new Search(searchText, matchWholeWords, data.docSet, data.collection);
+        const results = await search.makeQuery();
+
         const end = performance.now();
         console.log(`search finished in ${end - start} ms`);
         return results;
@@ -149,7 +152,7 @@
                         <span class="spin" />
                     {:then results}
                         {#if results?.length}
-                            {#each results.slice(0, 20) as result}
+                            {#each results as result}
                                 <div class="py-8">
                                     <h1 style={convertStyle($s['ui.search.results-reference'])}>
                                         {referenceString(result)}
@@ -185,7 +188,7 @@
     </div>
 </div>
 
-<style>
+<!-- <style>
     .special-characters {
         justify-content: start;
         /* For a scrolling view instead of rows */
@@ -202,4 +205,4 @@
         display: inline-block;
         user-select: none;
     }
-</style>
+</style> -->

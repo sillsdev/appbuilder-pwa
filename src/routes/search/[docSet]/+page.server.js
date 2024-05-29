@@ -1,6 +1,5 @@
 import { error } from '@sveltejs/kit';
 import config from '$lib/data/config';
-import { initProskomma, loadDocSetIfNotLoaded } from '../../../lib/data/scripture.js';
 
 export async function load({ fetch, params }) {
     const docSets = config.bookCollections.map((bc) => ({
