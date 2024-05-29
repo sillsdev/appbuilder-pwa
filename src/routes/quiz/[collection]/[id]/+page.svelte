@@ -91,7 +91,6 @@
                                                         if (answer.correct) {
                                                             score++;
                                                         }
-                                                        console.log(score);
                                                         setTimeout(() => {
                                                             questionNum++;
                                                         }, 1000);
@@ -144,7 +143,6 @@
                                                         if (answer.correct) {
                                                             score++;
                                                         }
-                                                        console.log(score);
                                                         setTimeout(() => {
                                                             questionNum++;
                                                         }, 1000);
