@@ -1,0 +1,5637 @@
+{
+  "data": {
+    "docSets": [
+      {
+        "documents": [
+          {
+            "bookCode": "MRK",
+            "bookName": "Mark",
+            "mainSequence": {
+              "blocks": [
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "He"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "began"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "speak"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "them"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "in"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "parables"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "“"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "A"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "man"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "planted"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "put"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "hedge"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "around"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "it"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "dug"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "pit"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "for"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "wine"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "press"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "built"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "tower"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "rented"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "it"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "out"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "farmer"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "went"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "into"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "country"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/1"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "When"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "it"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "was"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "time"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "servant"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "farmer"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "get"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "from"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "farmer"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "share"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "fruit"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/2"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "They"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "took"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "beat"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "away"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "empty"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/3"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "Again"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "servant"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "them"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": ";"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "they"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "threw"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "stones"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "at"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "wounded"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "in"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "head"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "away"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "shamefully"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "treated"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/4"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "Again"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": ";"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "they"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "killed"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": ";"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "many"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "others"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "beating"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "some"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "killing"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "some"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/5"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "Therefore"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "still"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "having"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "one"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "beloved"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "son"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "last"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "them"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "saying"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "‘"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "They"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "respect"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "my"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "son"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/6"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "But"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "those"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "said"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "among"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "themselves"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "‘"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "This"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "is"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "heir"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "Come"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "let"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "s"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "kill"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "inheritance"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "be"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "ours"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/7"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "They"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "took"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "killed"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "cast"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "out"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/8"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "What"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "therefore"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "lord"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "do"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "?"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "He"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "come"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "destroy"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "give"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "others"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/9"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "Haven"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "t"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "you"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "even"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "read"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "this"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": "Scripture"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/12",
+                        "verses/10"
+                      ],
+                      "payload": ":"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "bookCode": "LUK",
+            "bookName": "Luke",
+            "mainSequence": {
+              "blocks": []
+            }
+          },
+          {
+            "bookCode": "MAT",
+            "bookName": "Matthew",
+            "mainSequence": {
+              "blocks": [
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "“"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "Hear"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "parable"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "There"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "was"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "man"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "who"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "was"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "master"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "household"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "who"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "planted"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "set"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "hedge"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "about"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "it"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "dug"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "wine"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "press"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "in"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "it"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "built"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "a"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "tower"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "leased"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "it"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "out"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "went"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "into"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "country"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/33"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "When"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "season"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "for"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "fruit"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "came"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "near"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "servants"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "receive"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "fruit"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/34"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "The"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "took"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "servants"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "beat"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "one"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "killed"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "stoned"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "another"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/35"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "Again"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "other"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "servants"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "more"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "than"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "first"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": ":"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "they"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "treated"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "them"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "same"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "way"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/36"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "But"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "afterward"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "sent"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "them"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "son"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "saying"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "‘"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "They"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "respect"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "my"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "son"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/37"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "But"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "when"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "they"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "saw"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "son"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "said"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "among"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "themselves"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "‘"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "This"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "is"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "heir"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "Come"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "let"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "s"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "kill"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "seize"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "his"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "inheritance"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": "’"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/38"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "So"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "they"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "took"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "threw"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "out"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "and"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "killed"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "him"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": "."
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/39"
+                      ],
+                      "payload": " \n"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "When"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "therefore"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "lord"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "of"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "vineyard"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "comes"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": ","
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "what"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "will"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "he"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "do"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "those"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "farmers"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "?"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/21",
+                        "verses/40"
+                      ],
+                      "payload": "”"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "documents": []
+      }
+    ]
+  }
+}
