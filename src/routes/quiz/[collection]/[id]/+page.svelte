@@ -157,6 +157,10 @@
                         </div>
                     {/if}
                 {/if}
+                <!-- Ask about the next arrow below. Quiz-next-button doesn't exist in the sab-app.css -->
+                {#if data.quiz.questions[questionNum].answers.clicked}
+                    <div class="quiz-next-button arrow-ltr" style="cursor: pointer;"></div>
+                {/if}
             </div>
         </body>
     {/if}
