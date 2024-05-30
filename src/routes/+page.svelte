@@ -296,6 +296,7 @@
             $firstLaunch = false;
         }
     });
+
     let textCopied = false;
     function onTextCopy() {
         textCopied = true;
