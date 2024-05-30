@@ -22,6 +22,7 @@
         scrolls,
         selectedVerses,
         showDesktopSidebar,
+        t,
         themeColors,
         userSettings,
         modal,
@@ -295,6 +296,13 @@
             $firstLaunch = false;
         }
     });
+    let textCopied = false;
+    function onTextCopy() {
+        textCopied = true;
+        setTimeout(() => {
+            textCopied = false;
+        }, 1500);
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
@@ -446,9 +454,13 @@
     <div class="flex justify-center">
         <StackView {...stackSettings} />
     </div>
-    {#if $selectedVerses.length > 0 && !$audioPlayer.playing}
+    {#if textCopied}
+        <div class="p-2 bg-black text-white text-center">
+            {$t['Text_Copied']}
+        </div>
+    {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
-            <TextSelectionToolbar />
+            <TextSelectionToolbar on:copied={onTextCopy} />
         </div>
     {:else if $refs.hasAudio && $audioActive}
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
