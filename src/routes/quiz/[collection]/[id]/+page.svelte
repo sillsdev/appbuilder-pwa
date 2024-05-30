@@ -46,11 +46,11 @@
     {#if questionNum == data.quiz.questions.length}
         <body class="score">
             <div id="content">
-                <div class="flex justify-center mt-15">Your scored</div>
-                <div class="flex box-border h-32 w-32 p-4 border-4 justify-center ml-center">
-                    {score}
+                <div class="quiz-score-before">You scored</div>
+                <div class="quiz-score-block">
+                    <span class="quiz-score">{score}</span>
                 </div>
-                <div class="flex justify-center mt-10">
+                <div class="quiz-score-after">
                     out of {questionNum} questions.
                 </div>
                 {#if score == data.quiz.passScore || score > data.quiz.passScore}
