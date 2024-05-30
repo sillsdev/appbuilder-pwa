@@ -17,6 +17,14 @@
         audio.play();
     }
 
+    function pairAnswers(answers) {
+        const pairs = [];
+        for (let i = 0; i < answers.length; i += 2) {
+            pairs.push([answers[i], answers[i + 1]]);
+        }
+        return pairs;
+    }
+
     function shuffleAnswers(answerArray) {
         let currentIndex = answerArray.length,
             randomIndex;
@@ -122,34 +130,63 @@
                             </div>
                             <div class="flex quiz-answer-block justify-center">
                                 <table class="mt-10">
-                                    {#each shuffleAnswers(data.quiz.questions[questionNum].answers) as answer}
+                                    {#each pairAnswers(shuffleAnswers(data.quiz.questions[questionNum].answers)) as [answer1, answer2]}
                                         <tr>
                                             <td width="50%" style="padding:2%;">
                                                 <img
                                                     class="flex-initial w-[32rem] mt-2 gap-8"
-                                                    src={answer.image}
-                                                    alt={answer.text}
-                                                    style="cursor:pointer; {answer.clicked &&
-                                                    !answer.correct
+                                                    src={answer1.image}
+                                                    alt={answer1.text}
+                                                    style="cursor:pointer; {answer1.clicked &&
+                                                    !answer1.correct
                                                         ? 'background-color: red;'
-                                                        : ''} {answer.clicked && answer.correct
+                                                        : ''} {answer1.clicked && answer1.correct
                                                         ? 'background-color: green;'
                                                         : ''}"
                                                     on:click={() => {
-                                                        const audioPath = answer.correct
+                                                        const audioPath = answer1.correct
                                                             ? `${base}/clips/quiz-right-answer.mp3`
                                                             : `${base}/clips/quiz-wrong-answer.mp3`;
                                                         playSound(audioPath);
-                                                        if (answer.correct) {
+                                                        if (answer1.correct) {
                                                             score++;
                                                         }
                                                         setTimeout(() => {
                                                             questionNum++;
                                                         }, 1000);
-                                                        answer.clicked = true;
+                                                        answer1.clicked = true;
                                                     }}
                                                 />
                                             </td>
+                                            {#if answer2}
+                                                <td width="50%" style="padding:2%;">
+                                                    <img
+                                                        class="flex-initial w-[32rem] mt-2 gap-8"
+                                                        src={answer2.image}
+                                                        alt={answer2.text}
+                                                        style="cursor:pointer; {answer2.clicked &&
+                                                        !answer2.correct
+                                                            ? 'background-color: red;'
+                                                            : ''} {answer2.clicked &&
+                                                        answer2.correct
+                                                            ? 'background-color: green;'
+                                                            : ''}"
+                                                        on:click={() => {
+                                                            const audioPath = answer2.correct
+                                                                ? `${base}/clips/quiz-right-answer.mp3`
+                                                                : `${base}/clips/quiz-wrong-answer.mp3`;
+                                                            playSound(audioPath);
+                                                            if (answer2.correct) {
+                                                                score++;
+                                                            }
+                                                            setTimeout(() => {
+                                                                questionNum++;
+                                                            }, 1000);
+                                                            answer2.clicked = true;
+                                                        }}
+                                                    />
+                                                </td>
+                                            {/if}
                                         </tr>
                                     {/each}
                                 </table>
