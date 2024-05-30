@@ -46,7 +46,7 @@
 <div class="grid grid-rows-[auto,1fr] h-screen">
     <div class="navbar">
         <Navbar>
-            <label for="dropdown" slot="books">
+            <label for="Quiz" slot="center">
                 <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
             </label>
         </Navbar>
