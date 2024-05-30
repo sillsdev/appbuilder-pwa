@@ -166,10 +166,10 @@
                                                         alt={answer2.text}
                                                         style="cursor:pointer; {answer2.clicked &&
                                                         !answer2.correct
-                                                            ? 'background-color: red;'
+                                                            ? 'background-color: rgb(128,0,0);'
                                                             : ''} {answer2.clicked &&
                                                         answer2.correct
-                                                            ? 'background-color: green;'
+                                                            ? 'background-color: rgb(0,128,0);'
                                                             : ''}"
                                                         on:click={() => {
                                                             const audioPath = answer2.correct
