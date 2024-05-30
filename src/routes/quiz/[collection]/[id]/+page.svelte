@@ -97,9 +97,9 @@
                                                     <div
                                                         class="quiz-answer flex justify-center items-center"
                                                         style="{answer.clicked && !answer.correct
-                                                            ? 'background-color: rgb(500,0,0)'
+                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
                                                             : ''} {answer.clicked && answer.correct
-                                                            ? 'background-color: rgb(0,500,0)'
+                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
                                                             : ''}"
                                                     >
                                                         {answer.text}
@@ -124,13 +124,16 @@
                                 <table class="mt-10">
                                     {#each shuffleAnswers(data.quiz.questions[questionNum].answers) as answer}
                                         <tr>
-                                            <td>
-                                                <button
-                                                    class="flex-initial w-[32rem] mt-2 gap-8 {answer.clicked &&
+                                            <td width="50%" style="padding:2%;">
+                                                <img
+                                                    class="flex-initial w-[32rem] mt-2 gap-8"
+                                                    src={answer.image}
+                                                    alt={answer.text}
+                                                    style="cursor:pointer; {answer.clicked &&
                                                     !answer.correct
-                                                        ? 'bg-red-500'
+                                                        ? 'background-color: red;'
                                                         : ''} {answer.clicked && answer.correct
-                                                        ? 'bg-green-500'
+                                                        ? 'background-color: green;'
                                                         : ''}"
                                                     on:click={() => {
                                                         const audioPath = answer.correct
@@ -145,13 +148,7 @@
                                                         }, 1000);
                                                         answer.clicked = true;
                                                     }}
-                                                >
-                                                    <div
-                                                        class="quiz-answer flex justify-center items-center"
-                                                    >
-                                                        {answer.image}
-                                                    </div>
-                                                </button>
+                                                />
                                             </td>
                                         </tr>
                                     {/each}
