@@ -35,19 +35,19 @@
     }
 </script>
 
-{#if questionNum == data.quiz.questions.length}
-    <div class="grid grid-rows-[auto,1fr] h-screen">
-        <div class="navbar">
-            <Navbar>
-                <label for="dropdown" slot="books">
-                    <div class="btn btn-rectangel normal-case text-xl">{'Score'}</div>
-                </label>
-            </Navbar>
-        </div>
+<div class="grid grid-rows-[auto,1fr] h-screen">
+    <div class="navbar">
+        <Navbar>
+            <label for="dropdown" slot="books">
+                <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
+            </label>
+        </Navbar>
+    </div>
+    {#if questionNum == data.quiz.questions.length}
         <body class="score">
             <div id="content">
                 <div class="flex justify-center mt-15">Your scored</div>
-                <div class="flex justify-center mt-25">
+                <div class="flex box-border h-32 w-32 p-4 border-4 justify-center ml-center">
                     {score}
                 </div>
                 <div class="flex justify-center mt-10">
@@ -60,16 +60,7 @@
                 {/if}
             </div>
         </body>
-    </div>
-{:else}
-    <div class="grid grid-rows-[auto,1fr] h-screen">
-        <div class="navbar">
-            <Navbar>
-                <label for="dropdown" slot="books">
-                    <div class="btn btn-rectangel normal-case text-xl">{'Quiz'}</div>
-                </label>
-            </Navbar>
-        </div>
+    {:else}
         <body class="quiz">
             <div id="content">
                 <div class="quiz-question-number">{questionNum + 1}</div>
@@ -171,5 +162,5 @@
                 {/if}
             </div>
         </body>
-    </div>
-{/if}
+    {/if}
+</div>
