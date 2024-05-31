@@ -114,8 +114,8 @@ export class Search {
         const books = collectionData.books.map((bk) => bk.id);
 
         results.sort((a, b) => {
-            let x = books.indexOf(a.reference.bookCode);
-            let y = books.indexOf(b.reference.bookCode);
+            const x = books.indexOf(a.reference.bookCode);
+            const y = books.indexOf(b.reference.bookCode);
             if (x === y) {
                 return 0;
             }
