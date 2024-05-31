@@ -302,7 +302,7 @@
         textCopied = true;
         setTimeout(() => {
             textCopied = false;
-        }, 1500);
+        }, 1400);
     }
 </script>
 
