@@ -290,4 +290,21 @@ describe('search results', () => {
         const searchResults = await search.makeQuery();
         expect(searchResults).toEqual(results);
     });
+
+    test('Only searches book documents', async () => {
+        const response = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/glory_to.json').toString()
+        ) as GraphQLResponse;
+
+        const config = JSON.parse(
+            readFileSync('test_data/sampleSearchResults/config.json').toString()
+        );
+
+        const pk = new TestProskomma(response);
+        const search = new TestSearch('Glory to', true, 'eng_C01', 'C01', pk, config);
+        const searchResults = await search.makeQuery();
+        const docs = searchResults.map((r) => r.reference.bookCode);
+        // Should not include Christmas Carols, whose document type is null.
+        expect(docs).toEqual(['LUK']);
+    });
 });

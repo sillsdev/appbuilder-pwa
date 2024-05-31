@@ -6,6 +6,9 @@
           {
             "bookCode": "MRK",
             "bookName": "Mark",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": [
                 {
@@ -3112,6 +3115,9 @@
           {
             "bookCode": "LUK",
             "bookName": "Luke",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": []
             }
@@ -3119,6 +3125,9 @@
           {
             "bookCode": "MAT",
             "bookName": "Matthew",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": [
                 {
