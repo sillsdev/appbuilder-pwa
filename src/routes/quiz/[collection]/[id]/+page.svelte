@@ -134,7 +134,7 @@
                                         <tr>
                                             <td width="50%" style="padding:2%;">
                                                 <img
-                                                    class="flex-initial w-[32rem] mt-2 gap-8"
+                                                    class="display: block; flex-initial w-[32rem] ml-2 gap-8"
                                                     src={answer1.image}
                                                     alt={answer1.text}
                                                     style="cursor:pointer; {answer1.clicked &&
@@ -161,7 +161,7 @@
                                             {#if answer2}
                                                 <td width="50%" style="padding:2%;">
                                                     <img
-                                                        class="flex-initial w-[32rem] mt-2 gap-8"
+                                                        class="display: block; flex-initial w-[32rem] ml-2 gap-8"
                                                         src={answer2.image}
                                                         alt={answer2.text}
                                                         style="cursor:pointer; {answer2.clicked &&
@@ -194,7 +194,7 @@
                         </div>
                     {/if}
                 {/if}
-                <!-- Ask about the next arrow below. Quiz-next-button doesn't exist in the sab-app.css -->
+                <!--  Quiz-next-button doesn't yet exist in the sab-app.css -->
                 {#if data.quiz.questions[questionNum].answers.clicked}
                     <div class="quiz-next-button arrow-ltr" style="cursor: pointer;"></div>
                 {/if}
