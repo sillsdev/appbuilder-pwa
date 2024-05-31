@@ -6,6 +6,9 @@
           {
             "bookCode": "LUK",
             "bookName": "Luke",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": []
             }
@@ -13,6 +16,9 @@
           {
             "bookCode": "MAT",
             "bookName": "Matthew",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": [
                 {
@@ -1502,6 +1508,9 @@
           {
             "bookCode": null,
             "bookName": "Christmas Carols",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": [
                 {
@@ -1580,6 +1589,9 @@
           {
             "bookCode": "JHN",
             "bookName": "John",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": []
             }

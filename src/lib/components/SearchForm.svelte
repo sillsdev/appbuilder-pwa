@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';

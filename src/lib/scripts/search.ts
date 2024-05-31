@@ -25,6 +25,9 @@ export interface GraphQLResponse {
             documents: {
                 bookCode: string;
                 bookName: string;
+                idParts: {
+                    type: string;
+                };
                 mainSequence: {
                     blocks: {
                         tokens: {
@@ -66,6 +69,9 @@ export class Search {
             documents(${params} allChars: true) {
               bookCode: header(id: "bookCode")
               bookName: header(id: "toc2")
+              idParts {
+                type
+              }
               mainSequence {
                 blocks(${params} allChars: true) {
                   tokens(includeContext: true) {
@@ -91,6 +97,7 @@ export class Search {
         let results: SearchResult[] = [];
 
         for (const doc of response.data.docSets[0].documents) {
+            if (doc.idParts.type !== 'book') continue;
             const allTokens = doc.mainSequence.blocks.flatMap((block) => block.tokens) as any[];
             const verseTexts = this.textByVerses(allTokens);
 
