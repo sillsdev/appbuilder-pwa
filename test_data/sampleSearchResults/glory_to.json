@@ -1,0 +1,410 @@
+{
+  "data": {
+    "docSets": [
+      {
+        "documents": [
+          {
+            "bookCode": "LUK",
+            "bookName": "Luke",
+            "idParts": {
+              "type": "book"
+            },
+            "mainSequence": {
+              "blocks": [
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "“"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "Glory"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "God"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "in"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": "highest"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/2",
+                        "verses/14"
+                      ],
+                      "payload": ","
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "bookCode": null,
+            "bookName": "Christmas Carols",
+            "idParts": {
+              "type": null
+            },
+            "mainSequence": {
+              "blocks": [
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "Glory"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "newborn"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "King"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "!"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "\""
+                    }
+                  ]
+                },
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "Glory"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "newborn"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "King"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "!"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "\""
+                    }
+                  ]
+                },
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "Glory"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "newborn"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "King"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "!"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "\""
+                    }
+                  ]
+                },
+                {
+                  "tokens": [
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "Glory"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "to"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "the"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "newborn"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": " "
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "King"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "!"
+                    },
+                    {
+                      "scopes": [
+                        "chapter/3"
+                      ],
+                      "payload": "\""
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "documents": []
+      }
+    ]
+  }
+}

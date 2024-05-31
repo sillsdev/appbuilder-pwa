@@ -6,6 +6,9 @@
           {
             "bookCode": null,
             "bookName": "Christmas Carols",
+            "idParts": {
+              "type": "book"
+            },
             "mainSequence": {
               "blocks": [
                 {

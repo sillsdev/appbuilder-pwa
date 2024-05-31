@@ -1,14 +1,7 @@
 <script lang="ts">
-    import config from '$lib/data/config';
-    import { Search, type SearchResult } from '$lib/scripts/search';
-    import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
-    import { SearchIcon } from '$lib/icons';
+    import { t, themeColors } from '$lib/data/stores';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture.js';
-    import SearchResultCard from '$lib/components/SearchResultCard.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
-    import TestButton from '$lib/components/TestButton.svelte';
-    import TestButtonContainer from '$lib/components/TestButtonContainer.svelte';
 
     export let data;
 </script>
