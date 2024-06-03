@@ -450,7 +450,6 @@ LOGGING:
         footnotes.reset();
     }
     function addNotesDiv(workspace) {
-        const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
         const notesSpan = document.createElement('span');
         notesSpan.id = 'notes' + workspace.currentVerse;
         let el = workspace.paragraphDiv?.querySelector(
@@ -484,7 +483,6 @@ LOGGING:
         });
     }
     function addBookmarksDiv(workspace) {
-        const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
         const bookmarksSpan = document.createElement('span');
         bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
         let el = workspace.paragraphDiv?.querySelector(
@@ -545,7 +543,7 @@ LOGGING:
         const a = document.createElement('a');
         const sup = document.createElement('sup');
         sup.classList.add('footnote');
-        sup.innerHTML = fnc.charAt(workspace.footnoteIndex);
+        sup.innerHTML = fnc.charAt(workspace.footnoteIndex % 26);
         a.appendChild(sup);
         a.classList.add('cursor-pointer');
         footnoteSpan.appendChild(a);
