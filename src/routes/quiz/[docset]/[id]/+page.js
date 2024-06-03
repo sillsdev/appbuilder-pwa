@@ -1,20 +1,21 @@
 /** @type {import('./$types').PageLoad} */
-export async function load({ params }) {
-    const id = Number(params.id);
-    const collection = params.collection;
+import { base } from '$app/paths';
 
+// // +page.js
+
+export async function load({ params }) {
+    const { docset, id } = params;
     try {
-        const response = await fetch('quiz.json');
+        const response = await fetch(`${base}/collections/${docset}/quizzes/${id}.json`);
 
         if (!response.ok) {
-            throw new Error('Failed to fetch quiz.json file');
+            throw new Error('Failed to fetch quiz JSON file');
         }
-
-        const quizData = await response.json()
-        return { quizData };
+        const quiz = await response.json()
+        return { quiz };
     }
     catch (error) {
-        console.error("Error fetching quiz.json file:', error")
+        console.error("Error fetching quiz JSON file:", error);
         return {};
     }
 }

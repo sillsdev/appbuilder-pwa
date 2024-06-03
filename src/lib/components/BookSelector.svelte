@@ -12,6 +12,7 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { base } from '$app/paths';
 
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
@@ -55,7 +56,8 @@ The navbar component.
                 .find((x) => x.id === $refs.collection)
                 .books.find((x) => x.id == e.detail.text && x.type == 'quiz')
         ) {
-            window.location.href = 'quiz/[docset]/[id]/';
+            let address = `${base}/quiz/${$refs.collection}/${e.detail.text}`;
+            window.location.href = address;
             return;
         }
         if (!showChapterSelector) {
@@ -133,7 +135,6 @@ The navbar component.
         let quizGroup = [];
         var lastGroup = null;
 
-        console.log(config.bookCollections);
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
