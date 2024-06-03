@@ -11,11 +11,10 @@ export async function load({ params }) {
         if (!response.ok) {
             throw new Error('Failed to fetch quiz JSON file');
         }
-        const quiz = await response.json()
+        const quiz = await response.json();
         return { quiz };
-    }
-    catch (error) {
-        console.error("Error fetching quiz JSON file:", error);
+    } catch (error) {
+        console.error('Error fetching quiz JSON file:', error);
         return {};
     }
 }
