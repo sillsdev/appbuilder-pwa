@@ -3,56 +3,96 @@
     import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
-    import { Search, type SearchResult } from '$lib/scripts/search';
+    import type { SABProskomma } from '$lib/sab-proskomma';
+    import { SearchQuery } from '$lib/scripts/search/adapters';
+    import type { SearchResult } from '$lib/scripts/search/entities';
+    import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
 
     export let docSet: string;
     export let collection: string;
 
     let searchText = '';
-    let matchWholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
-    let searchPromise: Promise<SearchResult[]>;
-    let showResults = false;
+    let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
+
+    let pk: SABProskomma;
+    let query: SearchQuery;
+
+    // The number of search results to fetch at a time.
+    const batchSize = 10;
+
+    let results: SearchResult[] = [];
+    let noResults = false;
+    let waiting = false;
 
     const specialCharacters = config.mainFeatures['input-buttons']
         .split(' ')
         .filter((x) => x !== '');
 
-    function submit() {
-        showResults = true;
-        searchPromise = doSearch();
+    async function ensureInitialized() {
+        pk = await initProskomma({ fetch });
+        await loadDocSetIfNotLoaded(pk, docSet, fetch);
     }
 
-    async function doSearch(): Promise<SearchResult[]> {
-        console.log('starting the search');
-        const start = performance.now();
+    async function submit() {
+        waiting = true;
+        await ensureInitialized();
+        query = new SearchQuery(searchText, pk, docSet, collection, { wholeWords });
+        results = await query.getResults(batchSize);
+        noResults = results.length === 0;
+        waiting = false;
+    }
 
-        // Hack to get spinner to show while waiting for search.
-        await new Promise((resolve) => setTimeout(resolve, 15));
-
-        const pk = await initProskomma({ fetch });
-        await loadDocSetIfNotLoaded(pk, docSet, fetch);
-
-        const search = new Search(searchText, matchWholeWords, docSet, collection);
-        const results = await search.makeQuery();
-
-        const end = performance.now();
-        console.log(`search finished in ${end - start} ms`);
-        return results;
+    async function loadMore() {
+        if (!query || query.isComplete) {
+            return;
+        }
+        waiting = true;
+        await ensureInitialized();
+        const newResults = await query.getResults(batchSize);
+        results = results.concat(newResults);
+        waiting = false;
     }
 
     function waitingText(): string {
         console.log('waiting for search');
         return $t['Search_Searching'];
     }
+
+    onMount(ensureInitialized);
+
+    // Intersection Observer callback
+    function handleIntersect(entries) {
+        if (entries[0].isIntersecting && !waiting) {
+            loadMore();
+        }
+    }
+
+    // Load more results when the user scrolls to the bottom of the list;
+    onMount(() => {
+        const observer = new IntersectionObserver(handleIntersect, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1.0
+        });
+
+        const sentinel = document.querySelector('#sentinel');
+        if (sentinel) {
+            observer.observe(sentinel);
+        }
+
+        return () => {
+            if (sentinel) {
+                observer.unobserve(sentinel);
+            }
+        };
+    });
 </script>
 
 <form class="w-full max-w-md p-4">
     <div class="dy-form-control mb-4">
         <label class="dy-input-group w-full flex">
-            <!-- svelte-ignore a11y-autofocus -->
             <input
-                autofocus
                 type="text"
                 placeholder={$t['Search']}
                 class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
@@ -79,7 +119,7 @@
                 <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
                     >{$t['Search_Match_Whole_Words']}</span
                 >
-                <input type="checkbox" class="dy-toggle" bind:checked={matchWholeWords} />
+                <input type="checkbox" class="dy-toggle" bind:checked={wholeWords} />
             </label>
         </div>
     {/if}
@@ -102,26 +142,24 @@
     <!--     </div> -->
     <!-- {/if} -->
     <hr style:border-color={$themeColors.DividerColor} />
-    {#if showResults}
-        <div class="overflow-y-auto">
-            {#await searchPromise}
-                <p style={convertStyle($s['ui.search.progress-label'])}>{waitingText()}</p>
-                <span class="spin" />
-            {:then results}
-                {#if results?.length}
-                    {#each results as result}
-                        <SearchResultCard {result} {collection} {docSet} />
-                    {/each}
-                {:else}
-                    <div class="py-4 flex justify-center">
-                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                            {$t['Search_No_Matches_Found']}
-                        </p>
-                    </div>
-                {/if}
-            {/await}
-        </div>
-    {/if}
+    <div class="overflow-y-auto">
+        {#if noResults}
+            <div class="py-4 flex justify-center">
+                <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                    {$t['Search_No_Matches_Found']}
+                </p>
+            </div>
+        {:else}
+            {#each results as result}
+                <SearchResultCard {result} {collection} {docSet} />
+            {/each}
+        {/if}
+        {#if waiting}
+            <p style={convertStyle($s['ui.search.progress-label'])}>{waitingText()}</p>
+            <span class="spin" />
+        {/if}
+        <div id="sentinel" style="height: 1px;"></div>
+    </div>
 </form>
 
 <!-- <style>
