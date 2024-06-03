@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import config from '$lib/data/config';
 
-export async function load({ fetch, params }) {
+export async function load({ params }) {
     const docSets = config.bookCollections.map((bc) => ({
         id: `${bc.languageCode}_${bc.id}`,
         collection: bc.id

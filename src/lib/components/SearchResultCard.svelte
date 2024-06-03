@@ -8,7 +8,7 @@ A clickable verse card representing a single search result.
     import config from '$lib/data/config';
     import { addHistory } from '$lib/data/history';
     import { convertStyle, refs, s } from '$lib/data/stores';
-    import type { SearchResult } from '$lib/scripts/search';
+    import type { SearchResult } from '$lib/scripts/search/entities';
 
     export let docSet: string;
     export let collection: string;
@@ -18,7 +18,7 @@ A clickable verse card representing a single search result.
         const separator = config.bookCollections.find((x) => x.id === collection).features[
             'ref-chapter-verse-separator'
         ];
-        let reference = result.reference.bookName;
+        let reference = bookName(result.reference.bookCode);
         if (result.reference.chapter) {
             reference += ' ' + result.reference.chapter;
             if (result.reference.verses) {
@@ -26,6 +26,12 @@ A clickable verse card representing a single search result.
             }
         }
         return reference;
+    }
+
+    function bookName(bookCode: string): string {
+        let collectionData = config.bookCollections.filter((bc) => bc.id === collection)[0];
+        let bookData = collectionData.books.filter((bk) => bk.id === bookCode)[0];
+        return bookData.name;
     }
 
     function onClick() {
