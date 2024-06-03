@@ -1,7 +1,7 @@
 import { NavigationContext } from '$lib/data/navigation';
-import { setDefaultStorage } from '$lib/data/stores/storage';
 import { derived, writable } from 'svelte/store';
 import type { CatalogData } from '../catalogData';
+import config from '$lib/data/config';
 
 interface ReferenceStore {
     docSet: string;
@@ -42,6 +42,7 @@ export const referenceStore = () => {
             initialized: nav.initialized
         });
         localStorage.refs = nav.reference;
+        localStorage.package = config.package;
     };
 
     const set = async ({ docSet, book, chapter, verse }) => {
@@ -66,7 +67,8 @@ export const referenceStore = () => {
     };
 
     const init = async () => {
-        await nav.gotoInitial(localStorage.refs);
+        const start = localStorage.package === config.package ? localStorage.refs : null;
+        await nav.gotoInitial(start);
         update();
     };
 
