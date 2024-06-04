@@ -170,7 +170,7 @@
                                     {quiz.questions[questionNum].image}
                                 {/if}
                             </div>
-                            <div class="flex justify-center items-center">
+                            <div class="flex quiz-answer-block justify-center">
                                 <table class="mt-10">
                                     {#each pairs as [answer1, answer2]}
                                         <tr>
@@ -182,11 +182,11 @@
                                                     style="cursor:pointer; {clicked &&
                                                     answer1.clicked &&
                                                     !answer1.correct
-                                                        ? 'background-color: red;'
+                                                        ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
                                                         : ''} {clicked &&
-                                                    answer1.clicked &&
-                                                    answer1.correct
-                                                        ? 'background-color: green;'
+                                                    answer1.correct &&
+                                                    (answer1.clicked || displayCorrect)
+                                                        ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
                                                         : ''}"
                                                     on:click={() => {
                                                         onQuestionAnswered(answer1);
@@ -199,12 +199,14 @@
                                                         class="display: block; flex-initial w-[32rem] ml-2 gap-8"
                                                         src={getImageSource(answer2.image)}
                                                         alt={answer2.text}
-                                                        style="cursor:pointer; {answer2.clicked &&
+                                                        style="cursor:pointer; {clicked &&
+                                                        answer2.clicked &&
                                                         !answer2.correct
-                                                            ? 'background-color: rgb(128,0,0);'
-                                                            : ''} {answer2.clicked &&
-                                                        answer2.correct
-                                                            ? 'background-color: rgb(0,128,0);'
+                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
+                                                            : ''} {clicked &&
+                                                        answer2.correct &&
+                                                        (answer2.clicked || displayCorrect)
+                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
                                                             : ''}"
                                                         on:click={() => {
                                                             onQuestionAnswered(answer2);
