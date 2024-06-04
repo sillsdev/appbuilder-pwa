@@ -61,6 +61,9 @@ export abstract class SearchQueryBase {
     });
 
     async getResults(limit: number = 0): Promise<SearchResult[]> {
+        if (this.searchPhrase.trim() === '') {
+            return [];
+        }
         return this.resultsReader.read(limit);
     }
 
