@@ -60,7 +60,7 @@
             const newResults = await query.getResults(batchSize);
             results = results.concat(newResults);
             waiting = false;
-        }, 100); // Without this delay, waiting text did not show.
+        }, 50); // Without this delay, waiting text did not show.
     }
 
     function waitingText(): string {
