@@ -114,7 +114,7 @@
                                 {#if quiz.questions[questionNum].image}
                                     <div class="flex justify-center">
                                         <img
-                                            class=""
+                                            class="quiz-question-image"
                                             src={getImageSource(quiz.questions[questionNum].image)}
                                         />
                                     </div>
