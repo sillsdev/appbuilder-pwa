@@ -13,7 +13,6 @@
     let score = 0;
     let questionNum = 0;
     let clicked = false;
-    let correct = false;
     let displayCorrect = false;
     function playSound(path) {
         const audio = new Audio();
@@ -65,7 +64,6 @@
         handleQuestionChange();
     }
     function onQuestionAnswered (answer) {
-        correct = answer.correct
         const audioPath = answer.correct
             ? `${base}/assets/quiz-right-answer.mp3`
             : `${base}/assets/quiz-wrong-answer.mp3`;
