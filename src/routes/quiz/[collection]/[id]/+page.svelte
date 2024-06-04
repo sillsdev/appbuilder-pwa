@@ -121,7 +121,7 @@
                                     <!-- this goes in the img above possibly: alt={quiz.questions[questionNum].text} -->
                                 {/if}
                             </div>
-                            <div class="flex quiz-answer-block justify-center">
+                            <div class="flex quiz-answer-block justify-center columns-2">
                                 <table class="mt-10">
                                     {#each shuffledAnswers as answer}
                                         <tr>
@@ -158,36 +158,29 @@
                         <div class="quiz-question-block">
                             <div class="quiz-question">
                                 {quiz.questions[questionNum].text}
-                                {#if quiz.questions[questionNum].image}
-                                    {quiz.questions[questionNum].image}
-                                {/if}
                             </div>
-                            <div class="flex quiz-answer-block justify-center">
-                                <table class="mt-10">
+                            <div class="flex justify-center">
+                                <div class="grid grid-cols-2 gap-4">
                                     {#each shuffledAnswers as answer}
-                                        <tr>
-                                            <td class="" width="100%" style="padding:2%;">
-                                                <img
-                                                    class="display: block; flex-initial w-[32rem] ml-2 gap-8"
-                                                    src={getImageSource(answer.image)}
-                                                    alt={answer.text}
-                                                    style="cursor:pointer; {clicked &&
-                                                    answer.clicked &&
-                                                    !answer.correct
-                                                        ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
-                                                        : ''} {clicked &&
-                                                    answer.correct &&
-                                                    (answer.clicked || displayCorrect)
-                                                        ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
-                                                        : ''}"
-                                                    on:click={() => {
-                                                        onQuestionAnswered(answer);
-                                                    }}
-                                                />
-                                            </td>
-                                        </tr>
+                                        <div class="w-full flex justify-center">
+                                            <img
+                                                class="w-full cursor-pointer ml-2 gap-8"
+                                                src={getImageSource(answer.image)}
+                                                alt={answer.text}
+                                                style="{clicked && answer.clicked && !answer.correct
+                                                    ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
+                                                    : ''} {clicked &&
+                                                answer.correct &&
+                                                (answer.clicked || displayCorrect)
+                                                    ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
+                                                    : ''}"
+                                                on:click={() => {
+                                                    onQuestionAnswered(answer);
+                                                }}
+                                            />
+                                        </div>
                                     {/each}
-                                </table>
+                                </div>
                             </div>
                         </div>
                     {/if}
