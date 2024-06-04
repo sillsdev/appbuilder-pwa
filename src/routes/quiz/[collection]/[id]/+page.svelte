@@ -9,7 +9,6 @@
     // console.log(JSON.stringify(data, null, 4));
     let quiz = data.quiz;
     let shuffledAnswers = [];
-    let pairs = [];
     let score = 0;
     let questionNum = 0;
     let clicked = false;
@@ -22,13 +21,6 @@
     function getImageSource(image) {
         let source = `${base}/illustrations/${$refs.collection}-${quiz.id}-${image}`;
         return source;
-    }
-    function pairAnswers(answers) {
-        const pairs = [];
-        for (let i = 0; i < answers.length; i += 2) {
-            pairs.push([answers[i], answers[i + 1]]);
-        }
-        return pairs;
     }
     function shuffleAnswers(answerArray) {
         let currentIndex = answerArray.length,
@@ -46,13 +38,11 @@
     function handleQuestionChange() {
         if (questionNum == quiz.questions.length) {
             shuffledAnswers = [];
-            pairs = [];
         } else {
             for (const answer of quiz.questions[questionNum].answers) {
                 answer.clicked = false;
             }
             shuffledAnswers = shuffleAnswers(quiz.questions[questionNum].answers);
-            pairs = pairAnswers(shuffledAnswers);
         }
     }
     function onNextQuestion() {
@@ -174,48 +164,27 @@
                             </div>
                             <div class="flex quiz-answer-block justify-center">
                                 <table class="mt-10">
-                                    {#each pairs as [answer1, answer2]}
+                                    {#each shuffledAnswers as answer}
                                         <tr>
-                                            <td width="50%" style="padding:2%;">
+                                            <td class="" width="100%" style="padding:2%;">
                                                 <img
                                                     class="display: block; flex-initial w-[32rem] ml-2 gap-8"
-                                                    src={getImageSource(answer1.image)}
-                                                    alt={answer1.text}
+                                                    src={getImageSource(answer.image)}
+                                                    alt={answer.text}
                                                     style="cursor:pointer; {clicked &&
-                                                    answer1.clicked &&
-                                                    !answer1.correct
+                                                    answer.clicked &&
+                                                    !answer.correct
                                                         ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
                                                         : ''} {clicked &&
-                                                    answer1.correct &&
-                                                    (answer1.clicked || displayCorrect)
+                                                    answer.correct &&
+                                                    (answer.clicked || displayCorrect)
                                                         ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
                                                         : ''}"
                                                     on:click={() => {
-                                                        onQuestionAnswered(answer1);
+                                                        onQuestionAnswered(answer);
                                                     }}
                                                 />
                                             </td>
-                                            {#if answer2}
-                                                <td width="50%" style="padding:2%;">
-                                                    <img
-                                                        class="display: block; flex-initial w-[32rem] ml-2 gap-8"
-                                                        src={getImageSource(answer2.image)}
-                                                        alt={answer2.text}
-                                                        style="cursor:pointer; {clicked &&
-                                                        answer2.clicked &&
-                                                        !answer2.correct
-                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
-                                                            : ''} {clicked &&
-                                                        answer2.correct &&
-                                                        (answer2.clicked || displayCorrect)
-                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
-                                                            : ''}"
-                                                        on:click={() => {
-                                                            onQuestionAnswered(answer2);
-                                                        }}
-                                                    />
-                                                </td>
-                                            {/if}
                                         </tr>
                                     {/each}
                                 </table>
