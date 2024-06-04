@@ -203,7 +203,7 @@
                                 onNextQuestion();
                             }}
                         >
-                            <div>Next</div>
+                            <div>{'quiz-next-button'}</div>
                         </button>
                     </div>
                 {/if}
