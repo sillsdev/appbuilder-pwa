@@ -35,12 +35,17 @@
     }
 
     async function submit() {
+        results = [];
         waiting = true;
         await ensureInitialized();
-        query = new SearchQuery(searchText, pk, docSet, collection, { wholeWords });
-        results = await query.getResults(batchSize);
-        noResults = results.length === 0;
-        waiting = false;
+
+        // Use setTimeout to yeild to the main thread.
+        setTimeout(async () => {
+            query = new SearchQuery(searchText, pk, docSet, collection, { wholeWords });
+            results = await query.getResults(batchSize);
+            noResults = results.length === 0;
+            waiting = false;
+        }, 0);
     }
 
     async function loadMore() {
@@ -49,9 +54,13 @@
         }
         waiting = true;
         await ensureInitialized();
-        const newResults = await query.getResults(batchSize);
-        results = results.concat(newResults);
-        waiting = false;
+
+        // Use setTimeout to yeild to the main thread.
+        setTimeout(async () => {
+            const newResults = await query.getResults(batchSize);
+            results = results.concat(newResults);
+            waiting = false;
+        }, 100); // Without this delay, waiting text did not show.
     }
 
     function waitingText(): string {
@@ -142,7 +151,7 @@
     <!--     </div> -->
     <!-- {/if} -->
     <hr style:border-color={$themeColors.DividerColor} />
-    <div class="overflow-y-auto">
+    <div class="container">
         {#if noResults}
             <div class="py-4 flex justify-center">
                 <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
@@ -155,14 +164,22 @@
             {/each}
         {/if}
         {#if waiting}
-            <p style={convertStyle($s['ui.search.progress-label'])}>{waitingText()}</p>
-            <span class="spin" />
+            <p
+                class="m-8"
+                style={convertStyle($s['ui.search.progress-label'])}
+                style:text-align="center"
+            >
+                {waitingText()}
+            </p>
+            {#if results.length === 0}
+                <span class="spin" />
+            {/if}
         {/if}
         <div id="sentinel" style="height: 1px;"></div>
     </div>
 </form>
 
-<!-- <style>
+<style>
     .special-characters {
         justify-content: start;
         /* For a scrolling view instead of rows */
@@ -179,4 +196,8 @@
         display: inline-block;
         user-select: none;
     }
-</style> -->
+
+    .spin::before {
+        position: fixed;
+    }
+</style>
