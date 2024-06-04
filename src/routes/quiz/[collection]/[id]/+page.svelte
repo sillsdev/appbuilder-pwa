@@ -122,11 +122,13 @@
                             <div class="quiz-question">
                                 {quiz.questions[questionNum].text}
                                 {#if quiz.questions[questionNum].image}
-                                    <img
-                                        class="display: block; flex-initial w-[32rem] ml-2 gap-8"
-                                        src={getImageSource(quiz.questions[questionNum].image)}
-                                        alt={quiz.questions[questionNum].text}
-                                    />
+                                    <div class="flex justify-center">
+                                        <img
+                                            class=""
+                                            src={getImageSource(quiz.questions[questionNum].image)}
+                                        />
+                                    </div>
+                                    <!-- this goes in the img above possibly: alt={quiz.questions[questionNum].text} -->
                                 {/if}
                             </div>
                             <div class="flex quiz-answer-block justify-center">
