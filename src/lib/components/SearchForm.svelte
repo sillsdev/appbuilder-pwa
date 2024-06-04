@@ -156,7 +156,7 @@
     <!-- {/if} -->
     <hr style:border-color={$themeColors.DividerColor} />
     <div class="container">
-        {#if noResults}
+        {#if noResults && !waiting}
             <div class="py-4 flex justify-center">
                 <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
                     {$t['Search_No_Matches_Found']}
