@@ -6,7 +6,7 @@
     import { onMount } from 'svelte';
     /** @type {import('./$types').PageData} */
     export let data;
-    // console.log(JSON.stringify(data, null, 4));
+
     let quiz = data.quiz;
     let shuffledAnswers = [];
     let score = 0;
@@ -118,7 +118,6 @@
                                             src={getImageSource(quiz.questions[questionNum].image)}
                                         />
                                     </div>
-                                    <!-- this goes in the img above possibly: alt={quiz.questions[questionNum].text} -->
                                 {/if}
                             </div>
                             <div class="flex quiz-answer-block justify-center">
