@@ -220,9 +220,12 @@
                     {/if}
                 {/if}
                 {#if displayCorrect}
-                    <div class="quiz-next-button arrow-ltr" style="cursor: pointer;">
+                    <div
+                        class="quiz-next-button arrow-ltr flex justify-center items-center"
+                        style="cursor: pointer;"
+                    >
                         <button
-                            class="flex-initial w-[32rem] mt-2 gap-8}"
+                            class=""
                             on:click={() => {
                                 onNextQuestion();
                             }}
