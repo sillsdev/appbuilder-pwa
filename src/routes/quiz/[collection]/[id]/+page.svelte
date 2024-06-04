@@ -86,8 +86,8 @@
         </Navbar>
     </div>
     {#if questionNum == quiz.questions.length}
-        <div class="score flex justify-center items-center">
-            <div id="content">
+        <div class="score flex justify-center">
+            <div id="content" class="text-center">
                 <div class="quiz-score-before">You scored</div>
                 <div class="quiz-score-block">
                     <span class="quiz-score">{score}</span>
