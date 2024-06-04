@@ -102,6 +102,8 @@
     <div class="dy-form-control mb-4">
         <label class="dy-input-group w-full flex">
             <input
+                id="searchbar"
+                readonly={waiting}
                 type="text"
                 placeholder={$t['Search']}
                 class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
@@ -110,6 +112,8 @@
                 style:background-color={$themeColors.BackgroundColor}
                 style:border-color={$themeColors.DividerColor}
                 size="1"
+                inputmode="search"
+                enterkeyhint="search"
                 bind:value={searchText}
             />
             <button
