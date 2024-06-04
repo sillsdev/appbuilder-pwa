@@ -86,7 +86,7 @@
         </Navbar>
     </div>
     {#if questionNum == quiz.questions.length}
-        <body class="score">
+        <div class="score flex justify-center items-center">
             <div id="content">
                 <div class="quiz-score-before">You scored</div>
                 <div class="quiz-score-block">
@@ -96,12 +96,12 @@
                     out of {questionNum} questions.
                 </div>
                 {#if score == quiz.passScore || score > quiz.passScore}
-                    <div class="flex justify-center mt-50">You pass!</div>
+                    <div class="mt-6 text-3xl font-bold text-green-500">You pass!</div>
                 {:else if score < quiz.passScore}
-                    <div class="flex justify-center mt-50">Oh, dear!</div>
+                    <div class="mt-6 text-3xl font-bold text-red-500">Oh, dear!</div>
                 {/if}
             </div>
-        </body>
+        </div>
     {:else}
         <body class="quiz">
             <div id="content">
@@ -121,19 +121,19 @@
                                     <!-- this goes in the img above possibly: alt={quiz.questions[questionNum].text} -->
                                 {/if}
                             </div>
-                            <div class="flex quiz-answer-block justify-center columns-2">
+                            <div class="flex quiz-answer-block justify-center">
                                 <table class="mt-10">
                                     {#each shuffledAnswers as answer}
                                         <tr>
                                             <td>
                                                 <button
-                                                    class="flex-initial w-[32rem] mt-2 gap-8}"
+                                                    class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8}"
                                                     on:click={() => {
                                                         onQuestionAnswered(answer);
                                                     }}
                                                 >
                                                     <div
-                                                        class="quiz-answer flex justify-center items-center"
+                                                        class="quiz-answer flex justify-center"
                                                         style="{clicked &&
                                                         answer.clicked &&
                                                         !answer.correct
@@ -159,12 +159,12 @@
                             <div class="quiz-question">
                                 {quiz.questions[questionNum].text}
                             </div>
-                            <div class="flex justify-center">
+                            <div class="flex justify-center flex-wrap gap-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     {#each shuffledAnswers as answer}
                                         <div class="w-full flex justify-center">
                                             <img
-                                                class="w-full cursor-pointer ml-2 gap-8"
+                                                class="cursor-pointer w-32 h-32 rounded-md"
                                                 src={getImageSource(answer.image)}
                                                 alt={answer.text}
                                                 style="{clicked && answer.clicked && !answer.correct
