@@ -170,7 +170,7 @@
                                     {quiz.questions[questionNum].image}
                                 {/if}
                             </div>
-                            <div class="flex quiz-answer-block justify-center">
+                            <div class="flex justify-center items-center">
                                 <table class="mt-10">
                                     {#each pairs as [answer1, answer2]}
                                         <tr>
