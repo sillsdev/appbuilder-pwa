@@ -272,6 +272,18 @@ describe('SearchQueryBase', () => {
             const results = await search.getResults();
             expect(results.length).toBeGreaterThan(0);
         });
+
+        test('empty string matches nothing', async () => {
+            const search = new TestSearchQuery('');
+            const results = await search.getResults();
+            expect(results.length).toBe(0);
+        });
+
+        test('space matches nothing', async () => {
+            const search = new TestSearchQuery(' ');
+            const results = await search.getResults();
+            expect(results.length).toBe(0);
+        });
     });
 
     describe('Match whole words', () => {
