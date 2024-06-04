@@ -25,8 +25,7 @@
     let noResults = false;
     let waiting = false;
 
-    const specialCharacters = config.mainFeatures['input-buttons']
-        .split(' ')
+    const specialCharacters = config.mainFeatures['input-buttons']?.split(' ')
         .filter((x) => x !== '');
 
     async function ensureInitialized() {
