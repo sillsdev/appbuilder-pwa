@@ -10,6 +10,7 @@ import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
+import { space } from 'postcss/lib/list';
 
 /**
  * Loops through bookCollections property of configData.
@@ -201,7 +202,7 @@ export async function convertBooks(
                             'quizzes',
                             book.id + '.json'
                         ),
-                        content: JSON.stringify(convertQuizBook(context, book))
+                        content: JSON.stringify(convertQuizBook(context, book), null, 2)
                     });
                     break;
                 default:
@@ -359,7 +360,7 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
             const parsed = m.match(/([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/i)!;
             return {
                 rangeMin: parseInt(parsed[1]),
-                rangeMax: parsed[2] ? parseInt(parsed[2]) : undefined,
+                rangeMax: parsed[2] ? parseInt(parsed[2].replace('-', '')) : parseInt(parsed[1]),
                 message: parsed[3]
             };
         }),
@@ -468,11 +469,11 @@ function convertScriptureBook(
                             if (context.verbose)
                                 console.log(
                                     (r.data?.addDocument ? '' : 'failed: ') +
-                                    context.docSet +
-                                    ' <- ' +
-                                    book.name +
-                                    ': ' +
-                                    path.join(context.dataDir, 'books', context.bcId, book.file)
+                                        context.docSet +
+                                        ' <- ' +
+                                        book.name +
+                                        ': ' +
+                                        path.join(context.dataDir, 'books', context.bcId, book.file)
                                 );
                             //if the document is not added successfully, the response returned by Proskomma includes an error message
                             if (!r.data?.addDocument) {

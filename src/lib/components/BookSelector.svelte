@@ -12,7 +12,10 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
+    export let displayLabel;
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: verseCount = getVerseCount(chapter, chapters);
@@ -29,7 +32,7 @@ The navbar component.
     $: v = $t.Selector_Verse;
 
     let bookSelector;
-    $: label = config.bookCollections
+    $: label = displayLabel ?? config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === book).name;
 
@@ -48,14 +51,17 @@ The navbar component.
     /**
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
+
     async function navigateReference(e) {
-        if (
-            e.detail.tab == b &&
-            config.bookCollections
-                .find((x) => x.id === $refs.collection)
-                .books.find((x) => x.id == e.detail.text && x.type == 'quiz')
-        ) {
-            window.location.href = 'quiz/eng_C01/QU1';
+        // Handle special book navigation first 
+        if (e.detail.tab === b && e.detail?.type === 'quiz'){
+            const book = e.detail.text;
+            addHistory({
+                collection: $refs.collection,
+                book,
+                chapter: "1"
+            });
+            goto(`${base}/quiz/${$refs.collection}/${book}`);
             return;
         }
         if (!showChapterSelector) {
@@ -113,6 +119,7 @@ The navbar component.
             verse: $nextRef.verse
         });
         document.activeElement.blur();
+        goto(`${base}/`);
     }
 
     function resetNavigation() {
@@ -130,17 +137,16 @@ The navbar component.
 
     let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
-        let quizGroup = [];
         var lastGroup = null;
 
         console.log(config.bookCollections);
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
+                let label = book[bookLabel] || book.name;
+                let cell = { label: label, id: book.id, type: book.type};
                 // Include books only in the catalog (i.e. only supported book types)
                 if (books.find((x) => x.bookCode === book.id)) {
-                    let label = book[bookLabel] || book.name;
-                    let cell = { label: label, id: book.id };
                     let group = book.testament || '';
                     if ((lastGroup == null || group !== lastGroup) && config.mainFeatures['book-group-titles']) {
                         // Create new group
@@ -155,20 +161,14 @@ The navbar component.
                         lastGroup = group;
                     } else {
                         // Add Book to last group
-                        let cells = groups[groups.length - 1].cells;
-                        groups[groups.length - 1].cells = [...cells, cell];
+                        let cells = groups.at(-1).cells;
+                        groups.at(-1).cells = [...cells, cell];
                     }
-                } else if (book.type == 'quiz' || 'Quiz') {
-                    quizGroup.push({
-                        label: book.name,
-                        id: book.id
-                    });
+                } else if (book.type.toLowerCase() === 'quiz') {
+                    let cells = groups.at(-1).cells;
+                    groups.at(-1).cells = [...cells, cell]
                 }
             });
-
-        if (quizGroup.length > 0) {
-            groups.push({ header: 'Quizzes', cells: quizGroup });
-        }
 
         return groups;
     };

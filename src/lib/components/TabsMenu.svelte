@@ -16,8 +16,10 @@ A component to display tabbed menus.
     const dispatch = createEventDispatcher();
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
     function handleMenuaction({ detail }: CustomEvent) {
+        console.log("handleMenuaction", detail)
         dispatch('menuaction', {
             text: detail.text,
+            type: detail?.type,
             tab: active
         });
     }

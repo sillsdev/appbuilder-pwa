@@ -1,7 +1,7 @@
 import { base } from '$app/paths';
 
 /** @type {import('./$types').PageLoad} */
-export async function load({ params }) {
+export async function load({ params, fetch }) {
     const id = params.id;
     const collection = params.collection;
 
@@ -12,11 +12,10 @@ export async function load({ params }) {
             throw new Error('Failed to fetch quiz JSON file');
         }
 
-        const quizData = await response.json()
+        const quizData = await response.json();
         return { quiz: quizData };
-    }
-    catch (error) {
-        console.error("Error fetching quiz JSON file:", error);
+    } catch (error) {
+        console.error('Error fetching quiz JSON file:', error);
         return {};
     }
 }

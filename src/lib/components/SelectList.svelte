@@ -9,9 +9,12 @@ A component to display menu options in a list.
 
     const dispatch = createEventDispatcher();
 
-    function handleClick(opt: string) {
+    function handleClick(opt: any) {
+        const text = opt.id;
+        const type = opt?.type;
         dispatch('menuaction', {
-            text: opt
+            text,
+            type
         });
     }
 
@@ -32,7 +35,7 @@ A component to display menu options in a list.
                             <!-- svelte-ignore a11y-interactive-supports-focus -->
                             <span
                                 on:click={() =>
-                                    handleClick(group.cells[ri * group.cells.length + ci].id)}
+                                    handleClick(group.cells[ri * group.cells.length + ci])}
                                 class="menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
                                 role="button"
                             >
