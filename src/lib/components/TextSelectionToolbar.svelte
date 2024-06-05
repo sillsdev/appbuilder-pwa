@@ -21,6 +21,7 @@ TODO:
         BookmarkOutlineIcon,
         ShareIcon
     } from '$lib/icons';
+    import { createEventDispatcher } from 'svelte';
     import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config';
     import {
@@ -34,7 +35,6 @@ TODO:
         themeColors,
         audioActive
     } from '$lib/data/stores';
-    import toast, { Toaster } from 'svelte-french-toast';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
@@ -111,9 +111,7 @@ TODO:
             '\n' +
             selectedVerses.getCompositeReference();
         navigator.clipboard.writeText(copyText);
-        toast($t['Text_Copied'], {
-            position: 'bottom-right'
-        });
+        notifyTextCopied(copyText);
         selectedVerses.reset();
     }
     async function shareSelectedText() {
@@ -126,9 +124,14 @@ TODO:
 
     $: barBackgroundColor = $s['ui.bar.text-select']['background-color'];
     $: barIconColor = $s['ui.bar.text-select.icon']['color'];
+    const dispatch = createEventDispatcher();
+    function notifyTextCopied(text) {
+        dispatch('copied', {
+            text
+        });
+    }
 </script>
 
-<Toaster />
 <div
     class="h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={barBackgroundColor}
