@@ -108,14 +108,8 @@
             <div slot="left-buttons">
                 <BookSelector {displayLabel} />
             </div>
-            <div slot="right-buttons">
+            <div slot="right-buttons" class="flex items-center">
                 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                <label
-                    class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
-                >
-                    <TextAppearanceIcon color="white" />
-                </label>
                 <div class="flex">
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
@@ -130,6 +124,12 @@
                         {/if}
                     </button>
                 </div>
+                <label
+                    class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                >
+                    <TextAppearanceIcon color="white" />
+                </label>
             </div>
         </Navbar>
     </div>
