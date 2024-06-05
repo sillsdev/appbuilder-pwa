@@ -1,18 +1,26 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
-    import { refs,t, bodyFontSize, bodyLineHeight, modal, MODAL_TEXT_APPERANCE} from '$lib/data/stores';
+    import {
+        audioActive,
+        refs,
+        t,
+        bodyFontSize,
+        bodyLineHeight,
+        modal,
+        MODAL_TEXT_APPERANCE
+    } from '$lib/data/stores';
     import { base } from '$app/paths';
     import { onMount } from 'svelte';
-    import {ArrowForwardIcon, TextAppearanceIcon} from '$lib/icons';
+    import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BookSelector from '$lib/components/BookSelector.svelte';
     /** @type {import('./$types').PageData} */
     export let data;
 
     let quiz = data.quiz;
     let displayLabel = config.bookCollections
-        .find((x) => x.id === $refs.collection).books
-        .find((x) => x.id === quiz.id).name;
+        .find((x) => x.id === $refs.collection)
+        .books.find((x) => x.id === quiz.id).name;
     let shuffledAnswers = [];
     let score = 0;
     let questionNum = 0;
@@ -98,15 +106,30 @@
     <div class="navbar">
         <Navbar>
             <div slot="left-buttons">
-                <BookSelector displayLabel={displayLabel}/>
+                <BookSelector {displayLabel} />
             </div>
             <div slot="right-buttons">
                 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                 <label
-                class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
-                ><TextAppearanceIcon color="white" /></label
-            >
+                    class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                >
+                    <TextAppearanceIcon color="white" />
+                </label>
+                <div class="flex">
+                    <button
+                        class="dy-btn dy-btn-ghost dy-btn-circle"
+                        on:click={() => {
+                            $audioActive = !$audioActive;
+                        }}
+                    >
+                        {#if $audioActive}
+                            <AudioIcon.Volume color="white" />
+                        {:else}
+                            <AudioIcon.Mute color="white" />
+                        {/if}
+                    </button>
+                </div>
             </div>
         </Navbar>
     </div>
@@ -128,7 +151,9 @@
     {:else}
         <body class="quiz">
             <div id="content">
-                <div class="quiz-question-number" style:line-height="{$bodyLineHeight}%">{questionNum + 1}</div>
+                <div class="quiz-question-number" style:line-height="{$bodyLineHeight}%">
+                    {questionNum + 1}
+                </div>
                 {#if quiz.questions[questionNum].answers}
                     {#if quiz.questions[questionNum].answers.some((answer) => answer.text)}
                         <div class="quiz-question-block">
@@ -185,9 +210,13 @@
                             <div class="flex justify-center flex-wrap mx-4">
                                 <div class="grid grid-cols-2 gap-2">
                                     {#each shuffledAnswers as answer}
-                                        <div class="w-full flex justify-center p-[4%]"
-                                        class:imageCorrectSelect={clicked && answer.correct}
-                                        class:imageWrongSelect={clicked && answer.clicked && !answer.correct}>
+                                        <div
+                                            class="w-full flex justify-center p-[4%]"
+                                            class:imageCorrectSelect={clicked && answer.correct}
+                                            class:imageWrongSelect={clicked &&
+                                                answer.clicked &&
+                                                !answer.correct}
+                                        >
                                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                                             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                                             <img
@@ -216,7 +245,7 @@
                                 onNextQuestion();
                             }}
                         >
-                            <ArrowForwardIcon/>
+                            <ArrowForwardIcon />
                         </button>
                     </div>
                 {/if}
@@ -227,11 +256,11 @@
 
 <style>
     .imageWrongSelect {
-        color: rgb(255,255,255);
-        background-color: rgb(193,27,23);
+        color: rgb(255, 255, 255);
+        background-color: rgb(193, 27, 23);
     }
     .imageCorrectSelect {
-        color: rgb(255,255,255);
-        background-color: rgb(0,128,0);
+        color: rgb(255, 255, 255);
+        background-color: rgb(0, 128, 0);
     }
 </style>
