@@ -302,7 +302,7 @@
         textCopied = true;
         setTimeout(() => {
             textCopied = false;
-        }, 1400);
+        }, 3000);
     }
 </script>
 
@@ -456,7 +456,7 @@
         <StackView {...stackSettings} />
     </div>
     {#if textCopied}
-        <div class="p-2 bg-black text-white text-center">
+        <div class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm">
             {$t['Text_Copied']}
         </div>
     {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
