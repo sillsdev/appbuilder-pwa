@@ -347,7 +347,7 @@
                     <!-- Search Button -->
                     {#if showSearch}
                         <a
-                            href="{base}/search/{$refs.docSet}"
+                            href="{base}/search/{$refs.collection}"
                             class="dy-btn dy-btn-ghost dy-btn-circle"
                         >
                             <SearchIcon color="white" />
@@ -459,7 +459,9 @@
         <StackView {...stackSettings} />
     </div>
     {#if textCopied}
-        <div class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm">
+        <div
+            class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
+        >
             {$t['Text_Copied']}
         </div>
     {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
