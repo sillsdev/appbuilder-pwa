@@ -25,7 +25,8 @@
     let noResults = false;
     let waiting = false;
 
-    const specialCharacters = config.mainFeatures['input-buttons']?.split(' ')
+    const specialCharacters = config.mainFeatures['input-buttons']
+        ?.split(' ')
         .filter((x) => x !== '');
 
     async function ensureInitialized() {
@@ -97,7 +98,7 @@
     });
 </script>
 
-<form class="w-full max-w-md p-4">
+<form class="w-full max-w-2xl p-4">
     <div class="dy-form-control mb-4">
         <label class="dy-input-group w-full flex">
             <input
