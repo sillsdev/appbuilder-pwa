@@ -96,7 +96,7 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playAudioClip(`${base}/clips/${question.audio}`, listener); //Where does listener come from?
+                    playSound(`${base}/clips/${question.audio}`); //Where does listener come from?
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -115,15 +115,10 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     highlightQuizAnswer(answerIndex);
-                    playAudioClip(`${base}/clips/${answer.audio}`, listener);
+                    playSound(`${base}/clips/${answer.audio}`);
                 }
             }
         }
-    }
-    function playAudioClip(filename, onCompletion) {
-        const audio = new Audio(`${base}/clips/${filename}`);
-        audio.addEventListener('ended', onCompletion);
-        audio.play();
     }
     function getCurrentQuizQuestion() {
         return quiz.questions[questionNum];
