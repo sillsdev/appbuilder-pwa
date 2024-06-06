@@ -2,13 +2,13 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import {
-        audioActive,
         refs,
         t,
         bodyFontSize,
         bodyLineHeight,
         modal,
-        MODAL_TEXT_APPERANCE
+        MODAL_TEXT_APPERANCE,
+        quizAudioActive
     } from '$lib/data/stores';
     import { base } from '$app/paths';
     import { onMount } from 'svelte';
@@ -24,6 +24,7 @@
     let shuffledAnswers = [];
     let score = 0;
     let questionNum = 0;
+    let currentQuizQuestion = null;
     let clicked = false;
     let displayCorrect = false;
     function playSound(path) {
@@ -63,6 +64,7 @@
         clicked = false;
         displayCorrect = false;
         handleQuestionChange();
+        playQuizQuestionAudio();
     }
     function onQuestionAnswered(answer) {
         if (!clicked) {
@@ -78,6 +80,8 @@
                 clicked = true;
                 if (answer.correct) {
                     displayCorrect = true;
+                    currentAnswerIndex = shuffledAnswers.findIndex((a) => a === answer);
+                    playQuizAnswerAudio(currentAnswerIndex);
                 } else {
                     setTimeout(() => {
                         displayCorrect = true;
@@ -85,6 +89,45 @@
                 }
             }, 1000);
         }
+    }
+    function playQuizQuestionAudio() {
+        if (quizAudioActive) {
+            const question = getCurrentQuizQuestion(); //Where does .hasAudio come from?
+            if (question && question.hasAudio) {
+                if (question.hasAudioFilename) {
+                    const listener = () => {
+                        playQuizAnswerAudio(0);
+                    };
+                    playAudioClip(question.audio, listener); //Where does listener come from?
+                } else {
+                    playQuizAnswerAudio(0);
+                }
+            }
+        }
+    }
+    function playQuizAnswerAudio(answerIndex) {
+        if (currentQuizQuestion && quizAudioActive) {
+            if (answerIndex > 0) {
+                answerIndex = answerIndex - 1;
+            }
+            if (answerIndex < currentQuizQuestion.answers.length) {
+                const answer = currentQuizQuestion.answers[answerIndex];
+                if (answer.hasAudio) {
+                    const listener = () => {
+                        playQuizAnswerAudio(answerIndex + 1);
+                    };
+                    playAudioClip(answer.audio, listener);
+                }
+            }
+        }
+    }
+    function playAudioClip(filename, onCompletion) {
+        const audio = new Audio(filename);
+        audio.addEventListener('ended', onCompletion);
+        audio.play();
+    }
+    function getCurrentQuizQuestion() {
+        return quiz.questions[questionNum];
     }
     function getCommentary(score) {
         let result = '';
@@ -114,10 +157,10 @@
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
                         on:click={() => {
-                            $audioActive = !$audioActive;
+                            $quizAudioActive = !$quizAudioActive;
                         }}
                     >
-                        {#if $audioActive}
+                        {#if $quizAudioActive}
                             <AudioIcon.Volume color="white" />
                         {:else}
                             <AudioIcon.Mute color="white" />
