@@ -96,7 +96,7 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playSound(`${base}/clips/${question.audio}`); //Where does listener come from?
+                    playSound(`${base}/clips/${question.audio}`, listener); //Where does listener come from?
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -115,7 +115,7 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     highlightQuizAnswer(answerIndex);
-                    playSound(`${base}/clips/${answer.audio}`);
+                    playSound(`${base}/clips/${answer.audio}`, listener);
                 }
             }
         }
