@@ -307,4 +307,8 @@
         color: rgb(255, 255, 255);
         background-color: rgb(0, 128, 0);
     }
+    .quiz-question-block img {
+        max-width: 100%;
+        max-height: 250px;
+    }
 </style>
