@@ -10,6 +10,7 @@ TODO:
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
+    import { goto } from '$app/navigation';
     export let history: HistoryItem;
 
     $: bc = config.bookCollections.find((x) => x.id === history.collection);
@@ -22,21 +23,29 @@ TODO:
         : history.chapter;
     $: dateFormat = formatDateAndTime(new Date(history.date));
     $: textDirection = bc.style.textDirection;
-</script>
 
-<!-- history cards are alway LTR with the reference following the text direction -->
-<div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <a
-        style="text-decoration:none;"
-        href="{base}/"
-        on:click={() =>
+    function onHistoryClick() {
+        if (history.url) {
+            goto(history.url);
+        } else {
             refs.set({
                 docSet,
                 book: history.book,
                 chapter: history.chapter,
                 verse: history.verse
-            })}
+            })
+            goto(`${base}/`);
+        }
+    }
+</script>
+
+<!-- history cards are alway LTR with the reference following the text direction -->
+<div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div
+        style="text-decoration:none;"
+        on:click={onHistoryClick}
     >
         <div
             class="history-card grid grid-cols-1"
@@ -55,5 +64,5 @@ TODO:
             </div>
             <div class="history-item-date justify-self-start">{dateFormat}</div>
         </div>
-    </a>
+    </div>
 </div>

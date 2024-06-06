@@ -66,10 +66,10 @@ A component to display menu options in a grid.
 
     function handleClick(opt: any) {
         const text = opt.id;
-        const type = opt?.type;
+        const url = opt?.url;
         dispatch('menuaction', {
             text,
-            type
+            url
         });
     }
 </script>

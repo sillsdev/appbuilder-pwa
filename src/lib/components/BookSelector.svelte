@@ -54,14 +54,15 @@ The navbar component.
 
     async function navigateReference(e) {
         // Handle special book navigation first 
-        if (e.detail.tab === b && e.detail?.type === 'quiz'){
+        if (e.detail.tab === b && e.detail?.url){
             const book = e.detail.text;
             addHistory({
                 collection: $refs.collection,
                 book,
-                chapter: "1"
+                chapter: "",
+                url: e.detail.url
             });
-            goto(`${base}/quiz/${$refs.collection}/${book}`);
+            goto(e.detail.url);
             return;
         }
         if (!showChapterSelector) {
@@ -135,6 +136,14 @@ The navbar component.
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
+    function getBookUrl(book) {
+        let url;
+        if (book.type === 'quiz') {
+            url = `${base}/quiz/${$refs.collection}/${book.id}`
+        }
+        return url;
+    }
+
     let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
         var lastGroup = null;
@@ -143,10 +152,10 @@ The navbar component.
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
-                let label = book[bookLabel] || book.name;
-                let cell = { label: label, id: book.id, type: book.type};
-                // Include books only in the catalog (i.e. only supported book types)
-                if (books.find((x) => x.bookCode === book.id)) {
+                const url = getBookUrl(book);
+                if (books.find((x) => x.bookCode === book.id) || url) {
+                    let label = book[bookLabel] || book.name;
+                    let cell = { label, id: book.id, url};
                     let group = book.testament || '';
                     if ((lastGroup == null || group !== lastGroup) && config.mainFeatures['book-group-titles']) {
                         // Create new group
@@ -164,9 +173,6 @@ The navbar component.
                         let cells = groups.at(-1).cells;
                         groups.at(-1).cells = [...cells, cell];
                     }
-                } else if (book.type.toLowerCase() === 'quiz') {
-                    let cells = groups.at(-1).cells;
-                    groups.at(-1).cells = [...cells, cell]
                 }
             });
 
