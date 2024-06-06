@@ -112,7 +112,7 @@
             }
             if (answerIndex < currentQuizQuestion.answers.length) {
                 const answer = currentQuizQuestion.answers[answerIndex];
-                if (answer.hasAudio) {
+                if (answer.audio) {
                     const listener = () => {
                         playQuizAnswerAudio(answerIndex + 1);
                     };
