@@ -15,7 +15,6 @@ type ContentItem = {
     };
     imageFilename?: string;
     linkType?: string;
-    linkLocation?: string;
     linkTarget?: string;
     linkLocation?: string;
 };
@@ -134,7 +133,6 @@ export function convertContents(dataDir: string, verbose: number) {
                 linkType,
                 linkLocation,
                 linkTarget,
-                linkLocation,
                 features
             });
         }
