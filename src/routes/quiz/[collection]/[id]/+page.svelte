@@ -81,7 +81,7 @@
                 if (answer.correct) {
                     displayCorrect = true;
                     currentAnswerIndex = shuffledAnswers.findIndex((a) => a === answer);
-                    playQuizAnswerAudio(currentAnswerIndex); //Audio playing here
+                    playQuizAnswerAudio(currentAnswerIndex);
                 } else {
                     setTimeout(() => {
                         displayCorrect = true;
@@ -92,7 +92,7 @@
     }
     function playQuizQuestionAudio() {
         if (quizAudioActive) {
-            const question = getCurrentQuizQuestion(); //Where does .hasAudio come from?
+            const question = getCurrentQuizQuestion();
             if (question && question.audio) {
                 if (question.audio) {
                     const listener = () => {
