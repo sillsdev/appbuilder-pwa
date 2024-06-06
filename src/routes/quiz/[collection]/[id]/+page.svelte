@@ -18,6 +18,7 @@
     export let data;
 
     let quiz = data.quiz;
+    let textHighlightIndex = -1;
     let displayLabel = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === quiz.id).name;
@@ -27,9 +28,18 @@
     let currentQuizQuestion = quiz.questions[questionNum];
     let clicked = false;
     let displayCorrect = false;
-    function playSound(path) {
+    function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+    function playSound(path, callback) {
         const audio = new Audio();
         audio.src = path;
+        audio.onended = function () {
+            if (callback) {
+                callback();
+            }
+        };
+        console.log(path);
         audio.play();
     }
     function getImageSource(image) {
@@ -87,16 +97,18 @@
                 }
             }, 1000);
         }
+        playQuizAnswerAudio(0);
     }
     function playQuizQuestionAudio() {
-        if (quizAudioActive) {
+        if ($quizAudioActive) {
             const question = getCurrentQuizQuestion();
+            console.log('playQuizQuestion', question?.audio);
             if (question && question.audio) {
                 if (question.audio) {
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playSound(`${base}/clips/${question.audio}`, listener); //Where does listener come from?
+                    playSound(`${base}/clips/${question.audio}`, listener);
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -104,20 +116,19 @@
         }
     }
     function playQuizAnswerAudio(answerIndex) {
-        if (currentQuizQuestion && quizAudioActive) {
-            if (answerIndex > 0) {
-                unhighlightQuizAnswer(answerIndex - 1);
-            }
+        if (currentQuizQuestion && $quizAudioActive) {
+            console.log('playQuizAnswer', answerIndex);
             if (answerIndex < currentQuizQuestion.answers.length) {
                 const answer = currentQuizQuestion.answers[answerIndex];
                 if (answer.audio) {
                     const listener = () => {
                         playQuizAnswerAudio(answerIndex + 1);
                     };
-                    highlightQuizAnswer(answerIndex);
+                    textHighlightIndex = answerIndex;
                     playSound(`${base}/clips/${answer.audio}`, listener);
                 }
             }
+            textHighlightIndex = -1;
         }
     }
     function getCurrentQuizQuestion() {
@@ -136,6 +147,7 @@
     onMount(() => {
         questionNum = 0;
         handleQuestionChange();
+        playQuizQuestionAudio();
     });
 </script>
 
@@ -208,7 +220,7 @@
                             </div>
                             <div class="flex quiz-answer-block justify-center">
                                 <table class="mt-10">
-                                    {#each shuffledAnswers as answer}
+                                    {#each shuffledAnswers as answer, currentIndex}
                                         <tr>
                                             <td>
                                                 <button
@@ -219,15 +231,13 @@
                                                 >
                                                     <div
                                                         class="quiz-answer flex justify-center"
-                                                        style="{clicked &&
-                                                        answer.clicked &&
-                                                        !answer.correct
-                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(128,0,0)'
-                                                            : ''} {clicked &&
-                                                        answer.correct &&
-                                                        (answer.clicked || displayCorrect)
-                                                            ? 'color: rgb(255, 255, 255); background-color: rgb(0,128,0)'
-                                                            : ''}"
+                                                        class:textCorrectSelect={clicked &&
+                                                            answer.correct}
+                                                        class:textWrongSelect={clicked &&
+                                                            answer.clicked &&
+                                                            !answer.correct}
+                                                        class:textHighlight={textHighlightIndex ===
+                                                            currentIndex}
                                                     >
                                                         {answer.text}
                                                     </div>
@@ -299,6 +309,18 @@
     .imageCorrectSelect {
         color: rgb(255, 255, 255);
         background-color: rgb(0, 128, 0);
+    }
+    .textWrongSelect {
+        color: rgb(255, 255, 255);
+        background-color: rgb(193, 27, 23);
+    }
+    .textCorrectSelect {
+        color: rgb(255, 255, 255);
+        background-color: rgb(0, 128, 0);
+    }
+    .textHighlight {
+        color: rgb(0, 0, 0);
+        background-color: rgb(212, 212, 238);
     }
     .quiz-question-block img {
         max-width: 100%;
