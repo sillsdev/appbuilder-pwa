@@ -24,7 +24,7 @@
     let shuffledAnswers = [];
     let score = 0;
     let questionNum = 0;
-    let currentQuizQuestion = null;
+    let currentQuizQuestion = quiz.question[questionNum];
     let clicked = false;
     let displayCorrect = false;
     function playSound(path) {
@@ -93,8 +93,8 @@
     function playQuizQuestionAudio() {
         if (quizAudioActive) {
             const question = getCurrentQuizQuestion(); //Where does .hasAudio come from?
-            if (question && question.hasAudio) {
-                if (question.hasAudioFilename) {
+            if (question && question.audio) {
+                if (question.audio) {
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
@@ -108,7 +108,7 @@
     function playQuizAnswerAudio(answerIndex) {
         if (currentQuizQuestion && quizAudioActive) {
             if (answerIndex > 0) {
-                answerIndex = answerIndex - 1;
+                unhighlightQuizAnswer(answerIndex - 1);
             }
             if (answerIndex < currentQuizQuestion.answers.length) {
                 const answer = currentQuizQuestion.answers[answerIndex];
@@ -116,7 +116,8 @@
                     const listener = () => {
                         playQuizAnswerAudio(answerIndex + 1);
                     };
-                    playAudioClip(answer.audio, listener);
+                    highlightQuizAnswer(answerIndex);
+                    playAudioClip(answer.audioFilename, listener);
                 }
             }
         }
