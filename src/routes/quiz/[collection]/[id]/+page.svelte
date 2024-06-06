@@ -24,7 +24,7 @@
     let shuffledAnswers = [];
     let score = 0;
     let questionNum = 0;
-    let currentQuizQuestion = quiz.question[questionNum];
+    let currentQuizQuestion = quiz.questions[questionNum];
     let clicked = false;
     let displayCorrect = false;
     function playSound(path) {
@@ -81,7 +81,7 @@
                 if (answer.correct) {
                     displayCorrect = true;
                     currentAnswerIndex = shuffledAnswers.findIndex((a) => a === answer);
-                    playQuizAnswerAudio(currentAnswerIndex);
+                    playQuizAnswerAudio(currentAnswerIndex); //Audio playing here
                 } else {
                     setTimeout(() => {
                         displayCorrect = true;
@@ -98,7 +98,7 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playAudioClip(question.audio, listener); //Where does listener come from?
+                    playAudioClip(`${base}/clips/${question.audio}`, listener); //Where does listener come from?
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -117,13 +117,13 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     highlightQuizAnswer(answerIndex);
-                    playAudioClip(answer.audioFilename, listener);
+                    playAudioClip(`${base}/clips/${answer.audio}`, listener);
                 }
             }
         }
     }
     function playAudioClip(filename, onCompletion) {
-        const audio = new Audio(filename);
+        const audio = new Audio(`${base}/clips/${filename}`);
         audio.addEventListener('ended', onCompletion);
         audio.play();
     }
