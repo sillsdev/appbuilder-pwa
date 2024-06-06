@@ -80,8 +80,6 @@
                 clicked = true;
                 if (answer.correct) {
                     displayCorrect = true;
-                    currentAnswerIndex = shuffledAnswers.findIndex((a) => a === answer);
-                    playQuizAnswerAudio(currentAnswerIndex);
                 } else {
                     setTimeout(() => {
                         displayCorrect = true;
