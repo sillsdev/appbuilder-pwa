@@ -1,4 +1,4 @@
-import contents from "$lib/data/contents"
+import contents from '$lib/data/contents';
 
 export async function load({ params }) {
     const id = Number(params.id);

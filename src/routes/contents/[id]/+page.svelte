@@ -38,12 +38,14 @@
                         window.open(`${item.linkTarget}`, '_blank');
                         break;
                 }
-
-            //there is also an example quiz, but I don't think it's ready?
-            //currently the linkType for that is reference
+                break;
 
             default:
-            //type not handled
+                // For other book types (e.g. quiz), the linkType will be 
+                // the book type and the linkLocation will have the route 
+                // to the viewer of the book type.
+                goto(`${base}/${item.linkLocation}`);
+                break;
         }
     }
 

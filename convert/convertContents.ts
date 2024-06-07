@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
+import { ConfigTaskOutput } from './convertConfig';
 
 type ContentItem = {
     id: number;
@@ -60,7 +61,7 @@ function decodeFromXml(input: string): string {
         .replace('&amp;', '&');
 }
 
-export function convertContents(dataDir: string, verbose: number) {
+export function convertContents(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const contentsFile = path.join(dataDir, 'contents.xml');
     if (!existsSync(contentsFile)) {
         return data;
@@ -111,9 +112,9 @@ export function convertContents(dataDir: string, verbose: number) {
             const imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
 
             const linkTags = itemTag.getElementsByTagName('link');
-            const linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
+            let linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
             const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value;
-            const linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
+            let linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
 
             const features: any = {};
 
@@ -122,6 +123,26 @@ export function convertContents(dataDir: string, verbose: number) {
                 const value = featureTag.attributes.getNamedItem('value')!.value;
                 const name = featureTag.attributes.getNamedItem('name')!.value;
                 features[name] = parseFeatureValue(value);
+            }
+
+            if (linkType === 'reference') {
+                // In the native app, app of the books are handled by the BookFragment.
+                // In the PWA, we have different routes for different book types since
+                // Proskomma can only handle USFM and the other book types include non-
+                // standard SFM tags.
+
+                configData.data.bookCollections?.some((collection) => {
+                    if (verbose) console.log(`Searching for ${linkTarget} in ${collection.id}`);
+                    const book = collection.books.find((x) => x.id === linkTarget);
+                    if (book && book.type) {
+                        // We found a book and the book.type is not default (i.e. undefined)
+                        if (verbose)
+                            console.log(`Found ${linkTarget} in ${collection.id} as ${book.type}`);
+                        linkType = book.type;
+                        linkLocation = `${linkType}/${collection.id}/${linkTarget}`;
+                        return true;
+                    }
+                });
             }
 
             data.items.push({
@@ -181,13 +202,15 @@ export interface ContentsTaskOutput extends TaskOutput {
 }
 
 export class ConvertContents extends Task {
-    public triggerFiles: string[] = ['contents.xml'];
+    public triggerFiles: string[] = ['contents.xml', 'appdef.xml'];
 
     constructor(dataDir: string) {
         super(dataDir);
     }
-    public run(verbose: number): ContentsTaskOutput {
-        const data = convertContents(this.dataDir, verbose);
+    public run(verbose: number, outputs: Map<string, TaskOutput>): ContentsTaskOutput {
+        const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+
+        const data = convertContents(this.dataDir, config, verbose);
         return {
             taskName: 'ConvertContents',
             data,
