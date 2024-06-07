@@ -1,4 +1,5 @@
 import { openDB, type DBSchema } from 'idb';
+import { logScreenView } from '$lib/data/analytics';
 
 export interface HistoryItem {
     date: number;
@@ -50,6 +51,7 @@ export async function addHistory(item: {
     //console.log("setNextItem", nextItem);
     nextTimer = setTimeout(async () => {
         await history.add('history', nextItem);
+        logScreenView(nextItem);
         //console.log("addHistory", nextItem);
         clearTimeout(nextTimer);
         nextTimer = null;
