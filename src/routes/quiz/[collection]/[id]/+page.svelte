@@ -45,7 +45,6 @@
                     callback();
                 }
             };
-            console.log(path);
             currentQuestionAudio.play();
         } else if (type === 'answer') {
             stopCurrentAnswerAudio();
@@ -56,7 +55,6 @@
                     callback();
                 }
             };
-            console.log(path);
             currentAnswerAudio.play();
         }
     }
@@ -116,6 +114,8 @@
     }
 
     function onQuestionAnswered(answer) {
+        textHighlightIndex = -1;
+        console.log(textHighlightIndex);
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
         if (!clicked) {
@@ -143,7 +143,7 @@
     function playQuizQuestionAudio() {
         if ($quizAudioActive) {
             const question = getCurrentQuizQuestion();
-            console.log('playQuizQuestion', question?.audio);
+            //console.log('playQuizQuestion', question?.audio);
             if (question && question.audio) {
                 if (question.audio) {
                     const listener = () => {
@@ -159,7 +159,7 @@
 
     function playQuizAnswerAudio(answerIndex) {
         if (currentQuizQuestion && $quizAudioActive) {
-            console.log('playQuizAnswer', answerIndex);
+            //console.log('playQuizAnswer', answerIndex);
             if (answerIndex < currentQuizQuestion.answers.length) {
                 const answer = currentQuizQuestion.answers[answerIndex];
                 if (answer.audio) {
