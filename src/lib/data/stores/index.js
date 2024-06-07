@@ -1,3 +1,4 @@
+export * from './analytics';
 export * from './annotation';
 export * from './audio';
 export * from './collection';

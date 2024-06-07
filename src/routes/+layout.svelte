@@ -2,6 +2,7 @@
     import catalog from '$lib/data/catalogData';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import {
+        analytics,
         direction,
         s,
         refs,
@@ -24,6 +25,10 @@
         catalog.setFetch(fetch);
         // When this async function completes, $refs.intialized will be true.
         refs.init();
+    }
+
+    if (!$analytics.initialized) {
+        analytics.init();
     }
 
     $: $modal, showModal();
