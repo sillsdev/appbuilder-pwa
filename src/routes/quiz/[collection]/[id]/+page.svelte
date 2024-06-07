@@ -195,6 +195,7 @@
     }
 
     function getCurrentQuizQuestion() {
+        // If toggle on, return shuffle, else: return quiz.questions[questionNum];
         return shuffledQuestions[questionNum];
     }
 

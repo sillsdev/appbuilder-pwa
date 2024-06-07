@@ -32,9 +32,11 @@ The navbar component.
     $: v = $t.Selector_Verse;
 
     let bookSelector;
-    $: label = displayLabel ?? config.bookCollections
-        .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === book).name;
+    $: label =
+        displayLabel ??
+        config.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books.find((x) => x.id === book).name;
 
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -53,13 +55,13 @@ The navbar component.
      */
 
     async function navigateReference(e) {
-        // Handle special book navigation first 
-        if (e.detail.tab === b && e.detail?.url){
+        // Handle special book navigation first
+        if (e.detail.tab === b && e.detail?.url) {
             const book = e.detail.text;
             addHistory({
                 collection: $refs.collection,
                 book,
-                chapter: "",
+                chapter: '',
                 url: e.detail.url
             });
             goto(e.detail.url);
@@ -139,7 +141,7 @@ The navbar component.
     function getBookUrl(book) {
         let url;
         if (book.type === 'quiz') {
-            url = `${base}/quiz/${$refs.collection}/${book.id}`
+            url = `${base}/quiz/${$refs.collection}/${book.id}`;
         }
         return url;
     }
@@ -148,16 +150,18 @@ The navbar component.
         let groups = [];
         var lastGroup = null;
 
-        console.log(config.bookCollections);
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
                 const url = getBookUrl(book);
                 if (books.find((x) => x.bookCode === book.id) || url) {
                     let label = book[bookLabel] || book.name;
-                    let cell = { label, id: book.id, url};
+                    let cell = { label, id: book.id, url };
                     let group = book.testament || '';
-                    if ((lastGroup == null || group !== lastGroup) && config.mainFeatures['book-group-titles']) {
+                    if (
+                        (lastGroup == null || group !== lastGroup) &&
+                        config.mainFeatures['book-group-titles']
+                    ) {
                         // Create new group
                         groups.push({
                             header: book.testament
