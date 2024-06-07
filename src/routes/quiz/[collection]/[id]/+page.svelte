@@ -273,6 +273,8 @@
                                                 <button
                                                     class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8}"
                                                     on:click={() => {
+                                                        textHighlightIndex = -1;
+                                                        console.log(textHighlightIndex);
                                                         onQuestionAnswered(answer);
                                                     }}
                                                 >
@@ -320,6 +322,8 @@
                                                 src={getImageSource(answer.image)}
                                                 alt={answer.text}
                                                 on:click={() => {
+                                                    textHighlightIndex = -1;
+                                                    console.log(textHighlightIndex);
                                                     onQuestionAnswered(answer);
                                                 }}
                                             />
