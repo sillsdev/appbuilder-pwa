@@ -115,7 +115,6 @@
 
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
-        console.log(textHighlightIndex);
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
         if (!clicked) {
@@ -143,7 +142,6 @@
     function playQuizQuestionAudio() {
         if ($quizAudioActive) {
             const question = getCurrentQuizQuestion();
-            //console.log('playQuizQuestion', question?.audio);
             if (question && question.audio) {
                 if (question.audio) {
                     const listener = () => {
@@ -159,7 +157,6 @@
 
     function playQuizAnswerAudio(answerIndex) {
         if (currentQuizQuestion && $quizAudioActive) {
-            //console.log('playQuizAnswer', answerIndex);
             if (answerIndex < currentQuizQuestion.answers.length) {
                 const answer = currentQuizQuestion.answers[answerIndex];
                 if (answer.audio) {
@@ -273,8 +270,6 @@
                                                 <button
                                                     class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8}"
                                                     on:click={() => {
-                                                        textHighlightIndex = -1;
-                                                        console.log(textHighlightIndex);
                                                         onQuestionAnswered(answer);
                                                     }}
                                                 >
@@ -322,8 +317,6 @@
                                                 src={getImageSource(answer.image)}
                                                 alt={answer.text}
                                                 on:click={() => {
-                                                    textHighlightIndex = -1;
-                                                    console.log(textHighlightIndex);
                                                     onQuestionAnswered(answer);
                                                 }}
                                             />
