@@ -591,10 +591,50 @@ LOGGING:
             addVideoLinks(document, videos);
         }
     }
+
+    // Add CSS for fullscreen popup
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .fullscreen-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .fullscreen-popup img {
+        max-width: 90%;
+        max-height: 90%;
+        border: 2px solid white;
+    }
+
+    .fullscreen-popup .close-btn {
+        position: absolute;
+        top: 10px;
+        left: 40px;
+        background: none;
+        border: none;
+        font-size: 35px;
+        color: white;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .fullscreen-popup .close-btn::before {
+        content: '\\2190'; /* Unicode for left arrow */
+    }
+    `;
+    document.head.appendChild(style);
+
     function addIllustrations(illustrations) {
         if (illustrations) {
             illustrations.forEach((illustration, index) => {
-                // ref can be MAT 1:1 or MAT.1.1
                 let verse = illustration.placement.ref.split(/[:.]/).at(-1);
                 const illustrationBlockDiv = createIllustrationBlock(
                     illustration.filename,
@@ -610,7 +650,8 @@ LOGGING:
             });
         }
     }
-    function createIllustrationBlock(source: string, caption?: string) {
+
+    function createIllustrationBlock(source, caption) {
         const imageSource = base + '/illustrations/' + source;
         const divFigure = document.createElement('div');
         divFigure.classList.add('image-block');
@@ -619,6 +660,7 @@ LOGGING:
         const figureImg = document.createElement('img');
         figureImg.setAttribute('src', imageSource);
         figureImg.style.display = 'inline-block';
+        figureImg.addEventListener('click', () => showFullscreenPopup(imageSource));
         spanFigure.appendChild(figureImg);
         divFigure.appendChild(spanFigure);
         if (caption !== null && caption !== '') {
@@ -627,7 +669,8 @@ LOGGING:
         }
         return divFigure;
     }
-    function createIllustrationCaptionBlock(caption: string) {
+
+    function createIllustrationCaptionBlock(caption) {
         const divFigureText = document.createElement('div');
         divFigureText.classList.add('caption');
         const spanFigureText = document.createElement('span');
@@ -637,6 +680,27 @@ LOGGING:
         divFigureText.append(spanFigureText);
         return divFigureText;
     }
+
+    function showFullscreenPopup(imageSource) {
+        // Create the fullscreen popup div
+        const fullscreenDiv = document.createElement('div');
+        fullscreenDiv.classList.add('fullscreen-popup');
+
+        const fullscreenImg = document.createElement('img');
+        fullscreenImg.setAttribute('src', imageSource);
+
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('close-btn');
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(fullscreenDiv);
+        });
+
+        fullscreenDiv.appendChild(fullscreenImg);
+        fullscreenDiv.appendChild(closeButton);
+
+        document.body.appendChild(fullscreenDiv);
+    }
+
     function addFooter(document: Document, container: HTMLElement, docSet: string) {
         const collection = docSet.split('_')[1];
         const footer = config.bookCollections.find((x) => x.id === collection)?.footer;
