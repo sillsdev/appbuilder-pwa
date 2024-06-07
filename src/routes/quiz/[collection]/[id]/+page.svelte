@@ -23,6 +23,7 @@
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === quiz.id).name;
     let shuffledAnswers = [];
+    let shuffledQuestions = [];
     let score = 0;
     let questionNum = 0;
     let currentQuizQuestion = quiz.questions[questionNum];
@@ -92,6 +93,26 @@
             ];
         }
         return answerArray;
+    }
+
+    function shuffleQuestions() {
+        shuffledQuestions = shuffleArray(quiz.questions);
+        questionNum = 0;
+        handleQuestionChange();
+    }
+
+    function shuffleArray(array) {
+        let currentIndex = array.length,
+            randomIndex;
+
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
     }
 
     function handleQuestionChange() {
@@ -174,7 +195,7 @@
     }
 
     function getCurrentQuizQuestion() {
-        return quiz.questions[questionNum];
+        return shuffledQuestions[questionNum];
     }
 
     function getCommentary(score) {
@@ -190,6 +211,7 @@
 
     onMount(() => {
         questionNum = 0;
+        shuffleQuestions();
         handleQuestionChange();
         playQuizQuestionAudio();
     });
