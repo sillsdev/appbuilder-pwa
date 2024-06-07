@@ -56,7 +56,26 @@ LOGGING:
     export let font: string;
     export let proskomma: SABProskomma;
 
-    $: scriptureLogs = $userSettings['scripture-logs'] ? {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} : $logs['scripture'];
+    $: scriptureLogs = $userSettings['scripture-logs']
+        ? {
+              root: 1,
+              docResult: 1,
+              document: 1,
+              paragraph: 1,
+              phrase: 1,
+              chapter: 1,
+              verses: 1,
+              text: 1,
+              sequence: 1,
+              wrapper: 1,
+              milestone: 1,
+              blockGraft: 1,
+              inlineGraft: 1,
+              mark: 1,
+              meta: 1,
+              row: 1
+          }
+        : $logs['scripture'];
 
     let container: HTMLElement;
     let displayingIntroduction = false;
@@ -609,11 +628,11 @@ LOGGING:
     }
 
     .fullscreen-popup img {
-        max-width: 90%;
-        max-height: 90%;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
         border: 2px solid white;
     }
-
     .fullscreen-popup .close-btn {
         position: absolute;
         top: 10px;
