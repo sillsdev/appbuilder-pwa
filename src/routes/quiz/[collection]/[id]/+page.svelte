@@ -28,24 +28,60 @@
     let currentQuizQuestion = quiz.questions[questionNum];
     let clicked = false;
     let displayCorrect = false;
+    let currentQuestionAudio = null;
+    let currentAnswerAudio = null;
+
     function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
-    function playSound(path, callback) {
-        const audio = new Audio();
-        audio.src = path;
-        audio.onended = function () {
-            if (callback) {
-                callback();
-            }
-        };
-        console.log(path);
-        audio.play();
+
+    function playSound(path, callback, type = 'answer') {
+        if (type === 'question') {
+            stopCurrentQuestionAudio();
+            currentQuestionAudio = new Audio();
+            currentQuestionAudio.src = path;
+            currentQuestionAudio.onended = function () {
+                if (callback) {
+                    callback();
+                }
+            };
+            console.log(path);
+            currentQuestionAudio.play();
+        } else if (type === 'answer') {
+            stopCurrentAnswerAudio();
+            currentAnswerAudio = new Audio();
+            currentAnswerAudio.src = path;
+            currentAnswerAudio.onended = function () {
+                if (callback) {
+                    callback();
+                }
+            };
+            console.log(path);
+            currentAnswerAudio.play();
+        }
     }
+
+    function stopCurrentQuestionAudio() {
+        if (currentQuestionAudio) {
+            currentQuestionAudio.pause();
+            currentQuestionAudio.currentTime = 0;
+            currentQuestionAudio = null;
+        }
+    }
+
+    function stopCurrentAnswerAudio() {
+        if (currentAnswerAudio) {
+            currentAnswerAudio.pause();
+            currentAnswerAudio.currentTime = 0;
+            currentAnswerAudio = null;
+        }
+    }
+
     function getImageSource(image) {
         let source = `${base}/illustrations/${$refs.collection}-${quiz.id}-${image}`;
         return source;
     }
+
     function shuffleAnswers(answerArray) {
         let currentIndex = answerArray.length,
             randomIndex;
@@ -59,6 +95,7 @@
         }
         return answerArray;
     }
+
     function handleQuestionChange() {
         if (questionNum == quiz.questions.length) {
             shuffledAnswers = [];
@@ -69,6 +106,7 @@
             shuffledAnswers = shuffleAnswers(quiz.questions[questionNum].answers);
         }
     }
+
     function onNextQuestion() {
         questionNum++;
         clicked = false;
@@ -76,7 +114,10 @@
         handleQuestionChange();
         playQuizQuestionAudio();
     }
+
     function onQuestionAnswered(answer) {
+        stopCurrentQuestionAudio();
+        stopCurrentAnswerAudio();
         if (!clicked) {
             const audioPath = answer.correct
                 ? `${base}/assets/quiz-right-answer.mp3`
@@ -97,8 +138,8 @@
                 }
             }, 1000);
         }
-        playQuizAnswerAudio(0);
     }
+
     function playQuizQuestionAudio() {
         if ($quizAudioActive) {
             const question = getCurrentQuizQuestion();
@@ -108,13 +149,14 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playSound(`${base}/clips/${question.audio}`, listener);
+                    playSound(`${base}/clips/${question.audio}`, listener, 'question');
                 } else {
                     playQuizAnswerAudio(0);
                 }
             }
         }
     }
+
     function playQuizAnswerAudio(answerIndex) {
         if (currentQuizQuestion && $quizAudioActive) {
             console.log('playQuizAnswer', answerIndex);
@@ -126,16 +168,18 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     textHighlightIndex = answerIndex;
-                    playSound(`${base}/clips/${answer.audio}`, listener);
+                    playSound(`${base}/clips/${answer.audio}`, listener, 'answer');
                 }
             } else {
                 textHighlightIndex = -1;
             }
         }
     }
+
     function getCurrentQuizQuestion() {
         return quiz.questions[questionNum];
     }
+
     function getCommentary(score) {
         let result = '';
         for (const commentary of quiz.commentary) {
@@ -146,6 +190,7 @@
         }
         return result;
     }
+
     onMount(() => {
         questionNum = 0;
         handleQuestionChange();
