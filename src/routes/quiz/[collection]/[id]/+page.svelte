@@ -122,13 +122,15 @@
                 const answer = currentQuizQuestion.answers[answerIndex];
                 if (answer.audio) {
                     const listener = () => {
+                        textHighlightIndex = -1;
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     textHighlightIndex = answerIndex;
                     playSound(`${base}/clips/${answer.audio}`, listener);
                 }
+            } else {
+                textHighlightIndex = -1;
             }
-            textHighlightIndex = -1;
         }
     }
     function getCurrentQuizQuestion() {
@@ -256,13 +258,15 @@
                             </div>
                             <div class="flex justify-center flex-wrap mx-4">
                                 <div class="grid grid-cols-2 gap-2">
-                                    {#each shuffledAnswers as answer}
+                                    {#each shuffledAnswers as answer, currentIndex}
                                         <div
                                             class="w-full flex justify-center p-[4%]"
                                             class:imageCorrectSelect={clicked && answer.correct}
                                             class:imageWrongSelect={clicked &&
                                                 answer.clicked &&
                                                 !answer.correct}
+                                            class:textHighlight={textHighlightIndex ===
+                                                currentIndex}
                                         >
                                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                                             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
