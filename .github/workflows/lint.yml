@@ -24,7 +24,9 @@ jobs:
                   npm i
 
             - name: Add config
-              run: echo "export default {};" > src/lib/data/config.js
+              run: |
+                  echo "export default {};" > src/lib/data/config.js
+                  echo "export const firebaseConfig = null;" > src/lib/data/firebase-config.js
 
             - name: Add catalog
               run: echo "export const catalog = [];" > src/lib/data/catalog.js
