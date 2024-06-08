@@ -5,7 +5,7 @@ import {
     type SearchCandidate,
     type SearchOptions
 } from './application';
-import { BufferedReader } from './utils';
+import { BufferedReader } from './utils/buffered-reader';
 
 export interface GQLBooks {
     data: {
