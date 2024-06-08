@@ -677,7 +677,9 @@ LOGGING:
         const figureImg = document.createElement('img');
         figureImg.setAttribute('src', imageSource);
         figureImg.style.display = 'inline-block';
-        figureImg.addEventListener('click', () => showFullscreenPopup(imageSource));
+        if (config.mainFeatures['zoom-illustrations']) {
+            figureImg.addEventListener('click', () => showFullscreenPopup(imageSource));
+        }
         spanFigure.appendChild(figureImg);
         divFigure.appendChild(spanFigure);
         if (caption !== null && caption !== '') {
