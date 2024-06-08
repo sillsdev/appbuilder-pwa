@@ -1,5 +1,5 @@
 import type { Reference, SearchResult } from './entities';
-import { BufferedReader } from './utils';
+import { BufferedReader } from './utils/buffered-reader';
 
 /**
  * Represents a verse that might match the search query.
@@ -37,7 +37,9 @@ abstract class VerseProvider {
 export const SearchInterface = { VerseProvider };
 
 export interface SearchOptions {
-    wholeWords: boolean;
+    wholeWords?: boolean;
+    ignore?: string;
+    equivalent?: string[];
 }
 
 // Finds verses that match the given search parameters.
