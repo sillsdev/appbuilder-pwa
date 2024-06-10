@@ -276,6 +276,7 @@ export class SearchQuery extends SearchQueryBase {
         options: SearchOptions
     ) {
         const configOptions = getConfig();
+        console.log(`searching for '${searchPhrase}`, configOptions);
         const verseProvider = new ProskommaVerseProvider({
             pk,
             searchPhrase,
@@ -285,6 +286,8 @@ export class SearchQuery extends SearchQueryBase {
             docSet,
             collection
         });
+        options.equivalent = configOptions.equivalent;
+        options.ignore = configOptions.ignore;
         super(searchPhrase, verseProvider, options);
     }
 }
