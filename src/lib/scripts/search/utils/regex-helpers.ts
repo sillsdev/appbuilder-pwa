@@ -37,28 +37,15 @@ class RegexGroup {
  *
  * Options:
  *  - ignore: A group of tokens that may occur anywhere in a match.
- *  - wholeWords: Whether to only match whole words
- *
- *
- * ===================== !! WARNING !! ================================
- * As of now, this class defines a "word" as a string of
- * alphanumeric ASCII characters. We should add the option to override this
- * definition with a custom character set.
- * ====================================================================
+ *  - capture: Whether to wrap the match in a Regex capture group
  */
 class RegexString {
     private pattern: string;
 
-    constructor(
-        chars: RegexGroup[],
-        options: { ignore?: RegexGroup; capture?: boolean; wholeWords?: boolean } = {}
-    ) {
+    constructor(chars: RegexGroup[], options: { ignore?: RegexGroup; capture?: boolean } = {}) {
         const charPatterns = chars.map((c) => c.toString());
         const ignorePattern = options.ignore ? options.ignore.toString() + '*' : '';
         this.pattern = ignorePattern + charPatterns.join(ignorePattern) + ignorePattern;
-        if (options.wholeWords) {
-            this.pattern = '\\b' + this.pattern + '\\b';
-        }
         if (options.capture) {
             this.pattern = '(' + this.pattern + ')';
         }
@@ -102,7 +89,6 @@ export function makeRegex(
     options: {
         equivalent?: string[];
         ignore?: string;
-        wholeWords?: boolean;
         capture?: boolean;
     } = {}
 ): RegExp {
@@ -114,7 +100,6 @@ export function makeRegexPattern(
     options: {
         equivalent?: string[];
         ignore?: string;
-        wholeWords?: boolean;
         capture?: boolean;
     } = {}
 ): string {
@@ -122,10 +107,22 @@ export function makeRegexPattern(
     const ignore = options?.ignore ? newGroup(options.ignore) : null;
     const regexString = new RegexString(groups, {
         ignore,
-        wholeWords: options?.wholeWords,
         capture: options?.capture
     });
     return regexString.toString();
 }
 
-export const RegexHelpers = { RegexToken, RegexGroup, RegexString, tokenize, groupFor, makeGroups };
+function toWords(input: string): string[] {
+    const regex = /[\p{L}\p{N}]+/gu;
+    return input.match(regex) || [];
+}
+
+export const RegexHelpers = {
+    RegexToken,
+    RegexGroup,
+    RegexString,
+    tokenize,
+    groupFor,
+    makeGroups,
+    wordsOf: toWords
+};

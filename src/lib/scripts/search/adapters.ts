@@ -6,7 +6,7 @@ import {
     type SearchOptions
 } from './application';
 import { BufferedReader } from './utils/buffered-reader';
-import { makeRegexPattern } from './utils/regex-helpers';
+import { RegexHelpers, makeRegexPattern } from './utils/regex-helpers';
 import config from '$lib/data/config';
 
 export interface GQLBooks {
@@ -47,9 +47,12 @@ function keywordToRegex(
     equivalent: string[] = []
 ) {
     let pattern = word;
-    pattern = makeRegexPattern(pattern, { wholeWords, ignore, equivalent });
+    pattern = makeRegexPattern(pattern, { ignore, equivalent });
     pattern = pattern.replaceAll('\\', '\\\\');
     pattern = pattern.replaceAll('"', '\\"');
+    if (wholeWords) {
+        pattern = '^' + pattern + '$';
+    }
     return pattern;
 }
 
@@ -61,11 +64,6 @@ function searchParams(
 ): string {
     const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, equivalent));
     return `withMatchingChars: ["${terms.join('", "')}"]`;
-}
-
-function tokenize(input: string): string[] {
-    const regex = /[\p{L}\p{N}]+/gu;
-    return input.match(regex) || [];
 }
 
 /**
@@ -90,7 +88,6 @@ function chapterVerseFromScopes(scopes: string[]): string {
 
 export const gqlSearchHelpers = {
     keywordToRegex,
-    tokenize,
     chapterVerseFromScopes
 };
 
@@ -109,7 +106,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         this.docSet = args.docSet;
         this.collection = args.collection;
 
-        const tokens = tokenize(args.searchPhrase);
+        const tokens = RegexHelpers.wordsOf(args.searchPhrase);
         this.searchIsBlank = tokens.length === 0;
 
         this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.equivalent);

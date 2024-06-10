@@ -115,56 +115,6 @@ describe('RegexString', () => {
         const regex = new RegExp(pattern);
         expect('Hello xyaxyxbçyd world'.match(regex)?.slice()).toEqual(['xyaxyxbçy', 'xyaxyxbçy']);
     });
-
-    describe('Whole words', () => {
-        test('Does not match parital word', () => {
-            const a = new RegexGroup([new RegexToken('a')]);
-            const b = new RegexGroup([new RegexToken('b')]);
-            const c = new RegexGroup([new RegexToken('c'), new RegexToken('d')]);
-            const ignored = new RegexGroup([new RegexToken('x'), new RegexToken('y')]);
-            const pattern = new RegexString([a, b, c], {
-                ignore: ignored,
-                capture: true,
-                wholeWords: true
-            }).toString();
-            const regex = new RegExp(pattern);
-            expect('Hello xyaxyxbdyd world'.match(regex)).toBeNull();
-        });
-
-        test('Matches whole word', () => {
-            const a = new RegexGroup([new RegexToken('a')]);
-            const b = new RegexGroup([new RegexToken('b')]);
-            const c = new RegexGroup([new RegexToken('c'), new RegexToken('d')]);
-            const ignored = new RegexGroup([new RegexToken('x'), new RegexToken('y')]);
-            const pattern = new RegexString([a, b, c], {
-                ignore: ignored,
-                capture: true,
-                wholeWords: true
-            }).toString();
-            const regex = new RegExp(pattern);
-            expect('Hello xyaxyxbdy world'.match(regex)?.slice()).toEqual([
-                'xyaxyxbdy',
-                'xyaxyxbdy'
-            ]);
-        });
-
-        test('Matches whole word with trailing comma', () => {
-            const a = new RegexGroup([new RegexToken('a')]);
-            const b = new RegexGroup([new RegexToken('b')]);
-            const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-            const ignored = new RegexGroup([new RegexToken('x'), new RegexToken('y')]);
-            const pattern = new RegexString([a, b, c], {
-                ignore: ignored,
-                capture: true,
-                wholeWords: true
-            }).toString();
-            const regex = new RegExp(pattern);
-            expect('Hello xyaxyxbçy, world'.match(regex)?.slice()).toEqual([
-                'xyaxyxbçy',
-                'xyaxyxbçy'
-            ]);
-        });
-    });
 });
 
 describe('tokenize', () => {
@@ -210,18 +160,6 @@ describe('makeRegex', () => {
         expect('yellow'.match(regex)?.slice()).toEqual(['yellow']);
     });
 
-    describe('Whole words', () => {
-        const regex = makeRegex('am', { wholeWords: true });
-
-        test('Matches whole word', () => {
-            expect(regex.test('am')).toBe(true);
-        });
-
-        test('Does not match partial word', () => {
-            expect(regex.test('ham')).toBe(false);
-        });
-    });
-
     test('Capture', () => {
         const regex = makeRegex('am', { capture: true });
         expect('am'.match(regex).slice()).toEqual(['am', 'am']);
@@ -237,25 +175,35 @@ describe('makeRegex', () => {
         const equivalent = ['ab'];
 
         describe('Search for "tom"', () => {
-            const regex = makeRegex('tom', { ignore, equivalent, wholeWords: true });
+            const regex = makeRegex('tom', { ignore, equivalent });
 
             test('Matches atom', () => {
-                expect(regex.test('atom')).toBe(true);
+                expect('atom'.match(regex).slice()).toEqual(['atom']);
             });
 
             test('Does not match btom', () => {
-                expect(regex.test('btom')).toBe(false);
+                expect('btom'.match(regex).slice()).toEqual(['tom']);
             });
         });
 
         test('Search for "bxy" find "axy"', () => {
-            const regex = makeRegex('bxy', { ignore, equivalent, wholeWords: true });
-            expect(regex.test('axy')).toBe(true);
+            const regex = makeRegex('bxy', { ignore, equivalent });
+            expect('axy'.match(regex).slice()).toEqual(['axy']);
         });
 
         test('Search for "axy" find "bxy"', () => {
-            const regex = makeRegex('axy', { ignore, equivalent, wholeWords: true });
-            expect(regex.test('bxy')).toBe(true);
+            const regex = makeRegex('axy', { ignore, equivalent });
+            expect('bxy'.match(regex).slice()).toEqual(['bxy']);
         });
+    });
+});
+
+describe('toWords', () => {
+    test('splits on whitespace', () => {
+        expect(RegexHelpers.wordsOf('  some\n thing\tgreat ')).toEqual(['some', 'thing', 'great']);
+    });
+
+    test('Retuns empty array if only whitespace', () => {
+        expect(RegexHelpers.wordsOf('  \n \t ')).toEqual([]);
     });
 });
