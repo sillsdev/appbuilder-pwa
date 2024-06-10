@@ -1,6 +1,6 @@
 import type { Reference, SearchResult } from './entities';
 import { BufferedReader } from './utils/buffered-reader';
-import { makeRegex } from './utils/regex-helpers';
+import { RegexHelpers, makeRegex, makeRegexPattern } from './utils/regex-helpers';
 
 /**
  * Represents a verse that might match the search query.
@@ -87,30 +87,60 @@ export abstract class SearchQueryBase {
     }
 
     private splitChunks(text: string) {
-        const regex = makeRegex(this.searchPhrase, {
-            ignore: this.options?.ignore,
-            equivalent: this.options?.equivalent,
-            capture: true,
-            wholeWords: this.options?.wholeWords
-        });
-        const chunks = text
-            .split(regex)
-            .filter((part) => part)
-            .map((part) => {
-                return {
-                    content: part,
-                    matchesQuery: part === this.searchPhrase
-                };
-            });
-        return chunks;
+        // Split the text and search phrase into characters or whole words.
+        const tokens = this.options.wholeWords ? RegexHelpers.wordsOf(text) : [...text];
+        const groupBy = this.options.wholeWords
+            ? RegexHelpers.wordsOf(this.searchPhrase)
+            : [...this.searchPhrase];
+
+        return this.groupTokens(tokens, groupBy).map((g) => ({
+            content: g.join(''),
+            matchesQuery: g.join('') === this.searchPhrase
+        }));
+    }
+
+    /**
+     * Group string tokens into groups that match groupBy and groups that do not.
+     */
+    private groupTokens(tokens: string[], groupBy: string[]): string[][] {
+        const groups = [];
+        let grp = []; // Holds a group that does not match groupBy
+        let i = 0; // The number of consecutive characters that have matched groupBy
+        for (const t of tokens) {
+            if (i >= groupBy.length) {
+                // Found a complete match.
+                groups.push(grp, groupBy);
+                grp = [];
+                i = 0;
+            }
+            if (t === groupBy[i]) {
+                // Keep looking to see if the next token matches.
+                i++;
+            } else {
+                // Push t along with any tokens from a partial match.
+                grp.push(...groupBy.slice(0, i), t);
+                i = 0;
+            }
+        }
+        // Push remaining non-matching tokens.
+        if (grp.length) {
+            groups.push(grp);
+        }
+        return groups;
     }
 
     private matchesQuery(text: string): boolean {
-        const pattern = makeRegex(this.searchPhrase, {
+        let pattern = makeRegexPattern(this.searchPhrase, {
             ignore: this.options?.ignore,
-            equivalent: this.options?.equivalent,
-            wholeWords: this.options?.wholeWords
+            equivalent: this.options?.equivalent
         });
-        return pattern.test(text);
+        if (this.options.wholeWords) {
+            pattern = '^' + pattern + '$';
+        }
+        const regex = new RegExp(pattern);
+
+        return this.options?.wholeWords
+            ? RegexHelpers.wordsOf(text).some((w) => regex.test(w))
+            : regex.test(text);
     }
 }

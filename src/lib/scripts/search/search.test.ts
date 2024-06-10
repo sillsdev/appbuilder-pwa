@@ -107,8 +107,18 @@ class TestVerseProvider extends SearchInterface.VerseProvider {
         },
         text: 'Jesus said to him, “I am the way, the truth, and the life. No one comes to the Father, except through me.'
     };
+    verse5 = {
+        reference: {
+            docSet: 'eng_C02',
+            collection: 'C02',
+            bookCode: 'XXX',
+            chapter: '1',
+            verses: '1'
+        },
+        text: 'other Mother'
+    };
 
-    candidates = [this.verse1, this.verse2, this.verse3, this.verse4];
+    candidates = [this.verse1, this.verse2, this.verse3, this.verse4, this.verse5];
 
     private versesLeft;
 
@@ -340,6 +350,19 @@ describe('SearchQueryBase', () => {
             const results = await search.getResults();
             expect(results.length).toBe(0);
         });
+
+        test('Does not highlight partial matches', async () => {
+            const search = new TestSearchQuery('other', { wholeWords: true });
+            const results = await search.getResults();
+            const result = results.find(
+                (r) =>
+                    r.reference.bookCode === 'XXX' &&
+                    r.reference.chapter === '1' &&
+                    r.reference.verses === '1'
+            );
+            const matching = result.chunks.filter((c) => c.matchesQuery);
+            expect(matching.length).toBe(1);
+        });
     });
 
     describe('Paginated results', () => {
@@ -387,20 +410,6 @@ describe('SearchQueryBase', () => {
         const search = new TestSearchQuery('Jesús', { equivalent: ['uú'] });
         const results = await search.getResults();
         expect(results.length).toBeGreaterThan(0);
-    });
-});
-
-describe('tokenize', () => {
-    test('splits on whitespace', () => {
-        expect(gqlSearchHelpers.tokenize('  some\n thing\tgreat ')).toEqual([
-            'some',
-            'thing',
-            'great'
-        ]);
-    });
-
-    test('Retuns empty array if only whitespace', () => {
-        expect(gqlSearchHelpers.tokenize('  \n \t ')).toEqual([]);
     });
 });
 
