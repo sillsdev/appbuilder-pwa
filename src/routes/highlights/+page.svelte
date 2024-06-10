@@ -3,7 +3,7 @@
     import SortMenu from '$lib/components/SortMenu.svelte';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { refs, t } from '$lib/data/stores';
+    import { bodyFontSize, refs, t } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
     import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
@@ -75,7 +75,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto p-2.5">
+    <div class="overflow-y-auto p-2.5 max-w-screen-md mx-auto" style:font-size="{$bodyFontSize}px">
         {#if $page.data.highlights.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Highlights_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Highlights_None_Info']}</div>

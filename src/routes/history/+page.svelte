@@ -1,7 +1,7 @@
 <script lang="ts">
     import HistoryCard from '$lib/components/HistoryCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
+    import { bodyFontSize, t } from '$lib/data/stores';
     import { clearHistory } from '$lib/data/history';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
@@ -31,7 +31,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto p-2.5">
+    <div class="overflow-y-auto p-2.5 max-w-screen-md mx-auto" style:font-size="{$bodyFontSize}px">
         {#if data.history.length === 0}
             <div class="history-message-none">{$t['History_None']}</div>
             <div class="history-message-none-info">{$t['History_None_Info']}</div>

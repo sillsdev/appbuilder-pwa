@@ -4,7 +4,7 @@
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, monoIconColor, refs, modal, MODAL_NOTE } from '$lib/data/stores';
+    import { t, monoIconColor, refs, modal, MODAL_NOTE, bodyFontSize } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeNote, type NoteItem } from '$lib/data/notes';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
@@ -72,7 +72,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto p-2.5">
+    <div class="overflow-y-auto p-2.5 max-w-screen-md mx-auto" style:font-size="{$bodyFontSize}px">
         {#if $page.data.notes.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Notes_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Notes_None_Info']}</div>
