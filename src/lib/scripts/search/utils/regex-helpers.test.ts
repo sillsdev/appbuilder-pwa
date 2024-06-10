@@ -1,4 +1,4 @@
-import { RegexHelpers, build as makeRegex } from './regex-helpers';
+import { RegexHelpers, makeRegex as makeRegex } from './regex-helpers';
 import { describe, expect, test } from 'vitest';
 
 const RegexToken = RegexHelpers.RegexToken;

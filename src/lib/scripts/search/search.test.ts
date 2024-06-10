@@ -7,6 +7,7 @@ import {
 } from './application';
 import {
     ProksommaSearchInterface,
+    SearchQuery,
     gqlSearchHelpers,
     type GQLBlockToken,
     type GQLBlocks,
@@ -17,15 +18,52 @@ import type { Reference } from './entities';
 import { thaw } from '../thaw';
 import { readFileSync } from 'fs';
 
+const sampleUsfm = `
+\\id MAT 40-MAT-web.sfm World English Bible (WEB) 
+\\ide UTF-8
+\\h Matthew 
+\\toc1 The Good News According to Matthew 
+\\toc2 Matthew 
+\\toc3 Mat 
+\\mt2 The Good News According to 
+\\mt1 Matthew 
+\\c 1  
+\\p
+\\v 1 The book of the genealogy of Jesus Christ,\\f + \\fr 1:1  \\ft Messiah (Hebrew) and Christ (Greek) both mean “Anointed One”\\f* the son of David, the son of Abraham. 
+\\v 2 Abraham became the father of Isaac. Isaac became the father of Jacob. Jacob became the father of Judah and his brothers. 
+\\v 3 Judah became the father of Perez and Zerah by Tamar. Perez became the father of Hezron. Hezron became the father of Ram. 
+\\v 4 Ram became the father of Amminadab. Amminadab became the father of Nahshon. Nahshon became the father of Salmon. 
+\\v 5 $*.?+[]^&{}!<>|-
+`;
+
+async function loadTestUSFM(pk: SABProskomma) {
+    await pk.gqlQuery(
+        `mutation {
+            addDocument(
+                selectors: [
+                    {key: "lang", value: "eng"}, 
+                    {key: "abbr", value: "C01"}
+                ], 
+                contentType: "usfm", 
+                content: """${sampleUsfm}""",
+            )
+        }`
+    );
+}
+
 class EmptyVerseProvider extends SearchInterface.VerseProvider {
+    constructor(searchPhrase: string, options: SearchOptions = {}) {
+        super(searchPhrase, options);
+    }
+
     async getVerses(limit: number): Promise<SearchCandidate[]> {
         return [];
     }
 }
 
 class TestVerseProvider extends SearchInterface.VerseProvider {
-    constructor(searchPhrase: string) {
-        super(searchPhrase);
+    constructor(searchPhrase: string, options: SearchOptions = {}) {
+        super(searchPhrase, options);
         this.versesLeft = this.candidates;
     }
 
@@ -105,7 +143,7 @@ interface VerseProviderOptions {
 
 class TestProskommaVerseProvider extends ProksommaSearchInterface.ProskommaVerseProvider {
     constructor({
-        searchPhrase = '',
+        searchPhrase = 'test',
         wholeWords = false,
         docSet = '',
         collection = ''
@@ -338,114 +376,17 @@ describe('SearchQueryBase', () => {
             });
         });
     });
-});
 
-describe('searchParams', () => {
-    describe('whole words', () => {
-        test('one search word', () => {
-            const result = gqlSearchHelpers.searchParams(['Lazarus'], true);
-            expect(result).toBe('withChars: ["Lazarus"]');
-        });
-
-        test('three search words', () => {
-            const result = gqlSearchHelpers.searchParams(['Lazarus', 'Mary', 'Martha'], true);
-            expect(result).toBe('withChars: ["Lazarus", "Mary", "Martha"]');
-        });
-
-        test('quotation marks are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['"Lazarus"', 'Mary', 'Martha'], true);
-            expect(result).toBe('withChars: ["\\"Lazarus\\"", "Mary", "Martha"]');
-        });
-
-        test('backslashes are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['"Lazarus"\\', 'Mary', 'Martha'], true);
-            expect(result).toBe('withChars: ["\\"Lazarus\\"\\\\", "Mary", "Martha"]');
-        });
+    test('Ignore characters', async () => {
+        const search = new TestSearchQuery('Davd', { ignore: 'i' });
+        const results = await search.getResults();
+        expect(results.length).toBeGreaterThan(0);
     });
 
-    describe('partial words', () => {
-        test('one search word', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz']);
-            expect(result).toBe('withMatchingChars: ["Laz.*"]');
-        });
-
-        test('three search words', () => {
-            const result = gqlSearchHelpers.searchParams(['Lazarus', 'Mary', 'Martha']);
-            expect(result).toBe('withMatchingChars: ["Lazarus.*", "Mary.*", "Martha.*"]');
-        });
-
-        test('quotation marks are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['"Lazarus"', 'Mary', 'Martha']);
-            expect(result).toBe('withMatchingChars: ["\\"Lazarus\\".*", "Mary.*", "Martha.*"]');
-        });
-
-        test('backslashes are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Lazarus\\']);
-            // 4 backslashes in the GraphQL query
-            //   = 2 backslashes in the resulting regex
-            //   = 1 literal backslash
-            expect(result).toBe(String.raw`withMatchingChars: ["Lazarus\\\\.*"]`);
-        });
-
-        test('asterisks are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz*', 'Mary', 'Martha']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\*.*", "Mary.*", "Martha.*"]');
-        });
-
-        test('periods are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz.']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\..*"]');
-        });
-
-        test('question marks are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz?']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\?.*"]');
-        });
-
-        test('plus symbols are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz+']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\+.*"]');
-        });
-
-        test('square brakets are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz[]']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\[\\\\].*"]');
-        });
-
-        test('carats are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz^']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\^.*"]');
-        });
-
-        test('dollar signs are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz$']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\$.*"]');
-        });
-
-        test('curly brakets are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz{}']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\{\\\\}.*"]');
-        });
-
-        test('angle brakets are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz<>']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\<\\\\>.*"]');
-        });
-
-        test('exclamation points are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz!']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\!.*"]');
-        });
-
-        test('pipes are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz|']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\|.*"]');
-        });
-
-        test('hyphens are escaped', () => {
-            const result = gqlSearchHelpers.searchParams(['Laz-']);
-            expect(result).toBe('withMatchingChars: ["Laz\\\\-.*"]');
-        });
+    test('Equivalent characters', async () => {
+        const search = new TestSearchQuery('Jesús', { equivalent: ['uú'] });
+        const results = await search.getResults();
+        expect(results.length).toBeGreaterThan(0);
     });
 });
 
@@ -611,9 +552,163 @@ describe('ProskommaVerseProvider', () => {
             expect(blockResponse).toHaveProperty('data');
         });
     });
+
+    test('Escapes double quotes in search', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: '"',
+            wholeWords: true,
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+
+        const results = await provider.getVerses();
+        expect(results.length).toBe(0);
+    });
+
+    test('Ignores punctuation', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'David,',
+            wholeWords: false,
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+
+        const results = await provider.getVerses();
+        expect(results.length).toBeGreaterThan(0);
+    });
+
+    test('If word is not found, returns no results', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'Hello',
+            wholeWords: false,
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+
+        const results = await provider.getVerses();
+        expect(results.length).toBe(0);
+    });
+
+    describe('Whole words', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        test('Matches whole word', async () => {
+            const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+                pk,
+                searchPhrase: 'Abraham',
+                wholeWords: true,
+                docSet: 'eng_C01',
+                collection: 'C01'
+            });
+            const results = await provider.getVerses();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('Does not match partial word', async () => {
+            const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+                pk,
+                searchPhrase: 'braham',
+                wholeWords: true,
+                docSet: 'eng_C01',
+                collection: 'C01'
+            });
+            const results = await provider.getVerses();
+            expect(results.length).toBe(0);
+        });
+    });
+
+    test('Ignore characters', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'Heron',
+            wholeWords: false,
+            ignore: 'z',
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+        const verses = await provider.getVerses();
+        expect(verses.length).toBeGreaterThan(0);
+    });
+
+    test('Equivalent characters', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'Jesús',
+            wholeWords: false,
+            equivalent: ['uú'],
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+        const verses = await provider.getVerses();
+        expect(verses.length).toBeGreaterThan(0);
+    });
 });
 
 test('chapterVerseFromScopes', () => {
     const scopes = ['chapter/11', 'verses/1'];
     expect(gqlSearchHelpers.chapterVerseFromScopes(scopes)).toBe('11:1');
+});
+
+describe('keywordToRegex', () => {
+    test('escapes Regex characters', () => {
+        const phrase = '$*. \\ ?+[]^&{}!<>|-';
+        const pattern = gqlSearchHelpers.keywordToRegex(phrase);
+
+        // Resolve escaped quotes and backslashes the way GraphQL would.
+        let parsed = '';
+        let escape = false;
+        for (const c of pattern) {
+            if (escape) {
+                if (c === '"') {
+                    parsed += '"';
+                } else if (c === '\\') {
+                    parsed += '\\';
+                } else {
+                    throw new Error('Unknown escape sequence: \\' + c);
+                }
+                escape = false;
+            } else if (c === '\\') {
+                escape = true;
+            } else {
+                parsed += c;
+            }
+        }
+
+        const regex = new RegExp(parsed);
+
+        // Phrase should match literally.
+        expect(phrase.match(regex).slice(), `Bad match from regex pattern '${parsed}'`).toEqual([
+            phrase
+        ]);
+    });
+});
+
+describe('parseConfig', () => {
+    const config = '\\u0300 \\u0301 á>a \\u0302 à>a è>e é>e';
+    const parsed = ProksommaSearchInterface.parseConfig(config);
+
+    test('ignored characters', () => {
+        expect(parsed.ignore).toBe('\u0300\u0301\u0302');
+    });
+
+    test('equivalent characters', () => {
+        expect(parsed.equivalent).toEqual(['áa', 'àa', 'èe', 'ée']);
+    });
 });

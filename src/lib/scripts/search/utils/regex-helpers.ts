@@ -97,7 +97,7 @@ function newGroup(chars: string): RegexGroup {
  *  - ignore: The presence of these characters in the input or the
  *    searched text will not affect the search results.
  */
-export function build(
+export function makeRegex(
     input: string,
     options: {
         equivalent?: string[];
@@ -106,6 +106,18 @@ export function build(
         capture?: boolean;
     } = {}
 ): RegExp {
+    return new RegExp(makeRegexPattern(input, options));
+}
+
+export function makeRegexPattern(
+    input: string,
+    options: {
+        equivalent?: string[];
+        ignore?: string;
+        wholeWords?: boolean;
+        capture?: boolean;
+    } = {}
+): string {
     const groups = makeGroups(input, options?.equivalent);
     const ignore = options?.ignore ? newGroup(options.ignore) : null;
     const regexString = new RegexString(groups, {
@@ -113,7 +125,7 @@ export function build(
         wholeWords: options?.wholeWords,
         capture: options?.capture
     });
-    return new RegExp(regexString.toString());
+    return regexString.toString();
 }
 
 export const RegexHelpers = { RegexToken, RegexGroup, RegexString, tokenize, groupFor, makeGroups };
