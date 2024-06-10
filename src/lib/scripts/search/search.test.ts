@@ -363,6 +363,20 @@ describe('SearchQueryBase', () => {
             const matching = result.chunks.filter((c) => c.matchesQuery);
             expect(matching.length).toBe(1);
         });
+
+        test('Chunks reconstruct an actual verse', async () => {
+            const search = new TestSearchQuery('said', { wholeWords: true });
+            const verseProvider = search.verseProvider as TestVerseProvider;
+            const results = await search.getResults();
+            for (const result of results) {
+                let text = '';
+                for (const chunk of result.chunks) {
+                    text += chunk.content;
+                }
+                const matchingVerses = verseProvider.candidates.filter((v) => v.text === text);
+                expect(matchingVerses.length).toBe(1);
+            }
+        });
     });
 
     describe('Paginated results', () => {

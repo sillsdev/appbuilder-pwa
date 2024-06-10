@@ -111,9 +111,9 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
 
         this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.equivalent);
         // Debuging
-        if (args.searchPhrase === '"') {
-            console.log(tokens);
-        }
+        // if (args.searchPhrase === '"') {
+        //     console.log(tokens);
+        // }
     }
 
     pk: SABProskomma;
