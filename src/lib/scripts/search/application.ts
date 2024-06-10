@@ -1,5 +1,6 @@
 import type { Reference, SearchResult } from './entities';
 import { BufferedReader } from './utils/buffered-reader';
+import { makeRegex } from './utils/regex-helpers';
 
 /**
  * Represents a verse that might match the search query.
@@ -13,7 +14,7 @@ export interface SearchCandidate {
  * Queries a database for verses that might match a search query.
  */
 abstract class VerseProvider {
-    constructor(searchPhrase: string) {}
+    constructor(searchPhrase: string, options: SearchOptions) {}
 
     /**
      * Get a list of verses that could match the search query
@@ -86,7 +87,12 @@ export abstract class SearchQueryBase {
     }
 
     private splitChunks(text: string) {
-        const regex = new RegExp(`(${this.searchPhrase})`);
+        const regex = makeRegex(this.searchPhrase, {
+            ignore: this.options?.ignore,
+            equivalent: this.options?.equivalent,
+            capture: true,
+            wholeWords: this.options?.wholeWords
+        });
         const chunks = text
             .split(regex)
             .filter((part) => part)
@@ -100,10 +106,11 @@ export abstract class SearchQueryBase {
     }
 
     private matchesQuery(text: string): boolean {
-        if (this.options.wholeWords) {
-            const pattern = new RegExp('\\b' + this.searchPhrase + '\\b');
-            return pattern.test(text);
-        }
-        return text.includes(this.searchPhrase);
+        const pattern = makeRegex(this.searchPhrase, {
+            ignore: this.options?.ignore,
+            equivalent: this.options?.equivalent,
+            wholeWords: this.options?.wholeWords
+        });
+        return pattern.test(text);
     }
 }

@@ -6,6 +6,8 @@ import {
     type SearchOptions
 } from './application';
 import { BufferedReader } from './utils/buffered-reader';
+import { makeRegexPattern } from './utils/regex-helpers';
+import config from '$lib/data/config';
 
 export interface GQLBooks {
     data: {
@@ -38,30 +40,32 @@ export interface GQLBlocks {
     };
 }
 
-/**
- * Escape characters in a string so as to make it a regex literal.
- */
-function regexSafe(input: string): string {
-    let result = input.replaceAll('\\\\', '\\\\\\\\');
-    for (const c of '$*.?+[]^&{}!<>|-') {
-        result = result.replaceAll(c, `\\\\${c}`);
-    }
-    return result;
+function keywordToRegex(
+    word: string,
+    wholeWords: boolean = false,
+    ignore: string = '',
+    equivalent: string[] = []
+) {
+    let pattern = word;
+    pattern = makeRegexPattern(pattern, { wholeWords, ignore, equivalent });
+    pattern = pattern.replaceAll('\\', '\\\\');
+    pattern = pattern.replaceAll('"', '\\"');
+    return pattern;
 }
 
-function searchParams(keywords: string[], wholeWords: boolean = false): string {
-    const safeKeywords = keywords
-        .map((wd) => wd.replaceAll('\\', '\\\\'))
-        .map((wd) => wd.replaceAll('"', '\\"'));
-    const searchTerms = wholeWords
-        ? safeKeywords
-        : safeKeywords.map((wd) => regexSafe(wd)).map((wd) => wd + '.*');
-    const param = wholeWords ? 'withChars' : 'withMatchingChars';
-    return `${param}: ["${searchTerms.join('", "')}"]`;
+function searchParams(
+    keywords: string[],
+    wholeWords: boolean = false,
+    ignore: string = '',
+    equivalent: string[] = []
+): string {
+    const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, equivalent));
+    return `withMatchingChars: ["${terms.join('", "')}"]`;
 }
 
 function tokenize(input: string): string[] {
-    return input.split(/\s+/).filter((t) => t);
+    const regex = /[\p{L}\p{N}]+/gu;
+    return input.match(regex) || [];
 }
 
 /**
@@ -85,7 +89,7 @@ function chapterVerseFromScopes(scopes: string[]): string {
 }
 
 export const gqlSearchHelpers = {
-    searchParams,
+    keywordToRegex,
     tokenize,
     chapterVerseFromScopes
 };
@@ -95,22 +99,31 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         pk: SABProskomma;
         searchPhrase: string;
         wholeWords: boolean;
+        ignore?: string;
+        equivalent?: string[];
         docSet: string;
         collection: string;
     }) {
-        super(args.searchPhrase);
+        super(args.searchPhrase, {});
         this.pk = args.pk;
         this.docSet = args.docSet;
         this.collection = args.collection;
 
         const tokens = tokenize(args.searchPhrase);
-        this.searchParams = searchParams(tokens, args.wholeWords);
+        this.searchIsBlank = tokens.length === 0;
+
+        this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.equivalent);
+        // Debuging
+        if (args.searchPhrase === '"') {
+            console.log(tokens);
+        }
     }
 
     pk: SABProskomma;
     books: string[];
     nextBook: number;
     searchParams: string;
+    searchIsBlank: boolean;
 
     docSet: string;
     collection: string;
@@ -121,6 +134,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
     });
 
     async getVerses(limit: number = 0): Promise<SearchCandidate[]> {
+        if (this.searchIsBlank) return [];
         await this.ensureBooksSet();
         return await this.verseReader.read(limit);
     }
@@ -218,7 +232,40 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
     }
 }
 
-export const ProksommaSearchInterface = { ProskommaVerseProvider };
+interface SearchConfig {
+    ignore?: string;
+    equivalent?: string[];
+}
+
+function getConfig(): SearchConfig {
+    return parseConfig(config.mainFeatures['search-accents-to-remove']);
+}
+
+function parseConfig(accentsToRemove: string): SearchConfig {
+    const ignore = parseIgnored(accentsToRemove);
+    const equivalent = parseEquivalent(accentsToRemove);
+    return { ignore, equivalent };
+}
+
+function parseEquivalent(accentsToRemove: string) {
+    const equivalent = [];
+    for (const match of accentsToRemove.matchAll(/(\S)>(\S)/g)) {
+        equivalent.push(match[1] + match[2]);
+    }
+    return equivalent;
+}
+
+function parseIgnored(accentsToRemove: string) {
+    let ignore = '';
+    for (const c of accentsToRemove.matchAll(/\\u(03\d\d)/g)) {
+        const codePoint = parseInt(c[1], 16);
+        const char = String.fromCodePoint(codePoint);
+        ignore += char;
+    }
+    return ignore;
+}
+
+export const ProksommaSearchInterface = { ProskommaVerseProvider, parseConfig };
 
 /**
  * Implements search queries using Proskomma
@@ -231,10 +278,13 @@ export class SearchQuery extends SearchQueryBase {
         collection: string,
         options: SearchOptions
     ) {
+        const configOptions = getConfig();
         const verseProvider = new ProskommaVerseProvider({
             pk,
             searchPhrase,
             wholeWords: options.wholeWords,
+            ignore: configOptions.ignore,
+            equivalent: configOptions.equivalent,
             docSet,
             collection
         });
