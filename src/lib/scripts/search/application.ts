@@ -88,9 +88,9 @@ export abstract class SearchQueryBase {
 
     private splitChunks(text: string) {
         // Split the text and search phrase into characters or whole words.
-        const tokens = this.options.wholeWords ? RegexHelpers.wordsOf(text) : [...text];
+        const tokens = this.options.wholeWords ? RegexHelpers.splitByWords(text) : [...text];
         const groupBy = this.options.wholeWords
-            ? RegexHelpers.wordsOf(this.searchPhrase)
+            ? RegexHelpers.splitByWords(this.searchPhrase)
             : [...this.searchPhrase];
 
         return this.groupTokens(tokens, groupBy).map((g) => ({

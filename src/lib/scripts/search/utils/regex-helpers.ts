@@ -112,17 +112,23 @@ export function makeRegexPattern(
     return regexString.toString();
 }
 
-function toWords(input: string): string[] {
+function wordsOf(input: string): string[] {
     const regex = /[\p{L}\p{N}]+/gu;
     return input.match(regex) || [];
+}
+
+function splitByWords(input: string): string[] {
+    const regex = /([\p{L}\p{N}]+)/u;
+    return input.split(regex).filter((w) => w);
 }
 
 export const RegexHelpers = {
     RegexToken,
     RegexGroup,
     RegexString,
-    tokenize,
     groupFor,
     makeGroups,
-    wordsOf: toWords
+    splitByWords,
+    tokenize,
+    wordsOf
 };
