@@ -42,12 +42,18 @@ class RegexGroup {
 class RegexString {
     private pattern: string;
 
-    constructor(chars: RegexGroup[], options: { ignore?: RegexGroup; capture?: boolean } = {}) {
+    constructor(
+        chars: RegexGroup[],
+        options: { ignore?: RegexGroup; capture?: boolean; wholeLine?: boolean } = {}
+    ) {
         const charPatterns = chars.map((c) => c.toString());
         const ignorePattern = options.ignore ? options.ignore.toString() + '*' : '';
         this.pattern = ignorePattern + charPatterns.join(ignorePattern) + ignorePattern;
         if (options.capture) {
             this.pattern = '(' + this.pattern + ')';
+        }
+        if (options.wholeLine) {
+            this.pattern = '^' + this.pattern + '$';
         }
     }
 
@@ -90,6 +96,7 @@ export function makeRegex(
         equivalent?: string[];
         ignore?: string;
         capture?: boolean;
+        wholeLine?: boolean;
     } = {}
 ): RegExp {
     return new RegExp(makeRegexPattern(input, options));
@@ -101,13 +108,15 @@ export function makeRegexPattern(
         equivalent?: string[];
         ignore?: string;
         capture?: boolean;
+        wholeLine?: boolean;
     } = {}
 ): string {
     const groups = makeGroups(input, options?.equivalent);
     const ignore = options?.ignore ? newGroup(options.ignore) : null;
     const regexString = new RegexString(groups, {
         ignore,
-        capture: options?.capture
+        capture: options?.capture,
+        wholeLine: options?.wholeLine
     });
     return regexString.toString();
 }
