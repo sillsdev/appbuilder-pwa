@@ -134,7 +134,6 @@ The navbar component.
 
     /**list of books, quizzes, and quiz groups in current docSet*/
     $: books = $refs.catalog.documents;
-    $: quizzes = $refs.catalog.quizzes;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
 
