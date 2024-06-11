@@ -71,7 +71,7 @@
 
     <div
         id="bookmarks"
-        class="overflow-y-auto p-2.5 max-w-screen-md mx-auto"
+        class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
         {#if $page.data.bookmarks.length === 0}

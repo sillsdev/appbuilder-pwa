@@ -72,7 +72,10 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto p-2.5 max-w-screen-md mx-auto" style:font-size="{$bodyFontSize}px">
+    <div
+        class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
+        style:font-size="{$bodyFontSize}px"
+    >
         {#if $page.data.notes.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Notes_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Notes_None_Info']}</div>
