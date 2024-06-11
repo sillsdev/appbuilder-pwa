@@ -11,7 +11,7 @@
         quizAudioActive
     } from '$lib/data/stores';
     import { base } from '$app/paths';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BookSelector from '$lib/components/BookSelector.svelte';
     /** @type {import('./$types').PageData} */
@@ -210,7 +210,13 @@
         }
         return result;
     }
-
+    function stopAudioPlayback() {
+        stopCurrentQuestionAudio();
+        stopCurrentAnswerAudio();
+    }
+    onDestroy(() => {
+        stopAudioPlayback();
+    });
     onMount(() => {
         shuffleQuestions();
         handleQuestionChange();
