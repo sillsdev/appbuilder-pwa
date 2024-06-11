@@ -414,8 +414,25 @@ describe('SearchQueryBase', () => {
         });
     });
 
-    describe('Ignore characters', async () => {
+    describe('Ignore characters in text', async () => {
         const search = new TestSearchQuery('Davd', { ignore: 'i' });
+        const results = await search.getResults();
+
+        test('Finds match', () => {
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('Highlights match', () => {
+            for (const result of results) {
+                expect(result.chunks.some((c) => c.content === 'David' && c.matchesQuery)).toBe(
+                    true
+                );
+            }
+        });
+    });
+
+    describe('Ignore characters in search phrase', async () => {
+        const search = new TestSearchQuery('Daviid', { ignore: 'i' });
         const results = await search.getResults();
 
         test('Finds match', () => {

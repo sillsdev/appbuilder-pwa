@@ -160,6 +160,12 @@ describe('makeRegex', () => {
         expect('yellow'.match(regex)?.slice()).toEqual(['yellow']);
     });
 
+    test('Extra ignored characters in search phrase', () => {
+        const regex = makeRegex('Daviid', { ignore: 'i' });
+        console.log(regex);
+        expect('Hello, David'.match(regex)?.slice()).toEqual(['David']);
+    });
+
     test('Capture', () => {
         const regex = makeRegex('am', { capture: true });
         expect('am'.match(regex).slice()).toEqual(['am', 'am']);
