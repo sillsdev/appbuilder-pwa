@@ -111,8 +111,9 @@ export function makeRegexPattern(
         wholeLine?: boolean;
     } = {}
 ): string {
-    const groups = makeGroups(input, options?.equivalent);
     const ignore = options?.ignore ? newGroup(options.ignore) : null;
+    if (ignore) input = input.replaceAll(new RegExp(ignore.toString(), 'g'), '');
+    const groups = makeGroups(input, options?.equivalent);
     const regexString = new RegexString(groups, {
         ignore,
         capture: options?.capture,

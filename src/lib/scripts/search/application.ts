@@ -79,85 +79,171 @@ export abstract class SearchQueryBase {
             return [];
         }
 
-        const matching = verses.filter((v) => this.matchesQuery(v.text));
-        return matching.map((v) => ({
-            reference: v.reference,
-            chunks: this.splitChunks(v.text)
-        }));
+        return verses
+            .map((v) => ({
+                reference: v.reference,
+                chunks: this.splitChunks(v.text)
+            }))
+            .filter((v) => v.chunks.some((c) => c.matchesQuery));
     }
 
     private splitChunks(text: string) {
-        // Split the text and search phrase into characters or whole words.
-        const tokens = this.options.wholeWords ? RegexHelpers.splitByWords(text) : [...text];
-        const groupBy = this.options.wholeWords
-            ? RegexHelpers.splitByWords(this.searchPhrase)
-            : [...this.searchPhrase];
+        const chunks = this.options?.wholeWords
+            ? this.splitWordChunks(text)
+            : this.splitCharChunks(text);
+        this.debugPrint(chunks);
+        return chunks;
+    }
 
-        const matcher = makeRegex(this.searchPhrase, {
-            equivalent: this.options?.equivalent,
-            ignore: this.options?.ignore,
-            wholeLine: true
+    private debugPrint(...args) {
+        if (this.searchPhrase === 'Daviid') {
+            console.log(...args);
+        }
+    }
+
+    private getWordIndices(text: string) {
+        const wordRegex = /[\p{L}\p{N}]+/gu;
+        const starts = [];
+        const stops = [];
+        for (const word of text.matchAll(wordRegex)) {
+            starts.push(word.index);
+            stops.push(word.index + word[0].length);
+        }
+        return { starts, stops };
+    }
+
+    private indexWordMatches(text: string, regex: RegExp) {
+        const wordIndex = this.getWordIndices(text);
+        const matches = [];
+        for (const match of text.matchAll(new RegExp(regex, 'g'))) {
+            const start = match.index;
+            const stop = match.index + match[0].length;
+            if (wordIndex.starts.includes(start) && wordIndex.stops.includes(stop)) {
+                matches.push(start, stop);
+            }
+        }
+        return matches;
+    }
+
+    private chunksByIndex(text: string, index: number[]) {
+        const chunks = [];
+        let i = 0;
+        let isMatch = false;
+        for (const j of index) {
+            chunks.push({
+                content: text.slice(i, j),
+                matchesQuery: isMatch
+            });
+            isMatch = !isMatch;
+            i = j;
+        }
+        chunks.push({
+            content: text.slice(i),
+            matchesQuery: isMatch
         });
-
-        return this.groupTokens(tokens, groupBy)
-            .map((g) => g.join(''))
-            .map((s) => ({
-                content: s,
-                matchesQuery: matcher.test(s)
-            }));
+        return chunks;
     }
 
-    /**
-     * Group string tokens into groups that match groupBy and groups that do not.
-     */
-    private groupTokens(tokens: string[], groupBy: string[]): string[][] {
-        const matchers = groupBy.map((t) =>
-            makeRegex(t, {
-                equivalent: this.options?.equivalent,
-                ignore: this.options?.ignore,
-                wholeLine: true
-            })
-        );
-        const groups = [];
-        let match = [];
-        let nonmatch = [];
-        let i = 0; // The number of consecutive characters that have matched groupBy
-        for (const t of tokens) {
-            if (this.options?.ignore?.includes(t)) {
-                if (match.length > 0) {
-                    match.push(t);
-                } else {
-                    nonmatch.push(t);
-                }
-                continue;
-            }
-            if (i >= groupBy.length) {
-                // Found a complete match.
-                groups.push(nonmatch);
-                groups.push(match);
-                nonmatch = [];
-                match = [];
-                i = 0;
-            }
-            if (matchers[i].test(t)) {
-                match.push(t);
-                i++;
-            } else {
-                if (match.length) {
-                    nonmatch.push(...match);
-                    match = [];
-                }
-                nonmatch.push(t);
-                i = 0;
-            }
-        }
-        // Push remaining non-matching tokens.
-        nonmatch.push(...match);
-        if (nonmatch.length) {
-            groups.push(nonmatch);
-        }
-        return groups;
+    private splitWordChunks(text: string) {
+        const regex = makeRegex(this.searchPhrase, {
+            equivalent: this.options?.equivalent,
+            ignore: this.options?.ignore
+        });
+        const matches = this.indexWordMatches(text, regex);
+        return this.chunksByIndex(text, matches);
     }
+
+    private splitCharChunks(text: string) {
+        const regex = makeRegex(this.searchPhrase, {
+            ignore: this.options?.ignore,
+            equivalent: this.options?.equivalent,
+            capture: true
+        });
+        this.debugPrint(regex);
+        const chunks = text
+            .split(regex)
+            .filter((part) => part)
+            .map((part) => {
+                return {
+                    content: part,
+                    matchesQuery: regex.test(part)
+                };
+            });
+        return chunks;
+    }
+
+    // private splitChunks(text: string) {
+    //     // Split the text and search phrase into characters or whole words.
+    //     const tokens = this.options.wholeWords ? RegexHelpers.splitByWords(text) : [...text];
+    //     const groupBy = this.options.wholeWords
+    //         ? RegexHelpers.splitByWords(this.searchPhrase)
+    //         : [...this.searchPhrase];
+
+    //     const matcher = makeRegex(this.searchPhrase, {
+    //         equivalent: this.options?.equivalent,
+    //         ignore: this.options?.ignore,
+    //         wholeLine: true
+    //     });
+
+    //     return this.groupTokens(tokens, groupBy)
+    //         .map((g) => g.join(''))
+    //         .map((s) => ({
+    //             content: s,
+    //             matchesQuery: matcher.test(s)
+    //         }));
+    // }
+
+    // /**
+    //  * Group string tokens into groups that match groupBy and groups that do not.
+    //  */
+    // private groupTokens(tokens: string[], groupBy: string[]): string[][] {
+    //     const matchers = groupBy.map((t) =>
+    //         makeRegex(t, {
+    //             equivalent: this.options?.equivalent,
+    //             ignore: this.options?.ignore,
+    //             wholeLine: true
+    //         })
+    //     );
+    //     const groups = [];
+    //     let match = [];
+    //     let nonmatch = [];
+    //     let i = 0; // The number of consecutive characters that have matched groupBy
+    //     for (const t of tokens) {
+    //         if (this.options?.ignore?.includes(t)) {
+    //             if (match.length > 0) {
+    //                 match.push(t);
+    //             } else {
+    //                 nonmatch.push(t);
+    //             }
+    //             continue;
+    //         }
+    //         if (i >= groupBy.length) {
+    //             // Found a complete match.
+    //             groups.push(nonmatch);
+    //             groups.push(match);
+    //             nonmatch = [];
+    //             match = [];
+    //             i = 0;
+    //         }
+    //         if (matchers[i].test(t)) {
+    //             match.push(t);
+    //             i++;
+    //         } else {
+    //             if (match.length) {
+    //                 nonmatch.push(...match);
+    //                 match = [];
+    //             }
+    //             nonmatch.push(t);
+    //             i = 0;
+    //         }
+    //     }
+    //     // Push remaining non-matching tokens.
+    //     nonmatch.push(...match);
+    //     if (nonmatch.length) {
+    //         groups.push(nonmatch);
+    //     }
+    //     return groups;
+    // }
 
     private matchesQuery(text: string): boolean {
         const pattern = makeRegexPattern(this.searchPhrase, {
