@@ -414,16 +414,38 @@ describe('SearchQueryBase', () => {
         });
     });
 
-    test('Ignore characters', async () => {
+    describe('Ignore characters', async () => {
         const search = new TestSearchQuery('Davd', { ignore: 'i' });
         const results = await search.getResults();
-        expect(results.length).toBeGreaterThan(0);
+
+        test('Finds match', () => {
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('Highlights match', () => {
+            for (const result of results) {
+                expect(result.chunks.some((c) => c.content === 'David' && c.matchesQuery)).toBe(
+                    true
+                );
+            }
+        });
     });
 
-    test('Equivalent characters', async () => {
+    describe('Equivalent characters', async () => {
         const search = new TestSearchQuery('Jesús', { equivalent: ['uú'] });
         const results = await search.getResults();
-        expect(results.length).toBeGreaterThan(0);
+
+        test('finds verse', () => {
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('highlights match', () => {
+            for (const result of results) {
+                expect(result.chunks.some((c) => c.content === 'Jesus' && c.matchesQuery)).toBe(
+                    true
+                );
+            }
+        });
     });
 });
 
