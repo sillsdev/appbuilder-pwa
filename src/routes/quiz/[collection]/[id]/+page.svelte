@@ -305,7 +305,8 @@
                                                     <div
                                                         class="quiz-answer flex justify-center"
                                                         class:textCorrectSelect={clicked &&
-                                                            answer.correct}
+                                                            answer.correct &&
+                                                            (answer.clicked || displayCorrect)}
                                                         class:textWrongSelect={clicked &&
                                                             answer.clicked &&
                                                             !answer.correct}
@@ -332,7 +333,9 @@
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <div
                                             class="w-full flex justify-center p-[4%]"
-                                            class:imageCorrectSelect={clicked && answer.correct}
+                                            class:imageCorrectSelect={clicked &&
+                                                answer.correct &&
+                                                (answer.clicked || displayCorrect)}
                                             class:imageWrongSelect={clicked &&
                                                 answer.clicked &&
                                                 !answer.correct}
