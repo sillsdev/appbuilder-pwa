@@ -26,7 +26,7 @@
     let shuffledQuestions = [];
     let score = 0;
     let questionNum = 0;
-    let currentQuizQuestion = quiz.questions[questionNum];
+    let currentQuizQuestion;
     let clicked = false;
     let displayCorrect = false;
     let currentQuestionAudio = null;
@@ -116,13 +116,14 @@
     }
 
     function handleQuestionChange() {
-        if (questionNum == quiz.questions.length) {
+        if (questionNum == shuffledQuestions.length) {
             shuffledAnswers = [];
         } else {
-            for (const answer of quiz.questions[questionNum].answers) {
+            currentQuizQuestion = shuffledQuestions[questionNum];
+            for (const answer of currentQuizQuestion.answers) {
                 answer.clicked = false;
             }
-            shuffledAnswers = shuffleAnswers(quiz.questions[questionNum].answers);
+            shuffledAnswers = shuffleAnswers(currentQuizQuestion.answers);
         }
     }
 
@@ -211,7 +212,6 @@
     }
 
     onMount(() => {
-        questionNum = 0;
         shuffleQuestions();
         handleQuestionChange();
         playQuizQuestionAudio();
@@ -249,7 +249,7 @@
             </div>
         </Navbar>
     </div>
-    {#if questionNum == quiz.questions.length}
+    {#if questionNum == shuffledQuestions.length}
         <div class="score flex justify-center">
             <div id="content" class="text-center">
                 <div class="quiz-score-before">{$t['Quiz_Score_Page_Message_Before']}</div>
@@ -270,17 +270,17 @@
                 <div class="quiz-question-number" style:line-height="{$bodyLineHeight}%">
                     {questionNum + 1}
                 </div>
-                {#if quiz.questions[questionNum].answers}
-                    {#if quiz.questions[questionNum].answers.some((answer) => answer.text)}
+                {#if currentQuizQuestion.answers}
+                    {#if currentQuizQuestion.answers.some((answer) => answer.text)}
                         <div class="quiz-question-block">
                             <div class="quiz-question" style:line-height="{$bodyLineHeight}%">
-                                {quiz.questions[questionNum].text}
-                                {#if quiz.questions[questionNum].image}
+                                {currentQuizQuestion.text}
+                                {#if currentQuizQuestion.image}
                                     <div class="flex justify-center">
                                         <!-- svelte-ignore a11y-missing-attribute -->
                                         <img
                                             class="quiz-question-image h-40"
-                                            src={getImageSource(quiz.questions[questionNum].image)}
+                                            src={getImageSource(currentQuizQuestion.image)}
                                         />
                                     </div>
                                 {/if}
@@ -316,10 +316,10 @@
                             </div>
                         </div>
                     {/if}
-                    {#if quiz.questions[questionNum].answers.some((answer) => answer.image)}
+                    {#if currentQuizQuestion.answers.some((answer) => answer.image)}
                         <div class="quiz-question-block">
                             <div class="quiz-question">
-                                {quiz.questions[questionNum].text}
+                                {currentQuizQuestion.text}
                             </div>
                             <div class="flex justify-center flex-wrap mx-4">
                                 <div class="grid grid-cols-2 gap-2">
