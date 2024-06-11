@@ -93,50 +93,78 @@ export abstract class SearchQueryBase {
             ? RegexHelpers.splitByWords(this.searchPhrase)
             : [...this.searchPhrase];
 
-        return this.groupTokens(tokens, groupBy).map((g) => ({
-            content: g.join(''),
-            matchesQuery: g.join('') === this.searchPhrase
-        }));
+        const matcher = makeRegex(this.searchPhrase, {
+            equivalent: this.options?.equivalent,
+            ignore: this.options?.ignore,
+            wholeLine: true
+        });
+
+        return this.groupTokens(tokens, groupBy)
+            .map((g) => g.join(''))
+            .map((s) => ({
+                content: s,
+                matchesQuery: matcher.test(s)
+            }));
     }
 
     /**
      * Group string tokens into groups that match groupBy and groups that do not.
      */
     private groupTokens(tokens: string[], groupBy: string[]): string[][] {
+        const matchers = groupBy.map((t) =>
+            makeRegex(t, {
+                equivalent: this.options?.equivalent,
+                ignore: this.options?.ignore,
+                wholeLine: true
+            })
+        );
         const groups = [];
-        let grp = []; // Holds a group that does not match groupBy
+        let match = [];
+        let nonmatch = [];
         let i = 0; // The number of consecutive characters that have matched groupBy
         for (const t of tokens) {
+            if (this.options?.ignore?.includes(t)) {
+                if (match.length > 0) {
+                    match.push(t);
+                } else {
+                    nonmatch.push(t);
+                }
+                continue;
+            }
             if (i >= groupBy.length) {
                 // Found a complete match.
-                groups.push(grp, groupBy);
-                grp = [];
+                groups.push(nonmatch);
+                groups.push(match);
+                nonmatch = [];
+                match = [];
                 i = 0;
             }
-            if (t === groupBy[i]) {
-                // Keep looking to see if the next token matches.
+            if (matchers[i].test(t)) {
+                match.push(t);
                 i++;
             } else {
-                // Push t along with any tokens from a partial match.
-                grp.push(...groupBy.slice(0, i), t);
+                if (match.length) {
+                    nonmatch.push(...match);
+                    match = [];
+                }
+                nonmatch.push(t);
                 i = 0;
             }
         }
         // Push remaining non-matching tokens.
-        if (grp.length) {
-            groups.push(grp);
+        nonmatch.push(...match);
+        if (nonmatch.length) {
+            groups.push(nonmatch);
         }
         return groups;
     }
 
     private matchesQuery(text: string): boolean {
-        let pattern = makeRegexPattern(this.searchPhrase, {
+        const pattern = makeRegexPattern(this.searchPhrase, {
             ignore: this.options?.ignore,
-            equivalent: this.options?.equivalent
+            equivalent: this.options?.equivalent,
+            wholeLine: this.options?.wholeWords
         });
-        if (this.options.wholeWords) {
-            pattern = '^' + pattern + '$';
-        }
         const regex = new RegExp(pattern);
 
         return this.options?.wholeWords

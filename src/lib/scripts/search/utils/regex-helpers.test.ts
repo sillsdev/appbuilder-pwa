@@ -165,6 +165,19 @@ describe('makeRegex', () => {
         expect('am'.match(regex).slice()).toEqual(['am', 'am']);
     });
 
+    describe('Whole line', () => {
+        test('Matches whole line', () => {
+            const regex = makeRegex('am', { wholeLine: true });
+            expect(regex.test('am')).toBe(true);
+        });
+
+        test('Does not match partial line', () => {
+            const regex = makeRegex('am', { wholeLine: true });
+            console.log(regex);
+            expect(regex.test('ham')).toBe(false);
+        });
+    });
+
     describe('Ignored words occur in equivalence', () => {
         // Shouldn't normally happen, but test just in case.
         //
