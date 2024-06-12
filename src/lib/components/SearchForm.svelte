@@ -155,7 +155,7 @@
     <!--     </div> -->
     <!-- {/if} -->
     <hr style:border-color={$themeColors.DividerColor} />
-    <div class="container">
+    <div id="container" class="search-result py-2">
         {#if noResults && !waiting}
             <div class="py-4 flex justify-center">
                 <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
@@ -169,7 +169,7 @@
         {/if}
         {#if waiting}
             <p
-                class="m-8"
+                class="m-4"
                 style={convertStyle($s['ui.search.progress-label'])}
                 style:text-align="center"
             >

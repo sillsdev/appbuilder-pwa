@@ -51,21 +51,26 @@ A clickable verse card representing a single search result.
     }
 </script>
 
-<div
-    class="p-4 my-4 mx-2 shadow-none transition-shadow duration-300 hover:shadow-lg cursor-pointer"
->
+<div class="search-result-block transition-shadow duration-300 hover:shadow-lg cursor-pointer">
     <button class="text-left" on:click|preventDefault={onClick}>
-        <h1 style={convertStyle($s['ui.search.results-reference'])}>
-            {referenceString(result)}
-        </h1>
-        <p style={convertStyle($s['ui.search.results-context'])}>
-            {#each result.chunks as chunk}
-                <span
-                    style:font-weight={chunk.matchesQuery ? 'bold' : 'normal'}
-                    style:text-decoration={chunk.matchesQuery ? 'underline' : 'none'}
-                    >{chunk.content}</span
-                >
-            {/each}
-        </p>
+        <div
+            class="search-result-reference"
+            style={convertStyle($s['ui.search.results-reference'])}
+        >
+            <h1>
+                {referenceString(result)}
+            </h1>
+        </div>
+        <div class="search-result-context" style={convertStyle($s['ui.search.results-context'])}>
+            <p>
+                {#each result.chunks as chunk}
+                    <span
+                        style:font-weight={chunk.matchesQuery ? 'bold' : 'normal'}
+                        style:text-decoration={chunk.matchesQuery ? 'underline' : 'none'}
+                        >{chunk.content}</span
+                    >
+                {/each}
+            </p>
+        </div>
     </button>
 </div>
