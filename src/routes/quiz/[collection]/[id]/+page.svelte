@@ -31,7 +31,7 @@
     let displayCorrect = false;
     let currentQuestionAudio = null;
     let currentAnswerAudio = null;
-    let currentExplanationAudio = null; // Add this line
+    let currentExplanationAudio = null;
     let explanation = '';
 
     function playSound(path, callback, type = 'answer') {
@@ -56,7 +56,6 @@
             };
             currentAnswerAudio.play();
         } else if (type === 'explanation') {
-            // Add this block
             stopCurrentExplanationAudio();
             currentExplanationAudio = new Audio();
             currentExplanationAudio.src = path;
@@ -86,7 +85,6 @@
     }
 
     function stopCurrentExplanationAudio() {
-        // Add this function
         if (currentExplanationAudio) {
             currentExplanationAudio.pause();
             currentExplanationAudio.currentTime = 0;
@@ -170,7 +168,6 @@
             if (answer.explanation && answer.explanation.text) {
                 explanation = answer.explanation.text;
                 if (answer.explanation.audio) {
-                    // Add this condition
                     playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
                 }
             }
