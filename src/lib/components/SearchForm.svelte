@@ -98,7 +98,7 @@
     });
 </script>
 
-<form class="w-full max-w-2xl p-4">
+<form class="w-full max-w-screen-md p-4">
     <div class="dy-form-control mb-4">
         <label class="dy-input-group w-full flex">
             <input
