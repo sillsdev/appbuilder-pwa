@@ -170,6 +170,15 @@
                 if (answer.explanation.audio) {
                     playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
                 }
+            } else if (currentQuizQuestion.explanation && currentQuizQuestion.explanation.text) {
+                explanation = currentQuizQuestion.explanation.text;
+                if (currentQuizQuestion.explanation.audio) {
+                    playSound(
+                        `${base}/clips/${currentQuizQuestion.explanation.audio}`,
+                        null,
+                        'explanation'
+                    );
+                }
             }
             setTimeout(() => {
                 answer.clicked = true;
