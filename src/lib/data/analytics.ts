@@ -1,6 +1,7 @@
 import { analytics } from '$lib/data/stores';
 import config from '$lib/data/config';
 import type { HistoryItem } from './history';
+import type { AudioPlayer } from './audio';
 
 function getBook(item: { collection?: string; book: string }) {
     return config.bookCollections
@@ -36,4 +37,62 @@ export function logScreenView(item: HistoryItem) {
         damId
     };
     analytics.log('ab_screen_view', params);
+}
+
+export function logAudioPlay(audioPlayer: AudioPlayer) {
+    const bookCol = audioPlayer.collection;
+    const book = getBook({ collection: bookCol, book: audioPlayer.book });
+    const screenName = book.id;
+    const chapter = audioPlayer.chapter;
+    const bookAbbrev = book.abbreviation;
+    const damId = getDamId({ book, chapter });
+    const playing = audioPlayer.playing;
+    const params = {
+        screenName,
+        bookCol,
+        bookAbbrev,
+        chapter,
+        damId,
+        playing
+    }
+    analytics.log('audio_play_event', params);
+}
+
+export function logAudioDuration(audioPlayer: AudioPlayer) {
+    const bookCol = audioPlayer.collection;
+    const book = getBook({ collection: bookCol, book: audioPlayer.book });
+    const screenName = book.id;
+    const chapter = audioPlayer.chapter;
+    const bookAbbrev = book.abbreviation;
+    const damId = getDamId({ book, chapter });
+    const playStart = audioPlayer.playStart;
+    const playEnd = Date.now();
+    const playDuration = (playEnd-playStart+500)/1000;
+    const params = {
+        screenName,
+        bookCol,
+        bookAbbrev,
+        chapter,
+        damId,
+        playDuration,
+        playStart,
+        playEnd
+    }
+    analytics.log('ab_audio_duration', params);
+}
+
+// TODO: Complete once shareApp is implemented
+export function logShareApp() {
+    // share_app_name
+    // share_app_version
+    // share_type
+    analytics.log('ab_share_app');
+}
+
+export function logShareContent(contentType: String) {
+    // include reference info (bookCol, bookAbbrev, verses selected)
+    const params = {
+        contentType
+    }
+    analytics.log('ab_share_content', params);
 }
