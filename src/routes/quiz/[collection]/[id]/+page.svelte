@@ -31,6 +31,7 @@
     let displayCorrect = false;
     let currentQuestionAudio = null;
     let currentAnswerAudio = null;
+    let currentExplanationAudio = null; // Add this line
     let explanation = '';
 
     function playSound(path, callback, type = 'answer') {
@@ -54,6 +55,17 @@
                 }
             };
             currentAnswerAudio.play();
+        } else if (type === 'explanation') {
+            // Add this block
+            stopCurrentExplanationAudio();
+            currentExplanationAudio = new Audio();
+            currentExplanationAudio.src = path;
+            currentExplanationAudio.onended = function () {
+                if (callback) {
+                    callback();
+                }
+            };
+            currentExplanationAudio.play();
         }
     }
 
@@ -70,6 +82,15 @@
             currentAnswerAudio.pause();
             currentAnswerAudio.currentTime = 0;
             currentAnswerAudio = null;
+        }
+    }
+
+    function stopCurrentExplanationAudio() {
+        // Add this function
+        if (currentExplanationAudio) {
+            currentExplanationAudio.pause();
+            currentExplanationAudio.currentTime = 0;
+            currentExplanationAudio = null;
         }
     }
 
@@ -137,16 +158,21 @@
         textHighlightIndex = -1;
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
+        stopCurrentExplanationAudio(); // Add this line
         if (!clicked) {
             const audioPath = answer.correct
                 ? `${base}/assets/quiz-right-answer.mp3`
-                : `${base}/assets/quiz-wrong-answer.mp3`; //utilize the json file instead
+                : `${base}/assets/quiz-wrong-answer.mp3`;
             playSound(audioPath);
             if (answer.correct) {
                 score++;
             }
             if (answer.explanation && answer.explanation.text) {
                 explanation = answer.explanation.text;
+                if (answer.explanation.audio) {
+                    // Add this condition
+                    playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
+                }
             }
             setTimeout(() => {
                 answer.clicked = true;
@@ -214,6 +240,7 @@
     function stopAudioPlayback() {
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
+        stopCurrentExplanationAudio(); // Add this line
     }
 
     onDestroy(() => {
