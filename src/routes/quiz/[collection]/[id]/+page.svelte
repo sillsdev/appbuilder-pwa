@@ -27,14 +27,12 @@
     let score = 0;
     let questionNum = 0;
     let currentQuizQuestion;
+    let shuffleQuestionsToggle = true; //Doesn't work
     let clicked = false;
     let displayCorrect = false;
     let currentQuestionAudio = null;
     let currentAnswerAudio = null;
-
-    function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-    }
+    let explanation = '';
 
     function playSound(path, callback, type = 'answer') {
         if (type === 'question') {
@@ -116,6 +114,7 @@
     }
 
     function handleQuestionChange() {
+        explanation = '';
         if (questionNum == shuffledQuestions.length) {
             shuffledAnswers = [];
         } else {
@@ -142,10 +141,13 @@
         if (!clicked) {
             const audioPath = answer.correct
                 ? `${base}/assets/quiz-right-answer.mp3`
-                : `${base}/assets/quiz-wrong-answer.mp3`;
+                : `${base}/assets/quiz-wrong-answer.mp3`; //utilize the json file instead
             playSound(audioPath);
             if (answer.correct) {
                 score++;
+            }
+            if (answer.explanation && answer.explanation.text) {
+                explanation = answer.explanation.text;
             }
             setTimeout(() => {
                 answer.clicked = true;
@@ -157,7 +159,7 @@
                         displayCorrect = true;
                     }, 1000);
                 }
-            }, 1000);
+            }, 0);
         }
     }
 
@@ -196,8 +198,11 @@
     }
 
     function getCurrentQuizQuestion() {
-        // If toggle on, return shuffle, else: return quiz.questions[questionNum];
-        return shuffledQuestions[questionNum];
+        if (shuffleQuestionsToggle) {
+            return shuffledQuestions[questionNum];
+        } else {
+            return quiz.questions[questionNum];
+        }
     }
 
     function getCommentary(score) {
@@ -210,13 +215,16 @@
         }
         return result;
     }
+
     function stopAudioPlayback() {
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
     }
+
     onDestroy(() => {
         stopAudioPlayback();
     });
+
     onMount(() => {
         shuffleQuestions();
         handleQuestionChange();
@@ -231,7 +239,6 @@
                 <BookSelector {displayLabel} />
             </div>
             <div slot="right-buttons" class="flex items-center">
-                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                 <div class="flex">
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
@@ -283,7 +290,6 @@
                                 {currentQuizQuestion.text}
                                 {#if currentQuizQuestion.image}
                                     <div class="flex justify-center">
-                                        <!-- svelte-ignore a11y-missing-attribute -->
                                         <img
                                             class="quiz-question-image h-40"
                                             src={getImageSource(currentQuizQuestion.image)}
@@ -321,6 +327,11 @@
                                     {/each}
                                 </table>
                             </div>
+                            {#if explanation}
+                                <div class="quiz-answer-explanation mt-4">
+                                    {explanation}
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                     {#if currentQuizQuestion.answers.some((answer) => answer.image)}
@@ -342,8 +353,6 @@
                                             class:textHighlight={textHighlightIndex ===
                                                 currentIndex}
                                         >
-                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                                             <img
                                                 class="cursor-pointer"
                                                 src={getImageSource(answer.image)}
@@ -356,6 +365,11 @@
                                     {/each}
                                 </div>
                             </div>
+                            {#if explanation}
+                                <div class="quiz-answer-explanation mt-4">
+                                    {explanation}
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                 {/if}
@@ -403,5 +417,9 @@
     .quiz-question-block img {
         max-width: 100%;
         max-height: 250px;
+    }
+    .quiz-explanation {
+        font-size: 1rem;
+        color: #555;
     }
 </style>
