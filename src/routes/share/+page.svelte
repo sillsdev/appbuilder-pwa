@@ -4,6 +4,7 @@
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
+    import { shareText } from '$lib/data/share';
 
     const googlePlayBadgesRoot = 'https://play.google.com/intl/en_us/badges/static/images/badges/';
     const googlePlayBadgeSuffix = '_badge_web_generic.png';
@@ -39,6 +40,10 @@
     });
 }
 
+function shareLink(store:string, link:string) {
+    shareText(undefined, link, `${store} Link.txt`);
+}
+
 </script>
 
 <!-- TODO: make share functional -->
@@ -55,41 +60,23 @@
     <div id="content" class="overflow-y-auto">
         <div id="grid" class="flex flex-col sm:flex-row mt-12 justify-center gap-8 items-center">
             {#if config.mainFeatures['share-app-link']}
-                <a
-                    href="https://play.google.com/store/apps/details?id={config.package}&hl={$language}"
-                >
-                    <div id="google-play" class="w-48 md:w-72 lg:w-[25rem]">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <div id="google-play" class="w-48 md:w-72 lg:w-[25rem]" on:click={() => shareLink("Google Play", `https://play.google.com/store/apps/details?id=${config.package}&hl=${$language}`)}>
                         <img alt={$t['Share_App_Link']} src={googlePlayBadge} />
                     </div>
-                </a>
             {/if}
             {#if config.mainFeatures['share-apple-app-link']}
-                <div id="apple-store" class="w-48 md:w-64 lg:w-96">
-                    {#if badgeLanguages.includes($language)}
-                        <a
-                            href="https://apps.apple.com/app/{config.mainFeatures[
-                                'share-apple-id'
-                            ]}?l={$language}"
-                        >
-                            <img
-                                alt={$t['share-apple-app-link']}
-                                src={appStoreBadge}
-                                class="w-full h-auto"
-                            />
-                        </a>
-                    {:else}
-                        <a
-                            href="https://apps.apple.com/app/{config.mainFeatures[
-                                'share-apple-id'
-                            ]}"
-                        >
-                            <img
-                                alt={$t['share-apple-app-link']}
-                                src={fallbackAppStoreBadge}
-                                class="w-full h-auto"
-                            />
-                        </a>
-                    {/if}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div id="apple-store" class="w-48 md:w-64 lg:w-96" on:click={() => shareLink("App Store", `https://apps.apple.com/app/${config.mainFeatures[
+                    'share-apple-id'
+                ]}?l=${$language}`)}>
+                {(console.log(badgeLanguages.includes($language) ? `Using ${appStoreBadge}` : `Fallback to ${fallbackAppStoreBadge}`),"")}
+                <img
+                    alt={$t['share-apple-app-link']}
+                    src={badgeLanguages.includes($language) ? appStoreBadge : fallbackAppStoreBadge}
+                    class="w-full h-auto" />
                 </div>
             {/if}
             <p />
