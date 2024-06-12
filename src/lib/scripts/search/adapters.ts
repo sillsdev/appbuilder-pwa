@@ -199,7 +199,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         return (await this.pk.gqlQuery(`
             {
                 docSet(id: "${this.docSet}") {
-                    documents(${this.searchParams} allChars: true) {
+                    documents(${this.searchParams} allChars: true sortedBy: "paratext") {
                         id
                         idParts {
                             type
