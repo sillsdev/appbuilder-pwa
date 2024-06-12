@@ -291,17 +291,18 @@ export async function convertBooks(
     };
 }
 
+export type QuizExplanation = {
+    text?: string;
+    audio?: string;
+};
+
 export type QuizAnswer = {
     //\aw or \ar
     correct: boolean;
     text?: string;
     image?: string;
     audio?: string;
-    explanation?: {
-        //\ae
-        text: string;
-        audio?: string;
-    };
+    explanation?: QuizExplanation;
 };
 
 export type QuizQuestion = {
@@ -309,6 +310,7 @@ export type QuizQuestion = {
     text: string;
     image?: string;
     audio?: string;
+    explanation?: QuizExplanation;
     answers: QuizAnswer[];
 };
 
@@ -409,19 +411,51 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
                 }
                 break;
             case 'ae':
-                if (!question.answers[aCount - 1].explanation) {
-                    question.answers[aCount - 1].explanation = { text: '' };
-                }
-                if (hasAudioExtension(parsed[2])) {
-                    question.answers[aCount - 1].explanation!.audio = parsed[2];
-                } else {
-                    question.answers[aCount - 1].explanation!.text = parsed[2];
+                {
+                    const isAudio = hasAudioExtension(parsed[2]);
+                    const hasExplanationsInAnswers = isAudio
+                        ? question.answers.some((answer) => answer.explanation?.audio !== undefined)
+                        : question.answers.some((answer) => answer.explanation?.text != undefined);
+
+                    if (aCount == 0) {
+                        // Question-level explanation
+                        question.explanation = updateExplanation(question.explanation, parsed[2]);
+                    } else {
+                        if (aCount == 1 || hasExplanationsInAnswers) {
+                            // Answer-specific explanation
+                            question.answers[aCount - 1].explanation = updateExplanation(
+                                question.answers[aCount - 1].explanation,
+                                parsed[2]
+                            );
+                        } else {
+                            // Question-level explanation (same for all answers)
+                            question.explanation = updateExplanation(
+                                question.explanation,
+                                parsed[2]
+                            );
+                        }
+                    }
                 }
                 break;
         }
     });
     quiz.questions.push(question);
     return quiz;
+}
+
+function updateExplanation(
+    explanation: QuizExplanation | undefined,
+    text: string
+): QuizExplanation {
+    if (!explanation) {
+        explanation = {};
+    }
+    if (hasAudioExtension(text)) {
+        explanation.audio = text;
+    } else {
+        explanation.text = text;
+    }
+    return explanation;
 }
 
 function convertScriptureBook(
