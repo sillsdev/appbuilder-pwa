@@ -145,6 +145,7 @@
     }
 
     function onNextQuestion() {
+        stopAudioPlayback();
         questionNum++;
         clicked = false;
         displayCorrect = false;
