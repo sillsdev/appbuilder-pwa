@@ -158,7 +158,7 @@
         textHighlightIndex = -1;
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
-        stopCurrentExplanationAudio(); // Add this line
+        stopCurrentExplanationAudio();
         if (!clicked) {
             const audioPath = answer.correct
                 ? `${base}/assets/quiz-right-answer.mp3`
@@ -240,7 +240,7 @@
     function stopAudioPlayback() {
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
-        stopCurrentExplanationAudio(); // Add this line
+        stopCurrentExplanationAudio();
     }
 
     onDestroy(() => {
