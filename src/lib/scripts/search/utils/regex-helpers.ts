@@ -22,13 +22,16 @@ class RegexToken {
  */
 class RegexGroup {
     private tokens: RegexToken[];
+    private starred: boolean;
 
-    constructor(tokens: RegexToken[]) {
+    constructor(tokens: RegexToken[], options: { starred?: boolean } = {}) {
         this.tokens = tokens;
+        this.starred = options.starred ?? false;
     }
 
     toString(): string {
-        return '(?:' + this.tokens.join('|') + ')';
+        const star = this.starred ? '*' : '';
+        return '(?:' + this.tokens.join('|') + ')' + star;
     }
 }
 
@@ -66,60 +69,94 @@ function tokenize(input: string): RegexToken[] {
     return [...input].map((c) => new RegexToken(c));
 }
 
-/**
- * Get the first RegexGroup that matches the given character or string.
- */
-function groupFor(char: string, groups: RegexGroup[]): RegexGroup {
-    return groups.find((g) => new RegExp(g.toString()).test(char));
+export interface RegexOptions {
+    ignore?: string;
+    substitute?: { [char: string]: string };
+    capture?: boolean;
+    wholeLine?: boolean;
 }
 
-function makeGroups(input: string, equivalent: string[] = []): RegexGroup[] {
-    const groups = equivalent.map((e) => newGroup(e));
-    return [...input].map((c) => groupFor(c, groups) ?? newGroup(c));
+class RegexBuilder {
+    regex(phrase: string, options: RegexOptions = {}): RegExp {
+        const pattern = this.pattern(phrase, options);
+        return new RegExp(pattern);
+    }
+
+    pattern(phrase: string, options: RegexOptions = {}): string {
+        const groups = this.getGroupsWithIgnore(phrase, options.ignore, options.substitute);
+        let pattern = groups.map((g) => g.toString()).join('');
+        if (options.capture) {
+            pattern = '(' + pattern + ')';
+        }
+        if (options.wholeLine) {
+            pattern = '^' + pattern + '$';
+        }
+        return pattern;
+    }
+
+    private getGroupsWithIgnore(
+        phrase: string,
+        ignore?: string,
+        substitute?: { [char: string]: string }
+    ) {
+        const ignoreGroup = this.getIgnoreGroup(ignore);
+        if (ignoreGroup) {
+            phrase = phrase.replaceAll(new RegExp(ignoreGroup.toString(), 'g'), '');
+        }
+        let groups = this.getGroups(phrase, substitute);
+        if (ignoreGroup) {
+            groups = this.addIgnoreGroups(groups, ignoreGroup);
+        }
+        return groups;
+    }
+
+    private getIgnoreGroup(ignore?: string): RegexGroup {
+        if (!ignore) {
+            return null;
+        }
+        const ignoreTokens = tokenize(ignore);
+        return new RegexGroup(ignoreTokens, { starred: true });
+    }
+
+    private addIgnoreGroups(match: RegexGroup[], ignore: RegexGroup): RegexGroup[] {
+        const groups = [];
+        groups.push(ignore);
+        for (const group of match) {
+            groups.push(group);
+            groups.push(ignore);
+        }
+        return groups;
+    }
+
+    private getGroups(phrase: string, substitute: { [char: string]: string } = {}): RegexGroup[] {
+        const groups = [];
+        for (const char of [...phrase]) {
+            const tokens = [new RegexToken(char)];
+            if (substitute[char]) {
+                tokens.push(...tokenize(substitute[char]));
+            }
+            groups.push(new RegexGroup(tokens));
+        }
+        return groups;
+    }
 }
 
-function newGroup(chars: string): RegexGroup {
-    return new RegexGroup(tokenize(chars));
+let builderInstance = new RegexBuilder();
+
+function resetBuilderInstance() {
+    builderInstance = new RegexBuilder();
 }
 
-/**
- * Build a regex from the given input.
- *
- * Options:
- *  - equivalent: A list of strings whose characters are equivalent
- *  - ignore: The presence of these characters in the input or the
- *    searched text will not affect the search results.
- */
-export function makeRegex(
-    input: string,
-    options: {
-        equivalent?: string[];
-        ignore?: string;
-        capture?: boolean;
-        wholeLine?: boolean;
-    } = {}
-): RegExp {
-    return new RegExp(makeRegexPattern(input, options));
+function setBuilderInstance(builder: RegexBuilder) {
+    builderInstance = builder;
 }
 
-export function makeRegexPattern(
-    input: string,
-    options: {
-        equivalent?: string[];
-        ignore?: string;
-        capture?: boolean;
-        wholeLine?: boolean;
-    } = {}
-): string {
-    const ignore = options?.ignore ? newGroup(options.ignore) : null;
-    if (ignore) input = input.replaceAll(new RegExp(ignore.toString(), 'g'), '');
-    const groups = makeGroups(input, options?.equivalent);
-    const regexString = new RegexString(groups, {
-        ignore,
-        capture: options?.capture,
-        wholeLine: options?.wholeLine
-    });
-    return regexString.toString();
+export function makeRegex(pattern: string, options: RegexOptions): RegExp {
+    return builderInstance.regex(pattern, options);
+}
+
+export function makeRegexPattern(pattern: string, options: RegexOptions): string {
+    return builderInstance.pattern(pattern, options);
 }
 
 function wordsOf(input: string): string[] {
@@ -136,9 +173,10 @@ export const RegexHelpers = {
     RegexToken,
     RegexGroup,
     RegexString,
-    groupFor,
-    makeGroups,
-    splitByWords,
+    RegexBuilder,
+    setBuilderInstance,
+    resetBuilderInstance,
     tokenize,
+    splitByWords,
     wordsOf
 };

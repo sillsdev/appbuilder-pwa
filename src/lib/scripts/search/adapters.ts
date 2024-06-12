@@ -44,10 +44,10 @@ function keywordToRegex(
     word: string,
     wholeWords: boolean = false,
     ignore: string = '',
-    equivalent: string[] = []
+    substitute: { [char: string]: string } = {}
 ) {
     let pattern = word;
-    pattern = makeRegexPattern(pattern, { ignore, equivalent });
+    pattern = makeRegexPattern(pattern, { ignore, substitute });
     pattern = pattern.replaceAll('\\', '\\\\');
     pattern = pattern.replaceAll('"', '\\"');
     if (wholeWords) {
@@ -60,9 +60,9 @@ function searchParams(
     keywords: string[],
     wholeWords: boolean = false,
     ignore: string = '',
-    equivalent: string[] = []
+    substitute: { [char: string]: string }
 ): string {
-    const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, equivalent));
+    const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, substitute));
     return `withMatchingChars: ["${terms.join('", "')}"]`;
 }
 
@@ -97,7 +97,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         searchPhrase: string;
         wholeWords: boolean;
         ignore?: string;
-        equivalent?: string[];
+        substitute?: { [char: string]: string };
         docSet: string;
         collection: string;
     }) {
@@ -109,7 +109,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         const tokens = RegexHelpers.wordsOf(args.searchPhrase);
         this.searchIsBlank = tokens.length === 0;
 
-        this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.equivalent);
+        this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.substitute);
         // Debuging
         // if (args.searchPhrase === '"') {
         //     console.log(tokens);
@@ -231,7 +231,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
 
 interface SearchConfig {
     ignore?: string;
-    equivalent?: string[];
+    substitute?: { [char: string]: string };
 }
 
 function getConfig(): SearchConfig {
@@ -240,8 +240,8 @@ function getConfig(): SearchConfig {
 
 function parseConfig(accentsToRemove: string): SearchConfig {
     const ignore = parseIgnored(accentsToRemove);
-    const equivalent = parseEquivalent(accentsToRemove);
-    return { ignore, equivalent };
+    const substitute = parseSubstitutes(accentsToRemove);
+    return { ignore, substitute };
 }
 
 function parseEquivalent(accentsToRemove: string) {
@@ -250,6 +250,23 @@ function parseEquivalent(accentsToRemove: string) {
         equivalent.push(match[1] + match[2]);
     }
     return equivalent;
+}
+
+function parseSubstitutes(accentsToRemove: string) {
+    const sub = {};
+    for (const match of accentsToRemove.matchAll(/(\S)>(\S)/g)) {
+        extendStringProperty(sub, match[1], match[2]);
+        extendStringProperty(sub, match[2], match[1]);
+    }
+    return sub;
+}
+
+function extendStringProperty(obj: object, property: string, value: string) {
+    if (!obj[property]) {
+        obj[property] = value;
+    } else {
+        obj[property] += value;
+    }
 }
 
 function parseIgnored(accentsToRemove: string) {
@@ -282,11 +299,11 @@ export class SearchQuery extends SearchQueryBase {
             searchPhrase,
             wholeWords: options.wholeWords,
             ignore: configOptions.ignore,
-            equivalent: configOptions.equivalent,
+            substitute: configOptions.substitute,
             docSet,
             collection
         });
-        options.equivalent = configOptions.equivalent;
+        options.substitute = configOptions.substitute;
         options.ignore = configOptions.ignore;
         super(searchPhrase, verseProvider, options);
     }

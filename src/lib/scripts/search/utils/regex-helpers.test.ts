@@ -1,12 +1,19 @@
-import { RegexHelpers, makeRegex as makeRegex } from './regex-helpers';
-import { describe, expect, test } from 'vitest';
+import { afterEach, before } from 'node:test';
+import {
+    RegexHelpers,
+    makeRegex as makeRegex,
+    makeRegexPattern,
+    type RegexOptions
+} from './regex-helpers';
+import { afterAll, describe, expect, test, vi } from 'vitest';
 
 const RegexToken = RegexHelpers.RegexToken;
 const RegexGroup = RegexHelpers.RegexGroup;
 const RegexString = RegexHelpers.RegexString;
+const RegexBuilder = RegexHelpers.RegexBuilder;
 const tokenize = RegexHelpers.tokenize;
-const makeGroups = RegexHelpers.makeGroups;
-const groupFor = RegexHelpers.groupFor;
+const setBuilderInstance = RegexHelpers.setBuilderInstance;
+const resetBuilderInstance = RegexHelpers.resetBuilderInstance;
 
 describe('RegexToken', () => {
     test('escapes special characters', () => {
@@ -75,6 +82,14 @@ describe('RegexGroup', () => {
         const regex = new RegExp('x' + group1.toString() + '*y');
         expect('txaabbabaysno'.match(regex).slice()).toEqual(['xaabbabay']);
     });
+
+    test('starred group', () => {
+        const group1 = new RegexGroup([new RegexToken('a'), new RegexToken('b')], {
+            starred: true
+        });
+        const regex = new RegExp('x' + group1.toString() + 'y');
+        expect('txaabbabaysno'.match(regex).slice()).toEqual(['xaabbabay']);
+    });
 });
 
 describe('RegexString', () => {
@@ -124,95 +139,93 @@ describe('tokenize', () => {
     });
 });
 
-describe('groupFor', () => {
-    test('returns correct group', () => {
-        const a = new RegexGroup([new RegexToken('a'), new RegexToken('å')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-        expect(groupFor('ç', [a, b, c])).toBe(c);
-    });
-});
+describe('RegexBuilder', () => {
+    describe('regex', () => {
+        const builder = new RegexBuilder();
 
-describe('makeGroups', () => {
-    test('Default options', () => {
-        const a = new RegexGroup([new RegexToken('a')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('ç')]);
-        expect(makeGroups('abç')).toEqual([a, b, c]);
-    });
+        function testPattern(pattern: string, text: string, options: object = {}): string[] {
+            const regex = builder.regex(pattern, options);
+            return text.match(regex)?.slice() ?? null;
+        }
 
-    test('With equivalent characters', () => {
-        const a = new RegexGroup([new RegexToken('a'), new RegexToken('å'), new RegexToken('á')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-        expect(makeGroups('abç', ['aåá', 'cç'])).toEqual([a, b, c]);
-    });
-});
-
-describe('makeRegex', () => {
-    test('Basic regex', () => {
-        const regex = makeRegex('def');
-        expect('abcdefghij'.match(regex).slice()).toEqual(['def']);
-    });
-
-    test('With replace and ignore', () => {
-        const regex = makeRegex('hello', { equivalent: ['hy'], ignore: 'w' });
-        expect('yellow'.match(regex)?.slice()).toEqual(['yellow']);
-    });
-
-    test('Extra ignored characters in search phrase', () => {
-        const regex = makeRegex('Daviid', { ignore: 'i' });
-        console.log(regex);
-        expect('Hello, David'.match(regex)?.slice()).toEqual(['David']);
-    });
-
-    test('Capture', () => {
-        const regex = makeRegex('am', { capture: true });
-        expect('am'.match(regex).slice()).toEqual(['am', 'am']);
-    });
-
-    describe('Whole line', () => {
-        test('Matches whole line', () => {
-            const regex = makeRegex('am', { wholeLine: true });
-            expect(regex.test('am')).toBe(true);
+        test('Basic pattern', () => {
+            const regex = builder.regex('def');
+            expect('abcdefghij'.match(regex).slice()).toEqual(['def']);
         });
 
-        test('Does not match partial line', () => {
-            const regex = makeRegex('am', { wholeLine: true });
-            console.log(regex);
-            expect(regex.test('ham')).toBe(false);
-        });
-    });
-
-    describe('Ignored words occur in equivalence', () => {
-        // Shouldn't normally happen, but test just in case.
-        //
-        // If a and b are equivalent and a is ignored, it should
-        // not follow that b is ignored.
-
-        const ignore = 'a';
-        const equivalent = ['ab'];
-
-        describe('Search for "tom"', () => {
-            const regex = makeRegex('tom', { ignore, equivalent });
-
-            test('Matches atom', () => {
-                expect('atom'.match(regex).slice()).toEqual(['atom']);
+        describe('With ignore', () => {
+            test('in search phrase', () => {
+                const results = testPattern('xaxxbc', 'abc', { ignore: 'x' });
+                expect(results).toEqual(['abc']);
             });
 
-            test('Does not match btom', () => {
-                expect('btom'.match(regex).slice()).toEqual(['tom']);
+            test('in text to be searched', () => {
+                const results = testPattern('abc', 'axbxxc', { ignore: 'x' });
+                expect(results).toEqual(['axbxxc']);
             });
         });
 
-        test('Search for "bxy" find "axy"', () => {
-            const regex = makeRegex('bxy', { ignore, equivalent });
-            expect('axy'.match(regex).slice()).toEqual(['axy']);
+        describe('With substitutions', () => {
+            test('positive matches', () => {
+                const pattern = 'abcdx';
+                const substitute = { a: 'bc', b: 'ad', c: 'a' };
+                const options = { substitute };
+                const matches = ['abcdx', 'abcdx', 'bbcdx', 'cdadx'];
+                for (const text of matches) {
+                    const results = testPattern(pattern, text, options);
+                    expect(results).toEqual([text]);
+                }
+            });
         });
 
-        test('Search for "axy" find "bxy"', () => {
-            const regex = makeRegex('axy', { ignore, equivalent });
-            expect('bxy'.match(regex).slice()).toEqual(['bxy']);
+        describe('With substitutions and ignore', () => {
+            test('positive matches', () => {
+                const pattern = 'abcdxu';
+                const substitute = { a: 'bc', b: 'ad', c: 'a' };
+                const options = { ignore: 'u', substitute };
+                const matches = ['abcdxu', 'aubcudx', 'bbcdx', 'cdadx'];
+                for (const text of matches) {
+                    const results = testPattern(pattern, text, options);
+                    expect(results).toEqual([text]);
+                }
+            });
+        });
+
+        test('capture', () => {
+            const pattern = 'abcdxu';
+            const substitute = { a: 'bc', b: 'ad', c: 'a' };
+            const options = { ignore: 'u', substitute, capture: true };
+            const matches = ['abcdxu', 'aubcudx', 'bbcdx', 'cdadx'];
+            for (const text of matches) {
+                const results = testPattern(pattern, 'yy' + text + 'yy', options);
+                expect(results).toEqual([text, text]);
+            }
+        });
+
+        describe('Whole line', () => {
+            test('Matches whole line', () => {
+                const results = testPattern('am', 'am', { wholeLine: true });
+                expect(results).toEqual(['am']);
+            });
+
+            test('Does not match partial line', () => {
+                const results = testPattern('am', 'ham', { wholeLine: true });
+                expect(results).toBeNull();
+            });
+        });
+    });
+
+    describe('pattern', () => {
+        test('is used by regex method', () => {
+            class TestRegexBuilder extends RegexBuilder {
+                pattern(phrase: string, options?: RegexOptions): string {
+                    return 'blahblah';
+                }
+            }
+
+            const builder = new TestRegexBuilder();
+            const regex = builder.regex('', {});
+            expect(regex).toEqual(/blahblah/);
         });
     });
 });
@@ -224,5 +237,43 @@ describe('toWords', () => {
 
     test('Retuns empty array if only whitespace', () => {
         expect(RegexHelpers.wordsOf('  \n \t ')).toEqual([]);
+    });
+});
+
+describe('RegexBuilder convenience functions', () => {
+    class TestRegexBuilder extends RegexBuilder {
+        pattern(phrase: string, options?: RegexOptions): string {
+            return 'hello';
+        }
+
+        regex(phrase: string, options?: RegexOptions): RegExp {
+            return /goodbye/;
+        }
+    }
+
+    const testBuilder = new TestRegexBuilder();
+    setBuilderInstance(testBuilder);
+
+    afterAll(() => {
+        resetBuilderInstance();
+        vi.resetAllMocks();
+    });
+
+    test('makeRegex calls RegexBuilder.regex directly', () => {
+        const spy = vi.spyOn(testBuilder, 'regex');
+
+        const phrase = 'test';
+        const options = { ignore: '123' };
+        makeRegex(phrase, options);
+        expect(spy).toHaveBeenCalledWith(phrase, options);
+    });
+
+    test('makeRegexPattern calls RegexBuilder.pattern directly', () => {
+        const spy = vi.spyOn(testBuilder, 'pattern');
+
+        const phrase = 'test';
+        const options = { ignore: '123' };
+        makeRegexPattern(phrase, options);
+        expect(spy).toHaveBeenCalledWith(phrase, options);
     });
 });
