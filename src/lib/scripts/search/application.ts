@@ -46,7 +46,7 @@ export interface SearchOptions {
 // Finds verses that match the given search parameters.
 export abstract class SearchQueryBase {
     constructor(searchPhrase: string, verseProvider: VerseProvider, options: SearchOptions) {
-        this.searchPhrase = searchPhrase;
+        this.searchPhrase = searchPhrase.trim();
         this.verseProvider = verseProvider;
         this.options = options;
     }

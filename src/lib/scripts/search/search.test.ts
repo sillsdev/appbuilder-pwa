@@ -319,6 +319,12 @@ describe('SearchQueryBase', () => {
             }
         });
 
+        test('Strips leading and trailing whitespace', async () => {
+            const search = new TestSearchQuery('  said \t \n');
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
         test('Matches partial words', async () => {
             const search = new TestSearchQuery('enealogy');
             const results = await search.getResults();
