@@ -40,7 +40,7 @@ export const SearchInterface = { VerseProvider };
 export interface SearchOptions {
     wholeWords?: boolean;
     ignore?: string;
-    equivalent?: string[];
+    substitute?: { [char: string]: string };
 }
 
 // Finds verses that match the given search parameters.
@@ -91,14 +91,7 @@ export abstract class SearchQueryBase {
         const chunks = this.options?.wholeWords
             ? this.splitWordChunks(text)
             : this.splitCharChunks(text);
-        this.debugPrint(chunks);
         return chunks;
-    }
-
-    private debugPrint(...args) {
-        if (this.searchPhrase === 'Daviid') {
-            console.log(...args);
-        }
     }
 
     private getWordIndices(text: string) {
@@ -146,7 +139,7 @@ export abstract class SearchQueryBase {
 
     private splitWordChunks(text: string) {
         const regex = makeRegex(this.searchPhrase, {
-            equivalent: this.options?.equivalent,
+            substitute: this.options?.substitute,
             ignore: this.options?.ignore
         });
         const matches = this.indexWordMatches(text, regex);
@@ -156,10 +149,9 @@ export abstract class SearchQueryBase {
     private splitCharChunks(text: string) {
         const regex = makeRegex(this.searchPhrase, {
             ignore: this.options?.ignore,
-            equivalent: this.options?.equivalent,
+            substitute: this.options?.substitute,
             capture: true
         });
-        this.debugPrint(regex);
         const chunks = text
             .split(regex)
             .filter((part) => part)
@@ -248,7 +240,7 @@ export abstract class SearchQueryBase {
     private matchesQuery(text: string): boolean {
         const pattern = makeRegexPattern(this.searchPhrase, {
             ignore: this.options?.ignore,
-            equivalent: this.options?.equivalent,
+            substitute: this.options?.substitute,
             wholeLine: this.options?.wholeWords
         });
         const regex = new RegExp(pattern);

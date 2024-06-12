@@ -449,7 +449,7 @@ describe('SearchQueryBase', () => {
     });
 
     describe('Equivalent characters', async () => {
-        const search = new TestSearchQuery('Jesús', { equivalent: ['uú'] });
+        const search = new TestSearchQuery('Jesús', { substitute: { u: 'ú', ú: 'u' } });
         const results = await search.getResults();
 
         test('finds verse', () => {
@@ -714,7 +714,7 @@ describe('ProskommaVerseProvider', () => {
             pk,
             searchPhrase: 'Jesús',
             wholeWords: false,
-            equivalent: ['uú'],
+            substitute: { u: 'ú', ú: 'u' },
             docSet: 'eng_C01',
             collection: 'C01'
         });
@@ -770,7 +770,20 @@ describe('parseConfig', () => {
         expect(parsed.ignore).toBe('\u0300\u0301\u0302');
     });
 
-    test('equivalent characters', () => {
-        expect(parsed.equivalent).toEqual(['áa', 'àa', 'èe', 'ée']);
+    test('substitute characters', () => {
+        const subs = {
+            á: 'a',
+            à: 'a',
+            a: 'àá',
+            é: 'e',
+            è: 'e',
+            e: 'èé'
+        };
+        for (const k of Object.keys(subs)) {
+            expect(parsed.substitute[k]).toBeDefined;
+            for (const c of subs[k]) {
+                expect(parsed.substitute[k]).toContain(c);
+            }
+        }
     });
 });
