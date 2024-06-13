@@ -169,7 +169,7 @@
         playQuizQuestionAudio();
     }
 
-    //Need to change Jesus birth explanation so it doesn't play when answer is correct.
+    // Modified function to prevent explanation for correct answers
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
         stopCurrentQuestionAudio();
@@ -182,20 +182,24 @@
             playSound(audioPath);
             if (answer.correct) {
                 score++;
-            }
-            if (answer.explanation && answer.explanation.text) {
-                explanation = answer.explanation.text;
-                if (answer.explanation.audio) {
-                    playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
-                }
-            } else if (currentQuizQuestion.explanation && currentQuizQuestion.explanation.text) {
-                explanation = currentQuizQuestion.explanation.text;
-                if (currentQuizQuestion.explanation.audio) {
-                    playSound(
-                        `${base}/clips/${currentQuizQuestion.explanation.audio}`,
-                        null,
-                        'explanation'
-                    );
+            } else {
+                if (answer.explanation && answer.explanation.text) {
+                    explanation = answer.explanation.text;
+                    if (answer.explanation.audio) {
+                        playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
+                    }
+                } else if (
+                    currentQuizQuestion.explanation &&
+                    currentQuizQuestion.explanation.text
+                ) {
+                    explanation = currentQuizQuestion.explanation.text;
+                    if (currentQuizQuestion.explanation.audio) {
+                        playSound(
+                            `${base}/clips/${currentQuizQuestion.explanation.audio}`,
+                            null,
+                            'explanation'
+                        );
+                    }
                 }
             }
             setTimeout(() => {
