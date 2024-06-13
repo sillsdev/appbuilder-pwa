@@ -800,7 +800,7 @@ function convertConfig(dataDir: string, verbose: number) {
             const tagHeight = tag.attributes.getNamedItem('height')
                 ? parseInt(tag.attributes.getNamedItem('height')!.value)
                 : 0;
-                let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
+            let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
                 ? tag.getElementsByTagName('online-url')[0]?.innerHTML
                 : '';
             if (onlineUrlHTML) {
@@ -1067,7 +1067,8 @@ export class ConvertConfig extends Task {
 }
 
 function convertVideoUrl(url: string): string {
-    const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const youtubeRegex =
+        /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const vimeoRegex = /^(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com\/)([0-9]+)/;
 
     // Check if it's a YouTube URL
@@ -1084,4 +1085,3 @@ function convertVideoUrl(url: string): string {
 
     return url;
 }
-
