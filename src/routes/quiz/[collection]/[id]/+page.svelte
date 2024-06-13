@@ -160,8 +160,8 @@
         stopCurrentExplanationAudio();
         if (!clicked) {
             const audioPath = answer.correct
-                ? `${base}/assets/quiz-right-answer.mp3`
-                : `${base}/assets/quiz-wrong-answer.mp3`;
+                ? `${base}/assets/${quiz.answerAudio.correct}`
+                : `${base}/assets/${quiz.answerAudio.incorrect}`;
             playSound(audioPath);
             if (answer.correct) {
                 score++;
