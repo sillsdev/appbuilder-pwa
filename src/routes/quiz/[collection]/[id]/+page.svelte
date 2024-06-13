@@ -33,6 +33,12 @@
     let currentAnswerAudio = null;
     let currentExplanationAudio = null;
     let explanation = '';
+    let commentaryMessage = '';
+
+    function getRandomAudio(audioArray) {
+        const randomIndex = Math.floor(Math.random() * audioArray.length);
+        return audioArray[randomIndex];
+    }
 
     function playSound(path, callback, type = 'answer') {
         if (type === 'question') {
@@ -135,6 +141,7 @@
         explanation = '';
         if (questionNum == shuffledQuestions.length) {
             shuffledAnswers = [];
+            commentaryMessage = getCommentary(score);
         } else {
             currentQuizQuestion = shuffledQuestions[questionNum];
             for (const answer of currentQuizQuestion.answers) {
@@ -142,6 +149,15 @@
             }
             shuffledAnswers = shuffleAnswers(currentQuizQuestion.answers);
         }
+    }
+
+    function getCommentary(score) {
+        for (let comment of quiz.commentary) {
+            if (score >= comment.rangeMin && score <= comment.rangeMax) {
+                return comment.message;
+            }
+        }
+        return '';
     }
 
     function onNextQuestion() {
@@ -153,6 +169,7 @@
         playQuizQuestionAudio();
     }
 
+    //Need to change Jesus birth explanation so it doesn't play when answer is correct.
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
         stopCurrentQuestionAudio();
@@ -160,8 +177,8 @@
         stopCurrentExplanationAudio();
         if (!clicked) {
             const audioPath = answer.correct
-                ? `${base}/assets/${quiz.answerAudio.correct}`
-                : `${base}/assets/${quiz.answerAudio.incorrect}`;
+                ? `${base}/assets/${getRandomAudio(quiz.answerAudio.correct)}`
+                : `${base}/assets/${getRandomAudio(quiz.answerAudio.incorrect)}`;
             playSound(audioPath);
             if (answer.correct) {
                 score++;
@@ -195,69 +212,24 @@
         }
     }
 
-    function playQuizQuestionAudio() {
-        if ($quizAudioActive) {
-            const question = getCurrentQuizQuestion();
-            if (question && question.audio) {
-                if (question.audio) {
-                    const listener = () => {
-                        playQuizAnswerAudio(0);
-                    };
-                    playSound(`${base}/clips/${question.audio}`, listener, 'question');
-                } else {
-                    playQuizAnswerAudio(0);
-                }
-            }
-        }
-    }
-
-    function playQuizAnswerAudio(answerIndex) {
-        if (currentQuizQuestion && $quizAudioActive) {
-            if (answerIndex < currentQuizQuestion.answers.length) {
-                const answer = currentQuizQuestion.answers[answerIndex];
-                if (answer.audio) {
-                    const listener = () => {
-                        textHighlightIndex = -1;
-                        playQuizAnswerAudio(answerIndex + 1);
-                    };
-                    textHighlightIndex = answerIndex;
-                    playSound(`${base}/clips/${answer.audio}`, listener, 'answer');
-                }
-            } else {
-                textHighlightIndex = -1;
-            }
-        }
-    }
-
-    function getCurrentQuizQuestion() {
-        return shuffledQuestions[questionNum];
-    }
-
-    function getCommentary(score) {
-        let result = '';
-        for (const commentary of quiz.commentary) {
-            if (score >= commentary.rangeMin && score <= commentary.rangeMax) {
-                result = commentary.message;
-                break;
-            }
-        }
-        return result;
-    }
-
     function stopAudioPlayback() {
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
         stopCurrentExplanationAudio();
     }
 
-    onDestroy(() => {
-        stopAudioPlayback();
-    });
+    function playQuizQuestionAudio() {
+        if (quizAudioActive) {
+            playSound(`${base}/clips/${currentQuizQuestion.audio}`, () => {}, 'question');
+        }
+    }
 
     onMount(() => {
         shuffleQuestions();
-        handleQuestionChange();
-        playQuizQuestionAudio();
+    });
+
+    onDestroy(() => {
+        stopAudioPlayback();
     });
 </script>
 
