@@ -67,7 +67,7 @@ export function logAudioDuration(audioPlayer: AudioPlayer) {
     const damId = getDamId({ book, chapter });
     const playStart = audioPlayer.playStart;
     const playEnd = Date.now();
-    const playDuration = (playEnd-playStart+500)/1000;
+    const playDuration = (playEnd - playStart + 500) / 1000;
     const params = {
         screenName,
         bookCol,
