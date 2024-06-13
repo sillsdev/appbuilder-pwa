@@ -1074,13 +1074,13 @@ function convertVideoUrl(url: string): string {
     // Check if it's a YouTube URL
     const youtubeMatch = url.match(youtubeRegex);
     if (youtubeMatch) {
-        return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+        return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1`;
     }
 
     // Check if it's a Vimeo URL
     const vimeoMatch = url.match(vimeoRegex);
     if (vimeoMatch) {
-        return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+        return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
     }
 
     return url;
