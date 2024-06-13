@@ -12,5 +12,7 @@ export async function load({ params }) {
         }
     }
 
-    return { menu, items };
+    const features = contents.features
+
+    return { menu, items, features };
 }

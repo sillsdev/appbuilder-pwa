@@ -31,6 +31,9 @@ type ContentScreen = {
 };
 
 export type ContentsData = {
+    title?: {
+        [lang: string]: string;
+    };
     features?: any;
     items?: ContentItem[];
     screens?: ContentScreen[];
@@ -70,6 +73,17 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
         contentType: 'text/xml'
     });
     const { document } = dom.window;
+
+    // title
+    const contents = document.children[0];
+    const titleTags = Array.from(contents.children).filter(element => element.tagName.toLowerCase() === "title");
+    if (titleTags?.length > 0) {
+        data.title = {};
+        for (const titleTag of titleTags) {
+            const lang = titleTag.attributes.getNamedItem('lang')!.value;
+            data.title[lang] = decodeFromXml(titleTag.innerHTML);
+        }
+    }
 
     // Features
     data.features = {};
