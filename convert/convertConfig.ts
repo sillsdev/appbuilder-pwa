@@ -1067,18 +1067,25 @@ export class ConvertConfig extends Task {
 }
 
 function convertVideoUrl(url: string): string {
-    const youtubeRegex =
-        /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const vimeoRegex = /^(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com\/)([0-9]+)/;
+    // Separate patterns for different YouTube URL formats
+    const youTuBePattern = /https:\/\/(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)(&.+)*/;
+    const youTubePattern = /https:\/\/(?:www\.)?youtube\.(?:\w+)\/watch\?v=([a-zA-Z0-9_-]+)(&.+)*/;
+    const vimeoPattern = /https:\/\/(?:www\.)?vimeo\.com\/([0-9]+)/;
 
-    // Check if it's a YouTube URL
-    const youtubeMatch = url.match(youtubeRegex);
-    if (youtubeMatch) {
-        return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1`;
+    // Check if it's a youtu.be URL
+    const youTuBeMatch = url.match(youTuBePattern);
+    if (youTuBeMatch) {
+        return `https://www.youtube.com/embed/${youTuBeMatch[1]}?autoplay=1`;
+    }
+
+    // Check if it's a youtube.com URL
+    const youTubeMatch = url.match(youTubePattern);
+    if (youTubeMatch) {
+        return `https://www.youtube.com/embed/${youTubeMatch[1]}?autoplay=1`;
     }
 
     // Check if it's a Vimeo URL
-    const vimeoMatch = url.match(vimeoRegex);
+    const vimeoMatch = url.match(vimeoPattern);
     if (vimeoMatch) {
         return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
     }
