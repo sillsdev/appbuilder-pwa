@@ -19,7 +19,7 @@
     let query: SearchQuery;
 
     // The number of search results to fetch at a time.
-    const batchSize = 10;
+    const batchSize = 4;
 
     let results: SearchResult[] = [];
     let noResults = false;
@@ -43,6 +43,7 @@
         setTimeout(async () => {
             query = new SearchQuery(searchText, pk, docSet, collection, { wholeWords });
             results = await query.getResults(batchSize);
+            ensureScreenFilled();
             noResults = results.length === 0;
             waiting = false;
         }, 0);
@@ -64,22 +65,44 @@
     }
 
     function waitingText(): string {
-        console.log('waiting for search');
         return $t['Search_Searching'];
     }
 
     onMount(ensureInitialized);
 
-    // Intersection Observer callback
-    function handleIntersect(entries) {
+    function onScrollToLast(entries) {
         if (entries[0].isIntersecting && !waiting) {
             loadMore();
+            ensureScreenFilled();
         }
+    }
+
+    function ensureScreenFilled() {
+        if (!query || query.isComplete) {
+            return;
+        }
+        const sentinel = document.querySelector('#sentinel');
+        const sentinelObserver = new IntersectionObserver(
+            (entries) => {
+                if (!entries[0].isIntersecting) {
+                    sentinelObserver.disconnect();
+                } else {
+                    loadMore().then(ensureScreenFilled);
+                }
+            },
+            {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            }
+        );
+
+        sentinelObserver.observe(sentinel);
     }
 
     // Load more results when the user scrolls to the bottom of the list;
     onMount(() => {
-        const observer = new IntersectionObserver(handleIntersect, {
+        const observer = new IntersectionObserver(onScrollToLast, {
             root: null,
             rootMargin: '0px',
             threshold: 1.0
@@ -184,12 +207,14 @@
 </form>
 
 <style>
+    /*
     .special-characters {
         justify-content: start;
         /* For a scrolling view instead of rows */
-        /* overflow-x: scroll;
+    /* overflow-x: scroll;
     white-space: nowrap;
     height: 2.5em; */
+    /*
     }
     .special-character {
         width: 1.5em;
@@ -200,6 +225,7 @@
         display: inline-block;
         user-select: none;
     }
+    */
 
     .spin::before {
         position: fixed;
