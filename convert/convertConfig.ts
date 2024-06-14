@@ -800,9 +800,12 @@ function convertConfig(dataDir: string, verbose: number) {
             const tagHeight = tag.attributes.getNamedItem('height')
                 ? parseInt(tag.attributes.getNamedItem('height')!.value)
                 : 0;
-            const onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
+            let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
                 ? tag.getElementsByTagName('online-url')[0]?.innerHTML
                 : '';
+            if (onlineUrlHTML) {
+                onlineUrlHTML = convertVideoUrl(onlineUrlHTML);
+            }
             data.videos.push({
                 id: tag.attributes.getNamedItem('id')!.value,
                 width: tagWidth,
@@ -1061,4 +1064,31 @@ export class ConvertConfig extends Task {
             ]
         };
     }
+}
+
+function convertVideoUrl(url: string): string {
+    // Separate patterns for different YouTube URL formats
+    const youTuBePattern = /https:\/\/(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)(&.+)*/;
+    const youTubePattern = /https:\/\/(?:www\.)?youtube\.(?:\w+)\/watch\?v=([a-zA-Z0-9_-]+)(&.+)*/;
+    const vimeoPattern = /https:\/\/(?:www\.)?vimeo\.com\/([0-9]+)/;
+
+    // Check if it's a youtu.be URL
+    const youTuBeMatch = url.match(youTuBePattern);
+    if (youTuBeMatch) {
+        return `https://www.youtube.com/embed/${youTuBeMatch[1]}?autoplay=1`;
+    }
+
+    // Check if it's a youtube.com URL
+    const youTubeMatch = url.match(youTubePattern);
+    if (youTubeMatch) {
+        return `https://www.youtube.com/embed/${youTubeMatch[1]}?autoplay=1`;
+    }
+
+    // Check if it's a Vimeo URL
+    const vimeoMatch = url.match(vimeoPattern);
+    if (vimeoMatch) {
+        return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+    }
+
+    return url;
 }
