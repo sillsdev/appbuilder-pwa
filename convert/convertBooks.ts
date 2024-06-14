@@ -370,12 +370,6 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
             ? parseInt(quizSFM.match(/\\pm ([0-9]+)/i)![1])
             : undefined
     };
-    if (!quiz.rightAnswerAudio) {
-        quiz.rightAnswerAudio = ['quiz-right-answer.mp3'];
-    }
-    if (!quiz.wrongAnswerAudio) {
-        quiz.wrongAnswerAudio = ['quiz-wrong-answer.mp3'];
-    }
     let aCount = 0;
     let question: QuizQuestion = { text: '', answers: [] };
     let answer: QuizAnswer = { correct: false };

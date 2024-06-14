@@ -169,15 +169,28 @@
         playQuizQuestionAudio();
     }
 
+    function getAnswerAudio(quiz, correct) {
+        let sound;
+        if (correct) {
+            sound = quiz.rightAnswerAudio
+                ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
+                : 'assets/quiz-right-answer.mp3';
+        } else {
+            sound = quiz.wrongAnswerAudio
+                ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
+                : 'assets/quiz-wrong-answer.mp3';
+        }
+        return sound;
+    }
+
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
         stopCurrentQuestionAudio();
         stopCurrentAnswerAudio();
         stopCurrentExplanationAudio();
         if (!clicked) {
-            const audioPath = answer.correct
-                ? `${base}/assets/${getRandomAudio(quiz.rightAnswerAudio)}`
-                : `${base}/assets/${getRandomAudio(quiz.wrongAnswerAudio)}`;
+            const answerAudio = getAnswerAudio(quiz, answer.correct);
+            const audioPath = `${base}/${answerAudio}`;
             playSound(audioPath);
             if (answer.correct) {
                 score++;
