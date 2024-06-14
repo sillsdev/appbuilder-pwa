@@ -258,7 +258,7 @@
     });
 
     onDestroy(() => {
-        stopAudioPlayback();
+        stopAudioPlayback(); //This isn't working anymore.
     });
 </script>
 
