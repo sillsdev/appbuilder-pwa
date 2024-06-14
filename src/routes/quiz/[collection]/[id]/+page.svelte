@@ -177,8 +177,8 @@
         stopCurrentExplanationAudio();
         if (!clicked) {
             const audioPath = answer.correct
-                ? `${base}/assets/${getRandomAudio(quiz.answerAudio.correct)}`
-                : `${base}/assets/${getRandomAudio(quiz.answerAudio.incorrect)}`;
+                ? `${base}/assets/${getRandomAudio(quiz.rightAnswerAudio)}`
+                : `${base}/assets/${getRandomAudio(quiz.wrongAnswerAudio)}`;
             playSound(audioPath);
             if (answer.correct) {
                 score++;
