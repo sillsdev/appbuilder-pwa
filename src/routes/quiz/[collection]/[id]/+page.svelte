@@ -169,7 +169,6 @@
         playQuizQuestionAudio();
     }
 
-    // Modified function to prevent explanation for correct answers
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
         stopCurrentQuestionAudio();
