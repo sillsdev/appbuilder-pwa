@@ -203,6 +203,7 @@ export async function convertBooks(
                         ),
                         content: JSON.stringify(convertQuizBook(context, book), null, 2)
                     });
+                    process.stdout.write(` ${book.id}`);
                     break;
                 default:
                     bookConverted = true;
@@ -370,10 +371,10 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
             : undefined
     };
     if (!quiz.rightAnswerAudio) {
-        quiz.rightAnswerAudio = ["quiz-right-answer.mp3"];
+        quiz.rightAnswerAudio = ['quiz-right-answer.mp3'];
     }
     if (!quiz.wrongAnswerAudio) {
-        quiz.wrongAnswerAudio = ["quiz-wrong-answer.mp3"];
+        quiz.wrongAnswerAudio = ['quiz-wrong-answer.mp3'];
     }
     let aCount = 0;
     let question: QuizQuestion = { text: '', answers: [] };
@@ -508,11 +509,11 @@ function convertScriptureBook(
                             if (context.verbose)
                                 console.log(
                                     (r.data?.addDocument ? '' : 'failed: ') +
-                                    context.docSet +
-                                    ' <- ' +
-                                    book.name +
-                                    ': ' +
-                                    path.join(context.dataDir, 'books', context.bcId, book.file)
+                                        context.docSet +
+                                        ' <- ' +
+                                        book.name +
+                                        ': ' +
+                                        path.join(context.dataDir, 'books', context.bcId, book.file)
                                 );
                             //if the document is not added successfully, the response returned by Proskomma includes an error message
                             if (!r.data?.addDocument) {
