@@ -53,15 +53,12 @@ A clickable verse card representing a single search result.
 
 <div class="search-result-block transition-shadow duration-300 hover:shadow-lg cursor-pointer">
     <button class="text-left" on:click|preventDefault={onClick}>
-        <div
-            class="search-result-reference"
-            style={convertStyle($s['ui.search.results-reference'])}
-        >
+        <div class="search-result-reference">
             <h1>
                 {referenceString(result)}
             </h1>
         </div>
-        <div class="search-result-context" style={convertStyle($s['ui.search.results-context'])}>
+        <div class="search-result-context">
             <p>
                 {#each result.chunks as chunk}
                     <span
