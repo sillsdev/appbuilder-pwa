@@ -110,10 +110,6 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         this.searchIsBlank = tokens.length === 0;
 
         this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.substitute);
-        // Debuging
-        // if (args.searchPhrase === '"') {
-        //     console.log(tokens);
-        // }
     }
 
     pk: SABProskomma;
@@ -293,7 +289,6 @@ export class SearchQuery extends SearchQueryBase {
         options: SearchOptions
     ) {
         const configOptions = getConfig();
-        console.log(`searching for '${searchPhrase}`, configOptions);
         const verseProvider = new ProskommaVerseProvider({
             pk,
             searchPhrase,
