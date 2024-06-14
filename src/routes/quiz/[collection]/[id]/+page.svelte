@@ -41,36 +41,24 @@
     }
 
     function playSound(path, callback, type = 'answer') {
+        let audio = new Audio();
+        audio.src = path;
+        audio.onended = function () {
+            if (callback) {
+                callback();
+            }
+        };
+        audio.play();
+
         if (type === 'question') {
             stopCurrentQuestionAudio();
-            currentQuestionAudio = new Audio();
-            currentQuestionAudio.src = path;
-            currentQuestionAudio.onended = function () {
-                if (callback) {
-                    callback();
-                }
-            };
-            currentQuestionAudio.play();
+            currentQuestionAudio = audio;
         } else if (type === 'answer') {
             stopCurrentAnswerAudio();
-            currentAnswerAudio = new Audio();
-            currentAnswerAudio.src = path;
-            currentAnswerAudio.onended = function () {
-                if (callback) {
-                    callback();
-                }
-            };
-            currentAnswerAudio.play();
+            currentAnswerAudio = audio;
         } else if (type === 'explanation') {
             stopCurrentExplanationAudio();
-            currentExplanationAudio = new Audio();
-            currentExplanationAudio.src = path;
-            currentExplanationAudio.onended = function () {
-                if (callback) {
-                    callback();
-                }
-            };
-            currentExplanationAudio.play();
+            currentExplanationAudio = audio;
         }
     }
 
@@ -152,12 +140,14 @@
     }
 
     function getCommentary(score) {
-        for (let comment of quiz.commentary) {
-            if (score >= comment.rangeMin && score <= comment.rangeMax) {
-                return comment.message;
+        let result = '';
+        for (const commentary of quiz.commentary) {
+            if (score >= commentary.rangeMin && score <= commentary.rangeMax) {
+                result = commentary.message;
+                break;
             }
         }
-        return '';
+        return result;
     }
 
     function onNextQuestion() {
@@ -235,13 +225,47 @@
     }
 
     function playQuizQuestionAudio() {
-        if (quizAudioActive) {
-            playSound(`${base}/clips/${currentQuizQuestion.audio}`, () => {}, 'question');
+        if ($quizAudioActive) {
+            const question = getCurrentQuizQuestion();
+            if (question && question.audio) {
+                if (question.audio) {
+                    const listener = () => {
+                        playQuizAnswerAudio(0);
+                    };
+                    playSound(`${base}/clips/${question.audio}`, listener, 'question');
+                } else {
+                    playQuizAnswerAudio(0);
+                }
+            }
         }
+    }
+
+    function playQuizAnswerAudio(answerIndex) {
+        if (currentQuizQuestion && $quizAudioActive) {
+            if (answerIndex < currentQuizQuestion.answers.length) {
+                const answer = currentQuizQuestion.answers[answerIndex];
+                if (answer.audio) {
+                    const listener = () => {
+                        textHighlightIndex = -1;
+                        playQuizAnswerAudio(answerIndex + 1);
+                    };
+                    textHighlightIndex = answerIndex;
+                    playSound(`${base}/clips/${answer.audio}`, listener, 'answer');
+                }
+            } else {
+                textHighlightIndex = -1;
+            }
+        }
+    }
+
+    function getCurrentQuizQuestion() {
+        return shuffledQuestions[questionNum];
     }
 
     onMount(() => {
         shuffleQuestions();
+        handleQuestionChange();
+        playQuizQuestionAudio();
     });
 
     onDestroy(() => {
