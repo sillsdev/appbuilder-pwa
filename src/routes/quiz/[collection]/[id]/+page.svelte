@@ -49,17 +49,6 @@
             }
         };
         audio.play();
-
-        if (type === 'question') {
-            stopCurrentQuestionAudio();
-            currentQuestionAudio = audio;
-        } else if (type === 'answer') {
-            stopCurrentAnswerAudio();
-            currentAnswerAudio = audio;
-        } else if (type === 'explanation') {
-            stopCurrentExplanationAudio();
-            currentExplanationAudio = audio;
-        }
     }
 
     function stopCurrentQuestionAudio() {
@@ -163,11 +152,11 @@
         let sound;
         if (correct) {
             sound = quiz.rightAnswerAudio
-                ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
+                ? 'assets/' + getRandomAudio(quiz.rightAnswerAudio)
                 : 'assets/quiz-right-answer.mp3';
         } else {
             sound = quiz.wrongAnswerAudio
-                ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
+                ? 'assets/' + getRandomAudio(quiz.wrongAnswerAudio)
                 : 'assets/quiz-wrong-answer.mp3';
         }
         return sound;
@@ -227,7 +216,7 @@
     function playQuizQuestionAudio() {
         if ($quizAudioActive) {
             const question = getCurrentQuizQuestion();
-            if (question && question.audio) {
+            if (question) {
                 if (question.audio) {
                     const listener = () => {
                         playQuizAnswerAudio(0);
