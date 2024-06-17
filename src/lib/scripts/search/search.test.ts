@@ -470,6 +470,44 @@ describe('SearchQueryBase', () => {
             }
         });
     });
+
+    describe('Ignore case', () => {
+        test('basic options', async () => {
+            const search = new TestSearchQuery('abraHam', { caseInsensitive: true });
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('with whole words', async () => {
+            const search = new TestSearchQuery('abraHam', {
+                caseInsensitive: true,
+                wholeWords: true
+            });
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('with substitution', async () => {
+            const search = new TestSearchQuery('ÁbraHam', {
+                caseInsensitive: true,
+                wholeWords: true,
+                substitute: { a: 'á', á: 'a' }
+            });
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('with substitute and ignore', async () => {
+            const search = new TestSearchQuery('Ábraxam', {
+                caseInsensitive: true,
+                wholeWords: true,
+                substitute: { a: 'á', á: 'a' },
+                ignore: 'xh'
+            });
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+    });
 });
 
 describe('ProskommaVerseProvider', () => {
@@ -619,6 +657,58 @@ describe('ProskommaVerseProvider', () => {
             const blockResponse = await provider.queryForBlocks(bookId);
             expect(blockResponse).toHaveProperty('data');
         });
+
+        describe('are case insensitive, whole words', () => {
+            const pk = new SABProskomma();
+            loadTestUSFM(pk);
+
+            const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+                pk,
+                searchPhrase: 'abrAHAm',
+                wholeWords: true,
+                docSet: 'eng_C01',
+                collection: 'C01'
+            });
+
+            test('queryForBooks', async () => {
+                const response = await provider.queryForBooks();
+                expect(response).toHaveProperty('data');
+                expect(response.data.docSet.documents.length).toBeGreaterThan(0);
+            });
+
+            test('queryForBlocks', async () => {
+                const bookResponse = await provider.queryForBooks();
+                const bookId = bookResponse.data.docSet.documents[0].id;
+                const blockResponse = await provider.queryForBlocks(bookId);
+                expect(blockResponse).toHaveProperty('data');
+            });
+        });
+
+        describe('are case insensitive, partial words', () => {
+            const pk = new SABProskomma();
+            loadTestUSFM(pk);
+
+            const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+                pk,
+                searchPhrase: 'abrAHAm',
+                wholeWords: false,
+                docSet: 'eng_C01',
+                collection: 'C01'
+            });
+
+            test('queryForBooks', async () => {
+                const response = await provider.queryForBooks();
+                expect(response).toHaveProperty('data');
+                expect(response.data.docSet.documents.length).toBeGreaterThan(0);
+            });
+
+            test('queryForBlocks', async () => {
+                const bookResponse = await provider.queryForBooks();
+                const bookId = bookResponse.data.docSet.documents[0].id;
+                const blockResponse = await provider.queryForBlocks(bookId);
+                expect(blockResponse).toHaveProperty('data');
+            });
+        });
     });
 
     test('Escapes double quotes in search', async () => {
@@ -647,6 +737,56 @@ describe('ProskommaVerseProvider', () => {
             wholeWords: false,
             docSet: 'eng_C01',
             collection: 'C01'
+        });
+
+        const results = await provider.getVerses();
+        expect(results.length).toBeGreaterThan(0);
+    });
+
+    test('Ignores case with partial words', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'dAviD',
+            wholeWords: false,
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+
+        const results = await provider.getVerses();
+        expect(results.length).toBeGreaterThan(0);
+    });
+
+    test('Ignores case with whole words', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'dAviD',
+            wholeWords: true,
+            docSet: 'eng_C01',
+            collection: 'C01'
+        });
+
+        const results = await provider.getVerses();
+        expect(results.length).toBeGreaterThan(0);
+    });
+
+    test('Ignores case with substitutions and ignore', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+            pk,
+            searchPhrase: 'dÁxiD',
+            wholeWords: true,
+            docSet: 'eng_C01',
+            collection: 'C01',
+            substitute: { a: 'á', á: 'a' },
+            ignore: 'vx'
         });
 
         const results = await provider.getVerses();
@@ -762,7 +902,7 @@ describe('keywordToRegex', () => {
         const regex = new RegExp(parsed);
 
         // Phrase should match literally.
-        expect(phrase.match(regex).slice(), `Bad match from regex pattern '${parsed}'`).toEqual([
+        expect(phrase.match(regex)?.slice(), `Bad match from regex pattern '${parsed}'`).toEqual([
             phrase
         ]);
     });
