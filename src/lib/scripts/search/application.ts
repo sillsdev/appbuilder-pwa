@@ -95,19 +95,21 @@ export abstract class SearchQueryBase {
         return chunks;
     }
 
-    private getWordIndices(text: string) {
-        const wordRegex = /[\p{L}\p{N}]+/gu;
-        const starts = [];
-        const stops = [];
-        for (const word of text.matchAll(wordRegex)) {
-            starts.push(word.index);
-            stops.push(word.index + word[0].length);
-        }
-        return { starts, stops };
+    private splitWordChunks(text: string) {
+        const regex = makeRegex(this.searchPhrase, {
+            substitute: this.options?.substitute,
+            ignore: this.options?.ignore
+        });
+        const matches = this.wordMatchBoundaries(text, regex);
+        return this.chunksByIndices(text, matches);
     }
 
-    private indexWordMatches(text: string, regex: RegExp): number[] {
-        const wordIndex = this.getWordIndices(text);
+    /**
+     * Get a list of indices where the beginning or end of a match coincides
+     * with the beginning or end of a word.
+     */
+    private wordMatchBoundaries(text: string, regex: RegExp): number[] {
+        const wordIndex = this.wordBoundaries(text);
         const matches: number[] = [];
         for (const match of text.matchAll(new RegExp(regex, 'g'))) {
             const start = match.index;
@@ -119,11 +121,28 @@ export abstract class SearchQueryBase {
         return matches;
     }
 
-    private chunksByIndex(text: string, index: number[]): SearchResultChunk[] {
+    /**
+     * Get indices for the beginning and end of each word
+     */
+    private wordBoundaries(text: string) {
+        const wordRegex = /[\p{L}\p{N}]+/gu;
+        const starts = [];
+        const stops = [];
+        for (const word of text.matchAll(wordRegex)) {
+            starts.push(word.index);
+            stops.push(word.index + word[0].length);
+        }
+        return { starts, stops };
+    }
+
+    /**
+     * Split text into chunks along given indicies
+     */
+    private chunksByIndices(text: string, indices: number[]): SearchResultChunk[] {
         const chunks: SearchResultChunk[] = [];
         let i = 0;
         let isMatch = false;
-        for (const j of index) {
+        for (const j of indices) {
             chunks.push({
                 content: text.slice(i, j),
                 matchesQuery: isMatch
@@ -136,15 +155,6 @@ export abstract class SearchQueryBase {
             matchesQuery: isMatch
         });
         return chunks;
-    }
-
-    private splitWordChunks(text: string) {
-        const regex = makeRegex(this.searchPhrase, {
-            substitute: this.options?.substitute,
-            ignore: this.options?.ignore
-        });
-        const matches = this.indexWordMatches(text, regex);
-        return this.chunksByIndex(text, matches);
     }
 
     private splitCharChunks(text: string) {

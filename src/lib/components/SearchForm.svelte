@@ -4,7 +4,7 @@
     import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SABProskomma } from '$lib/sab-proskomma';
-    import { SearchQuery } from '$lib/scripts/search/adapters';
+    import { SearchQuery } from '$lib/scripts/search/adapters/search-query';
     import type { SearchResult } from '$lib/scripts/search/entities';
     import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
