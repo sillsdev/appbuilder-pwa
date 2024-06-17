@@ -1,4 +1,3 @@
-import { afterEach, before } from 'node:test';
 import {
     RegexHelpers,
     makeRegex as makeRegex,
@@ -335,6 +334,26 @@ describe('RegexBuilder', () => {
                         expect(results).toEqual([text]);
                     }
                 });
+            });
+        });
+
+        describe('Ignore case by locale', () => {
+            test('in search query', () => {
+                const results = testPattern('İstanbul', 'istanbul', { locale: 'tr' });
+                expect(results).toEqual(['istanbul']);
+            });
+
+            test('in ignore string', () => {
+                const results = testPattern('İstanbul', 'stanbul', { ignore: 'i', locale: 'tr' });
+                expect(results).toEqual(['stanbul']);
+            });
+
+            test('in substitution', () => {
+                const results = testPattern('İstanbul', 'xstanbul', {
+                    substitute: { i: 'x', x: 'i' },
+                    locale: 'tr'
+                });
+                expect(results).toEqual(['xstanbul']);
             });
         });
     });

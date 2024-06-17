@@ -22,7 +22,8 @@ export class SearchQuery extends SearchQueryBase {
             ignore: configOptions.ignore,
             substitute: configOptions.substitute,
             docSet,
-            collection
+            collection,
+            locale: options.locale
         });
         options.substitute = configOptions.substitute;
         options.ignore = configOptions.ignore;

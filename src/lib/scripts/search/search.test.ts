@@ -508,6 +508,27 @@ describe('SearchQueryBase', () => {
             expect(results.length).toBeGreaterThan(0);
         });
     });
+
+    describe('Ignore case respects locale', () => {
+        test('partial words', async () => {
+            const search = new TestSearchQuery('lİfe', {
+                caseInsensitive: true,
+                locale: 'tr'
+            });
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('whole words', async () => {
+            const search = new TestSearchQuery('lİfe', {
+                caseInsensitive: true,
+                wholeWords: true,
+                locale: 'tr'
+            });
+            const results = await search.getResults();
+            expect(results.length).toBeGreaterThan(0);
+        });
+    });
 });
 
 describe('ProskommaVerseProvider', () => {
@@ -791,6 +812,39 @@ describe('ProskommaVerseProvider', () => {
 
         const results = await provider.getVerses();
         expect(results.length).toBeGreaterThan(0);
+    });
+
+    describe('Ignores case by locale', async () => {
+        const pk = new SABProskomma();
+        await loadTestUSFM(pk);
+
+        test('whole words', async () => {
+            const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+                pk,
+                searchPhrase: 'davİd',
+                wholeWords: true,
+                docSet: 'eng_C01',
+                collection: 'C01',
+                locale: 'tr'
+            });
+
+            const results = await provider.getVerses();
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        test('parial words', async () => {
+            const provider = new ProksommaSearchInterface.ProskommaVerseProvider({
+                pk,
+                searchPhrase: 'davİ',
+                wholeWords: false,
+                docSet: 'eng_C01',
+                collection: 'C01',
+                locale: 'tr'
+            });
+
+            const results = await provider.getVerses();
+            expect(results.length).toBeGreaterThan(0);
+        });
     });
 
     test('If word is not found, returns no results', async () => {

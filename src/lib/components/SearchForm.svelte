@@ -1,13 +1,22 @@
 <script lang="ts">
     import config from '$lib/data/config';
     import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
+    import {
+        bodyFontSize,
+        convertStyle,
+        currentFont,
+        language,
+        s,
+        t,
+        themeColors
+    } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { SearchQuery } from '$lib/scripts/search/adapters/search-query';
     import type { SearchResult } from '$lib/scripts/search/entities';
     import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
+    import { get } from 'svelte/store';
 
     export let docSet: string;
     export let collection: string;
@@ -43,7 +52,8 @@
         setTimeout(async () => {
             query = new SearchQuery(searchText, pk, docSet, collection, {
                 wholeWords,
-                caseInsensitive: true
+                caseInsensitive: true,
+                locale: get(language)
             });
             results = await query.getResults(batchSize);
             ensureScreenFilled();
