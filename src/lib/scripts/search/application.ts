@@ -1,4 +1,4 @@
-import type { Reference, SearchResult } from './entities';
+import type { Reference, SearchResult, SearchResultChunk } from './entities';
 import { BufferedReader } from './utils/buffered-reader';
 import { makeRegex } from './utils/regex-helpers';
 
@@ -41,6 +41,7 @@ export interface SearchOptions {
     wholeWords?: boolean;
     ignore?: string;
     substitute?: { [char: string]: string };
+    caseInsensitive?: boolean;
 }
 
 // Finds verses that match the given search parameters.
@@ -87,7 +88,7 @@ export abstract class SearchQueryBase {
             .filter((v) => v.chunks.some((c) => c.matchesQuery));
     }
 
-    private splitChunks(text: string) {
+    private splitChunks(text: string): SearchResultChunk[] {
         const chunks = this.options?.wholeWords
             ? this.splitWordChunks(text)
             : this.splitCharChunks(text);
@@ -105,9 +106,9 @@ export abstract class SearchQueryBase {
         return { starts, stops };
     }
 
-    private indexWordMatches(text: string, regex: RegExp) {
+    private indexWordMatches(text: string, regex: RegExp): number[] {
         const wordIndex = this.getWordIndices(text);
-        const matches = [];
+        const matches: number[] = [];
         for (const match of text.matchAll(new RegExp(regex, 'g'))) {
             const start = match.index;
             const stop = match.index + match[0].length;
@@ -118,8 +119,8 @@ export abstract class SearchQueryBase {
         return matches;
     }
 
-    private chunksByIndex(text: string, index: number[]) {
-        const chunks = [];
+    private chunksByIndex(text: string, index: number[]): SearchResultChunk[] {
+        const chunks: SearchResultChunk[] = [];
         let i = 0;
         let isMatch = false;
         for (const j of index) {
