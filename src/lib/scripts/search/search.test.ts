@@ -5,18 +5,18 @@ import {
     type SearchCandidate,
     type SearchOptions
 } from './application';
-import {
-    ProksommaSearchInterface,
-    SearchQuery,
-    gqlSearchHelpers,
-    type GQLBlockToken,
-    type GQLBlocks,
-    type GQLBooks
-} from './adapters';
 import { SABProskomma } from '$lib/sab-proskomma';
 import type { Reference } from './entities';
 import { thaw } from '../thaw';
 import { readFileSync } from 'fs';
+import {
+    ProksommaSearchInterface,
+    gqlSearchHelpers,
+    type GQLBlockToken,
+    type GQLBooks,
+    type GQLBlocks
+} from './adapters/proskomma-verse-provider';
+import { SearchConfigHelpers } from './adapters/search-config';
 
 const sampleUsfm = `
 \\id MAT 40-MAT-web.sfm World English Bible (WEB) 
@@ -910,7 +910,7 @@ describe('keywordToRegex', () => {
 
 describe('parseConfig', () => {
     const config = '\\u0300 \\u0301 á>a \\u0302 à>a è>e é>e';
-    const parsed = ProksommaSearchInterface.parseConfig(config);
+    const parsed = SearchConfigHelpers.parseConfig(config);
 
     test('ignored characters', () => {
         expect(parsed.ignore).toBe('\u0300\u0301\u0302');
