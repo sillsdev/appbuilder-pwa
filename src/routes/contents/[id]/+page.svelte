@@ -5,8 +5,10 @@
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
+    import config from '$lib/data/config';
 
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
+    $: title = setTitle($page);
 
     function onClick(event, item) {
         event.target.style.background = highlightColor;
@@ -17,7 +19,6 @@
 
     function checkImageSize(item) {
         if (item.features['image-width']) {
-            console.log(item.features['image-width']);
             return 'width: ' + item.features['image-width'];
         } else {
             //nothing here - default size
@@ -94,6 +95,42 @@
             verse: verse
         });
     }
+
+    //set the title for the current contents page
+    function setTitle(page) {
+        //checks title type and returns the appropriate title or lack of title
+
+        /* title options:
+            - app-name 
+            - screen (current contents screen title)
+            - custom 
+            - none
+        
+            I also noticed that if you build files with a custom 
+            title and then again without specifying a title aka 
+            any of the other options, the title in the json was the 
+            previously used custom title, is this ok?
+            i think its fine because you only use that for the custom title option
+        */
+        switch (page.data.features['title-type']) {
+            case 'app-name':
+                //where to find the app name: config.js, line 2
+                return config.name;
+                break;
+            case 'screen':
+                return page.data.menu.title.default;
+                break;
+            case 'custom':
+                return page.data.title.default;
+                break;
+            case 'none':
+                return '';
+                break;
+            default:
+                return '';
+                break;
+        }
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -101,7 +138,7 @@
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Contents']}</div>
+                <div class="btn btn-ghost normal-case text-xl">{title}</div>
             </label>
             <!-- <div slot="right-buttons" /> -->
         </Navbar>

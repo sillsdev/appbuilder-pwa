@@ -14,5 +14,7 @@ export async function load({ params }) {
 
     const features = contents.features
 
-    return { menu, items, features };
+    const title = contents.title
+
+    return { menu, items, features, title };
 }
