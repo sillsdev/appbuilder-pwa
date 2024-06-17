@@ -383,9 +383,13 @@ export async function getAudioSourceInfo(item: {
     } else if (audioSource.type === 'assets') {
         audioPath = '/audio/' + audio.filename;
     } else if (audioSource.type === 'download') {
-        audioPath = audioSource.address + '/' + audio.filename;
+        let extraSlash = '/';
+        if (audioSource.address.endsWith('/')) {
+            extraSlash = '';
+        }
+        audioPath = audioSource.address + extraSlash + audio.filename;
+        console.log('Audio Path:', audioPath, audioSource.address, audio.filename);
     }
-
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
