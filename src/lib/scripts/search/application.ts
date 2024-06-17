@@ -42,6 +42,7 @@ export interface SearchOptions {
     ignore?: string;
     substitute?: { [char: string]: string };
     caseInsensitive?: boolean;
+    locale?: string;
 }
 
 // Finds verses that match the given search parameters.
@@ -50,11 +51,13 @@ export abstract class SearchQueryBase {
         this.searchPhrase = searchPhrase.trim();
         this.verseProvider = verseProvider;
         this.options = options;
+        this.locale = options.locale;
     }
 
     verseProvider: VerseProvider;
     searchPhrase: string;
     options: SearchOptions;
+    locale?: string;
 
     // Whether all search results have been returned.
     isComplete: boolean = false;
@@ -98,7 +101,8 @@ export abstract class SearchQueryBase {
     private splitWordChunks(text: string) {
         const regex = makeRegex(this.searchPhrase, {
             substitute: this.options?.substitute,
-            ignore: this.options?.ignore
+            ignore: this.options?.ignore,
+            locale: this.locale
         });
         const matches = this.wordMatchBoundaries(text, regex);
         return this.chunksByIndices(text, matches);
@@ -161,7 +165,8 @@ export abstract class SearchQueryBase {
         const regex = makeRegex(this.searchPhrase, {
             ignore: this.options?.ignore,
             substitute: this.options?.substitute,
-            capture: true
+            capture: true,
+            locale: this.locale
         });
         const chunks = text
             .split(regex)

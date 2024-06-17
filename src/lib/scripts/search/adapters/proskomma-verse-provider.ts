@@ -22,10 +22,11 @@ function keywordToRegex(
     word: string,
     wholeWords: boolean = false,
     ignore: string = '',
-    substitute: { [char: string]: string } = {}
+    substitute: { [char: string]: string } = {},
+    locale?: string
 ) {
     let pattern = word;
-    pattern = makeRegexPattern(pattern, { ignore, substitute });
+    pattern = makeRegexPattern(pattern, { ignore, substitute, locale });
     pattern = pattern.replaceAll('\\', '\\\\');
     pattern = pattern.replaceAll('"', '\\"');
     if (wholeWords) {
@@ -37,9 +38,10 @@ function searchParams(
     keywords: string[],
     wholeWords: boolean = false,
     ignore: string = '',
-    substitute: { [char: string]: string }
+    substitute: { [char: string]: string },
+    locale?: string
 ): string {
-    const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, substitute));
+    const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, substitute, locale));
     return `withMatchingChars: ["${terms.join('", "')}"]`;
 }
 /** * Get a chapter/verse reference string from Proskomma scopes */ function chapterVerseFromScopes(
@@ -71,6 +73,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         substitute?: { [char: string]: string };
         docSet: string;
         collection: string;
+        locale?: string;
     }) {
         super(args.searchPhrase, {});
         this.pk = args.pk;
@@ -78,7 +81,13 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         this.collection = args.collection;
         const tokens = RegexHelpers.wordsOf(args.searchPhrase);
         this.searchIsBlank = tokens.length === 0;
-        this.searchParams = searchParams(tokens, args.wholeWords, args.ignore, args.substitute);
+        this.searchParams = searchParams(
+            tokens,
+            args.wholeWords,
+            args.ignore,
+            args.substitute,
+            args.locale
+        );
     }
     pk: SABProskomma;
     books: string[];
