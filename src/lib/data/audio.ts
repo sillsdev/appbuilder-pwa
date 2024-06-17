@@ -11,6 +11,7 @@ import {
 import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/data/stores';
 import { MRUCache } from '$lib/data/mrucache';
 import { base } from '$app/paths';
+import { pathJoin } from '$lib/scripts/stringUtils';
 interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;
@@ -381,11 +382,10 @@ export async function getAudioSourceInfo(item: {
 
         audioPath = result.data[0].path;
     } else if (audioSource.type === 'assets') {
-        audioPath = '/audio/' + audio.filename;
+        audioPath = pathJoin(['/audio/', audio.filename]);
     } else if (audioSource.type === 'download') {
-        audioPath = audioSource.address + '/' + audio.filename;
+        audioPath = pathJoin([audioSource.address, audio.filename]);
     }
-
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
