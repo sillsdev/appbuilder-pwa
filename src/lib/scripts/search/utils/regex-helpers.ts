@@ -1,3 +1,5 @@
+import { extendStringProperty } from './object-helpers';
+
 /**
  * Represents one or more characters a Regex should match literally.
  */
@@ -14,6 +16,18 @@ class RegexToken {
     toString(): string {
         return this.token;
     }
+
+    toUpperCase(): RegexToken {
+        return new RegexToken(this.token.toUpperCase());
+    }
+
+    toLowerCase(): RegexToken {
+        return new RegexToken(this.token.toLowerCase());
+    }
+
+    hasCase(): boolean {
+        return this.token.toUpperCase() !== this.token.toLowerCase();
+    }
 }
 
 /**
@@ -24,9 +38,16 @@ class RegexGroup {
     private tokens: RegexToken[];
     private starred: boolean;
 
-    constructor(tokens: RegexToken[], options: { starred?: boolean } = {}) {
-        this.tokens = tokens;
+    constructor(tokens: RegexToken[], options: { starred?: boolean; matchCase?: boolean } = {}) {
+        this.tokens = this.mapTokens(tokens, options.matchCase);
         this.starred = options.starred ?? false;
+    }
+
+    private mapTokens(tokens: RegexToken[], matchCase: boolean = false): RegexToken[] {
+        if (matchCase) {
+            return tokens;
+        }
+        return tokens.flatMap((t) => (t.hasCase() ? [t.toUpperCase(), t.toLowerCase()] : t));
     }
 
     toString(): string {
@@ -35,45 +56,47 @@ class RegexGroup {
     }
 }
 
-/**
- * Builds a regex to match a sequence of RegexGroup's.
- *
- * Options:
- *  - ignore: A group of tokens that may occur anywhere in a match.
- *  - capture: Whether to wrap the match in a Regex capture group
- */
-class RegexString {
-    private pattern: string;
-
-    constructor(
-        chars: RegexGroup[],
-        options: { ignore?: RegexGroup; capture?: boolean; wholeLine?: boolean } = {}
-    ) {
-        const charPatterns = chars.map((c) => c.toString());
-        const ignorePattern = options.ignore ? options.ignore.toString() + '*' : '';
-        this.pattern = ignorePattern + charPatterns.join(ignorePattern) + ignorePattern;
-        if (options.capture) {
-            this.pattern = '(' + this.pattern + ')';
-        }
-        if (options.wholeLine) {
-            this.pattern = '^' + this.pattern + '$';
-        }
-    }
-
-    toString(): string {
-        return this.pattern;
-    }
-}
-
 function tokenize(input: string): RegexToken[] {
     return [...input].map((c) => new RegexToken(c));
 }
 
+/**
+ * Maps characters that may be substituted during a search
+ */
+type SubstitutionMap = { [char: string]: string };
+
+/**
+ * Convert the SubstitutionMap to use upper and lower case interchangeably
+ */
+function allowCaseSubstitution(substitute: SubstitutionMap): SubstitutionMap {
+    const subs: SubstitutionMap = {};
+    for (const key of Object.keys(substitute)) {
+        const value = upperAndLowerCase(substitute[key]);
+        extendStringProperty(subs, key.toUpperCase(), value);
+        extendStringProperty(subs, key.toLowerCase(), value);
+    }
+    // Remove any duplicate characters
+    for (const key of Object.keys(subs)) {
+        subs[key] = [...new Set(subs[key]).values()].join('');
+    }
+    return subs;
+}
+
+function upperAndLowerCase(input: string) {
+    const upper = input.toUpperCase();
+    const lower = input.toLowerCase();
+    if (upper === lower) {
+        return input;
+    }
+    return upper + lower;
+}
+
 export interface RegexOptions {
     ignore?: string;
-    substitute?: { [char: string]: string };
+    substitute?: SubstitutionMap;
     capture?: boolean;
     wholeLine?: boolean;
+    matchCase?: boolean;
 }
 
 class RegexBuilder {
@@ -83,7 +106,15 @@ class RegexBuilder {
     }
 
     pattern(phrase: string, options: RegexOptions = {}): string {
-        const groups = this.getGroupsWithIgnore(phrase, options.ignore, options.substitute);
+        const substitute = options.matchCase
+            ? options.substitute
+            : allowCaseSubstitution(options.substitute ?? {});
+        const groups = this.getGroupsWithIgnore(
+            phrase,
+            options.ignore,
+            substitute,
+            options.matchCase
+        );
         let pattern = groups.map((g) => g.toString()).join('');
         if (options.capture) {
             pattern = '(' + pattern + ')';
@@ -97,25 +128,26 @@ class RegexBuilder {
     private getGroupsWithIgnore(
         phrase: string,
         ignore?: string,
-        substitute?: { [char: string]: string }
+        substitute?: SubstitutionMap,
+        matchCase?: boolean
     ) {
-        const ignoreGroup = this.getIgnoreGroup(ignore);
+        const ignoreGroup = this.getIgnoreGroup(ignore, matchCase);
         if (ignoreGroup) {
             phrase = phrase.replaceAll(new RegExp(ignoreGroup.toString(), 'g'), '');
         }
-        let groups = this.getGroups(phrase, substitute);
+        let groups = this.getGroups(phrase, substitute, matchCase);
         if (ignoreGroup) {
             groups = this.addIgnoreGroups(groups, ignoreGroup);
         }
         return groups;
     }
 
-    private getIgnoreGroup(ignore?: string): RegexGroup {
+    private getIgnoreGroup(ignore?: string, matchCase?: boolean): RegexGroup {
         if (!ignore) {
             return null;
         }
         const ignoreTokens = tokenize(ignore);
-        return new RegexGroup(ignoreTokens, { starred: true });
+        return new RegexGroup(ignoreTokens, { starred: true, matchCase });
     }
 
     private addIgnoreGroups(match: RegexGroup[], ignore: RegexGroup): RegexGroup[] {
@@ -128,14 +160,18 @@ class RegexBuilder {
         return groups;
     }
 
-    private getGroups(phrase: string, substitute: { [char: string]: string } = {}): RegexGroup[] {
+    private getGroups(
+        phrase: string,
+        substitute: SubstitutionMap = {},
+        matchCase?: boolean
+    ): RegexGroup[] {
         const groups = [];
         for (const char of [...phrase]) {
             const tokens = [new RegexToken(char)];
             if (substitute[char]) {
                 tokens.push(...tokenize(substitute[char]));
             }
-            groups.push(new RegexGroup(tokens));
+            groups.push(new RegexGroup(tokens, { matchCase }));
         }
         return groups;
     }
@@ -172,11 +208,11 @@ function splitByWords(input: string): string[] {
 export const RegexHelpers = {
     RegexToken,
     RegexGroup,
-    RegexString,
     RegexBuilder,
-    setBuilderInstance,
+    allowCaseSubstitution,
     resetBuilderInstance,
-    tokenize,
+    setBuilderInstance,
     splitByWords,
+    tokenize,
     wordsOf
 };

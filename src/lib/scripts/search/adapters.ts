@@ -8,6 +8,7 @@ import {
 import { BufferedReader } from './utils/buffered-reader';
 import { RegexHelpers, makeRegexPattern } from './utils/regex-helpers';
 import config from '$lib/data/config';
+import { extendStringProperty } from './utils/object-helpers';
 
 export interface GQLBooks {
     data: {
@@ -240,14 +241,6 @@ function parseConfig(accentsToRemove: string): SearchConfig {
     return { ignore, substitute };
 }
 
-function parseEquivalent(accentsToRemove: string) {
-    const equivalent = [];
-    for (const match of accentsToRemove.matchAll(/(\S)>(\S)/g)) {
-        equivalent.push(match[1] + match[2]);
-    }
-    return equivalent;
-}
-
 function parseSubstitutes(accentsToRemove: string) {
     const sub = {};
     for (const match of accentsToRemove.matchAll(/(\S)>(\S)/g)) {
@@ -255,14 +248,6 @@ function parseSubstitutes(accentsToRemove: string) {
         extendStringProperty(sub, match[2], match[1]);
     }
     return sub;
-}
-
-function extendStringProperty(obj: object, property: string, value: string) {
-    if (!obj[property]) {
-        obj[property] = value;
-    } else {
-        obj[property] += value;
-    }
 }
 
 function parseIgnored(accentsToRemove: string) {

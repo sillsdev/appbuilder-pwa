@@ -9,11 +9,11 @@ import { afterAll, describe, expect, test, vi } from 'vitest';
 
 const RegexToken = RegexHelpers.RegexToken;
 const RegexGroup = RegexHelpers.RegexGroup;
-const RegexString = RegexHelpers.RegexString;
 const RegexBuilder = RegexHelpers.RegexBuilder;
-const tokenize = RegexHelpers.tokenize;
-const setBuilderInstance = RegexHelpers.setBuilderInstance;
+const allowCaseSubstitution = RegexHelpers.allowCaseSubstitution;
 const resetBuilderInstance = RegexHelpers.resetBuilderInstance;
+const setBuilderInstance = RegexHelpers.setBuilderInstance;
+const tokenize = RegexHelpers.tokenize;
 
 describe('RegexToken', () => {
     test('escapes special characters', () => {
@@ -36,6 +36,30 @@ describe('RegexToken', () => {
     test('Works with UTF-16 surrogates', () => {
         const c = '𝟘';
         expect(new RegexToken(c).toString()).toBe(c);
+    });
+
+    test('toUpperCase', () => {
+        const token = new RegexToken('a');
+        const upper = token.toUpperCase();
+        expect(upper.toString()).toBe('A');
+    });
+
+    test('toLowerCase', () => {
+        const token = new RegexToken('A');
+        const upper = token.toLowerCase();
+        expect(upper.toString()).toBe('a');
+    });
+
+    describe('hasCase', () => {
+        test('true for letter', () => {
+            const token = new RegexToken('a');
+            expect(token.hasCase()).toBe(true);
+        });
+
+        test('false for number', () => {
+            const token = new RegexToken('3');
+            expect(token.hasCase()).toBe(false);
+        });
     });
 });
 
@@ -83,6 +107,13 @@ describe('RegexGroup', () => {
         expect('txaabbabaysno'.match(regex).slice()).toEqual(['xaabbabay']);
     });
 
+    test('Duplicate token does not effect', () => {
+        const tokens = [new RegexToken('$'), new RegexToken('$')];
+        const group = new RegexGroup(tokens);
+        const regex = new RegExp(group.toString());
+        expect('$'.match(regex).slice()).toEqual(['$']);
+    });
+
     test('starred group', () => {
         const group1 = new RegexGroup([new RegexToken('a'), new RegexToken('b')], {
             starred: true
@@ -90,45 +121,28 @@ describe('RegexGroup', () => {
         const regex = new RegExp('x' + group1.toString() + 'y');
         expect('txaabbabaysno'.match(regex).slice()).toEqual(['xaabbabay']);
     });
-});
 
-describe('RegexString', () => {
-    test('Matches string of groups', () => {
-        const a = new RegexGroup([new RegexToken('a')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-        const pattern = new RegexString([a, b, c]).toString();
-        const regex = new RegExp(pattern);
-        expect('Hello abçdef world'.match(regex).slice()).toEqual(['abç']);
-    });
+    describe('match case', () => {
+        test('false by default', () => {
+            const tokens = [new RegexToken('a'), new RegexToken('b')];
+            const group = new RegexGroup(tokens);
+            const regex = new RegExp(group.toString());
+            for (const c of ['a', 'b', 'A', 'B']) {
+                expect(c.match(regex)?.slice()).toEqual([c]);
+            }
+        });
 
-    test('Capture match', () => {
-        const a = new RegexGroup([new RegexToken('a')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-        const pattern = new RegexString([a, b, c], { capture: true }).toString();
-        const regex = new RegExp(pattern);
-        expect('Hello abçd world'.match(regex).slice()).toEqual(['abç', 'abç']);
-    });
-
-    test('Ignore characters', () => {
-        const a = new RegexGroup([new RegexToken('a')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-        const ignored = new RegexGroup([new RegexToken('x'), new RegexToken('y')]);
-        const pattern = new RegexString([a, b, c], { ignore: ignored }).toString();
-        const regex = new RegExp(pattern);
-        expect('Hello xyaxyxbçyd world'.match(regex)?.slice()).toEqual(['xyaxyxbçy']);
-    });
-
-    test('Capture with ignored characters', () => {
-        const a = new RegexGroup([new RegexToken('a')]);
-        const b = new RegexGroup([new RegexToken('b')]);
-        const c = new RegexGroup([new RegexToken('c'), new RegexToken('ç')]);
-        const ignored = new RegexGroup([new RegexToken('x'), new RegexToken('y')]);
-        const pattern = new RegexString([a, b, c], { ignore: ignored, capture: true }).toString();
-        const regex = new RegExp(pattern);
-        expect('Hello xyaxyxbçyd world'.match(regex)?.slice()).toEqual(['xyaxyxbçy', 'xyaxyxbçy']);
+        test('requires case when true', () => {
+            const tokens = [new RegexToken('a'), new RegexToken('B')];
+            const group = new RegexGroup(tokens, { matchCase: true });
+            const regex = new RegExp(group.toString());
+            for (const c of ['a', 'B']) {
+                expect(c.match(regex)?.slice()).toEqual([c]);
+            }
+            for (const c of ['A', 'b']) {
+                expect(c.match(regex)).toBeNull();
+            }
+        });
     });
 });
 
@@ -139,11 +153,90 @@ describe('tokenize', () => {
     });
 });
 
+describe('allowCaseSubstitution', () => {
+    function expectEqualSubstitutions(result, expected) {
+        for (const key of Object.keys(expected)) {
+            expect(result).toHaveProperty(key);
+            for (const c of expected[key]) {
+                expect(result[key]).toContain(c);
+            }
+        }
+    }
+
+    test('input is all lowercase', () => {
+        const before = {
+            a: 'bc',
+            b: 'a',
+            c: 'd'
+        };
+        const after = {
+            a: 'bcBC',
+            A: 'bcBC',
+            b: 'aA',
+            B: 'aA',
+            c: 'dD',
+            C: 'dD'
+        };
+        const result = allowCaseSubstitution(before);
+        expectEqualSubstitutions(result, after);
+    });
+
+    test('input is all uppercase', () => {
+        const before = {
+            A: 'BC',
+            B: 'A',
+            C: 'D'
+        };
+        const after = {
+            a: 'bcBC',
+            A: 'bcBC',
+            b: 'aA',
+            B: 'aA',
+            c: 'dD',
+            C: 'dD'
+        };
+        const result = allowCaseSubstitution(before);
+        expectEqualSubstitutions(result, after);
+    });
+
+    test('does not duplicate numerals', () => {
+        const input = {
+            1: '4'
+        };
+        const result = allowCaseSubstitution(input);
+        expect(result['1']).toBe('4');
+    });
+
+    describe('Different substitutions for different cases', () => {
+        test('Combines substitutions', () => {
+            const before = {
+                a: 'bC',
+                A: 'd'
+            };
+            const after = {
+                a: 'bcdBCD',
+                A: 'bcdBCD'
+            };
+            const result = allowCaseSubstitution(before);
+            expectEqualSubstitutions(result, after);
+        });
+
+        test('does not duplicate characters', () => {
+            const before = {
+                a: 'bC4',
+                A: 'bd4'
+            };
+            const result = allowCaseSubstitution(before);
+            expect(result['a'].length).toBe(7);
+        });
+    });
+});
+
 describe('RegexBuilder', () => {
     describe('regex', () => {
         const builder = new RegexBuilder();
 
-        function testPattern(pattern: string, text: string, options: object = {}): string[] {
+        function testPattern(pattern: string, text: string, options: RegexOptions = {}): string[] {
             const regex = builder.regex(pattern, options);
             return text.match(regex)?.slice() ?? null;
         }
@@ -151,6 +244,12 @@ describe('RegexBuilder', () => {
         test('Basic pattern', () => {
             const regex = builder.regex('def');
             expect('abcdefghij'.match(regex).slice()).toEqual(['def']);
+        });
+
+        test('Matches special characters', () => {
+            const s = '$*. \\ ?+[]^&{}!<>|-';
+            const regex = builder.regex(s);
+            expect('a $*. \\ ?+[]^&{}!<>|- b'.match(regex)?.slice()).toEqual([s]);
         });
 
         describe('With ignore', () => {
@@ -211,6 +310,31 @@ describe('RegexBuilder', () => {
             test('Does not match partial line', () => {
                 const results = testPattern('am', 'ham', { wholeLine: true });
                 expect(results).toBeNull();
+            });
+        });
+
+        describe('Match case', () => {
+            test('ignores case when false', () => {
+                const results = testPattern('marY', 'Mary', { matchCase: false });
+                expect(results).toEqual(['Mary']);
+            });
+
+            test('requires case when true', () => {
+                const results = testPattern('marY', 'Mary', { matchCase: true });
+                expect(results).toBeNull();
+            });
+
+            describe('with substitutions and ignore', () => {
+                test('ignores case when false', () => {
+                    const pattern = 'AbwWcDxU';
+                    const substitute = { a: 'bC', b: 'ad', c: 'a' };
+                    const options: RegexOptions = { ignore: 'uW', substitute, matchCase: false };
+                    const matches = ['abcdxu', 'wbubcudx', 'BDcdx', 'cdadx'];
+                    for (const text of matches) {
+                        const results = testPattern(pattern, text, options);
+                        expect(results).toEqual([text]);
+                    }
+                });
             });
         });
     });

@@ -6,13 +6,17 @@ export interface Reference {
     verses: string;
 }
 
+// Each search result is split into "chunks" to distinguish
+// between parts that match the search query and parts that
+// do not. That way special formatting can be applied to
+// matching text.
+export interface SearchResultChunk {
+    content: string;
+    matchesQuery: boolean;
+}
+
 export interface SearchResult {
     reference: Reference;
 
-    // Split the content into chunks so the view can apply
-    // special formatting to content matching the search query.
-    chunks: {
-        content: string;
-        matchesQuery: boolean;
-    }[];
+    chunks: SearchResultChunk[];
 }

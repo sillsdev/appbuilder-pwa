@@ -41,7 +41,10 @@
 
         // Use setTimeout to yeild to the main thread.
         setTimeout(async () => {
-            query = new SearchQuery(searchText, pk, docSet, collection, { wholeWords });
+            query = new SearchQuery(searchText, pk, docSet, collection, {
+                wholeWords,
+                caseInsensitive: true
+            });
             results = await query.getResults(batchSize);
             ensureScreenFilled();
             noResults = results.length === 0;
