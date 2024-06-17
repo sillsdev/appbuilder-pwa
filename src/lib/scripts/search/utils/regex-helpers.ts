@@ -5,12 +5,14 @@ import { extendStringProperty } from './object-helpers';
  */
 class RegexToken {
     private token: string;
+    private locale: string;
 
-    constructor(token: string) {
+    constructor(token: string, locale?: string) {
         if ('\\$*.?+[]^&{}!<>|-'.includes(token)) {
             token = '\\' + token;
         }
         this.token = token;
+        this.locale = locale;
     }
 
     toString(): string {
@@ -18,15 +20,17 @@ class RegexToken {
     }
 
     toUpperCase(): RegexToken {
-        return new RegexToken(this.token.toUpperCase());
+        return new RegexToken(this.token.toLocaleUpperCase(this.locale));
     }
 
     toLowerCase(): RegexToken {
-        return new RegexToken(this.token.toLowerCase());
+        return new RegexToken(this.token.toLocaleLowerCase(this.locale));
     }
 
     hasCase(): boolean {
-        return this.token.toUpperCase() !== this.token.toLowerCase();
+        return (
+            this.token.toLocaleUpperCase(this.locale) !== this.token.toLocaleLowerCase(this.locale)
+        );
     }
 }
 
@@ -38,7 +42,10 @@ class RegexGroup {
     private tokens: RegexToken[];
     private starred: boolean;
 
-    constructor(tokens: RegexToken[], options: { starred?: boolean; matchCase?: boolean } = {}) {
+    constructor(
+        tokens: RegexToken[],
+        options: { starred?: boolean; matchCase?: boolean; locale?: string } = {}
+    ) {
         this.tokens = this.mapTokens(tokens, options.matchCase);
         this.starred = options.starred ?? false;
     }
@@ -56,8 +63,8 @@ class RegexGroup {
     }
 }
 
-function tokenize(input: string): RegexToken[] {
-    return [...input].map((c) => new RegexToken(c));
+function tokenize(input: string, locale?: string): RegexToken[] {
+    return [...input].map((c) => new RegexToken(c, locale));
 }
 
 /**
@@ -68,12 +75,12 @@ type SubstitutionMap = { [char: string]: string };
 /**
  * Convert the SubstitutionMap to use upper and lower case interchangeably
  */
-function allowCaseSubstitution(substitute: SubstitutionMap): SubstitutionMap {
+function allowCaseSubstitution(substitute: SubstitutionMap, locale?: string): SubstitutionMap {
     const subs: SubstitutionMap = {};
     for (const key of Object.keys(substitute)) {
-        const value = upperAndLowerCase(substitute[key]);
-        extendStringProperty(subs, key.toUpperCase(), value);
-        extendStringProperty(subs, key.toLowerCase(), value);
+        const value = upperAndLowerCase(substitute[key], locale);
+        extendStringProperty(subs, key.toLocaleUpperCase(locale), value);
+        extendStringProperty(subs, key.toLocaleLowerCase(locale), value);
     }
     // Remove any duplicate characters
     for (const key of Object.keys(subs)) {
@@ -82,9 +89,9 @@ function allowCaseSubstitution(substitute: SubstitutionMap): SubstitutionMap {
     return subs;
 }
 
-function upperAndLowerCase(input: string) {
-    const upper = input.toUpperCase();
-    const lower = input.toLowerCase();
+function upperAndLowerCase(input: string, locale?: string) {
+    const upper = input.toLocaleUpperCase(locale);
+    const lower = input.toLocaleLowerCase(locale);
     if (upper === lower) {
         return input;
     }
@@ -97,6 +104,7 @@ export interface RegexOptions {
     capture?: boolean;
     wholeLine?: boolean;
     matchCase?: boolean;
+    locale?: string; // Used to customise upper/lowercase conversions
 }
 
 class RegexBuilder {
@@ -108,12 +116,13 @@ class RegexBuilder {
     pattern(phrase: string, options: RegexOptions = {}): string {
         const substitute = options.matchCase
             ? options.substitute
-            : allowCaseSubstitution(options.substitute ?? {});
+            : allowCaseSubstitution(options.substitute ?? {}, options.locale);
         const groups = this.getGroupsWithIgnore(
             phrase,
             options.ignore,
             substitute,
-            options.matchCase
+            options.matchCase,
+            options.locale
         );
         let pattern = groups.map((g) => g.toString()).join('');
         if (options.capture) {
@@ -129,24 +138,25 @@ class RegexBuilder {
         phrase: string,
         ignore?: string,
         substitute?: SubstitutionMap,
-        matchCase?: boolean
+        matchCase?: boolean,
+        locale?: string
     ) {
-        const ignoreGroup = this.getIgnoreGroup(ignore, matchCase);
+        const ignoreGroup = this.getIgnoreGroup(ignore, matchCase, locale);
         if (ignoreGroup) {
             phrase = phrase.replaceAll(new RegExp(ignoreGroup.toString(), 'g'), '');
         }
-        let groups = this.getGroups(phrase, substitute, matchCase);
+        let groups = this.getGroups(phrase, substitute, matchCase, locale);
         if (ignoreGroup) {
             groups = this.addIgnoreGroups(groups, ignoreGroup);
         }
         return groups;
     }
 
-    private getIgnoreGroup(ignore?: string, matchCase?: boolean): RegexGroup {
+    private getIgnoreGroup(ignore?: string, matchCase?: boolean, locale?: string): RegexGroup {
         if (!ignore) {
             return null;
         }
-        const ignoreTokens = tokenize(ignore);
+        const ignoreTokens = tokenize(ignore, locale);
         return new RegexGroup(ignoreTokens, { starred: true, matchCase });
     }
 
@@ -163,13 +173,14 @@ class RegexBuilder {
     private getGroups(
         phrase: string,
         substitute: SubstitutionMap = {},
-        matchCase?: boolean
+        matchCase?: boolean,
+        locale?: string
     ): RegexGroup[] {
         const groups = [];
         for (const char of [...phrase]) {
-            const tokens = [new RegexToken(char)];
+            const tokens = [new RegexToken(char, locale)];
             if (substitute[char]) {
-                tokens.push(...tokenize(substitute[char]));
+                tokens.push(...tokenize(substitute[char], locale));
             }
             groups.push(new RegexGroup(tokens, { matchCase }));
         }
