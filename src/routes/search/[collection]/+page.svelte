@@ -17,6 +17,6 @@
         </Navbar>
     </div>
     <div class="flex justify-center" style:background-color={$themeColors.BackgroundColor}>
-        <SearchForm docSet={data.docSet} collection={data.collection} />
+        <SearchForm collection={data.collection} />
     </div>
 </div>

@@ -1,3 +1,4 @@
+import type { SubstitutionMap } from '../domain/interfaces/data-interfaces';
 import { extendStringProperty } from './object-helpers';
 
 /**
@@ -66,11 +67,6 @@ class RegexGroup {
 function tokenize(input: string, locale?: string): RegexToken[] {
     return [...input].map((c) => new RegexToken(c, locale));
 }
-
-/**
- * Maps characters that may be substituted during a search
- */
-type SubstitutionMap = { [char: string]: string };
 
 /**
  * Convert the SubstitutionMap to use upper and lower case interchangeably

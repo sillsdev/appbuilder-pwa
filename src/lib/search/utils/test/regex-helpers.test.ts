@@ -3,7 +3,7 @@ import {
     makeRegex as makeRegex,
     makeRegexPattern,
     type RegexOptions
-} from './regex-helpers';
+} from '../regex-helpers';
 import { afterAll, describe, expect, test, vi } from 'vitest';
 
 const RegexToken = RegexHelpers.RegexToken;
