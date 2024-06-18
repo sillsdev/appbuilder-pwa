@@ -39,6 +39,7 @@ TODO:
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import { play, seekToVerse } from '$lib/data/audio';
+    import { getBook, logShareContent } from '../data/analytics';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -118,8 +119,11 @@ TODO:
         const book = $selectedVerses[0].book;
         const reference = selectedVerses.getCompositeReference();
         const text = await selectedVerses.getCompositeText();
-
+        const bookCol = $selectedVerses[0].collection;
+        const fullBook = getBook({ collection: bookCol, book: book });
+        const bookAbbrev = fullBook.abbreviation ?? fullBook.name;
         shareText(config.name, config.name + '\n\n' + text + '\n' + reference, book + '.txt');
+        logShareContent('Text', bookCol, bookAbbrev, reference);
     }
 
     $: barBackgroundColor = $s['ui.bar.text-select']['background-color'];

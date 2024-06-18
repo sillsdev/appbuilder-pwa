@@ -3,7 +3,7 @@ import config from '$lib/data/config';
 import type { HistoryItem } from './history';
 import type { AudioPlayer } from './audio';
 
-function getBook(item: { collection?: string; book: string }) {
+export function getBook(item: { collection?: string; book: string }) {
     return config.bookCollections
         .find((x) => x.id === item.collection)
         .books.find((x) => x.id === item.book);
@@ -89,10 +89,13 @@ export function logShareApp() {
     analytics.log('ab_share_app');
 }
 
-export function logShareContent(contentType: String) {
+export function logShareContent(contentType: String, bookCol: String, bookAbbrev: String, reference: string) {
     // include reference info (bookCol, bookAbbrev, verses selected)
     const params = {
-        contentType
+        contentType,
+        bookCol,
+        bookAbbrev,
+        reference
     }
     analytics.log('ab_share_content', params);
 }
