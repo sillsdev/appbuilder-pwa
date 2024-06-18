@@ -42,6 +42,10 @@
 
     function playSound(path, callback, type = 'answer') {
         let audio = new Audio();
+        if (type === 'question') currentQuestionAudio = audio;
+        if (type === 'answer') currentAnswerAudio = audio;
+        if (type === 'explanation') currentExplanationAudio = audio;
+
         audio.src = path;
         audio.onended = function () {
             if (callback) {
@@ -73,6 +77,12 @@
             currentExplanationAudio.currentTime = 0;
             currentExplanationAudio = null;
         }
+    }
+
+    function stopAudioPlayback() {
+        stopCurrentQuestionAudio();
+        stopCurrentAnswerAudio();
+        stopCurrentExplanationAudio();
     }
 
     function getImageSource(image) {
@@ -207,12 +217,6 @@
         }
     }
 
-    function stopAudioPlayback() {
-        stopCurrentQuestionAudio();
-        stopCurrentAnswerAudio();
-        stopCurrentExplanationAudio();
-    }
-
     function playQuizQuestionAudio() {
         if ($quizAudioActive) {
             const question = getCurrentQuizQuestion();
@@ -258,7 +262,7 @@
     });
 
     onDestroy(() => {
-        stopAudioPlayback(); //This isn't working anymore.
+        stopAudioPlayback();
     });
 </script>
 
