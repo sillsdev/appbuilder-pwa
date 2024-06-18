@@ -15,8 +15,18 @@ The navbar component.
     } from '$lib/data/stores';
     import { page } from '$app/stores';
     import { base } from '$app/paths';
+    import { createEventDispatcher } from 'svelte';
+    import { goto } from '$app/navigation';
 
     $: actionBarColor = $s['ui.bar.action']['background-color'];
+
+    const dispatch = createEventDispatcher();
+    function handleBackNavigation() {
+        const shouldContinue = dispatch('backNavigation', { detail: $page.route.id}, {cancelable: true});
+        if (shouldContinue) {
+            goto(`${base}/`);
+        }
+    }
 </script>
 
 <!--
@@ -33,13 +43,15 @@ The navbar component.
                 <HamburgerIcon color="white" />
             </label>
         {:else}
-            <a href="{base}/" class="dy-btn dy-btn-ghost dy-btn-circle">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div on:click={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
                 {#if $direction === 'ltr'}
                     <ArrowBackIcon color="white" />
                 {:else}
                     <ArrowForwardIcon color="white" />
                 {/if}
-            </a>
+            </div>
         {/if}
         <slot name="left-buttons" />
     </div>
