@@ -25,6 +25,7 @@
         t,
         themeColors,
         userSettings,
+        contentsStack,
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
@@ -44,12 +45,14 @@
     import StackView from '$lib/components/StackView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
+    import contents from '$lib/data/contents';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import { getFeatureValueString, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import { pinch, swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
 
     let savedScrollPosition = 0;
@@ -304,11 +307,20 @@
             textCopied = false;
         }, 3000);
     }
+
+    function handleBackNavigation(event) {
+        event.preventDefault();
+        if ($contentsStack.length > 0) {
+            const menuId = contentsStack.popItem();
+            goto(`${base}/contents/${menuId}`);
+        }
+    }
+    $: showBackButton = contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar>
+        <Navbar on:backNavigation={handleBackNavigation} showBackButton={showBackButton}>
             <div
                 slot="left-buttons"
                 class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}

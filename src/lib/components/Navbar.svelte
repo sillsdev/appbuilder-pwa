@@ -18,6 +18,8 @@ The navbar component.
     import { createEventDispatcher } from 'svelte';
     import { goto } from '$app/navigation';
 
+    export let showBackButton = true;
+
     $: actionBarColor = $s['ui.bar.action']['background-color'];
 
     const dispatch = createEventDispatcher();
@@ -34,7 +36,7 @@ The navbar component.
 -->
 <div class="dy-navbar" style:height={NAVBAR_HEIGHT} style:background-color={actionBarColor}>
     <div class="dy-navbar-start">
-        {#if $page.route.id === '/'}
+        {#if !showBackButton}
             <label
                 for="sidebar"
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"

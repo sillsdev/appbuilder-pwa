@@ -1,7 +1,7 @@
 <script>
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { s, t, themeColors, modal, MODAL_COLLECTION, convertStyle } from '$lib/data/stores';
+    import { s, t, themeColors, modal, MODAL_COLLECTION, convertStyle, contentsStack } from '$lib/data/stores';
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
@@ -24,11 +24,14 @@
             //nothing here - default size
         }
     }
-    function clicked(item) {
+    async function clicked(item) {
         //check type of link
         switch (item.linkType) {
             //reference linkType
             case 'reference':
+                contentsStack.pushItem($page.data.menu.id);
+                console.log(`clicked: pushed ${$page.data.menu.id}`);
+                console.log(`stack: `, $contentsStack.length)
                 setReference(item);
                 goto(`${base}/`);
                 break;
@@ -36,7 +39,10 @@
             case 'screen':
                 //not handled yet
                 //goes to another contents page
-                goto(`${base}/contents/${item.linkTarget}`);
+                contentsStack.pushItem($page.data.menu.id);
+                console.log(`clicked: pushed ${$page.data.menu.id}`);
+                console.log(`stack: `, $contentsStack.length)
+                await goto(`${base}/contents/${item.linkTarget}`);
                 break;
             case 'other':
                 //not handled yet
@@ -131,11 +137,20 @@
                 break;
         }
     }
+
+    function handleBackNavigation(event) {
+        event.preventDefault();
+        if ($contentsStack.length > 0) {
+            const menuId = contentsStack.popItem();
+            goto(`${base}/contents/${menuId}`);
+        }
+    }
+    $: showBackButton = $contentsStack.length > 0;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar>
+        <Navbar on:backNavigation={handleBackNavigation} showBackButton={showBackButton}>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
                 <div class="btn btn-ghost normal-case text-xl">{title}</div>
@@ -149,6 +164,7 @@
             {#each $page.data.items as item}
                 <!-- iterate through the items, add html -->
 
+                <!-- svelte-ignore a11y-invalid-attribute -->
                 <a
                     href="#"
                     class="contents-link contents-link-ref"
