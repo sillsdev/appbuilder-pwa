@@ -14,7 +14,8 @@ The sidebar/drawer.
         ShareIcon,
         SettingsIcon,
         TextAppearanceIcon,
-        AboutIcon
+        AboutIcon,
+        HomeIcon
     } from '$lib/icons';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -31,6 +32,7 @@ The sidebar/drawer.
         MODAL_COLLECTION,
         theme
     } from '$lib/data/stores';
+    import contents from '$lib/data/contents';
     const drawerId = 'sidebar';
     let menuToggle = false;
 
@@ -45,6 +47,7 @@ The sidebar/drawer.
     const showLayouts =
         config.mainFeatures['layout-config-change-nav-drawer-menu'] &&
         config.bookCollections.length > 1;
+    const showContents = contents.screens?.length > 0;
     const showSearch = config.mainFeatures['search'];
     const showHistory = config.mainFeatures['history'];
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
@@ -113,6 +116,13 @@ The sidebar/drawer.
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </a>
                 </li>
+            {/if}
+            {#if showContents}
+                <li>
+                <a href="{base}/contents/1" style:color={textColor}>
+                    <HomeIcon color={iconColor} />{$t['Menu_Contents']}
+                </a>
+            </li>            
             {/if}
             {#if showSearch}
                 <li>
