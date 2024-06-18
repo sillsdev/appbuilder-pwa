@@ -11,6 +11,10 @@ import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 /** @type {import('vite').UserConfig} */
 const config = {
     plugins: [sveltekit()],
+    worker: {
+        format: 'es',
+        plugins: []
+    },
     resolve: {
         alias: {
             // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,

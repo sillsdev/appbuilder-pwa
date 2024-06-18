@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { BufferedReader } from './buffered-reader';
+import { BufferedReader } from '../buffered-reader';
 
 class TestBufferedInput {
     i = 0;

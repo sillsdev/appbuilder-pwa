@@ -6,7 +6,5 @@ export async function load({ params }) {
 
     if (!collection) throw error(404);
 
-    const docSet = collection.languageCode + '_' + collection.id;
-
-    return { docSet, collection: collection.id };
+    return { collection: collection.id };
 }

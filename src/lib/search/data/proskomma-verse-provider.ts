@@ -1,7 +1,11 @@
 import type { SABProskomma } from '$lib/sab-proskomma';
-import { SearchInterface, type SearchCandidate } from '../application';
+import type {
+    QueryVerseProvider,
+    SearchOptions,
+    SearchCandidate
+} from '../domain/interfaces/data-interfaces';
 import { BufferedReader } from '../utils/buffered-reader';
-import { RegexHelpers, makeRegexPattern } from '../utils/regex-helpers';
+import { makeRegexPattern, RegexHelpers } from '../utils/regex-helpers';
 
 export interface GQLBooks {
     data: { docSet: { documents: { id: string; idParts: { type: string } }[] } };
@@ -34,6 +38,7 @@ function keywordToRegex(
     }
     return pattern;
 }
+
 function searchParams(
     keywords: string[],
     wholeWords: boolean = false,
@@ -44,9 +49,11 @@ function searchParams(
     const terms = keywords.map((w) => keywordToRegex(w, wholeWords, ignore, substitute, locale));
     return `withMatchingChars: ["${terms.join('", "')}"]`;
 }
-/** * Get a chapter/verse reference string from Proskomma scopes */ function chapterVerseFromScopes(
-    scopes: string[]
-): string {
+
+/**
+ * Get a chapter/verse reference string from Proskomma scopes
+ */
+function chapterVerseFromScopes(scopes: string[]): string {
     let verse: string;
     let chapter: string;
     for (const s of scopes) {
@@ -62,49 +69,44 @@ function searchParams(
     }
     return ref;
 }
+
 export const gqlSearchHelpers = { keywordToRegex, chapterVerseFromScopes };
 
-class ProskommaVerseProvider extends SearchInterface.VerseProvider {
-    constructor(args: {
-        pk: SABProskomma;
-        searchPhrase: string;
-        wholeWords: boolean;
-        ignore?: string;
-        substitute?: { [char: string]: string };
-        docSet: string;
-        collection: string;
-        locale?: string;
-    }) {
-        super(args.searchPhrase, {});
-        this.pk = args.pk;
-        this.docSet = args.docSet;
-        this.collection = args.collection;
-        const tokens = RegexHelpers.wordsOf(args.searchPhrase);
+export class ProskommaVerseProvider implements QueryVerseProvider {
+    constructor(pk: SABProskomma, searchPhrase: string, options: SearchOptions) {
+        this.searchPhrase = searchPhrase;
+        this.options = options;
+        this.pk = pk;
+        const tokens = RegexHelpers.wordsOf(searchPhrase);
         this.searchIsBlank = tokens.length === 0;
         this.searchParams = searchParams(
             tokens,
-            args.wholeWords,
-            args.ignore,
-            args.substitute,
-            args.locale
+            options.wholeWords,
+            options.ignore,
+            options.substitute,
+            options.locale
         );
     }
+
+    searchPhrase: string;
+    options: SearchOptions;
     pk: SABProskomma;
     books: string[];
     nextBook: number;
     searchParams: string;
     searchIsBlank: boolean;
-    docSet: string;
-    collection: string;
+
     private verseReader = new BufferedReader({
         read: () => this.queryNextBook(),
         done: () => this.nextBook >= this.books.length
     });
+
     async getVerses(limit: number = 0): Promise<SearchCandidate[]> {
         if (this.searchIsBlank) return [];
         await this.ensureBooksSet();
         return await this.verseReader.read(limit);
     }
+
     async queryNextBook(): Promise<SearchCandidate[]> {
         await this.ensureBooksSet();
         if (this.nextBook >= this.books.length) {
@@ -114,11 +116,13 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
         this.nextBook++;
         return this.versesOfBook(book);
     }
+
     private async ensureBooksSet() {
         if (this.books == undefined) {
             await this.setBooks();
         }
     }
+
     async setBooks() {
         this.nextBook = 0;
         const queryData = await this.queryForBooks();
@@ -126,6 +130,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
             .filter((bk) => bk.idParts.type === 'book')
             .map((bk) => bk.id);
     }
+
     async versesOfBook(bookId: string): Promise<SearchCandidate[]> {
         const queryData = await this.queryForBlocks(bookId);
         const bookCode = queryData.data.document.bookCode;
@@ -134,14 +139,15 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
             .flat();
         return this.versesFromTokens(tokens, bookCode);
     }
+
     versesFromTokens(tokens: GQLBlockToken[], bookCode: string): SearchCandidate[] {
         const verseTexts = this.collectVerseTexts(tokens);
         return Object.keys(verseTexts).map((cv) => {
             const ref = cv.split(':');
             return {
                 reference: {
-                    docSet: this.docSet,
-                    collection: this.collection,
+                    docSet: this.options.docSet,
+                    collection: this.options.collection,
                     bookCode,
                     chapter: ref[0],
                     verses: ref[1]
@@ -150,6 +156,7 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
             };
         });
     }
+
     private collectVerseTexts(tokens: GQLBlockToken[]): { [verse: string]: string } {
         return tokens.reduce((verses, token) => {
             const ref = chapterVerseFromScopes(token.scopes);
@@ -158,20 +165,31 @@ class ProskommaVerseProvider extends SearchInterface.VerseProvider {
             return verses;
         }, {});
     }
+
     async queryForBooks(): Promise<GQLBooks> {
-        return (await this.pk.gqlQuery(
-            ` { docSet(id: "${this.docSet}") { documents(${this.searchParams} allChars: true sortedBy: "paratext") { id idParts { type } } } } `
-        )) as GQLBooks;
+        const query = ` {
+            docSet(id: "${this.options.docSet}") {
+                documents(${this.searchParams} allChars: true sortedBy: "paratext") {
+                    id
+                    idParts { type }
+                }
+            }
+        } `;
+        return (await this.pk.gqlQuery(query)) as GQLBooks;
     }
+
     async queryForBlocks(bookId: string): Promise<GQLBlocks> {
-        return (await this.pk
-            .gqlQuery(` { document(id: "${bookId}") { bookCode: header(id: "bookCode") mainSequence { blocks(${this.searchParams} allChars: true) { tokens(includeContext: true) { scopes(startsWith: ["chapter/" "verses/"]) payload }
+        const query = `{
+            document(id: "${bookId}") {
+                bookCode: header(id: "bookCode") mainSequence {
+                    blocks(${this.searchParams} allChars: true) {
+                        tokens(includeContext: true) {
+                            scopes(startsWith: ["chapter/" "verses/"]) payload
                         }
                     }
                 }
             }
-        `)) as GQLBlocks;
+        }`;
+        return (await this.pk.gqlQuery(query)) as GQLBlocks;
     }
 }
-
-export const ProksommaSearchInterface = { ProskommaVerseProvider };

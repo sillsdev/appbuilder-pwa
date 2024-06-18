@@ -8,7 +8,7 @@ A clickable verse card representing a single search result.
     import config from '$lib/data/config';
     import { addHistory } from '$lib/data/history';
     import { convertStyle, refs, s } from '$lib/data/stores';
-    import type { SearchResult } from '$lib/scripts/search/entities';
+    import type { SearchResult } from '$lib/search/domain/entities';
 
     export let docSet: string;
     export let collection: string;

@@ -1,60 +1,27 @@
-import type { Reference, SearchResult, SearchResultChunk } from './entities';
-import { BufferedReader } from './utils/buffered-reader';
-import { makeRegex } from './utils/regex-helpers';
-
-/**
- * Represents a verse that might match the search query.
- */
-export interface SearchCandidate {
-    reference: Reference;
-    text: string;
-}
-
-/**
- * Queries a database for verses that might match a search query.
- */
-abstract class VerseProvider {
-    constructor(searchPhrase: string, options: SearchOptions) {}
-
-    /**
-     * Get a list of verses that could match the search query
-     *
-     * Subsequent calls return a new list of verses.
-     *
-     * @param limit The maximum number of verses to return. A
-     * non-positive limit will return all candidate verses at once.
-     * @returns A list of verses, or an emtpy list if no candidate
-     * verses remain.
-     */
-    abstract getVerses(limit: number): Promise<SearchCandidate[]>;
-}
-
-/**
- * A wrapper around search-related base classes.
- *
- * This was done to put generic-sounding classes like `VerseProvider`
- * into a namepsace to avoid confusion.
- */
-export const SearchInterface = { VerseProvider };
-
-export interface SearchOptions {
-    wholeWords?: boolean;
-    ignore?: string;
-    substitute?: { [char: string]: string };
-    caseInsensitive?: boolean;
-    locale?: string;
-}
+import type { Reference, SearchResult, SearchResultChunk } from '../entities';
+import { BufferedReader } from '../../utils/buffered-reader';
+import { makeRegex } from '../../utils/regex-helpers';
+import type {
+    QueryVerseProvider,
+    ScriptureRepository,
+    SearchOptions
+} from '../interfaces/data-interfaces';
 
 // Finds verses that match the given search parameters.
-export abstract class SearchQueryBase {
-    constructor(searchPhrase: string, verseProvider: VerseProvider, options: SearchOptions) {
+export class SearchQuery {
+    constructor(
+        searchPhrase: string,
+        options: SearchOptions,
+        scriptureRepository: ScriptureRepository
+    ) {
         this.searchPhrase = searchPhrase.trim();
-        this.verseProvider = verseProvider;
         this.options = options;
         this.locale = options.locale;
+        this.scriptureRepository = scriptureRepository;
     }
 
-    verseProvider: VerseProvider;
+    scriptureRepository: ScriptureRepository;
+    verseProvider: QueryVerseProvider;
     searchPhrase: string;
     options: SearchOptions;
     locale?: string;
@@ -67,7 +34,17 @@ export abstract class SearchQueryBase {
         done: () => this.isComplete
     });
 
+    async init() {
+        this.verseProvider = await this.scriptureRepository.queryVerses(
+            this.searchPhrase,
+            this.options
+        );
+    }
+
     async getResults(limit: number = 0): Promise<SearchResult[]> {
+        if (!this.verseProvider) {
+            await this.init();
+        }
         if (this.searchPhrase.trim() === '') {
             return [];
         }
