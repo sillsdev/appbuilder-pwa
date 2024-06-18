@@ -76,7 +76,9 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
 
     // title
     const contents = document.children[0];
-    const titleTags = Array.from(contents.children).filter(element => element.tagName.toLowerCase() === "title");
+    const titleTags = Array.from(contents.children).filter(
+        (element) => element.tagName.toLowerCase() === 'title'
+    );
     if (titleTags?.length > 0) {
         data.title = {};
         for (const titleTag of titleTags) {

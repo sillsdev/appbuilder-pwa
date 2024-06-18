@@ -12,9 +12,9 @@ export async function load({ params }) {
         }
     }
 
-    const features = contents.features
+    const features = contents.features;
 
-    const title = contents.title
+    const title = contents.title;
 
     return { menu, items, features, title };
 }
