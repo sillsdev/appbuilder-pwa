@@ -118,24 +118,23 @@
             previously used custom title, is this ok?
             i think its fine because you only use that for the custom title option
         */
+       let title = '';
         switch (page.data.features['title-type']) {
             case 'app-name':
                 //where to find the app name: config.js, line 2
-                return config.name;
+                title = config.name;
                 break;
             case 'screen':
-                return page.data.menu.title.default;
+                title = page.data.menu.title.default;
                 break;
             case 'custom':
-                return page.data.title.default;
+                title = page.data.title.default;
                 break;
             case 'none':
-                return '';
-                break;
             default:
-                return '';
                 break;
         }
+        return title;
     }
 
     function handleBackNavigation(event) {
