@@ -12,126 +12,49 @@
     } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SABProskomma } from '$lib/sab-proskomma';
-    import { SearchQuery } from '$lib/scripts/search/adapters/search-query';
-    import type { SearchResult } from '$lib/scripts/search/entities';
     import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
     import { get } from 'svelte/store';
+    import type { SearchResult } from '$lib/search/domain/entities';
+    import type { UserSearchRequest } from '$lib/search/domain/interfaces/presentation-interfaces';
 
-    export let docSet: string;
     export let collection: string;
 
     let searchText = '';
     let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
 
-    let pk: SABProskomma;
-    let query: SearchQuery;
-
-    // The number of search results to fetch at a time.
-    const batchSize = 4;
-
     let results: SearchResult[] = [];
     let noResults = false;
     let waiting = false;
 
-    const specialCharacters = config.mainFeatures['input-buttons']
-        ?.split(' ')
-        .filter((x) => x !== '');
+    const worker = new Worker(new URL('$lib/search/search-worker.ts', import.meta.url), {
+        type: 'module'
+    });
 
-    async function ensureInitialized() {
-        pk = await initProskomma({ fetch });
-        await loadDocSetIfNotLoaded(pk, docSet, fetch);
-    }
+    worker.onmessage = function (e: MessageEvent) {
+        const message = e.data;
+        if (e.data.type === 'results') {
+            waiting = false;
+            results = results.concat(e.data.value);
+            noResults = results.length === 0;
+        } else if (e.data.type === 'newQuery') {
+            results = [];
+            noResults = false;
+            waiting = true;
+        }
+    };
 
     async function submit() {
-        results = [];
-        waiting = true;
-        await ensureInitialized();
-
-        // Use setTimeout to yeild to the main thread.
-        setTimeout(async () => {
-            query = new SearchQuery(searchText, pk, docSet, collection, {
+        const message: UserSearchRequest = {
+            phrase: searchText,
+            options: {
+                collection,
                 wholeWords,
-                caseInsensitive: true,
-                locale: get(language)
-            });
-            results = await query.getResults(batchSize);
-            ensureScreenFilled();
-            noResults = results.length === 0;
-            waiting = false;
-        }, 0);
-    }
-
-    async function loadMore() {
-        if (!query || query.isComplete) {
-            return;
-        }
-        waiting = true;
-        await ensureInitialized();
-
-        // Use setTimeout to yeild to the main thread.
-        setTimeout(async () => {
-            const newResults = await query.getResults(batchSize);
-            results = results.concat(newResults);
-            waiting = false;
-        }, 50); // Without this delay, waiting text did not show.
-    }
-
-    function waitingText(): string {
-        return $t['Search_Searching'];
-    }
-
-    onMount(ensureInitialized);
-
-    function onScrollToLast(entries) {
-        if (entries[0].isIntersecting && !waiting) {
-            loadMore();
-            ensureScreenFilled();
-        }
-    }
-
-    function ensureScreenFilled() {
-        if (!query || query.isComplete) {
-            return;
-        }
-        const sentinel = document.querySelector('#sentinel');
-        const sentinelObserver = new IntersectionObserver(
-            (entries) => {
-                if (!entries[0].isIntersecting) {
-                    sentinelObserver.disconnect();
-                } else {
-                    loadMore().then(ensureScreenFilled);
-                }
-            },
-            {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            }
-        );
-
-        sentinelObserver.observe(sentinel);
-    }
-
-    // Load more results when the user scrolls to the bottom of the list;
-    onMount(() => {
-        const observer = new IntersectionObserver(onScrollToLast, {
-            root: null,
-            rootMargin: '0px',
-            threshold: 1.0
-        });
-
-        const sentinel = document.querySelector('#sentinel');
-        if (sentinel) {
-            observer.observe(sentinel);
-        }
-
-        return () => {
-            if (sentinel) {
-                observer.unobserve(sentinel);
+                matchAccents: false
             }
         };
-    });
+        worker.postMessage(message);
+    }
 </script>
 
 <form class="w-full max-w-screen-md p-4">
@@ -200,7 +123,7 @@
             </div>
         {:else}
             {#each results as result}
-                <SearchResultCard {result} {collection} {docSet} />
+                <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
             {/each}
         {/if}
         {#if waiting}
@@ -209,7 +132,7 @@
                 style={convertStyle($s['ui.search.progress-label'])}
                 style:text-align="center"
             >
-                {waitingText()}
+                {$t['Search_Searching']}
             </p>
             {#if results.length === 0}
                 <span class="spin" />
