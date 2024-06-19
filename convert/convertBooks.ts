@@ -311,6 +311,7 @@ export type QuizQuestion = {
     text: string;
     image?: string;
     audio?: string;
+    columns?: number; //\ac
     explanation?: QuizExplanation;
     answers: QuizAnswer[];
 };
@@ -319,7 +320,6 @@ export type Quiz = {
     id: string; //\id
     name?: string; //\qn
     shortName?: string; //\qs
-    columns?: number; //\ac
     rightAnswerAudio?: string[]; //\ra
     wrongAnswerAudio?: string[]; //\wa
     questions: QuizQuestion[];
@@ -346,9 +346,6 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
         id: quizSFM.match(/\\id ([^\\\r\n]+)/i)![1],
         name: quizSFM.match(/\\qn ([^\\\r\n]+)/i)?.at(1),
         shortName: quizSFM.match(/\\qs ([^\\\r\n]+)/i)?.at(1),
-        columns: quizSFM.match(/\\ac ([^\\\r\n]+)/i)?.at(1)
-            ? parseInt(quizSFM.match(/\\ac ([^\\\r\n]+)/i)![1])
-            : undefined,
         rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map((m) => {
             return m.match(/\\ra ([^\\\r\n]+)/i)![1];
         }),
@@ -373,8 +370,8 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
     let aCount = 0;
     let question: QuizQuestion = { text: '', answers: [] };
     let answer: QuizAnswer = { correct: false };
-    quizSFM.match(/\\(qu|aw|ar|ae) ([^\\\r\n]+)/gi)?.forEach((m) => {
-        const parsed = m.match(/\\(qu|aw|ar|ae) ([^\\\r\n]+)/i)!;
+    quizSFM.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/gi)?.forEach((m) => {
+        const parsed = m.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/i)!;
         switch (parsed[1]) {
             case 'qu':
                 if (aCount > 0) {
@@ -410,6 +407,9 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
                     answer = { correct: false };
                     aCount++;
                 }
+                break;
+            case 'ac':
+                question.columns = parseInt(parsed[2]);
                 break;
             case 'ae':
                 {
