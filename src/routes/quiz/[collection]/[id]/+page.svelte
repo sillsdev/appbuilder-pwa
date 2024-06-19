@@ -180,16 +180,14 @@
         if (!clicked) {
             const answerAudio = getAnswerAudio(quiz, answer.correct);
             const audioPath = `${base}/${answerAudio}`;
-            playSound(audioPath);
-            if (answer.correct) {
-                score++;
-            } else {
-                if (answer.explanation && answer.explanation.text) {
+            playSound(audioPath, () => {
+                if (!answer.correct && answer.explanation && answer.explanation.text) {
                     explanation = answer.explanation.text;
                     if (answer.explanation.audio) {
                         playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
                     }
                 } else if (
+                    !answer.correct &&
                     currentQuizQuestion.explanation &&
                     currentQuizQuestion.explanation.text
                 ) {
@@ -202,7 +200,11 @@
                         );
                     }
                 }
+            });
+            if (answer.correct) {
+                score++;
             }
+
             setTimeout(() => {
                 answer.clicked = true;
                 clicked = true;
