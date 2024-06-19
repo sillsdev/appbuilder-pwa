@@ -289,6 +289,9 @@
                         {/if}
                     </button>
                 </div>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-label-has-associated-control -->
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                 <label
                     class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
                     on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
@@ -326,6 +329,7 @@
                                 {currentQuizQuestion.text}
                                 {#if currentQuizQuestion.image}
                                     <div class="flex justify-center">
+                                        <!-- svelte-ignore a11y-missing-attribute -->
                                         <img
                                             class="quiz-question-image h-40"
                                             src={getImageSource(currentQuizQuestion.image)}
@@ -389,6 +393,8 @@
                                             class:textHighlight={textHighlightIndex ===
                                                 currentIndex}
                                         >
+                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                                             <img
                                                 class="cursor-pointer"
                                                 src={getImageSource(answer.image)}
@@ -453,9 +459,5 @@
     .quiz-question-block img {
         max-width: 100%;
         max-height: 250px;
-    }
-    .quiz-explanation {
-        font-size: 1rem;
-        color: #555;
     }
 </style>
