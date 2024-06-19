@@ -162,12 +162,12 @@
         let sound;
         if (correct) {
             sound = quiz.rightAnswerAudio
-                ? 'assets/' + getRandomAudio(quiz.rightAnswerAudio)
-                : 'assets/quiz-right-answer.mp3';
+                ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
+                : 'clips/quiz-right-answer.mp3';
         } else {
             sound = quiz.wrongAnswerAudio
-                ? 'assets/' + getRandomAudio(quiz.wrongAnswerAudio)
-                : 'assets/quiz-wrong-answer.mp3';
+                ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
+                : 'clips/quiz-wrong-answer.mp3';
         }
         return sound;
     }
