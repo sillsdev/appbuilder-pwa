@@ -163,11 +163,11 @@
         if (correct) {
             sound = quiz.rightAnswerAudio
                 ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
-                : 'clips/quiz-right-answer.mp3';
+                : 'assets/quiz-right-answer.mp3';
         } else {
             sound = quiz.wrongAnswerAudio
                 ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
-                : 'clips/quiz-wrong-answer.mp3';
+                : 'assets/quiz-wrong-answer.mp3';
         }
         return sound;
     }
