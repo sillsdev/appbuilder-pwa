@@ -28,7 +28,8 @@
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
-        NAVBAR_HEIGHT
+        NAVBAR_HEIGHT,
+        audioPlayerDefault
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
@@ -162,6 +163,12 @@
         bodyLineHeight: $bodyLineHeight,
         font: $currentFont
     };
+
+    $: fullscreen = false;
+
+    function toggleFullscreen() {
+        fullscreen = !fullscreen && config.mainFeatures['full-screen-double-tap'];
+    }
 
     $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv;
@@ -307,7 +314,7 @@
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
-    <div class="navbar">
+    <div class="navbar {fullscreen ? 'hidden' : ''}">
         <Navbar>
             <div
                 slot="left-buttons"
@@ -391,64 +398,76 @@
             </div>
         </Navbar>
     </div>
-    {#if showCollectionViewer && enoughCollections}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- Scripture view -->
+    <div class="relative">
+        {#if showCollectionViewer && enoughCollections}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
+                class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 top-1 m-1 cursor-pointer"
+                style:background-color={convertStyle($s['ui.pane1'])}
+                style={convertStyle($s['ui.pane1.name'])}
+                on:click={() => modal.open(MODAL_COLLECTION)}
+            >
+                {config.bookCollections.find((x) => x.id === $refs.collection)
+                    ?.collectionAbbreviation}
+            </div>
+        {/if}
         <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
-            style:top={navBarHeight}
-            style:background-color={convertStyle($s['ui.pane1'])}
-            style={convertStyle($s['ui.pane1.name'])}
-            on:click={() => modal.open(MODAL_COLLECTION)}
+            class:borderimg={showBorder}
+            class="overflow-y-auto"
+            bind:this={scrollingDiv}
+            on:scroll={saveScrollPosition}
         >
-            {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
-        </div>
-    {/if}
-    <div
-        class:borderimg={showBorder}
-        class="overflow-y-auto"
-        bind:this={scrollingDiv}
-        on:scroll={saveScrollPosition}
-    >
-        <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
-            <div class="hidden md:flex basis-1/12 justify-center">
-                <button
-                    on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
-                </button>
-            </div>
-            <div class="basis-5/6 max-w-screen-md">
-                <div class="p-2 w-full">
-                    <main>
-                        <div
-                            class="max-w-screen-md mx-auto"
-                            use:pinch
-                            on:pinch={doPinch}
-                            use:swipe={{
-                                timeframe: 300,
-                                minSwipeDistance: 60,
-                                touchAction: 'pan-y'
-                            }}
-                            on:swipe={doSwipe}
-                        >
-                            <ScriptureViewSofria {...viewSettings} />
-                        </div>
-                    </main>
+            <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
+                <div class="hidden md:flex basis-1/12 justify-center">
+                    <button
+                        on:click={prevChapter}
+                        class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronIcon
+                            size={36}
+                            color={'gray'}
+                            deg={$direction === 'ltr' ? 180 : 0}
+                        />
+                    </button>
                 </div>
-            </div>
-            <div class="hidden basis-1/12 md:flex justify-center">
-                <button
-                    on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 0 : 180} />
-                </button>
+                <!-- svelte-ignore a11y-no-static-element-interactions-->
+                <div on:dblclick={() => toggleFullscreen()} class="basis-5/6 max-w-screen-md">
+                    <div class="p-2 w-full">
+                        <main>
+                            <div
+                                class="max-w-screen-md mx-auto"
+                                use:pinch
+                                on:pinch={doPinch}
+                                use:swipe={{
+                                    timeframe: 300,
+                                    minSwipeDistance: 60,
+                                    touchAction: 'pan-y'
+                                }}
+                                on:swipe={doSwipe}
+                            >
+                                <ScriptureViewSofria {...viewSettings} />
+                            </div>
+                        </main>
+                    </div>
+                </div>
+                <div class="hidden basis-1/12 md:flex justify-center">
+                    <button
+                        on:click={nextChapter}
+                        class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronIcon
+                            size={36}
+                            color={'gray'}
+                            deg={$direction === 'ltr' ? 0 : 180}
+                        />
+                    </button>
+                </div>
             </div>
         </div>
     </div>
