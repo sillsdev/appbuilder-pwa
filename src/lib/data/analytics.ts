@@ -82,11 +82,8 @@ export function logAudioDuration(audioPlayer: AudioPlayer) {
 }
 
 // TODO: Complete once shareApp is implemented
-export function logShareApp() {
-    // share_app_name
-    // share_app_version
-    // share_type
-    analytics.log('ab_share_app');
+export function logShareApp(appName, appVersion, appType) {
+    analytics.log('ab_share_app', { appName, appVersion, appType });
 }
 
 export function logShareContent(contentType: String, bookCol: String, bookAbbrev: String, reference: string) {
