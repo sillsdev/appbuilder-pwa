@@ -5,9 +5,13 @@
     import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
+    import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
+    import { editNote, addNote } from '$lib/data/notes';
+    import { goto } from '$app/navigation';
 
     export let note = undefined;
     export let editing = false;
+    export let show;
 
     let id = 'note';
     let modal;
@@ -54,43 +58,51 @@
 </script>
 
 <Modal bind:this={modal} {id} onclose={reset}>
-    <div class="flex flex-col justify-evenly">
-        <div class="w-full flex justify-between">
-            <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
-                {heading}
+        <div class="flex flex-col justify-evenly">
+            <div class="w-full flex justify-between">
+                <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
+                    {heading}
+                </div>
+                {#if !editing}
+                    <button
+                        onclick={() => {
+                            editing = true;
+                        }}
+                    >
+                        <EditIcon />
+                    </button>
+                {/if}
             </div>
-            {#if !editing}
-                <button
-                    onclick={() => {
-                        editing = true;
-                    }}
-                >
-                    <EditIcon />
-                </button>
-            {/if}
-        </div>
-        <div style:word-wrap="break-word">
+            <!-- TEST ----------------------------------------------------------------------- -->
             {#if editing}
-                <textarea bind:value={text} class="dy-textarea w-full"></textarea>
-            {:else if text !== undefined}
-                {#each text.split(/\r?\n/) as line}
-                    {#if line}
-                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                            {line}
-                        </p>
-                    {:else}
-                        <br />
-                    {/if}
-                {/each}
+                { goto(`/notes/edit/${note.date}`) }
+                
             {/if}
+
+            <!-- TEST ----------------------------------------------------------------------- -->
+
+            <!-- <div style:word-wrap="break-word">
+                {#if editing}
+                    <textarea bind:value={text} class="dy-textarea w-full"></textarea>
+                {:else if text !== undefined}
+                    {#each text.split(/\r?\n/) as line}
+                        {#if line}
+                            <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                                {line}
+                            </p>
+                        {:else}
+                            <br />
+                        {/if}
+                    {/each}
+                {/if}
+            <!--  </div> -->
+            {#if editing}
+                <div class="w-full flex mt-4 justify-between">
+                    <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
+                    <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
+                        >{$t['Button_OK']}</button
+                    >
+                </div>
+            {/if} -->
         </div>
-        {#if editing}
-            <div class="w-full flex mt-4 justify-between">
-                <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
-                    >{$t['Button_OK']}</button
-                >
-            </div>
-        {/if}
-    </div>
 </Modal>
