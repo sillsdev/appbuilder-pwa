@@ -5,9 +5,11 @@
     import { EditIcon } from '$lib/icons';
     import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
     import { editNote, addNote } from '$lib/data/notes';
+    import { goto } from '$app/navigation';
 
     export let note = undefined;
     export let editing = false;
+    export let show;
 
     let id = 'note';
     let modal;
@@ -73,7 +75,15 @@
                     </button>
                 {/if}
             </div>
-            <div style:word-wrap="break-word">
+            <!-- TEST ----------------------------------------------------------------------- -->
+            {#if editing}
+                { goto(`/notes/edit/${note.date}`) }
+                
+            {/if}
+
+            <!-- TEST ----------------------------------------------------------------------- -->
+
+            <!-- <div style:word-wrap="break-word">
                 {#if editing}
                     <textarea bind:value={text} class="dy-textarea w-full" />
                 {:else if text !== undefined}
@@ -95,7 +105,7 @@
                         >{$t['Button_OK']}</button
                     >
                 </div>
-            {/if}
+            {/if} -->
         </div>
     </svelte:fragment>
 </Modal>
