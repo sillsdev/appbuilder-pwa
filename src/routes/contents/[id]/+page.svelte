@@ -1,7 +1,15 @@
 <script>
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { s, t, themeColors, modal, MODAL_COLLECTION, convertStyle, contentsStack } from '$lib/data/stores';
+    import {
+        s,
+        t,
+        themeColors,
+        modal,
+        MODAL_COLLECTION,
+        convertStyle,
+        contentsStack
+    } from '$lib/data/stores';
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
@@ -30,8 +38,6 @@
             //reference linkType
             case 'reference':
                 contentsStack.pushItem($page.data.menu.id);
-                console.log(`clicked: pushed ${$page.data.menu.id}`);
-                console.log(`stack: `, $contentsStack.length)
                 setReference(item);
                 goto(`${base}/`);
                 break;
@@ -40,8 +46,6 @@
                 //not handled yet
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
-                console.log(`clicked: pushed ${$page.data.menu.id}`);
-                console.log(`stack: `, $contentsStack.length)
                 await goto(`${base}/contents/${item.linkTarget}`);
                 break;
             case 'other':
@@ -118,7 +122,7 @@
             previously used custom title, is this ok?
             i think its fine because you only use that for the custom title option
         */
-       let title = '';
+        let title = '';
         switch (page.data.features['title-type']) {
             case 'app-name':
                 //where to find the app name: config.js, line 2
@@ -149,7 +153,7 @@
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation} showBackButton={showBackButton}>
+        <Navbar on:backNavigation={handleBackNavigation} {showBackButton}>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
                 <div class="btn btn-ghost normal-case text-xl">{title}</div>
