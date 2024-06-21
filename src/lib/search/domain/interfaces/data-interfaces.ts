@@ -57,6 +57,4 @@ export interface SearchConfigRepository {
     searchSubtitute(): SubstitutionMap;
 
     collectionToDocSet(collection: string): string;
-
-    userLocale(): string;
 }
