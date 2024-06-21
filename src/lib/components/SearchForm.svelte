@@ -1,6 +1,5 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { initProskomma, loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import {
         bodyFontSize,
         convertStyle,
@@ -11,12 +10,11 @@
         themeColors
     } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
-    import type { SABProskomma } from '$lib/sab-proskomma';
-    import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
     import { get } from 'svelte/store';
     import type { SearchResult } from '$lib/search/domain/entities';
     import type { UserSearchRequest } from '$lib/search/domain/interfaces/presentation-interfaces';
+    import SearchWorker from '$lib/search/search-worker?worker';
 
     export let collection: string;
 
@@ -27,9 +25,7 @@
     let noResults = false;
     let waiting = false;
 
-    const worker = new Worker(new URL('$lib/search/search-worker.ts', import.meta.url), {
-        type: 'module'
-    });
+    const worker = new SearchWorker();
 
     worker.onmessage = function (e: MessageEvent) {
         const message = e.data;
@@ -50,7 +46,8 @@
             options: {
                 collection,
                 wholeWords,
-                matchAccents: false
+                matchAccents: false,
+                locale: get(language)
             }
         };
         worker.postMessage(message);

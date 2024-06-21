@@ -1,6 +1,3 @@
-import { language } from '$lib/data/stores/localization';
-import { get } from 'svelte/store';
-
 import type {
     SearchConfigRepository,
     SubstitutionMap
@@ -39,9 +36,5 @@ export class SearchConfigRepositoryImpl implements SearchConfigRepository {
     collectionToDocSet(collection: string): string {
         const data = this.config.bookCollection(collection);
         return data.languageCode + '_' + data.id;
-    }
-
-    userLocale(): string {
-        return get(language);
     }
 }
