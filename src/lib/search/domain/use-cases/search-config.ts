@@ -12,14 +12,13 @@ export class SearchConfig {
         const docSet = this.repo.collectionToDocSet(options.collection);
         const ignore = options.matchAccents ? undefined : this.repo.searchIgnore();
         const substitute = options.matchAccents ? undefined : this.repo.searchSubtitute();
-        const locale = this.repo.userLocale();
         return {
             docSet,
             collection: options.collection,
             wholeWords: options.wholeWords,
             ignore,
             substitute,
-            locale
+            locale: options.locale
         };
     }
 }
