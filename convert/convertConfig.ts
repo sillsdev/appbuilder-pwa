@@ -84,6 +84,7 @@ export type BookCollection = {
 export type ConfigData = {
     name?: string;
     package?: string;
+    version?: string;
     mainFeatures?: any;
     fonts?: {
         name?: string;
@@ -393,6 +394,10 @@ function convertConfig(dataDir: string, verbose: number) {
     // Package
     data.package = document.getElementsByTagName('package')[0].innerHTML;
     if (verbose) console.log(`Converting ${data.package}...`);
+
+    // Version
+    const versionTag = document.getElementsByTagName('version')[0];
+    data.version = versionTag.attributes.getNamedItem('name')!.value;
 
     // Features
     const mainFeatureTags = document
