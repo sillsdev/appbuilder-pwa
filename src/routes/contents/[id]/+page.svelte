@@ -41,15 +41,12 @@
                 setReference(item);
                 goto(`${base}/`);
                 break;
-            //need to check if these are the correct strings to use
             case 'screen':
-                //not handled yet
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
                 await goto(`${base}/contents/${item.linkTarget}`);
                 break;
             case 'other':
-                //not handled yet
                 //switch on item.linkLocation
                 switch (item.linkLocation) {
                     case 'about':
@@ -58,7 +55,6 @@
                         break;
                     case 'layout':
                         modal.open(MODAL_COLLECTION);
-                        //also the title for this one says &amp; instead of & in the json
                         break;
                     case 'website':
                         //opens in a separate tab
@@ -77,7 +73,6 @@
     }
 
     function setReference(item) {
-        // reference = formatReferenceTarget(item.linkTarget)
         let book;
         let chapter;
         let verse;
@@ -109,23 +104,9 @@
     //set the title for the current contents page
     function setTitle(page) {
         //checks title type and returns the appropriate title or lack of title
-
-        /* title options:
-            - app-name 
-            - screen (current contents screen title)
-            - custom 
-            - none
-        
-            I also noticed that if you build files with a custom 
-            title and then again without specifying a title aka 
-            any of the other options, the title in the json was the 
-            previously used custom title, is this ok?
-            i think its fine because you only use that for the custom title option
-        */
         let title = '';
         switch (page.data.features['title-type']) {
             case 'app-name':
-                //where to find the app name: config.js, line 2
                 title = config.name;
                 break;
             case 'screen':
@@ -165,7 +146,7 @@
     <div class="overflow-y-auto mx-auto max-w-screen-md">
         <div id="container" class="contents" style={convertStyle($s['body.contents'])}>
             {#each $page.data.items as item}
-                <!-- iterate through the items, add html -->
+                <!-- iterate through the items, adding html -->
 
                 <!-- svelte-ignore a11y-invalid-attribute -->
                 <a
@@ -189,35 +170,27 @@
                                     alt={item.imageFilename}
                                 />
                             </div>
-                        {:else}
-                            <!--empty - no image-->
                         {/if}
 
                         <div class="contents-text-block">
                             <!-- check for title -->
                             {#if $page.data.features['show-titles'] === true}
-                                {#if item.title.default === undefined}
-                                    <!--empty-->
-                                {:else}
+                                {#if item.title.default}
                                     <div class="contents-title">{item.title.default}</div>
                                 {/if}
                             {/if}
 
                             <!--Check for subtitle-->
                             {#if $page.data.features['show-subtitles'] === true}
-                                {#if item.subtitle.default === undefined}
-                                    <!--empty-->
-                                {:else}
+                                {#if item.subtitle.default}
                                     <div class="contents-subtitle">{item.subtitle.default}</div>
                                 {/if}
                             {/if}
 
-                            <!--check for reference - should this go before the subtitle?-->
+                            <!--check for reference -->
                             {#if $page.data.features['show-references'] === true}
                                 {#if item.linkType === 'reference'}
                                     <div class="contents-ref">{item.linkTarget}</div>
-                                {:else}
-                                    <!--empty-->
                                 {/if}
                             {/if}
                         </div>
