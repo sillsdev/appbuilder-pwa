@@ -374,7 +374,7 @@
                                             <tr>
                                                 <td>
                                                     <button
-                                                        class="flex-initial w-32 md:w-48 lg:w-64 mt-2 gap-8}"
+                                                        class="flex-initial w-32 md:w-48 lg:w-64 mt-2 gap-8"
                                                         on:click={() => {
                                                             onQuestionAnswered(answer);
                                                         }}
