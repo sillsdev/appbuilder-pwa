@@ -57,4 +57,9 @@ export interface SearchConfigRepository {
     searchSubtitute(): SubstitutionMap;
 
     collectionToDocSet(collection: string): string;
+
+    /**
+     * The current UI language as a BCP 47 code
+     */
+    userLanguage(): string;
 }

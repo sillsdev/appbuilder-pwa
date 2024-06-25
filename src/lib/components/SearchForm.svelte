@@ -1,20 +1,11 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import {
-        bodyFontSize,
-        convertStyle,
-        currentFont,
-        language,
-        s,
-        t,
-        themeColors
-    } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import SearchResultCard from './SearchResultCard.svelte';
-    import { get } from 'svelte/store';
     import type { SearchResult } from '$lib/search/domain/entities';
-    import type { UserSearchRequest } from '$lib/search/domain/interfaces/presentation-interfaces';
-    import SearchWorker from '$lib/search/search-worker?worker';
+    import type { SearchPresenter } from '$lib/search/domain/interfaces/presentation-interfaces';
+    import { makeSearchConfig, makeSearchSession } from '$lib/search/factories';
 
     export let collection: string;
 
@@ -25,32 +16,29 @@
     let noResults = false;
     let waiting = false;
 
-    const worker = new SearchWorker();
-
-    worker.onmessage = function (e: MessageEvent) {
-        const message = e.data;
-        if (e.data.type === 'results') {
+    const presenter: SearchPresenter = {
+        onResults: function (newResults: SearchResult[]): void {
             waiting = false;
-            results = results.concat(e.data.value);
+            results = results.concat(newResults);
             noResults = results.length === 0;
-        } else if (e.data.type === 'newQuery') {
+        },
+        onNewQuery: function (): void {
             results = [];
             noResults = false;
             waiting = true;
         }
     };
 
+    const configManager = makeSearchConfig();
+    const session = makeSearchSession(presenter);
+
     async function submit() {
-        const message: UserSearchRequest = {
-            phrase: searchText,
-            options: {
-                collection,
-                wholeWords,
-                matchAccents: false,
-                locale: get(language)
-            }
-        };
-        worker.postMessage(message);
+        const options = configManager.configureOptions({
+            collection,
+            wholeWords,
+            matchAccents: false
+        });
+        session.submit(searchText, options);
     }
 </script>
 
