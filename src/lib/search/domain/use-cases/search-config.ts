@@ -10,6 +10,7 @@ export class SearchConfig {
 
     configureOptions(options: UserSearchOptions): SearchOptions {
         const docSet = this.repo.collectionToDocSet(options.collection);
+        const language = this.repo.userLanguage();
         const ignore = options.matchAccents ? undefined : this.repo.searchIgnore();
         const substitute = options.matchAccents ? undefined : this.repo.searchSubtitute();
         return {
@@ -18,7 +19,7 @@ export class SearchConfig {
             wholeWords: options.wholeWords,
             ignore,
             substitute,
-            locale: options.locale
+            locale: language
         };
     }
 }
