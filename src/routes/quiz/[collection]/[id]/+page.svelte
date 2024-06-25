@@ -343,7 +343,7 @@
                                 >
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <button
-                                            class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8"
+                                            class="flex-initial w-64 md:w-1/2 lg:w-1/3 mt-2 gap-8"
                                             on:click={() => {
                                                 onQuestionAnswered(answer);
                                                 console.log(currentQuizQuestion.columns);
@@ -433,6 +433,11 @@
 </div>
 
 <style>
+    .quiz-answer-block {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+        gap: 2rem;
+    }
     .imageWrongSelect {
         color: rgb(255, 255, 255);
         background-color: rgb(193, 27, 23);
