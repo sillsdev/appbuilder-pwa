@@ -412,58 +412,30 @@
                                 {currentQuizQuestion.text}
                             </div>
                             <div class="flex justify-center flex-wrap mx-4">
-                                {#if currentQuizQuestion.columns == 1}
-                                    <div class="grid grid-cols-1 gap-2">
-                                        {#each shuffledAnswers as answer, currentIndex}
-                                            <div
-                                                class="w-full flex justify-center p-[4%]"
-                                                class:imageCorrectSelect={clicked &&
-                                                    answer.correct &&
-                                                    (answer.clicked || displayCorrect)}
-                                                class:imageWrongSelect={clicked &&
-                                                    answer.clicked &&
-                                                    !answer.correct}
-                                                class:textHighlight={textHighlightIndex ===
-                                                    currentIndex}
-                                            >
-                                                <img
-                                                    class="cursor-pointer"
-                                                    src={getImageSource(answer.image)}
-                                                    alt={answer.text}
-                                                    on:click={() => {
-                                                        onQuestionAnswered(answer);
-                                                    }}
-                                                />
-                                            </div>
-                                        {/each}
-                                    </div>
-                                {/if}
-                                {#if currentQuizQuestion.columns == 2}
-                                    <div class="grid grid-cols-2 gap-2">
-                                        {#each shuffledAnswers as answer, currentIndex}
-                                            <div
-                                                class="w-full flex justify-center p-[4%]"
-                                                class:imageCorrectSelect={clicked &&
-                                                    answer.correct &&
-                                                    (answer.clicked || displayCorrect)}
-                                                class:imageWrongSelect={clicked &&
-                                                    answer.clicked &&
-                                                    !answer.correct}
-                                                class:textHighlight={textHighlightIndex ===
-                                                    currentIndex}
-                                            >
-                                                <img
-                                                    class="cursor-pointer"
-                                                    src={getImageSource(answer.image)}
-                                                    alt={answer.text}
-                                                    on:click={() => {
-                                                        onQuestionAnswered(answer);
-                                                    }}
-                                                />
-                                            </div>
-                                        {/each}
-                                    </div>
-                                {/if}
+                                <div class="grid grid-cols-2 gap-2">
+                                    {#each shuffledAnswers as answer, currentIndex}
+                                        <div
+                                            class="w-full flex justify-center p-[4%]"
+                                            class:imageCorrectSelect={clicked &&
+                                                answer.correct &&
+                                                (answer.clicked || displayCorrect)}
+                                            class:imageWrongSelect={clicked &&
+                                                answer.clicked &&
+                                                !answer.correct}
+                                            class:textHighlight={textHighlightIndex ===
+                                                currentIndex}
+                                        >
+                                            <img
+                                                class="cursor-pointer"
+                                                src={getImageSource(answer.image)}
+                                                alt={answer.text}
+                                                on:click={() => {
+                                                    onQuestionAnswered(answer);
+                                                }}
+                                            />
+                                        </div>
+                                    {/each}
+                                </div>
                             </div>
                             {#if explanation}
                                 <div class="quiz-answer-explanation mt-4">
