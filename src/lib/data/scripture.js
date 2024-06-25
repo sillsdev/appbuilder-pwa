@@ -22,19 +22,25 @@ export async function initProskomma({ fetch }) {
     return proskomma;
 }
 
-export async function loadDocSet(proskomma, docSet, fetch) {
+export async function fetchDocSet(docSet, fetch) {
     performance.mark('pk-fetch-start');
-    // console.log('fetch %o pkf', docSet);
-    const res = await fetch(`${base}/collections/${docSet}.pkf`).then((r) => {
-        return r.arrayBuffer();
-    });
+
+    const data = await fetch(`${base}/collections/${docSet}.pkf`);
+    const buffer = await data.arrayBuffer();
+
     performance.mark('pk-fetch-end');
     performance.measure('pk-fetch-duration', 'pk-fetch-start', 'pk-fetch-end');
-    if (res.byteLength) {
+
+    return new Uint8Array(buffer);
+}
+
+export async function loadDocSet(proskomma, docSet, fetch) {
+    // console.log('fetch %o pkf', docSet);
+    const data = await fetchDocSet(docSet, fetch);
+    if (data.length) {
         performance.mark('pk-thaw-start');
         // console.log('awaiting thaw');
-        const uint8res = new Uint8Array(res);
-        thaw(proskomma, uint8res);
+        thaw(proskomma, data);
         performance.mark('pk-thaw-end');
         performance.measure('pk-thaw-duration', 'pk-thaw-start', 'pk-thaw-end');
     }
