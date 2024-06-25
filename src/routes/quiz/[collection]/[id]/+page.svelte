@@ -338,94 +338,33 @@
                                 {/if}
                             </div>
                             <div class="flex quiz-answer-block justify-center">
-                                {#if (currentQuizQuestion.columns || 2) == 1}
-                                    <table class="mt-10">
-                                        {#each shuffledAnswers as answer, currentIndex}
-                                            <tr>
-                                                <td>
-                                                    <button
-                                                        class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8}"
-                                                        on:click={() => {
-                                                            onQuestionAnswered(answer);
-                                                        }}
-                                                    >
-                                                        <div
-                                                            class="quiz-answer flex justify-center"
-                                                            class:textCorrectSelect={clicked &&
-                                                                answer.correct &&
-                                                                (answer.clicked || displayCorrect)}
-                                                            class:textWrongSelect={clicked &&
-                                                                answer.clicked &&
-                                                                !answer.correct}
-                                                            class:textHighlight={textHighlightIndex ===
-                                                                currentIndex}
-                                                        >
-                                                            {answer.text}
-                                                        </div>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        {/each}
-                                    </table>
-                                {:else if currentQuizQuestion.columns == 3}
-                                    <table class="grid grid-cols-3 gap-2 mt-10">
-                                        {#each shuffledAnswers as answer, currentIndex}
-                                            <tr>
-                                                <td>
-                                                    <button
-                                                        class="flex-initial w-24 md:w-32 lg:w-40 mt-2 gap-8"
-                                                        on:click={() => {
-                                                            onQuestionAnswered(answer);
-                                                        }}
-                                                    >
-                                                        <div
-                                                            class="quiz-answer flex justify-center"
-                                                            class:textCorrectSelect={clicked &&
-                                                                answer.correct &&
-                                                                (answer.clicked || displayCorrect)}
-                                                            class:textWrongSelect={clicked &&
-                                                                answer.clicked &&
-                                                                !answer.correct}
-                                                            class:textHighlight={textHighlightIndex ===
-                                                                currentIndex}
-                                                        >
-                                                            {answer.text}
-                                                        </div>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        {/each}
-                                    </table>
-                                {:else}
-                                    <table class="grid grid-cols-2 gap-2 mt-10">
-                                        {#each shuffledAnswers as answer, currentIndex}
-                                            <tr>
-                                                <td>
-                                                    <button
-                                                        class="flex-initial w-32 md:w-48 lg:w-64 mt-2 gap-8"
-                                                        on:click={() => {
-                                                            onQuestionAnswered(answer);
-                                                        }}
-                                                    >
-                                                        <div
-                                                            class="quiz-answer flex justify-center"
-                                                            class:textCorrectSelect={clicked &&
-                                                                answer.correct &&
-                                                                (answer.clicked || displayCorrect)}
-                                                            class:textWrongSelect={clicked &&
-                                                                answer.clicked &&
-                                                                !answer.correct}
-                                                            class:textHighlight={textHighlightIndex ===
-                                                                currentIndex}
-                                                        >
-                                                            {answer.text}
-                                                        </div>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        {/each}
-                                    </table>
-                                {/if}
+                                <div
+                                    class="grid grid-cols-{currentQuizQuestion.columns} gap-2 mt-10"
+                                >
+                                    {#each shuffledAnswers as answer, currentIndex}
+                                        <button
+                                            class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8"
+                                            on:click={() => {
+                                                onQuestionAnswered(answer);
+                                                console.log(currentQuizQuestion.columns);
+                                            }}
+                                        >
+                                            <div
+                                                class="quiz-answer flex justify-center"
+                                                class:textCorrectSelect={clicked &&
+                                                    answer.correct &&
+                                                    (answer.clicked || displayCorrect)}
+                                                class:textWrongSelect={clicked &&
+                                                    answer.clicked &&
+                                                    !answer.correct}
+                                                class:textHighlight={textHighlightIndex ===
+                                                    currentIndex}
+                                            >
+                                                {answer.text}
+                                            </div>
+                                        </button>
+                                    {/each}
+                                </div>
                             </div>
                             {#if explanation}
                                 <div class="quiz-answer-explanation mt-4">
@@ -440,7 +379,7 @@
                                 {currentQuizQuestion.text}
                             </div>
                             <div class="flex justify-center flex-wrap mx-4">
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid grid-cols-{currentQuizQuestion.columns} gap-2">
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <div
                                             class="w-full flex justify-center p-[4%]"
