@@ -2,6 +2,7 @@
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
     import {
+        language,
         s,
         t,
         themeColors,
@@ -17,6 +18,8 @@
 
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
+
+    console.log(config.interfaceLanguages);
 
     function onClick(event, item) {
         event.target.style.background = highlightColor;
@@ -110,10 +113,10 @@
                 title = config.name;
                 break;
             case 'screen':
-                title = page.data.menu.title.default;
+                title = page.data.menu.title[$language] ?? page.data.menu.title.default ?? '';
                 break;
             case 'custom':
-                title = page.data.title.default;
+                title = page.data.title[$language] ?? page.data.title.default ?? '';
                 break;
             case 'none':
             default:
@@ -175,16 +178,16 @@
                         <div class="contents-text-block">
                             <!-- check for title -->
                             {#if $page.data.features['show-titles'] === true}
-                                {#if item.title.default}
-                                    <div class="contents-title">{item.title.default}</div>
-                                {/if}
+                                <div class="contents-title">
+                                    {item.title[$language] ?? item.title.default ?? ''}
+                                </div>
                             {/if}
 
                             <!--Check for subtitle-->
                             {#if $page.data.features['show-subtitles'] === true}
-                                {#if item.subtitle.default}
-                                    <div class="contents-subtitle">{item.subtitle.default}</div>
-                                {/if}
+                                <div class="contents-subtitle">
+                                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                                </div>
                             {/if}
 
                             <!--check for reference -->
