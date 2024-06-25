@@ -338,7 +338,7 @@
                                 {/if}
                             </div>
                             <div class="flex quiz-answer-block justify-center">
-                                {#if currentQuizQuestion.columns == 1}
+                                {#if (currentQuizQuestion.columns || 2) == 1}
                                     <table class="mt-10">
                                         {#each shuffledAnswers as answer, currentIndex}
                                             <tr>
@@ -367,8 +367,7 @@
                                             </tr>
                                         {/each}
                                     </table>
-                                {/if}
-                                {#if currentQuizQuestion.columns == 2}
+                                {:else}
                                     <table class="grid grid-cols-2 gap-2 mt-10">
                                         {#each shuffledAnswers as answer, currentIndex}
                                             <tr>
