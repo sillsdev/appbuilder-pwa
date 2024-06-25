@@ -339,7 +339,7 @@
                             </div>
                             <div class="flex quiz-answer-block justify-center">
                                 <div
-                                    class="grid grid-cols-{currentQuizQuestion.columns} gap-2 mt-10"
+                                    class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2"
                                 >
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <button
@@ -379,7 +379,9 @@
                                 {currentQuizQuestion.text}
                             </div>
                             <div class="flex justify-center flex-wrap mx-4">
-                                <div class="grid grid-cols-{currentQuizQuestion.columns} gap-2">
+                                <div
+                                    class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2"
+                                >
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <div
                                             class="w-full flex justify-center p-[4%]"
@@ -433,11 +435,6 @@
 </div>
 
 <style>
-    .quiz-answer-block {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-        gap: 2rem;
-    }
     .imageWrongSelect {
         color: rgb(255, 255, 255);
         background-color: rgb(193, 27, 23);
