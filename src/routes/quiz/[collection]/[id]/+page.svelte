@@ -367,6 +367,35 @@
                                             </tr>
                                         {/each}
                                     </table>
+                                {:else if currentQuizQuestion.columns == 3}
+                                    <table class="grid grid-cols-3 gap-2 mt-10">
+                                        {#each shuffledAnswers as answer, currentIndex}
+                                            <tr>
+                                                <td>
+                                                    <button
+                                                        class="flex-initial w-24 md:w-32 lg:w-40 mt-2 gap-8"
+                                                        on:click={() => {
+                                                            onQuestionAnswered(answer);
+                                                        }}
+                                                    >
+                                                        <div
+                                                            class="quiz-answer flex justify-center"
+                                                            class:textCorrectSelect={clicked &&
+                                                                answer.correct &&
+                                                                (answer.clicked || displayCorrect)}
+                                                            class:textWrongSelect={clicked &&
+                                                                answer.clicked &&
+                                                                !answer.correct}
+                                                            class:textHighlight={textHighlightIndex ===
+                                                                currentIndex}
+                                                        >
+                                                            {answer.text}
+                                                        </div>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {/each}
+                                    </table>
                                 {:else}
                                     <table class="grid grid-cols-2 gap-2 mt-10">
                                         {#each shuffledAnswers as answer, currentIndex}
