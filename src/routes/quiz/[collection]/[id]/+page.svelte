@@ -339,11 +339,12 @@
                             </div>
                             <div class="flex quiz-answer-block justify-center">
                                 <div
-                                    class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2"
+                                    class="grid grid-cols-{currentQuizQuestion.columns ??
+                                        2} gap-2 justify-items-center"
                                 >
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <button
-                                            class="flex-initial w-64 md:w-1/2 lg:w-1/3 mt-2 gap-8"
+                                            class="flex-initial sm:w-28 md:w-56 lg:w-[23rem] mt-2 gap-8"
                                             on:click={() => {
                                                 onQuestionAnswered(answer);
                                                 console.log(currentQuizQuestion.columns);
