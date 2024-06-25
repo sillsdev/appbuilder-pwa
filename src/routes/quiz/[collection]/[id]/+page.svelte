@@ -338,34 +338,66 @@
                                 {/if}
                             </div>
                             <div class="flex quiz-answer-block justify-center">
-                                <table class="mt-10">
-                                    {#each shuffledAnswers as answer, currentIndex}
-                                        <tr>
-                                            <td>
-                                                <button
-                                                    class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8}"
-                                                    on:click={() => {
-                                                        onQuestionAnswered(answer);
-                                                    }}
-                                                >
-                                                    <div
-                                                        class="quiz-answer flex justify-center"
-                                                        class:textCorrectSelect={clicked &&
-                                                            answer.correct &&
-                                                            (answer.clicked || displayCorrect)}
-                                                        class:textWrongSelect={clicked &&
-                                                            answer.clicked &&
-                                                            !answer.correct}
-                                                        class:textHighlight={textHighlightIndex ===
-                                                            currentIndex}
+                                {#if currentQuizQuestion.columns == 1}
+                                    <table class="mt-10">
+                                        {#each shuffledAnswers as answer, currentIndex}
+                                            <tr>
+                                                <td>
+                                                    <button
+                                                        class="flex-initial w-64 md:w-[22rem] lg:w-[32rem] mt-2 gap-8}"
+                                                        on:click={() => {
+                                                            onQuestionAnswered(answer);
+                                                        }}
                                                     >
-                                                        {answer.text}
-                                                    </div>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {/each}
-                                </table>
+                                                        <div
+                                                            class="quiz-answer flex justify-center"
+                                                            class:textCorrectSelect={clicked &&
+                                                                answer.correct &&
+                                                                (answer.clicked || displayCorrect)}
+                                                            class:textWrongSelect={clicked &&
+                                                                answer.clicked &&
+                                                                !answer.correct}
+                                                            class:textHighlight={textHighlightIndex ===
+                                                                currentIndex}
+                                                        >
+                                                            {answer.text}
+                                                        </div>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {/each}
+                                    </table>
+                                {/if}
+                                {#if currentQuizQuestion.columns == 2}
+                                    <table class="grid grid-cols-2 gap-2 mt-10">
+                                        {#each shuffledAnswers as answer, currentIndex}
+                                            <tr>
+                                                <td>
+                                                    <button
+                                                        class="flex-initial w-32 md:w-48 lg:w-64 mt-2 gap-8}"
+                                                        on:click={() => {
+                                                            onQuestionAnswered(answer);
+                                                        }}
+                                                    >
+                                                        <div
+                                                            class="quiz-answer flex justify-center"
+                                                            class:textCorrectSelect={clicked &&
+                                                                answer.correct &&
+                                                                (answer.clicked || displayCorrect)}
+                                                            class:textWrongSelect={clicked &&
+                                                                answer.clicked &&
+                                                                !answer.correct}
+                                                            class:textHighlight={textHighlightIndex ===
+                                                                currentIndex}
+                                                        >
+                                                            {answer.text}
+                                                        </div>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {/each}
+                                    </table>
+                                {/if}
                             </div>
                             {#if explanation}
                                 <div class="quiz-answer-explanation mt-4">
@@ -380,32 +412,58 @@
                                 {currentQuizQuestion.text}
                             </div>
                             <div class="flex justify-center flex-wrap mx-4">
-                                <div class="grid grid-cols-2 gap-2">
-                                    {#each shuffledAnswers as answer, currentIndex}
-                                        <div
-                                            class="w-full flex justify-center p-[4%]"
-                                            class:imageCorrectSelect={clicked &&
-                                                answer.correct &&
-                                                (answer.clicked || displayCorrect)}
-                                            class:imageWrongSelect={clicked &&
-                                                answer.clicked &&
-                                                !answer.correct}
-                                            class:textHighlight={textHighlightIndex ===
-                                                currentIndex}
-                                        >
-                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                                            <img
-                                                class="cursor-pointer"
-                                                src={getImageSource(answer.image)}
-                                                alt={answer.text}
-                                                on:click={() => {
-                                                    onQuestionAnswered(answer);
-                                                }}
-                                            />
-                                        </div>
-                                    {/each}
-                                </div>
+                                {#if currentQuizQuestion.columns == 1}
+                                    <div class="grid grid-cols-1 gap-2">
+                                        {#each shuffledAnswers as answer, currentIndex}
+                                            <div
+                                                class="w-full flex justify-center p-[4%]"
+                                                class:imageCorrectSelect={clicked &&
+                                                    answer.correct &&
+                                                    (answer.clicked || displayCorrect)}
+                                                class:imageWrongSelect={clicked &&
+                                                    answer.clicked &&
+                                                    !answer.correct}
+                                                class:textHighlight={textHighlightIndex ===
+                                                    currentIndex}
+                                            >
+                                                <img
+                                                    class="cursor-pointer"
+                                                    src={getImageSource(answer.image)}
+                                                    alt={answer.text}
+                                                    on:click={() => {
+                                                        onQuestionAnswered(answer);
+                                                    }}
+                                                />
+                                            </div>
+                                        {/each}
+                                    </div>
+                                {/if}
+                                {#if currentQuizQuestion.columns == 2}
+                                    <div class="grid grid-cols-2 gap-2">
+                                        {#each shuffledAnswers as answer, currentIndex}
+                                            <div
+                                                class="w-full flex justify-center p-[4%]"
+                                                class:imageCorrectSelect={clicked &&
+                                                    answer.correct &&
+                                                    (answer.clicked || displayCorrect)}
+                                                class:imageWrongSelect={clicked &&
+                                                    answer.clicked &&
+                                                    !answer.correct}
+                                                class:textHighlight={textHighlightIndex ===
+                                                    currentIndex}
+                                            >
+                                                <img
+                                                    class="cursor-pointer"
+                                                    src={getImageSource(answer.image)}
+                                                    alt={answer.text}
+                                                    on:click={() => {
+                                                        onQuestionAnswered(answer);
+                                                    }}
+                                                />
+                                            </div>
+                                        {/each}
+                                    </div>
+                                {/if}
                             </div>
                             {#if explanation}
                                 <div class="quiz-answer-explanation mt-4">
