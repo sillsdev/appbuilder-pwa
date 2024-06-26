@@ -337,18 +337,16 @@
                                     </div>
                                 {/if}
                             </div>
-                            <div class="flex quiz-answer-block justify-center">
+                            <div class="quiz-answer-block justify-center">
                                 <div
                                     class="grid grid-cols-{currentQuizQuestion.columns ??
-                                        2} gap-2 justify-items-center"
+                                        1} gap-2 justify-items-center"
                                 >
                                     {#each shuffledAnswers as answer, currentIndex}
-                                    {#if currentQuizQuestion.columns > 2}
                                         <button
-                                            class="flex-initial sm:w-28 md:w-56 lg:w-[23rem] mt-2 gap-8"
+                                            class="flex-initial w-5/6 md:w-64 lg:w-[23rem] mt-2 gap-8"
                                             on:click={() => {
                                                 onQuestionAnswered(answer);
-                                                console.log(currentQuizQuestion.columns);
                                             }}
                                         >
                                             <div
@@ -365,30 +363,6 @@
                                                 {answer.text}
                                             </div>
                                         </button>
-                                        {/if}
-                                        {:else}
-                                        <button
-                                        class="flex-initial sm:w-64 md:w-[23rem] lg:w-[28rem] mt-2 gap-8"
-                                        on:click={() => {
-                                            onQuestionAnswered(answer);
-                                            console.log(currentQuizQuestion.columns);
-                                        }}
-                                    >
-                                        <div
-                                            class="quiz-answer flex justify-center"
-                                            class:textCorrectSelect={clicked &&
-                                                answer.correct &&
-                                                (answer.clicked || displayCorrect)}
-                                            class:textWrongSelect={clicked &&
-                                                answer.clicked &&
-                                                !answer.correct}
-                                            class:textHighlight={textHighlightIndex ===
-                                                currentIndex}
-                                        >
-                                            {answer.text}
-                                        </div>
-                                    </button>
-                                        {/else}
                                     {/each}
                                 </div>
                             </div>
