@@ -302,7 +302,7 @@
         </Navbar>
     </div>
     {#if questionNum == shuffledQuestions.length}
-        <div class="score flex justify-center">
+        <div class="score">
             <div id="content" class="text-center">
                 <div class="quiz-score-before">{$t['Quiz_Score_Page_Message_Before']}</div>
                 <div class="quiz-score-block">
@@ -330,25 +330,25 @@
                                 {#if currentQuizQuestion.image}
                                     <!-- svelte-ignore a11y-missing-attribute -->
                                     <img
-                                        class="quiz-question-image h-40"
+                                        class="quiz-question-image"
                                         src={getImageSource(currentQuizQuestion.image)}
                                     />
                                 {/if}
                             </div>
-                            <div class="quiz-answer-block justify-center">
+                            <div class="quiz-answer-block">
                                 <div
                                     class="grid grid-cols-{currentQuizQuestion.columns ??
-                                        1} gap-2 justify-items-center"
+                                        1} justify-items-center"
                                 >
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <button
-                                            class="flex w-5/6 md:w-64 lg:w-[20rem] mt-2"
+                                            class="w-5/6 md:w-64 lg:w-[20rem] mt-2"
                                             on:click={() => {
                                                 onQuestionAnswered(answer);
                                             }}
                                         >
                                             <div
-                                                class="quiz-answer flex justify-center"
+                                                class="quiz-answer"
                                                 class:textCorrectSelect={clicked &&
                                                     answer.correct &&
                                                     (answer.clicked || displayCorrect)}
@@ -376,35 +376,30 @@
                             <div class="quiz-question">
                                 {currentQuizQuestion.text}
                             </div>
-                            <div class="flex justify-center flex-wrap mx-4">
-                                <div
-                                    class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2"
-                                >
-                                    {#each shuffledAnswers as answer, currentIndex}
-                                        <div
-                                            class="w-full flex justify-center p-[4%]"
-                                            class:imageCorrectSelect={clicked &&
-                                                answer.correct &&
-                                                (answer.clicked || displayCorrect)}
-                                            class:imageWrongSelect={clicked &&
-                                                answer.clicked &&
-                                                !answer.correct}
-                                            class:textHighlight={textHighlightIndex ===
-                                                currentIndex}
-                                        >
-                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                                            <img
-                                                class="cursor-pointer"
-                                                src={getImageSource(answer.image)}
-                                                alt={answer.text}
-                                                on:click={() => {
-                                                    onQuestionAnswered(answer);
-                                                }}
-                                            />
-                                        </div>
-                                    {/each}
-                                </div>
+                            <div class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2">
+                                {#each shuffledAnswers as answer, currentIndex}
+                                    <div
+                                        class="w-full flex justify-center p-[4%]"
+                                        class:imageCorrectSelect={clicked &&
+                                            answer.correct &&
+                                            (answer.clicked || displayCorrect)}
+                                        class:imageWrongSelect={clicked &&
+                                            answer.clicked &&
+                                            !answer.correct}
+                                        class:textHighlight={textHighlightIndex === currentIndex}
+                                    >
+                                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                                        <img
+                                            class="cursor-pointer"
+                                            src={getImageSource(answer.image)}
+                                            alt={answer.text}
+                                            on:click={() => {
+                                                onQuestionAnswered(answer);
+                                            }}
+                                        />
+                                    </div>
+                                {/each}
                             </div>
                             {#if explanation}
                                 <div class="quiz-answer-explanation mt-4">
