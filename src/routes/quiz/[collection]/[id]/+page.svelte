@@ -328,13 +328,11 @@
                             <div class="quiz-question" style:line-height="{$bodyLineHeight}%">
                                 {currentQuizQuestion.text}
                                 {#if currentQuizQuestion.image}
-                                    <div class="flex justify-center">
-                                        <!-- svelte-ignore a11y-missing-attribute -->
-                                        <img
-                                            class="quiz-question-image h-40"
-                                            src={getImageSource(currentQuizQuestion.image)}
-                                        />
-                                    </div>
+                                    <!-- svelte-ignore a11y-missing-attribute -->
+                                    <img
+                                        class="quiz-question-image h-40"
+                                        src={getImageSource(currentQuizQuestion.image)}
+                                    />
                                 {/if}
                             </div>
                             <div class="quiz-answer-block justify-center">
@@ -344,7 +342,7 @@
                                 >
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <button
-                                            class="flex-initial w-5/6 md:w-64 lg:w-[23rem] mt-2 gap-8"
+                                            class="flex w-5/6 md:w-64 lg:w-[20rem] mt-2"
                                             on:click={() => {
                                                 onQuestionAnswered(answer);
                                             }}
@@ -418,7 +416,7 @@
                 {/if}
                 {#if displayCorrect}
                     <div
-                        class="quiz-next-button arrow-ltr flex justify-center items-center"
+                        class="quiz-next-button arrow-ltr flex justify-center"
                         style="cursor: pointer;"
                     >
                         <button
