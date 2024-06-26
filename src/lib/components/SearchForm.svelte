@@ -6,6 +6,7 @@
     import type { SearchResult } from '$lib/search/domain/entities';
     import type { SearchPresenter } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchConfig, makeSearchSession } from '$lib/search/factories';
+    import { onMount } from 'svelte';
 
     export let collection: string;
 
@@ -13,6 +14,7 @@
     let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
 
     let results: SearchResult[] = [];
+    let resultsShown: SearchResult[] = [];
     let noResults = false;
     let waiting = false;
 
@@ -21,9 +23,11 @@
             waiting = false;
             results = results.concat(newResults);
             noResults = results.length === 0;
+            ensureScreenFilled();
         },
         onNewQuery: function (): void {
             results = [];
+            resultsShown = [];
             noResults = false;
             waiting = true;
         }
@@ -40,6 +44,61 @@
         });
         session.submit(searchText, options);
     }
+
+    function loadMore() {
+        resultsShown = results.slice(0, resultsShown.length + 4);
+    }
+
+    function onScrollToLast(entries) {
+        if (entries[0].isIntersecting && !waiting) {
+            loadMore();
+            ensureScreenFilled();
+        }
+    }
+
+    function ensureScreenFilled() {
+        if (results.length === 0 || results.length === resultsShown.length) {
+            return;
+        }
+        const sentinel = document.querySelector('#sentinel');
+        const sentinelObserver = new IntersectionObserver(
+            (entries) => {
+                if (!entries[0].isIntersecting) {
+                    sentinelObserver.disconnect();
+                } else {
+                    loadMore();
+                    ensureScreenFilled();
+                }
+            },
+            {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            }
+        );
+
+        sentinelObserver.observe(sentinel);
+    }
+
+    // Load more results when the user scrolls to the bottom of the list;
+    onMount(() => {
+        const observer = new IntersectionObserver(onScrollToLast, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1.0
+        });
+
+        const sentinel = document.querySelector('#sentinel');
+        if (sentinel) {
+            observer.observe(sentinel);
+        }
+
+        return () => {
+            if (sentinel) {
+                observer.unobserve(sentinel);
+            }
+        };
+    });
 </script>
 
 <form class="w-full max-w-screen-md p-4">
@@ -107,7 +166,7 @@
                 </p>
             </div>
         {:else}
-            {#each results as result}
+            {#each resultsShown as result}
                 <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
             {/each}
         {/if}
@@ -119,7 +178,7 @@
             >
                 {$t['Search_Searching']}
             </p>
-            {#if results.length === 0}
+            {#if resultsShown.length === 0}
                 <span class="spin" />
             {/if}
         {/if}
