@@ -19,8 +19,6 @@
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
 
-    console.log(config.interfaceLanguages);
-
     function onClick(event, item) {
         event.target.style.background = highlightColor;
         setTimeout(() => {
@@ -31,8 +29,6 @@
     function checkImageSize(item) {
         if (item.features['image-width']) {
             return 'width: ' + item.features['image-width'];
-        } else {
-            //nothing here - default size
         }
     }
     async function clicked(item) {
