@@ -6,6 +6,7 @@ export interface HistoryItem {
     book: string;
     chapter: string;
     verse?: string;
+    url?: string;
 }
 interface History extends DBSchema {
     history: {
@@ -39,6 +40,7 @@ export async function addHistory(item: {
     book: string;
     chapter: string;
     verse?: string;
+    url?: string;
 }) {
     let history = await openHistory();
     if (nextTimer) {

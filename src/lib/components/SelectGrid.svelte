@@ -64,9 +64,12 @@ A component to display menu options in a grid.
         return color;
     };
 
-    function handleClick(opt: string) {
+    function handleClick(opt: any) {
+        const text = opt.id;
+        const url = opt?.url;
         dispatch('menuaction', {
-            text: opt
+            text,
+            url
         });
     }
 </script>
@@ -114,7 +117,7 @@ A component to display menu options in a grid.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <span
-                on:click={() => handleClick(cell.id)}
+                on:click={() => handleClick(cell)}
                 id={cell.id}
                 class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
                 style={cellStyle}

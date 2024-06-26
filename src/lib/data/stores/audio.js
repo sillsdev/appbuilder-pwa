@@ -6,6 +6,11 @@ import config from '../config';
 setDefaultStorage('audioActive', config.mainFeatures['audio-turn-on-at-startup']);
 export const audioActive = writable(localStorage.audioActive === 'true');
 audioActive.subscribe((value) => (localStorage.audioActive = value));
+
+setDefaultStorage('quizAudioActive', true);
+export const quizAudioActive = writable(localStorage.quizAudioActive);
+quizAudioActive.subscribe((value) => (localStorage.quizAudioActive = value));
+
 /**which element should be highlighted as the audio is playing*/
 function createaudioHighlightElements() {
     const external = writable([]);

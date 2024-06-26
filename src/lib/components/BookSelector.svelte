@@ -12,7 +12,10 @@ The navbar component.
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
+    export let displayLabel;
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: verseCount = getVerseCount(chapter, chapters);
@@ -29,9 +32,11 @@ The navbar component.
     $: v = $t.Selector_Verse;
 
     let bookSelector;
-    $: label = config.bookCollections
-        .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === book).name;
+    $: label =
+        displayLabel ??
+        config.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books.find((x) => x.id === book).name;
 
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -48,7 +53,20 @@ The navbar component.
     /**
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
+
     async function navigateReference(e) {
+        // Handle special book navigation first
+        if (e.detail.tab === b && e.detail?.url) {
+            const book = e.detail.text;
+            addHistory({
+                collection: $refs.collection,
+                book,
+                chapter: '',
+                url: e.detail.url
+            });
+            goto(e.detail.url);
+            return;
+        }
         if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
             await refs.set({ book: $nextRef.book, chapter: 1 });
@@ -104,6 +122,7 @@ The navbar component.
             verse: $nextRef.verse
         });
         document.activeElement.blur();
+        goto(`${base}/`);
     }
 
     function resetNavigation() {
@@ -113,10 +132,18 @@ The navbar component.
         nextRef.reset();
     }
 
-    /**list of books in current docSet*/
+    /**list of books, quizzes, and quiz groups in current docSet*/
     $: books = $refs.catalog.documents;
     /**list of chapters in current book*/
     $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
+
+    function getBookUrl(book) {
+        let url;
+        if (book.type === 'quiz') {
+            url = `${base}/quiz/${$refs.collection}/${book.id}`;
+        }
+        return url;
+    }
 
     let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
@@ -125,12 +152,15 @@ The navbar component.
         config.bookCollections
             .find((x) => x.id === colId)
             .books.forEach((book) => {
-                // Include books only in the catalog (i.e. only supported book types)
-                if (books.find((x) => x.bookCode === book.id)) {
+                const url = getBookUrl(book);
+                if (books.find((x) => x.bookCode === book.id) || url) {
                     let label = book[bookLabel] || book.name;
-                    let cell = { label: label, id: book.id };
+                    let cell = { label, id: book.id, url };
                     let group = book.testament || '';
-                    if ((lastGroup == null || group !== lastGroup) && config.mainFeatures['book-group-titles']) {
+                    if (
+                        (lastGroup == null || group !== lastGroup) &&
+                        config.mainFeatures['book-group-titles']
+                    ) {
                         // Create new group
                         groups.push({
                             header: book.testament
@@ -143,8 +173,8 @@ The navbar component.
                         lastGroup = group;
                     } else {
                         // Add Book to last group
-                        let cells = groups[groups.length - 1].cells;
-                        groups[groups.length - 1].cells = [...cells, cell];
+                        let cells = groups.at(-1).cells;
+                        groups.at(-1).cells = [...cells, cell];
                     }
                 }
             });

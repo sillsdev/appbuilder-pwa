@@ -18,6 +18,7 @@ A component to display tabbed menus.
     function handleMenuaction({ detail }: CustomEvent) {
         dispatch('menuaction', {
             text: detail.text,
+            url: detail?.url,
             tab: active
         });
     }

@@ -201,8 +201,9 @@ export async function convertBooks(
                             'quizzes',
                             book.id + '.json'
                         ),
-                        content: JSON.stringify(convertQuizBook(context, book))
+                        content: JSON.stringify(convertQuizBook(context, book), null, 2)
                     });
+                    process.stdout.write(` ${book.id}`);
                     break;
                 default:
                     bookConverted = true;
@@ -291,32 +292,34 @@ export async function convertBooks(
     };
 }
 
-type QuizAnswer = {
+export type QuizExplanation = {
+    text?: string;
+    audio?: string;
+};
+
+export type QuizAnswer = {
     //\aw or \ar
     correct: boolean;
     text?: string;
     image?: string;
     audio?: string;
-    explanation?: {
-        //\ae
-        text: string;
-        audio?: string;
-    };
+    explanation?: QuizExplanation;
 };
 
-type QuizQuestion = {
+export type QuizQuestion = {
     //\qu
     text: string;
     image?: string;
     audio?: string;
+    columns?: number; //\ac
+    explanation?: QuizExplanation;
     answers: QuizAnswer[];
 };
 
-type Quiz = {
+export type Quiz = {
     id: string; //\id
     name?: string; //\qn
     shortName?: string; //\qs
-    columns?: number; //\ac
     rightAnswerAudio?: string[]; //\ra
     wrongAnswerAudio?: string[]; //\wa
     questions: QuizQuestion[];
@@ -343,9 +346,6 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
         id: quizSFM.match(/\\id ([^\\\r\n]+)/i)![1],
         name: quizSFM.match(/\\qn ([^\\\r\n]+)/i)?.at(1),
         shortName: quizSFM.match(/\\qs ([^\\\r\n]+)/i)?.at(1),
-        columns: quizSFM.match(/\\ac ([^\\\r\n]+)/i)?.at(1)
-            ? parseInt(quizSFM.match(/\\ac ([^\\\r\n]+)/i)![1])
-            : undefined,
         rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map((m) => {
             return m.match(/\\ra ([^\\\r\n]+)/i)![1];
         }),
@@ -359,7 +359,7 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
             const parsed = m.match(/([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/i)!;
             return {
                 rangeMin: parseInt(parsed[1]),
-                rangeMax: parsed[2] ? parseInt(parsed[2]) : undefined,
+                rangeMax: parsed[2] ? parseInt(parsed[2].replace('-', '')) : parseInt(parsed[1]),
                 message: parsed[3]
             };
         }),
@@ -370,8 +370,8 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
     let aCount = 0;
     let question: QuizQuestion = { text: '', answers: [] };
     let answer: QuizAnswer = { correct: false };
-    quizSFM.match(/\\(qu|aw|ar|ae) ([^\\\r\n]+)/gi)?.forEach((m) => {
-        const parsed = m.match(/\\(qu|aw|ar|ae) ([^\\\r\n]+)/i)!;
+    quizSFM.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/gi)?.forEach((m) => {
+        const parsed = m.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/i)!;
         switch (parsed[1]) {
             case 'qu':
                 if (aCount > 0) {
@@ -408,20 +408,55 @@ function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
                     aCount++;
                 }
                 break;
+            case 'ac':
+                question.columns = parseInt(parsed[2]);
+                break;
             case 'ae':
-                if (!question.answers[aCount - 1].explanation) {
-                    question.answers[aCount - 1].explanation = { text: '' };
-                }
-                if (hasAudioExtension(parsed[2])) {
-                    question.answers[aCount - 1].explanation!.audio = parsed[2];
-                } else {
-                    question.answers[aCount - 1].explanation!.text = parsed[2];
+                {
+                    const isAudio = hasAudioExtension(parsed[2]);
+                    const hasExplanationsInAnswers = isAudio
+                        ? question.answers.some((answer) => answer.explanation?.audio !== undefined)
+                        : question.answers.some((answer) => answer.explanation?.text != undefined);
+
+                    if (aCount == 0) {
+                        // Question-level explanation
+                        question.explanation = updateExplanation(question.explanation, parsed[2]);
+                    } else {
+                        if (aCount == 1 || hasExplanationsInAnswers) {
+                            // Answer-specific explanation
+                            question.answers[aCount - 1].explanation = updateExplanation(
+                                question.answers[aCount - 1].explanation,
+                                parsed[2]
+                            );
+                        } else {
+                            // Question-level explanation (same for all answers)
+                            question.explanation = updateExplanation(
+                                question.explanation,
+                                parsed[2]
+                            );
+                        }
+                    }
                 }
                 break;
         }
     });
     quiz.questions.push(question);
     return quiz;
+}
+
+function updateExplanation(
+    explanation: QuizExplanation | undefined,
+    text: string
+): QuizExplanation {
+    if (!explanation) {
+        explanation = {};
+    }
+    if (hasAudioExtension(text)) {
+        explanation.audio = text;
+    } else {
+        explanation.text = text;
+    }
+    return explanation;
 }
 
 function convertScriptureBook(
