@@ -330,7 +330,7 @@
                                 {#if currentQuizQuestion.image}
                                     <!-- svelte-ignore a11y-missing-attribute -->
                                     <img
-                                        class="quiz-question-image"
+                                        class="quiz-question-image h-40"
                                         src={getImageSource(currentQuizQuestion.image)}
                                     />
                                 {/if}
