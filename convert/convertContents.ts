@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
+import { ConfigTaskOutput } from './convertConfig';
 
 type ContentItem = {
     id: number;
@@ -30,6 +31,9 @@ type ContentScreen = {
 };
 
 export type ContentsData = {
+    title?: {
+        [lang: string]: string;
+    };
     features?: any;
     items?: ContentItem[];
     screens?: ContentScreen[];
@@ -51,7 +55,16 @@ function parseFeatureValue(value: any): any {
     return value;
 }
 
-export function convertContents(dataDir: string, verbose: number) {
+function decodeFromXml(input: string): string {
+    return input
+        .replace('&quot;', '"')
+        .replace('&apos;', "'")
+        .replace('&lt;', '<')
+        .replace('&gt;', '>')
+        .replace('&amp;', '&');
+}
+
+export function convertContents(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const contentsFile = path.join(dataDir, 'contents.xml');
     if (!existsSync(contentsFile)) {
         return data;
@@ -60,6 +73,19 @@ export function convertContents(dataDir: string, verbose: number) {
         contentType: 'text/xml'
     });
     const { document } = dom.window;
+
+    // title
+    const contents = document.children[0];
+    const titleTags = Array.from(contents.children).filter(
+        (element) => element.tagName.toLowerCase() === 'title'
+    );
+    if (titleTags?.length > 0) {
+        data.title = {};
+        for (const titleTag of titleTags) {
+            const lang = titleTag.attributes.getNamedItem('lang')!.value;
+            data.title[lang] = decodeFromXml(titleTag.innerHTML);
+        }
+    }
 
     // Features
     data.features = {};
@@ -86,7 +112,7 @@ export function convertContents(dataDir: string, verbose: number) {
             if (titleTags?.length > 0) {
                 for (const titleTag of titleTags) {
                     const lang = titleTag.attributes.getNamedItem('lang')!.value;
-                    title[lang] = titleTag.innerHTML;
+                    title[lang] = decodeFromXml(titleTag.innerHTML);
                 }
             }
 
@@ -95,17 +121,16 @@ export function convertContents(dataDir: string, verbose: number) {
             if (subtitleTags?.length > 0) {
                 for (const subtitleTag of subtitleTags) {
                     const lang = subtitleTag.attributes.getNamedItem('lang')!.value;
-                    subtitle[lang] = subtitleTag.innerHTML;
+                    subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
                 }
             }
 
             const imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
 
             const linkTags = itemTag.getElementsByTagName('link');
-            const linkType = linkTags[0]?.attributes.getNamedItem('type')!.value;
-            const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value ?? undefined;
-            const linkLocation =
-                linkTags[0]?.attributes.getNamedItem('location')?.value ?? undefined;
+            let linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
+            const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value;
+            let linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
 
             const features: any = {};
 
@@ -116,6 +141,26 @@ export function convertContents(dataDir: string, verbose: number) {
                 features[name] = parseFeatureValue(value);
             }
 
+            if (linkType === 'reference') {
+                // In the native app, app of the books are handled by the BookFragment.
+                // In the PWA, we have different routes for different book types since
+                // Proskomma can only handle USFM and the other book types include non-
+                // standard SFM tags.
+
+                configData.data.bookCollections?.some((collection) => {
+                    if (verbose) console.log(`Searching for ${linkTarget} in ${collection.id}`);
+                    const book = collection.books.find((x) => x.id === linkTarget);
+                    if (book && book.type) {
+                        // We found a book and the book.type is not default (i.e. undefined)
+                        if (verbose)
+                            console.log(`Found ${linkTarget} in ${collection.id} as ${book.type}`);
+                        linkType = book.type;
+                        linkLocation = `${linkType}/${collection.id}/${linkTarget}`;
+                        return true;
+                    }
+                });
+            }
+
             data.items.push({
                 id,
                 heading,
@@ -123,8 +168,8 @@ export function convertContents(dataDir: string, verbose: number) {
                 subtitle,
                 imageFilename,
                 linkType,
-                linkTarget,
                 linkLocation,
+                linkTarget,
                 features
             });
         }
@@ -173,13 +218,15 @@ export interface ContentsTaskOutput extends TaskOutput {
 }
 
 export class ConvertContents extends Task {
-    public triggerFiles: string[] = ['contents.xml'];
+    public triggerFiles: string[] = ['contents.xml', 'appdef.xml'];
 
     constructor(dataDir: string) {
         super(dataDir);
     }
-    public run(verbose: number): ContentsTaskOutput {
-        const data = convertContents(this.dataDir, verbose);
+    public run(verbose: number, outputs: Map<string, TaskOutput>): ContentsTaskOutput {
+        const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+
+        const data = convertContents(this.dataDir, config, verbose);
         return {
             taskName: 'ConvertContents',
             data,

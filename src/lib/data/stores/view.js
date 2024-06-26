@@ -2,6 +2,7 @@ import { groupStore } from './store-types';
 import { derived, writable, get } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 import { userSettings } from './setting';
+import contents from '../contents';
 
 export const NAVBAR_HEIGHT = '4rem';
 
@@ -93,3 +94,35 @@ export const showDesktopSidebar = derived(
     userSettings,
     ($userSettings) => $userSettings['desktop-sidebar']
 );
+
+function createStackStore() {
+    const { subscribe, update } = writable([]);
+
+    return {
+        subscribe,
+        pushItem: (id) =>
+            update((stack) => {
+                return [...stack, id];
+            }),
+        popItem: () => {
+            let poppedValue = 0;
+            update((stack) => {
+                if (stack.length > 0) {
+                    poppedValue = stack.pop();
+                }
+                return [...stack];
+            });
+            return poppedValue;
+        },
+        length: () => {
+            let length = 0;
+            update((stack) => {
+                length = stack.length;
+                return stack; // No modification to stack, just returning current length
+            });
+            return length;
+        }
+    };
+}
+
+export const contentsStack = createStackStore();
