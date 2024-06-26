@@ -1,5 +1,4 @@
-import type { W } from 'vitest/dist/reporters-rzC174PQ';
-import type { Reference } from '../entities';
+import type { SearchResult } from '../entities';
 
 export interface SearchOptions {
     docSet: string;
@@ -11,34 +10,14 @@ export interface SearchOptions {
     locale?: string;
 }
 
-/**
- * Represents a verse that might match the search query.
- */
-export interface SearchCandidate {
-    reference: Reference;
-    text: string;
+export interface SearchQuery {
+    // Whether the query has returned all results
+    isComplete: boolean;
+
+    getResults(limit?: number): Promise<SearchResult[]>;
 }
 
-/**
- * Queries a database for verses that might match a search query.
- */
-export interface QueryVerseProvider {
-    /**
-     * Get a list of verses that could match the search query
-     *
-     * Subsequent calls return a new list of verses.
-     *
-     * @param limit The maximum number of verses to return. A
-     * non-positive limit will return all candidate verses at once.
-     * @returns A list of verses, or an emtpy list if no candidate
-     * verses remain.
-     */
-    getVerses(limit: number): Promise<SearchCandidate[]>;
-}
-
-export interface ScriptureRepository {
-    queryVerses(phrase: string, options: SearchOptions): Promise<QueryVerseProvider>;
-}
+export type QueryGenerator = (phrase: string, options: SearchOptions) => Promise<SearchQuery>;
 
 /**
  * Maps characters that may be substituted during a search
