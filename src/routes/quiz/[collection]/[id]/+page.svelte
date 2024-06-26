@@ -376,30 +376,35 @@
                             <div class="quiz-question">
                                 {currentQuizQuestion.text}
                             </div>
-                            <div class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2">
-                                {#each shuffledAnswers as answer, currentIndex}
-                                    <div
-                                        class="w-full flex justify-center p-[4%]"
-                                        class:imageCorrectSelect={clicked &&
-                                            answer.correct &&
-                                            (answer.clicked || displayCorrect)}
-                                        class:imageWrongSelect={clicked &&
-                                            answer.clicked &&
-                                            !answer.correct}
-                                        class:textHighlight={textHighlightIndex === currentIndex}
-                                    >
-                                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                                        <img
-                                            class="cursor-pointer"
-                                            src={getImageSource(answer.image)}
-                                            alt={answer.text}
-                                            on:click={() => {
-                                                onQuestionAnswered(answer);
-                                            }}
-                                        />
-                                    </div>
-                                {/each}
+                            <div class="flex justify-center">
+                                <div
+                                    class="grid grid-cols-{currentQuizQuestion.columns ?? 2} gap-2"
+                                >
+                                    {#each shuffledAnswers as answer, currentIndex}
+                                        <div
+                                            class="w-full flex justify-center p-[4%]"
+                                            class:imageCorrectSelect={clicked &&
+                                                answer.correct &&
+                                                (answer.clicked || displayCorrect)}
+                                            class:imageWrongSelect={clicked &&
+                                                answer.clicked &&
+                                                !answer.correct}
+                                            class:textHighlight={textHighlightIndex ===
+                                                currentIndex}
+                                        >
+                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                                            <img
+                                                class="cursor-pointer"
+                                                src={getImageSource(answer.image)}
+                                                alt={answer.text}
+                                                on:click={() => {
+                                                    onQuestionAnswered(answer);
+                                                }}
+                                            />
+                                        </div>
+                                    {/each}
+                                </div>
                             </div>
                             {#if explanation}
                                 <div class="quiz-answer-explanation mt-4">
@@ -411,7 +416,7 @@
                 {/if}
                 {#if displayCorrect}
                     <div
-                        class="quiz-next-button arrow-ltr flex justify-center"
+                        class="quiz-next-button arrow-ltr flex justify-center items-center"
                         style="cursor: pointer;"
                     >
                         <button
