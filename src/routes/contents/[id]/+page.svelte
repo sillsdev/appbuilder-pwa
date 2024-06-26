@@ -84,6 +84,7 @@
         switch (reference.length) {
             case 1:
                 book = reference[0];
+                chapter = '1';
                 break;
             case 2:
                 book = reference[0];
