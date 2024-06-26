@@ -22,10 +22,14 @@ export async function initProskomma({ fetch }) {
     return proskomma;
 }
 
+export function getDocSetUrl(docSet) {
+    return `${base}/collections/${docSet}.pkf`;
+}
+
 export async function fetchDocSet(docSet, fetch) {
     performance.mark('pk-fetch-start');
 
-    const data = await fetch(`${base}/collections/${docSet}.pkf`);
+    const data = await fetch(getDocSetUrl(docSet));
     const buffer = await data.arrayBuffer();
 
     performance.mark('pk-fetch-end');

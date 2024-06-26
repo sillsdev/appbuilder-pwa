@@ -5,9 +5,8 @@
     import SearchResultCard from './SearchResultCard.svelte';
     import type { SearchResult } from '$lib/search/domain/entities';
     import type { SearchPresenter } from '$lib/search/domain/interfaces/presentation-interfaces';
-    import { makeSearchConfig, makeSearchSession } from '$lib/search/factories';
+    import { makeSearchConfigManager, makeSearchSession } from '$lib/search/factories';
     import { onMount } from 'svelte';
-
     export let collection: string;
 
     let searchText = '';
@@ -33,7 +32,7 @@
         }
     };
 
-    const configManager = makeSearchConfig();
+    const configManager = makeSearchConfigManager();
     const session = makeSearchSession(presenter);
 
     async function submit() {

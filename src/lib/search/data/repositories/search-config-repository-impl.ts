@@ -5,7 +5,7 @@ import type {
     SearchConfigRepository,
     SubstitutionMap
 } from '../../domain/interfaces/data-interfaces';
-import { extendStringProperty } from '../../utils/object-helpers';
+import { extendStringProperty } from '$lib/search-worker/utils/object-helpers';
 import type { ConfigRepository } from './config-repository';
 
 export class SearchConfigRepositoryImpl implements SearchConfigRepository {
