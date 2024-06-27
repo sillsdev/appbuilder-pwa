@@ -3,7 +3,16 @@
 
 import { ConfigData, ConfigTaskOutput, Book } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
-import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
+import {
+    readFile,
+    readFileSync,
+    writeFile,
+    writeFileSync,
+    mkdirSync,
+    existsSync,
+    cpSync,
+    rmdirSync
+} from 'fs';
 import path from 'path';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import { queries, postQueries, freeze } from '../sab-proskomma-tools';
@@ -146,6 +155,17 @@ export async function convertBooks(
     const quizzes: any = {};
     /**array of files to be written*/
     const files: any[] = [];
+
+    // copy book-related folder resources
+    ['quiz', 'songs', 'plans'].forEach((folder) => {
+        const folderSrcDir = path.join(dataDir, folder);
+        const folderDstDir = path.join('static', folder);
+        if (existsSync(folderSrcDir)) {
+            cpSync(folderSrcDir, folderDstDir, { recursive: true });
+        } else {
+            rmdirSync(folderDstDir, { recursive: true });
+        }
+    });
 
     const usedLangs = new Set<string>();
     //loop through collections
@@ -543,7 +563,7 @@ export interface BooksTaskOutput extends TaskOutput {
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 export class ConvertBooks extends Task {
-    public triggerFiles: string[] = ['books', 'appdef.xml'];
+    public triggerFiles: string[] = ['books', 'quiz', 'songs', 'plans', 'appdef.xml'];
     public static lastBookCollections: ConfigTaskOutput['data']['bookCollections'];
     constructor(dataDir: string) {
         super(dataDir);

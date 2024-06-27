@@ -10,6 +10,7 @@
         MODAL_TEXT_APPERANCE,
         quizAudioActive
     } from '$lib/data/stores';
+    import { compareVersions } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
     import { onMount, onDestroy } from 'svelte';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
@@ -34,6 +35,8 @@
     let currentExplanationAudio = null;
     let explanation = '';
     let commentaryMessage = '';
+
+    const quizAssetFolder = compareVersions(config.programVersion, '12.0') < 0 ? 'assets' : 'quiz';
 
     function getRandomAudio(audioArray) {
         const randomIndex = Math.floor(Math.random() * audioArray.length);
@@ -163,11 +166,11 @@
         if (correct) {
             sound = quiz.rightAnswerAudio
                 ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
-                : 'assets/quiz-right-answer.mp3';
+                : quizAssetFolder + '/quiz-right-answer.mp3';
         } else {
             sound = quiz.wrongAnswerAudio
                 ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
-                : 'assets/quiz-wrong-answer.mp3';
+                : quizAssetFolder + '/quiz-wrong-answer.mp3';
         }
         return sound;
     }
