@@ -1,7 +1,9 @@
-import { CopySyncOptions, cpSync, existsSync } from 'fs';
+import { ConfigData, ConfigTaskOutput } from './convertConfig';
+import { CopySyncOptions, cpSync } from 'fs';
 import { rimraf } from 'rimraf';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
+import { compareVersions } from './stringUtils';
 
 function cpSyncOptional(source: string, destination: string, opts?: CopySyncOptions): boolean {
     try {
@@ -74,6 +76,7 @@ export class ConvertMedia extends Task {
         outputs: Map<string, TaskOutput>,
         modifiedPaths: string[]
     ): Promise<TaskOutput> {
+        const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
         const modifiedDirectories = new Set<string>();
         for (const p of modifiedPaths) {
             // During the first run, paths are just the folders in the trigger files.
@@ -85,13 +88,18 @@ export class ConvertMedia extends Task {
                 modifiedDirectories.add(subdir);
             }
         }
-        await this.convertMedia(this.dataDir, verbose, [...modifiedDirectories]);
+        await this.convertMedia(this.dataDir, config, verbose, [...modifiedDirectories]);
         return {
             taskName: this.constructor.name,
             files: []
         };
     }
-    async convertMedia(dataDir: string, verbose: number, modifiedDirectories: string[]) {
+    async convertMedia(
+        dataDir: string,
+        configData: ConfigTaskOutput,
+        verbose: number,
+        modifiedDirectories: string[]
+    ) {
         const required = ['fonts'];
 
         // FIXME: about 1/5 times the copy fails because of EPERM
@@ -115,6 +123,8 @@ export class ConvertMedia extends Task {
             );
         }
 
-        cloneToAssets(['quiz-right-answer.mp3', 'quiz-wrong-answer.mp3'], verbose);
+        if (compareVersions(configData.data.programVersion!, '12.0') < 0) {
+            cloneToAssets(['quiz-right-answer.mp3', 'quiz-wrong-answer.mp3'], verbose);
+        }
     }
 }

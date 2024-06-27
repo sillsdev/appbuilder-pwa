@@ -11,11 +11,15 @@
         convertStyle,
         contentsStack
     } from '$lib/data/stores';
+    import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
 
+    const imageFolder =
+        compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
+    const audioFolder = compareVersions(config.programVersion, '12.0') < 0 ? '' : 'contents';
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
 
@@ -166,7 +170,7 @@
                             >
                                 <img
                                     class="contents-image"
-                                    src="{base}/illustrations/{item.imageFilename}"
+                                    src={pathJoin([base + '/', imageFolder, item.imageFilename])}
                                     alt={item.imageFilename}
                                 />
                             </div>

@@ -201,14 +201,39 @@ export function ciEquals(a, b) {
 }
 export function pathJoin(parts, sep = '/') {
     const separator = sep;
-    parts = parts.map((part, index) => {
-        if (index) {
-            part = part.replace(new RegExp('^' + separator), '');
-        }
-        if (index !== parts.length - 1) {
-            part = part.replace(new RegExp(separator + '$'), '');
-        }
-        return part;
-    });
+    parts = parts
+        .filter((part) => isNotBlank(part))
+        .map((part, index) => {
+            if (index) {
+                part = part.replace(new RegExp('^' + separator), '');
+            }
+            if (index !== parts.length - 1) {
+                part = part.replace(new RegExp(separator + '$'), '');
+            }
+            return part;
+        });
     return parts.join(separator);
+}
+
+export function compareVersions(version1: string, version2: string): number {
+    const splitVersion = (version: string): number[] => version.split('.').map(Number);
+
+    const v1Components = splitVersion(version1);
+    const v2Components = splitVersion(version2);
+
+    const length = Math.max(v1Components.length, v2Components.length);
+
+    for (let i = 0; i < length; i++) {
+        const v1Component = v1Components[i] || 0;
+        const v2Component = v2Components[i] || 0;
+
+        if (v1Component > v2Component) {
+            return 1;
+        }
+        if (v1Component < v2Component) {
+            return -1;
+        }
+    }
+
+    return 0;
 }

@@ -27,6 +27,10 @@ static/icons
 static/*.partial.html
 static/manifest.json
 static/assets
+static/contents
+static/songs
+static/plans
+static/quiz
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js

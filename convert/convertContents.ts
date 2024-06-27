@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmdirSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
@@ -14,6 +14,7 @@ type ContentItem = {
     subtitle?: {
         [lang: string]: string;
     };
+    audioFilename?: string;
     imageFilename?: string;
     linkType?: string;
     linkTarget?: string;
@@ -65,6 +66,16 @@ function decodeFromXml(input: string): string {
 }
 
 export function convertContents(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
+    const contentsDir = path.join(dataDir, 'contents');
+    const destDir = path.join('static', 'contents');
+    if (existsSync(contentsDir)) {
+        cpSync(contentsDir, destDir, { recursive: true });
+    } else {
+        if (existsSync(destDir)) {
+            rmdirSync(destDir, { recursive: true });
+        }
+    }
+
     const contentsFile = path.join(dataDir, 'contents.xml');
     if (!existsSync(contentsFile)) {
         return data;
@@ -125,6 +136,7 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 }
             }
 
+            const audioFilename = itemTag.getElementsByTagName('audio')[0]?.innerHTML;
             const imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
 
             const linkTags = itemTag.getElementsByTagName('link');
@@ -166,6 +178,7 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 heading,
                 title,
                 subtitle,
+                audioFilename,
                 imageFilename,
                 linkType,
                 linkLocation,
@@ -218,7 +231,7 @@ export interface ContentsTaskOutput extends TaskOutput {
 }
 
 export class ConvertContents extends Task {
-    public triggerFiles: string[] = ['contents.xml', 'appdef.xml'];
+    public triggerFiles: string[] = ['contents.xml', 'appdef.xml', 'contents'];
 
     constructor(dataDir: string) {
         super(dataDir);
