@@ -71,7 +71,9 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
     if (existsSync(contentsDir)) {
         cpSync(contentsDir, destDir, { recursive: true });
     } else {
-        rmdirSync(destDir, { recursive: true });
+        if (existsSync(destDir)) {
+            rmdirSync(destDir, { recursive: true });
+        }
     }
 
     const contentsFile = path.join(dataDir, 'contents.xml');
