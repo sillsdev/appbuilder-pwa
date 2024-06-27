@@ -25,30 +25,51 @@ export function convertStyles(dataDir: string, verbose: number) {
 
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
-        const updatedFileContents = lines
-            .map((line) => {
-                if (line.indexOf('body {') === 0 && line.indexOf('margin-top') > 0) {
-                    const parts = line.split('margin-top');
-                    line = parts[0].replace('body', '#container') + '}\n';
-                    line +=
-                        '#content { padding-top' +
-                        parts[1].replace('margin-bottom', 'padding-bottom');
-                }
-                if (line.indexOf('body') === 0) {
-                    line = line.replace('body', '#container');
-                }
-                if (line.indexOf('div.c-drop') === 0) {
-                    line = line.replace('padding-right', 'padding-inline-end');
-                    line = line.replace('float: left', 'display: inline-block');
-                }
-                if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
-                    line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
-                }
-                return line;
-            })
-            .join('\n');
+        // Until App Builders 12.0 is released, then add these styles
+        const tempStyles = srcFile.endsWith('-app.css') ? getContentsStyles() : '';
+        const updatedFileContents =
+            tempStyles +
+            lines
+                .map((line) => {
+                    if (line.indexOf('body {') === 0 && line.indexOf('margin-top') > 0) {
+                        const parts = line.split('margin-top');
+                        line = parts[0].replace('body', '#container') + '}\n';
+                        line +=
+                            '#content { padding-top' +
+                            parts[1].replace('margin-bottom', 'padding-bottom');
+                    }
+                    if (line.indexOf('body') === 0) {
+                        line = line.replace('body', '#container');
+                    }
+                    if (line.indexOf('div.c-drop') === 0) {
+                        line = line.replace('padding-right', 'padding-inline-end');
+                        line = line.replace('float: left', 'display: inline-block');
+                    }
+                    if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
+                        line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
+                    }
+                    return line;
+                })
+                .join('\n');
         writeFileSync(dstFile, updatedFileContents);
     });
+}
+
+function getContentsStyles(): string {
+    const contentsStyles: string[] = [];
+    contentsStyles.push('div.contents-item-locked { position:relative; }');
+    contentsStyles.push(
+        "div.contents-item-locked::after { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 50px solid transparent; border-top: 50px solid yellow; background-size: cover; border-width: 70px; }"
+    );
+
+    contentsStyles.push(
+        'div.contents-item-locked-image { position:absolute; top:8px; right:8px; z-index:10; }'
+    );
+    contentsStyles.push(
+        'div.contents-item-audio-image { position:absolute; bottom:8px; right:8px; width:24px; height:24px; z-index:10; }'
+    );
+
+    return contentsStyles.join('\n');
 }
 
 export class ConvertStyles extends Task {
