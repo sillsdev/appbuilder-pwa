@@ -1,5 +1,4 @@
 import config from '$lib/data/config';
-
 enum VideoType {
     None = 'none',
     YouTube = 'youtube',
@@ -73,11 +72,22 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     );
     const videoLink = document.createElement('a');
     videoLink.setAttribute('href', '#');
-    videoLink.setAttribute(
-        'onclick',
-        "playOnlineVideo('" + id + "', '" + videoUrl + "'); return false;"
-    );
-
+    let sourceType = "";
+    if (video.src){
+        sourceType = config.audio.sources[video.src].type;
+    }
+    if (sourceType === "assets"){
+        videoLink.setAttribute(
+            'onclick',
+            "playVideoFile('" + id + "', 'videos/" + video.filename + "'); return false;"
+        );
+    }
+    else {
+        videoLink.setAttribute(
+            'onclick',
+            "playOnlineVideo('" + id + "', '" + videoUrl + "'); return false;"
+        );
+    }
     const videoImg = document.createElement('img');
     videoImg.setAttribute('src', 'video_play_01.svg');
     videoLink.appendChild(videoImg);

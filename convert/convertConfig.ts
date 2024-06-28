@@ -160,11 +160,13 @@ export type ConfigData = {
     };
     videos?: {
         id: string;
+        src?: string;
         width: number;
         height: number;
         title?: string;
         thumbnail: string;
         onlineUrl: string;
+        filename: string;
         placement?: {
             pos: string;
             ref: string;
@@ -810,44 +812,50 @@ function convertConfig(dataDir: string, verbose: number) {
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
-    if (videoTags?.length > 0) {
-        data.videos = [];
+if (videoTags?.length > 0) {
+    data.videos = [];
 
-        for (const tag of videoTags) {
-            const placementTag = tag.getElementsByTagName('placement')[0];
-            const placement =
-                placementTag == undefined
-                    ? undefined
-                    : {
-                          pos: placementTag.attributes.getNamedItem('pos')!.value,
-                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                          collection: placementTag.attributes
-                              .getNamedItem('ref')!
-                              .value.split('|')[0]
-                      };
-            const tagWidth = tag.attributes.getNamedItem('width')
-                ? parseInt(tag.attributes.getNamedItem('width')!.value)
-                : 0;
-            const tagHeight = tag.attributes.getNamedItem('height')
-                ? parseInt(tag.attributes.getNamedItem('height')!.value)
-                : 0;
-            let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
-                ? tag.getElementsByTagName('online-url')[0]?.innerHTML
-                : '';
-            if (onlineUrlHTML) {
-                onlineUrlHTML = convertVideoUrl(onlineUrlHTML);
-            }
-            data.videos.push({
-                id: tag.attributes.getNamedItem('id')!.value,
-                width: tagWidth,
-                height: tagHeight,
-                title: tag.getElementsByTagName('title')[0]?.innerHTML,
-                thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
-                onlineUrl: decodeFromXml(onlineUrlHTML),
-                placement
-            });
+    for (const tag of videoTags) {
+        const placementTag = tag.getElementsByTagName('placement')[0];
+        const placement =
+            placementTag == undefined
+                ? undefined
+                : {
+                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                      ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                      collection: placementTag.attributes
+                          .getNamedItem('ref')!
+                          .value.split('|')[0]
+                  };
+        const tagWidth = tag.attributes.getNamedItem('width')
+            ? parseInt(tag.attributes.getNamedItem('width')!.value)
+            : 0;
+        const tagHeight = tag.attributes.getNamedItem('height')
+            ? parseInt(tag.attributes.getNamedItem('height')!.value)
+            : 0;
+        let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
+            ? tag.getElementsByTagName('online-url')[0]?.innerHTML
+            : '';
+        if (onlineUrlHTML) {
+            onlineUrlHTML = convertVideoUrl(onlineUrlHTML);
         }
+        const filenameTag = tag.getElementsByTagName('filename')[0];
+        const filename = filenameTag ? filenameTag.innerHTML : '';
+
+        data.videos.push({
+            id: tag.attributes.getNamedItem('id')!.value,
+            src: tag.attributes.getNamedItem('src')?.value,
+            width: tagWidth,
+            height: tagHeight,
+            title: tag.getElementsByTagName('title')[0]?.innerHTML,
+            thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
+            onlineUrl: decodeFromXml(onlineUrlHTML),
+            filename: filename,  // Add this line
+            placement
+        });
     }
+}
+
     data.traits['has-video'] = data.videos && data.videos.length > 0;
     const imagesTags = document.getElementsByTagName('images');
     if (imagesTags?.length > 0) {
