@@ -23,7 +23,6 @@ export function convertFirebase(dataDir: string, verbose: number) {
             unlinkSync(dstFile);
         }
     }
-    
 }
 
 export class ConvertFirebase extends Task {
