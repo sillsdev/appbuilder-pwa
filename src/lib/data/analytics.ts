@@ -54,7 +54,7 @@ export function logAudioPlay(audioPlayer: AudioPlayer) {
         chapter,
         damId,
         playing
-    }
+    };
     analytics.log('audio_play_event', params);
 }
 
@@ -77,7 +77,7 @@ export function logAudioDuration(audioPlayer: AudioPlayer) {
         playDuration,
         playStart,
         playEnd
-    }
+    };
     analytics.log('ab_audio_duration', params);
 }
 
@@ -86,13 +86,18 @@ export function logShareApp(appName, appVersion, appType) {
     analytics.log('ab_share_app', { appName, appVersion, appType });
 }
 
-export function logShareContent(contentType: String, bookCol: String, bookAbbrev: String, reference: string) {
+export function logShareContent(
+    contentType: String,
+    bookCol: String,
+    bookAbbrev: String,
+    reference: string
+) {
     // include reference info (bookCol, bookAbbrev, verses selected)
     const params = {
         contentType,
         bookCol,
         bookAbbrev,
         reference
-    }
+    };
     analytics.log('ab_share_content', params);
 }

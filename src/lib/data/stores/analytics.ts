@@ -51,7 +51,7 @@ export const analyticsStore = () => {
     return {
         init,
         subscribe: external.subscribe,
-        log,
+        log
     };
 };
 

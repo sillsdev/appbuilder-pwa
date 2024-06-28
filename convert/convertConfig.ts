@@ -143,7 +143,7 @@ export type ConfigData = {
     analytics?: {
         // TODO
         enabled: boolean;
-        providers: {  
+        providers: {
             id: string;
             name: string;
             type: string;
@@ -310,11 +310,11 @@ function parseStyles(stylesTag: Element, verbose: number) {
                     if (verbose)
                         console.log(
                             'Parsing ' +
-                            propName +
-                            ' = ' +
-                            propValue +
-                            ' -> ' +
-                            properties[propName]
+                                propName +
+                                ' = ' +
+                                propValue +
+                                ' -> ' +
+                                properties[propName]
                         );
                 } else {
                     //Not a sp value
@@ -627,8 +627,8 @@ function convertConfig(dataDir: string, verbose: number) {
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
                 ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                    .filter((x) => fontFamilies.includes(x.innerHTML))
-                    .map((x) => x.innerHTML)
+                      .filter((x) => fontFamilies.includes(x.innerHTML))
+                      .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -676,8 +676,8 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                .filter((x) => fontFamilies.includes(x.innerHTML))
-                .map((x) => x.innerHTML)
+                  .filter((x) => fontFamilies.includes(x.innerHTML))
+                  .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -778,7 +778,8 @@ function convertConfig(dataDir: string, verbose: number) {
         }
         if (verbose)
             console.log(
-                `Converted ${Object.keys(data.translationMappings.mappings).length
+                `Converted ${
+                    Object.keys(data.translationMappings.mappings).length
                 } translation mappings`
             );
     }
@@ -832,7 +833,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     if (verbose) console.log(`Converted ${analyticsElements.length} analyticsElements`);
 
-    // Firebase 
+    // Firebase
     const firebaseElements = document.getElementsByTagName('firebase');
 
     // Ensure data.firebase is initialized if it doesn't exist
@@ -862,8 +863,6 @@ function convertConfig(dataDir: string, verbose: number) {
     }
 
     if (verbose) console.log(`Converted ${firebaseElements.length} firebaseElements`);
-
-
 
     // Audio Sources
     const audioSources = document
@@ -915,12 +914,12 @@ function convertConfig(dataDir: string, verbose: number) {
                 placementTag == undefined
                     ? undefined
                     : {
-                        pos: placementTag.attributes.getNamedItem('pos')!.value,
-                        ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                        collection: placementTag.attributes
-                            .getNamedItem('ref')!
-                            .value.split('|')[0]
-                    };
+                          pos: placementTag.attributes.getNamedItem('pos')!.value,
+                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                          collection: placementTag.attributes
+                              .getNamedItem('ref')!
+                              .value.split('|')[0]
+                      };
             const tagWidth = tag.attributes.getNamedItem('width')
                 ? parseInt(tag.attributes.getNamedItem('width')!.value)
                 : 0;
@@ -976,17 +975,17 @@ function convertConfig(dataDir: string, verbose: number) {
                             placementTag == undefined
                                 ? undefined
                                 : {
-                                    pos: placementTag.attributes.getNamedItem('pos')!.value,
-                                    ref: placementTag.attributes
-                                        .getNamedItem('ref')!
-                                        .value.split('|')[1],
-                                    caption: placementTag.attributes.getNamedItem('caption')
-                                        ? placementTag.attributes.getNamedItem('caption')!.value
-                                        : '',
-                                    collection: placementTag.attributes
-                                        .getNamedItem('ref')!
-                                        .value.split('|')[0]
-                                };
+                                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                                      ref: placementTag.attributes
+                                          .getNamedItem('ref')!
+                                          .value.split('|')[1],
+                                      caption: placementTag.attributes.getNamedItem('caption')
+                                          ? placementTag.attributes.getNamedItem('caption')!.value
+                                          : '',
+                                      collection: placementTag.attributes
+                                          .getNamedItem('ref')!
+                                          .value.split('|')[0]
+                                  };
                         data.illustrations.push({
                             filename: filename,
                             width: imageWidth,
@@ -1023,8 +1022,8 @@ function convertConfig(dataDir: string, verbose: number) {
             const layoutCollections =
                 layoutCollectionElements.length > 0
                     ? Array.from(layoutCollectionElements).map((element) => {
-                        return element.attributes.getNamedItem('id')!.value;
-                    })
+                          return element.attributes.getNamedItem('id')!.value;
+                      })
                     : [data.bookCollections[0].id];
 
             data.layouts.push({
