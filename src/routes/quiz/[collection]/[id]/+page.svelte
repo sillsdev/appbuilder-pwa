@@ -24,6 +24,7 @@
         .books.find((x) => x.id === quiz.id).name;
     let shuffledAnswers = [];
     let shuffledQuestions = [];
+    let questionsShuffle = false;
     let score = 0;
     let questionNum = 0;
     let currentQuizQuestion;
@@ -258,8 +259,12 @@
     }
 
     onMount(() => {
-        shuffleQuestions();
-        handleQuestionChange();
+        if (questionsShuffle) {
+            shuffleQuestions();
+        } else {
+            shuffledQuestions = quiz.questions;
+            handleQuestionChange();
+        }
         playQuizQuestionAudio();
     });
 
