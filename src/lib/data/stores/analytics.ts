@@ -1,6 +1,6 @@
 import { derived, writable } from 'svelte/store';
 import { firstLaunch } from '$lib/data/stores/view';
-import { config } from '$lib/data/config';
+import config from '$lib/data/config';
 
 interface AnalyticsStore {
     initialized: boolean;
