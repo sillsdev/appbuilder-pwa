@@ -19,7 +19,7 @@
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
-    const audioFolder = compareVersions(config.programVersion, '12.0') < 0 ? '' : 'contents';
+    const audioFolder = compareVersions(config.programVersion, '12.0') < 0 ? 'assets' : 'contents';
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
 
@@ -170,10 +170,14 @@
                             >
                                 <img
                                     class="contents-image"
-                                    src={pathJoin([base + '/', imageFolder, item.imageFilename])}
+                                    src="{base}/{imageFolder}/{item.imageFilename}"
                                     alt={item.imageFilename}
                                 />
                             </div>
+                            <!-- Example of using item.audioFilename. Remove and replace with icon. -->
+                            <!-- {#if item.audioFilename[$language]}
+                            <a href="{base}/{audioFolder}/{item.audioFilename[$language]}">{item.audioFilename[$language]}</a>
+                            {/if} -->
                         {/if}
 
                         <div class="contents-text-block">
