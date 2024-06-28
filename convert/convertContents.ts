@@ -14,7 +14,9 @@ type ContentItem = {
     subtitle?: {
         [lang: string]: string;
     };
-    audioFilename?: string;
+    audioFilename?: {
+        [lang: string]: string;
+    };
     imageFilename?: string;
     linkType?: string;
     linkTarget?: string;
@@ -136,7 +138,14 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 }
             }
 
-            const audioFilename = itemTag.getElementsByTagName('audio')[0]?.innerHTML;
+            const audioFilename: { [lang: string]: string } = {};
+            const audioTags = itemTag.getElementsByTagName('audio');
+            if (audioTags) {
+                for (const audioTag of audioTags) {
+                    const lang = audioTag.attributes.getNamedItem('lang')!.value;
+                    audioFilename[lang] = decodeFromXml(audioTag.innerHTML);
+                }
+            }
             const imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
 
             const linkTags = itemTag.getElementsByTagName('link');
