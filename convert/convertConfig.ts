@@ -142,10 +142,18 @@ export type ConfigData = {
     about?: string; // TODO
     analytics?: {
         // TODO
-        id: string;
-        name: string;
-        type: string;
-    }[];
+        enabled: boolean;
+        providers: {  
+            id: string;
+            name: string;
+            type: string;
+        }[];
+    };
+    firebase?: {
+        features: {
+            [name: string]: boolean;
+        };
+    };
     audio?: {
         sources: {
             [key: string]: {
@@ -785,13 +793,77 @@ function convertConfig(dataDir: string, verbose: number) {
 
     /* about?: string; */
 
-    /*
-    analytics?: {
-        id: string;
-        name: string;
-        type: string;
-    }[];
-    */
+    // Analytics
+    const analyticsElements = document.getElementsByTagName('analytics');
+
+    // Ensure data.analytics is initialized if it doesn't exist - necessary??
+    if (!data.analytics) {
+        data.analytics = {
+            enabled: false,
+            providers: []
+        };
+    }
+
+    for (const analyticsElement of analyticsElements) {
+        const enabledAttribute = analyticsElement.getAttribute('enabled');
+
+        if (enabledAttribute !== null && enabledAttribute === 'true') {
+            data.analytics.enabled = true;
+
+            // Get all analytics-provider elements within the current analytics element
+            const providerElements = analyticsElement.getElementsByTagName('analytics-provider');
+
+            // Iterate over provider elements to construct the providers array
+            for (const providerElement of providerElements) {
+                // Retrieve the id, name, and type attributes from the provider element
+                const id = providerElement.getAttribute('id');
+                const name = providerElement.getAttribute('name');
+                const type = providerElement.getAttribute('type');
+
+                // Add the provider to the providers array
+                if (id && name && type) {
+                    data.analytics.providers.push({ id, name, type });
+                }
+            }
+
+            break; // Exit loop early if found enabled=true
+        }
+    }
+
+    if (verbose) console.log(`Converted ${analyticsElements.length} analyticsElements`);
+
+    // Firebase 
+    const firebaseElements = document.getElementsByTagName('firebase');
+
+    // Ensure data.firebase is initialized if it doesn't exist
+    if (!data.firebase) {
+        data.firebase = {
+            features: {}
+        };
+    }
+
+    // Iterate over firebaseElements and update data.firebase.features
+    for (const firebaseElement of firebaseElements) {
+        const featuresElements = firebaseElement.getElementsByTagName('features');
+
+        for (const featuresElement of featuresElements) {
+            const eElements = featuresElement.getElementsByTagName('e');
+
+            for (const eElement of eElements) {
+                const name = eElement.getAttribute('name');
+                const value = eElement.getAttribute('value') === 'true'; // Convert string 'true'/'false' to boolean
+
+                // Update data.firebase.features
+                if (name) {
+                    data.firebase.features[name] = value;
+                }
+            }
+        }
+    }
+
+    if (verbose) console.log(`Converted ${firebaseElements.length} firebaseElements`);
+
+
 
     // Audio Sources
     const audioSources = document

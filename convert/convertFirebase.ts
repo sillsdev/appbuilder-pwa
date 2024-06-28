@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, copyFile, unlinkSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 
@@ -13,9 +13,17 @@ export function convertFirebase(dataDir: string, verbose: number) {
     const srcExists = existsSync(srcFile);
     const dstFile = path.join('src', 'lib', 'data', 'firebase-config.js');
     if (verbose) console.log(`FirebaseConfig: path=${srcFile}, exists=${srcExists}`);
-    const firebaseConfig =
-        'export ' + (srcExists ? readFileSync(srcFile) : 'const firebaseConfig = null;');
-    writeFileSync(dstFile, firebaseConfig);
+    if (srcExists) {
+        copyFile(srcFile, dstFile, function (err: any) {
+            if (err) throw err;
+            if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
+        });
+    } else {
+        if (existsSync(dstFile)) {
+            unlinkSync(dstFile);
+        }
+    }
+    
 }
 
 export class ConvertFirebase extends Task {
