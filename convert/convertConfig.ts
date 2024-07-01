@@ -3,6 +3,7 @@ import jsdom from 'jsdom';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 import { convertMarkdownsToHTML } from './convertMarkdown';
+import { splitVersion } from './stringUtils';
 
 /**
  * TODO:
@@ -406,6 +407,10 @@ function convertConfig(dataDir: string, verbose: number) {
     const appDefinition = document.getElementsByTagName('app-definition')[0];
     data.programType = appDefinition.attributes.getNamedItem('type')!.value;
     data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
+    if (Number.isNaN(splitVersion(data.programVersion)[0])) {
+        // Development version so use a "high" number
+        data.programVersion = '100.0';
+    }
 
     // Features
     const mainFeatureTags = document

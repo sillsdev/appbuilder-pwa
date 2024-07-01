@@ -200,11 +200,15 @@ export function ciEquals(a: any, b: any) {
           a.toUpperCase() === b.toUpperCase();
 }
 
-export function compareVersions(version1: string, version2: string): number {
-    const splitVersion = (version: string): number[] => version.split('.').map(Number);
+export function splitVersion(version: string): number[] {
+    return version.split('.').map(Number);
+}
 
+export function compareVersions(version1: string, version2: string): number {
     const v1Components = splitVersion(version1);
     const v2Components = splitVersion(version2);
+    console.log(`v1`, v1Components);
+    console.log(`v2`, v2Components);
 
     const length = Math.max(v1Components.length, v2Components.length);
 

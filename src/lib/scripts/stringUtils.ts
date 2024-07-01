@@ -215,9 +215,11 @@ export function pathJoin(parts, sep = '/') {
     return parts.join(separator);
 }
 
-export function compareVersions(version1: string, version2: string): number {
-    const splitVersion = (version: string): number[] => version.split('.').map(Number);
+export function splitVersion(version: string): number[] {
+    return version.split('.').map(Number);
+}
 
+export function compareVersions(version1: string, version2: string): number {
     const v1Components = splitVersion(version1);
     const v2Components = splitVersion(version2);
 
