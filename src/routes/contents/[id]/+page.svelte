@@ -24,14 +24,8 @@
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
 
-    //this is still being used because it is stll navigating to the page when you click on audio
-    //this might be fixed by z index? then you could go straight to playAudio()
-    $: audio = false;
-    function switchAudio(event) {
-        audio = true;
-    }
-
-    function playAudio(item) {
+    function playAudio(event, item) {
+        event.stopPropagation();
         //assign/use the proper filename
         let filename;
         if (item.audioFilename[$language]) {
@@ -50,15 +44,8 @@
     function onClick(event, item) {
         event.target.style.background = highlightColor;
         setTimeout(() => {
-            if (audio === false) {
-                //navigate
-                clicked(item);
-            } else {
-                //call function to play the audio (and not navigate)
-                playAudio(item);
-                //switch the audio back to false so the next time its clicked, it will react appropriately
-                audio = false;
-            }
+            //navigate
+            clicked(item);
         }, 100);
     }
 
@@ -197,7 +184,7 @@
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <div
                             class="contents-item-audio-image"
-                            on:click={(event) => switchAudio(event)}
+                            on:click={(event) => playAudio(event, item)}
                         >
                             <AudioIcon.Volume></AudioIcon.Volume>
                         </div>
