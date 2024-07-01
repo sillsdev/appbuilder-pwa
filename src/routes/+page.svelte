@@ -356,6 +356,16 @@
                 <div id="extraButtons" class={showOverlowMenu ? 'flex' : 'hidden md:flex'}>
                     <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
 
+                    <!-- Search Button -->
+                    {#if showSearch}
+                        <a
+                            href="{base}/search/{$refs.collection}"
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                        >
+                            <SearchIcon color="white" />
+                        </a>
+                    {/if}
+
                     <!-- Text Appearance Selector Button -->
                     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <label
@@ -364,13 +374,6 @@
                         on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
                         ><TextAppearanceIcon color="white" /></label
                     >
-
-                    <!-- Search Button -->
-                    {#if showSearch}
-                        <a href="{base}/search" class="dy-btn dy-btn-ghost dy-btn-circle">
-                            <SearchIcon color="white" />
-                        </a>
-                    {/if}
 
                     <!-- Collection Selector Button -->
                     {#if showCollectionNavbar && enoughCollections}
@@ -468,7 +471,9 @@
         <StackView {...stackSettings} />
     </div>
     {#if textCopied}
-        <div class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm">
+        <div
+            class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
+        >
             {$t['Text_Copied']}
         </div>
     {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
