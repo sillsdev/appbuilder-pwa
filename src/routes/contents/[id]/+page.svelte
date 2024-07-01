@@ -16,6 +16,7 @@
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
+    import { AudioIcon } from '$lib/icons';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -23,10 +24,41 @@
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
 
+    //this is still being used because it is stll navigating to the page when you click on audio
+    //this might be fixed by z index? then you could go straight to playAudio()
+    $: audio = false;
+    function switchAudio(event) {
+        audio = true;
+    }
+
+    function playAudio(item) {
+        //assign/use the proper filename
+        let filename;
+        if (item.audioFilename[$language]) {
+            filename = item.audioFilename[$language];
+        } else {
+            filename = item.audioFilename.default;
+        }
+
+        let audio = new Audio();
+        audio.src = `${base}/${audioFolder}/${filename}`;
+        audio.play();
+    }
+
+    //console.log(config.interfaceLanguages);
+
     function onClick(event, item) {
         event.target.style.background = highlightColor;
         setTimeout(() => {
-            clicked(item);
+            if (audio === false) {
+                //navigate
+                clicked(item);
+            } else {
+                //call function to play the audio (and not navigate)
+                playAudio(item);
+                //switch the audio back to false so the next time its clicked, it will react appropriately
+                audio = false;
+            }
         }, 100);
     }
 
@@ -152,58 +184,67 @@
             {#each $page.data.items as item}
                 <!-- iterate through the items, adding html -->
 
-                <!-- svelte-ignore a11y-invalid-attribute -->
-                <a
-                    href="#"
-                    class="contents-link contents-link-ref"
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div
+                    class="contents-item-block contents-link-ref"
+                    id={item.id}
                     on:click={(event) => onClick(event, item)}
                 >
-                    <div class="contents-item-block" id={item.id}>
-                        <!--check for the various elements in the item-->
+                    <!--check for the various elements in the item-->
+                    {#if item.audioFilename[$language] || item.audioFilename.default}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div
+                            class="contents-item-audio-image"
+                            on:click={(event) => switchAudio(event)}
+                        >
+                            <AudioIcon.Volume></AudioIcon.Volume>
+                        </div>
+                    {/if}
 
-                        {#if item.imageFilename}
-                            <div
-                                class="contents-image-block"
-                                style="{convertStyle(
-                                    $s['div.contents-image-block']
-                                )}{checkImageSize(item)}"
-                            >
-                                <img
-                                    class="contents-image"
-                                    src="{base}/{imageFolder}/{item.imageFilename}"
-                                    alt={item.imageFilename}
-                                />
-                            </div>
-                            <!-- Example of using item.audioFilename. Remove and replace with icon. -->
-                            <!-- {#if item.audioFilename[$language]}
+                    {#if item.imageFilename}
+                        <div
+                            class="contents-image-block"
+                            style="{convertStyle($s['div.contents-image-block'])}{checkImageSize(
+                                item
+                            )}"
+                        >
+                            <img
+                                class="contents-image"
+                                src="{base}/{imageFolder}/{item.imageFilename}"
+                                alt={item.imageFilename}
+                            />
+                        </div>
+                        <!-- Example of using item.audioFilename. Remove and replace with icon. -->
+                        <!-- {#if item.audioFilename[$language]}
                             <a href="{base}/{audioFolder}/{item.audioFilename[$language]}">{item.audioFilename[$language]}</a>
                             {/if} -->
+                    {/if}
+
+                    <div class="contents-text-block">
+                        <!-- check for title -->
+                        {#if $page.data.features['show-titles'] === true}
+                            <div class="contents-title">
+                                {item.title[$language] ?? item.title.default ?? ''}
+                            </div>
                         {/if}
 
-                        <div class="contents-text-block">
-                            <!-- check for title -->
-                            {#if $page.data.features['show-titles'] === true}
-                                <div class="contents-title">
-                                    {item.title[$language] ?? item.title.default ?? ''}
-                                </div>
-                            {/if}
+                        <!--Check for subtitle-->
+                        {#if $page.data.features['show-subtitles'] === true}
+                            <div class="contents-subtitle">
+                                {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                            </div>
+                        {/if}
 
-                            <!--Check for subtitle-->
-                            {#if $page.data.features['show-subtitles'] === true}
-                                <div class="contents-subtitle">
-                                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
-                                </div>
+                        <!--check for reference -->
+                        {#if $page.data.features['show-references'] === true}
+                            {#if item.linkType === 'reference'}
+                                <div class="contents-ref">{item.linkTarget}</div>
                             {/if}
-
-                            <!--check for reference -->
-                            {#if $page.data.features['show-references'] === true}
-                                {#if item.linkType === 'reference'}
-                                    <div class="contents-ref">{item.linkTarget}</div>
-                                {/if}
-                            {/if}
-                        </div>
+                        {/if}
                     </div>
-                </a>
+                </div>
             {/each}
         </div>
     </div>
