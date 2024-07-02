@@ -140,7 +140,7 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
 
             const audioFilename: { [lang: string]: string } = {};
             const audioTags = itemTag.getElementsByTagName('audio');
-            if (audioTags) {
+            if (audioTags?.length > 0) {
                 for (const audioTag of audioTags) {
                     const lang = audioTag.attributes.getNamedItem('lang')!.value;
                     audioFilename[lang] = decodeFromXml(audioTag.innerHTML);
