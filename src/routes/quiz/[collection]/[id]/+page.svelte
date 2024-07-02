@@ -25,7 +25,6 @@
     let displayLabel = book.name;
     let shuffledAnswers = [];
     let shuffledQuestions = [];
-    let questionsShuffle = false;
     let score = 0;
     let questionNum = 0;
     let currentQuizQuestion;
