@@ -2,20 +2,22 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
     import { ArrowBackIcon, DeleteIcon, CheckIcon } from '$lib/icons';
-    import { removeNote } from '$lib/data/notes';
     import { selectedVerses } from '$lib/data/stores';
-    import { editNote,addNote } from '$lib/data/notes';
+    import { editNote,addNote,removeNote } from '$lib/data/notes';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
     export let data;
     let note = data.note;
     let text = note.text;
 
-    function closeEditor() {
-        history.back();
+    function goToAllNotes() {
+        goto(`${base}/notes`);
     }
+
     async function deleteNote() {
         await removeNote(note.date);
-        closeEditor();
+        goToAllNotes();
     }
     async function modifyNote() {
         if (note !== undefined) {
@@ -34,14 +36,19 @@
                 reference: $selectedVerses[0].reference
             });
         }
-        closeEditor();
+        goToAllNotes();
+    }
+
+    function onBackNavigate(event) {
+        event.preventDefault();
+        goToAllNotes();
     }
 </script>
 
 
 <!--create a close button for this editor that closes on a button when clicked -->
 <div class="fullscreen-editor">
-    <Navbar>
+    <Navbar on:backNavigation={onBackNavigate}>
         <label for="sidebar" slot="center" >
             <div class="btn btn-ghost normal-case text-xl" >{$t['Annotation_Note_Edit']}</div>
         </label>
