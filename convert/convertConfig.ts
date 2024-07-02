@@ -47,6 +47,7 @@ export type Book = {
     file: string;
     audio: BookCollectionAudio[];
     features: any;
+    quizFeatures?: any;
     footer?: HTML;
     style?: Style;
     styles?: {
@@ -577,6 +578,17 @@ function convertConfig(dataDir: string, verbose: number) {
                         parseConfigValue(bookFeature.attributes.getNamedItem('value')!.value);
                 }
             }
+            const quizFeaturesTag = book
+                .querySelector('features[type=quiz]')
+                ?.getElementsByTagName('e');
+            let quizFeatures: any;
+            if (quizFeaturesTag) {
+                quizFeatures = {};
+                for (const quizFeature of quizFeaturesTag) {
+                    quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
+                        parseConfigValue(quizFeature.attributes.getNamedItem('value')!.value);
+                }
+            }
             const bkStyle = book.getElementsByTagName('styles-info')[0];
             const style = bkStyle ? parseStylesInfo(bkStyle, verbose) : undefined;
             const bkStyles = book.querySelector('styles');
@@ -613,6 +625,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 audio,
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
+                quizFeatures,
                 style,
                 styles,
                 footer

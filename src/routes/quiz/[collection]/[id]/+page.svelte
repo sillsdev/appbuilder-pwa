@@ -20,11 +20,12 @@
 
     let quiz = data.quiz;
     let textHighlightIndex = -1;
-    let displayLabel = config.bookCollections
+    let book = config.bookCollections
         .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === quiz.id).name;
+        .books.find((x) => x.id === quiz.id);
+    let displayLabel = book.name;
     let shuffledAnswers = [];
-    let shuffledQuestions = [];
+    let quizQuestions = [];
     let score = 0;
     let questionNum = 0;
     let currentQuizQuestion;
@@ -108,7 +109,7 @@
     }
 
     function shuffleQuestions() {
-        shuffledQuestions = shuffleArray(quiz.questions);
+        quizQuestions = shuffleArray(quiz.questions);
         questionNum = 0;
         handleQuestionChange();
     }
@@ -129,11 +130,11 @@
 
     function handleQuestionChange() {
         explanation = '';
-        if (questionNum == shuffledQuestions.length) {
+        if (questionNum == quizQuestions.length) {
             shuffledAnswers = [];
             commentaryMessage = getCommentary(score);
         } else {
-            currentQuizQuestion = shuffledQuestions[questionNum];
+            currentQuizQuestion = quizQuestions[questionNum];
             for (const answer of currentQuizQuestion.answers) {
                 answer.clicked = false;
             }
@@ -257,11 +258,15 @@
     }
 
     function getCurrentQuizQuestion() {
-        return shuffledQuestions[questionNum];
+        return quizQuestions[questionNum];
     }
 
     onMount(() => {
-        shuffleQuestions();
+        if (book.quizFeatures['shuffle-questions']) {
+            shuffleQuestions();
+        } else {
+            quizQuestions = quiz.questions;
+        }
         handleQuestionChange();
         playQuizQuestionAudio();
     });
@@ -304,7 +309,7 @@
             </div>
         </Navbar>
     </div>
-    {#if questionNum == shuffledQuestions.length}
+    {#if questionNum == quizQuestions.length}
         <div class="score">
             <div id="content" class="text-center">
                 <div class="quiz-score-before">{$t['Quiz_Score_Page_Message_Before']}</div>
