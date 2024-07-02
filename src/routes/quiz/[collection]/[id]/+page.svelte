@@ -261,11 +261,10 @@
     onMount(() => {
         if (book.quizFeatures['shuffle-questions']) {
             shuffleQuestions();
-            handleQuestionChange();
         } else {
             quizQuestions = quiz.questions;
-            handleQuestionChange();
         }
+        handleQuestionChange();
         playQuizQuestionAudio();
     });
 
