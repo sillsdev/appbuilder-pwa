@@ -19,9 +19,10 @@
 
     let quiz = data.quiz;
     let textHighlightIndex = -1;
-    let displayLabel = config.bookCollections
+    let book = config.bookCollections
         .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === quiz.id).name;
+        .books.find((x) => x.id === quiz.id);
+    let displayLabel = book.name;
     let shuffledAnswers = [];
     let shuffledQuestions = [];
     let questionsShuffle = false;
@@ -259,7 +260,7 @@
     }
 
     onMount(() => {
-        if (questionsShuffle) {
+        if (book.quizFeatures['shuffle-questions']) {
             shuffleQuestions();
         } else {
             shuffledQuestions = quiz.questions;
