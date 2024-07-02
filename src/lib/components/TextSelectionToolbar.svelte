@@ -19,9 +19,9 @@ TODO:
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import {
+        MODAL_NOTE,
         audioActive,
         modal,
-        MODAL_NOTE,
         refs,
         s,
         selectedVerses,
@@ -40,6 +40,8 @@ TODO:
     } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import { createEventDispatcher } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
