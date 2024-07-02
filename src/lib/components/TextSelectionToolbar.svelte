@@ -39,6 +39,8 @@ TODO:
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import { play, seekToVerse } from '$lib/data/audio';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
