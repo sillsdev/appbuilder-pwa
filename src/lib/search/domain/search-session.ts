@@ -26,5 +26,6 @@ export class SearchSession {
             if (queryID != this.queryID) break;
             this.presenter.onResults(results);
         }
+        this.presenter.onQueryDone();
     }
 }
