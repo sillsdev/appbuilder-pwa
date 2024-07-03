@@ -16,6 +16,7 @@
     let resultsShown: SearchResult[] = [];
     let noResults = false;
     let waiting = false;
+    let dismissSearchBar = false;
 
     const presenter: SearchPresenter = {
         onResults: function (newResults: SearchResult[]): void {
@@ -42,6 +43,13 @@
             matchAccents: false
         });
         session.submit(searchText, options);
+
+        // Dismiss the search bar by disabling it.
+        // Then re-enable the search bar to allow the user to modify the query.
+        dismissSearchBar = true;
+        setTimeout(() => {
+            dismissSearchBar = false;
+        }, 50);
     }
 
     function loadMore() {
@@ -105,7 +113,7 @@
         <label class="dy-input-group w-full flex">
             <input
                 id="searchbar"
-                readonly={waiting}
+                readonly={dismissSearchBar}
                 type="text"
                 placeholder={$t['Search']}
                 class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
