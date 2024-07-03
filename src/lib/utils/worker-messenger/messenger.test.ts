@@ -56,6 +56,12 @@ class TestMessageIO implements MessageIO {
     }
 }
 
+class BrokenMessageIO implements MessageIO {
+    postMessage(message: Message): void {}
+
+    setOnMessage(handler: (event: MessageEvent<Message>) => void): void {}
+}
+
 class DelayedMessageIO extends TestMessageIO {
     constructor(ms: number) {
         super();
@@ -167,14 +173,24 @@ describe('postRequest', () => {
     });
 
     test('timeout exceeded rejects promise', async () => {
-        const io = new DelayedMessageIO(100);
+        const io = new BrokenMessageIO();
         const messenger = new Messenger(io, { inboundHandler: incomingRequestHandler, timeout: 5 });
         const request = { type: 'test' };
         expect(async () => await messenger.postRequest(request)).rejects.toThrow('time');
     });
 
-    test('timeout exceeded does not cause memory leak', async () => {
+    test('null timeout indicates no timeout', async () => {
         const io = new DelayedMessageIO(100);
+        const messenger = new Messenger(io, {
+            inboundHandler: incomingRequestHandler,
+            timeout: null
+        });
+        const request = { type: 'test' };
+        await messenger.postRequest(request);
+    });
+
+    test('timeout exceeded does not cause memory leak', async () => {
+        const io = new BrokenMessageIO();
         const messenger = new Messenger(io, { inboundHandler: incomingRequestHandler, timeout: 5 });
         const request = { type: 'test' };
         try {
