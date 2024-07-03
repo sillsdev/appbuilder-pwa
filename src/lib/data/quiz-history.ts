@@ -7,6 +7,8 @@ export interface HistoryItem {
     collection: string;
     book: string;
     quiz: string;
+    reference: string;
+    bookIndex: number;
 }
 
 interface History extends DBSchema {
@@ -20,10 +22,10 @@ interface History extends DBSchema {
     }
 }
 
-let historyDB = null;
+let quizDB = null;
 async function openHistory() {
-    if (!historyDB) {
-        historyDB = await openDB<History>('history', 1, {
+    if (!quizDB) {
+        quizDB = await openDB<History>('history', 1, {
             upgrade(db) {
                 const historyStore = db.createObjectStore('history', {
                     keyPath: 'date'
@@ -38,7 +40,7 @@ async function openHistory() {
             }
         });
     }
-    return historyDB;
+    return quizDB;
 }
 
 export async function addHistory(item: {
@@ -54,7 +56,7 @@ export async function addHistory(item: {
         .quizzes.findIndex((x) => x.id === item.quiz);
     const nextItem = { ...item, date: date, bookIndex: bookIndex };
     await history.add('history', nextItem);
-    //notifyUpdated();
+    //notifyUpdated(); //what is this?
 }
 
 export async function clearHistory() {
