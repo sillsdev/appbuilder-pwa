@@ -36,7 +36,7 @@ async function openHistory() {
                     'quiz'
                 ]);
 
-                historyStore.createIndex('date', 'date');
+                historyStore.createIndex('date', 'score');
             }
         });
     }
