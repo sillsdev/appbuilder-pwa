@@ -18,7 +18,10 @@ export class SearchSessionExternal {
         queryGenerator: (options: ExternalQueryOptions) => SearchQuery,
         windowRepository: RequestHandler
     ) {
-        this.messenger = new Messenger(messageIO, { inboundHandler: windowRepository });
+        this.messenger = new Messenger(messageIO, {
+            inboundHandler: windowRepository,
+            timeout: null
+        });
         this.queryGenerator = queryGenerator;
     }
 

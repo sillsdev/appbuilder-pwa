@@ -55,7 +55,7 @@ export class Messenger {
         number,
         { resolve: (response: MessageResponse) => void; reject: (reason: Error) => void }
     >();
-    lastRequest = 0;
+    lastRequest = -1;
 
     setInboundHandler(handler: RequestHandler) {
         this.requestHandler = handler;
@@ -82,8 +82,19 @@ export class Messenger {
             this.pendingRequests.set(id, { resolve, reject });
             this.io.postMessage(message);
         });
-        const timeoutPromise = this.setRequestTimeout(request, id);
-        return Promise.race([requestPromise, timeoutPromise]);
+        return this.addTimeout(requestPromise, request, id);
+    }
+
+    protected addTimeout(
+        promise: Promise<MessageResponse>,
+        request: MessageRequest,
+        transactionId: number
+    ): Promise<MessageResponse> {
+        if (!this.timeout) {
+            return promise;
+        }
+        const timeoutPromise = this.setRequestTimeout(request, transactionId);
+        return Promise.race([promise, timeoutPromise]);
     }
 
     protected async setRequestTimeout(request: MessageRequest, id: number) {
