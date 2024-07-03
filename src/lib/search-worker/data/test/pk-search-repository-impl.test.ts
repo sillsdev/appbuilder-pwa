@@ -285,8 +285,11 @@ test('If word is not found, returns no results', async () => {
         collection: 'C01'
     };
 
-    const results = await repo.queryBooks(phrase, options);
-    expect(results.length).toBe(0);
+    const books = await repo.queryBooks(phrase, options);
+    for (const book of books) {
+        const results = await repo.queryTokens(phrase, book.id, options);
+        expect(results.length).toBe(0);
+    }
 });
 
 describe('Whole words', async () => {
@@ -301,8 +304,14 @@ describe('Whole words', async () => {
             collection: 'C01'
         };
 
-        const results = await repo.queryBooks(phrase, options);
-        expect(results.length).toBeGreaterThan(0);
+        const allResults = [];
+
+        const books = await repo.queryBooks(phrase, options);
+        for (const book of books) {
+            const results = await repo.queryTokens(phrase, book.id, options);
+            allResults.push(...results);
+        }
+        expect(allResults.length).toBeGreaterThan(0);
     });
 
     test('Does not match partial word', async () => {
@@ -313,8 +322,11 @@ describe('Whole words', async () => {
             collection: 'C01'
         };
 
-        const results = await repo.queryBooks(phrase, options);
-        expect(results.length).toBe(0);
+        const books = await repo.queryBooks(phrase, options);
+        for (const book of books) {
+            const results = await repo.queryTokens(phrase, book.id, options);
+            expect(results.length).toBe(0);
+        }
     });
 });
 
@@ -330,8 +342,14 @@ test('Ignore characters', async () => {
         collection: 'C01'
     };
 
+    const allResults = [];
+
     const books = await repo.queryBooks(phrase, options);
-    expect(books.length).toBeGreaterThan(0);
+    for (const book of books) {
+        const results = await repo.queryTokens(phrase, book.id, options);
+        allResults.push(...results);
+    }
+    expect(allResults.length).toBeGreaterThan(0);
 });
 
 test('Equivalent characters', async () => {
@@ -346,8 +364,14 @@ test('Equivalent characters', async () => {
         collection: 'C01'
     };
 
-    const verses = await repo.queryBooks(phrase, options);
-    expect(verses.length).toBeGreaterThan(0);
+    const allResults = [];
+
+    const books = await repo.queryBooks(phrase, options);
+    for (const book of books) {
+        const results = await repo.queryTokens(phrase, book.id, options);
+        allResults.push(...results);
+    }
+    expect(allResults.length).toBeGreaterThan(0);
 });
 
 test('loadDocSet loads correct data', () => {
