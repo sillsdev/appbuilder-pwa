@@ -49,10 +49,9 @@ export class ProskommaSearchRepositoryImpl implements ProskommaSearchRepository 
 
     async queryBooks(phrase: string, options: SearchOptions): Promise<GQLBookId[]> {
         if (this.phraseIsEmtpy(phrase)) return [];
-        const params = searchParams(phrase, options);
         const query = `{
             docSet(id: "${options.docSet}") {
-                documents(${params} allChars: true sortedBy: "paratext") {
+                documents(sortedBy: "paratext") {
                     id
                     idParts { type }
                     bookCode: header(id: "bookCode")
