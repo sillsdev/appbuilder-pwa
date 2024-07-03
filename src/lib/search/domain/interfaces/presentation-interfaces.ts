@@ -3,6 +3,7 @@ import type { SearchResult } from '../entities';
 export interface SearchPresenter {
     onResults(results: SearchResult[]): void;
     onNewQuery(): void;
+    onQueryDone(): void;
 }
 
 /**

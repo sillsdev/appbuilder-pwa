@@ -43,7 +43,8 @@ test('submit calls onNewQuery', async () => {
         onNewQuery: () => {
             wasCalled = true;
         },
-        onResults: (_) => {}
+        onResults: (_) => {},
+        onQueryDone: () => {}
     });
 
     await session.submit('', { docSet, collection });
@@ -54,6 +55,7 @@ test('after submit, results are returned', async () => {
     const results: SearchResult[][] = [];
     const session = testSearchSession({
         onNewQuery: () => {},
+        onQueryDone: () => {},
         onResults: (r) => {
             results.push(r);
         }
@@ -66,6 +68,7 @@ test('results are returned in batches', async () => {
     const results: SearchResult[][] = [];
     const session = testSearchSession({
         onNewQuery: () => {},
+        onQueryDone: () => {},
         onResults: (r) => {
             results.push(r);
         }
@@ -84,6 +87,7 @@ test('returns all results', async () => {
     const results: SearchResult[] = [];
     const session = testSearchSession({
         onNewQuery: () => {},
+        onQueryDone: () => {},
         onResults: (r) => {
             results.push(...r);
         }
@@ -92,12 +96,30 @@ test('returns all results', async () => {
     expect(results.length).toBe(TestSearchQuery.totalVerses);
 });
 
+test('calls queryDone after all results', async () => {
+    const results: SearchResult[] = [];
+    let queryDone: boolean;
+    const session = testSearchSession({
+        onNewQuery: () => {},
+        onQueryDone: () => {
+            expect(results.length).toBe(TestSearchQuery.totalVerses);
+            queryDone = true;
+        },
+        onResults: (r) => {
+            results.push(...r);
+        }
+    });
+    await session.submit('', { docSet, collection });
+    expect(queryDone).toBe(true);
+});
+
 test('on submit old query is cancelled', async () => {
     let results: SearchResult[] = [];
     const session = testSearchSession({
         onNewQuery: () => {
             results = [];
         },
+        onQueryDone: () => {},
         onResults: (r) => {
             results.push(...r);
         }

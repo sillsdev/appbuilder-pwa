@@ -17,6 +17,7 @@
     let noResults = false;
     let waiting = false;
     let dismissSearchBar = false;
+    let queryDone = false;
 
     const presenter: SearchPresenter = {
         onResults: function (newResults: SearchResult[]): void {
@@ -30,6 +31,11 @@
             resultsShown = [];
             noResults = false;
             waiting = true;
+            queryDone = false;
+        },
+
+        onQueryDone: function (): void {
+            queryDone = true;
         }
     };
 
@@ -42,7 +48,7 @@
             wholeWords,
             matchAccents: false
         });
-        session.submit(searchText, options);
+        session.submit(searchText, options, 1);
 
         // Dismiss the search bar by disabling it.
         // Then re-enable the search bar to allow the user to modify the query.
@@ -177,7 +183,7 @@
                 <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
             {/each}
         {/if}
-        {#if waiting}
+        {#if waiting && !results.length}
             <p
                 class="m-4"
                 style={convertStyle($s['ui.search.progress-label'])}
@@ -192,6 +198,24 @@
         <div id="sentinel" style="height: 1px;"></div>
     </div>
 </form>
+{#if results.length}
+    <div
+        class="fixed bottom-0 w-full max-w-screen-md flex justify-between shadow-lg bg-white"
+        style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -2px rgba(0, 0, 0, 0.1);"
+        style:background-color={$themeColors.BackgroundColor}
+    >
+        <span class="mx-4">
+            {#if !queryDone}
+                Searching...
+            {/if}
+        </span>
+        <span class="mx-4">
+            {#if !noResults}
+                Found: {results.length}
+            {/if}
+        </span>
+    </div>
+{/if}
 
 <style>
     /*
