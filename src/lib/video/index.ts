@@ -72,17 +72,16 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     );
     const videoLink = document.createElement('a');
     videoLink.setAttribute('href', '#');
-    let sourceType = "";
-    if (video.src){
+    let sourceType = '';
+    if (video.src) {
         sourceType = config.audio.sources[video.src].type;
     }
-    if (sourceType === "assets"){
+    if (sourceType === 'assets') {
         videoLink.setAttribute(
             'onclick',
             "playVideoFile('" + id + "', 'videos/" + video.filename + "'); return false;"
         );
-    }
-    else {
+    } else {
         videoLink.setAttribute(
             'onclick',
             "playOnlineVideo('" + id + "', '" + videoUrl + "'); return false;"
