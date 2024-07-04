@@ -200,7 +200,7 @@
 </form>
 {#if results.length}
     <div
-        class="fixed bottom-0 w-full max-w-screen-md flex justify-between shadow-lg bg-white"
+        class="fixed bottom-0 w-full max-w-screen-md flex justify-between shadow-lg"
         style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -2px rgba(0, 0, 0, 0.1);"
         style:background-color={$themeColors.BackgroundColor}
     >
