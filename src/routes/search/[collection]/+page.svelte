@@ -6,7 +6,7 @@
     export let data;
 </script>
 
-<div class="grid grid-rows-[auto,1fr] h-full">
+<div class="grid grid-rows-[auto,1fr] max-h-screen">
     <div class="navbar">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
@@ -16,7 +16,10 @@
             <!-- <div slot="right-buttons" /> -->
         </Navbar>
     </div>
-    <div class="flex justify-center" style:background-color={$themeColors.BackgroundColor}>
+    <div
+        class="flex justify-center overflow-y-auto"
+        style:background-color={$themeColors.BackgroundColor}
+    >
         <SearchForm collection={data.collection} />
     </div>
 </div>
