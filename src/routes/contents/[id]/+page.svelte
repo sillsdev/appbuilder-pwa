@@ -88,10 +88,26 @@
     }
 
     function setReference(item) {
+        let docSet;
         let book;
         let chapter;
         let verse;
         const reference = item.linkTarget.split('.');
+
+        if (item.layoutMode && item.layoutCollection?.length > 0) {
+            /* 
+            Note: have not handled layout modes
+            layoutMode options:
+                single
+                two
+                verse-by-verse
+            */
+            const collection = item.layoutCollection[0];
+            docSet =
+                config.bookCollections.find((x) => x.id === collection).languageCode +
+                '_' +
+                collection;
+        }
 
         switch (reference.length) {
             case 1:
@@ -111,9 +127,10 @@
                 break;
         }
         refs.set({
-            book: book,
-            chapter: chapter,
-            verse: verse
+            docSet,
+            book,
+            chapter,
+            verse
         });
     }
 
