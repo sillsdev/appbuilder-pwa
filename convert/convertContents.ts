@@ -21,6 +21,8 @@ type ContentItem = {
     linkType?: string;
     linkTarget?: string;
     linkLocation?: string;
+    layoutMode?: string;
+    layoutCollection?: string[];
 };
 
 type ContentScreen = {
@@ -162,6 +164,21 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 features[name] = parseFeatureValue(value);
             }
 
+            const layoutTags = itemTag.getElementsByTagName('layout');
+            const layoutMode = layoutTags[0]?.attributes.getNamedItem('mode')?.value;
+
+            let layoutCollection = undefined;
+            const layoutCollectionTags = itemTag.getElementsByTagName('layout-collection');
+            if (layoutCollectionTags?.length > 0) {
+                layoutCollection = [];
+                for (const layoutCollectionTag of layoutCollectionTags) {
+                    const id = layoutCollectionTag.attributes.getNamedItem('id')!.value;
+                    layoutCollection.push(id);
+                }
+            }
+
+
+
             if (linkType === 'reference') {
                 // In the native app, app of the books are handled by the BookFragment.
                 // In the PWA, we have different routes for different book types since
@@ -192,7 +209,9 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 linkType,
                 linkLocation,
                 linkTarget,
-                features
+                features,
+                layoutMode,
+                layoutCollection
             });
         }
     }

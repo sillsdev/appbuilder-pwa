@@ -9,13 +9,36 @@
         modal,
         MODAL_COLLECTION,
         convertStyle,
-        contentsStack
+        contentsStack,
+        docSet
     } from '$lib/data/stores';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
+
+    //contents layout can specify book collection
+    /* 
+
+        Need to update convert contents
+
+        layout mode options:
+            single
+            two
+            verse-by-verse
+
+            what should it look like for each of these?
+
+        layout collection id:
+            C01, C02, C03, used in single, two, and verse-by-verse
+            ENGWEB, CUKNVS, used in single and two
+
+            what do these mean?
+            for now, I believe if there is more than one, we are acting as if the first is the only one
+            what exactly do these signify though, what should change?
+
+    */
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -76,10 +99,19 @@
     }
 
     function setReference(item) {
+        let docSet;
         let book;
         let chapter;
         let verse;
         const reference = item.linkTarget.split('.');
+
+        if (item.layoutMode && item.layoutCollection?.length > 0) {
+            const collection = item.layoutCollection[0];
+            docSet =
+                config.bookCollections.find((x) => x.id === collection).languageCode +
+                '_' +
+                collection;
+        }
 
         switch (reference.length) {
             case 1:
@@ -99,9 +131,10 @@
                 break;
         }
         refs.set({
-            book: book,
-            chapter: chapter,
-            verse: verse
+            docSet,
+            book,
+            chapter,
+            verse
         });
     }
 
