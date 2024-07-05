@@ -52,7 +52,6 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
             videoContainerDiv.classList.add('video-YouTube', 'video-16-9');
             break;
         case VideoType.Mp4:
-        case VideoType.YouTube:
         case VideoType.Vimeo:
         case VideoType.Hls:
         case VideoType.Gospel:
