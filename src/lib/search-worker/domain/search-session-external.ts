@@ -12,6 +12,11 @@ import type { ExternalQueryOptions } from './interfaces/domain-interfaces';
 import type { NewQueryRequest } from './interfaces/requests';
 import { isNewQueryResponse } from './interfaces/responses';
 
+/**
+ * Generates query objects for the window
+ *
+ * These query objects fetch search results from the web worker.
+ */
 export class SearchSessionExternal {
     constructor(
         messageIO: MessageIO,

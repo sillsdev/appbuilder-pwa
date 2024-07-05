@@ -21,6 +21,14 @@ interface Dependencies {
     outboundHandler: RequestHandler;
 }
 
+/**
+ * A special implementation of Proskomma search functions for web workers
+ *
+ * The main reason for this class is to retrieve necessary data from the window.
+ *
+ * For example, technical limitations make it difficult for the worker to construct
+ * the URL for a frozen docset file, so it must request it from the window instead.
+ */
 export class ProksommaWorkerSearchRepository implements ProskommaSearchRepository {
     constructor({ outboundHandler, fetch, getImplementation }: Dependencies) {
         this.requestHandler = outboundHandler;

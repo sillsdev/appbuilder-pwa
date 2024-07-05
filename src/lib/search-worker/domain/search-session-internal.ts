@@ -14,6 +14,11 @@ import {
 } from './interfaces/requests';
 import type { NewQueryResponse, ResultsResponse } from './interfaces/responses';
 
+/**
+ * Responds to query requests from the window
+ *
+ * This class runs within the web worker.
+ */
 export class SearchSessionInternal {
     constructor(queryGenerator: QueryGenerator) {
         this.createQuery = queryGenerator;

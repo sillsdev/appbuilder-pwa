@@ -11,6 +11,9 @@ export interface GQLBookId {
     bookCode: string;
 }
 
+/**
+ * An interface for Proskomma-specific search functions
+ */
 export interface ProskommaSearchRepository {
     loadDocSet(data: ArrayBuffer): Promise<void>;
 
