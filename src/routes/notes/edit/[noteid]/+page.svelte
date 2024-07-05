@@ -1,24 +1,23 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
     import { t } from '$lib/data/stores';
-    import { ArrowBackIcon, DeleteIcon, CheckIcon } from '$lib/icons';
+    import { DeleteIcon, CheckIcon } from '$lib/icons';
     import { selectedVerses } from '$lib/data/stores';
     import { editNote,addNote,removeNote } from '$lib/data/notes';
-    import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
 
     export let data;
     let note = data.note;
     let text = note.text;
 
-    function goToAllNotes() {
-        goto(`${base}/notes`);
+    function goBack() {
+        history.back();
     }
 
     async function deleteNote() {
         await removeNote(note.date);
-        goToAllNotes();
+        goBack();
     }
+
     async function modifyNote() {
         if (note !== undefined) {
             await editNote({
@@ -36,12 +35,12 @@
                 reference: $selectedVerses[0].reference
             });
         }
-        goToAllNotes();
+        goBack();
     }
 
     function onBackNavigate(event) {
         event.preventDefault();
-        goToAllNotes();
+        goBack();
     }
 </script>
 
@@ -59,17 +58,11 @@
         </div>
 
     </Navbar>
-    <!-- <button on:click={closeEditor} class="close-button"><ArrowBackIcon color="black" /></button> -->
-        
-    <!-- <p>{note.text}</p> -->
 
     <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
         <textarea bind:value={text} class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md" />
     </div>
-    
-    <!-- flex justify-center box-border mt-7 h-full -->
-    <!-- dy-textarea dy-textarea-bordered w-11/12 h-5/6 shadow-md -->
-    <!-- to save the data, save it to the store -->
+
 </div>
 
 
