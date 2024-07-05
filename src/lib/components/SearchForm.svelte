@@ -1,117 +1,26 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
+    import { convertStyle, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
-    import SearchResultCard from './SearchResultCard.svelte';
-    import type { SearchResult } from '$lib/search/domain/entities';
-    import type { SearchPresenter } from '$lib/search/domain/interfaces/presentation-interfaces';
-    import { makeSearchConfigManager, makeSearchSession } from '$lib/search/factories';
-    import { onMount } from 'svelte';
-    export let collection: string;
+    import { createEventDispatcher } from 'svelte';
 
-    let searchText = '';
+    let phrase = '';
     let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
 
-    let results: SearchResult[] = [];
-    let resultsShown: SearchResult[] = [];
-    let noResults = false;
-    let waiting = false;
     let dismissSearchBar = false;
-    let queryDone = false;
 
-    const presenter: SearchPresenter = {
-        onResults: function (newResults: SearchResult[]): void {
-            waiting = false;
-            results = results.concat(newResults);
-            noResults = results.length === 0;
-            ensureScreenFilled();
-        },
-        onNewQuery: function (): void {
-            results = [];
-            resultsShown = [];
-            noResults = false;
-            waiting = true;
-            queryDone = false;
-        },
+    const dispatch = createEventDispatcher();
 
-        onQueryDone: function (): void {
-            queryDone = true;
-        }
-    };
-
-    const configManager = makeSearchConfigManager();
-    const session = makeSearchSession(presenter);
-
-    async function submit() {
-        const options = configManager.configureOptions({
-            collection,
-            wholeWords,
-            matchAccents: false
-        });
-        session.submit(searchText, options, 1);
-
+    function submit() {
+        if (!phrase) return;
         // Dismiss the search bar by disabling it.
         // Then re-enable the search bar to allow the user to modify the query.
         dismissSearchBar = true;
         setTimeout(() => {
             dismissSearchBar = false;
         }, 50);
+        dispatch('submit', { phrase, wholeWords });
     }
-
-    function loadMore() {
-        resultsShown = results.slice(0, resultsShown.length + 4);
-    }
-
-    function onScrollToLast(entries) {
-        if (entries[0].isIntersecting && !waiting) {
-            loadMore();
-            ensureScreenFilled();
-        }
-    }
-
-    function ensureScreenFilled() {
-        if (results.length === 0 || results.length === resultsShown.length) {
-            return;
-        }
-        const sentinel = document.querySelector('#sentinel');
-        const sentinelObserver = new IntersectionObserver(
-            (entries) => {
-                if (!entries[0].isIntersecting) {
-                    sentinelObserver.disconnect();
-                } else {
-                    loadMore();
-                    ensureScreenFilled();
-                }
-            },
-            {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            }
-        );
-
-        sentinelObserver.observe(sentinel);
-    }
-
-    // Load more results when the user scrolls to the bottom of the list;
-    onMount(() => {
-        const observer = new IntersectionObserver(onScrollToLast, {
-            root: null,
-            rootMargin: '0px',
-            threshold: 1.0
-        });
-
-        const sentinel = document.querySelector('#sentinel');
-        if (sentinel) {
-            observer.observe(sentinel);
-        }
-
-        return () => {
-            if (sentinel) {
-                observer.unobserve(sentinel);
-            }
-        };
-    });
 </script>
 
 <form class="w-full max-w-screen-md p-4">
@@ -130,7 +39,7 @@
                 size="1"
                 inputmode="search"
                 enterkeyhint="search"
-                bind:value={searchText}
+                bind:value={phrase}
             />
             <button
                 on:click|preventDefault={submit}
@@ -143,7 +52,7 @@
         </label>
     </div>
     {#if config.mainFeatures['search-whole-words-show']}
-        <div class="dy-form-control max-w-xs m-4">
+        <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
                 <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
                     >{$t['Search_Match_Whole_Words']}</span
@@ -170,52 +79,7 @@
     <!--         </div> -->
     <!--     </div> -->
     <!-- {/if} -->
-    <hr style:border-color={$themeColors.DividerColor} />
-    <div id="container" class="search-result py-2">
-        {#if noResults && !waiting}
-            <div class="py-4 flex justify-center">
-                <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                    {$t['Search_No_Matches_Found']}
-                </p>
-            </div>
-        {:else}
-            {#each resultsShown as result}
-                <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
-            {/each}
-        {/if}
-        {#if waiting && !results.length}
-            <p
-                class="m-4"
-                style={convertStyle($s['ui.search.progress-label'])}
-                style:text-align="center"
-            >
-                {$t['Search_Searching']}
-            </p>
-            {#if resultsShown.length === 0}
-                <span class="spin" />
-            {/if}
-        {/if}
-        <div id="sentinel" style="height: 1px;"></div>
-    </div>
 </form>
-{#if results.length}
-    <div
-        class="fixed bottom-0 w-full max-w-screen-md flex justify-between shadow-lg"
-        style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -2px rgba(0, 0, 0, 0.1);"
-        style:background-color={$themeColors.BackgroundColor}
-    >
-        <span class="mx-4">
-            {#if !queryDone}
-                Searching...
-            {/if}
-        </span>
-        <span class="mx-4">
-            {#if !noResults}
-                Found: {results.length}
-            {/if}
-        </span>
-    </div>
-{/if}
 
 <style>
     /*
@@ -237,8 +101,4 @@
         user-select: none;
     }
     */
-
-    .spin::before {
-        position: fixed;
-    }
 </style>
