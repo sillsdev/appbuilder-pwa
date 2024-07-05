@@ -28,6 +28,9 @@ export interface QueryVerseProvider {
     getVerses(limit: number): Promise<SearchCandidate[]>;
 }
 
+/**
+ * A generic interface for retreiving Scritpture content
+ */
 export interface ScriptureRepository {
     queryVerses(phrase: string, options: SearchOptions): Promise<QueryVerseProvider>;
 }

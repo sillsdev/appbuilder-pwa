@@ -4,7 +4,13 @@ import { BufferedReader } from '../utils/buffered-reader';
 import { makeRegex } from '../utils/regex-helpers';
 import type { QueryVerseProvider, ScriptureRepository } from './interfaces/data-interfaces';
 
-// Finds verses that match the given search parameters.
+/**
+ * Find search results that match the given criteria
+ *
+ * The query retrieves a list of "candidate verses" from a
+ * ScriptureRepository and filters them appropriately
+ * (for example, not all candidates may contain every search word).
+ */
 export class SearchQueryInternal implements SearchQuery {
     constructor(
         searchPhrase: string,

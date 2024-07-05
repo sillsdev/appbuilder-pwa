@@ -6,6 +6,9 @@ import type { ExternalQueryOptions } from './interfaces/domain-interfaces';
 import type { ResultsRequest } from './interfaces/requests';
 import { isResultsResponse } from './interfaces/responses';
 
+/**
+ * Retrieves search results by querying the web worker
+ */
 export class SearchQueryExternal implements SearchQuery {
     constructor({ id, outboundHandler }: ExternalQueryOptions) {
         this.queryId = id;

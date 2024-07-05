@@ -1,6 +1,12 @@
 import type { SearchConfigRepository, SearchOptions } from './interfaces/data-interfaces';
 import type { UserSearchOptions } from './interfaces/presentation-interfaces';
 
+/**
+ * Configues search based on user input
+ *
+ * Combines options immediately visible to the user (ex: whole words) with
+ * application-wide settings not visible to the user (ex: locale).
+ */
 export class ConfigureSearch {
     constructor(searchConfigRepository: SearchConfigRepository) {
         this.repo = searchConfigRepository;

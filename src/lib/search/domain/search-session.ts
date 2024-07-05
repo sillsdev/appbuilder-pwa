@@ -1,6 +1,9 @@
 import type { QueryGenerator, SearchOptions, SearchQuery } from './interfaces/data-interfaces';
 import type { SearchPresenter } from './interfaces/presentation-interfaces';
 
+/**
+ * Creates and interacts with search queries in response to user requests
+ */
 export class SearchSession {
     constructor(presenter: SearchPresenter, queryGenerator: QueryGenerator) {
         this.presenter = presenter;
