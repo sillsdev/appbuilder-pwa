@@ -16,6 +16,7 @@
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
+    import { AudioIcon } from '$lib/icons';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -23,9 +24,20 @@
     $: highlightColor = $themeColors['ContentsItemTouchColor'];
     $: title = setTitle($page);
 
+    function playAudio(event, item) {
+        event.stopPropagation();
+        //assign/use the proper filename
+        const filename = item.audioFilename[$language] ?? item.audioFilename.default;
+
+        let audio = new Audio();
+        audio.src = `${base}/${audioFolder}/${filename}`;
+        audio.play();
+    }
+
     function onClick(event, item) {
         event.target.style.background = highlightColor;
         setTimeout(() => {
+            //navigate
             clicked(item);
         }, 100);
     }
@@ -152,58 +164,63 @@
             {#each $page.data.items as item}
                 <!-- iterate through the items, adding html -->
 
-                <!-- svelte-ignore a11y-invalid-attribute -->
-                <a
-                    href="#"
-                    class="contents-link contents-link-ref"
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div
+                    class="contents-item-block contents-link-ref"
+                    id={item.id}
                     on:click={(event) => onClick(event, item)}
                 >
-                    <div class="contents-item-block" id={item.id}>
-                        <!--check for the various elements in the item-->
+                    <!--check for the various elements in the item-->
+                    {#if item.audioFilename[$language] || item.audioFilename.default}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div
+                            class="contents-item-audio-image"
+                            on:click={(event) => playAudio(event, item)}
+                        >
+                            <AudioIcon.Volume></AudioIcon.Volume>
+                        </div>
+                    {/if}
 
-                        {#if item.imageFilename}
-                            <div
-                                class="contents-image-block"
-                                style="{convertStyle(
-                                    $s['div.contents-image-block']
-                                )}{checkImageSize(item)}"
-                            >
-                                <img
-                                    class="contents-image"
-                                    src="{base}/{imageFolder}/{item.imageFilename}"
-                                    alt={item.imageFilename}
-                                />
+                    {#if item.imageFilename}
+                        <div
+                            class="contents-image-block"
+                            style="{convertStyle($s['div.contents-image-block'])}{checkImageSize(
+                                item
+                            )}"
+                        >
+                            <img
+                                class="contents-image"
+                                src="{base}/{imageFolder}/{item.imageFilename}"
+                                alt={item.imageFilename}
+                            />
+                        </div>
+                    {/if}
+
+                    <div class="contents-text-block">
+                        <!-- check for title -->
+                        {#if $page.data.features['show-titles'] === true}
+                            <div class="contents-title">
+                                {item.title[$language] ?? item.title.default ?? ''}
                             </div>
-                            <!-- Example of using item.audioFilename. Remove and replace with icon. -->
-                            <!-- {#if item.audioFilename[$language]}
-                            <a href="{base}/{audioFolder}/{item.audioFilename[$language]}">{item.audioFilename[$language]}</a>
-                            {/if} -->
                         {/if}
 
-                        <div class="contents-text-block">
-                            <!-- check for title -->
-                            {#if $page.data.features['show-titles'] === true}
-                                <div class="contents-title">
-                                    {item.title[$language] ?? item.title.default ?? ''}
-                                </div>
-                            {/if}
+                        <!--Check for subtitle-->
+                        {#if $page.data.features['show-subtitles'] === true}
+                            <div class="contents-subtitle">
+                                {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                            </div>
+                        {/if}
 
-                            <!--Check for subtitle-->
-                            {#if $page.data.features['show-subtitles'] === true}
-                                <div class="contents-subtitle">
-                                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
-                                </div>
+                        <!--check for reference -->
+                        {#if $page.data.features['show-references'] === true}
+                            {#if item.linkType === 'reference'}
+                                <div class="contents-ref">{item.linkTarget}</div>
                             {/if}
-
-                            <!--check for reference -->
-                            {#if $page.data.features['show-references'] === true}
-                                {#if item.linkType === 'reference'}
-                                    <div class="contents-ref">{item.linkTarget}</div>
-                                {/if}
-                            {/if}
-                        </div>
+                        {/if}
                     </div>
-                </a>
+                </div>
             {/each}
         </div>
     </div>
