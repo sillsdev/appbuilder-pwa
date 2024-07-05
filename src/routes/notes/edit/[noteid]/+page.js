@@ -14,8 +14,6 @@ export async function load({ params }) {
 
     const allNotes = await getNotes();
     const note = allNotes.find((item) => item.date === date);
-
-    console.log('note %o allNotes %o noteid %o date %o' , note, allNotes, noteid, date);
     
     if (!note) {
         return {
@@ -23,6 +21,6 @@ export async function load({ params }) {
             error: new Error('Note not found'),
         };
     }
-
+    
     return { note };
 }
