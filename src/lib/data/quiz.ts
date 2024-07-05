@@ -68,3 +68,16 @@ export async function findQuiz(item: {
     await tx.done;
     return result;
 }
+
+export async function getQuizScore(item: {
+    collection: string;
+    book: string;
+}): Promise<number | null> {
+    const results = await findQuiz(item);
+    if (results.length > 0) {
+        return results[0].score;
+    }
+    else {
+        return null;
+    }
+}
