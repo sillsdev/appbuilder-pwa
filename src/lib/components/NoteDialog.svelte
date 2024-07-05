@@ -6,10 +6,9 @@
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
     import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
-    import { editNote, addNote } from '$lib/data/notes';
+    import { addNote } from '$lib/data/notes';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
-    import { stringify } from 'querystring';
 
     export let note = undefined;
     export let editing = false;
@@ -40,11 +39,6 @@
     }
 
     async function createNote() {
-
-        console.log('Im here as well! selectedVerses: ', $selectedVerses[0].reference);
-
-        // const verses = $selectedVerses[0]; //TEST ------------------------------------------------------------------
-
          const newNote = await addNote({
                 docSet: $selectedVerses[0].docSet,
                 collection: $selectedVerses[0].collection,
@@ -55,37 +49,13 @@
                 reference: $selectedVerses[0].reference
             });
         note = newNote;
-        console.log('Im here! note: ', note);
-        // console.log('Im here! selectedVerses: ', verses);
-        // console.log('Im here!', note);
-        goto(`${base}/notes/edit/${note.date}`);
     }
 
-    async function modifyNote() {
-        if (note !== undefined) {
-            await editNote({
-                note: note,
-                newText: text
-            });
-        } else {
-            await addNote({
-                docSet: $selectedVerses[0].docSet,
-                collection: $selectedVerses[0].collection,
-                book: $selectedVerses[0].book,
-                chapter: $selectedVerses[0].chapter,
-                verse: $selectedVerses[0].verse,
-                text,
-                reference: $selectedVerses[0].reference
-            });
-        }
-    }
     async function onEditNote(){
-        if (note !== undefined) {
-            console.log('Im here also! note: ', note);
-            goto(`${base}/notes/edit/${note.date}`);
-        } else {
-            createNote();
+        if (note === undefined) {
+            await createNote();
         }
+        goto(`${base}/notes/edit/${note.date}`);
     }
 
 </script>
@@ -104,7 +74,6 @@
                     </button>
             </div>
            
-
             <div style:word-wrap="break-word" class="mt-2">
             <!-- TODO Check if this first if-statement is still necessary -->
                 {#if editing}

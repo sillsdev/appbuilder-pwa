@@ -69,7 +69,7 @@ export async function addNote(item: {
     await notes.add('notes', nextItem);
     notifyUpdated();
     console.log('Im here too!', item.reference);
-    return nextItem; //this is a TEST -------------------------------------------------------------------------------------
+    return nextItem;
 }
 
 export async function findNote(item: {
