@@ -27,19 +27,12 @@
     function playAudio(event, item) {
         event.stopPropagation();
         //assign/use the proper filename
-        let filename;
-        if (item.audioFilename[$language]) {
-            filename = item.audioFilename[$language];
-        } else {
-            filename = item.audioFilename.default;
-        }
+        const filename = item.audioFilename[$language] ?? item.audioFilename.default;
 
         let audio = new Audio();
         audio.src = `${base}/${audioFolder}/${filename}`;
         audio.play();
     }
-
-    //console.log(config.interfaceLanguages);
 
     function onClick(event, item) {
         event.target.style.background = highlightColor;
@@ -203,10 +196,6 @@
                                 alt={item.imageFilename}
                             />
                         </div>
-                        <!-- Example of using item.audioFilename. Remove and replace with icon. -->
-                        <!-- {#if item.audioFilename[$language]}
-                            <a href="{base}/{audioFolder}/{item.audioFilename[$language]}">{item.audioFilename[$language]}</a>
-                            {/if} -->
                     {/if}
 
                     <div class="contents-text-block">
