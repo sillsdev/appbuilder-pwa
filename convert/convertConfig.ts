@@ -3,6 +3,7 @@ import jsdom from 'jsdom';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 import { convertMarkdownsToHTML } from './convertMarkdown';
+import { splitVersion } from './stringUtils';
 
 /**
  * TODO:
@@ -46,6 +47,7 @@ export type Book = {
     file: string;
     audio: BookCollectionAudio[];
     features: any;
+    quizFeatures?: any;
     footer?: HTML;
     style?: Style;
     styles?: {
@@ -406,6 +408,10 @@ function convertConfig(dataDir: string, verbose: number) {
     const appDefinition = document.getElementsByTagName('app-definition')[0];
     data.programType = appDefinition.attributes.getNamedItem('type')!.value;
     data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
+    if (Number.isNaN(splitVersion(data.programVersion)[0])) {
+        // Development version so use a "high" number
+        data.programVersion = '100.0';
+    }
 
     // Features
     const mainFeatureTags = document
@@ -572,6 +578,17 @@ function convertConfig(dataDir: string, verbose: number) {
                         parseConfigValue(bookFeature.attributes.getNamedItem('value')!.value);
                 }
             }
+            const quizFeaturesTag = book
+                .querySelector('features[type=quiz]')
+                ?.getElementsByTagName('e');
+            let quizFeatures: any;
+            if (quizFeaturesTag) {
+                quizFeatures = {};
+                for (const quizFeature of quizFeaturesTag) {
+                    quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
+                        parseConfigValue(quizFeature.attributes.getNamedItem('value')!.value);
+                }
+            }
             const bkStyle = book.getElementsByTagName('styles-info')[0];
             const style = bkStyle ? parseStylesInfo(bkStyle, verbose) : undefined;
             const bkStyles = book.querySelector('styles');
@@ -608,6 +625,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 audio,
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
+                quizFeatures,
                 style,
                 styles,
                 footer

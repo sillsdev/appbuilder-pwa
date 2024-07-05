@@ -69,7 +69,7 @@ function getContentsStyles(): string {
         'div.contents-item-audio-image { position:absolute; bottom:8px; right:8px; width:24px; height:24px; z-index:10; }'
     );
 
-    return contentsStyles.join('\n');
+    return contentsStyles.join('\n') + '\n';
 }
 
 export class ConvertStyles extends Task {
