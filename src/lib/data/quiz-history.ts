@@ -1,70 +1,70 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
 
-export interface HistoryItem {
+export interface QuizScore {
     date: number;
     score: number;
     collection: string;
     book: string;
-    quiz: string;
-    reference: string;
-    bookIndex: number;
 }
 
-interface History extends DBSchema {
-    history: {
+interface Quiz extends DBSchema {
+    quiz: {
         key: number;
-        value: HistoryItem;
+        value: QuizScore;
         indexes: {
-            'collection, book, quiz': string;
+            'collection, book': string;
             date: number;
         };
     }
 }
 
 let quizDB = null;
-async function openHistory() {
+async function openQuiz() {
     if (!quizDB) {
-        quizDB = await openDB<History>('history', 1, {
+        quizDB = await openDB<Quiz>('quiz', 1, {
             upgrade(db) {
-                const historyStore = db.createObjectStore('history', {
+                const quizStore = db.createObjectStore('quiz', {
                     keyPath: 'date'
                 });
-                historyStore.createIndex('collection, book, quiz', [
+                quizStore.createIndex('collection, book', [
                     'collection',
-                    'book',
-                    'quiz'
+                    'book'
                 ]);
 
-                historyStore.createIndex('date', 'score');
+                quizStore.createIndex('date', 'date');
             }
         });
     }
     return quizDB;
 }
 
-export async function addHistory(item: {
+export async function addQuiz(item: {
     collection: string;
     book: string;
-    quiz: string;
 }) {
-    const history = await openHistory();
+    const quiz = await openQuiz();
     const date = new Date()[Symbol.toPrimitive]('number');
     const bookIndex = config.bookCollections
         .find((x) => x.id === item.collection)
         .books.findIndex((x) => x.id === item.book)
-        .quizzes.findIndex((x) => x.id === item.quiz);
     const nextItem = { ...item, date: date, bookIndex: bookIndex };
-    await history.add('history', nextItem);
-    //notifyUpdated(); //what is this?
+    await quiz.add('quiz', nextItem);
 }
 
-export async function clearHistory() {
-    let history = await openHistory();
-    await history.clear('history');
+export async function getQuiz() {
+    const quiz = await openQuiz();
+    return await quiz.getAllFromIndex('quiz', 'date');
 }
 
-export async function getHistory() {
-    const history = await openHistory();
-    return await history.getAllFromIndex('history', 'date');
+export async function findQuiz(item: {
+    collection: string;
+    book: string;
+}) {
+    const notes = await openQuiz();
+    const tx = notes.transaction('quiz', 'readonly');
+    const index = tx.store.index('collection, book');
+    const result = await index.getAll([item.collection, item.book]);
+    await tx.done;
+    return result;
 }
