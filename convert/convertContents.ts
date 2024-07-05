@@ -177,8 +177,6 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 }
             }
 
-
-
             if (linkType === 'reference') {
                 // In the native app, app of the books are handled by the BookFragment.
                 // In the PWA, we have different routes for different book types since
