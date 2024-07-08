@@ -1,5 +1,13 @@
 <script lang="ts">
-    import { bodyFontSize, convertStyle, currentFont, s, t, themeColors } from '$lib/data/stores';
+    import {
+        bodyFontSize,
+        convertStyle,
+        currentFont,
+        language,
+        s,
+        t,
+        themeColors
+    } from '$lib/data/stores';
     import SearchResultCard from './SearchResultCard.svelte';
     import type { SearchResult } from '$lib/search/domain/entities';
     import { onMount } from 'svelte';
@@ -21,6 +29,7 @@
 
     $: clearResults(queryId);
     $: results, ensureScreenFilled();
+    $: resultCountText = formatResultCount(results.length);
 
     function clearResults(query: number) {
         blankScreen = false;
@@ -28,6 +37,22 @@
             displayQueryId = query;
             resultsShown = [];
         }
+    }
+
+    function formatResultCount(count: number): String {
+        const format: String = $t['Search_Number_Found'];
+        const numberSpecPattern = /%,?d/;
+        const spec = format.match(numberSpecPattern);
+        if (!spec) {
+            return format;
+        }
+        let numberFound: string;
+        if (spec[0].includes(',')) {
+            numberFound = Intl.NumberFormat($language).format(count);
+        } else {
+            numberFound = count.toString();
+        }
+        return format.replace(numberSpecPattern, numberFound);
     }
 
     function loadMore() {
@@ -117,11 +142,11 @@
     >
         <span class="mx-4">
             {#if !queryDone}
-                Searching...
+                {$t['Search_Searching']}
             {/if}
         </span>
         <span class="mx-4">
-            Found: {results.length}
+            {resultCountText}
         </span>
     </div>
 {/if}
