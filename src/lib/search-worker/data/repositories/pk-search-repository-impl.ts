@@ -7,6 +7,11 @@ import type {
     ProskommaSearchRepository
 } from '../interfaces/pk-search-repository';
 
+/**
+ * Generate regex to match acceptable variations of the given keyword
+ *
+ * Returns a regex string that can be safely embedded into a GraphQL string literal
+ */
 function keywordToRegex(
     word: string,
     wholeWords: boolean = false,
@@ -24,6 +29,9 @@ function keywordToRegex(
     return pattern;
 }
 
+/**
+ * Construct GraphQL parameters for the given search
+ */
 function searchParams(phrase: string, options: SearchOptions): string {
     const keywords = RegexHelpers.wordsOf(phrase);
     const terms = keywords.map((w) =>
@@ -34,6 +42,9 @@ function searchParams(phrase: string, options: SearchOptions): string {
 
 export const GQLSearchHelpers = { keywordToRegex };
 
+/**
+ * Implements search-related Proskomma functions using GraphQL
+ */
 export class ProskommaSearchRepositoryImpl implements ProskommaSearchRepository {
     constructor(pk: SABProskomma, thaw: (pk: SABProskomma, data: Uint8Array) => void) {
         this.pk = pk;

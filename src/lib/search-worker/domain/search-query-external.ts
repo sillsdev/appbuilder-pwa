@@ -7,7 +7,7 @@ import type { ResultsRequest } from './interfaces/requests';
 import { isResultsResponse } from './interfaces/responses';
 
 /**
- * Retrieves search results by querying the web worker
+ * Forwards search results from the worker to the window
  */
 export class SearchQueryExternal implements SearchQuery {
     constructor({ id, outboundHandler }: ExternalQueryOptions) {
@@ -15,8 +15,8 @@ export class SearchQueryExternal implements SearchQuery {
         this.outboundHandler = outboundHandler;
     }
 
-    isComplete: boolean;
-    queryId: number;
+    isComplete: boolean; // Whether all search results have been returned
+    queryId: number; // The ID of the worker's query object
 
     protected outboundHandler: RequestHandler;
 

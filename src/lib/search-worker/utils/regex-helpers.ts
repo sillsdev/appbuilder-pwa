@@ -1,6 +1,8 @@
 import type { SubstitutionMap } from '$lib/search/domain/interfaces/data-interfaces';
 import { extendStringProperty } from './object-helpers';
 
+// Utilities for dynamically building regular expressions.
+
 /**
  * Represents one or more characters a Regex should match literally.
  */

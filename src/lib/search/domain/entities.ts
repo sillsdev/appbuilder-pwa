@@ -1,3 +1,6 @@
+/**
+ * A fully qualified Scripture reference
+ */
 export interface Reference {
     docSet: string;
     collection: string;

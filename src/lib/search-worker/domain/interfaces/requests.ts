@@ -1,6 +1,8 @@
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
 import type { MessageRequest } from '$lib/utils/worker-messenger/message';
 
+// Type definitions for Messenger requests
+
 export interface NewQueryRequest extends MessageRequest {
     type: 'new-query-request';
     phrase: string;

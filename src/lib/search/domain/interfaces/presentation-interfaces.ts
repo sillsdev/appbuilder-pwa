@@ -15,6 +15,9 @@ export interface UserSearchOptions {
     matchAccents: boolean;
 }
 
+/**
+ * A search request coming from the user interface
+ */
 export interface UserSearchRequest {
     phrase: string;
     options: UserSearchOptions;

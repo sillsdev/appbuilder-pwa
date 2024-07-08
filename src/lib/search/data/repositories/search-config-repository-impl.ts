@@ -8,6 +8,9 @@ import type {
 import { extendStringProperty } from '$lib/search-worker/utils/object-helpers';
 import type { ConfigRepository } from './config-repository';
 
+/**
+ * Parses data from config.js to be used in search
+ */
 export class SearchConfigRepositoryImpl implements SearchConfigRepository {
     constructor(config: ConfigRepository) {
         this.config = config;

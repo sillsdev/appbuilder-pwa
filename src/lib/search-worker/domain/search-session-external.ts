@@ -15,7 +15,8 @@ import { isNewQueryResponse } from './interfaces/responses';
 /**
  * Generates query objects for the window
  *
- * These query objects fetch search results from the web worker.
+ * These query objects are really wrappers around query objects
+ * that run in the web worker.
  */
 export class SearchSessionExternal {
     constructor(
@@ -33,14 +34,21 @@ export class SearchSessionExternal {
     messenger: Messenger;
 
     // Generates a SearchQuery from custom parameters
-    queryGenerator: (options: ExternalQueryOptions) => SearchQuery;
+    private queryGenerator: (options: ExternalQueryOptions) => SearchQuery;
 
     createQuery: QueryGenerator = async (phrase, options) => {
         const id = await this.requestNewQuery(phrase, options);
+
+        // Handles any requests the worker makes to the window.
         const outboundHandler = this.messenger.outboundHandler();
         return this.queryGenerator({ id, outboundHandler });
     };
 
+    /**
+     * Request a new query from the worker
+     *
+     * Returns an ID the window can use to identify the query.
+     */
     private async requestNewQuery(phrase: string, options: SearchOptions): Promise<number> {
         const request: NewQueryRequest = {
             type: 'new-query-request',
