@@ -1,3 +1,6 @@
+/**
+ * An interface for all messages exchanged between window and worker.
+ */
 export interface Message {
     transactionId: number;
     type: 'request' | 'response';
@@ -19,12 +22,4 @@ export interface ErrorResponse extends MessageResponse {
 
 export function isErrorResponse(response: MessageResponse): response is ErrorResponse {
     return response.type === 'error';
-}
-
-export interface TimeoutResponse extends MessageResponse {
-    type: 'timeout-error';
-}
-
-export function isTimeoutResponse(response: MessageResponse): response is TimeoutResponse {
-    return response.type === 'timeout-error';
 }

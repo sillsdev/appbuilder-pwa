@@ -28,6 +28,9 @@ export function chapterVerseFromScopes(scopes: string[]): string {
     return ref;
 }
 
+/**
+ * Queries Proskomma for verses that may match the search parameters
+ */
 export class ProskommaVerseProvider implements QueryVerseProvider {
     constructor(
         proskommaRepository: ProskommaSearchRepository,
@@ -48,6 +51,7 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
     nextBook: number;
     searchIsBlank: boolean;
 
+    // Loads results into a buffer to be used on demand
     private verseReader = new BufferedReader({
         read: () => this.queryNextBook(),
         done: () => this.nextBook >= this.books.length
@@ -69,12 +73,14 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
         return this.versesOfBook(book);
     }
 
+    // If necessary, get the list of books in this docset
     private async ensureBooksSet() {
         if (this.books == undefined) {
             await this.setBooks();
         }
     }
 
+    // Get the list of books in this docset
     async setBooks() {
         this.nextBook = 0;
         const queryData = await this.pk.queryBooks(this.searchPhrase, this.options);
@@ -86,6 +92,7 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
         return this.versesFromTokens(tokens, book.bookCode);
     }
 
+    // Get search candidates from the given list of tokens
     versesFromTokens(tokens: GQLBlockToken[], bookCode: string): SearchCandidate[] {
         const verseTexts = this.collectVerseTexts(tokens);
         return Object.keys(verseTexts).map((cv) => {
@@ -103,6 +110,7 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
         });
     }
 
+    // Reconstruct the text of each verse
     private collectVerseTexts(tokens: GQLBlockToken[]): { [verse: string]: string } {
         return tokens.reduce((verses, token) => {
             const ref = chapterVerseFromScopes(token.scopes);

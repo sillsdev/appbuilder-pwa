@@ -6,6 +6,9 @@ import type { SearchOptions } from '$lib/search/domain/interfaces/data-interface
 import type { ProskommaSearchRepository } from '../interfaces/pk-search-repository';
 import { ProskommaVerseProvider } from '../pk-verse-provider';
 
+/**
+ * Uses Proskomma to retrieve Scripture content
+ */
 export class ScriptureRepositoryImpl implements ScriptureRepository {
     constructor(proskommaRepository: ProskommaSearchRepository) {
         this.proskommaRepo = proskommaRepository;

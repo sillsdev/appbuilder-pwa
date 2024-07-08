@@ -15,7 +15,7 @@ import {
 import type { NewQueryResponse, ResultsResponse } from './interfaces/responses';
 
 /**
- * Responds to query requests from the window
+ * Creates and runs search queries in response to the window
  *
  * This class runs within the web worker.
  */

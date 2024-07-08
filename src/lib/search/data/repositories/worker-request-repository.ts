@@ -10,6 +10,9 @@ import type {
 } from '$lib/utils/worker-messenger/message';
 import type { RequestHandler } from '$lib/utils/worker-messenger/messenger';
 
+/**
+ * Handles any requests from the web worker
+ */
 export class WorkerRequestRepository {
     constructor(getDocSetUrl: (docSet: string) => string, baseURI: string) {
         this.getDocSetUrl = getDocSetUrl;
@@ -19,6 +22,9 @@ export class WorkerRequestRepository {
     getDocSetUrl: (docSet: string) => string;
     baseURI: string;
 
+    /**
+     * Get a function that will handle requests from the worker
+     */
     requestHandler(): RequestHandler {
         return (request) => this.onRequest(request);
     }

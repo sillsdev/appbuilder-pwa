@@ -5,6 +5,11 @@ export interface BookCollection {
     languageCode: string;
 }
 
+/**
+ * Interface for retrieving data from config.js
+ *
+ * This is useful for dependency injection in a test environment
+ */
 export class ConfigRepository {
     searchAccentsToRemove(): string {
         return config.mainFeatures['search-accents-to-remove'];

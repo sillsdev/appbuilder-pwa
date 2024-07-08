@@ -2,8 +2,7 @@ import {
     isErrorResponse,
     type Message,
     type MessageRequest,
-    type MessageResponse,
-    type TimeoutResponse
+    type MessageResponse
 } from './message';
 
 export interface MessageIO {
@@ -13,7 +12,7 @@ export interface MessageIO {
     postMessage: (message: Message) => void;
 
     /**
-     * Allow the interface to set an onMessage callback for this worker or window
+     * Allow the interface to set an onMessage event handler for this worker or window
      */
     setOnMessage(handler: (event: MessageEvent<Message>) => void): void;
 }

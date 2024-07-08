@@ -1,6 +1,8 @@
 import type { SearchResult } from '$lib/search/domain/entities';
 import type { MessageResponse } from '$lib/utils/worker-messenger/message';
 
+// Type definitions for Messenger responses
+
 export interface NewQueryResponse extends MessageResponse {
     type: 'new-query-response';
     queryId: number;

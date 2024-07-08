@@ -24,6 +24,9 @@ export type QueryGenerator = (phrase: string, options: SearchOptions) => Promise
  */
 export type SubstitutionMap = { [char: string]: string };
 
+/**
+ * Interface for getting search configuration data
+ */
 export interface SearchConfigRepository {
     /**
      * Get a string of characters to ignore in a search.
