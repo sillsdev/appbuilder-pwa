@@ -6,6 +6,7 @@
 
     let phrase = '';
     let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
+    let matchAccents = config.mainFeatures['search-accents-default'] ?? false;
 
     let dismissSearchBar = false;
 
@@ -19,7 +20,7 @@
         setTimeout(() => {
             dismissSearchBar = false;
         }, 50);
-        dispatch('submit', { phrase, wholeWords });
+        dispatch('submit', { phrase, wholeWords, matchAccents });
     }
 </script>
 
@@ -30,7 +31,7 @@
                 id="searchbar"
                 readonly={dismissSearchBar}
                 type="text"
-                placeholder={$t['Search']}
+                placeholder={$t['Search_Text_Hint']}
                 class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
                 style:min-width="0"
                 style={convertStyle($s['ui.search.entry-text'])}
@@ -58,6 +59,16 @@
                     >{$t['Search_Match_Whole_Words']}</span
                 >
                 <input type="checkbox" class="dy-toggle" bind:checked={wholeWords} />
+            </label>
+        </div>
+    {/if}
+    {#if config.mainFeatures['search-accents-show']}
+        <div class="dy-form-control max-w-xs px-4 my-2">
+            <label class="dy-label cursor-pointer">
+                <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
+                    >{$t['Search_Match_Accents']}</span
+                >
+                <input type="checkbox" class="dy-toggle" bind:checked={matchAccents} />
             </label>
         </div>
     {/if}

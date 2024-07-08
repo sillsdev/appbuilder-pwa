@@ -36,7 +36,7 @@
         const options = configManager.configureOptions({
             collection: data.collection,
             wholeWords: event.detail.wholeWords,
-            matchAccents: false
+            matchAccents: event.detail.matchAccents
         });
         session.submit(event.detail.phrase, options, 1);
     }
