@@ -122,9 +122,7 @@
         <p style={convertStyle($s['ui.search.progress-label'])} style:text-align="center">
             {$t['Search_Searching']}
         </p>
-        {#if resultsShown.length === 0}
-            <span class="spin" />
-        {/if}
+        <span class="spin" />
     {:else}
         {#each resultsShown as result}
             <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
@@ -152,27 +150,7 @@
 {/if}
 
 <style>
-    /*
-    .special-characters {
-        justify-content: start;
-        /* For a scrolling view instead of rows */
-    /* overflow-x: scroll;
-    white-space: nowrap;
-    height: 2.5em; */
-    /*
-    }
-    .special-character {
-        width: 1.5em;
-        height: 1.5em;
-        text-align: center;
-        margin: 5px;
-        border-radius: 5px;
-        display: inline-block;
-        user-select: none;
-    }
-    */
-
     .spin::before {
-        position: fixed;
+        top: 65%;
     }
 </style>
