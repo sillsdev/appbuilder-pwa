@@ -39,8 +39,8 @@
         }
     }
 
-    function formatResultCount(count: number): String {
-        const format: String = $t['Search_Number_Found'];
+    function formatResultCount(count: number): string {
+        const format: string = $t['Search_Number_Found'];
         const numberSpecPattern = /%,?d/;
         const spec = format.match(numberSpecPattern);
         if (!spec) {
