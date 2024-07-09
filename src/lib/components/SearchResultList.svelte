@@ -111,7 +111,7 @@
     });
 </script>
 
-<div id="container" class="search-result py-2 max-w-screen-md">
+<div id="container" class="search-result p-2 max-w-screen-md">
     {#if queryDone && results.length === 0}
         <div class="py-4 flex justify-center">
             <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
