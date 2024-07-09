@@ -5,8 +5,23 @@
     import { createEventDispatcher } from 'svelte';
 
     let phrase = '';
+    let searchbar;
     let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
     let matchAccents = config.mainFeatures['search-accents-default'] ?? false;
+
+    const specialCharacters = config.mainFeatures['input-buttons']?.split(' ') ?? [];
+
+    function addSpecialCharacter(char: string, event: MouseEvent) {
+        event.preventDefault();
+        const startPos = searchbar.selectionStart;
+        const endPos = searchbar.selectionEnd;
+        phrase = phrase.slice(0, startPos) + char + phrase.slice(endPos);
+        // Update the input value and maintain focus
+        searchbar.focus();
+        requestAnimationFrame(() =>
+            searchbar.setSelectionRange(startPos + char.length, startPos + char.length)
+        );
+    }
 
     let dismissSearchBar = false;
 
@@ -29,6 +44,7 @@
         <label class="dy-input-group w-full flex">
             <input
                 id="searchbar"
+                bind:this={searchbar}
                 readonly={dismissSearchBar}
                 type="text"
                 placeholder={$t['Search_Text_Hint']}
@@ -52,6 +68,21 @@
             </button>
         </label>
     </div>
+    {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
+        <div class="dy-form-control m-2">
+            <div class="special-characters">
+                {#each specialCharacters as character}
+                    <button
+                        class="m-0.5 rounded w-8 h-10"
+                        style={convertStyle($s['ui.search.buttons'])}
+                        on:click={(e) => addSpecialCharacter(character, e)}
+                    >
+                        {character}
+                    </button>
+                {/each}
+            </div>
+        </div>
+    {/if}
     {#if config.mainFeatures['search-whole-words-show']}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
@@ -91,25 +122,3 @@
     <!--     </div> -->
     <!-- {/if} -->
 </form>
-
-<style>
-    /*
-    .special-characters {
-        justify-content: start;
-        /* For a scrolling view instead of rows */
-    /* overflow-x: scroll;
-    white-space: nowrap;
-    height: 2.5em; */
-    /*
-    }
-    .special-character {
-        width: 1.5em;
-        height: 1.5em;
-        text-align: center;
-        margin: 5px;
-        border-radius: 5px;
-        display: inline-block;
-        user-select: none;
-    }
-    */
-</style>
