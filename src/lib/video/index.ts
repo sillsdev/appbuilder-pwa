@@ -1,3 +1,5 @@
+import config from '$lib/data/config';
+
 enum VideoType {
     None = 'none',
     YouTube = 'youtube',
@@ -39,9 +41,17 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     const id = 'VIDEO' + index;
     videoContainerDiv.setAttribute('id', id);
     videoContainerDiv.classList.add('video-container');
+
+    let videoUrl = video.onlineUrl;
+
     switch (type) {
-        case VideoType.Mp4:
         case VideoType.YouTube:
+            if (!config.mainFeatures['video-youtube-related-same-channel']) {
+                videoUrl += (videoUrl.includes('?') ? '&' : '?') + 'rel=0';
+            }
+            videoContainerDiv.classList.add('video-YouTube', 'video-16-9');
+            break;
+        case VideoType.Mp4:
         case VideoType.Vimeo:
         case VideoType.Hls:
         case VideoType.Gospel:
@@ -65,7 +75,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     videoLink.setAttribute('href', '#');
     videoLink.setAttribute(
         'onclick',
-        "playOnlineVideo('" + id + "', '" + video.onlineUrl + "'); return false;"
+        "playOnlineVideo('" + id + "', '" + videoUrl + "'); return false;"
     );
 
     const videoImg = document.createElement('img');
@@ -74,7 +84,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     videoContainerDiv.appendChild(videoLink);
     videoBlockDiv.appendChild(videoContainerDiv);
 
-    if (video.title) {
+    if (config.mainFeatures['video-show-titles'] && video.title) {
         const videoTitleDiv = document.createElement('div');
         videoTitleDiv.classList.add('video-title');
         const videoTitleSpan = document.createElement('span');
@@ -99,6 +109,7 @@ function hasHlsVideo(videos: any[]): boolean {
     }
     return hasHls;
 }
+
 export function addVideoLinks(document: Document, videos: any[]) {
     const script = document.createElement('script');
     script.id = 'js_video';
