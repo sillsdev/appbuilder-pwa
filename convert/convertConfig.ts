@@ -850,7 +850,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
                 thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
                 onlineUrl: decodeFromXml(onlineUrlHTML),
-                filename: filename, // Add this line
+                filename: filename,
                 placement
             });
         }
