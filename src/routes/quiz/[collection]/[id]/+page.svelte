@@ -178,9 +178,7 @@
 
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
-        stopCurrentQuestionAudio();
-        stopCurrentAnswerAudio();
-        stopCurrentExplanationAudio();
+        stopAudioPlayback();
         if (!clicked) {
             const answerAudio = getAnswerAudio(quiz, answer.correct);
             const audioPath = `${base}/${answerAudio}`;
