@@ -1071,7 +1071,9 @@ function filterFeaturesNotReady(data: ConfigData) {
 
     if (data.bookCollections) {
         //only allow single pane book collections
-        data.bookCollections = data.bookCollections.filter(collection => collection.features['bc-allow-single-pane']);
+        data.bookCollections = data.bookCollections.filter(
+            (collection) => collection.features['bc-allow-single-pane']
+        );
     }
     return data;
 }
