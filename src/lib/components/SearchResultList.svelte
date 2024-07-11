@@ -111,7 +111,7 @@
     });
 </script>
 
-<div id="container" class="search-result p-2 max-w-screen-md">
+<div id="container" class="search-result p-2 max-w-screen-md w-full">
     {#if queryDone && results.length === 0}
         <div class="py-4 flex justify-center">
             <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
@@ -120,7 +120,7 @@
         </div>
     {:else if showSpinner}
         <p style={convertStyle($s['ui.search.progress-label'])} style:text-align="center">
-            {$t['Search_Searching']}
+            <bdi>{$t['Search_Searching']}</bdi>
         </p>
         <span class="spin" />
     {:else}
@@ -140,7 +140,7 @@
     >
         <span class="mx-4">
             {#if !queryDone}
-                {$t['Search_Searching']}
+                <bdi>{$t['Search_Searching']}</bdi>
             {/if}
         </span>
         <span class="mx-4">

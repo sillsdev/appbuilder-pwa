@@ -7,25 +7,52 @@ A clickable verse card representing a single search result.
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { addHistory } from '$lib/data/history';
-    import { convertStyle, refs, s } from '$lib/data/stores';
-    import type { SearchResult } from '$lib/search/domain/entities';
+    import { refs } from '$lib/data/stores';
+    import type { Reference, SearchResult } from '$lib/search/domain/entities';
+    import * as numerals from '$lib/scripts/numeralSystem';
 
     export let docSet: string;
     export let collection: string;
     export let result: SearchResult;
 
+    interface ReferenceDisplay {
+        book: string;
+        chapter: string;
+        verses: string;
+    }
+
+    const direction = config.bookCollections
+        .find((x) => x.id === collection)
+        .style.textDirection.toLowerCase();
+
+    const directionClass = direction === 'ltr' ? 'text-left' : 'text-right';
+
     function referenceString(result: SearchResult): string {
+        const parts = formatReferenceParts(result.reference);
         const separator = config.bookCollections.find((x) => x.id === collection).features[
             'ref-chapter-verse-separator'
         ];
-        let reference = bookName(result.reference.bookCode);
-        if (result.reference.chapter) {
-            reference += ' ' + result.reference.chapter;
-            if (result.reference.verses) {
-                reference += separator + result.reference.verses;
+        let reference = parts.book;
+        if (parts.chapter) {
+            reference += ' ' + parts.chapter;
+            if (parts.verses) {
+                reference += separator + parts.verses;
             }
         }
         return reference;
+    }
+
+    function formatReferenceParts(reference: Reference): ReferenceDisplay {
+        const numeralSystem = numerals.systemForBook(
+            config,
+            reference.collection,
+            reference.bookCode
+        );
+        return {
+            book: bookName(reference.bookCode),
+            chapter: numerals.formatNumber(numeralSystem, reference.chapter),
+            verses: numerals.formatNumber(numeralSystem, reference.verses)
+        };
     }
 
     function bookName(bookCode: string): string {
@@ -51,15 +78,17 @@ A clickable verse card representing a single search result.
     }
 </script>
 
-<div class="search-result-block transition-shadow duration-300 hover:shadow-lg cursor-pointer">
-    <button class="text-left" on:click|preventDefault={onClick}>
-        <div class="search-result-reference">
+<div
+    class="search-result-block w-full transition-shadow duration-300 hover:shadow-lg cursor-pointer"
+>
+    <button class={directionClass} on:click|preventDefault={onClick}>
+        <div class="search-result-reference flex">
             <h1>
                 {referenceString(result)}
             </h1>
         </div>
-        <div class="search-result-context">
-            <p>
+        <div class="search-result-context flex">
+            <p class={directionClass}>
                 {#each result.chunks as chunk}
                     <span
                         style:font-weight={chunk.matchesQuery ? 'bold' : 'normal'}

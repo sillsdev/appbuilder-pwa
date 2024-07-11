@@ -4,8 +4,10 @@
     import { SearchIcon } from '$lib/icons';
     import { createEventDispatcher } from 'svelte';
 
-    let phrase = '';
     let searchbar;
+
+    // These update in response to user input
+    let phrase = '';
     let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
     let matchAccents = config.mainFeatures['search-accents-default'] ?? false;
 
@@ -87,7 +89,7 @@
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
                 <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
-                    >{$t['Search_Match_Whole_Words']}</span
+                    ><bdi>{$t['Search_Match_Whole_Words']}</bdi></span
                 >
                 <input type="checkbox" class="dy-toggle" bind:checked={wholeWords} />
             </label>
@@ -97,28 +99,10 @@
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
                 <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
-                    >{$t['Search_Match_Accents']}</span
+                    ><bdi>{$t['Search_Match_Accents']}</bdi></span
                 >
                 <input type="checkbox" class="dy-toggle" bind:checked={matchAccents} />
             </label>
         </div>
     {/if}
-    <!-- Not fully implemented -->
-    <!-- {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0} -->
-    <!--     <div class="dy-form-control"> -->
-    <!--         <div class="cursor-pointer"> -->
-    <!--             <div class="">Special characters</div> -->
-    <!--             <div class="special-characters"> -->
-    <!--                 {#each specialCharacters as character} -->
-    <!--                     <div -->
-    <!--                         class="special-character bg-primary" -->
-    <!--                         on:click={() => (searchText += character)} -->
-    <!--                     > -->
-    <!--                         {character} -->
-    <!--                     </div> -->
-    <!--                 {/each} -->
-    <!--             </div> -->
-    <!--         </div> -->
-    <!--     </div> -->
-    <!-- {/if} -->
 </form>
