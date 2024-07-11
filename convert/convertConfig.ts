@@ -160,11 +160,13 @@ export type ConfigData = {
     };
     videos?: {
         id: string;
+        src?: string;
         width: number;
         height: number;
         title?: string;
         thumbnail: string;
         onlineUrl: string;
+        filename: string;
         placement?: {
             pos: string;
             ref: string;
@@ -837,17 +839,23 @@ function convertConfig(dataDir: string, verbose: number) {
             if (onlineUrlHTML) {
                 onlineUrlHTML = convertVideoUrl(onlineUrlHTML);
             }
+            const filenameTag = tag.getElementsByTagName('filename')[0];
+            const filename = filenameTag ? filenameTag.innerHTML : '';
+
             data.videos.push({
                 id: tag.attributes.getNamedItem('id')!.value,
+                src: tag.attributes.getNamedItem('src')?.value,
                 width: tagWidth,
                 height: tagHeight,
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
                 thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
                 onlineUrl: decodeFromXml(onlineUrlHTML),
+                filename: filename,
                 placement
             });
         }
     }
+
     data.traits['has-video'] = data.videos && data.videos.length > 0;
     const imagesTags = document.getElementsByTagName('images');
     if (imagesTags?.length > 0) {
