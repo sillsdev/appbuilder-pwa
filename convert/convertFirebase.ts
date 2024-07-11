@@ -1,4 +1,4 @@
-import { existsSync, copyFile, unlinkSync } from 'fs';
+import { existsSync, copyFile, unlinkSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 
@@ -17,6 +17,15 @@ export function convertFirebase(dataDir: string, verbose: number) {
         copyFile(srcFile, dstFile, function (err: any) {
             if (err) throw err;
             if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
+
+            // read the copied file and add 'export' keyword
+            let content = readFileSync(dstFile, 'utf-8');
+            const lines = content.split('\n');
+            if (lines.length > 1 && lines[1].includes('const firebaseConfig') && !lines[1].startsWith('export ')) {
+                lines[1] = 'export ' + lines[1];
+                content = lines.join('\n');
+                writeFileSync(dstFile, content, 'utf-8');
+            }
         });
     } else {
         if (existsSync(dstFile)) {
