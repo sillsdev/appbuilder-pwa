@@ -114,7 +114,7 @@ export class NavigationContext {
             this.config.bookCollections
                 .find((x) => x.id === this.collection)
                 .books.find((x) => x.id === this.book)
-                ?.audio.find((x) => x.num == this.chapter);
+                ?.audio.find((x) => String(x.num) === this.chapter);
     }
 
     private updateHeadings() {
