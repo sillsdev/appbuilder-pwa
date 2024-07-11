@@ -207,9 +207,6 @@ export function splitVersion(version: string): number[] {
 export function compareVersions(version1: string, version2: string): number {
     const v1Components = splitVersion(version1);
     const v2Components = splitVersion(version2);
-    console.log(`v1`, v1Components);
-    console.log(`v2`, v2Components);
-
     const length = Math.max(v1Components.length, v2Components.length);
 
     for (let i = 0; i < length; i++) {
