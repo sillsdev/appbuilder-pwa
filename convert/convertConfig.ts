@@ -41,6 +41,7 @@ export type Book = {
     }[];
     testament: string;
     section: string; // Pentateuch
+    portions?: string;
     chapters: number;
     chaptersN: string; // 1-34
     fonts: string[];
@@ -611,6 +612,8 @@ function convertConfig(dataDir: string, verbose: number) {
             if (verbose >= 2) console.log(`.... footer: `, footer);
 
             books.push({
+                portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
+                    ?.value,
                 chapters: parseInt(
                     book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
                 ),
