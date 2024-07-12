@@ -1,4 +1,5 @@
 import type { SearchResult } from '../entities';
+import type { UserSearchOptions } from './presentation-interfaces';
 
 export interface SearchOptions {
     docSet: string;
@@ -44,4 +45,18 @@ export interface SearchConfigRepository {
      * The current UI language as a BCP 47 code
      */
     userLanguage(): string;
+}
+
+export interface SearchStorageData {
+    phrase: string;
+    options: UserSearchOptions;
+    results: SearchResult[];
+}
+
+/**
+ * Save search query results in persistent storage
+ */
+export interface SearchStorageRepository {
+    save(data: SearchStorageData): Promise<void>;
+    read(): Promise<SearchStorageData>;
 }

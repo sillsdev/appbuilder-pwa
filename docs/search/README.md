@@ -61,6 +61,16 @@ Here is a summary of the search process:
     -   Each GraphQL response is parsed and filtered into search results, which are sent back to `search-session.ts`
 -   As results come in, `search-session.ts` sends them one-by-one to the Svelte UI for display.
 
+## Saved Results
+
+After running a search query, the app saves the results in `localStorage` and adds a `savedResults` query parameter to the
+current URL. If the page is reloaded with this query parameter, the app will load the saved search results and return to the
+last scrolled position.
+
+If the user clicks on a search result and then taps the back button (the browser back button or the Android back button), the
+`savedResults` parameter will still be in the URL, and the app will load saved results. This makes it easier to navigate between
+multiple search results.
+
 ## Web Worker
 
 Search involves several long operations that can block for several seconds. If these operations were run in the window (the "main"

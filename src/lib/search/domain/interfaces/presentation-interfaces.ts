@@ -1,6 +1,7 @@
 import type { SearchResult } from '../entities';
 
 export interface SearchPresenter {
+    setOptions(phrase: string, options: UserSearchOptions): void;
     onResults(results: SearchResult[]): void;
     onNewQuery(): void;
     onQueryDone(): void;

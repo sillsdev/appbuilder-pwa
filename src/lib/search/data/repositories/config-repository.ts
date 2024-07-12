@@ -11,6 +11,14 @@ export interface BookCollection {
  * This is useful for dependency injection in a test environment
  */
 export class ConfigRepository {
+    searchWholeWordsDefault(): boolean {
+        return config.mainFeatures['search-whole-words-default'];
+    }
+
+    searchAccentsDefault(): boolean {
+        return config.mainFeatures['search-accents-default'];
+    }
+
     searchAccentsToRemove(): string {
         return config.mainFeatures['search-accents-to-remove'];
     }

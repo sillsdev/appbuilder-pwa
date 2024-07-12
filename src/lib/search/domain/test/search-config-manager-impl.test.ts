@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import type { SearchConfigRepository, SubstitutionMap } from '../interfaces/data-interfaces';
-import { ConfigureSearch } from '../configure-search';
+import { SearchConfigManagerImpl } from '../search-config-manager-impl';
 
 class TestSearchConfigRepository implements SearchConfigRepository {
     searchIgnore(): string {
@@ -17,7 +17,7 @@ class TestSearchConfigRepository implements SearchConfigRepository {
     }
 }
 
-const config = new ConfigureSearch(new TestSearchConfigRepository());
+const config = new SearchConfigManagerImpl(new TestSearchConfigRepository());
 
 test('adds docSet', () => {
     const options = config.configureOptions({
