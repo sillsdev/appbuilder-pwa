@@ -31,7 +31,8 @@ The sidebar/drawer.
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
-        theme
+        theme,
+        userSettings
     } from '$lib/data/stores';
     import contents from '$lib/data/contents';
     const drawerId = 'sidebar';
@@ -51,6 +52,7 @@ The sidebar/drawer.
     const showContents = contents.screens?.length > 0;
     const showSearch = config.mainFeatures['search'];
     const showHistory = config.mainFeatures['history'];
+    const showSettings = $userSettings.length > 0;
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
     const showNotes = config.mainFeatures['annotation-notes'];
     const showHighlights = config.mainFeatures['annotation-highlights'];
@@ -120,10 +122,10 @@ The sidebar/drawer.
             {/if}
             {#if showContents}
                 <li>
-                <a href="{base}/contents/1" style:color={textColor}>
-                    <HomeIcon color={iconColor} />{$t['Menu_Contents']}
-                </a>
-            </li>            
+                    <a href="{base}/contents/1" style:color={textColor}>
+                        <HomeIcon color={iconColor} />{$t['Menu_Contents']}
+                    </a>
+                </li>
             {/if}
             {#if showSearch}
                 <li>
@@ -186,11 +188,13 @@ The sidebar/drawer.
                 </li>
                 <div class="dy-divider m-1" />
             {/if}
-            <li>
-                <a href="{base}/settings" style:color={textColor}>
-                    <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
-                </a>
-            </li>
+            {#if showSettings}
+                <li>
+                    <a href="{base}/settings" style:color={textColor}>
+                        <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
+                    </a>
+                </li>
+            {/if}
             <!-- svelte-ignore a11y-missing-attribute -->
             <li>
                 <button

@@ -342,23 +342,25 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         });
     }
 
-    if (get(development)) {
+    if (settings.length > 0) {
+        if (get(development)) {
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_INTERFACE,
+                title: 'Desktop Sidebar',
+                key: 'desktop-sidebar',
+                defaultValue: false
+            });
+        }
+
         settings.push({
             type: 'checkbox',
             category: SETTINGS_CATEGORY_INTERFACE,
-            title: 'Desktop Sidebar',
-            key: 'desktop-sidebar',
+            title: 'Scripture Logs',
+            key: 'scripture-logs',
             defaultValue: false
         });
     }
-
-    settings.push({
-        type: 'checkbox',
-        category: SETTINGS_CATEGORY_INTERFACE,
-        title: 'Scripture Logs',
-        key: 'scripture-logs',
-        defaultValue: false
-    });
     return settings;
 })();
 
