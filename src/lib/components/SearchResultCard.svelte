@@ -25,8 +25,6 @@ A clickable verse card representing a single search result.
         .find((x) => x.id === collection)
         .style.textDirection.toLowerCase();
 
-    const directionClass = direction === 'ltr' ? 'text-left' : 'text-right';
-
     function referenceString(result: SearchResult): string {
         const parts = formatReferenceParts(result.reference);
         const separator = config.bookCollections.find((x) => x.id === collection).features[
@@ -81,14 +79,14 @@ A clickable verse card representing a single search result.
 <div
     class="search-result-block w-full transition-shadow duration-300 hover:shadow-lg cursor-pointer"
 >
-    <button class={directionClass} on:click|preventDefault={onClick}>
+    <button class="text-start" on:click|preventDefault={onClick}>
         <div class="search-result-reference flex">
             <h1>
                 {referenceString(result)}
             </h1>
         </div>
         <div class="search-result-context flex">
-            <p class={directionClass}>
+            <p class="text-start">
                 {#each result.chunks as chunk}
                     <span
                         style:font-weight={chunk.matchesQuery ? 'bold' : 'normal'}
