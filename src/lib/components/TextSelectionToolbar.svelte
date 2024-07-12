@@ -38,8 +38,8 @@ TODO:
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
-    import { play, seekToVerse, playPause } from '$lib/data/audio';
-    import { getBook, logShareContent, logAudioPlay } from '../data/analytics';
+    import { play, seekToVerse } from '$lib/data/audio';
+    import { getBook, logShareContent } from '$lib/data/analytics';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -102,8 +102,7 @@ TODO:
         const element = $selectedVerses[0].verse;
         const tagSelected = element + 'a';
         seekToVerse(tagSelected);
-        //play();
-        playPause();
+        play();
         $audioActive = true;
         selectedVerses.reset();
     }

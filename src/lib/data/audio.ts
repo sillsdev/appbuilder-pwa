@@ -120,11 +120,8 @@ export function playPause() {
     if (!currentAudioPlayer.loaded) return;
     if (currentAudioPlayer.playing === true) {
         pause();
-        logAudioDuration(currentAudioPlayer);
     } else {
         play();
-        currentAudioPlayer.playStart = Date.now();
-        logAudioPlay(currentAudioPlayer);
     }
     audioPlayerStore.set(currentAudioPlayer);
 }
@@ -305,6 +302,7 @@ function pause() {
     if (!currentAudioPlayer.loaded) return;
     if (currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.pause();
+        logAudioDuration(currentAudioPlayer);
         currentAudioPlayer.playing = false;
     }
     toggleTimeRunning();
@@ -314,6 +312,8 @@ export function play() {
     if (!currentAudioPlayer.loaded) return;
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
+        currentAudioPlayer.playStart = Date.now();
+        logAudioPlay(currentAudioPlayer);
         currentAudioPlayer.playing = true;
     }
     toggleTimeRunning();
