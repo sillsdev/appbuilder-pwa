@@ -30,10 +30,14 @@ function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
         if (book.type && book.type === 'glossary') {
-            const glossaryContent = fs.readFileSync(
-                path.join(dataDir, 'books', collection.id, book.file),
-                'utf8'
-            );
+            let glossaryBook = path.join(dataDir, 'books', collection.id, book.file);
+            if (!fs.existsSync(glossaryBook)) {
+                const extension = extname(book.file);
+                const filename = basename(book.file, extension);
+                glossaryBook = path.join(dataDir, 'books', collection.id, filename + '-000.sfm');
+                //process.stdout.write('Replacing filename: ' + glossaryBook);
+            }
+            const glossaryContent = fs.readFileSync(glossaryBook, 'utf8');
             // Regular expression pattern
             const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
             let match;
@@ -484,8 +488,8 @@ function convertScriptureBook(
     files: string[]
 ) {
     function processBookContent(resolve: () => void, err: any, content: string) {
+        //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        process.stdout.write(` ${book.id}`);
         content = applyFilters(content, context.bcId, book.id);
         if (context.configData.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
@@ -493,6 +497,7 @@ function convertScriptureBook(
         //query Proskomma with a mutation to add a document
         //more efficient than original pk.addDocument call
         //as it can be run asynchronously
+        //process.stdout.write(`Adding: ${book.file}\n${content}\n`);
         pk.gqlQuery(
             `mutation {
                 addDocument(
@@ -532,8 +537,9 @@ function convertScriptureBook(
     }
     //push new Proskomma mutation to docs array
     docs.push(
-        new Promise<void>(async (resolve) => {
+        new Promise<void>((resolve) => {
             const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+            //(`Checking for book: ${bookPath}\n`);
             if (fs.existsSync(bookPath)) {
                 //read the single usfm file (pre-12.0)
                 fs.readFile(bookPath, 'utf8', (err, content) =>
@@ -543,18 +549,22 @@ function convertScriptureBook(
                 //read multiple files that have been split up (so that portions parameter is processed)
                 const extension = extname(bookPath);
                 const baseFilename = basename(bookPath, extension);
-                const regex = new RegExp(`${baseFilename}-\\d{3}${extension}$`);
+                const regex = new RegExp(`${baseFilename}-\\d{3}\\.sfm`);
+
+                //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
                 const matchingFiles = files.filter((file) => {
                     return regex.test(file);
                 });
 
                 matchingFiles.sort();
+                //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
 
-                const fileContentsPromises = matchingFiles.map((file) => {
-                    return fs.promises.readFile(file, 'utf-8');
+                const fileContents: string[] = [];
+                matchingFiles.map((file) => {
+                    const filePath = path.join(context.dataDir, 'books', context.bcId, file);
+                    fileContents.push(fs.readFileSync(filePath, 'utf-8'));
                 });
 
-                const fileContents = await Promise.all(fileContentsPromises);
                 processBookContent(resolve, null, fileContents.join(''));
             }
         })
