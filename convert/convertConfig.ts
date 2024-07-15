@@ -147,6 +147,9 @@ export type ConfigData = {
             id: string;
             name: string;
             type: string;
+            parameters?: {
+                [key: string]: string;
+            };
         }[];
     };
     firebase?: {
@@ -821,9 +824,20 @@ function convertConfig(dataDir: string, verbose: number) {
                 const name = providerElement.getAttribute('name');
                 const type = providerElement.getAttribute('type');
 
+                let parameters: { [key: string]: string } | undefined = undefined;
+                const parametersTags = providerElement.getElementsByTagName('analytics-parameter');
+                if (parametersTags?.length > 0) {
+                    parameters = {};
+                    for (const parameterTag of parametersTags) {
+                        const name = parameterTag.getAttribute('name')!;
+                        const value = parameterTag.getAttribute('value')!;
+                        parameters[name] = value;
+                    }
+                }
+
                 // Add the provider to the providers array
                 if (id && name && type) {
-                    data.analytics.providers.push({ id, name, type });
+                    data.analytics.providers.push({ id, name, type, parameters });
                 }
             }
 
