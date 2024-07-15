@@ -34,6 +34,7 @@ A simple slider component.
 
     input[type='range'] {
         -webkit-appearance: none;
+        appearance: none;
         margin-right: 15px;
         width: auto;
         height: 7px;
@@ -62,6 +63,7 @@ A simple slider component.
 
     input[type='range']::-moz-range-thumb {
         -webkit-appearance: none;
+        appearance: none;
         height: 20px;
         width: 20px;
         border-radius: 50%;
@@ -74,6 +76,7 @@ A simple slider component.
 
     input[type='range']::-ms-thumb {
         -webkit-appearance: none;
+        appearance: none;
         height: 20px;
         width: 20px;
         border-radius: 50%;
@@ -107,6 +110,7 @@ A simple slider component.
 
     input[type='range']::-moz-range-track {
         -webkit-appearance: none;
+        appearance: none;
         box-shadow: none;
         border: none;
         background: transparent;
@@ -115,6 +119,7 @@ A simple slider component.
 
     input[type='range']::-ms-track {
         -webkit-appearance: none;
+        appearance: none;
         box-shadow: none;
         border: none;
         background: transparent;
