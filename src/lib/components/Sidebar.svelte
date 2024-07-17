@@ -32,7 +32,7 @@ The sidebar/drawer.
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
         theme,
-        userSettings
+        userPreferenceSettings
     } from '$lib/data/stores';
     import contents from '$lib/data/contents';
     const drawerId = 'sidebar';
@@ -52,7 +52,7 @@ The sidebar/drawer.
     const showContents = contents.screens?.length > 0;
     const showSearch = config.mainFeatures['search'];
     const showHistory = config.mainFeatures['history'];
-    const showSettings = $userSettings.length > 0;
+    const showSettings = userPreferenceSettings.length;
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
     const showNotes = config.mainFeatures['annotation-notes'];
     const showHighlights = config.mainFeatures['annotation-highlights'];
