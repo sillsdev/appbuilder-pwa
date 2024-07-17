@@ -530,6 +530,8 @@ function convertScriptureBook(
                     throw Error(
                         `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(r)}`
                     );
+                } else {
+                    process.stdout.write(` ${book.id}`);
                 }
                 resolve();
             }
