@@ -1,7 +1,7 @@
 import { writable, readable, get } from 'svelte/store';
-import { setDefaultStorage, mergeDefaultStorage } from './storage';
+import { setDefaultStorage, mergeDefaultStorage } from '$lib/data/stores/storage';
 import { getDefaultLanguage } from '$lib/data/language';
-import config from '../config';
+import config from '$lib/data/config';
 
 export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
 export const SETTINGS_CATEGORY_NAVIGATION = 'Settings_Category_Navigation';
@@ -12,6 +12,30 @@ export const SETTINGS_CATEGORY_TEXT_DISPLAY = 'Settings_Category_Text_Display';
 setDefaultStorage('development', 'false');
 export const development = readable(localStorage.development === 'true');
 
+export const defaultSettings: { [key: string]: string | boolean } = {
+    'verse-numbers': config.mainFeatures['show-verse-numbers'],
+    'verse-layout': config.mainFeatures['verse-layout'],
+    'show-border': config.mainFeatures['show-border'],
+    'red-letters': config.mainFeatures['show-red-letters'],
+    'glossary-words': config.mainFeatures['show-glossary-words'],
+    'display-images-in-bible-text': config.mainFeatures['display-images-in-bible-text'] || 'normal',
+    'display-videos-in-bible-text': config.mainFeatures['display-videos-in-bible-text'] || 'normal',
+    'audio-highlight-phrase': config.mainFeatures['audio-highlight-phrase'],
+    'audio-speed': '1.0',
+    'audio-access-method': config.mainFeatures['audio-access-method'],
+    'audio-auto-download': 'prompt',
+    'verse-of-the-day': config.mainFeatures['verse-of-the-day'],
+    'verse-of-the-day-time': config.mainFeatures['verse-of-the-day-time'],
+    'daily-reminder': config.mainFeatures['daily-reminder-default'],
+    'daily-reminder-time': config.mainFeatures['daily-reminder-time'],
+    'book-selection': config.mainFeatures['book-select'],
+    'verse-selection': config.mainFeatures['show-verse-selector'],
+    'keep-screen-on': false,
+    'share-usage-data': true,
+    'app-layout-direction': config.mainFeatures['app-layout-direction'],
+    'desktop-sidebar': false,
+    'scripture-logs': false
+};
 export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     const hasVerses = config.traits['has-verse-numbers'];
 
@@ -23,8 +47,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Verse_Numbers',
-            key: 'verse-numbers',
-            defaultValue: config.mainFeatures['show-verse-numbers']
+            key: 'verse-numbers'
         });
     }
 
@@ -35,7 +58,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Verse_Layout',
             key: 'verse-layout',
-            defaultValue: config.mainFeatures['verse-layout'],
             entries: ['Settings_Verse_Layout_Paragraphs', 'Settings_Verse_Layout_One_Per_Line'],
             values: ['paragraphs', 'one-per-line']
         });
@@ -48,8 +70,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Show_Border',
             summary: 'Settings_Show_Border_Summary',
-            key: 'show-border',
-            defaultValue: config.mainFeatures['show-border']
+            key: 'show-border'
         });
     }
 
@@ -60,8 +81,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Red_Letters',
             summary: 'Settings_Red_Letters_Summary',
-            key: 'red-letters',
-            defaultValue: config.mainFeatures['show-red-letters']
+            key: 'red-letters'
         });
     }
 
@@ -70,8 +90,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Glossary_Words',
-            key: 'glossary-words',
-            defaultValue: config.mainFeatures['show-glossary-words']
+            key: 'glossary-words'
         });
         // Show links to glossary words
     }
@@ -86,7 +105,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Display_Images_In_Bible_Text',
             key: 'display-images-in-bible-text',
-            defaultValue: config.mainFeatures['display-images-in-bible-text'] || 'normal',
             entries: ['Settings_Display_Images_Normal', 'Settings_Display_Images_Hidden'],
             values: ['normal', 'hidden']
         });
@@ -102,7 +120,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_TEXT_DISPLAY,
             title: 'Settings_Display_Videos_In_Bible_Text',
             key: 'display-videos-in-bible-text',
-            defaultValue: config.mainFeatures['display-videos-in-bible-text'] || 'normal',
             entries: ['Settings_Display_Videos_Normal', 'Settings_Display_Videos_Hidden'],
             values: ['normal', 'hidden']
         });
@@ -116,8 +133,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_AUDIO,
             title: 'Settings_Audio_Highlight_Phrase',
             summary: 'Settings_Audio_Highlight_Phrase_Summary',
-            key: 'audio-highlight-phrase',
-            defaultValue: config.mainFeatures['audio-highlight-phrase']
+            key: 'audio-highlight-phrase'
         });
     }
 
@@ -128,7 +144,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_AUDIO,
             title: 'Settings_Audio_Speed',
             key: 'audio-speed',
-            defaultValue: '1.0',
             entries: [
                 '0.4x',
                 '0.6x',
@@ -153,7 +168,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_AUDIO,
             title: 'Settings_Audio_Access_Method',
             key: 'audio-access-method',
-            defaultValue: config.mainFeatures['audio-access-method'],
             entries: [
                 'Settings_Audio_Access_Method_Stream',
                 'Settings_Audio_Access_Method_Download'
@@ -172,7 +186,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_AUDIO,
             title: 'Settings_Audio_Download_Mode',
             key: 'audio-auto-download',
-            defaultValue: 'prompt',
             entries: [
                 'Settings_Audio_Download_Prompt',
                 'Settings_Audio_Download_Automatic',
@@ -188,8 +201,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_NOTIFICATIONS,
             title: 'Settings_Verse_Of_The_Day',
-            key: 'verse-of-the-day',
-            defaultValue: config.mainFeatures['verse-of-the-day']
+            key: 'verse-of-the-day'
         });
     }
     // "Verse of the day"
@@ -199,8 +211,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'time',
             category: SETTINGS_CATEGORY_NOTIFICATIONS,
             title: 'Settings_Verse_Of_The_Day_Time',
-            key: 'verse-of-the-day-time',
-            defaultValue: config.mainFeatures['verse-of-the-day-time']
+            key: 'verse-of-the-day-time'
         });
     }
 
@@ -237,8 +248,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_NOTIFICATIONS,
             title: 'Settings_Daily_Reminder',
-            key: 'daily-reminder',
-            defaultValue: config.mainFeatures['daily-reminder-default']
+            key: 'daily-reminder'
         });
     }
 
@@ -248,8 +258,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'time',
             category: SETTINGS_CATEGORY_NOTIFICATIONS,
             title: 'Settings_Daily_Reminder_Time',
-            key: 'daily-reminder-time',
-            defaultValue: config.mainFeatures['daily-reminder-time']
+            key: 'daily-reminder-time'
         });
     }
 
@@ -261,7 +270,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_NAVIGATION,
             title: 'Settings_Book_Selection',
             key: 'book-selection',
-            defaultValue: config.mainFeatures['book-select'],
             entries: ['Settings_Book_Selection_List', 'Settings_Book_Selection_Grid'],
             values: ['list', 'grid']
         });
@@ -273,8 +281,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_NAVIGATION,
             title: 'Settings_Verse_Selection',
-            key: 'verse-selection',
-            defaultValue: config.mainFeatures['show-verse-selector']
+            key: 'verse-selection'
         });
     }
 
@@ -286,8 +293,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_INTERFACE,
             title: 'Settings_Keep_Screen_On',
-            key: 'keep-screen-on',
-            defaultValue: false
+            key: 'keep-screen-on'
         });
     }
 
@@ -298,8 +304,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_INTERFACE,
             title: 'Settings_Share_Usage_Data',
-            key: 'share-usage-data',
-            defaultValue: true
+            key: 'share-usage-data'
         });
     }
 
@@ -331,7 +336,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             category: SETTINGS_CATEGORY_INTERFACE,
             title: 'Settings_Layout_Direction',
             key: 'app-layout-direction',
-            defaultValue: config.mainFeatures['app-layout-direction'],
             entries: [
                 'Settings_Layout_Direction_LTR',
                 'Settings_Layout_Direction_RTL',
@@ -348,8 +352,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
                 type: 'checkbox',
                 category: SETTINGS_CATEGORY_INTERFACE,
                 title: 'Desktop Sidebar',
-                key: 'desktop-sidebar',
-                defaultValue: false
+                key: 'desktop-sidebar'
             });
         }
 
@@ -357,8 +360,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             type: 'checkbox',
             category: SETTINGS_CATEGORY_INTERFACE,
             title: 'Scripture Logs',
-            key: 'scripture-logs',
-            defaultValue: false
+            key: 'scripture-logs'
         });
     }
     return settings;
@@ -366,7 +368,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 
 function defaultUserSettings() {
     return userPreferenceSettings.reduce((defaults, setting) => {
-        defaults[setting.key] = setting.defaultValue;
+        defaults[setting.key] = setting.defaultValue ?? defaultSettings[setting.key];
         return defaults;
     }, {});
 }

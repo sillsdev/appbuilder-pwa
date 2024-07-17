@@ -7,7 +7,15 @@ TODO:
 -->
 <script lang="ts">
     import { AudioIcon } from '$lib/icons';
-    import { refs, userSettings, s, playMode, audioPlayer, t, convertStyle } from '$lib/data/stores';
+    import {
+        refs,
+        userSettings,
+        s,
+        playMode,
+        audioPlayer,
+        t,
+        convertStyle
+    } from '$lib/data/stores';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import config from '$lib/data/config';
     import {
@@ -72,7 +80,7 @@ TODO:
         lastPlayMode = value.mode;
     }
     $: playModeChanged($playMode);
-    
+
     let hintText = '';
     let showHint = false;
     let hintTimeoutId = null;
@@ -99,12 +107,17 @@ TODO:
     $: backgroundColor = $s['ui.bar.audio']['background-color'];
     $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
     $: mayResetPlayMode($refs.hasAudio?.timing);
-    $: $userSettings['audio-speed'], updatePlaybackSpeed($userSettings['audio-speed']);
+    $: updatePlaybackSpeed($userSettings['audio-speed']);
 </script>
 
 <div class="relative {audioBarClass}" style:background-color={backgroundColor}>
     {#if showHint}
-        <div style={hintStyle} class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md">{hintText}</div>
+        <div
+            style={hintStyle}
+            class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md"
+        >
+            {hintText}
+        </div>
     {/if}
     {#if showRepeatMode}
         <button
