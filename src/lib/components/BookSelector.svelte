@@ -15,7 +15,7 @@ The navbar component.
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
 
-    export let displayLabel;
+    export let displayLabel = undefined;
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: verseCount = getVerseCount(chapter, chapters);
