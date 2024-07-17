@@ -330,7 +330,7 @@ function updateHighlights() {
     return audioHighlightElements.set(highlights);
 }
 export function updatePlaybackSpeed(playbackSpeed) {
-    if (currentAudioPlayer.audio != null) {
+    if (currentAudioPlayer.audio != null && playbackSpeed) {
         currentAudioPlayer.audio.playbackRate = parseFloat(playbackSpeed);
     }
 }
