@@ -29,7 +29,8 @@
         modal,
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
-        NAVBAR_HEIGHT
+        NAVBAR_HEIGHT,
+        defaultSettings
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
@@ -102,7 +103,7 @@
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
     $: viewShowVerses =
-        $userSettings['verse-numbers'] &&
+        $userSettings['verse-numbers'] ??
         getFeatureValueBoolean('show-verse-numbers', $refs.collection, $refs.book);
 
     const minFontSize = config.mainFeatures['text-size-min'];
@@ -136,7 +137,7 @@
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     $: showBorderSetting = getFeatureValueBoolean('show-border', $refs.collection, $refs.book);
     $: showBorder =
-        config.traits['has-borders'] && $userSettings['show-border'] && showBorderSetting;
+        config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting);
     $: viewSettings = {
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
@@ -145,17 +146,21 @@
         notes: $notes,
         highlights: $highlights,
         maxSelections: config.mainFeatures['annotation-max-select'],
-        redLetters: $userSettings['red-letters'],
+        redLetters: $userSettings['red-letters'] ?? defaultSettings['red-letters'],
         references: $refs,
         glossary: $glossary,
         selectedVerses: selectedVerses,
         themeColors: $themeColors,
-        verseLayout: $userSettings['verse-layout'],
-        viewShowBibleImages: $userSettings['display-images-in-bible-text'],
-        viewShowBibleVideos: $userSettings['display-videos-in-bible-text'],
+        verseLayout: $userSettings['verse-layout'] ?? defaultSettings['verse-layout'],
+        viewShowBibleImages:
+            $userSettings['display-images-in-bible-text'] ??
+            defaultSettings['display-images-in-bible-text'],
+        viewShowBibleVideos:
+            $userSettings['display-videos-in-bible-text'] ??
+            defaultSettings['display-videos-in-bible-text'],
         viewShowIllustrations: config.mainFeatures['show-illustrations'],
         viewShowVerses,
-        viewShowGlossaryWords: $userSettings['glossary-words'],
+        viewShowGlossaryWords: $userSettings['glossary-words'] ?? defaultSettings['glossary-words'],
         font: $currentFont,
         proskomma: $page.data?.proskomma
     };
@@ -315,12 +320,13 @@
             goto(`${base}/contents/${menuId}`);
         }
     }
-    $: showBackButton = contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0
+    $: showBackButton =
+        contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0;
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation} showBackButton={showBackButton}>
+        <Navbar on:backNavigation={handleBackNavigation} {showBackButton}>
             <div
                 slot="left-buttons"
                 class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}

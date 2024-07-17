@@ -83,10 +83,10 @@ declare namespace App {
         title: string;
         summary?: string;
         key: string;
-        defaultValue: string | boolean;
         entries?: string[];
         values?: string[];
         value?: string | boolean;
+        defaultValue?: string | boolean;
     }
 }
 

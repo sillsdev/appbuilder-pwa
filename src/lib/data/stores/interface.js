@@ -9,7 +9,9 @@ export const direction = derived([refs, userSettings], ([$refs, $userSettings]) 
         : config.mainFeatures['app-layout-direction'];
     if (direction === 'interface-language') {
         const code = $userSettings['interface-language'];
-        direction = config.interfaceLanguages.writingSystems[code].textDirection;
+        if (code) {
+            direction = config.interfaceLanguages.writingSystems[code].textDirection;
+        }
     } else if (direction === 'text') {
         direction = config.bookCollections.find((x) => x.id === $refs.collection).style
             .textDirection;

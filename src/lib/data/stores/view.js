@@ -1,7 +1,7 @@
 import { groupStore } from './store-types';
 import { derived, writable, get } from 'svelte/store';
 import { setDefaultStorage } from './storage';
-import { userSettings } from './setting';
+import { defaultSettings, userSettings } from './setting';
 import contents from '../contents';
 
 export const NAVBAR_HEIGHT = '4rem';
@@ -92,7 +92,7 @@ bodyLineHeight.subscribe((lineHeight) => (localStorage.bodyLineHeight = lineHeig
 
 export const showDesktopSidebar = derived(
     userSettings,
-    ($userSettings) => $userSettings['desktop-sidebar']
+    ($userSettings) => $userSettings['desktop-sidebar'] ?? defaultSettings['desktop-sidebar']
 );
 
 function createStackStore() {

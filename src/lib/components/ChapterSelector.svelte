@@ -6,7 +6,15 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, nextRef, s, t, convertStyle, userSettings } from '$lib/data/stores';
+    import {
+        refs,
+        nextRef,
+        s,
+        t,
+        convertStyle,
+        userSettings,
+        defaultSettings
+    } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
@@ -18,7 +26,7 @@ The navbar component.
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-    $: showVerseSelector = $userSettings['verse-selection'];
+    $: showVerseSelector = $userSettings['verse-selection'] ?? defaultSettings['verse-selection'];
     $: verseCount = getVerseCount(book, chapter);
     $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
 

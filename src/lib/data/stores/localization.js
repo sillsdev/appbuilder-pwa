@@ -11,7 +11,7 @@ export const languageDefault = config.translationMappings.defaultLang;
 export const languages = getLanguages();
 export const language = derived(
     userSettings,
-    ($userSettings) => $userSettings['interface-language']
+    ($userSettings) => $userSettings['interface-language'] ?? languageDefault
 );
 
 export const t = derived(language, ($language) => {
