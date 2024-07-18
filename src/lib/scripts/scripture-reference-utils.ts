@@ -479,7 +479,7 @@ function getBookNamePattern(): string {
     let nonWordCharsInBookName = getNonWordCharactersInBookNames();
     nonWordCharsInBookName = nonWordCharsInBookName.replace(/-/g, '\\-');
     const bookNamePattern =
-        '(?:[123] )?[\\w\\p{L}][\\w\\p{L}\\p{M}\\s' + nonWordCharsInBookName + ']*';
+        '(?:[123] )?[\\w\\p{L}][\\w\\p{L}\\p{M}\\s' + nonWordCharsInBookName + ']*\\.?';
     return bookNamePattern;
 }
 function getScriptureReferencePatternForChapterList(): string {
