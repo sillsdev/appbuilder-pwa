@@ -287,7 +287,6 @@ LOGGING:
             switch (usfmWrapperType) {
                 case 'wj': {
                     if (workspace.showWordsOfJesus) {
-                        console.log('SHOW IN RED');
                         div = usfmSpan(div, usfmWrapperType, phrase);
                     } else {
                         const textNode = document.createTextNode(phrase);
