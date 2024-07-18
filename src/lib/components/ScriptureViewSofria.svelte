@@ -1244,7 +1244,18 @@ LOGGING:
                                         } else if (blockType === 'usfm:tr') {
                                             addTableText(workspace, text);
                                         } else {
-                                            addText(workspace, text);
+                                            if (workspace.usfmWrapperType === 'xt') {
+                                                var spanV = document.createElement('span');
+                                                spanV.classList.add('reflink');
+                                                const refText = generateHTML(text, 'header-ref');
+                                                spanV.innerHTML = refText;
+                                                if (workspace.phraseDiv === null) {
+                                                    workspace.phraseDiv = startPhrase(workspace, 'keep');
+                                                } 
+                                                workspace.phraseDiv.appendChild(spanV);
+                                            } else {
+                                                addText(workspace, text);
+                                            }
                                         }
                                         break;
                                     }

@@ -847,22 +847,22 @@ function escapeExtraMaterialSpecialCharactersForRegEx() {
     extras = extras.replace('[', '\\[');
     extras = extras.replace(']', '\\]');
 }
-function getNonWordCharactersInBookNames(): string {
+export function getNonWordCharactersInBookNames(): string {
     const chars = new Set();
     let i = 0;
     while (i < collection.books.length) {
         const bookName = collection.books[i].name;
         const bookAbbrev = collection.books[i].abbreviation;
         const bookAdditionalNames = collection.books[i].additionalNames;
-        let nonWordChars = isDefined(bookName) ? bookName.replace(/[^\p{L}\p{M}]/gu, '') : '';
+        let nonWordChars = isDefined(bookName) ? bookName.replace(/[\p{L}\p{M}]/gu, '') : '';
         addCharsToSet(nonWordChars, chars);
-        nonWordChars = isDefined(bookAbbrev) ? bookAbbrev.replace(/[^\p{L}\p{M}]/gu, '') : '';
+        nonWordChars = isDefined(bookAbbrev) ? bookAbbrev.replace(/[\p{L}\p{M}]/gu, '') : '';
         addCharsToSet(nonWordChars, chars);
         if (isDefined(bookAdditionalNames)) {
             let j = 0;
             while (j < bookAdditionalNames.length) {
                 const name = bookAdditionalNames[j].name;
-                nonWordChars = isDefined(name) ? name.replace(/[^\p{L}\p{M}]/gu, '') : '';
+                nonWordChars = isDefined(name) ? name.replace(/[\p{L}\p{M}]/gu, '') : '';
                 addCharsToSet(nonWordChars, chars);
                 j++;
             }
