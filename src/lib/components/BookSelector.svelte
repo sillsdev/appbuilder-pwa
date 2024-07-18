@@ -13,7 +13,7 @@ The navbar component.
         t,
         convertStyle,
         userSettings,
-        defaultSettings
+        userSettingsOrDefault
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { DropdownIcon } from '$lib/icons';
@@ -30,8 +30,8 @@ The navbar component.
     $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
-    $: listView = ($userSettings['book-selection'] ?? defaultSettings['book-selection']) === 'list';
-    $: showVerseSelector = $userSettings['verse-selection'] ?? defaultSettings['verse-selection'];
+    $: listView = $userSettingsOrDefault['book-selection'] === 'list';
+    $: showVerseSelector = $userSettingsOrDefault['verse-selection'];
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
