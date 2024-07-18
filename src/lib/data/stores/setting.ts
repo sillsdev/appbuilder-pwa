@@ -1,4 +1,4 @@
-import { writable, readable, get } from 'svelte/store';
+import { writable, readable, get, derived } from 'svelte/store';
 import { setDefaultStorage, mergeDefaultStorage } from '$lib/data/stores/storage';
 import { getDefaultLanguage } from '$lib/data/language';
 import config from '$lib/data/config';
@@ -375,3 +375,7 @@ function defaultUserSettings() {
 mergeDefaultStorage('userSettings', defaultUserSettings());
 export const userSettings = writable(JSON.parse(localStorage.userSettings));
 userSettings.subscribe((value) => (localStorage.userSettings = JSON.stringify(value)));
+
+export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {
+    return { ...defaultSettings, ...$userSettings };
+});

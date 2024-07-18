@@ -30,7 +30,8 @@
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
         NAVBAR_HEIGHT,
-        defaultSettings
+        defaultSettings,
+        userSettingsOrDefault
     } from '$lib/data/stores';
     import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
@@ -146,21 +147,17 @@
         notes: $notes,
         highlights: $highlights,
         maxSelections: config.mainFeatures['annotation-max-select'],
-        redLetters: $userSettings['red-letters'] ?? defaultSettings['red-letters'],
+        redLetters: $userSettingsOrDefault['red-letters'],
         references: $refs,
         glossary: $glossary,
         selectedVerses: selectedVerses,
         themeColors: $themeColors,
-        verseLayout: $userSettings['verse-layout'] ?? defaultSettings['verse-layout'],
-        viewShowBibleImages:
-            $userSettings['display-images-in-bible-text'] ??
-            defaultSettings['display-images-in-bible-text'],
-        viewShowBibleVideos:
-            $userSettings['display-videos-in-bible-text'] ??
-            defaultSettings['display-videos-in-bible-text'],
+        verseLayout: $userSettingsOrDefault['verse-layout'],
+        viewShowBibleImages: $userSettingsOrDefault['display-images-in-bible-text'],
+        viewShowBibleVideos: $userSettingsOrDefault['display-videos-in-bible-text'],
         viewShowIllustrations: config.mainFeatures['show-illustrations'],
         viewShowVerses,
-        viewShowGlossaryWords: $userSettings['glossary-words'] ?? defaultSettings['glossary-words'],
+        viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'],
         font: $currentFont,
         proskomma: $page.data?.proskomma
     };
