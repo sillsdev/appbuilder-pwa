@@ -90,6 +90,11 @@ setDefaultStorage('bodyLineHeight', '175');
 export const bodyLineHeight = writable(localStorage.bodyLineHeight);
 bodyLineHeight.subscribe((lineHeight) => (localStorage.bodyLineHeight = lineHeight));
 
+/**Font size of contents elements */
+setDefaultStorage('contentsFontSize', '17');
+export const contentsFontSize = writable(localStorage.contentsFontSize);
+contentsFontSize.subscribe((fontSize) => (localStorage.contentsFontSize = fontSize));
+
 export const showDesktopSidebar = derived(
     userSettings,
     ($userSettings) => $userSettings['desktop-sidebar']
