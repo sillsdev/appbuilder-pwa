@@ -1,6 +1,6 @@
 <script lang="ts">
     import RenderWrapper from './RenderWrapper.svelte';
-    import { Content, ContentElement, isWrapper } from './schema/sofria-schema';
+    import { type Content, type ContentElement, isWrapper } from './schema/sofria-schema';
 
     export let content: Content;
 

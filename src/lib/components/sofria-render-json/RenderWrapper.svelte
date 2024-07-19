@@ -1,6 +1,6 @@
 <script lang="ts">
     import RenderContent from './RenderContent.svelte';
-    import { Wrapper } from './schema/sofria-schema';
+    import type { Wrapper } from './schema/sofria-schema';
     import { isListItem } from './schema/wrappers';
 
     export let wrapper: Wrapper;

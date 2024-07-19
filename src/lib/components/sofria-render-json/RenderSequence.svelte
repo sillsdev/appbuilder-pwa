@@ -1,6 +1,6 @@
 <script lang="ts">
     import RenderParagraph from './RenderParagraph.svelte';
-    import { Block, isParagraph, Sequence } from './schema/sofria-schema';
+    import { type Block, isParagraph, type Sequence } from './schema/sofria-schema';
 
     export let sequence: Sequence;
 
