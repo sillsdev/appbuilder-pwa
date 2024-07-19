@@ -15,24 +15,30 @@
     export let collection: string;
     export let results: SearchResult[];
     export let queryDone: boolean;
+    export let restore: boolean;
 
     // Changes to signal when to clear results
     export let queryId: number;
 
-    // Initially, the results list is blank
-    let blankScreen = true;
-
-    $: showSpinner = !blankScreen && !queryDone && results.length === 0;
+    $: showSpinner = !queryDone && results.length === 0;
 
     let displayQueryId = queryId;
     let resultsShown: SearchResult[] = [];
 
     $: clearResults(queryId);
-    $: results, ensureScreenFilled();
+    $: results, onResults();
     $: resultCountText = formatResultCount(results.length);
 
+    function onResults() {
+        if (restore) {
+            restore = false;
+            const resultsLength = localStorage.getItem('search-result-display-length');
+            loadMore(parseInt(resultsLength, 10));
+        }
+        ensureScreenFilled();
+    }
+
     function clearResults(query: number) {
-        blankScreen = false;
         if (query !== displayQueryId) {
             displayQueryId = query;
             resultsShown = [];
@@ -55,8 +61,9 @@
         return format.replace(numberSpecPattern, numberFound);
     }
 
-    function loadMore() {
-        resultsShown = results.slice(0, resultsShown.length + 20);
+    function loadMore(amount: number = 20) {
+        resultsShown = results.slice(0, resultsShown.length + amount);
+        localStorage.setItem('search-result-display-length', resultsShown.length.toString());
     }
 
     function onScrollToLast(entries) {

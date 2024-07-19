@@ -4,14 +4,14 @@
     import { SearchIcon } from '$lib/icons';
     import { createEventDispatcher } from 'svelte';
 
+    export let phrase: string;
+    export let wholeWords: boolean;
+    export let matchAccents: boolean;
+
     let searchbar;
 
-    // These update in response to user input
-    let phrase = '';
-    let wholeWords = config.mainFeatures['search-whole-words-default'] ?? false;
-    let matchAccents = config.mainFeatures['search-accents-default'] ?? false;
-
-    const specialCharacters = config.mainFeatures['input-buttons']?.split(' ') ?? [];
+    const specialCharacters =
+        config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
 
     function addSpecialCharacter(char: string, event: MouseEvent) {
         event.preventDefault();

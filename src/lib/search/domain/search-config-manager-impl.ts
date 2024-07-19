@@ -7,7 +7,7 @@ import type { UserSearchOptions } from './interfaces/presentation-interfaces';
  * Combines options immediately visible to the user (ex: whole words) with
  * application-wide settings not visible to the user (ex: locale).
  */
-export class ConfigureSearch {
+export class SearchConfigManagerImpl {
     constructor(searchConfigRepository: SearchConfigRepository) {
         this.repo = searchConfigRepository;
     }
