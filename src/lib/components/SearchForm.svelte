@@ -10,7 +10,8 @@
 
     let searchbar;
 
-    const specialCharacters = config.mainFeatures['input-buttons']?.split(' ') ?? [];
+    const specialCharacters =
+        config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
 
     function addSpecialCharacter(char: string, event: MouseEvent) {
         event.preventDefault();

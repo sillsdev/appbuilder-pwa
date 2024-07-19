@@ -56,7 +56,7 @@ export class SearchSession {
         this.results = [];
         await this.queryManager.submit(phrase, this.configureOptions(options), {
             batchSize: 1,
-            limit: 500
+            limit: 1000
         });
         const results = this.results;
         this.storage.save({
