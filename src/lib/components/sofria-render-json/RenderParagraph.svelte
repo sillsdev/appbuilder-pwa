@@ -6,7 +6,7 @@
         usfmClass
     } from './schema/paragraphs';
     import RenderContent from './RenderContent.svelte';
-    import { Paragraph } from './schema/sofria-schema';
+    import type { Paragraph } from './schema/sofria-schema';
 
     export let paragraph: Paragraph;
 

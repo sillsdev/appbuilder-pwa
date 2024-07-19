@@ -1,7 +1,11 @@
 <script lang="ts">
-    import { sequence } from '@sveltejs/kit/hooks';
     import RenderSequence from './RenderSequence.svelte';
-    import { Document, isFlatDocument, isNestedDocument, Sequence } from './schema/sofria-schema';
+    import {
+        type Document,
+        isFlatDocument,
+        isNestedDocument,
+        type Sequence
+    } from './schema/sofria-schema';
 
     export let document: Document;
 
