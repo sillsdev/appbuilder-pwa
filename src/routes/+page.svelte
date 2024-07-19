@@ -74,7 +74,16 @@
     async function doSwipe(event) {
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
-        await refs.skip(event.detail.direction === 'right' ? -1 : 1);
+        const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
+        if (swipeBetweenBooks) {
+            await refs.skip(event.detail.direction === 'right' ? -1 : 1);
+        } else {
+            //Prevent swiping between books
+            if (!($refs.prev.book !== $refs.book && event.detail.direction === 'right' || 
+                $refs.next.book !== $refs.book && event.detail.direction === 'left')) {
+                    await refs.skip(event.detail.direction === 'right' ? -1 : 1);
+                };
+        }
         if (prev !== $refs) {
             addHistory({
                 collection: $refs.collection,
