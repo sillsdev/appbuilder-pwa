@@ -40,6 +40,7 @@
                         noteDialog.showModal();
                         break;
                     case MODAL_TEXT_APPERANCE:
+                        textAppearanceSelector.options = data;
                         textAppearanceSelector.showModal();
                         break;
                     case MODAL_FONT:

@@ -3,6 +3,8 @@
 The navbar component. We have sliders that update reactively to both font size and line height.
 3 buttons to change the style from normal, sepia and dark.
 -->
+<svelte:options accessors={true} />
+
 <script>
     import Modal from './Modal.svelte';
     import Slider from './Slider.svelte';
@@ -10,6 +12,7 @@ The navbar component. We have sliders that update reactively to both font size a
     import {
         bodyFontSize,
         bodyLineHeight,
+        contentsFontSize,
         currentFont,
         fontChoices,
         language,
@@ -29,6 +32,8 @@ The navbar component. We have sliders that update reactively to both font size a
         modalThis.showModal();
     }
 
+    export let options = {};
+    $: contentsMode = options?.contentsMode ?? false;
     export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
     //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
     $: positioningCSS =
@@ -37,10 +42,10 @@ The navbar component. We have sliders that update reactively to both font size a
         'rem; inset-inline-end:1rem;';
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
-    $: showFonts = $fontChoices.length > 1;
+    $: showFonts = !contentsMode && $fontChoices.length > 1;
 
     const showFontSize = config.mainFeatures['text-font-size-slider'];
-    const showLineHeight = config.mainFeatures['text-line-height-slider'];
+    $: showLineHeight = !contentsMode && config.mainFeatures['text-line-height-slider'];
     const showThemes = themes.length > 1;
 
     $: showTextAppearence = showFontSize || showLineHeight || showThemes || showFonts;
@@ -107,15 +112,25 @@ The navbar component. We have sliders that update reactively to both font size a
                 {#if showFontSize}
                     <div class="grid gap-4 items-center range-row m-2">
                         <TextAppearanceIcon color={$monoIconColor} />
-                        <Slider
-                            bind:value={$bodyFontSize}
-                            {barColor}
-                            {progressColor}
-                            min={config.mainFeatures['text-size-min']}
-                            max={config.mainFeatures['text-size-max']}
-                        />
+                        {#if contentsMode}
+                            <Slider
+                                bind:value={$contentsFontSize}
+                                {barColor}
+                                {progressColor}
+                                min={config.mainFeatures['text-size-min']}
+                                max={config.mainFeatures['text-size-max']}
+                            />
+                        {:else}
+                            <Slider
+                                bind:value={$bodyFontSize}
+                                {barColor}
+                                {progressColor}
+                                min={config.mainFeatures['text-size-min']}
+                                max={config.mainFeatures['text-size-max']}
+                            />
+                        {/if}
                         <div class="text-md text-{$monoIconColor} place-self-end">
-                            {$bodyFontSize}
+                            {contentsMode ? $contentsFontSize : $bodyFontSize}
                         </div>
                     </div>
                 {/if}

@@ -9,14 +9,16 @@
         modal,
         MODAL_COLLECTION,
         convertStyle,
-        contentsStack
+        contentsStack,
+        MODAL_TEXT_APPERANCE,
+        contentsFontSize
     } from '$lib/data/stores';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
-    import { AudioIcon } from '$lib/icons';
+    import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -172,7 +174,22 @@
             <label for="sidebar" slot="center">
                 <div class="btn btn-ghost normal-case text-xl">{title}</div>
             </label>
-            <!-- <div slot="right-buttons" /> -->
+            <div slot="right-buttons" class="flex items-center">
+                <div class="flex">
+                    {#if $page.data.features['show-text-size-button'] === true}
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-label-has-associated-control -->
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <label
+                            class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                            on:click={() =>
+                                modal.open(MODAL_TEXT_APPERANCE, { contentsMode: true })}
+                        >
+                            <TextAppearanceIcon color="white" />
+                        </label>
+                    {/if}
+                </div>
+            </div>
         </Navbar>
     </div>
 
@@ -215,7 +232,7 @@
                         </div>
                     {/if}
 
-                    <div class="contents-text-block">
+                    <div class="contents-text-block" style:font-size="{$contentsFontSize}px">
                         <!-- check for title -->
                         {#if $page.data.features['show-titles'] === true}
                             <div class="contents-title">
