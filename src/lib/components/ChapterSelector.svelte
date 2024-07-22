@@ -6,20 +6,11 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import {
-        refs,
-        nextRef,
-        s,
-        t,
-        convertStyle,
-        userSettings,
-        defaultSettings,
-        userSettingsOrDefault
-    } from '$lib/data/stores';
-    import { addHistory } from '$lib/data/history';
+    import { refs, nextRef, s, t, convertStyle, userSettingsOrDefault } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { navigateToText } from '$lib/navigate';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;
@@ -65,9 +56,7 @@ The navbar component.
     }
 
     async function completeNavigation() {
-        await refs.set({ chapter: $nextRef.chapter, verse: $nextRef.verse });
-
-        addHistory({
+        await navigateToText({
             collection: $refs.collection,
             book: $refs.book,
             chapter: $nextRef.chapter,

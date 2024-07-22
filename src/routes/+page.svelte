@@ -30,10 +30,8 @@
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
         NAVBAR_HEIGHT,
-        defaultSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
-    import { addHistory } from '$lib/data/history';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
     import {
         AudioIcon,
@@ -56,6 +54,7 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
+    import { navigateToTextChapterInDirection } from '$lib/navigate';
 
     let savedScrollPosition = 0;
     function saveScrollPosition() {
@@ -73,32 +72,14 @@
     });
     async function doSwipe(event) {
         console.log('SWIPE', event.detail.direction);
-        const prev = $refs;
-        await refs.skip(event.detail.direction === 'right' ? -1 : 1);
-        if (prev !== $refs) {
-            addHistory({
-                collection: $refs.collection,
-                book: $refs.book,
-                chapter: $refs.chapter
-            });
-        }
+        await navigateToTextChapterInDirection(event.detail.direction === 'right' ? -1 : 1);
     }
 
     async function prevChapter() {
-        await refs.skip(-1);
-        addHistory({
-            collection: $refs.collection,
-            book: $refs.book,
-            chapter: $refs.chapter
-        });
+        await navigateToTextChapterInDirection(-1);
     }
     async function nextChapter() {
-        await refs.skip(1);
-        addHistory({
-            collection: $refs.collection,
-            book: $refs.book,
-            chapter: $refs.chapter
-        });
+        await navigateToTextChapterInDirection(1);
     }
 
     $: hasPrev = $refs.prev.chapter !== null;

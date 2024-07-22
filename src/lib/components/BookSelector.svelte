@@ -6,21 +6,12 @@ The navbar component.
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import {
-        refs,
-        nextRef,
-        s,
-        t,
-        convertStyle,
-        userSettings,
-        userSettingsOrDefault
-    } from '$lib/data/stores';
-    import { addHistory } from '$lib/data/history';
+    import { refs, nextRef, s, t, convertStyle, userSettingsOrDefault } from '$lib/data/stores';
+    import { navigateToText, navigateToUrl } from '$lib/navigate';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
 
     export let displayLabel = undefined;
@@ -64,14 +55,11 @@ The navbar component.
     async function navigateReference(e) {
         // Handle special book navigation first
         if (e.detail.tab === b && e.detail?.url) {
-            const book = e.detail.text;
-            addHistory({
+            navigateToUrl({
                 collection: $refs.collection,
-                book,
-                chapter: '',
+                book: e.detail.text,
                 url: e.detail.url
             });
-            goto(e.detail.url);
             return;
         }
         if (!showChapterSelector) {
@@ -121,15 +109,13 @@ The navbar component.
     }
 
     async function completeNavigation() {
-        await refs.set({ book: $nextRef.book, chapter: $nextRef.chapter, verse: $nextRef.verse });
-        addHistory({
+        await navigateToText({
             collection: $refs.collection,
             book: $nextRef.book,
             chapter: $nextRef.chapter,
             verse: $nextRef.verse
         });
         document.activeElement.blur();
-        goto(`${base}/`);
     }
 
     function resetNavigation() {
