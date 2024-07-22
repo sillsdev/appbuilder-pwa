@@ -5,7 +5,7 @@ import { base } from '$app/paths';
 import { get } from 'svelte/store';
 
 function logHistoryItemAdded(itemAdded: HistoryItem) {
-    console.log('History item added:', itemAdded);
+    //console.log('History item added:', itemAdded);
 }
 
 export function navigateToUrl(item: { collection: string; book: string; url: string }) {
@@ -36,7 +36,6 @@ export async function navigateToText(item: {
 export async function navigateToTextChapterInDirection(direction: number) {
     await refs.skip(direction);
     const nowRef: any = get(refs);
-    console.log('navigateToTextInDirection: next=', nowRef);
     addHistory(
         {
             collection: nowRef.collection,
