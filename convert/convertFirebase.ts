@@ -18,9 +18,8 @@ export function convertFirebase(dataDir: string, verbose: number) {
         content = content.replace('const firebaseConfig', 'export const firebaseConfig');
         writeFileSync(dstFile, content, 'utf-8');
     } else {
-        if (existsSync(dstFile)) {
-            unlinkSync(dstFile);
-        }
+        const firebaseConfig = 'export const firebaseConfig = null;';
+        writeFileSync(dstFile, firebaseConfig);
     }
 }
 
