@@ -1,0 +1,48 @@
+import { refs } from '$lib/data/stores';
+import { addHistory, type HistoryItem } from '$lib/data/history';
+import { goto } from '$app/navigation';
+import { base } from '$app/paths';
+import { get } from 'svelte/store';
+
+function logHistoryItemAdded(itemAdded: HistoryItem) {
+    console.log('History item added:', itemAdded);
+}
+
+export function navigateToUrl(item: { collection: string; book: string; url: string }) {
+    addHistory({ ...item, chapter: '' }, logHistoryItemAdded);
+    goto(item.url);
+}
+
+export async function navigateToText(item: {
+    docSet?: string;
+    collection?: string;
+    book: string;
+    chapter: string;
+    verse?: string;
+}) {
+    await refs.set({
+        docSet: item.docSet,
+        book: item.book,
+        chapter: item.chapter,
+        verse: item.verse
+    });
+    addHistory(
+        { collection: item.collection, book: item.book, chapter: item.chapter, verse: item.verse },
+        logHistoryItemAdded
+    );
+    goto(`${base}/`);
+}
+
+export async function navigateToTextChapterInDirection(direction: number) {
+    await refs.skip(direction);
+    const nowRef: any = get(refs);
+    console.log('navigateToTextInDirection: next=', nowRef);
+    addHistory(
+        {
+            collection: nowRef.collection,
+            book: nowRef.book,
+            chapter: nowRef.chapter
+        },
+        logHistoryItemAdded
+    );
+}

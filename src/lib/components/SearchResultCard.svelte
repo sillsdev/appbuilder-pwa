@@ -3,13 +3,10 @@
 A clickable verse card representing a single search result.
 -->
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { addHistory } from '$lib/data/history';
-    import { refs } from '$lib/data/stores';
     import type { Reference, SearchResult } from '$lib/search/domain/entities';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { navigateToText } from '$lib/navigate';
 
     export let docSet: string;
     export let collection: string;
@@ -60,19 +57,13 @@ A clickable verse card representing a single search result.
     }
 
     function onClick() {
-        refs.set({
+        navigateToText({
             docSet,
-            book: result.reference.bookCode,
-            chapter: result.reference.chapter,
-            verse: result.reference.verses
-        });
-        addHistory({
             collection,
             book: result.reference.bookCode,
             chapter: result.reference.chapter,
             verse: result.reference.verses
         });
-        goto(`${base}/`);
     }
 </script>
 

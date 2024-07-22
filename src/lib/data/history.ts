@@ -35,13 +35,16 @@ async function openHistory() {
 let nextItem: HistoryItem = null;
 let nextTimer: NodeJS.Timeout = null;
 
-export async function addHistory(item: {
-    collection: string;
-    book: string;
-    chapter: string;
-    verse?: string;
-    url?: string;
-}) {
+export async function addHistory(
+    item: {
+        collection: string;
+        book: string;
+        chapter: string;
+        verse?: string;
+        url?: string;
+    },
+    callback?: (addedItem: HistoryItem) => void
+) {
     let history = await openHistory();
     if (nextTimer) {
         clearTimeout(nextTimer);
@@ -52,7 +55,9 @@ export async function addHistory(item: {
     //console.log("setNextItem", nextItem);
     nextTimer = setTimeout(async () => {
         await history.add('history', nextItem);
-        //console.log("addHistory", nextItem);
+        if (callback) {
+            callback(nextItem);
+        }
         clearTimeout(nextTimer);
         nextTimer = null;
         nextItem = null;
