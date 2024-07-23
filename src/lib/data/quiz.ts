@@ -4,6 +4,7 @@ import config from '$lib/data/config';
 export interface QuizScore {
     date: number;
     score: number;
+    passScore: number;
     collection: string;
     book: string;
     pass: boolean;
@@ -44,6 +45,7 @@ export async function addQuiz(item: {
     collection: string;
     book: string;
     score: number;
+    passScore: number;
     pass: boolean;
 }) {
     const quiz = await openQuiz();
