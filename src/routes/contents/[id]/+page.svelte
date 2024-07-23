@@ -16,6 +16,7 @@
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
+    import { navigateToText } from '$lib/navigate';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
@@ -55,8 +56,7 @@
             //reference linkType
             case 'reference':
                 contentsStack.pushItem($page.data.menu.id);
-                setReference(item);
-                goto(`${base}/`);
+                await navigateToText(getReference(item));
                 break;
             case 'screen':
                 //goes to another contents page
@@ -89,8 +89,9 @@
         }
     }
 
-    function setReference(item) {
+    function getReference(item) {
         let docSet;
+        let collection;
         let book;
         let chapter;
         let verse;
@@ -104,7 +105,7 @@
                 two
                 verse-by-verse
             */
-            const collection = item.layoutCollection[0];
+            collection = item.layoutCollection[0];
             docSet =
                 config.bookCollections.find((x) => x.id === collection).languageCode +
                 '_' +
@@ -128,12 +129,13 @@
             default:
                 break;
         }
-        refs.set({
+        return {
             docSet,
+            collection,
             book,
             chapter,
             verse
-        });
+        };
     }
 
     //set the title for the current contents page

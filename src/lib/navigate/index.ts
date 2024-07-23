@@ -30,7 +30,21 @@ export async function navigateToText(item: {
         { collection: item.collection, book: item.book, chapter: item.chapter, verse: item.verse },
         logHistoryItemAdded
     );
-    goto(`${base}/`);
+    goto(`${base}/text`);
+}
+
+export async function navigateToTextReference(reference: string) {
+    await refs.setReference(reference);
+    const nowRef: any = get(refs);
+    goto(`${base}/text`);
+    addHistory(
+        {
+            collection: nowRef.collection,
+            book: nowRef.book,
+            chapter: nowRef.chapter
+        },
+        logHistoryItemAdded
+    );
 }
 
 export async function navigateToTextChapterInDirection(direction: number) {
