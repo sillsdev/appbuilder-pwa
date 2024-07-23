@@ -221,6 +221,26 @@ export type ConfigData = {
             file: string;
         }[];
     }[];
+
+    plans?: {
+        features: {
+            [key: string]: string;
+        };
+        plans: {
+            id: string;
+            days: number;
+            title: {
+                [lang: string]: string;
+            };
+            filename: string;
+            image?: {
+                width: number;
+                height: number;
+                file: string;
+            }
+        }[];
+    };
+
     security?: {
         // TODO
         features?: {
@@ -282,11 +302,11 @@ function parseStyles(stylesTag: Element, verbose: number) {
                     if (verbose)
                         console.log(
                             'Parsing ' +
-                                propName +
-                                ' = ' +
-                                propValue +
-                                ' -> ' +
-                                properties[propName]
+                            propName +
+                            ' = ' +
+                            propValue +
+                            ' -> ' +
+                            properties[propName]
                         );
                 } else {
                     //Not a sp value
@@ -599,8 +619,8 @@ function convertConfig(dataDir: string, verbose: number) {
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
                 ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                      .filter((x) => fontFamilies.includes(x.innerHTML))
-                      .map((x) => x.innerHTML)
+                    .filter((x) => fontFamilies.includes(x.innerHTML))
+                    .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -648,8 +668,8 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                  .filter((x) => fontFamilies.includes(x.innerHTML))
-                  .map((x) => x.innerHTML)
+                .filter((x) => fontFamilies.includes(x.innerHTML))
+                .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -750,8 +770,7 @@ function convertConfig(dataDir: string, verbose: number) {
         }
         if (verbose)
             console.log(
-                `Converted ${
-                    Object.keys(data.translationMappings.mappings).length
+                `Converted ${Object.keys(data.translationMappings.mappings).length
                 } translation mappings`
             );
     }
@@ -824,12 +843,12 @@ function convertConfig(dataDir: string, verbose: number) {
                 placementTag == undefined
                     ? undefined
                     : {
-                          pos: placementTag.attributes.getNamedItem('pos')!.value,
-                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                          collection: placementTag.attributes
-                              .getNamedItem('ref')!
-                              .value.split('|')[0]
-                      };
+                        pos: placementTag.attributes.getNamedItem('pos')!.value,
+                        ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                        collection: placementTag.attributes
+                            .getNamedItem('ref')!
+                            .value.split('|')[0]
+                    };
             const tagWidth = tag.attributes.getNamedItem('width')
                 ? parseInt(tag.attributes.getNamedItem('width')!.value)
                 : 0;
@@ -885,17 +904,17 @@ function convertConfig(dataDir: string, verbose: number) {
                             placementTag == undefined
                                 ? undefined
                                 : {
-                                      pos: placementTag.attributes.getNamedItem('pos')!.value,
-                                      ref: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[1],
-                                      caption: placementTag.attributes.getNamedItem('caption')
-                                          ? placementTag.attributes.getNamedItem('caption')!.value
-                                          : '',
-                                      collection: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[0]
-                                  };
+                                    pos: placementTag.attributes.getNamedItem('pos')!.value,
+                                    ref: placementTag.attributes
+                                        .getNamedItem('ref')!
+                                        .value.split('|')[1],
+                                    caption: placementTag.attributes.getNamedItem('caption')
+                                        ? placementTag.attributes.getNamedItem('caption')!.value
+                                        : '',
+                                    collection: placementTag.attributes
+                                        .getNamedItem('ref')!
+                                        .value.split('|')[0]
+                                };
                         data.illustrations.push({
                             filename: filename,
                             width: imageWidth,
@@ -932,8 +951,8 @@ function convertConfig(dataDir: string, verbose: number) {
             const layoutCollections =
                 layoutCollectionElements.length > 0
                     ? Array.from(layoutCollectionElements).map((element) => {
-                          return element.attributes.getNamedItem('id')!.value;
-                      })
+                        return element.attributes.getNamedItem('id')!.value;
+                    })
                     : [data.bookCollections[0].id];
 
             data.layouts.push({
@@ -1032,6 +1051,62 @@ function convertConfig(dataDir: string, verbose: number) {
             });
 
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.menuItems));
+        }
+    }
+
+    //plans
+    const plansTags = document
+        .getElementsByTagName('plans');
+    if (plansTags?.length > 0) {
+        const plansTag = plansTags[0];
+        const featuresTag = plansTag.getElementsByTagName('features')[0];
+        const features: { [key: string]: string } = {};
+        if (featuresTag) {
+            for (const feature of featuresTag.getElementsByTagName('e')) {
+                const name = feature.attributes.getNamedItem('name')!.value;
+                const value = feature.attributes.getNamedItem('value')!.value;
+                if (verbose >= 2)
+                    console.log(`.. Converting feature: name=${name}, value=${value}`);
+                features[name] = value;
+            }
+        }
+
+        const planTags = plansTag.getElementsByTagName('plan');
+        const plans = [];
+        if (planTags?.length > 0) {
+            for (const tag of planTags) {
+                const titleTags = tag.getElementsByTagName('title')[0].getElementsByTagName('t');
+                const title: { [lang: string]: string } = {};
+                for (const titleTag of titleTags) {
+                    title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
+                }
+                //image
+                const imageTag = tag
+                    .getElementsByTagName('image')[0];
+
+                let image = undefined;
+                if (imageTag.innerHTML) {
+                    image = {
+                        width: Number(imageTag.attributes.getNamedItem('width')!.value),
+                        height: Number(imageTag.attributes.getNamedItem('height')!.value),
+                        file: imageTag.innerHTML
+                    }
+                }
+
+
+                const plan = {
+                    id: tag.attributes.getNamedItem('id')!.value,
+                    days: Number(tag.attributes.getNamedItem('days')!.value),
+                    title,
+                    filename: tag.getElementsByTagName('filename')[0].innerHTML,
+                    image
+                }
+                plans.push(plan);
+            }
+            data.plans = {
+                features,
+                plans
+            }
         }
     }
 
