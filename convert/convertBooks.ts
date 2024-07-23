@@ -57,9 +57,30 @@ function removeStrongNumberReferences(text: string, _bcId: string, _bookId: stri
     return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
 }
 
+function removeMissingVerses(text: string, _bcId: string, _bookId: string): string {
+    // Regular expression to match the pattern:
+    // \v (any number of digits) followed by any number of such patterns
+    const regex = /(\\v\s\d+\s*)+/g;
+
+    // Replace matches with the last occurrence
+    return text.replace(regex, match => {
+        // Split the matched string by \v and filter out empty parts
+        const parts = match.trim().split(/\\v\s*/).filter(Boolean);
+
+        // If there are multiple parts, return only the last one with \v prepended
+        if (parts.length > 1) {
+            return `\\v ${parts.pop()} `;
+        }
+
+        // If only one part or none, return the match unchanged
+        return match;
+    });
+}
+
 function removeMissingFigures(text: string, _bcId: string, _bookId: string): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
+    
 
     // Replace each \fig marker with the appropriate action
     return text.replace(figRegex, (match, figContent) => {
@@ -97,6 +118,31 @@ function isImageMissing(imageSource: string): boolean {
     // Here, I'm assuming a simple check by presence of src attribute
     return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     const configData = {
+//         traits: {
+//             'hide-empty-verses': true, // Set to true for chapters that should hide empty verses
+//             'show-verse-numbers': true // Default value
+//         }
+//     };
+
+//     function updateConfigForEmptyVerses(configData: ConfigData): void {
+//         if (configData.traits['hide-empty-verses']) {
+//             configData.traits['show-verse-numbers'] = false;
+//             console.log("Set show-verse-numbers to false");
+//         } else {
+//             configData.traits['show-verse-numbers'] = true;
+//             console.log("Set show-verse-numbers to true");
+//         }
+//     }
+
+//     // Call the function to update the config
+//     updateConfigForEmptyVerses(configData);
+
+//     // Check the updated configData
+//     console.log(configData);
+// });
 
 const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[] = [
     removeStrongNumberReferences,
@@ -493,6 +539,9 @@ function convertScriptureBook(
         content = applyFilters(content, context.bcId, book.id);
         if (context.configData.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
+        }
+        if (context.configData.mainFeatures['hide-empty-verses'] === true) {
+            content = removeMissingVerses(content, context.bcId, book.id);
         }
         //query Proskomma with a mutation to add a document
         //more efficient than original pk.addDocument call
