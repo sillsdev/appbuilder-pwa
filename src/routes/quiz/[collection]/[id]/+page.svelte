@@ -18,12 +18,16 @@
     /** @type {import('./$types').PageData} */
     export let data;
 
-    let quiz = data.quiz;
+    let locked = data.locked;
+    let dependentQuizId = data.dependentQuizId;
+    let quiz = data.quiz || {};
     let textHighlightIndex = -1;
+    console.log(data);
+    console.log(data.quiz);
     let book = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === quiz.id);
-    let displayLabel = book.name;
+    let displayLabel = book?.name || '';
     let shuffledAnswers = [];
     let quizQuestions = [];
     let score = 0;
@@ -260,13 +264,15 @@
     }
 
     onMount(() => {
-        if (book.quizFeatures['shuffle-questions']) {
-            shuffleQuestions();
-        } else {
-            quizQuestions = quiz.questions;
+        if (!locked) {
+            if (book.quizFeatures['shuffle-questions']) {
+                shuffleQuestions();
+            } else {
+                quizQuestions = quiz.questions;
+            }
+            handleQuestionChange();
+            playQuizQuestionAudio();
         }
-        handleQuestionChange();
-        playQuizQuestionAudio();
     });
 
     onDestroy(() => {
@@ -307,7 +313,16 @@
             </div>
         </Navbar>
     </div>
-    {#if questionNum == quizQuestions.length}
+
+    {#if locked}
+        <div class="quiz-locked">
+            <div class="quiz-locked-title">{data.quizId}</div>
+            <div class="quiz-locked-message">
+                Before accessing this quiz, you need to pass the following quizzes:
+            </div>
+            <div class="quiz-locked-name">{dependentQuizId}</div>
+        </div>
+    {:else if questionNum == quizQuestions.length}
         <div class="score">
             <div id="content" class="text-center">
                 <div class="quiz-score-before">{$t['Quiz_Score_Page_Message_Before']}</div>
@@ -419,21 +434,6 @@
                             {/if}
                         </div>
                     {/if}
-                {/if}
-                {#if displayCorrect}
-                    <div
-                        class="quiz-next-button arrow-ltr flex justify-center items-center"
-                        style="cursor: pointer;"
-                    >
-                        <button
-                            class="dy-btn dy-btn-active p-2 px-8 mt-4"
-                            on:click={() => {
-                                onNextQuestion();
-                            }}
-                        >
-                            <ArrowForwardIcon />
-                        </button>
-                    </div>
                 {/if}
             </div>
         </body>

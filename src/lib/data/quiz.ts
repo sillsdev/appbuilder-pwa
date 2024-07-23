@@ -6,6 +6,7 @@ export interface QuizScore {
     score: number;
     collection: string;
     book: string;
+    pass: boolean;
 }
 
 interface Quiz extends DBSchema {
@@ -42,13 +43,16 @@ async function openQuiz() {
 export async function addQuiz(item: {
     collection: string;
     book: string;
+    score: number;
+    pass: boolean;
 }) {
     const quiz = await openQuiz();
     const date = new Date()[Symbol.toPrimitive]('number');
     const bookIndex = config.bookCollections
         .find((x) => x.id === item.collection)
-        .books.findIndex((x) => x.id === item.book)
-    const nextItem = { ...item, date: date, bookIndex: bookIndex };
+        .books.findIndex((x) => x.id === item.book);
+
+    const nextItem = { ...item, date: date, bookIndex: bookIndex, passed: item.score >= item.passScore };
     await quiz.add('quiz', nextItem);
 }
 
@@ -69,15 +73,8 @@ export async function findQuiz(item: {
     return result;
 }
 
-export async function getQuizScore(item: {
-    collection: string;
-    book: string;
-}): Promise<number | null> {
-    const results = await findQuiz(item);
-    if (results.length > 0) {
-        return results[0].score;
-    }
-    else {
-        return null;
-    }
+export async function checkQuizAccess(quizId) {
+    const quiz = await openQuiz();
+    const result = await quiz.getAllFromIndex('quiz', 'collection, book');
+    return result.some(item => item.book === quizId && item.passed);
 }
