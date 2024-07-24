@@ -435,6 +435,21 @@
                         </div>
                     {/if}
                 {/if}
+                {#if displayCorrect}
+                    <div
+                        class="quiz-next-button arrow-ltr flex justify-center items-center"
+                        style="cursor: pointer;"
+                    >
+                        <button
+                            class="dy-btn dy-btn-active p-2 px-8 mt-4"
+                            on:click={() => {
+                                onNextQuestion();
+                            }}
+                        >
+                            <ArrowForwardIcon />
+                        </button>
+                    </div>
+                {/if}
             </div>
         </body>
     {/if}
