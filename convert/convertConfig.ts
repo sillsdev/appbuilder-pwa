@@ -221,6 +221,26 @@ export type ConfigData = {
             file: string;
         }[];
     }[];
+
+    plans?: {
+        features: {
+            [key: string]: string;
+        };
+        plans: {
+            id: string;
+            days: number;
+            title: {
+                [lang: string]: string;
+            };
+            filename: string;
+            image?: {
+                width: number;
+                height: number;
+                file: string;
+            };
+        }[];
+    };
+
     security?: {
         // TODO
         features?: {
@@ -1032,6 +1052,59 @@ function convertConfig(dataDir: string, verbose: number) {
             });
 
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.menuItems));
+        }
+    }
+
+    //plans
+    const plansTags = document.getElementsByTagName('plans');
+    if (plansTags?.length > 0) {
+        const plansTag = plansTags[0];
+        const featuresTag = plansTag.getElementsByTagName('features')[0];
+        const features: { [key: string]: string } = {};
+        if (featuresTag) {
+            for (const feature of featuresTag.getElementsByTagName('e')) {
+                const name = feature.attributes.getNamedItem('name')!.value;
+                const value = feature.attributes.getNamedItem('value')!.value;
+                if (verbose >= 2)
+                    console.log(`.. Converting feature: name=${name}, value=${value}`);
+                features[name] = value;
+            }
+        }
+
+        const planTags = plansTag.getElementsByTagName('plan');
+        const plans = [];
+        if (planTags?.length > 0) {
+            for (const tag of planTags) {
+                const titleTags = tag.getElementsByTagName('title')[0].getElementsByTagName('t');
+                const title: { [lang: string]: string } = {};
+                for (const titleTag of titleTags) {
+                    title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
+                }
+                //image
+                const imageTag = tag.getElementsByTagName('image')[0];
+
+                let image = undefined;
+                if (imageTag.innerHTML) {
+                    image = {
+                        width: Number(imageTag.attributes.getNamedItem('width')!.value),
+                        height: Number(imageTag.attributes.getNamedItem('height')!.value),
+                        file: imageTag.innerHTML
+                    };
+                }
+
+                const plan = {
+                    id: tag.attributes.getNamedItem('id')!.value,
+                    days: Number(tag.attributes.getNamedItem('days')!.value),
+                    title,
+                    filename: tag.getElementsByTagName('filename')[0].innerHTML,
+                    image
+                };
+                plans.push(plan);
+            }
+            data.plans = {
+                features,
+                plans
+            };
         }
     }
 
