@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, rmdirSync } from 'fs';
+import { cpSync, existsSync, readFileSync, rmSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
@@ -76,7 +76,7 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
         cpSync(contentsDir, destDir, { recursive: true });
     } else {
         if (existsSync(destDir)) {
-            rmdirSync(destDir, { recursive: true });
+            rmSync(destDir, { recursive: true });
         }
     }
 

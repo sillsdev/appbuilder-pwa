@@ -1,15 +1,19 @@
 import { groupStore } from './store-types';
-import { derived, writable, get } from 'svelte/store';
+import { derived, writable, get, readable } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 import { defaultSettings, userSettings } from './setting';
-import contents from '../contents';
 
 export const NAVBAR_HEIGHT = '4rem';
 
 /** a local storage flag that keeps track of if the page is at its very first launch */
-setDefaultStorage('firstLaunch', true);
-export const firstLaunch = writable(localStorage.firstLaunch === 'true');
-firstLaunch.subscribe((bool) => (localStorage.firstLaunch = bool));
+const nowTime = String(Date.now());
+export const launchTime = readable(nowTime);
+setDefaultStorage('firstLaunchTime', nowTime);
+export const firstLaunchTime = readable(localStorage.firstLaunchTime);
+export const isFirstLaunch = derived(
+    [firstLaunchTime, launchTime],
+    ([$firstLaunchTime, $launchTime]) => $firstLaunchTime === $launchTime
+);
 
 /**a group of writable stores to store the top visible verse in a group*/
 export const scrolls = groupStore(writable, 'title');
