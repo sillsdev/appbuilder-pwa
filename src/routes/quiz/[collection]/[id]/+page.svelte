@@ -27,7 +27,7 @@
     let book = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === quiz.id);
-    let displayLabel = book?.name || '';
+    let displayLabel = book?.name || data?.quizName;
     let shuffledAnswers = [];
     let quizQuestions = [];
     let score = 0;
