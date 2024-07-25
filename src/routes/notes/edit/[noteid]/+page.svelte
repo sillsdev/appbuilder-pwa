@@ -1,12 +1,18 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
+    import { noteEditing, t } from '$lib/data/stores';
     import { DeleteIcon, CheckIcon } from '$lib/icons';
     import { editNote,removeNote } from '$lib/data/notes';
 
     export let data;
     let note = data.note;
     let text = note.text;
+    let editing;
+    noteEditing.subscribe((value) => {
+        editing = value;
+    });
+    
+    $: title = editing ? 'Annotation_Note_Edit' : 'Annotation_Note_Add';
 
     function goBack() {
         history.back();
@@ -36,7 +42,7 @@
 <div class="fullscreen-editor">
     <Navbar on:backNavigation={onBackNavigate}>
         <label for="sidebar" slot="center" >
-            <div class="btn btn-ghost normal-case text-xl" >{$t['Annotation_Note_Edit']}</div>
+            <div class="btn btn-ghost normal-case text-xl" >{$t[title]}</div>
         </label>
 
         <div slot="right-buttons">
