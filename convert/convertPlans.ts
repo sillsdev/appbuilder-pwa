@@ -1,8 +1,7 @@
-import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, unlinkSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
-import { space } from 'postcss/lib/list';
 
 export type PlanItem = {
     day: number;
