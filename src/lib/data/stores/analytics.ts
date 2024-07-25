@@ -1,5 +1,4 @@
 import { derived, writable } from 'svelte/store';
-import { firstLaunch } from '$lib/data/stores/view';
 import config from '$lib/data/config';
 
 interface AnalyticsStore {
@@ -57,8 +56,4 @@ export const analyticsStore = () => {
 
 export const analytics = analyticsStore();
 
-firstLaunch.subscribe((value: boolean) => {
-    if (!value) {
-        analytics.log('ab_first_run');
-    }
-});
+

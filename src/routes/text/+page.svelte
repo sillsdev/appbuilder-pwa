@@ -30,7 +30,8 @@
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
         NAVBAR_HEIGHT,
-        userSettingsOrDefault
+        userSettingsOrDefault,
+        analytics
     } from '$lib/data/stores';
     import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
     import {
@@ -268,6 +269,7 @@
     const navBarHeight = NAVBAR_HEIGHT;
     onMount(() => {
         if ($isFirstLaunch) {
+            analytics.log('ab_first_run');
             if (showCollectionsOnFirstLaunch && enoughCollections) {
                 modal.open(MODAL_COLLECTION);
             }
