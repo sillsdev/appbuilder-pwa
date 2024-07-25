@@ -8,19 +8,19 @@ export async function load({ params }) {
         console.error(`Invalid noteid: ${noteid}`);
         return {
             status: 400,
-            error: new Error('Invalid note ID'),
+            error: new Error('Invalid note ID')
         };
     }
 
     const allNotes = await getNotes();
     const note = allNotes.find((item) => item.date === date);
-    
+
     if (!note) {
         return {
             status: 400,
-            error: new Error('Note not found'),
+            error: new Error('Note not found')
         };
     }
-    
+
     return { note };
 }
