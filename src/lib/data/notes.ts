@@ -68,7 +68,6 @@ export async function addNote(item: {
     const nextItem = { ...item, date: date, bookIndex: bookIndex };
     await notes.add('notes', nextItem);
     notifyUpdated();
-    console.log('Im here too!', item.reference);
     return nextItem;
 }
 
