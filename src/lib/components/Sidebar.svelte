@@ -61,6 +61,7 @@ The sidebar/drawer.
         config.mainFeatures['share-download-app-link'] ||
         config.mainFeatures['share-apk-file'] ||
         config.mainFeatures['share-apple-app-link'];
+    const showPlans = config.plans.plans.length > 0;
     const showAccount = firebaseConfig && config.mainFeatures['user-accounts'];
 
     function imageSrcSet(base, images) {
@@ -187,6 +188,13 @@ The sidebar/drawer.
                     </a>
                 </li>
                 <div class="dy-divider m-1" />
+            {/if}
+            {#if showPlans}
+                <li>
+                    <a href="{base}/plans" style:color={textColor}>
+                        <HomeIcon color={iconColor} />{$t['Menu_Plans']}
+                    </a>
+                </li>
             {/if}
             {#if showSettings}
                 <li>
