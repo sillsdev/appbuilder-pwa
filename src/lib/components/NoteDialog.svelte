@@ -5,36 +5,40 @@
     import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
-    import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
+    import { t, selectedVerses, bodyFontSize, currentFont, noteEditing } from '$lib/data/stores';
     import { addNote } from '$lib/data/notes';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
 
     export let note = undefined;
     export let editing = false;
+    $: noteEditing.set(editing);
 
     let id = 'note';
     let modal;
     let title: string;
     let text: string;
 
-    $: heading = editing ? ($t[title] ?? '') : (note?.reference ?? '');
+    // $: heading = editingProp ? $t[title] ?? '' : note?.reference ?? '';
+    $: heading = editing ? note?.reference ?? '' : $t[title] ?? '';
 
-    export function showModal() {
+    export async function showModal() {
         if (note !== undefined) {
             text = note.text;
-            title = 'Annotation_Note_Edit';
-            
-        } else {
             editing = true;
-            title = 'Annotation_Note_Add';
+            title = 'Annotation_Note_Edit';
+            modal.showModal();
+        } else {
+            // editingProp = true;
+            editing = false;
+            await createNote();
+            goto(`${base}/notes/edit/${note.date}`);
         }
-        modal.showModal();
     }
 
     function reset() {
         text = '';
-        editing = false;
+        // editingProp = false;
         selectedVerses.reset();
     }
 
