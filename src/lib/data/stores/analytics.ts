@@ -55,5 +55,3 @@ export const analyticsStore = () => {
 };
 
 export const analytics = analyticsStore();
-
-
