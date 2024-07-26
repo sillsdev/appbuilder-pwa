@@ -55,7 +55,7 @@ export function logAudioPlay(audioPlayer: AudioPlayer) {
         damId,
         playing
     };
-    analytics.log('audio_play_event', params);
+    analytics.log('ab_audio_play', params);
 }
 
 export function logAudioDuration(audioPlayer: AudioPlayer) {
