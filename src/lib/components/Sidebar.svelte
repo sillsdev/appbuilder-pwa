@@ -19,7 +19,6 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { firebaseConfig } from '$lib/data/firebase-config';
     import {
         s,
         t,
@@ -61,7 +60,8 @@ The sidebar/drawer.
         config.mainFeatures['share-download-app-link'] ||
         config.mainFeatures['share-apk-file'] ||
         config.mainFeatures['share-apple-app-link'];
-    const showAccount = firebaseConfig && config.mainFeatures['user-accounts'];
+    const showAccount =
+        config.firebase.features['firebase-database'] && config.mainFeatures['user-accounts'];
 
     function imageSrcSet(base, images) {
         const baseSize = Number(images[0].width);

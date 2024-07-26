@@ -12,7 +12,8 @@ import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/
 import { MRUCache } from '$lib/data/mrucache';
 import { base } from '$app/paths';
 import { pathJoin } from '$lib/scripts/stringUtils';
-interface AudioPlayer {
+import { logAudioDuration, logAudioPlay } from './analytics';
+export interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;
     duration: number;
@@ -24,6 +25,7 @@ interface AudioPlayer {
     book: string;
     chapter: string;
     timer: number;
+    playStart: number;
 }
 const cache = new MRUCache<string, AudioPlayer>(10);
 export let currentAudioPlayer;
@@ -300,6 +302,7 @@ function pause() {
     if (!currentAudioPlayer.loaded) return;
     if (currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.pause();
+        logAudioDuration(currentAudioPlayer);
         currentAudioPlayer.playing = false;
     }
     toggleTimeRunning();
@@ -309,6 +312,8 @@ export function play() {
     if (!currentAudioPlayer.loaded) return;
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
+        currentAudioPlayer.playStart = Date.now();
+        logAudioPlay(currentAudioPlayer);
         currentAudioPlayer.playing = true;
     }
     toggleTimeRunning();

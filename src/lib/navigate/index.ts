@@ -3,9 +3,10 @@ import { addHistory, type HistoryItem } from '$lib/data/history';
 import { goto } from '$app/navigation';
 import { base } from '$app/paths';
 import { get } from 'svelte/store';
+import { logScreenView } from '$lib/data/analytics';
 
 function logHistoryItemAdded(itemAdded: HistoryItem) {
-    //console.log('History item added:', itemAdded);
+    logScreenView(itemAdded);
 }
 
 export function navigateToUrl(item: { collection: string; book: string; url: string }) {

@@ -43,6 +43,7 @@
         "eslint-plugin-prettier": "^5",
         "eslint-plugin-svelte": "^2",
         "fflate": "^0.8",
+        "firebase": "^10.12.2",
         "idb": "^7.1.1",
         "jsdom": "^22",
         "postcss": "^8.4.14",
