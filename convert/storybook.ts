@@ -24,9 +24,14 @@ export function transformLists(usfm: string): string {
         .replace(/\\zoli1\s+([^\\]*)/g, '\\zoli1-s\\* $1 \\zoli1-e\\* ');
 }
 
+export function transformHeadings(usfm: string): string {
+    return usfm.replace(/\\(m?s\d?)([^\\]*)/g, '\\m \\zusfm-s |class="$1"\\* $2 \\zusfm-e ');
+}
+
 export function convertStorybookElements(usfm: string) {
     usfm = replacePageTags(usfm);
     usfm = removeImageTags(usfm);
     usfm = transformLists(usfm);
+    usfm = transformHeadings(usfm);
     return usfm;
 }
