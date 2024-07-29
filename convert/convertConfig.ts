@@ -585,6 +585,11 @@ function convertConfig(dataDir: string, verbose: number) {
                 if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
+                if (audioTag.attributes.getNamedItem('background')?.value === 'continue') {
+                    // Happens when a storybook uses a single audio file for multiple pages.
+                    // TODO: Implement this feature
+                    continue;
+                }
                 const fTag = audioTag.getElementsByTagName('f')[0];
                 if (verbose >= 2)
                     console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
