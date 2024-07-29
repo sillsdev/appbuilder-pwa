@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { transformLists, replacePageTags as transformPageTags, removeImageTags } from './storybook';
+import { transformLists, replacePageTags, removeImageTags, transformHeadings } from './storybook';
 
 function tokensOf(str: string) {
     return str.split(/\s+/).filter((token) => token.length);
@@ -8,7 +8,7 @@ function tokensOf(str: string) {
 test('replace page tags', () => {
     const input = 'abc \\page 41 xyz \\page   45 122';
     const expected = 'abc \\c 41 xyz \\c 45 122';
-    const result = transformPageTags(input);
+    const result = replacePageTags(input);
     expect(tokensOf(result)).toEqual(tokensOf(expected));
 });
 
@@ -56,5 +56,26 @@ test('convert ordered list to milestones', () => {
         \\b
     `;
     const result = transformLists(input);
+    expect(tokensOf(result)).toEqual(tokensOf(expected));
+});
+
+test('converts section headings to milestones', () => {
+    const input = `
+        \\ms1 Hello
+        \\ms2 World
+        \\b
+        \\s Some content
+        \\s2 Some other content
+        \\m
+    `;
+    const expected = `
+        \\m \\zusfm-s |class="ms1"\\* Hello \\zusfm-e
+        \\m \\zusfm-s |class="ms2"\\* World \\zusfm-e
+        \\b
+        \\m \\zusfm-s |class="s"\\* Some content \\zusfm-e
+        \\m \\zusfm-s |class="s2"\\* Some other content \\zusfm-e
+        \\m
+    `;
+    const result = transformHeadings(input);
     expect(tokensOf(result)).toEqual(tokensOf(expected));
 });
