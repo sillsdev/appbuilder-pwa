@@ -110,9 +110,10 @@ function applyFilters(text: string, bcId: string, bookId: string, bookType?: str
     if (bookType === 'story') {
         filteredText = convertStorybookElements(filteredText);
     }
-    if (bcId == 'C01' && bookId == '1') {
-        console.log(filteredText.slice(0, 1000));
-    }
+    // Debugging
+    // if (bcId == 'C01' && bookId == '1') {
+    //     console.log(filteredText.slice(0, 1000));
+    // }
     return filteredText;
 }
 
@@ -568,7 +569,23 @@ function convertScriptureBook(
                     fileContents.push(fs.readFileSync(filePath, 'utf-8'));
                 });
 
-                processBookContent(resolve, null, fileContents.join(''));
+                // Collect the file contents into a single document
+                let usfm: string;
+
+                if (book.type == 'story') {
+                    // The first file contains meta-content (id, title, etc)
+                    usfm = fileContents[0];
+
+                    // Subsequent files represent storybook pages.
+                    // SAB deletes the \page tags. Replace them with chapter tags.
+                    for (let i = 1; i < fileContents.length; i++) {
+                        usfm += `\\c ${i} ${fileContents[i]}`;
+                    }
+                } else {
+                    usfm = fileContents.join('');
+                }
+
+                processBookContent(resolve, null, usfm);
             }
         })
     );
