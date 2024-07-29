@@ -159,7 +159,7 @@ export async function convertBooks(
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
             if (fs.existsSync(folderDstDir)) {
-                fs.rmdirSync(folderDstDir, { recursive: true });
+                fs.rmSync(folderDstDir, { recursive: true, force: true });
             }
         }
     });
