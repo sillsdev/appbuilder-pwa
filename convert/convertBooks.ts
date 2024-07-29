@@ -23,6 +23,16 @@ function replaceVideoTags(text: string, _bcId: string, _bookId: string): string 
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 
+/**
+ * Replace the USFM book ID with the given book ID.
+ *
+ * While uncommon, it is possible to use the same USFM for multiple books.
+ * In this case, we must use the unique ID specified in config.
+ */
+function replaceId(text: string, _bcId: string, bookId: string): string {
+    return text.replace(/\\id \w+/, `\\id ${bookId}`);
+}
+
 function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
@@ -99,7 +109,8 @@ const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[
     removeStrongNumberReferences,
     replaceVideoTags,
     convertMarkdownsToMilestones,
-    removeMissingFigures
+    removeMissingFigures,
+    replaceId
 ];
 
 function applyFilters(text: string, bcId: string, bookId: string, bookType?: string): string {
@@ -111,7 +122,7 @@ function applyFilters(text: string, bcId: string, bookId: string, bookType?: str
         filteredText = convertStorybookElements(filteredText);
     }
     // Debugging
-    // if (bcId == 'C01' && bookId == '1') {
+    // if (bcId == 'C01') {
     //     console.log(filteredText.slice(0, 1000));
     // }
     return filteredText;
