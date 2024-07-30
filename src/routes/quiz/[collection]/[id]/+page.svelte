@@ -26,16 +26,9 @@
 
     $: displayLabel = quizName || 'Quiz';
 
-    // let locked = data.locked;
-    // let dependentQuizId = data.dependentQuizId;
-    // let quiz = data.quiz || {};
     let textHighlightIndex = -1;
     console.log(data);
     console.log(data.quiz);
-    // let book = config.bookCollections
-    //     .find((x) => x.id === $refs.collection)
-    //     .books.find((x) => x.id === quiz.id);
-    // let displayLabel = book?.name || data?.quizName;
     let shuffledAnswers = [];
     let quizQuestions = [];
     let score = 0;
