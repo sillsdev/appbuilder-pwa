@@ -71,6 +71,36 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
+
+    const navigationBetweenBooks = () => {
+        const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
+        
+        let result = false;
+        if (!(swipeBetweenBooks)) {
+            if ($refs.prev.book !== $refs.book || $refs.next.book !== $refs.book) result = false;
+        } else {
+            result = true;
+        }
+        console.log("result: ", result);
+
+        return result;
+        // let result = true;
+        // if (swipeBetweenBooks) result = true;
+        // else {
+        //     //if the prev book and current book are not the same AND the action is hasPrev, return false; 
+        //     //hasPrev just means there is a previous chapter.
+        //         // Disable arrow if:
+        //         // - the option swipe-between-books is disabled
+        //         // - the previous/next chapter's book doesn't match the current book
+        //         // Then the previous/next arrow should be invisible
+        //     if ($refs.prev.book !== $refs.book || $refs.next.book !== $refs.book) {
+        //         result = false;
+        //     };
+        // }
+
+        // return result;
+    }
+
     async function doSwipe(event) {
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
@@ -91,6 +121,7 @@
                 chapter: $refs.chapter
             });
         }
+        console.log('refs: ', $refs.chapter);
     }
 
     async function prevChapter() {
@@ -110,6 +141,13 @@
         });
     }
 
+
+    //-------------------------------------TEST---------------------------------------------------------------------
+    // const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
+    $: navigateBetweenBooksPrev = navigationBetweenBooks; //this needs to be triggered in some way; the hasPrev/Next trigger because
+                                                    // $refs changes... maybe a subscribe works
+    $: navigateBetweenBooksNext = navigationBetweenBooks;
+ 
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
     $: viewShowVerses =
@@ -441,7 +479,7 @@
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
                     on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev && navigateBetweenBooksPrev
                         ? 'visible'
                         : 'invisible'}"
                 >
@@ -470,7 +508,7 @@
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
                     on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext && navigateBetweenBooksNext
                         ? 'visible'
                         : 'invisible'}"
                 >
