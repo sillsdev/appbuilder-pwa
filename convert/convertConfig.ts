@@ -419,6 +419,46 @@ function convertCollectionFooter(collectionTag: Element, document: Document) {
     return footer;
 }
 
+function shortenBookCode(id: string, allIds: string[]): string | null {
+    const short = id.replace(/^(\w)0(\d\d)$/, '$1$2');
+    return id === short || allIds.includes(short) ? null : short;
+}
+
+function lengthenBookCode(id: string, allIds: string[]): string | null {
+    if (id.length === 1) {
+        id = '00' + id;
+    } else if (id.length === 2) {
+        id = '0' + id;
+    }
+    return allIds.includes(id) ? null : id;
+}
+
+function convertBookCodes(books: Element[]) {
+    for (const bk of books) {
+        const ids = books.map((b) => b.id);
+        const shortened = shortenBookCode(bk.id, ids);
+        const lengthened = lengthenBookCode(bk.id, ids);
+        if (shortened) {
+            console.log(`  shortening book code: ${bk.id} => ${shortened}`);
+            bk.id = shortened;
+        } else if (lengthened) {
+            console.log(`  lengthening book code: ${bk.id} => ${lengthened}`);
+            bk.id = lengthened;
+        }
+        checkBookCodes(books);
+    }
+}
+
+function checkBookCodes(books: Element[]) {
+    const invalid = books.map((b) => b.id).filter((id) => id.length !== 3);
+    if (invalid.length) {
+        console.log(
+            '\n  WARNING: The following book codes are not 3 characters. Some may not load properly:'
+        );
+        console.log(`   ${invalid.join(' ')}`);
+    }
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
@@ -578,6 +618,7 @@ function convertConfig(dataDir: string, verbose: number) {
         }
         const books: BookCollection['books'] = [];
         const bookTags = tag.getElementsByTagName('book');
+        convertBookCodes(Array.from(bookTags));
         for (const book of bookTags) {
             if (verbose >= 2) console.log(`. book: ${book.id}`);
             const audio: BookCollectionAudio[] = [];
