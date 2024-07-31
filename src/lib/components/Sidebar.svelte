@@ -15,7 +15,8 @@ The sidebar/drawer.
         SettingsIcon,
         TextAppearanceIcon,
         AboutIcon,
-        HomeIcon
+        HomeIcon,
+        CalendarMonthIcon
     } from '$lib/icons';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -35,6 +36,7 @@ The sidebar/drawer.
         userPreferenceSettings
     } from '$lib/data/stores';
     import contents from '$lib/data/contents';
+
     const drawerId = 'sidebar';
     let menuToggle = false;
 
@@ -56,6 +58,7 @@ The sidebar/drawer.
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
     const showNotes = config.mainFeatures['annotation-notes'];
     const showHighlights = config.mainFeatures['annotation-highlights'];
+    const showPlans = config.plans.plans.length > 0;
     const showShare =
         config.mainFeatures['share-app-link'] ||
         config.mainFeatures['share-download-app-link'] ||
@@ -63,7 +66,6 @@ The sidebar/drawer.
         config.mainFeatures['share-apple-app-link'];
     const showAccount =
         config.firebase.features['firebase-database'] && config.mainFeatures['user-accounts'];
-    const showPlans = config.plans.plans.length > 0;
 
     function imageSrcSet(base, images) {
         const baseSize = Number(images[0].width);
@@ -193,7 +195,7 @@ The sidebar/drawer.
             {#if showPlans}
                 <li>
                     <a href="{base}/plans" style:color={textColor}>
-                        <HomeIcon color={iconColor} />{$t['Menu_Plans']}
+                        <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
                     </a>
                 </li>
             {/if}
