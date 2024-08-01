@@ -72,48 +72,16 @@
         savedScrollPosition = 0;
     });
 
-    const navigationBetweenBooks = () => {
-        const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
-        
-        let result = false;
-        if (!(swipeBetweenBooks)) {
-            if ($refs.prev.book !== $refs.book || $refs.next.book !== $refs.book) result = false;
-        } else {
-            result = true;
-        }
-        console.log("result: ", result);
-
-        return result;
-        // let result = true;
-        // if (swipeBetweenBooks) result = true;
-        // else {
-        //     //if the prev book and current book are not the same AND the action is hasPrev, return false; 
-        //     //hasPrev just means there is a previous chapter.
-        //         // Disable arrow if:
-        //         // - the option swipe-between-books is disabled
-        //         // - the previous/next chapter's book doesn't match the current book
-        //         // Then the previous/next arrow should be invisible
-        //     if ($refs.prev.book !== $refs.book || $refs.next.book !== $refs.book) {
-        //         result = false;
-        //     };
-        // }
-
-        // return result;
-    }
-
+    const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     async function doSwipe(event) {
         console.log('SWIPE', event.detail.direction);
         const prev = $refs;
-        const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
-        if (swipeBetweenBooks) {
-            await refs.skip(event.detail.direction === 'right' ? -1 : 1);
-        } else {
-            //Prevent swiping between books
-            if (!($refs.prev.book !== $refs.book && event.detail.direction === 'right' || 
-                $refs.next.book !== $refs.book && event.detail.direction === 'left')) {
-                    await refs.skip(event.detail.direction === 'right' ? -1 : 1);
-                };
-        }
+        const direction = event.detail.direction === 'right' ? -1 : 1;
+        //controls swipe between books
+        if (swipeBetweenBooks || ($refs.prev.book === $refs.book && event.detail.direction === 'right') || 
+            ($refs.next.book === $refs.book && event.detail.direction === 'left')) {
+                await refs.skip(direction);
+            }
         if (prev !== $refs) {
             addHistory({
                 collection: $refs.collection,
@@ -121,7 +89,6 @@
                 chapter: $refs.chapter
             });
         }
-        console.log('refs: ', $refs.chapter);
     }
 
     async function prevChapter() {
@@ -141,13 +108,12 @@
         });
     }
 
-
-    //-------------------------------------TEST---------------------------------------------------------------------
-    // const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
-    $: navigateBetweenBooksPrev = navigationBetweenBooks; //this needs to be triggered in some way; the hasPrev/Next trigger because
-                                                    // $refs changes... maybe a subscribe works
-    $: navigateBetweenBooksNext = navigationBetweenBooks;
- 
+    let navigateBetweenBooksPrev;
+    let navigateBetweenBooksNext;
+    $: {
+        navigateBetweenBooksPrev = swipeBetweenBooks || $refs.prev.book === $refs.book;
+        navigateBetweenBooksNext = swipeBetweenBooks || $refs.next.book === $refs.book;
+    }
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
     $: viewShowVerses =
