@@ -165,9 +165,16 @@ The navbar component.
                         });
                         lastGroup = group;
                     } else {
-                        // Add Book to last group
-                        let cells = groups.at(-1).cells;
-                        groups.at(-1).cells = [...cells, cell];
+                        if (groups.length > 0) {
+                            // Add Book to last group
+                            let cells = groups.at(-1).cells;
+                            groups.at(-1).cells = [...cells, cell];
+                        } else {
+                            // Create a group with no header (likely if 'book-group-titles' === fase)
+                            groups.push({
+                                cells: [cell]
+                            });
+                        }
                     }
                 }
             });
