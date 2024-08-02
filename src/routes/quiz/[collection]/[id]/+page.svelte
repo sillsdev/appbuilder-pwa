@@ -11,7 +11,7 @@
         quizAudioActive
     } from '$lib/data/stores';
     import { base } from '$app/paths';
-    import { onMount, onDestroy } from 'svelte';
+    import { onDestroy } from 'svelte';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BookSelector from '$lib/components/BookSelector.svelte';
     /** @type {import('./$types').PageData} */
@@ -24,6 +24,17 @@
         .books.find((x) => x.id === quizId);
 
     $: displayLabel = quizName || 'Quiz';
+
+    $: if (quiz) {
+        score = 0;
+        questionNum = 0;
+        shuffledAnswers = [];
+        quizQuestions = book.quizFeatures['shuffle-questions']
+            ? shuffleArray([...quiz.questions])
+            : [...quiz.questions];
+        handleQuestionChange();
+        playQuizQuestionAudio();
+    }
 
     let textHighlightIndex = -1;
     console.log(data);
@@ -260,18 +271,6 @@
     function getCurrentQuizQuestion() {
         return quizQuestions[questionNum];
     }
-
-    onMount(() => {
-        if (!locked && quiz) {
-            if (book.quizFeatures['shuffle-questions']) {
-                shuffleQuestions();
-            } else {
-                quizQuestions = quiz.questions;
-            }
-            handleQuestionChange();
-            playQuizQuestionAudio();
-        }
-    });
 
     onDestroy(() => {
         stopAudioPlayback();
