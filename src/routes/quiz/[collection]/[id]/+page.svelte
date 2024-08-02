@@ -34,6 +34,13 @@
             : [...quiz.questions];
         handleQuestionChange();
         playQuizQuestionAudio();
+    } else {
+        stopAudioPlayback();
+
+        score = 0;
+        questionNum = 0;
+        shuffledAnswers = [];
+        quizQuestions = [];
     }
 
     let textHighlightIndex = -1;
