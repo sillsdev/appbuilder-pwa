@@ -1,6 +1,7 @@
 import { describe, expect, beforeEach, it } from 'vitest';
 import { checkForMilestoneLinks } from './milestoneLinks';
 describe('milestoneLinks', () => {
+    function onClick(e: any){}
     let phraseDiv: HTMLElement;
     let footnoteDiv: HTMLElement;
     let textType: string[];
@@ -22,7 +23,8 @@ describe('milestoneLinks', () => {
                     'SIL Link',
                     'https://sil.org/',
                     0,
-                    'usfm:zweblink'
+                    'usfm:zweblink',
+                    onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
                 footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
@@ -68,7 +70,8 @@ describe('milestoneLinks', () => {
                     'SIL Link',
                     'https://sil.org/',
                     0,
-                    'usfm:zweblink'
+                    'usfm:zweblink',
+                    onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
                 footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
@@ -115,7 +118,8 @@ describe('milestoneLinks', () => {
                     'Ref Link',
                     'C01.MAT.5.1',
                     0,
-                    'usfm:zreflink'
+                    'usfm:zreflink',
+                    onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
                 footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
@@ -161,7 +165,8 @@ describe('milestoneLinks', () => {
                     'Ref Link',
                     'C01.MAT.5.1',
                     0,
-                    'usfm:zreflink'
+                    'usfm:zreflink',
+                    onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
                 footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
@@ -207,7 +212,8 @@ describe('milestoneLinks', () => {
                 'Email Link',
                 'mailto:david_moore1@sil.org',
                 0,
-                'usfm:zelink'
+                'usfm:zelink',
+                onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
             footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
@@ -252,7 +258,8 @@ describe('milestoneLinks', () => {
                 'Telephone Link',
                 'tel:9995551212',
                 0,
-                'usfm:ztellink'
+                'usfm:ztellink',
+                onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
             footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
@@ -298,7 +305,8 @@ describe('milestoneLinks', () => {
                 'Audio Clip Link',
                 'audioclip.mp3',
                 5,
-                'usfm:zaudioc'
+                'usfm:zaudioc',
+                onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
             footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
