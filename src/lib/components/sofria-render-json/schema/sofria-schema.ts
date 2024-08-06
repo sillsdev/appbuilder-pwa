@@ -1,6 +1,10 @@
 // Interfaces defining the standard schema for Sofria
 // Based on documentation from the proskomma-json-tools package
 
+export type Attributes = { [name: string]: boolean | string | string[] };
+export type ContentElement = string | ContentModifier | Graft;
+export type Content = ContentElement[];
+
 export interface Document {
     schema: Schema;
     metadata: object;
@@ -45,7 +49,7 @@ export interface Block {
 export interface Paragraph extends Block {
     type: 'paragraph';
     subtype: string;
-    atts: Attributes;
+    atts?: Attributes;
     content: Content;
 }
 
@@ -53,8 +57,13 @@ export function isParagraph(block: Block): block is Paragraph {
     return block.type === 'paragraph';
 }
 
-export interface Graft extends Block {
+interface GraftBase extends Block {
     type: 'graft';
+    new: boolean;
+    atts?: Attributes;
+}
+
+export interface Graft extends GraftBase {
     new: false;
 
     // One of the following must be defined
@@ -62,45 +71,41 @@ export interface Graft extends Block {
     sequence?: Sequence; // The sequence containing the graft content
 
     preview_text?: string;
-    atts?: Attributes;
-    content: Content;
 }
 
-export interface NewGraft extends Block {
-    type: 'graft';
+export function blockIsGraft(block: Block): block is Graft {
+    return block.type === 'graft' && !(block as GraftBase).new;
+}
+
+export function contentIsGraft(element: ContentElement): element is Graft {
+    return typeof element !== 'string' && blockIsGraft(element as Block);
+}
+
+export interface NewGraft extends GraftBase {
     new: true;
 
     // One of the following must be defined
     subtype?: string;
     sequence?: Sequence;
-
-    atts?: Attributes;
 }
 
-export interface ContentElement {
-    type: 'mark' | 'wrapper' | 'start_milestone' | 'end_milestone' | 'graft';
+export interface ContentModifier {
+    type: 'mark' | 'wrapper' | 'start_milestone' | 'end_milestone';
     subtype?: string;
     atts?: Attributes;
     content?: Content;
     meta_content?: Content;
 }
 
-export interface Wrapper extends ContentElement {
+export function isContentModifier(element: ContentElement): element is ContentModifier {
+    return typeof element !== 'string' && !contentIsGraft(element);
+}
+
+export interface Wrapper extends ContentModifier {
     type: 'wrapper';
     content: Content;
 }
 
 export function isWrapper(element: ContentElement): element is Wrapper {
-    return element.type === 'wrapper';
+    return typeof element !== 'string' && element.type === 'wrapper';
 }
-
-export interface InlineGraft extends ContentElement {
-    type: 'graft';
-    target?: string;
-    sequence?: Sequence;
-    preview_text?: string;
-    new?: boolean;
-}
-
-export type Attributes = { [name: string]: boolean | string | string[] };
-export type Content = (string | ContentElement)[];

@@ -8,21 +8,13 @@ export function usfmClass(paragraph: Paragraph) {
     return paragraph.subtype.split(':')[1];
 }
 
-export interface ListBlock extends Paragraph {
-    subtype: 'list_block';
-}
-
-export function isListBlock(block: Paragraph): block is ListBlock {
-    return block.subtype === 'list_block';
-}
-
-export interface OrderedListBlock extends Paragraph {
-    subtype: 'ordered_list_block';
+export interface ListItem extends Paragraph {
+    subtype: 'list_item';
     atts: {
-        start: string;
+        htmlClass: string;
     };
 }
 
-export function isOrderedListBlock(block: Paragraph): block is OrderedListBlock {
-    return block.subtype === 'ordered_list_block';
+export function isListItem(paragraph: Paragraph): paragraph is ListItem {
+    return paragraph.subtype === 'list_item';
 }

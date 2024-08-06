@@ -1,10 +1,5 @@
 <script lang="ts">
-    import {
-        isListBlock,
-        isOrderedListBlock,
-        isUsfmParagraph,
-        usfmClass
-    } from './schema/paragraphs';
+    import { isListItem, isUsfmParagraph, usfmClass } from './schema/paragraphs';
     import RenderContent from './RenderContent.svelte';
     import type { Paragraph } from './schema/sofria-schema';
 
@@ -19,14 +14,10 @@
     <div class={usfmClass(paragraph)}>
         <RenderContent content={paragraph.content} />
     </div>
-{:else if isListBlock(paragraph)}
-    <ul>
+{:else if isListItem(paragraph)}
+    <li class={paragraph.atts.htmlClass}>
         <RenderContent content={paragraph.content} />
-    </ul>
-{:else if isOrderedListBlock(paragraph)}
-    <ol start={parseInt(paragraph.atts.start)}>
-        <RenderContent content={paragraph.content} />
-    </ol>
+    </li>
 {:else}
     {(onInvalidParagraph(), '')}
 {/if}
