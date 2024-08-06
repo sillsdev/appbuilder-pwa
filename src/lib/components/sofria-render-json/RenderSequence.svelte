@@ -1,18 +1,19 @@
 <script lang="ts">
-    import RenderParagraph from './RenderParagraph.svelte';
-    import { type Block, isParagraph, type Sequence } from './schema/sofria-schema';
+    import RenderBlocks from './RenderBlocks.svelte';
+    import { isListSequence, isOrderedListSequence } from './schema/sequences';
+    import { type Sequence } from './schema/sofria-schema';
 
     export let sequence: Sequence;
-
-    function onInvalidBlockType(block: Block) {
-        console.error(`Unsupported block type: ${block.type}`);
-    }
 </script>
 
-{#each sequence.blocks as block}
-    {#if isParagraph(block)}
-        <RenderParagraph paragraph={block} />
-    {:else}
-        {(onInvalidBlockType(block), '')}
-    {/if}
-{/each}
+{#if isListSequence(sequence)}
+    <ul>
+        <RenderBlocks blocks={sequence.blocks} />
+    </ul>
+{:else if isOrderedListSequence(sequence)}
+    <ol start={parseInt(sequence.start)}>
+        <RenderBlocks blocks={sequence.blocks} />
+    </ol>
+{:else}
+    <RenderBlocks blocks={sequence.blocks} />
+{/if}
