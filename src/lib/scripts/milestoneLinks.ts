@@ -92,7 +92,6 @@ function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
     a.innerHTML = text;
     return a;
 }
-
 function getAudioLinkHtml(
     link: string,
     text: string,
@@ -105,18 +104,23 @@ function getAudioLinkHtml(
     const filename = filenameWithoutPath(link);
     let src = '';
     let sourceType = '';
-    const audioFile = config.audio.files.find((x) => x.name === filename);
-    if (audioFile) {
-        const audioSource = config.audio.sources[audioFile.src];
-        if (audioSource) {
-            sourceType = audioSource.type;
-            if (audioSource.type === 'assets') {
-                src = 'clips/' + filename;
-            } else if (audioSource.type === 'download') {
-                const address = audioSource.address;
-                src = ensureTrailingSlash(address) + filename;
+
+    if (config.audio?.files && config.audio?.sources) {
+        const audioFile = config.audio.files.find((x) => x.name === filename);
+        if (audioFile) {
+            const audioSource = config.audio.sources[audioFile.src];
+            if (audioSource) {
+                sourceType = audioSource.type;
+                if (audioSource.type === 'assets') {
+                    src = 'clips/' + filename;
+                } else if (audioSource.type === 'download') {
+                    const address = audioSource.address;
+                    src = ensureTrailingSlash(address) + filename;
+                }
             }
         }
+    } else {
+        console.warn('Audio configuration is not properly initialized.');
     }
 
     audio.id = audioId;
@@ -137,7 +141,6 @@ function getAudioLinkHtml(
 
     return [audio, a];
 }
-
 function getReferenceLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.classList.add('web-link');
