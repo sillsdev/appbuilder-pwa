@@ -71,9 +71,16 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
+
+    const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     async function doSwipe(event) {
-        console.log('SWIPE', event.detail.direction);
-        await navigateToTextChapterInDirection(event.detail.direction === 'right' ? -1 : 1);
+        const swipeDirection = event.detail.direction;
+        console.log('SWIPE', swipeDirection);
+        if (swipeBetweenBooks || 
+            ($refs.prev.book === $refs.book && swipeDirection === 'right') || 
+            ($refs.next.book === $refs.book && swipeDirection === 'left')) {
+            await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
+        }
     }
 
     async function prevChapter() {
@@ -83,6 +90,8 @@
         await navigateToTextChapterInDirection(1);
     }
 
+    $: navigateBetweenBooksPrev = swipeBetweenBooks || $refs.prev.book === $refs.book;
+    $: navigateBetweenBooksNext = swipeBetweenBooks || $refs.next.book === $refs.book;
     $: hasPrev = $refs.prev.chapter !== null;
     $: hasNext = $refs.next.chapter !== null;
     $: viewShowVerses =
@@ -406,7 +415,7 @@
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
                     on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev && navigateBetweenBooksPrev
                         ? 'visible'
                         : 'invisible'}"
                 >
@@ -435,7 +444,7 @@
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
                     on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext && navigateBetweenBooksNext
                         ? 'visible'
                         : 'invisible'}"
                 >
