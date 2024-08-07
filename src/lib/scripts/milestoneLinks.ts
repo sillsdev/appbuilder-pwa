@@ -1,7 +1,6 @@
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 import config from '$lib/data/config';
 
-
 export function checkForMilestoneLinks(
     textType: string[],
     footnoteDiv: HTMLElement,
@@ -107,24 +106,16 @@ function getAudioLinkHtml(
     let src = '';
     let sourceType = '';
     const audioFile = config.audio.files.find((x) => x.name === filename);
-    if(audioFile)
-    {
+    if (audioFile) {
         const audioSource = config.audio.sources[audioFile.src];
-        if(audioSource)
-        {
+        if (audioSource) {
             sourceType = audioSource.type;
-            if(audioSource.type === "assets")
-            {
-            
+            if (audioSource.type === 'assets') {
                 src = 'clips/' + filename;
-            }
-            else if(audioSource.type === "download")
-            {
+            } else if (audioSource.type === 'download') {
                 const address = audioSource.address;
                 src = ensureTrailingSlash(address) + filename;
             }
-
-            
         }
     }
 
@@ -134,17 +125,14 @@ function getAudioLinkHtml(
 
     const a = document.createElement('a');
     a.href = '#';
-    if(sourceType === "assets")
-    {
+    if (sourceType === 'assets') {
         a.setAttribute('onClick', `document.getElementById('${audioId}').play();`);
-    }
-    else if (sourceType === "download") 
-    {
+    } else if (sourceType === 'download') {
         a.classList.add('audioclip');
         a.setAttribute('filelink', audioId);
         a.addEventListener('click', onClickFunction, false);
     }
-   
+
     a.innerHTML = text;
 
     return [audio, a];
@@ -159,12 +147,9 @@ function getReferenceLinkHtml(link: string, text: string): HTMLElement {
     return a;
 }
 
-function ensureTrailingSlash (url)
-{
-    if(!url.endsWith('/'))
-    {
+function ensureTrailingSlash(url) {
+    if (!url.endsWith('/')) {
         return url + '/';
-
     }
     return url;
 }

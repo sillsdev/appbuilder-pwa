@@ -1,7 +1,7 @@
 import { describe, expect, beforeEach, it } from 'vitest';
 import { checkForMilestoneLinks } from './milestoneLinks';
 describe('milestoneLinks', () => {
-    function onClick(e: any){}
+    function onClick(e: any) {}
     let phraseDiv: HTMLElement;
     let footnoteDiv: HTMLElement;
     let textType: string[];
