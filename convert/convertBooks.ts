@@ -63,9 +63,12 @@ function removeMissingVerses(text: string, _bcId: string, _bookId: string): stri
     const regex = /(\\v\s\d+\s*)+/g;
 
     // Replace matches with the last occurrence
-    return text.replace(regex, match => {
+    return text.replace(regex, (match) => {
         // Split the matched string by \v and filter out empty parts
-        const parts = match.trim().split(/\\v\s*/).filter(Boolean);
+        const parts = match
+            .trim()
+            .split(/\\v\s*/)
+            .filter(Boolean);
 
         // If there are multiple parts, return only the last one with \v prepended
         if (parts.length > 1) {
@@ -80,7 +83,6 @@ function removeMissingVerses(text: string, _bcId: string, _bookId: string): stri
 function removeMissingFigures(text: string, _bcId: string, _bookId: string): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
-    
 
     // Replace each \fig marker with the appropriate action
     return text.replace(figRegex, (match, figContent) => {
