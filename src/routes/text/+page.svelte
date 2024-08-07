@@ -56,6 +56,7 @@
     import { goto } from '$app/navigation';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
+    import Storybook from '$lib/components/Storybook.svelte';
 
     let savedScrollPosition = 0;
     function saveScrollPosition() {
@@ -130,11 +131,14 @@
     $: showBorderSetting = getFeatureValueBoolean('show-border', $refs.collection, $refs.book);
     $: showBorder =
         config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting);
+    $: textDirection = config.bookCollections.find((x) => x.id === $refs.collection).style
+        .textDirection;
     $: viewSettings = {
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
         bookmarks: $bookmarks,
+        direction: textDirection,
         notes: $notes,
         highlights: $highlights,
         maxSelections: config.mainFeatures['annotation-max-select'],
@@ -436,7 +440,18 @@
                             }}
                             on:swipe={doSwipe}
                         >
-                            <ScriptureViewSofria {...viewSettings} />
+                            {#if viewSettings.references.isStory}
+                                <Storybook
+                                    proskomma={viewSettings.proskomma}
+                                    references={viewSettings.references}
+                                    bodyFontSize={viewSettings.bodyFontSize}
+                                    bodyLineHeight={viewSettings.bodyLineHeight}
+                                    direction={viewSettings.direction}
+                                    font={viewSettings.font}
+                                />
+                            {:else}
+                                <ScriptureViewSofria {...viewSettings} />
+                            {/if}
                         </div>
                     </main>
                 </div>

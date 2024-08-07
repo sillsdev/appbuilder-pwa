@@ -1,4 +1,4 @@
-import { Sequence } from './sofria-schema';
+import type { Sequence } from './sofria-schema';
 
 export interface ListSequence extends Sequence {
     type: 'list';

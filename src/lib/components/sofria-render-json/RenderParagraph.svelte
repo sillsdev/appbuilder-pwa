@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isListItem, isUsfmParagraph, usfmClass } from './schema/paragraphs';
+    import { isListContainer, isListItem, isUsfmParagraph, usfmClass } from './schema/paragraphs';
     import RenderContent from './RenderContent.svelte';
     import type { Paragraph } from './schema/sofria-schema';
 
@@ -12,6 +12,10 @@
 
 {#if isUsfmParagraph(paragraph)}
     <div class={usfmClass(paragraph)}>
+        <RenderContent content={paragraph.content} />
+    </div>
+{:else if isListContainer(paragraph)}
+    <div class="my-4">
         <RenderContent content={paragraph.content} />
     </div>
 {:else if isListItem(paragraph)}

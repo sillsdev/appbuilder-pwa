@@ -39,6 +39,7 @@ LOGGING:
     export let bodyFontSize: any;
     export let bodyLineHeight: any;
     export let bookmarks: any;
+    export let direction: string;
     export let notes: any;
     export let highlights: any;
     export let maxSelections: any;
@@ -1250,8 +1251,11 @@ LOGGING:
                                                 const refText = generateHTML(text, 'header-ref');
                                                 spanV.innerHTML = refText;
                                                 if (workspace.phraseDiv === null) {
-                                                    workspace.phraseDiv = startPhrase(workspace, 'keep');
-                                                } 
+                                                    workspace.phraseDiv = startPhrase(
+                                                        workspace,
+                                                        'keep'
+                                                    );
+                                                }
                                                 workspace.phraseDiv.appendChild(spanV);
                                             } else {
                                                 addText(workspace, text);
@@ -1896,9 +1900,6 @@ LOGGING:
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
     $: books = $refs.catalog.documents;
-    $: direction = config.bookCollections.find((x) => x.id === references.collection).style
-        .textDirection;
-
     $: (() => {
         performance.mark('query-start');
         const bookHasIntroduction = books.find((x) => x.bookCode === currentBook).hasIntroduction;

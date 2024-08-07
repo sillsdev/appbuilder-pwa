@@ -83,6 +83,51 @@ const config = {
                     features: {}
                 }
             ]
+        },
+        {
+            id: 'C03',
+            languageCode: 'eng',
+            collectionName: 'World English Bible',
+            collectionAbbreviation: 'web',
+            books: [
+                {
+                    chapters: 3,
+                    chaptersN: '1-3',
+                    fonts: [],
+                    id: 'MAT',
+                    name: 'Matthew',
+                    section: 'Gospel',
+                    testament: 'NT',
+                    abbreviation: 'Mat'
+                },
+                {
+                    chapters: 9,
+                    chaptersN: '1-9',
+                    fonts: [],
+                    id: '001',
+                    type: 'story',
+                    name: 'Unmerciful Servant',
+                    abbreviation: 'US',
+                    audio: [
+                        {
+                            num: 1,
+                            filename: 'unmercifulservant.mp3',
+                            len: 145842,
+                            size: 2328449,
+                            src: 'a1',
+                            timingFile: 'C01-01-001-01-timing.txt'
+                        }
+                    ],
+                    file: 'Unmerciful Servant.usfm',
+                    features: {
+                        'show-chapter-numbers': 'no',
+                        'lock-orientation': 'none',
+                        'show-border': 'inherit',
+                        'audio-goto-next-chapter': 'inherit',
+                        'story-image-max-height': 44
+                    }
+                }
+            ]
         }
     ]
 };
@@ -179,8 +224,67 @@ const catalog2: CatalogData = {
     tags: {}
 };
 
-function getTestCatalog(docSet: string): Promise<CatalogData> {
-    return Promise.resolve(docSet == 'eng_C01' ? catalog1 : catalog2);
+const catalog3: CatalogData = {
+    id: 'eng_C01',
+    selectors: { lang: 'eng', abbr: 'C01' },
+    hasMapping: false,
+    documents: [
+        {
+            id: 'MGNjODdlMjIt',
+            bookCode: 'MAT',
+            h: 'Matthew',
+            toc: 'The Good News According to Matthew',
+            toc2: 'Matthew',
+            toc3: 'Mat',
+            sequences: [],
+            hasIntroduction: false,
+            versesByChapters: {
+                1: {
+                    1: '1',
+                    2: '2',
+                    3: '3'
+                },
+                2: {
+                    1: '1',
+                    2: '2',
+                    3: '3',
+                    4: '4'
+                },
+                3: {
+                    1: '1',
+                    2: '2'
+                }
+            }
+        },
+        {
+            id: 'MTg4NTk2ODUt',
+            bookCode: '001',
+            h: null,
+            toc: null,
+            toc2: 'Unmerciful Servant',
+            toc3: null,
+            sequences: [],
+            hasIntroduction: false,
+            versesByChapters: {
+                '1': {},
+                '2': {},
+                '3': {},
+                '4': {},
+                '5': {},
+                '6': {},
+                '7': {},
+                '8': {},
+                '9': {}
+            }
+        }
+    ],
+    tags: {}
+};
+async function getTestCatalog(docSet: string): Promise<CatalogData> {
+    if (docSet === 'eng_C01') return catalog1;
+    if (docSet === 'grc_C02') return catalog2;
+    if (docSet === 'eng_C03') return catalog3;
+    throw new Error(`Please provide a test catalog for docset ${docSet}`);
 }
 
 describe('goToInitial', async () => {
@@ -369,22 +473,6 @@ describe('goTo', () => {
         expect(navContext.chapterLength).toBe(1);
     });
 
-    // test('chapter length is 1 when versesByChapter is empty', async () => {
-    //     // Not sure when this may occur, but old code made provision for it.
-    //     const navContext = new TestNavigationContext(getTestCatalog, config);
-    //     await navContext.goToInitial();
-    //     await navContext.goTo('grc_C02', 'LUK', '1', '1');
-    //     expect(navContext.chapterLength).toBe(1);
-    // });
-
-    // test('chapter is 1 when versesByChapter is empty', async () => {
-    //     // Not sure when this may occur, but old code made provision for it.
-    //     const navContext = new TestNavigationContext(getTestCatalog, config);
-    //     await navContext.goToInitial();
-    //     await navContext.goTo('grc_C02', 'LUK', '2', '1');
-    //     expect(navContext.chapter).toBe('1');
-    // });
-
     describe('collection', () => {
         test('after initialization', async () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
@@ -526,7 +614,7 @@ describe('goTo', () => {
             expect(navContext.chapter).toBe('1');
         });
 
-        test('at end of collection do not advane', async () => {
+        test('at end of collection do not advance', async () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MRK', '3', '1');
@@ -583,6 +671,23 @@ describe('goTo', () => {
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MAT', '2');
             expect(navContext.reference).toBe('eng_C01.MAT.2');
+        });
+    });
+
+    describe('bookIsStory', () => {
+        test('false for Scripture', async () => {
+            const navContext = new TestNavigationContext(getTestCatalog, config);
+            await navContext.gotoInitial();
+            await navContext.goto('eng_C03', 'MAT', '2');
+            expect(navContext.bookIsStory).toBe(false);
+        });
+
+        test('true for storybook', async () => {
+            const navContext = new TestNavigationContext(getTestCatalog, config);
+            await navContext.gotoInitial();
+            await navContext.goto('eng_C03', '001', '2');
+            console.log(navContext.book);
+            expect(navContext.bookIsStory).toBe(true);
         });
     });
 });
