@@ -152,7 +152,7 @@ export async function convertBooks(
     const files: any[] = [];
 
     // copy book-related folder resources
-    ['quiz', 'songs', 'plans'].forEach((folder) => {
+    ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
         const folderDstDir = path.join('static', folder);
         if (fs.existsSync(folderSrcDir)) {
@@ -518,11 +518,11 @@ function convertScriptureBook(
                 if (context.verbose)
                     console.log(
                         (r.data?.addDocument ? '' : 'failed: ') +
-                            context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
+                        context.docSet +
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 //if the document is not added successfully, the response returned by Proskomma includes an error message
                 if (!r.data?.addDocument) {
@@ -584,7 +584,7 @@ export interface BooksTaskOutput extends TaskOutput {
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 export class ConvertBooks extends Task {
-    public triggerFiles: string[] = ['books', 'quiz', 'songs', 'plans', 'appdef.xml'];
+    public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
     public static lastBookCollections: ConfigTaskOutput['data']['bookCollections'];
     constructor(dataDir: string) {
         super(dataDir);

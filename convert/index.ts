@@ -7,6 +7,7 @@ import { ConvertAbout } from './convertAbout';
 import { ConvertFirebase } from './convertFirebase';
 import { ConvertStyles } from './convertStyles';
 import { ConvertBadges } from './convertBadges';
+import { ConvertPlans } from './convertPlans';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
@@ -39,6 +40,7 @@ const verbose: number = verboseLevel
 const stepClasses: Task[] = [
     ConvertConfig,
     ConvertContents,
+    ConvertPlans,
     ConvertStyles,
     ConvertManifest,
     ConvertMedia,
