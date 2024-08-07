@@ -925,9 +925,9 @@ function convertConfig(dataDir: string, verbose: number) {
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
         }
-        const audioFiles = document
-            .getElementsByTagName('audio-files')[0]
-            .getElementsByTagName('audio');
+        const audioFilesContainer = document.getElementsByTagName('audio-files')[0];
+        if (audioFilesContainer) {
+            const audioFiles = audioFilesContainer.getElementsByTagName('audio');
         if (audioFiles?.length > 0) {
             data.audio.files = [];
             for (const audioFile of audioFiles) {
@@ -941,6 +941,7 @@ function convertConfig(dataDir: string, verbose: number) {
             }
         }
     }
+}
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
