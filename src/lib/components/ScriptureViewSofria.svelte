@@ -808,7 +808,6 @@ LOGGING:
     }
     // handles on click when interacting with the scripture view
     function onClick(e: any) {
-        console.log('We are here', e);
         switch (e.target.getAttribute('class')) {
             case 'v':
                 audioClickHandler(e);
