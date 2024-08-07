@@ -22,6 +22,12 @@ type BookCollectionAudio = {
     timingFile: string;
 };
 
+type StorybookImage = {
+    page: string;
+    filename: string;
+    // TODO: Add motion parameters
+};
+
 type Style = {
     font: string;
     textSize: number;
@@ -49,6 +55,7 @@ export type Book = {
     audio: BookCollectionAudio[];
     features: any;
     quizFeatures?: any;
+    storybookImages?: StorybookImage[];
     footer?: HTML;
     style?: Style;
     styles?: {
@@ -459,6 +466,54 @@ function checkBookCodes(books: Element[]) {
     }
 }
 
+function getBookAudio(book: Element, verbose: number) {
+    const audio: BookCollectionAudio[] = [];
+    for (const page of book.getElementsByTagName('page')) {
+        if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
+        const audioTag = page.getElementsByTagName('audio')[0];
+        if (!audioTag) continue;
+        if (audioTag.attributes.getNamedItem('background')?.value === 'continue') {
+            // Happens when a storybook uses a single audio file for multiple pages.
+            // TODO: Implement this feature
+            continue;
+        }
+        const fTag = audioTag.getElementsByTagName('f')[0];
+        if (verbose >= 2)
+            console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
+        audio.push({
+            num: parseInt(page.attributes.getNamedItem('num')!.value),
+            filename: fTag.innerHTML,
+            len: fTag.hasAttribute('len')
+                ? parseInt(fTag.attributes.getNamedItem('len')!.value)
+                : undefined,
+            size: fTag.hasAttribute('size')
+                ? parseInt(fTag.attributes.getNamedItem('size')!.value)
+                : undefined,
+            src: fTag.attributes.getNamedItem('src')!.value,
+            timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
+        });
+        if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
+    }
+    return audio;
+}
+
+function imageFromPage(page: Element): StorybookImage | null {
+    const filenameElement = page.getElementsByTagName('image-filename')[0];
+    const filename = filenameElement?.textContent;
+    const num = page.getAttribute('num');
+    return filename && num
+        ? {
+              filename,
+              page: num
+          }
+        : null;
+}
+
+function getStorybookImages(book: Element): StorybookImage[] {
+    const pages = Array.from(book.getElementsByTagName('page'));
+    return pages.map(imageFromPage).filter((image) => image) as StorybookImage[];
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
@@ -621,33 +676,6 @@ function convertConfig(dataDir: string, verbose: number) {
         convertBookCodes(Array.from(bookTags));
         for (const book of bookTags) {
             if (verbose >= 2) console.log(`. book: ${book.id}`);
-            const audio: BookCollectionAudio[] = [];
-            for (const page of book.getElementsByTagName('page')) {
-                if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
-                const audioTag = page.getElementsByTagName('audio')[0];
-                if (!audioTag) continue;
-                if (audioTag.attributes.getNamedItem('background')?.value === 'continue') {
-                    // Happens when a storybook uses a single audio file for multiple pages.
-                    // TODO: Implement this feature
-                    continue;
-                }
-                const fTag = audioTag.getElementsByTagName('f')[0];
-                if (verbose >= 2)
-                    console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
-                audio.push({
-                    num: parseInt(page.attributes.getNamedItem('num')!.value),
-                    filename: fTag.innerHTML,
-                    len: fTag.hasAttribute('len')
-                        ? parseInt(fTag.attributes.getNamedItem('len')!.value)
-                        : undefined,
-                    size: fTag.hasAttribute('size')
-                        ? parseInt(fTag.attributes.getNamedItem('size')!.value)
-                        : undefined,
-                    src: fTag.attributes.getNamedItem('src')!.value,
-                    timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
-                });
-                if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
-            }
             const bookFeaturesTag = book
                 .querySelector('features[type=book]')
                 ?.getElementsByTagName('e');
@@ -704,7 +732,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
-                audio,
+                audio: getBookAudio(book, verbose),
+                storybookImages: getStorybookImages(book),
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
                 quizFeatures,
