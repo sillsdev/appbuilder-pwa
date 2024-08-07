@@ -142,7 +142,6 @@ export type ConfigData = {
     keys?: string[];
     about?: string; // TODO
     analytics?: {
-        // TODO
         enabled: boolean;
         providers: {
             id: string;
