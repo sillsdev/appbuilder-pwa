@@ -925,23 +925,26 @@ function convertConfig(dataDir: string, verbose: number) {
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
         }
-        const audioFilesContainer = document.getElementsByTagName('audio-files')[0];
-        if (audioFilesContainer) {
-            const audioFiles = audioFilesContainer.getElementsByTagName('audio');
-        if (audioFiles?.length > 0) {
+        
+        const audioTags = document.getElementsByTagName('audio-files')[0]?.getElementsByTagName('audio');
+        if (audioTags?.length > 0) {
             data.audio.files = [];
-            for (const audioFile of audioFiles) {
-                const fileEntry = audioFile.getElementsByTagName('filename')[0];
+
+            for (const tag of audioTags) {
+                const fileEntry = tag.getElementsByTagName('filename')[0];
+                if (!fileEntry) continue;
+
                 const filename = fileEntry.innerHTML;
                 const src = fileEntry.getAttribute('src') ?? '';
+
                 data.audio.files.push({
                     name: filename,
                     src: src
                 });
             }
-        }
+        } 
     }
-}
+
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
