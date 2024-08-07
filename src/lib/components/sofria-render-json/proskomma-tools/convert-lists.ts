@@ -1,14 +1,15 @@
-import { OrderedListSequence } from '../schema/sequences';
 import {
-    Content,
-    Wrapper,
-    ContentModifier,
-    ContentElement,
+    type Content,
+    type Wrapper,
+    type ContentModifier,
+    type ContentElement,
     isWrapper,
-    Paragraph,
-    Block,
-    Graft
+    type Paragraph,
+    type Block,
+    type Graft,
+    isParagraph
 } from '../schema/sofria-schema';
+import { replaceContent } from './convert-paragraph';
 
 function listItemSubtype(level: number, ordered: boolean) {
     return ordered ? `zoli${level}` : `zuli${level}`;
@@ -114,15 +115,6 @@ function getRemainingContent(
 }
 
 /**
- * Return a copy of the wrapper element with different content
- */
-function replaceContent(wrapper: Wrapper, content: Content) {
-    const copy = JSON.parse(JSON.stringify(wrapper)) as Wrapper;
-    copy.content = content;
-    return copy;
-}
-
-/**
  * Parse a content element of a list defined by milestones
  *
  * @returns an object with the following properties:
@@ -210,6 +202,8 @@ function convertListLevel(content: Content, level: number, ordered: boolean) {
         .map((item) => convertNestedListContent(item, level + 1, ordered))
         // Clean up nested \zon start milestones
         .map((item) => removeOrderedListMarkers(item, level + 1, true))
+        // Clean up empty list items
+        .filter(hasTextContent)
         .map((item) => listBulletParagraph(item, level, ordered));
     const sequence = ordered
         ? {
@@ -227,6 +221,15 @@ function convertListLevel(content: Content, level: number, ordered: boolean) {
         sequence
     };
     return { label, bullets: bulletsGraft };
+}
+
+function hasTextContent(content: Content): boolean {
+    const text = content.find(
+        (element) =>
+            (typeof element === 'string' && element.trim().length) ||
+            (isWrapper(element) && hasTextContent(element.content))
+    );
+    return text ? true : false;
 }
 
 function listBulletParagraph(itemContent: Content, level: number, ordered: boolean): Paragraph {
@@ -247,15 +250,25 @@ function convertNestedListContent(content: Content, level: number, ordered: bool
     return label.concat(bullets);
 }
 
-export function convertIfList(paragraph: Paragraph): Block {
+function convertList(paragraph: Paragraph, ordered: boolean): Paragraph {
+    const { bullets } = convertListLevel(paragraph.content, 1, ordered);
+    return {
+        type: 'paragraph',
+        subtype: 'list_container',
+        content: [bullets]
+    };
+}
+
+export function maybeConvertList(paragraph: Paragraph): Paragraph {
     if (hasList(paragraph.content, 1, false)) {
-        const { bullets } = convertListLevel(paragraph.content, 1, false);
-        return bullets;
+        return convertList(paragraph, false);
     }
     return paragraph;
 }
 
-export function convertIfOrderedList(paragraph: Paragraph): Block {
-    const { bullets } = convertListLevel(paragraph.content, 1, true);
-    return bullets;
+export function maybeConvertOrderedList(paragraph: Paragraph): Paragraph {
+    if (hasList(paragraph.content, 1, true)) {
+        return convertList(paragraph, true);
+    }
+    return paragraph;
 }

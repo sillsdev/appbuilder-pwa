@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { sequence } from '@sveltejs/kit/hooks';
     import RenderParagraph from './RenderParagraph.svelte';
     import RenderSequence from './RenderSequence.svelte';
-    import { Block, blockIsGraft, isParagraph } from './schema/sofria-schema';
+    import { type Block, blockIsGraft, isParagraph } from './schema/sofria-schema';
 
     export let blocks: Block[];
 

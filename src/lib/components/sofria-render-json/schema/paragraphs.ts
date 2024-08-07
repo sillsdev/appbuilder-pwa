@@ -8,6 +8,10 @@ export function usfmClass(paragraph: Paragraph) {
     return paragraph.subtype.split(':')[1];
 }
 
+export function isListContainer(paragraph: Paragraph) {
+    return paragraph.subtype === 'list_container';
+}
+
 export interface ListItem extends Paragraph {
     subtype: 'list_item';
     atts: {
