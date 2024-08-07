@@ -10,6 +10,7 @@ LOGGING:
     { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
 <script lang="ts">
+    import { onMount } from 'svelte';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import config from '$lib/data/config';
@@ -459,6 +460,16 @@ LOGGING:
             }
         });
     }
+    function remoteAudioClipHandler(event: any) {
+        event.stopPropagation();
+        const address = event.target.getAttribute('filelink');
+        const el = document.querySelector(`audio[id="${address}" ]`);
+        if (el) {
+            const urlString = el.getAttribute('src');
+            const audio = new Audio(urlString);
+            audio.play();
+        }
+    }
     function navigate(reference) {
         refs.set({
             docSet: reference.docSet,
@@ -806,6 +817,9 @@ LOGGING:
                 break;
             case 'glossary':
                 glossaryClickHandler(e);
+                break;
+            case 'audioclip':
+                remoteAudioClipHandler(e);
                 break;
             default:
                 if (e.target.classList.contains('ref-link')) {
@@ -1775,7 +1789,8 @@ LOGGING:
                                 workspace.milestoneText,
                                 workspace.milestoneLink,
                                 workspace.audioClips.length,
-                                element.subType
+                                element.subType,
+                                onClick
                             );
                             workspace.milestoneLink = '';
                             workspace.milestoneText = '';
@@ -1946,5 +1961,5 @@ LOGGING:
         style:line-height={lineHeight}
         class="single"
         style:direction
-    />
+    ></div>
 </article>
