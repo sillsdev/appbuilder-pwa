@@ -159,7 +159,7 @@ export type ConfigData = {
         files?: {
             name: string;
             src: string;
-            }[];
+        }[];
     };
     videos?: {
         id: string;
@@ -800,9 +800,9 @@ function convertConfig(dataDir: string, verbose: number) {
         const audioFiles = document
             .getElementsByTagName('audio-files')[0]
             .getElementsByTagName('audio');
-        if(audioFiles?.length > 0){
+        if (audioFiles?.length > 0) {
             data.audio.files = [];
-            for(const audioFile of audioFiles){
+            for (const audioFile of audioFiles) {
                 const fileEntry = audioFile.getElementsByTagName('filename')[0];
                 const filename = fileEntry.innerHTML;
                 const src = fileEntry.getAttribute('src') ?? '';
@@ -815,7 +815,6 @@ function convertConfig(dataDir: string, verbose: number) {
     }
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
-   
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
     if (videoTags?.length > 0) {
         data.videos = [];
