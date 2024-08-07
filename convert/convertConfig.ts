@@ -797,8 +797,10 @@ function convertConfig(dataDir: string, verbose: number) {
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
         }
-        
-        const audioTags = document.getElementsByTagName('audio-files')[0]?.getElementsByTagName('audio');
+
+        const audioTags = document
+            .getElementsByTagName('audio-files')[0]
+            ?.getElementsByTagName('audio');
         if (audioTags?.length > 0) {
             data.audio.files = [];
 
@@ -814,7 +816,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     src: src
                 });
             }
-        } 
+        }
     }
 
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
