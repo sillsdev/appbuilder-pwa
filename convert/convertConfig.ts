@@ -144,7 +144,7 @@ export type ConfigData = {
         name: string;
         type: string;
     }[];
-    audio?: { // Added here
+    audio?: {
         sources: {
             [key: string]: {
                 type: string;
