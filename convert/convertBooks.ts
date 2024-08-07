@@ -119,31 +119,6 @@ function isImageMissing(imageSource: string): boolean {
     return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
 
-// document.addEventListener('DOMContentLoaded', function() {
-//     const configData = {
-//         traits: {
-//             'hide-empty-verses': true, // Set to true for chapters that should hide empty verses
-//             'show-verse-numbers': true // Default value
-//         }
-//     };
-
-//     function updateConfigForEmptyVerses(configData: ConfigData): void {
-//         if (configData.traits['hide-empty-verses']) {
-//             configData.traits['show-verse-numbers'] = false;
-//             console.log("Set show-verse-numbers to false");
-//         } else {
-//             configData.traits['show-verse-numbers'] = true;
-//             console.log("Set show-verse-numbers to true");
-//         }
-//     }
-
-//     // Call the function to update the config
-//     updateConfigForEmptyVerses(configData);
-
-//     // Check the updated configData
-//     console.log(configData);
-// });
-
 const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
