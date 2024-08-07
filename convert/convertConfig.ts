@@ -45,7 +45,7 @@ export type Book = {
     chaptersN: string; // 1-34
     fonts: string[];
     file: string;
-    audio: BookCollectionAudio[]; // Updated here
+    audio: BookCollectionAudio[];
     features: any;
     footer?: HTML;
     style?: Style;
