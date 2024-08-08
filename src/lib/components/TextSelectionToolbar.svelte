@@ -40,8 +40,6 @@ TODO:
     import { shareText } from '$lib/data/share';
     import { play, seekToVerse } from '$lib/data/audio';
     import { getBook, logShareContent } from '$lib/data/analytics';
-    import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
