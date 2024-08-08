@@ -11,7 +11,7 @@
 </script>
 
 {#if isUsfmParagraph(paragraph)}
-    <div class={usfmClass(paragraph)}>
+    <div class="{usfmClass(paragraph)} m-3">
         <RenderContent content={paragraph.content} />
     </div>
 {:else if isListContainer(paragraph)}
