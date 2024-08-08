@@ -9,6 +9,9 @@
 
     export let document: Document;
 
+    // Uncomment to examine Sofria input
+    // console.log(JSON.stringify(document));
+
     let mainSequence: Sequence;
 
     if (isFlatDocument(document)) {
