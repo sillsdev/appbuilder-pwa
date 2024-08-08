@@ -19,26 +19,22 @@
     let title: string;
     let text: string;
 
-    // $: heading = editingProp ? $t[title] ?? '' : note?.reference ?? '';
     $: heading = editing ? note?.reference ?? '' : $t[title] ?? '';
 
-    export async function showModal() {
+    export async function showNote() {
         if (note !== undefined) {
             text = note.text;
             editing = true;
             title = 'Annotation_Note_Edit';
             modal.showModal();
         } else {
-            // editingProp = true;
             editing = false;
-            await createNote();
-            goto(`${base}/notes/edit/${note.date}`);
+            goto(`${base}/notes/new`);
         }
     }
 
     function reset() {
         text = '';
-        // editingProp = false;
         selectedVerses.reset();
     }
 
@@ -61,7 +57,6 @@
         }
         goto(`${base}/notes/edit/${note.date}`);
     }
-
 </script>
 
 <Modal bind:this={modal} {id} onclose={reset}>

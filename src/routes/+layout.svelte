@@ -60,7 +60,7 @@
                         break;
                     case MODAL_NOTE:
                         noteDialog.note = data;
-                        noteDialog.showModal();
+                        noteDialog.showNote();
                         break;
                     case MODAL_TEXT_APPEARANCE:
                         textAppearanceSelector.options = data;
