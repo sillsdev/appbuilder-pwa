@@ -56,6 +56,8 @@
     import { goto } from '$app/navigation';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
+    import StorybookText from '$lib/components/StorybookText.svelte';
+    import StorybookImage from '$lib/components/StorybookImage.svelte';
 
     let savedScrollPosition = 0;
     function saveScrollPosition() {
@@ -76,9 +78,11 @@
     async function doSwipe(event) {
         const swipeDirection = event.detail.direction;
         console.log('SWIPE', swipeDirection);
-        if (swipeBetweenBooks || 
-            ($refs.prev.book === $refs.book && swipeDirection === 'right') || 
-            ($refs.next.book === $refs.book && swipeDirection === 'left')) {
+        if (
+            swipeBetweenBooks ||
+            ($refs.prev.book === $refs.book && swipeDirection === 'right') ||
+            ($refs.next.book === $refs.book && swipeDirection === 'left')
+        ) {
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
@@ -130,11 +134,14 @@
     $: showBorderSetting = getFeatureValueBoolean('show-border', $refs.collection, $refs.book);
     $: showBorder =
         config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting);
+    $: textDirection = config.bookCollections.find((x) => x.id === $refs.collection).style
+        .textDirection;
     $: viewSettings = {
         audioPhraseEndChars: audioPhraseEndChars,
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
         bookmarks: $bookmarks,
+        direction: textDirection,
         notes: $notes,
         highlights: $highlights,
         maxSelections: config.mainFeatures['annotation-max-select'],
@@ -406,27 +413,34 @@
         </div>
     {/if}
     <div
-        class:borderimg={showBorder}
-        class="overflow-y-auto"
+        class="flex flex-col overflow-y-auto"
+        class:borderimg={showBorder && !viewSettings.references.isStory}
         bind:this={scrollingDiv}
         on:scroll={saveScrollPosition}
     >
-        <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
+        <div class="flex flex-row flex-grow mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
                     on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev && navigateBetweenBooksPrev
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
+                    navigateBetweenBooksPrev
                         ? 'visible'
                         : 'invisible'}"
                 >
                     <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
                 </button>
             </div>
-            <div class="basis-5/6 max-w-screen-md">
-                <div class="p-2 w-full">
-                    <main>
+            <div
+                class="flex flex-col {$refs.isStory ? 'md:basis-5/6' : 'basis-5/6'} max-w-screen-md"
+            >
+                <div class="flex flex-col p-2 w-full flex-grow">
+                    <main class="flex flex-col flex-grow">
+                        {#if viewSettings.references.isStory}
+                            <StorybookImage references={viewSettings.references} />
+                        {/if}
                         <div
-                            class="max-w-screen-md mx-auto"
+                            class="flex flex-col flex-grow max-w-screen-md mx-auto"
+                            class:borderimg={viewSettings.references.isStory && showBorder}
                             use:pinch
                             on:pinch={doPinch}
                             use:swipe={{
@@ -436,7 +450,18 @@
                             }}
                             on:swipe={doSwipe}
                         >
-                            <ScriptureViewSofria {...viewSettings} />
+                            {#if viewSettings.references.isStory}
+                                <StorybookText
+                                    proskomma={viewSettings.proskomma}
+                                    references={viewSettings.references}
+                                    bodyFontSize={viewSettings.bodyFontSize}
+                                    bodyLineHeight={viewSettings.bodyLineHeight}
+                                    direction={viewSettings.direction}
+                                    font={viewSettings.font}
+                                />
+                            {:else}
+                                <ScriptureViewSofria {...viewSettings} />
+                            {/if}
                         </div>
                     </main>
                 </div>
@@ -444,7 +469,8 @@
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
                     on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext && navigateBetweenBooksNext
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
+                    navigateBetweenBooksNext
                         ? 'visible'
                         : 'invisible'}"
                 >

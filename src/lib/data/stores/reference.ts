@@ -3,7 +3,7 @@ import { derived, writable } from 'svelte/store';
 import type { CatalogData } from '../catalogData';
 import config from '$lib/data/config';
 
-interface ReferenceStore {
+export interface ReferenceStore {
     docSet: string;
     collection: string;
     book: string;
@@ -11,6 +11,7 @@ interface ReferenceStore {
     verse: string;
     chapterVerses: string;
     numVerses: number;
+    isStory: boolean;
     hasAudio: any;
     title: string;
     name: string;
@@ -34,6 +35,7 @@ export const referenceStore = () => {
             chapterVerses: nav.chapterVerses,
             numVerses: nav.chapterLength,
             hasAudio: nav.audio,
+            isStory: nav.bookIsStory,
             title: nav.title,
             name: nav.name,
             next: nav.next,
