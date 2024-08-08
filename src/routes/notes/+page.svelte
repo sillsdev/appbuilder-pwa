@@ -4,7 +4,7 @@
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, monoIconColor, refs, modal, MODAL_NOTE, bodyFontSize } from '$lib/data/stores';
+    import { t, monoIconColor, refs, bodyFontSize } from '$lib/data/stores';
     import { formatDate } from '$lib/scripts/dateUtils';
     import { removeNote, type NoteItem } from '$lib/data/notes';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
@@ -20,7 +20,6 @@
                 goto(`${base}/`);
                 break;
             case $t['Annotation_Menu_Edit']:
-                // modal.open(MODAL_NOTE, note);
                 goto(`/notes/edit/${note.date}`);
                 break;
             case $t['Annotation_Menu_Share']:

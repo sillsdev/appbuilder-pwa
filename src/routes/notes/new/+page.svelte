@@ -1,40 +1,36 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
-    import { noteEditing, t } from '$lib/data/stores';
+    import { t, selectedVerses } from '$lib/data/stores';
     import { DeleteIcon, CheckIcon } from '$lib/icons';
-    import { editNote,removeNote } from '$lib/data/notes';
+    import { addNote } from '$lib/data/notes';
 
-    export let data;
-    let note = data.note;
+    let note = '';
     let text = note.text;
-    let editing;
-    noteEditing.subscribe((value) => {
-        editing = value;
-    });
-    
-    const title = 'Annotation_Note_Edit';
+    const title = 'Annotation_Note_Add';
 
     function goBack() {
         history.back();
     }
-
+    
     function onBackNavigate(event) {
         event.preventDefault();
         goBack();
     }
 
-    async function deleteNote() {
-        await removeNote(note.date);
+    async function createNote() {
+        await addNote({
+            docSet: $selectedVerses[0].docSet,
+            collection: $selectedVerses[0].collection,
+            book: $selectedVerses[0].book,
+            chapter: $selectedVerses[0].chapter,
+            verse: $selectedVerses[0].verse,
+            text,
+            reference: $selectedVerses[0].reference
+        });
         goBack();
     }
 
-    async function modifyNote() {
-        if (note !== undefined) {
-            await editNote({
-                note: note,
-                newText:text
-            });
-        }
+    async function deleteNote() {
         goBack();
     }
 </script>
@@ -47,7 +43,7 @@
 
         <div slot="right-buttons">
             <button on:click={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"><DeleteIcon color="white" /></button>
-            <button on:click={modifyNote} class="dy-btn dy-btn-ghost p-1"><CheckIcon color="white" /></button>
+            <button on:click={createNote} class="dy-btn dy-btn-ghost p-1"><CheckIcon color="white" /></button>
         </div>
     </Navbar>
 
