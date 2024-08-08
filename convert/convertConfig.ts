@@ -442,6 +442,7 @@ function lengthenBookCode(id: string, allIds: string[]): string | null {
 
 function convertBookCodes(books: Element[]) {
     for (const bk of books) {
+        bk.setAttribute('fullId', bk.id);
         const ids = books.map((b) => b.id);
         const shortened = shortenBookCode(bk.id, ids);
         const lengthened = lengthenBookCode(bk.id, ids);
@@ -452,8 +453,8 @@ function convertBookCodes(books: Element[]) {
             console.log(`  lengthening book code: ${bk.id} => ${lengthened}`);
             bk.id = lengthened;
         }
-        checkBookCodes(books);
     }
+    checkBookCodes(books);
 }
 
 function checkBookCodes(books: Element[]) {
@@ -497,21 +498,35 @@ function getBookAudio(book: Element, verbose: number) {
     return audio;
 }
 
-function imageFromPage(page: Element): StorybookImage | null {
+function imageFromPage(
+    page: Element,
+    collection: string,
+    book: string,
+    imageFiles: string[]
+): StorybookImage | null {
     const filenameElement = page.getElementsByTagName('image-filename')[0];
-    const filename = filenameElement?.textContent;
+
+    // In testing, the image filename took one of the following two forms
+    const filename1 = filenameElement?.textContent;
+    const filename2 = `${collection}-${book}-${filename1}`;
+    const file = imageFiles.find((f) => [filename1, filename2].includes(f));
+
     const num = page.getAttribute('num');
-    return filename && num
+    return file && num
         ? {
-              filename,
+              filename: file,
               page: num
           }
         : null;
 }
 
-function getStorybookImages(book: Element): StorybookImage[] {
+function getStorybookImages(book: Element, collection: string, dataDir: string): StorybookImage[] {
+    const id = book.getAttribute('fullId') ?? book.id;
     const pages = Array.from(book.getElementsByTagName('page'));
-    return pages.map(imageFromPage).filter((image) => image) as StorybookImage[];
+    const imageFiles = readdirSync(path.join(dataDir, 'illustrations'));
+    return pages
+        .map((page) => imageFromPage(page, collection, id, imageFiles))
+        .filter((image) => image) as StorybookImage[];
 }
 
 function convertConfig(dataDir: string, verbose: number) {
@@ -733,7 +748,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio: getBookAudio(book, verbose),
-                storybookImages: getStorybookImages(book),
+                storybookImages: getStorybookImages(book, tag.id, dataDir),
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
                 quizFeatures,

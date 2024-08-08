@@ -30,7 +30,7 @@
     <span class="spin" />
 {:then sofria}
     <div
-        id="content"
+        id="content flex-grow"
         style:font-family={font}
         style:font-size={`${bodyFontSize}px`}
         style:line-height={`${bodyLineHeight}%`}
