@@ -25,11 +25,8 @@ TODO:
     import { ImageIcon } from '$lib/icons/image';
     import config from '$lib/data/config';
     import {
-        t,
         s,
         refs,
-        modal,
-        MODAL_NOTE,
         selectedVerses,
         theme,
         themeColors,
@@ -40,6 +37,8 @@ TODO:
     import { shareText } from '$lib/data/share';
     import { play, seekToVerse } from '$lib/data/audio';
     import { getBook, logShareContent } from '$lib/data/analytics';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -225,7 +224,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modal.open(MODAL_NOTE)}>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => goto(`${base}/notes/new`)}>
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}
