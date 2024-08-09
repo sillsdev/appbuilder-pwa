@@ -518,11 +518,11 @@ function convertScriptureBook(
                 if (context.verbose)
                     console.log(
                         (r.data?.addDocument ? '' : 'failed: ') +
-                        context.docSet +
-                        ' <- ' +
-                        book.name +
-                        ': ' +
-                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                            context.docSet +
+                            ' <- ' +
+                            book.name +
+                            ': ' +
+                            path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 //if the document is not added successfully, the response returned by Proskomma includes an error message
                 if (!r.data?.addDocument) {
