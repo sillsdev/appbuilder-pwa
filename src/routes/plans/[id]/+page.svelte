@@ -1,0 +1,165 @@
+<script>
+    import { page } from '$app/stores';
+    import Navbar from '$lib/components/Navbar.svelte';
+
+    import {
+        language,
+        s,
+        t,
+        convertStyle,
+        themeColors,
+        modal,
+        MODAL_COLLECTION,
+        MODAL_TEXT_APPERANCE
+    } from '$lib/data/stores';
+    import { base } from '$app/paths';
+    import config from '$lib/data/config';
+    import { compareVersions } from '$lib/scripts/stringUtils';
+
+    const imageFolder =
+        compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
+
+    console.log('planData:', $page.data.planData);
+
+    //need some way to know the status of the plan
+    //for now assume it's from choose plans
+
+    let selectedTab = 'info';
+    //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
+
+    let selectedDay = $page.data.planData.items[0];
+    function checkSelection(day) {
+        if (day === selectedDay) {
+            return 'selected plan-day-box-selected';
+        } else {
+            return 'plan-day-box-unselected';
+        }
+    }
+</script>
+
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+    <div class="navbar">
+        <Navbar>
+            <!-- <div slot="left-buttons" /> -->
+            <label for="sidebar" slot="center">
+                <div class="btn btn-ghost normal-case text-xl">
+                    <!--back navigation isn't quite right-->
+                    {$page.data.planConfig[$language] ?? $page.data.planConfig.default ?? ''}
+                </div>
+            </label>
+            <!-- <div slot="right-buttons" class="flex items-center"> -->
+        </Navbar>
+    </div>
+
+    <div class="overflow-y-auto mx-auto max-w-screen-md">
+        {#if $page.data.planConfig.image}
+            <div>
+                <img
+                    class="plan-image"
+                    src="{base}/{imageFolder}/{$page.data.planConfig.image.file}"
+                    alt={$page.data.planConfig.image.file}
+                    width={$page.data.planConfig.image.width}
+                    height={$page.data.planConfig.image.height}
+                />
+            </div>
+        {/if}
+        <div
+            role="tablist"
+            class="dy-tabs dy-tabs-bordered"
+            style={convertStyle($s['ui.plans.tabs'])}
+        >
+            <input
+                type="radio"
+                name="my_tabs_1"
+                role="tab"
+                class="dy-tab dy-tab-bordered {selectedTab === 'info' ? 'dy-tab-active' : ''}"
+                on:click={() => (selectedTab = 'info')}
+                aria-label="info logo"
+                style={convertStyle($s['ui.plans.tabs.text'])}
+            />
+            <input
+                type="radio"
+                name="my_tabs_1"
+                role="tab"
+                class="dy-tab {selectedTab === 'calendar' ? 'dy-tab-active' : ''}"
+                on:click={() => (selectedTab = 'calendar')}
+                aria-label="calendar logo"
+                style={convertStyle($s['ui.plans.tabs.text'])}
+            />
+        </div>
+
+        <div id="container" class="plan-chooser">
+            {#if selectedTab === 'info'}
+                <div id="plan-page" class="plan-details">
+                    <div class="plan-title">
+                        {$page.data.planData.title[$language] ??
+                            $page.data.planData.title.default ??
+                            ''}
+                    </div>
+                    <div class="plan-days">
+                        {$t['Plans_Number_Days'].replace('%d', $page.data.planConfig.days)}
+                    </div>
+                    <div class="plan-description">
+                        {$page.data.planData.description[$language] ??
+                            $page.data.planData.description.default ??
+                            ''}
+                    </div>
+                    <div class="plan-button-block">
+                        <div class="plan-button" id="PLAN-start">
+                            {$t['Plans_Button_Start_Plan']}
+                        </div>
+                    </div>
+                </div>
+            {/if}
+            {#if selectedTab === 'calendar'}
+                <div class="plan-days-scroller" id="scroller">
+                    {#each $page.data.planData.items as item}
+                        <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
+                         plan-day-box plan-day-box-unselected plan-day-box-uncompleted -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <!-- the class plan-day-box in particular does not seem to work-->
+                        <div
+                            class="plan-day-box plan-day-box-uncompleted {selectedDay.day ===
+                            item.day
+                                ? 'selected plan-day-box-selected'
+                                : 'plan-day-box-unselected'}"
+                            id="D-1"
+                            style="    display: inline-block;
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border: 1px solid;
+    border-bottom: 3px solid;
+    text-align: center;
+    cursor: pointer;"
+                            on:click={() => (selectedDay = item)}
+                        >
+                            <div class="plan-day-box-content">
+                                <div class="plan-day-box-weekday">{$t['Plans_Day']}</div>
+                                <div class="plan-day-box-number">{item.day}</div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+
+                <div class="plan-items" id="container">
+                    <table class="plan-items-table">
+                        <tbody>
+                            {#each selectedDay.refs as ref}
+                                <tr class="plan-item" id="R-0">
+                                    <td class="plan-item-checkbox">
+                                        <img class="plan-checkbox-image" id="C-0" src="" alt="" />
+                                    </td>
+                                    <td class="plan-item-title">
+                                        <span class="plan-item-reference">{ref}</span>
+                                    </td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </div>
+            {/if}
+        </div>
+    </div>
+</div>

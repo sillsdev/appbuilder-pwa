@@ -1,5 +1,5 @@
 import { getPlans } from '$lib/data/plans';
-import config from '$lib/data/config';
+
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ depends }) {
@@ -9,9 +9,20 @@ export async function load({ depends }) {
     // Ignore entries if we don't currently have a collection for the entry.
     // This can happen during testing of different PWA at the same port and we don't
     // want to break the feature.
-    const plans = allPlans.filter((item) => {
-        return config.bookCollections.some((collection) => collection.id === item.collection);
-    });
+    const plans = [
+        {
+            "id": "MRK16",
+            "days": 16,
+            "title": {
+                "default": "Mark in 16 days"
+            },
+            "filename": "plan-mark-16.txt",
+            "image": {
+                "width": 910,
+                "height": 512,
+                "file": "plan-mark-16.jpg"
+            }
+        }];
     depends('plans');
     console.log('Plans', plans);
     return { plans };
