@@ -152,7 +152,7 @@ export async function convertBooks(
     const files: any[] = [];
 
     // copy book-related folder resources
-    ['quiz', 'songs', 'plans'].forEach((folder) => {
+    ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
         const folderDstDir = path.join('static', folder);
         if (fs.existsSync(folderSrcDir)) {
@@ -584,7 +584,7 @@ export interface BooksTaskOutput extends TaskOutput {
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 export class ConvertBooks extends Task {
-    public triggerFiles: string[] = ['books', 'quiz', 'songs', 'plans', 'appdef.xml'];
+    public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
     public static lastBookCollections: ConfigTaskOutput['data']['bookCollections'];
     constructor(dataDir: string) {
         super(dataDir);
