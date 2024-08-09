@@ -7,7 +7,8 @@ export async function load({ params, fetch }) {
     const id = params.id;
     const collection = params.collection;
 
-    const book = config.bookCollections.find((x) => x.id === collection).books.find((x) => x.id === id);
+    const bookCollection = config.bookCollections.find((x) => x.id === collection);
+    const book = bookCollection.books.find((x) => x.id === id);
 
     let locked = false;
     let dependentQuizId = null;
@@ -16,6 +17,10 @@ export async function load({ params, fetch }) {
         dependentQuizId = book.quizFeatures['access-after'];
         const accessGranted = await checkQuizAccess(dependentQuizId);
         locked = !accessGranted;
+    }
+    if (locked) {
+        const dependentBook = bookCollection.books.find((x) => x.id === dependentQuizId);
+        dependentQuizName = dependentBook ? dependentBook.name : dependentQuizId;
     }
 
     if (!locked) {

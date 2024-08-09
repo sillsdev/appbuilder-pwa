@@ -334,9 +334,9 @@
         <div class="quiz-locked">
             <div class="quiz-locked-title">{data.quizId}</div>
             <div class="quiz-locked-message">
-                Before accessing this quiz, you need to pass the following quizzes:
+                Before accessing this quiz, you need to pass the following quiz:
             </div>
-            <div class="quiz-locked-name">{dependentQuizId}</div>
+            <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
         </div>
     {:else if questionNum == quizQuestions.length}
         <div class="score">
