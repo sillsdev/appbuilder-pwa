@@ -1,6 +1,7 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
+    import { addQuiz } from '$lib/data/quiz';
     import {
         refs,
         t,
@@ -12,18 +13,45 @@
     } from '$lib/data/stores';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
-    import { onMount, onDestroy } from 'svelte';
+    import { onDestroy } from 'svelte';
+    import { beforeNavigate } from '$app/navigation';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BookSelector from '$lib/components/BookSelector.svelte';
     /** @type {import('./$types').PageData} */
     export let data;
 
-    let quiz = data.quiz;
-    let textHighlightIndex = -1;
-    let book = config.bookCollections
+    $: ({ locked, dependentQuizId, quiz, quizId, quizName } = data);
+
+    $: book = config.bookCollections
         .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === quiz.id);
-    let displayLabel = book.name;
+        .books.find((x) => x.id === quizId);
+
+    $: displayLabel = quizName || 'Quiz';
+
+    $: if (quiz) {
+        score = 0;
+        questionNum = 0;
+        shuffledAnswers = [];
+        quizQuestions = book.quizFeatures['shuffle-questions']
+            ? shuffleArray([...quiz.questions])
+            : [...quiz.questions];
+        handleQuestionChange();
+        playQuizQuestionAudio();
+        quizSaved = false;
+    } else {
+        stopAudioPlayback();
+
+        score = 0;
+        questionNum = 0;
+        shuffledAnswers = [];
+        quizQuestions = [];
+        quizSaved = false;
+    }
+
+    let textHighlightIndex = -1;
+    let quizSaved = false;
+    console.log(data);
+    console.log(data.quiz);
     let shuffledAnswers = [];
     let quizQuestions = [];
     let score = 0;
@@ -58,6 +86,10 @@
         };
         audio.play();
     }
+
+    beforeNavigate(() => {
+        stopAudioPlayback();
+    });
 
     function stopCurrentQuestionAudio() {
         if (currentQuestionAudio) {
@@ -178,9 +210,7 @@
 
     function onQuestionAnswered(answer) {
         textHighlightIndex = -1;
-        stopCurrentQuestionAudio();
-        stopCurrentAnswerAudio();
-        stopCurrentExplanationAudio();
+        stopAudioPlayback();
         if (!clicked) {
             const answerAudio = getAnswerAudio(quiz, answer.correct);
             const audioPath = `${base}/${answerAudio}`;
@@ -261,16 +291,6 @@
         return quizQuestions[questionNum];
     }
 
-    onMount(() => {
-        if (book.quizFeatures['shuffle-questions']) {
-            shuffleQuestions();
-        } else {
-            quizQuestions = quiz.questions;
-        }
-        handleQuestionChange();
-        playQuizQuestionAudio();
-    });
-
     onDestroy(() => {
         stopAudioPlayback();
     });
@@ -309,7 +329,16 @@
             </div>
         </Navbar>
     </div>
-    {#if questionNum == quizQuestions.length}
+
+    {#if locked}
+        <div class="quiz-locked">
+            <div class="quiz-locked-title">{data.quizId}</div>
+            <div class="quiz-locked-message">
+                Before accessing this quiz, you need to pass the following quizzes:
+            </div>
+            <div class="quiz-locked-name">{dependentQuizId}</div>
+        </div>
+    {:else if questionNum == quizQuestions.length}
         <div class="score">
             <div id="content" class="text-center">
                 <div class="quiz-score-before">{$t['Quiz_Score_Page_Message_Before']}</div>
@@ -324,6 +353,15 @@
                 </div>
             </div>
         </div>
+        {#if !quizSaved}
+            {@const passScore = book.quizFeatures['pass-score'] || 0}
+            {@const pass = score >= passScore}
+            {#await addQuiz( { collection: $refs.collection, book: quizId, score, passScore, pass } ) then _}
+                <p>Quiz result saved!</p>
+            {:catch error}
+                <p>Error saving quiz result: {error.message}</p>
+            {/await}
+        {/if}
     {:else}
         <body class="quiz">
             <div id="content">
