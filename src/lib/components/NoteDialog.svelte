@@ -11,25 +11,19 @@
     import { base } from '$app/paths';
 
     export let note = undefined;
-    export let editing = false;
-    $: noteEditing.set(editing);
 
     let id = 'note';
     let modal;
-    let title: string;
     let text: string;
 
-    $: heading = editing ? note?.reference ?? '' : $t[title] ?? '';
+    $: heading = note?.reference ?? '';
 
-    export async function showNote() {
+    export async function showModal() {
         if (note !== undefined) {
             text = note.text;
-            editing = true;
-            title = 'Annotation_Note_Edit';
             modal.showModal();
         } else {
-            editing = false;
-            goto(`${base}/notes/new`);
+            console.log('No note available!')
         }
     }
 
@@ -38,24 +32,8 @@
         selectedVerses.reset();
     }
 
-    async function createNote() {
-         const newNote = await addNote({
-                docSet: $selectedVerses[0].docSet,
-                collection: $selectedVerses[0].collection,
-                book: $selectedVerses[0].book,
-                chapter: $selectedVerses[0].chapter,
-                verse: $selectedVerses[0].verse,
-                text,
-                reference: $selectedVerses[0].reference
-            });
-        note = newNote;
-    }
-
     async function onEditNote(){
-        if (note === undefined) {
-            await createNote();
-        }
-        goto(`${base}/notes/edit/${note.date}`);
+        if (note !== undefined) goto(`${base}/notes/edit/${note.date}`);
     }
 </script>
 
