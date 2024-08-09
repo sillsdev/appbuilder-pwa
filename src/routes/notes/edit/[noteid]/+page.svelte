@@ -1,17 +1,12 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
-    import { noteEditing, t } from '$lib/data/stores';
+    import { t } from '$lib/data/stores';
     import { DeleteIcon, CheckIcon } from '$lib/icons';
-    import { editNote,removeNote } from '$lib/data/notes';
+    import { editNote, removeNote } from '$lib/data/notes';
 
     export let data;
     let note = data.note;
     let text = note.text;
-    let editing;
-    noteEditing.subscribe((value) => {
-        editing = value;
-    });
-    
     const title = 'Annotation_Note_Edit';
 
     function goBack() {
@@ -32,7 +27,7 @@
         if (note !== undefined) {
             await editNote({
                 note: note,
-                newText:text
+                newText: text
             });
         }
         goBack();
