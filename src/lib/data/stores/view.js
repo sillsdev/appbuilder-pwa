@@ -83,12 +83,6 @@ const createWindowSizeStore = () => {
     };
 };
 
-//------------------------------------------TEST---------------------------------
-/**a single store for indicating editing or adding a note*/
-export const noteEditing = writable(false);
-//-------------------------------------------------------------------------------
-
-
 export const windowSize = createWindowSizeStore();
 
 /**scrollTop of main window*/

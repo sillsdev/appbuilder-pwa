@@ -228,7 +228,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modal.open(MODAL_NOTE)}>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => goto(`${base}/notes/new`)}>
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}
