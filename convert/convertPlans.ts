@@ -52,8 +52,9 @@ export function convertPlans(
     }
 
     const files: any[] = [];
-    if (configData.data.plans?.plans) {
-        for (const plan of configData.data.plans?.plans) {
+    const planConfig = configData.data.plans?.plans;
+    if (planConfig) {
+        for (const plan of planConfig) {
             if (plan.image) {
                 const srcFile = path.join(plansDir, plan.image.file);
                 const destFile = path.join(destDir, plan.image.file);
@@ -96,7 +97,7 @@ function convertPlan(srcFile: string): PlansData {
     let id = '';
     let title: { [lang: string]: string } = {};
     let description: { [lang: string]: string } = {};
-    let items: PlanItem[] = [];
+    const items: PlanItem[] = [];
     let item: PlanItem = { day: 0, refs: [] };
     for (const line of planSFM.split('\n')) {
         const parts = line.split(' ', 2);
