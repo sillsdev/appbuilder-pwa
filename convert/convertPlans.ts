@@ -99,39 +99,37 @@ function convertPlan(srcFile: string): PlansData {
     let description: { [lang: string]: string } = {};
     const items: PlanItem[] = [];
     let item: PlanItem = { day: 0, refs: [] };
-    for (const line of planSFM.split('\n')) {
-        const parts = line.split(' ', 2);
-        if (parts.length == 2) {
-            const tag = parts[0].toLowerCase();
-            const value = parts[1];
-            switch (tag) {
-                case '\\id':
-                    id = value;
-                    break;
+    for (const line of planSFM.split(/\r?\n/)) {
+        const [tag, ...parts] = line.split(' ');
+        const value = parts.join(' ');
 
-                case '\\title':
-                    title = parseLocalizedLabel(value, title);
-                    break;
+        switch (tag.toLowerCase()) {
+            case '\\id':
+                id = value;
+                break;
 
-                case '\\descr':
-                    description = parseLocalizedLabel(value, description);
-                    break;
+            case '\\title':
+                title = parseLocalizedLabel(value, title);
+                break;
 
-                case '\\day':
-                    if (item.day > 0) {
-                        items.push(item);
-                    }
-                    item = { day: Number(value), refs: [] };
-                    break;
+            case '\\descr':
+                description = parseLocalizedLabel(value, description);
+                break;
 
-                case '\\ref':
-                    item.refs.push(value);
-                    break;
+            case '\\day':
+                if (item.day > 0) {
+                    items.push(item);
+                }
+                item = { day: Number(value), refs: [] };
+                break;
 
-                case '\\heading':
-                    item.heading = value;
-                    break;
-            }
+            case '\\ref':
+                item.refs.push(value);
+                break;
+
+            case '\\heading':
+                item.heading = value;
+                break;
         }
     }
 
