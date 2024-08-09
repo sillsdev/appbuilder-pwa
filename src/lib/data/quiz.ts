@@ -48,14 +48,23 @@ export async function addQuiz(item: {
     passScore: number;
     pass: boolean;
 }) {
-    const quiz = await openQuiz();
-    const date = new Date()[Symbol.toPrimitive]('number');
-    const bookIndex = config.bookCollections
-        .find((x) => x.id === item.collection)
-        .books.findIndex((x) => x.id === item.book);
+    try {
+        const quiz = await openQuiz();
+        if (!quiz) {
+            console.error('Failed to open quiz database');
+            return;
+        }
+        const date = new Date()[Symbol.toPrimitive]('number');
+        const bookIndex = config.bookCollections
+            .find((x) => x.id === item.collection)
+            .books.findIndex((x) => x.id === item.book);
 
-    const nextItem = { ...item, date: date, bookIndex: bookIndex, passed: item.score >= item.passScore };
-    await quiz.add('quiz', nextItem);
+        const nextItem = { ...item, date: date, bookIndex: bookIndex, pass: item.score >= item.passScore };
+        await quiz.add('quiz', nextItem);
+        console.log('Quiz result added successfully:', nextItem);
+    } catch (error) {
+        console.error('Error adding quiz result:', error);
+    }
 }
 
 export async function getQuiz() {
@@ -78,5 +87,5 @@ export async function findQuiz(item: {
 export async function checkQuizAccess(quizId) {
     const quiz = await openQuiz();
     const result = await quiz.getAllFromIndex('quiz', 'collection, book');
-    return result.some(item => item.book === quizId && item.passed);
+    return result.some(item => item.book === quizId && item.pass);
 }
