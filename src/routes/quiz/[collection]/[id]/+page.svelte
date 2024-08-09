@@ -1,6 +1,7 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
+    import { addQuiz } from '$lib/data/quiz';
     import {
         refs,
         t,
@@ -13,6 +14,7 @@
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
     import { onDestroy } from 'svelte';
+    import { beforeNavigate } from '$app/navigation';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BookSelector from '$lib/components/BookSelector.svelte';
     /** @type {import('./$types').PageData} */
@@ -35,6 +37,7 @@
             : [...quiz.questions];
         handleQuestionChange();
         playQuizQuestionAudio();
+        quizSaved = false;
     } else {
         stopAudioPlayback();
 
@@ -42,9 +45,11 @@
         questionNum = 0;
         shuffledAnswers = [];
         quizQuestions = [];
+        quizSaved = false;
     }
 
     let textHighlightIndex = -1;
+    let quizSaved = false;
     console.log(data);
     console.log(data.quiz);
     let shuffledAnswers = [];
@@ -81,6 +86,10 @@
         };
         audio.play();
     }
+
+    beforeNavigate(() => {
+        stopAudioPlayback();
+    });
 
     function stopCurrentQuestionAudio() {
         if (currentQuestionAudio) {
@@ -344,6 +353,15 @@
                 </div>
             </div>
         </div>
+        {#if !quizSaved}
+            {@const passScore = book.quizFeatures['pass-score'] || 0}
+            {@const pass = score >= passScore}
+            {#await addQuiz( { collection: $refs.collection, book: quizId, score, passScore, pass } ) then _}
+                <p>Quiz result saved!</p>
+            {:catch error}
+                <p>Error saving quiz result: {error.message}</p>
+            {/await}
+        {/if}
     {:else}
         <body class="quiz">
             <div id="content">
