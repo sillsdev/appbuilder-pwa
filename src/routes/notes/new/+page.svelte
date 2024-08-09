@@ -4,8 +4,7 @@
     import { DeleteIcon, CheckIcon } from '$lib/icons';
     import { addNote } from '$lib/data/notes';
 
-    let note = '';
-    let text = note.text;
+    let text = '';
     const title = 'Annotation_Note_Add';
 
     function goBack() {
