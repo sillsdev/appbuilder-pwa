@@ -33,7 +33,6 @@ export const analyticsStore = () => {
                 // Optionally handle error or retry initialization
             }
         } else {
-            console.warn('Firebase Analytics feature is disabled in config.');
             internal.set({ initialized: true }); // Mark as initialized even if not initialized
         }
     };
@@ -42,8 +41,6 @@ export const analyticsStore = () => {
         if (firebaseAnalytics) {
             console.log('Analytics: Event:', eventName, eventParams);
             firebaseLogEvent(firebaseAnalytics, eventName, eventParams);
-        } else {
-            console.warn('Analytics not initialized. Event not logged:', eventName);
         }
     };
 
