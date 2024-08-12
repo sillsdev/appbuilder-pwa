@@ -14,6 +14,7 @@ export class NavigationContext {
     chapterVerses: string;
     verse: string;
     audio: any;
+    bookIsStory: boolean;
     title: string;
     name: string;
     catalog: CatalogData;
@@ -64,6 +65,7 @@ export class NavigationContext {
         this.updateHeadings();
         this.updateNextPrev();
         this.updateReference();
+        this.updateIfStory();
     }
 
     private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {
@@ -114,7 +116,7 @@ export class NavigationContext {
             this.config.bookCollections
                 .find((x) => x.id === this.collection)
                 .books.find((x) => x.id === this.book)
-                ?.audio.find((x) => String(x.num) === this.chapter);
+                ?.audio?.find((x) => String(x.num) === this.chapter);
     }
 
     private updateHeadings() {
@@ -128,6 +130,13 @@ export class NavigationContext {
         if (this.verse) {
             this.reference += '.' + this.verse;
         }
+    }
+
+    private updateIfStory() {
+        this.bookIsStory =
+            this.config.bookCollections
+                .find((bc) => bc.id === this.collection)
+                .books.find((bk) => bk.id === this.book).type === 'story';
     }
 
     private updateNextPrev() {

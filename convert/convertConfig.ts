@@ -22,6 +22,12 @@ type BookCollectionAudio = {
     timingFile: string;
 };
 
+type StorybookImage = {
+    page: string;
+    filename: string;
+    // TODO: Add motion parameters
+};
+
 type Style = {
     font: string;
     textSize: number;
@@ -49,6 +55,7 @@ export type Book = {
     audio: BookCollectionAudio[];
     features: any;
     quizFeatures?: any;
+    storybookImages?: StorybookImage[];
     footer?: HTML;
     style?: Style;
     styles?: {
@@ -419,6 +426,109 @@ function convertCollectionFooter(collectionTag: Element, document: Document) {
     return footer;
 }
 
+function shortenBookCode(id: string, allIds: string[]): string | null {
+    const short = id.replace(/^(\w)0(\d\d)$/, '$1$2');
+    return id === short || allIds.includes(short) ? null : short;
+}
+
+function lengthenBookCode(id: string, allIds: string[]): string | null {
+    if (id.length === 1) {
+        id = '00' + id;
+    } else if (id.length === 2) {
+        id = '0' + id;
+    }
+    return allIds.includes(id) ? null : id;
+}
+
+function convertBookCodes(books: Element[]) {
+    for (const bk of books) {
+        bk.setAttribute('fullId', bk.id);
+        const ids = books.map((b) => b.id);
+        const shortened = shortenBookCode(bk.id, ids);
+        const lengthened = lengthenBookCode(bk.id, ids);
+        if (shortened) {
+            console.log(`  shortening book code: ${bk.id} => ${shortened}`);
+            bk.id = shortened;
+        } else if (lengthened) {
+            console.log(`  lengthening book code: ${bk.id} => ${lengthened}`);
+            bk.id = lengthened;
+        }
+    }
+    checkBookCodes(books);
+}
+
+function checkBookCodes(books: Element[]) {
+    const invalid = books.map((b) => b.id).filter((id) => id.length !== 3);
+    if (invalid.length) {
+        console.log(
+            '\n  WARNING: The following book codes are not 3 characters. Some may not load properly:'
+        );
+        console.log(`   ${invalid.join(' ')}`);
+    }
+}
+
+function getBookAudio(book: Element, verbose: number) {
+    const audio: BookCollectionAudio[] = [];
+    for (const page of book.getElementsByTagName('page')) {
+        if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
+        const audioTag = page.getElementsByTagName('audio')[0];
+        if (!audioTag) continue;
+        if (audioTag.attributes.getNamedItem('background')?.value === 'continue') {
+            // Happens when a storybook uses a single audio file for multiple pages.
+            // TODO: Implement this feature
+            continue;
+        }
+        const fTag = audioTag.getElementsByTagName('f')[0];
+        if (verbose >= 2)
+            console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
+        audio.push({
+            num: parseInt(page.attributes.getNamedItem('num')!.value),
+            filename: fTag.innerHTML,
+            len: fTag.hasAttribute('len')
+                ? parseInt(fTag.attributes.getNamedItem('len')!.value)
+                : undefined,
+            size: fTag.hasAttribute('size')
+                ? parseInt(fTag.attributes.getNamedItem('size')!.value)
+                : undefined,
+            src: fTag.attributes.getNamedItem('src')!.value,
+            timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
+        });
+        if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
+    }
+    return audio;
+}
+
+function imageFromPage(
+    page: Element,
+    collection: string,
+    book: string,
+    imageFiles: string[]
+): StorybookImage | null {
+    const filenameElement = page.getElementsByTagName('image-filename')[0];
+
+    // In testing, the image filename took one of the following two forms
+    const filename1 = filenameElement?.textContent;
+    const filename2 = `${collection}-${book}-${filename1}`;
+    const file = imageFiles.find((f) => [filename1, filename2].includes(f));
+
+    const num = page.getAttribute('num');
+    return file && num
+        ? {
+              filename: file,
+              page: num
+          }
+        : null;
+}
+
+function getStorybookImages(book: Element, collection: string, dataDir: string): StorybookImage[] {
+    const id = book.getAttribute('fullId') ?? book.id;
+    const pages = Array.from(book.getElementsByTagName('page'));
+    const imageFiles = readdirSync(path.join(dataDir, 'illustrations'));
+    return pages
+        .map((page) => imageFromPage(page, collection, id, imageFiles))
+        .filter((image) => image) as StorybookImage[];
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
@@ -578,30 +688,9 @@ function convertConfig(dataDir: string, verbose: number) {
         }
         const books: BookCollection['books'] = [];
         const bookTags = tag.getElementsByTagName('book');
+        convertBookCodes(Array.from(bookTags));
         for (const book of bookTags) {
             if (verbose >= 2) console.log(`. book: ${book.id}`);
-            const audio: BookCollectionAudio[] = [];
-            for (const page of book.getElementsByTagName('page')) {
-                if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
-                const audioTag = page.getElementsByTagName('audio')[0];
-                if (!audioTag) continue;
-                const fTag = audioTag.getElementsByTagName('f')[0];
-                if (verbose >= 2)
-                    console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
-                audio.push({
-                    num: parseInt(page.attributes.getNamedItem('num')!.value),
-                    filename: fTag.innerHTML,
-                    len: fTag.hasAttribute('len')
-                        ? parseInt(fTag.attributes.getNamedItem('len')!.value)
-                        : undefined,
-                    size: fTag.hasAttribute('size')
-                        ? parseInt(fTag.attributes.getNamedItem('size')!.value)
-                        : undefined,
-                    src: fTag.attributes.getNamedItem('src')!.value,
-                    timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
-                });
-                if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
-            }
             const bookFeaturesTag = book
                 .querySelector('features[type=book]')
                 ?.getElementsByTagName('e');
@@ -658,7 +747,8 @@ function convertConfig(dataDir: string, verbose: number) {
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
-                audio,
+                audio: getBookAudio(book, verbose),
+                storybookImages: getStorybookImages(book, tag.id, dataDir),
                 file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
                 features: bookFeatures,
                 quizFeatures,

@@ -10,6 +10,7 @@ import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
+import { convertStorybookElements } from './storybook';
 
 /**
  * Loops through bookCollections property of configData.
@@ -22,10 +23,16 @@ function replaceVideoTags(text: string, _bcId: string, _bookId: string): string 
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 
-// This is the start of supporting story books, but it still fails if there is no chapter.
-function replacePageTags(text: string, _bcId: string, _bookId: string): string {
-    return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
+/**
+ * Replace the USFM book ID with the given book ID.
+ *
+ * While uncommon, it is possible to use the same USFM for multiple books.
+ * In this case, we must use the unique ID specified in config.
+ */
+function replaceId(text: string, _bcId: string, bookId: string): string {
+    return text.replace(/\\id \w+/, `\\id ${bookId}`);
 }
+
 function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
@@ -101,16 +108,23 @@ function isImageMissing(imageSource: string): boolean {
 const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
-    replacePageTags,
     convertMarkdownsToMilestones,
-    removeMissingFigures
+    removeMissingFigures,
+    replaceId
 ];
 
-function applyFilters(text: string, bcId: string, bookId: string): string {
+function applyFilters(text: string, bcId: string, bookId: string, bookType?: string): string {
     let filteredText = text;
     for (const filterFn of filterFunctions) {
         filteredText = filterFn(filteredText, bcId, bookId);
     }
+    if (bookType === 'story') {
+        filteredText = convertStorybookElements(filteredText);
+    }
+    // Debugging
+    // if (bcId == 'C01') {
+    //     console.log(filteredText.slice(0, 1000));
+    // }
     return filteredText;
 }
 
@@ -204,7 +218,6 @@ export async function convertBooks(
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
-                case 'story':
                 case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
@@ -490,7 +503,7 @@ function convertScriptureBook(
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, context.bcId, book.id);
+        content = applyFilters(content, context.bcId, book.id, book.type);
         if (context.configData.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
@@ -567,7 +580,23 @@ function convertScriptureBook(
                     fileContents.push(fs.readFileSync(filePath, 'utf-8'));
                 });
 
-                processBookContent(resolve, null, fileContents.join(''));
+                // Collect the file contents into a single document
+                let usfm: string;
+
+                if (book.type == 'story') {
+                    // The first file contains meta-content (id, title, etc)
+                    usfm = fileContents[0];
+
+                    // Subsequent files represent storybook pages.
+                    // SAB deletes the \page tags. Replace them with chapter tags.
+                    for (let i = 1; i < fileContents.length; i++) {
+                        usfm += `\\c ${i} ${fileContents[i]}`;
+                    }
+                } else {
+                    usfm = fileContents.join('');
+                }
+
+                processBookContent(resolve, null, usfm);
             }
         })
     );

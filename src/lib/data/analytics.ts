@@ -12,8 +12,9 @@ export function getBook(item: { collection?: string; book: string }) {
 function getDamId(item: { book: any; chapter: string }) {
     let damId;
     if (item.book.audio.length > 0) {
+        // TODO (Garrett Jones): In a storybook, audio may come from a previous chapter.
         const audio = item.book.audio.find((x) => x.num === Number(item.chapter));
-        const source = audio.src;
+        const source = audio?.src;
         if (source) {
             if (config.audio.sources[source]?.type === 'fcbh') {
                 damId = config.audio.sources[source].damId;
