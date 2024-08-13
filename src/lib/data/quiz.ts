@@ -61,7 +61,6 @@ export async function addQuiz(item: {
 
         const nextItem = { ...item, date: date, bookIndex: bookIndex, pass: item.score >= item.passScore };
         await quiz.add('quiz', nextItem);
-        console.log('Quiz result added successfully:', nextItem);
     } catch (error) {
         console.error('Error adding quiz result:', error);
     }

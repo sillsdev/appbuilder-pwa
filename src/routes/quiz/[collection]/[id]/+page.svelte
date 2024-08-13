@@ -20,7 +20,7 @@
     /** @type {import('./$types').PageData} */
     export let data;
 
-    $: ({ locked, dependentQuizId, quiz, quizId, quizName } = data);
+    $: ({ locked, quiz, quizId, quizName } = data);
 
     $: book = config.bookCollections
         .find((x) => x.id === $refs.collection)
@@ -52,8 +52,6 @@
 
     let textHighlightIndex = -1;
     let quizSaved = false;
-    console.log(data);
-    console.log(data.quiz);
     let shuffledAnswers = [];
     let quizQuestions = [];
     let score = 0;
@@ -141,12 +139,6 @@
             ];
         }
         return answerArray;
-    }
-
-    function shuffleQuestions() {
-        quizQuestions = shuffleArray(quiz.questions);
-        questionNum = 0;
-        handleQuestionChange();
     }
 
     function shuffleArray(array) {
