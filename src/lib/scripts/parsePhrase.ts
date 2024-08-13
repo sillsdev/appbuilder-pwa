@@ -150,7 +150,7 @@ const char_is_numeric = (c: string) => {
     return /^\d$/.test(c);
 };
 const char_is_letter = (c: string) => {
-    return RegExp(/^\p{L}/, 'u').test(c);
+    return /^\p{L}/u.test(c);
 };
 const char_is_number_separator = (text: string, pos: number) => {
     let isNumberSeparator = false;
