@@ -713,7 +713,7 @@ function convertConfig(dataDir: string, verbose: number) {
         const collectionImage = collectionImageTags[0]?.innerHTML.length
             ? tag.id + '-' + collectionImageTags[0].innerHTML
             : undefined;
-            
+
         const bcStyles = tag.querySelector('styles');
         const styles = bcStyles ? parseStyles(bcStyles, verbose) : undefined;
 

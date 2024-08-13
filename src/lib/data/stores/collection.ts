@@ -4,7 +4,6 @@ import config from '../config';
 
 function findCollection(id) {
     const ds = config.bookCollections.find((x) => x.id === id);
-    console.log("Find Collection ", ds);
     return {
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
