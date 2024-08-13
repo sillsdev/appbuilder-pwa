@@ -29,6 +29,8 @@
     $: displayLabel = quizName || 'Quiz';
 
     $: if (quiz) {
+        resetQuizState();
+
         score = 0;
         questionNum = 0;
         shuffledAnswers = [];
@@ -89,6 +91,7 @@
 
     beforeNavigate(() => {
         stopAudioPlayback();
+        resetQuizState();
     });
 
     function stopCurrentQuestionAudio() {
@@ -192,6 +195,13 @@
         displayCorrect = false;
         handleQuestionChange();
         playQuizQuestionAudio();
+    }
+
+    function resetQuizState() {
+        clicked = false;
+        displayCorrect = false;
+        shuffledAnswers = [];
+        explanation = '';
     }
 
     function getAnswerAudio(quiz, correct) {
