@@ -7,7 +7,8 @@ function findCollection(id) {
     return {
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
-        singlePane: ds.features['bc-allow-single-pane'],
+        singlePane:
+            ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
         description: ds?.collectionDescription
     };
 }
