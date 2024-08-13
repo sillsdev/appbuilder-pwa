@@ -79,6 +79,7 @@ export type BookCollection = {
             [key: string]: string;
         };
     }[];
+    collectionImage?: string;
     collectionName?: string;
     collectionAbbreviation?: string;
     collectionDescription?: string;
@@ -708,6 +709,11 @@ function convertConfig(dataDir: string, verbose: number) {
         const footer = convertCollectionFooter(tag, document);
         if (verbose >= 2) console.log(`.. footer: `, footer);
 
+        const collectionImageTags = tag.getElementsByTagName('image');
+        const collectionImage = collectionImageTags[0]?.innerHTML.length
+            ? tag.id + '-' + collectionImageTags[0].innerHTML
+            : undefined;
+            
         const bcStyles = tag.querySelector('styles');
         const styles = bcStyles ? parseStyles(bcStyles, verbose) : undefined;
 
@@ -716,6 +722,7 @@ function convertConfig(dataDir: string, verbose: number) {
             collectionName,
             collectionAbbreviation,
             collectionDescription,
+            collectionImage,
             features,
             books,
             fonts,

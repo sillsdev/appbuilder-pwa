@@ -17,6 +17,7 @@ Custom list of collections for the LayoutOptions menu
             collection: opt
         });
     }
+    console.log(docSets);
 </script>
 
 <ul class="dy-menu dy-menu-compact">
@@ -34,6 +35,11 @@ Custom list of collections for the LayoutOptions menu
                 role="button"
             >
                 <div style={convertStyle($s['ui.layouts.selector'])}>
+                    {#if d.image}
+                        <div class="layout-image-block" style="width:15%">
+                            <img class="layout-image" src="illustrations/{d.image}"/>
+                        </div>
+                    {/if}
                     <div style={convertStyle($s['ui.layouts.title'])}>
                         {d.name}
                     </div>

@@ -4,12 +4,14 @@ import config from '../config';
 
 function findCollection(id) {
     const ds = config.bookCollections.find((x) => x.id === id);
+    console.log("Find Collection ", ds);
     return {
         id: ds.languageCode + '_' + ds.id,
         name: ds.collectionName,
         singlePane:
             ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
-        description: ds?.collectionDescription
+        description: ds?.collectionDescription,
+        image: ds?.collectionImage
     };
 }
 
