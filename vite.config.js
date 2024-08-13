@@ -13,7 +13,7 @@ const config = {
     plugins: [sveltekit()],
     worker: {
         format: 'es',
-        plugins: []
+        plugins: () => []
     },
     resolve: {
         alias: {
