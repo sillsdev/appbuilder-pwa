@@ -1,5 +1,4 @@
 import { openDB, type DBSchema } from 'idb';
-import { logScreenView } from '$lib/data/analytics';
 
 export interface HistoryItem {
     date: number;
