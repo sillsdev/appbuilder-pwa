@@ -33,11 +33,19 @@ export async function load({ params, fetch }) {
             }
 
             const quizData = await response.json();
-            return { quiz: quizData, locked, quizId: id, quizName: book.name, dependentQuizId, dependentQuizName };
+            return {
+                quiz: quizData,
+                locked,
+                quizId: id,
+                quizName: book.name,
+                dependentQuizId,
+                dependentQuizName,
+                passScore: quizData.passScore
+            };
         } catch (error) {
             console.error('Error fetching quiz JSON file:', error);
         }
     }
 
-    return { locked, quizId: id, quizName: book.name, dependentQuizId, dependentQuizName };
+    return { locked, quizId: id, quizName: book.name, dependentQuizId, dependentQuizName, passScore: 0 };
 }

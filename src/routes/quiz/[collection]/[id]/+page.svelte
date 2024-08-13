@@ -20,7 +20,7 @@
     /** @type {import('./$types').PageData} */
     export let data;
 
-    $: ({ locked, quiz, quizId, quizName } = data);
+    $: ({ locked, quiz, quizId, quizName, passScore } = data);
 
     $: book = config.bookCollections
         .find((x) => x.id === $refs.collection)
@@ -356,7 +356,6 @@
             </div>
         </div>
         {#if !quizSaved}
-            {@const passScore = book.quizFeatures['pass-score'] || 0}
             {@const pass = score >= passScore}
             {#await addQuiz( { collection: $refs.collection, book: quizId, score, passScore, pass } ) then _}
                 <p>Quiz result saved!</p>

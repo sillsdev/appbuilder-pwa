@@ -8,6 +8,7 @@ export interface QuizScore {
     collection: string;
     book: string;
     pass: boolean;
+    bookIndex: number;
 }
 
 interface Quiz extends DBSchema {
@@ -55,11 +56,14 @@ export async function addQuiz(item: {
             return;
         }
         const date = new Date()[Symbol.toPrimitive]('number');
-        const bookIndex = config.bookCollections
-            .find((x) => x.id === item.collection)
-            .books.findIndex((x) => x.id === item.book);
+        const bookCollection = config.bookCollections.find((x) => x.id === item.collection);
+        const bookIndex = bookCollection.books.findIndex((x) => x.id === item.book);
 
-        const nextItem = { ...item, date: date, bookIndex: bookIndex, pass: item.score >= item.passScore };
+        const nextItem = {
+            ...item,
+            date: date,
+            bookIndex: bookIndex,
+        };
         await quiz.add('quiz', nextItem);
     } catch (error) {
         console.error('Error adding quiz result:', error);
