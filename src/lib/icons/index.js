@@ -16,6 +16,7 @@ import HamburgerIcon from './HamburgerIcon.svelte';
 import HighlightIcon from './HighlightIcon.svelte';
 import HistoryIcon from './HistoryIcon.svelte';
 import HomeIcon from './HomeIcon.svelte';
+import InfoIcon from './InfoIcon.svelte';
 import LaunchIcon from './LaunchIcon.svelte';
 import MoreVertIcon from './MoreVertIcon.svelte';
 import NoteIcon from './NoteIcon.svelte';
@@ -52,6 +53,7 @@ export {
     HistoryIcon,
     HomeIcon,
     ImageIcon,
+    InfoIcon,
     LaunchIcon,
     MoreVertIcon,
     NoteIcon,
