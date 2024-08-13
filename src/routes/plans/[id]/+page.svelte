@@ -15,6 +15,7 @@
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { CalendarMonthIcon, InfoIcon } from '$lib/icons';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -63,29 +64,34 @@
                 />
             </div>
         {/if}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"
             style={convertStyle($s['ui.plans.tabs'])}
         >
-            <input
-                type="radio"
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+
+            <div
                 name="my_tabs_1"
-                role="tab"
                 class="dy-tab dy-tab-bordered {selectedTab === 'info' ? 'dy-tab-active' : ''}"
                 on:click={() => (selectedTab = 'info')}
-                aria-label="info logo"
+                aria-label="info icon"
                 style={convertStyle($s['ui.plans.tabs.text'])}
-            />
-            <input
-                type="radio"
+            >
+                <InfoIcon style={convertStyle($s['ui.plans.tabs.icon'])}></InfoIcon>
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
                 name="my_tabs_1"
-                role="tab"
                 class="dy-tab {selectedTab === 'calendar' ? 'dy-tab-active' : ''}"
                 on:click={() => (selectedTab = 'calendar')}
                 aria-label="calendar logo"
-                style={convertStyle($s['ui.plans.tabs.text'])}
-            />
+            >
+                <CalendarMonthIcon style={convertStyle($s['ui.plans.tabs.icon'])}
+                ></CalendarMonthIcon>
+            </div>
         </div>
 
         <div id="container" class="plan-chooser">
