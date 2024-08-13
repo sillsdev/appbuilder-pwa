@@ -1,4 +1,5 @@
 import config from '$lib/data/config';
+import { base } from '$app/paths';
 enum VideoType {
     None = 'none',
     YouTube = 'youtube',
@@ -68,7 +69,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     }
     videoContainerDiv.style.setProperty(
         'background-image',
-        "url('images/" + video.thumbnail + "')"
+        `url('${base}/images/${video.thumbnail}')`
     );
     const videoLink = document.createElement('a');
     videoLink.setAttribute('href', '#');
@@ -88,7 +89,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
         );
     }
     const videoImg = document.createElement('img');
-    videoImg.setAttribute('src', 'video_play_01.svg');
+    videoImg.setAttribute('src', `${base}/video_play_01.svg`);
     videoLink.appendChild(videoImg);
     videoContainerDiv.appendChild(videoLink);
     videoBlockDiv.appendChild(videoContainerDiv);
@@ -123,7 +124,7 @@ export function addVideoLinks(document: Document, videos: any[]) {
     const script = document.createElement('script');
     script.id = 'js_video';
     script.type = 'text/javascript';
-    script.src = 'js/app-builder-video.js';
+    script.src = `${base}/js/app-builder-video.js`;
     if (!document.getElementById(script.id)) {
         document.head.appendChild(script);
     }
