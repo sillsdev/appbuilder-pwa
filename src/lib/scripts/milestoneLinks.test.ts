@@ -1,5 +1,9 @@
 import { describe, expect, beforeEach, it } from 'vitest';
-import { checkForMilestoneLinks } from './milestoneLinks';
+import { type AudioConfig, checkForMilestoneLinks } from './milestoneLinks';
+const emptyAudioConfig: AudioConfig = {
+    sources: {},
+    files: []
+};
 describe('milestoneLinks', () => {
     function onClick(e: any) {}
     let phraseDiv: HTMLElement;
@@ -24,6 +28,7 @@ describe('milestoneLinks', () => {
                     'https://sil.org/',
                     0,
                     'usfm:zweblink',
+                    emptyAudioConfig,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -71,6 +76,7 @@ describe('milestoneLinks', () => {
                     'https://sil.org/',
                     0,
                     'usfm:zweblink',
+                    emptyAudioConfig,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -119,6 +125,7 @@ describe('milestoneLinks', () => {
                     'C01.MAT.5.1',
                     0,
                     'usfm:zreflink',
+                    emptyAudioConfig,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -166,6 +173,7 @@ describe('milestoneLinks', () => {
                     'C01.MAT.5.1',
                     0,
                     'usfm:zreflink',
+                    emptyAudioConfig,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -213,6 +221,7 @@ describe('milestoneLinks', () => {
                 'mailto:david_moore1@sil.org',
                 0,
                 'usfm:zelink',
+                emptyAudioConfig,
                 onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -259,6 +268,7 @@ describe('milestoneLinks', () => {
                 'tel:9995551212',
                 0,
                 'usfm:ztellink',
+                emptyAudioConfig,
                 onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -292,11 +302,25 @@ describe('milestoneLinks', () => {
             });
         });
     });
-    describe('usfm:zaudioc milestone received outside footnote', () => {
+    describe('usfm:zaudioc milestone received outside footnote with asset audio', () => {
         let phraseWebLinks;
         let footnoteWebLinks;
         let audioElements;
         beforeEach(() => {
+            const audioConfig: AudioConfig = {
+                sources: {
+                    a1: {
+                        type: 'assets',
+                        name: 'Source 1'
+                    }
+                },
+                files: [
+                    {
+                        name: 'audioclip.mp3',
+                        src: 'a1'
+                    }
+                ]
+            };
             textType.push('audioc');
             checkForMilestoneLinks(
                 textType,
@@ -306,6 +330,7 @@ describe('milestoneLinks', () => {
                 'audioclip.mp3',
                 5,
                 'usfm:zaudioc',
+                audioConfig,
                 onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -351,6 +376,92 @@ describe('milestoneLinks', () => {
             });
             it('sets src to the name of the clip in the clips folder', () => {
                 expect(audioLink.src).toContain('clips/audioclip.mp3');
+            });
+            it('sets preload to auto', () => {
+                expect(audioLink.getAttribute('preload')).toEqual('auto');
+            });
+        });
+    });
+    describe('usfm:zaudioc milestone received outside footnote with remote audio', () => {
+        let phraseWebLinks;
+        let footnoteWebLinks;
+        let audioElements;
+        beforeEach(() => {
+            const audioConfig: AudioConfig = {
+                sources: {
+                    d1: {
+                        type: 'download',
+                        name: 'Source 2',
+                        accessMethods: ['stream', 'download'],
+                        folder: 'Test',
+                        address: 'https://archive.org/download/B0201SanMarcosCUKNVSN2DA/'
+                    }
+                },
+                files: [
+                    {
+                        name: 'B02___02_San_Marcos__CUKNVSN2DA.mp3',
+                        src: 'd1'
+                    }
+                ]
+            };
+            textType.push('audioc');
+            checkForMilestoneLinks(
+                textType,
+                footnoteDiv,
+                phraseDiv,
+                'Audio Clip Link',
+                'B02___02_San_Marcos__CUKNVSN2DA.mp3',
+                6,
+                'usfm:zaudioc',
+                audioConfig,
+                onClick
+            );
+            phraseWebLinks = phraseDiv.getElementsByTagName('a');
+            footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
+            audioElements = phraseDiv.getElementsByTagName('audio');
+        });
+        it('does not create a footnote link', () => {
+            expect(footnoteWebLinks.length).toEqual(0);
+        });
+        it('creates a single link element in the phrase div', () => {
+            expect(phraseWebLinks.length).toEqual(1);
+        });
+        describe('which', () => {
+            let webLink;
+            beforeEach(() => {
+                webLink = phraseWebLinks[0];
+            });
+            it('sets the href to #', () => {
+                expect(webLink.getAttribute('href')).toEqual('#');
+            });
+            it('sets the link text', () => {
+                expect(webLink.innerHTML).toEqual('Audio Clip Link');
+            });
+            it('pops one entry off of text type array', () => {
+                expect(textType.length).toEqual(1);
+            });
+            it('sets attribute filelink', () => {
+                expect(webLink.getAttribute('filelink')).toEqual('audio006');
+            });
+            it('sets class to audioclip', () => {
+                expect(webLink.classList.contains('audioclip')).toBe(true);
+            });
+        });
+        it('creates a single audio element in the phrase div', () => {
+            expect(audioElements.length).toEqual(1);
+        });
+        describe('which', () => {
+            let audioLink;
+            beforeEach(() => {
+                audioLink = audioElements[0];
+            });
+            it('sets an audio id', () => {
+                expect(audioLink.id).toEqual('audio006');
+            });
+            it('sets src to the name of the clip in the clips folder', () => {
+                expect(audioLink.src).toContain(
+                    'https://archive.org/download/B0201SanMarcosCUKNVSN2DA/B02___02_San_Marcos__CUKNVSN2DA.mp3'
+                );
             });
             it('sets preload to auto', () => {
                 expect(audioLink.getAttribute('preload')).toEqual('auto');

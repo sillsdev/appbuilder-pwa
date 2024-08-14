@@ -1,5 +1,22 @@
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
-import config from '$lib/data/config';
+
+export type AudioConfig = {
+    sources: {
+        [key: string]: {
+            type: string;
+            name: string;
+            accessMethods?: string[];
+            folder?: string;
+            key?: string;
+            damId?: string;
+            address?: string;
+        };
+    };
+    files?: {
+        name: string;
+        src: string;
+    }[];
+};
 
 export function checkForMilestoneLinks(
     textType: string[],
@@ -9,6 +26,7 @@ export function checkForMilestoneLinks(
     milestoneLink: string,
     numberOfClips: number,
     subType: string,
+    audioConfig: AudioConfig,
     onClickFunction: (e: any) => void
 ) {
     switch (subType) {
@@ -17,6 +35,7 @@ export function checkForMilestoneLinks(
                 milestoneLink,
                 milestoneText,
                 numberOfClips,
+                audioConfig,
                 onClickFunction
             );
             appendMilestoneElement(textType, footnoteDiv, parentDiv, audioEntry, false);
@@ -96,6 +115,7 @@ function getAudioLinkHtml(
     link: string,
     text: string,
     clipNumber: number,
+    audioConfig: AudioConfig,
     onClickFunction: (e: any) => void
 ): [HTMLElement, HTMLElement] {
     const audio = document.createElement('audio');
@@ -105,10 +125,10 @@ function getAudioLinkHtml(
     let src = '';
     let sourceType = '';
 
-    if (config.audio?.files && config.audio?.sources) {
-        const audioFile = config.audio.files.find((x) => x.name === filename);
+    if (audioConfig?.files && audioConfig?.sources) {
+        const audioFile = audioConfig.files.find((x) => x.name === filename);
         if (audioFile) {
-            const audioSource = config.audio.sources[audioFile.src];
+            const audioSource = audioConfig.sources[audioFile.src];
             if (audioSource) {
                 sourceType = audioSource.type;
                 if (audioSource.type === 'assets') {
