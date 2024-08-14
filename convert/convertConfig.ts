@@ -6,13 +6,6 @@ import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
 import type { ConfigData, BookCollectionData, BookCollectionAudioData, StyleData } from '$config';
 
-/**
- * TODO:
- * Backgroud images?
- * Layouts?
- * Styles?
- */
-
 const data: ConfigData = {};
 
 function decodeFromXml(input: string): string {

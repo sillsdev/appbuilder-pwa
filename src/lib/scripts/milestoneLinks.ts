@@ -98,7 +98,7 @@ function getAudioLinkHtml(
     link: string,
     text: string,
     clipNumber: number,
-    audioConfig: AudioConfig,
+    audioConfig: AudioData,
     onClickFunction: (e: any) => void
 ): [HTMLElement, HTMLElement] {
     const audio = document.createElement('audio');

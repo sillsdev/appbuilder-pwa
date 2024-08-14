@@ -1,6 +1,6 @@
 import { describe, expect, beforeEach, it } from 'vitest';
 import { checkForMilestoneLinks } from './milestoneLinks';
-import { type AudioData } from '$config';
+import type { AudioData } from '$config';
 const emptyAudio: AudioData = {
     sources: {},
     files: []

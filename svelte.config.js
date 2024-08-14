@@ -17,6 +17,9 @@ const config = {
         }),
         paths: {
             base: process.env.BUILD_BASE_PATH
+        },
+        alias: {
+            $config: './config'
         }
     }
 };

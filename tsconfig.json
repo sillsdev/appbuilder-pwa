@@ -4,8 +4,5 @@
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
         "skipLibCheck": true,
-        "paths" : {
-            "$config": ["config"]
-        }
     }
 }
