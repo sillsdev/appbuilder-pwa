@@ -25,6 +25,8 @@ export async function load({ params, fetch }) {
         dependentQuizName = dependentBook ? dependentBook.name : dependentQuizId;
     }
 
+    let quizData;
+    let passScore = 0;
     if (!locked) {
         try {
             const response = await fetch(`${base}/collections/${collection}/quizzes/${id}.json`);
@@ -32,27 +34,20 @@ export async function load({ params, fetch }) {
                 throw new Error('Failed to fetch quiz JSON file');
             }
 
-            const quizData = await response.json();
-            return {
-                quiz: quizData,
-                locked,
-                quizId: id,
-                quizName: book.name,
-                dependentQuizId,
-                dependentQuizName,
-                passScore: quizData.passScore
-            };
+            quizData = await response.json();
+            passScore = quizData.passScore;
         } catch (error) {
             console.error('Error fetching quiz JSON file:', error);
         }
     }
 
     return {
+        quiz: quizData,
         locked,
         quizId: id,
         quizName: book.name,
         dependentQuizId,
         dependentQuizName,
-        passScore: 0
+        passScore
     };
 }
