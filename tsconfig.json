@@ -3,6 +3,9 @@
     "compilerOptions": {
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths" : {
+            "$config": ["config"]
+        }
     }
 }

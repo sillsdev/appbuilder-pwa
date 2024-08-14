@@ -1,6 +1,7 @@
 import { describe, expect, beforeEach, it } from 'vitest';
-import { type AudioConfig, checkForMilestoneLinks } from './milestoneLinks';
-const emptyAudioConfig: AudioConfig = {
+import { checkForMilestoneLinks } from './milestoneLinks';
+import { type AudioData } from '$config';
+const emptyAudio: AudioData = {
     sources: {},
     files: []
 };
@@ -28,7 +29,7 @@ describe('milestoneLinks', () => {
                     'https://sil.org/',
                     0,
                     'usfm:zweblink',
-                    emptyAudioConfig,
+                    emptyAudio,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -76,7 +77,7 @@ describe('milestoneLinks', () => {
                     'https://sil.org/',
                     0,
                     'usfm:zweblink',
-                    emptyAudioConfig,
+                    emptyAudio,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -125,7 +126,7 @@ describe('milestoneLinks', () => {
                     'C01.MAT.5.1',
                     0,
                     'usfm:zreflink',
-                    emptyAudioConfig,
+                    emptyAudio,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -173,7 +174,7 @@ describe('milestoneLinks', () => {
                     'C01.MAT.5.1',
                     0,
                     'usfm:zreflink',
-                    emptyAudioConfig,
+                    emptyAudio,
                     onClick
                 );
                 phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -221,7 +222,7 @@ describe('milestoneLinks', () => {
                 'mailto:david_moore1@sil.org',
                 0,
                 'usfm:zelink',
-                emptyAudioConfig,
+                emptyAudio,
                 onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -268,7 +269,7 @@ describe('milestoneLinks', () => {
                 'tel:9995551212',
                 0,
                 'usfm:ztellink',
-                emptyAudioConfig,
+                emptyAudio,
                 onClick
             );
             phraseWebLinks = phraseDiv.getElementsByTagName('a');
@@ -307,7 +308,7 @@ describe('milestoneLinks', () => {
         let footnoteWebLinks;
         let audioElements;
         beforeEach(() => {
-            const audioConfig: AudioConfig = {
+            const audioConfig: AudioData = {
                 sources: {
                     a1: {
                         type: 'assets',
@@ -387,7 +388,7 @@ describe('milestoneLinks', () => {
         let footnoteWebLinks;
         let audioElements;
         beforeEach(() => {
-            const audioConfig: AudioConfig = {
+            const audioConfig: AudioData = {
                 sources: {
                     d1: {
                         type: 'download',

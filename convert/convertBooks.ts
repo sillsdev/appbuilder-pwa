@@ -1,7 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import { ConfigData, ConfigTaskOutput, Book } from './convertConfig';
+import type { ConfigData, BookData } from '$config';
+import type { ConfigTaskOutput } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
 import * as fs from 'fs';
 import path, { basename, extname } from 'path';
@@ -354,7 +355,7 @@ export type Quiz = {
     passScore?: number; //\pm
 };
 
-function convertQuizBook(context: ConvertBookContext, book: Book): Quiz {
+function convertQuizBook(context: ConvertBookContext, book: BookData): Quiz {
     if (context.verbose) {
         console.log('Converting QuizBook:', book.id);
     }
@@ -482,7 +483,7 @@ function updateExplanation(
 function convertScriptureBook(
     pk: SABProskomma,
     context: ConvertBookContext,
-    book: Book,
+    book: BookData,
     bcGlossary: string[],
     docs: Promise<void>[],
     files: string[]

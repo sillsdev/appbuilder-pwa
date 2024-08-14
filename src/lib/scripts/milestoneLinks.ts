@@ -1,22 +1,5 @@
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
-
-export type AudioConfig = {
-    sources: {
-        [key: string]: {
-            type: string;
-            name: string;
-            accessMethods?: string[];
-            folder?: string;
-            key?: string;
-            damId?: string;
-            address?: string;
-        };
-    };
-    files?: {
-        name: string;
-        src: string;
-    }[];
-};
+import type { AudioData } from '$config';
 
 export function checkForMilestoneLinks(
     textType: string[],
@@ -26,7 +9,7 @@ export function checkForMilestoneLinks(
     milestoneLink: string,
     numberOfClips: number,
     subType: string,
-    audioConfig: AudioConfig,
+    audioConfig: AudioData,
     onClickFunction: (e: any) => void
 ) {
     switch (subType) {
