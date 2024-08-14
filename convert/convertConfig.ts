@@ -60,24 +60,6 @@ export type Book = {
     }[];
 };
 
-export type AudioConfig = {
-    sources: {
-        [key: string]: {
-            type: string;
-            name: string;
-            accessMethods?: string[];
-            folder?: string;
-            key?: string;
-            damId?: string;
-            address?: string;
-        };
-    };
-    files?: {
-        name: string;
-        src: string;
-    }[];
-};
-
 export type BookCollection = {
     id: string;
     features: any;
