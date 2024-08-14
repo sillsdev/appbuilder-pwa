@@ -65,7 +65,7 @@ The navbar component.
         if (!showChapterSelector) {
             $nextRef.book = e.detail.text;
             await refs.set({ book: $nextRef.book, chapter: 1 });
-            document.activeElement.blur();
+            close();
         } else {
             switch (e.detail.tab) {
                 case b: {
@@ -108,6 +108,12 @@ The navbar component.
         }
     }
 
+    let dropdown;
+    function close() {
+        dropdown.close();
+        //resetNavigation();
+        //document.activeElement.blur();
+    }
     async function completeNavigation() {
         await navigateToText({
             collection: $refs.collection,
@@ -115,7 +121,7 @@ The navbar component.
             chapter: $nextRef.chapter,
             verse: $nextRef.verse
         });
-        document.activeElement.blur();
+        close();
     }
 
     function resetNavigation() {
@@ -227,7 +233,7 @@ The navbar component.
 </script>
 
 <!-- Book Selector -->
-<Dropdown on:nav-end={resetNavigation}>
+<Dropdown bind:this={dropdown} on:nav-end={resetNavigation}>
     <svelte:fragment slot="label">
         <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
             {label}

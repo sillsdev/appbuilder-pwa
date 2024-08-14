@@ -69,6 +69,7 @@ Displays the three different layout option menus.
             collection: opt
         });
         (document.activeElement as HTMLElement).blur();
+        // TODO: when implementing LAYOUT_TWO, do something for Dropdown.close instead of blur??
     }
 </script>
 
