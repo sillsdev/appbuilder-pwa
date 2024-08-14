@@ -73,8 +73,8 @@ export async function getQuiz() {
 }
 
 export async function findQuiz(item: { collection: string; book: string }) {
-    const notes = await openQuiz();
-    const tx = notes.transaction('quiz', 'readonly');
+    const quiz = await openQuiz();
+    const tx = quiz.transaction('quiz', 'readonly');
     const index = tx.store.index('collection, book');
     const result = await index.getAll([item.collection, item.book]);
     await tx.done;
