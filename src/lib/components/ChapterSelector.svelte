@@ -62,7 +62,12 @@ The navbar component.
             chapter: $nextRef.chapter,
             verse: $nextRef.verse
         });
-        document.activeElement.blur();
+        close();
+    }
+
+    let dropdown;
+    function close() {
+        dropdown.close();
     }
 
     function resetNavigation() {
@@ -127,7 +132,7 @@ The navbar component.
 
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
-    <Dropdown on:nav-end={resetNavigation} cols="5">
+    <Dropdown bind:this={dropdown} on:nav-end={resetNavigation} cols="5">
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
                 {numerals.formatNumber(numeralSystem, chapter)}
