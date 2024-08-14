@@ -4,7 +4,7 @@ A simple dropdown menu from DaisyUI.
 -->
 <script lang="ts">
     import { s, convertStyle } from '$lib/data/stores';
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onDestroy } from 'svelte';
     export let cols = 6;
     const dispatch = createEventDispatcher();
 
@@ -14,12 +14,14 @@ A simple dropdown menu from DaisyUI.
         details.removeAttribute('open');
     }
 
-    function clickOutside(event: PointerEvent) {
-        console.log('clickOutside:', event);
-        if (container && !container.contains(event.target as Node)) {
+    function clickOutside(event: MouseEvent) {
+        const path = event.composedPath();
+        const isInside = path.includes(container);
+        if (!isInside) {
             close();
         }
     }
+
     function onToggle() {
         if (details.open) {
             document.addEventListener('click', clickOutside);
@@ -28,6 +30,10 @@ A simple dropdown menu from DaisyUI.
             dispatch('nav-end');
         }
     }
+
+    onDestroy(() => {
+        document.removeEventListener('click', clickOutside);
+    });
 </script>
 
 <!-- https://github.com/saadeghi/daisyui/discussions/2469 
