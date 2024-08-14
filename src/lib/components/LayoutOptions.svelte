@@ -27,7 +27,8 @@ Displays the three different layout option menus.
         name: ds.collectionName,
         singlePane:
             ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
-        description: ds?.collectionDescription
+        description: ds?.collectionDescription,
+        image: ds?.collectionImage
     }));
 
     function handleClick(opt: any, index: number) {

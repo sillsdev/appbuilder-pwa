@@ -79,7 +79,7 @@ Book Collection Selector component.
                     visible: showVerseByVerse
                 }
             }}
-            scroll={false}
+            scroll={true}
         />
         <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->

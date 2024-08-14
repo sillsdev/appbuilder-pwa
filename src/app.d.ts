@@ -69,6 +69,7 @@ declare namespace App {
         // to be shown in single pane view
         singlePane: boolean;
         description: string;
+        image?: string;
     }
 
     interface CollectionGroup {

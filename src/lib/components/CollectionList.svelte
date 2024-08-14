@@ -33,15 +33,22 @@ Custom list of collections for the LayoutOptions menu
                 class="flex justify-between"
                 role="button"
             >
-                <div style={convertStyle($s['ui.layouts.selector'])}>
-                    <div style={convertStyle($s['ui.layouts.title'])}>
+                <div class="layout-item-block" >
+                    {#if d.image}
+                        <div class="layout-image-block" style="width:15%">
+                            <img class="layout-image" src="illustrations/{d.image}"/>
+                        </div>
+                    {/if}
+                    <div class="layout-text-block">
+                    <div class="layout-item-name">
                         {d.name}
                     </div>
                     {#if d.description}
-                        <div class="text-sm" style={convertStyle($s['ui.layouts.selector'])}>
+                        <div class="layout-item-description">
                             {d.description}
                         </div>
                     {/if}
+                    </div>
                 </div>
             </a>
         </li>
