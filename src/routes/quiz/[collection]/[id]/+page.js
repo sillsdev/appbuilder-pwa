@@ -47,5 +47,12 @@ export async function load({ params, fetch }) {
         }
     }
 
-    return { locked, quizId: id, quizName: book.name, dependentQuizId, dependentQuizName, passScore: 0 };
+    return {
+        locked,
+        quizId: id,
+        quizName: book.name,
+        dependentQuizId,
+        dependentQuizName,
+        passScore: 0
+    };
 }

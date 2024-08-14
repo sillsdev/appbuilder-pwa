@@ -19,7 +19,7 @@ interface Quiz extends DBSchema {
             'collection, book': string;
             date: number;
         };
-    }
+    };
 }
 
 let quizDB = null;
@@ -30,10 +30,7 @@ async function openQuiz() {
                 const quizStore = db.createObjectStore('quiz', {
                     keyPath: 'date'
                 });
-                quizStore.createIndex('collection, book', [
-                    'collection',
-                    'book'
-                ]);
+                quizStore.createIndex('collection, book', ['collection', 'book']);
 
                 quizStore.createIndex('date', 'date');
             }
@@ -62,7 +59,7 @@ export async function addQuiz(item: {
         const nextItem = {
             ...item,
             date: date,
-            bookIndex: bookIndex,
+            bookIndex: bookIndex
         };
         await quiz.add('quiz', nextItem);
     } catch (error) {
@@ -75,10 +72,7 @@ export async function getQuiz() {
     return await quiz.getAllFromIndex('quiz', 'date');
 }
 
-export async function findQuiz(item: {
-    collection: string;
-    book: string;
-}) {
+export async function findQuiz(item: { collection: string; book: string }) {
     const notes = await openQuiz();
     const tx = notes.transaction('quiz', 'readonly');
     const index = tx.store.index('collection, book');
@@ -90,5 +84,5 @@ export async function findQuiz(item: {
 export async function checkQuizAccess(quizId) {
     const quiz = await openQuiz();
     const result = await quiz.getAllFromIndex('quiz', 'collection, book');
-    return result.some(item => item.book === quizId && item.pass);
+    return result.some((item) => item.book === quizId && item.pass);
 }
