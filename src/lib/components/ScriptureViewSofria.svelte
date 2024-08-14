@@ -459,6 +459,16 @@ LOGGING:
             }
         });
     }
+    function remoteAudioClipHandler(event: any) {
+        event.stopPropagation();
+        const address = event.target.getAttribute('filelink');
+        const el = document.querySelector(`audio[id="${address}" ]`);
+        if (el) {
+            const urlString = el.getAttribute('src');
+            const audio = new Audio(urlString);
+            audio.play();
+        }
+    }
     function navigate(reference) {
         refs.set({
             docSet: reference.docSet,
@@ -806,6 +816,9 @@ LOGGING:
                 break;
             case 'glossary':
                 glossaryClickHandler(e);
+                break;
+            case 'audioclip':
+                remoteAudioClipHandler(e);
                 break;
             default:
                 if (e.target.classList.contains('ref-link')) {
@@ -1775,7 +1788,9 @@ LOGGING:
                                 workspace.milestoneText,
                                 workspace.milestoneLink,
                                 workspace.audioClips.length,
-                                element.subType
+                                element.subType,
+                                config.audio,
+                                onClick
                             );
                             workspace.milestoneLink = '';
                             workspace.milestoneText = '';
@@ -1946,5 +1961,5 @@ LOGGING:
         style:line-height={lineHeight}
         class="single"
         style:direction
-    />
+    ></div>
 </article>

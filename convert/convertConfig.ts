@@ -68,7 +68,7 @@ export type BookCollection = {
     fonts: string[];
     languageCode: string;
     languageName?: string;
-    footer?: HTML; //
+    footer?: HTML;
     meta?: {
         [key: string]: string;
     };
@@ -142,7 +142,6 @@ export type ConfigData = {
     keys?: string[];
     about?: string; // TODO
     analytics?: {
-        // TODO
         enabled: boolean;
         providers: {
             id: string;
@@ -170,6 +169,10 @@ export type ConfigData = {
                 address?: string;
             };
         };
+        files?: {
+            name: string;
+            src: string;
+        }[];
     };
     videos?: {
         id: string;
@@ -922,7 +925,28 @@ function convertConfig(dataDir: string, verbose: number) {
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
         }
+
+        const audioTags = document
+            .getElementsByTagName('audio-files')[0]
+            ?.getElementsByTagName('audio');
+        if (audioTags?.length > 0) {
+            data.audio.files = [];
+
+            for (const tag of audioTags) {
+                const fileEntry = tag.getElementsByTagName('filename')[0];
+                if (!fileEntry) continue;
+
+                const filename = fileEntry.innerHTML;
+                const src = fileEntry.getAttribute('src') ?? '';
+
+                data.audio.files.push({
+                    name: filename,
+                    src: src
+                });
+            }
+        }
     }
+
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');

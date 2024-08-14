@@ -1,4 +1,23 @@
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
+
+export type AudioConfig = {
+    sources: {
+        [key: string]: {
+            type: string;
+            name: string;
+            accessMethods?: string[];
+            folder?: string;
+            key?: string;
+            damId?: string;
+            address?: string;
+        };
+    };
+    files?: {
+        name: string;
+        src: string;
+    }[];
+};
+
 export function checkForMilestoneLinks(
     textType: string[],
     footnoteDiv: HTMLElement,
@@ -6,14 +25,18 @@ export function checkForMilestoneLinks(
     milestoneText: string,
     milestoneLink: string,
     numberOfClips: number,
-    subType: string
+    subType: string,
+    audioConfig: AudioConfig,
+    onClickFunction: (e: any) => void
 ) {
     switch (subType) {
         case 'usfm:zaudioc': {
             const [audioEntry, audioLink] = getAudioLinkHtml(
                 milestoneLink,
                 milestoneText,
-                numberOfClips
+                numberOfClips,
+                audioConfig,
+                onClickFunction
             );
             appendMilestoneElement(textType, footnoteDiv, parentDiv, audioEntry, false);
             appendMilestoneElement(textType, footnoteDiv, parentDiv, audioLink, true);
@@ -70,6 +93,7 @@ function getWebLinkHtml(link: string, text: string): HTMLElement {
     a.innerHTML = text;
     return a;
 }
+
 function getEmailLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.href = link;
@@ -78,6 +102,7 @@ function getEmailLinkHtml(link: string, text: string): HTMLElement {
     a.innerHTML = text;
     return a;
 }
+
 function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
     const a = document.createElement('a');
     a.href = link;
@@ -89,18 +114,51 @@ function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
 function getAudioLinkHtml(
     link: string,
     text: string,
-    clipNumber: number
+    clipNumber: number,
+    audioConfig: AudioConfig,
+    onClickFunction: (e: any) => void
 ): [HTMLElement, HTMLElement] {
     const audio = document.createElement('audio');
     const audioId = 'audio' + padWithInitialZeros(clipNumber.toString(), 3);
-    const filename = 'clips/' + filenameWithoutPath(link);
+
+    const filename = filenameWithoutPath(link);
+    let src = '';
+    let sourceType = '';
+
+    if (audioConfig?.files && audioConfig?.sources) {
+        const audioFile = audioConfig.files.find((x) => x.name === filename);
+        if (audioFile) {
+            const audioSource = audioConfig.sources[audioFile.src];
+            if (audioSource) {
+                sourceType = audioSource.type;
+                if (audioSource.type === 'assets') {
+                    src = 'clips/' + filename;
+                } else if (audioSource.type === 'download') {
+                    const address = audioSource.address;
+                    src = ensureTrailingSlash(address) + filename;
+                }
+            }
+        }
+    } else {
+        console.warn('Audio configuration is not properly initialized.');
+    }
+
     audio.id = audioId;
-    audio.src = filename;
+    audio.src = src;
     audio.setAttribute('preload', 'auto');
+
     const a = document.createElement('a');
     a.href = '#';
-    a.setAttribute('onClick', "document.getElementById('" + audioId + "').play();"); //function() { document.getElementById(audioId); };
+    if (sourceType === 'assets') {
+        a.setAttribute('onClick', `document.getElementById('${audioId}').play();`);
+    } else if (sourceType === 'download') {
+        a.classList.add('audioclip');
+        a.setAttribute('filelink', audioId);
+        a.addEventListener('click', onClickFunction, false);
+    }
+
     a.innerHTML = text;
+
     return [audio, a];
 }
 function getReferenceLinkHtml(link: string, text: string): HTMLElement {
@@ -110,4 +168,11 @@ function getReferenceLinkHtml(link: string, text: string): HTMLElement {
     a.setAttribute('ref', link);
     a.innerHTML = text;
     return a;
+}
+
+function ensureTrailingSlash(url) {
+    if (!url.endsWith('/')) {
+        return url + '/';
+    }
+    return url;
 }
