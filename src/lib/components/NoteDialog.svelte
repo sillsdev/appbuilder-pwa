@@ -15,12 +15,12 @@
 
     $: heading = note?.reference ?? '';
 
-    export async function showModal() {
+    export function showModal() {
         if (note !== undefined) {
             text = note.text;
             modal.showModal();
         } else {
-            console.log('No note available!')
+            console.log('No note available!');
         }
     }
 
@@ -29,7 +29,7 @@
         selectedVerses.reset();
     }
 
-    async function onEditNote(){
+    function onEditNote() {
         if (note !== undefined) goto(`${base}/notes/edit/${note.date}`);
     }
 </script>
@@ -38,18 +38,14 @@
     <svelte:fragment slot="content">
         <div id="container" class="flex flex-col justify-evenly">
             <div class="w-full flex justify-between items-center">
-                <div
-                    class="annotation-item-title w-full pb-3 font-bold"
-                >
+                <div class="annotation-item-title w-full pb-3 font-bold">
                     {heading}
                 </div>
-                    <button class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={onEditNote}
-                    >
-                        <EditIcon />
-                    </button>
+                <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={onEditNote}>
+                    <EditIcon />
+                </button>
             </div>
-           
+
             <div style:word-wrap="break-word" class="mt-2">
                 {#if text !== undefined}
                     {#each text.split(/\r?\n/) as line}
@@ -66,5 +62,3 @@
         </div>
     </svelte:fragment>
 </Modal>
-
- 
