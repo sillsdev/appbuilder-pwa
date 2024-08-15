@@ -18,12 +18,12 @@
 
     $: heading = note?.reference ?? '';
 
-    export async function showModal() {
+    export function showModal() {
         if (note !== undefined) {
             text = note.text;
             modal.showModal();
         } else {
-            console.log('No note available!')
+            console.log('No note available!');
         }
     }
 
@@ -32,7 +32,7 @@
         selectedVerses.reset();
     }
 
-    async function onEditNote(){
+    function onEditNote() {
         if (note !== undefined) goto(`${base}/notes/edit/${note.date}`);
     }
 </script>
@@ -40,17 +40,15 @@
 <Modal bind:this={modal} {id} onclose={reset}>
     <svelte:fragment slot="content">
         <div class="flex flex-col justify-evenly">
-            <div class="w-full flex justify-between">
+            <div class="w-full flex justify-between items-center">
                 <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
                     {heading}
                 </div>
-                    <button class="dy-btn dy-btn-ghost dy-btn-circle"
-                        onclick={onEditNote}
-                    >
+                    <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onEditNote}>
                         <EditIcon />
                     </button>
             </div>
-           
+
             <div style:word-wrap="break-word" class="mt-2">
             <!-- TODO Check if this first if-statement is still necessary -->
                 {#if editing}
