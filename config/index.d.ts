@@ -237,6 +237,7 @@ export type ConfigData = {
                 [lang: string]: string;
             };
             filename: string;
+            jsonFilename: string;
             image?: {
                 width: number;
                 height: number;
