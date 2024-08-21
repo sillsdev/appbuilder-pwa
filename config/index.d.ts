@@ -264,6 +264,7 @@ export type ScriptureConfig = AppConfig & {
                 [lang: string]: string;
             };
             filename: string;
+            jsonFilename: string;
             image?: {
                 width: number;
                 height: number;
