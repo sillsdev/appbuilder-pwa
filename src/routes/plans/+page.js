@@ -1,6 +1,5 @@
 import { getPlans } from '$lib/data/plans';
 
-
 /** @type {import('./$types').PageLoad} */
 export async function load({ depends }) {
     const allPlans = await getPlans();
@@ -11,18 +10,19 @@ export async function load({ depends }) {
     // want to break the feature.
     const plans = [
         {
-            "id": "MRK16",
-            "days": 16,
-            "title": {
-                "default": "Mark in 16 days"
+            id: 'MRK16',
+            days: 16,
+            title: {
+                default: 'Mark in 16 days'
             },
-            "filename": "plan-mark-16.txt",
-            "image": {
-                "width": 910,
-                "height": 512,
-                "file": "plan-mark-16.jpg"
+            filename: 'plan-mark-16.txt',
+            image: {
+                width: 910,
+                height: 512,
+                file: 'plan-mark-16.jpg'
             }
-        }];
+        }
+    ];
     depends('plans');
     console.log('Plans', plans);
     return { plans };

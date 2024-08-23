@@ -19,21 +19,19 @@ which contains an entry for each reference that has been marked as "read".
 
 */
 
-
 //made this based on the key value pairs in config.js, should it be something else?
 export interface PlanItem {
     id: string;
     days: number;
     title: {
         [lang: string]: string;
-    }
+    };
     filename: string;
     image?: {
         width: string;
         height: string;
         file: string;
-    }
-
+    };
 }
 
 interface Plans extends DBSchema {
@@ -45,7 +43,6 @@ interface Plans extends DBSchema {
         };
     };
 }
-
 
 let planDB = null;
 
@@ -64,12 +61,7 @@ async function openPlans() {
     return planDB;
 }
 
-
 export async function getPlans(): Promise<PlanItem[]> {
     const plans = await openPlans();
     return await plans.getAll('plans');
 }
-
-
-
-

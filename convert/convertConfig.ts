@@ -553,8 +553,8 @@ function parseBookCollections(document: Document, verbose: number) {
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
                 ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                    .filter((x) => fontFamilies.includes(x.innerHTML))
-                    .map((x) => x.innerHTML)
+                      .filter((x) => fontFamilies.includes(x.innerHTML))
+                      .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -615,8 +615,8 @@ function parseBookCollections(document: Document, verbose: number) {
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                .filter((x) => fontFamilies.includes(x.innerHTML))
-                .map((x) => x.innerHTML)
+                  .filter((x) => fontFamilies.includes(x.innerHTML))
+                  .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -1239,8 +1239,7 @@ function parsePlans(document: Document, verbose: number) {
                 const filename = tag.getElementsByTagName('filename')[0].innerHTML;
                 const ext = extname(filename);
                 const baseFilename = basename(filename, ext);
-                const jsonFilename = baseFilename + ".json";
-
+                const jsonFilename = baseFilename + '.json';
 
                 const plan = {
                     id: tag.attributes.getNamedItem('id')!.value,
