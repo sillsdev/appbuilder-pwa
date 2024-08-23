@@ -15,7 +15,7 @@
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
-    import { CalendarMonthIcon, InfoIcon } from '$lib/icons';
+    import { CalendarMonthIcon, CheckboxOutlineIcon,  InfoIcon } from '$lib/icons';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -131,14 +131,6 @@
                                 ? 'selected plan-day-box-selected'
                                 : 'plan-day-box-unselected'}"
                             id="D-1"
-                            style="    display: inline-block;
-    position: relative;
-    width: 60px;
-    height: 60px;
-    border: 1px solid;
-    border-bottom: 3px solid;
-    text-align: center;
-    cursor: pointer;"
                             on:click={() => (selectedDay = item)}
                         >
                             <div class="plan-day-box-content">
@@ -152,10 +144,10 @@
                 <div class="plan-items" id="container">
                     <table class="plan-items-table">
                         <tbody>
-                            {#each selectedDay.refs as ref}
-                                <tr class="plan-item" id="R-0">
-                                    <td class="plan-item-checkbox">
-                                        <img class="plan-checkbox-image" id="C-0" src="" alt="" />
+                            {#each selectedDay.refs as ref, index}
+                                <tr class="plan-item" id={"R-" + index}>
+                                    <td class="plan-item-checkbox plan-checkbox-image">
+                                        <CheckboxOutlineIcon/>
                                     </td>
                                     <td class="plan-item-title">
                                         <span class="plan-item-reference">{ref}</span>

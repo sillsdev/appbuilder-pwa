@@ -1,4 +1,3 @@
-
 import config from '../../../lib/data/config';
 import { base } from '$app/paths';
 
@@ -7,11 +6,9 @@ export async function load({ params, fetch }) {
 
     const id = params.id;
 
-
-    const planConfig = allPlans.find((x) => x.id === id)
+    const planConfig = allPlans.find((x) => x.id === id);
 
     console.log('plan:', planConfig);
-
 
     const src = `${base}/plans/${planConfig.jsonFilename}`;
     let planData;
@@ -28,13 +25,5 @@ export async function load({ params, fetch }) {
         console.error('Error fetching plan JSON file:', error);
     }
 
-
     return { planConfig, planData };
-
-
 }
-
-
-
-
-
