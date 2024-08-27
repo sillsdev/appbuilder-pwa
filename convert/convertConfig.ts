@@ -52,21 +52,11 @@ function parseStyles(stylesTag: Element, verbose: number) {
             const propValue = propertyTag.getAttribute('value');
             if (propName && propValue) {
                 // Check for sp values (Android-specific) and convert to rem values:
-                if (propValue.endsWith('sp')) {
-                    properties[propName] = changeSpToRem(propValue);
-                    if (verbose)
-                        console.log(
-                            'Parsing ' +
-                                propName +
-                                ' = ' +
-                                propValue +
-                                ' -> ' +
-                                properties[propName]
-                        );
-                } else {
-                    //Not a sp value
-                    properties[propName] = propValue;
-                }
+                properties[propName] = changeAndroidToRem(propValue);
+                if (verbose)
+                    console.log(
+                        'Parsing ' + propName + ' = ' + propValue + ' -> ' + properties[propName]
+                    );
             }
         }
         styles.push({
@@ -132,12 +122,34 @@ function removeCData(data: string) {
     return data.replace('<![CDATA[', '').replace(']]>', '');
 }
 
-function changeSpToRem(propValue: string) {
-    // Convert Android-specific sp values to rem values
-    const rootFontSize = 16;
-    const remValue = Number(propValue.replace('sp', '')) / rootFontSize;
-    const newPropValue = String(remValue) + 'rem';
-    return newPropValue;
+function changeAndroidToRem(propValue: string) {
+    const rootFontSize = 16; // Standard root font size for rem conversion
+
+    if (propValue.endsWith('sp')) {
+        const remValue = Number(propValue.replace('sp', '')) / rootFontSize;
+        return `${remValue}rem`;
+    } else if (propValue.endsWith('dp')) {
+        const remValue = Number(propValue.replace('dp', '')) / rootFontSize;
+        return `${remValue}rem`;
+    } else if (propValue.endsWith('px')) {
+        const remValue = Number(propValue.replace('px', '')) / rootFontSize;
+        return `${remValue}rem`;
+    } else if (propValue.endsWith('pt')) {
+        const pxValue = Number(propValue.replace('pt', '')) * (96 / 72); // 1pt = 1/72 inch, 96px/inch
+        const remValue = pxValue / rootFontSize;
+        return `${remValue}rem`;
+    } else if (propValue.endsWith('in')) {
+        const pxValue = Number(propValue.replace('in', '')) * 96; // 96px/inch
+        const remValue = pxValue / rootFontSize;
+        return `${remValue}rem`;
+    } else if (propValue.endsWith('mm')) {
+        const pxValue = Number(propValue.replace('mm', '')) * (96 / 25.4); // 1 inch = 25.4 mm
+        const remValue = pxValue / rootFontSize;
+        return `${remValue}rem`;
+    } else {
+        // If no recognized unit, return the original value unchanged
+        return propValue;
+    }
 }
 
 function convertFooter(markdown: string | undefined, appdef: Document): string | undefined {

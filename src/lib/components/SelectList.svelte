@@ -4,7 +4,7 @@ A component to display menu options in a list.
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { s, convertStyle } from '$lib/data/stores';
+    import { s, convertStyle, themeColors, theme } from '$lib/data/stores';
     export let options: App.GridGroup[] = [];
 
     const dispatch = createEventDispatcher();
@@ -18,63 +18,46 @@ A component to display menu options in a list.
         });
     }
 
-    // class=" menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
+    let hovered = null;
+    $: hoverColor = $theme === 'Dark' ? '#444444' : $themeColors['ButtonSelectedColor'];
+    $: backgroundColor = $s['ui.button.book-list']['background-color'];
+
+    // Function to handle span touch
+    function handleHover(event) {
+        console.log('hovered:', event.target.id);
+        hovered = event.target.id;
+    }
+
+    // Function to handle span touch end
+    function handleHoverEnd() {
+        hovered = null;
+    }
+
+    $: rowStyle = convertStyle($s['ui.button.book-list']);
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 {#each options as group}
     {#if group.header}
-        <div style={convertStyle($s['ui.text.book-group-title'])}>{group.header}</div>
+        <div class="flex items-center" style={convertStyle($s['ui.text.book-group-title'])}>
+            {group.header}
+        </div>
     {/if}
-    <table>
-        {#each Array(group.cells.length) as _, ri}
-            <td>
-                {#each Array(group.cells.length) as _, ci}
-                    {#if ri * group.cells.length + ci < group.cells.length}
-                        <tr>
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-interactive-supports-focus -->
-                            <span
-                                on:click={() =>
-                                    handleClick(group.cells[ri * group.cells.length + ci])}
-                                class="menu p-0 cursor-pointer hover:bg-base-100 min-w-[16rem]"
-                                role="button"
-                            >
-                                {group.cells[ri * group.cells.length + ci].label}
-                            </span></tr
-                        >
-                    {/if}
-                {/each}
-            </td>
+    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+    <div class="flex flex-wrap" on:mouseover={handleHover} on:mouseout={handleHoverEnd}>
+        {#each group.cells as cell}
+            <!-- svelte-ignore a11y-interactive-supports-focus -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div
+                on:click={() => handleClick(cell)}
+                id={cell.id}
+                class="menu ps-2 cursor-pointer min-w-[16rem] flex-grow flex items-center"
+                style={rowStyle}
+                style:background-color={hovered == cell.id ? hoverColor : backgroundColor}
+                role="button"
+            >
+                {cell.label}
+            </div>
         {/each}
-    </table>
+    </div>
 {/each}
-
-<style>
-    div {
-        padding: 5px;
-    }
-    table {
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 0px;
-        border-collapse: unset;
-    }
-    tr {
-        width: 80%;
-        margin: 0px;
-        padding: 0px;
-    }
-    td {
-        margin: 0px;
-        position: relative;
-        border-radius: 2px;
-    }
-    span {
-        text-overflow: ''; /* Works on Firefox only */
-        overflow: hidden;
-        display: inline-block;
-        vertical-align: middle;
-        padding: 0.5em 0;
-    }
-</style>
