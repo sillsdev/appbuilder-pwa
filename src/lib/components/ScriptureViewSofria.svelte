@@ -566,7 +566,6 @@ LOGGING:
         footnoteDiv.style.display = 'none';
         footnoteDiv.setAttribute('type', element.subType);
 
-        const div = workspace.phraseDiv.cloneNode(true);
         footnoteSpan = document.createElement('span');
         footnoteSpan.setAttribute('data-graft', footnoteId);
         const a = document.createElement('a');
@@ -900,7 +899,8 @@ LOGGING:
                             workspace.subheaders = [];
                             workspace.textType = [];
                             workspace.titleText = [];
-                            workspace.headerText = [];
+                            workspace.headerDiv = null;
+                            workspace.headerInnerDiv = null;
                             workspace.audioClips = [];
                             workspace.usfmWrapperType = '';
                             workspace.showWordsOfJesus = showRedLetters;
@@ -937,7 +937,7 @@ LOGGING:
                                 for (var i = 0; i < els.length; i++) {
                                     if (
                                         (els[i].classList.contains('seltxt') && els[i].id != '') ||
-                                        els[i].classList.contains('r')
+                                        els[i].classList.contains('r') || els[i].classList.contains('s')
                                     ) {
                                         els[i].addEventListener('click', onClick, false);
                                     }
@@ -1001,6 +1001,20 @@ LOGGING:
                                     workspace.phraseDiv = startPhrase(workspace, 'keep');
                                     workspace.paragraphDiv = document.createElement('div');
                                     workspace.paragraphDiv.classList.add(paraClass);
+                                } else if (sequenceType == 'heading') {
+                                    workspace.headerDiv = document.createElement('div');
+                                    var headingParaClass =
+                                        context.sequences[0].block.subType.split(':')[1] ||
+                                        context.sequences[0].block.subType;
+                                    workspace.headerDiv.classList.add(headingParaClass);
+                                    const prefix = headingParaClass.replaceAll(/[0-9]/g, '');
+                                    workspace.subheaders.push(prefix);
+                                    const count = countSubheadingPrefixes(
+                                        workspace.subheaders,
+                                        prefix
+                                    );
+                                    workspace.headerInnerDiv = document.createElement('div');
+                                    workspace.headerInnerDiv.id = prefix + count;
                                 }
                             }
                         }
@@ -1066,27 +1080,10 @@ LOGGING:
                                     workspace.titleBlockDiv.appendChild(div);
                                     workspace.titleText = '';
                                 } else if (sequenceType == 'heading') {
-                                    const div = document.createElement('div');
-                                    var headingParaClass =
-                                        context.sequences[0].block.subType.split(':')[1] ||
-                                        context.sequences[0].block.subType;
-                                    div.classList.add(headingParaClass);
-                                    const prefix = headingParaClass.replaceAll(/[0-9]/g, '');
-                                    workspace.subheaders.push(prefix);
-                                    const count = countSubheadingPrefixes(
-                                        workspace.subheaders,
-                                        prefix
-                                    );
-                                    const innerDiv = document.createElement('div');
-                                    innerDiv.id = prefix + count;
-                                    if (headingParaClass == 'r') {
-                                        innerDiv.innerHTML = workspace.headerText;
-                                    } else {
-                                        innerDiv.innerText = workspace.headerText;
-                                    }
-                                    div.appendChild(innerDiv);
-                                    workspace.root.appendChild(div);
-                                    workspace.headerText = '';
+                                    workspace.headerDiv.appendChild(workspace.headerInnerDiv);
+                                    workspace.root.appendChild(workspace.headerDiv);
+                                    workspace.headerInnerDiv = null;
+                                    workspace.headerDiv = null;
                                 } else if (sequenceType == 'introduction') {
                                     if (
                                         workspace.phraseDiv != null &&
@@ -1223,10 +1220,13 @@ LOGGING:
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
                                         if (blockType.includes('usfm:r')) {
-                                            const refText = generateHTML(text, 'header-ref');
-                                            workspace.headerText += refText;
+                                            const refText = generateHTML(text, 'header-ref');        
+                                            // This is for usfm:r like you will find in CUK Headers
+                                            // which contain references inline
+                                            workspace.headerInnerDiv.innerHTML = refText;
                                         } else {
-                                            workspace.headerText += text;
+                                            const child = document.createTextNode(text);
+                                            workspace.headerInnerDiv.appendChild(child);
                                         }
                                         break;
                                     }
@@ -1571,10 +1571,14 @@ LOGGING:
                             // Runs after all segments in graft have run
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
-                                const div = workspace.phraseDiv.cloneNode(true);
                                 footnoteSpan.appendChild(workspace.footnoteDiv);
-                                div.appendChild(footnoteSpan);
-                                workspace.phraseDiv = div.cloneNode(true);
+                                if (workspace.textType.includes('heading')) {
+                                    if (workspace.headerInnerDiv) {
+                                        workspace.headerInnerDiv.appendChild(footnoteSpan);
+                                    }
+                                } else if (workspace.phraseDiv) {
+                                    workspace.phraseDiv.appendChild(footnoteSpan);
+                                }
                                 if (workspace.lastPhraseTerminated) {
                                     // console.log('Add text start phrase (graft)');
                                     workspace.phraseDiv = startPhrase(workspace);
