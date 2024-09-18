@@ -1573,11 +1573,9 @@ LOGGING:
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 footnoteSpan.appendChild(workspace.footnoteDiv);
                                 if (workspace.textType.includes('heading')) {
-                                    if (workspace.headerInnerDiv) {
-                                        workspace.headerInnerDiv.appendChild(footnoteSpan);
-                                    }
-                                } else if (workspace.phraseDiv) {
-                                    workspace.phraseDiv.appendChild(footnoteSpan);
+                                    workspace.headerInnerDiv?.appendChild(footnoteSpan);  
+                                } else {
+                                    workspace.phraseDiv?.appendChild(footnoteSpan);
                                 }
                                 if (workspace.lastPhraseTerminated) {
                                     // console.log('Add text start phrase (graft)');
