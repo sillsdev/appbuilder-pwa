@@ -165,8 +165,8 @@ The navbar component.
                             header: book.testament
                                 ? $t['Book_Group_' + book.testament]
                                 : lastGroup == null
-                                ? '' // use empty string so that first group doesn't have header (e.g. INT)
-                                : '\u00A0', // use &nbsp; so we have a blank space for additional books at the end
+                                  ? '' // use empty string so that first group doesn't have header (e.g. INT)
+                                  : '\u00A0', // use &nbsp; so we have a blank space for additional books at the end
                             cells: [cell]
                         });
                         lastGroup = group;

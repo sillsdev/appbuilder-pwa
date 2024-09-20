@@ -76,9 +76,9 @@ A component to display menu options in a grid.
 
 {#each options as group}
     {#if group.header}
-        <div class="mx-2"
-        class:my-2={isNotBlank(group.header)} 
-        style={headerStyle}>{group.header}</div>
+        <div class="mx-2" class:my-2={isNotBlank(group.header)} style={headerStyle}>
+            {group.header}
+        </div>
     {/if}
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <!-- svelte-ignore a11y-interactive-supports-focus -->

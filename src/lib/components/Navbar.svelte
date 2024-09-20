@@ -24,7 +24,11 @@ The navbar component.
 
     const dispatch = createEventDispatcher();
     function handleBackNavigation() {
-        const shouldContinue = dispatch('backNavigation', { detail: $page.route.id}, {cancelable: true});
+        const shouldContinue = dispatch(
+            'backNavigation',
+            { detail: $page.route.id },
+            { cancelable: true }
+        );
         if (shouldContinue) {
             goto(`${base}/`);
         }
