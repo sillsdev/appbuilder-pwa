@@ -76,9 +76,11 @@
     async function doSwipe(event) {
         const swipeDirection = event.detail.direction;
         console.log('SWIPE', swipeDirection);
-        if (swipeBetweenBooks || 
-            ($refs.prev.book === $refs.book && swipeDirection === 'right') || 
-            ($refs.next.book === $refs.book && swipeDirection === 'left')) {
+        if (
+            swipeBetweenBooks ||
+            ($refs.prev.book === $refs.book && swipeDirection === 'right') ||
+            ($refs.next.book === $refs.book && swipeDirection === 'left')
+        ) {
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
@@ -415,7 +417,8 @@
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
                     on:click={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev && navigateBetweenBooksPrev
+                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
+                    navigateBetweenBooksPrev
                         ? 'visible'
                         : 'invisible'}"
                 >
@@ -444,7 +447,8 @@
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
                     on:click={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext && navigateBetweenBooksNext
+                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
+                    navigateBetweenBooksNext
                         ? 'visible'
                         : 'invisible'}"
                 >

@@ -33,7 +33,7 @@ TODO:
                 book: history.book,
                 chapter: history.chapter,
                 verse: history.verse
-            })
+            });
             goto(`${base}/`);
         }
     }
@@ -43,10 +43,7 @@ TODO:
 <div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div
-        style="text-decoration:none;"
-        on:click={onHistoryClick}
-    >
+    <div style="text-decoration:none;" on:click={onHistoryClick}>
         <div
             class="history-card grid grid-cols-1"
             class:grid-rows-2={!bcName}

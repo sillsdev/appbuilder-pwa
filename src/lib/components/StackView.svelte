@@ -110,12 +110,14 @@
             on:click|stopPropagation={insideClick}
         >
             <div
-                id="container" 
+                id="container"
                 class="footnote"
                 style:font-family={font}
                 style:font-size={fontSize}
                 style:line-height={lineHeight}
-            >{@html item}</div>
+            >
+                {@html item}
+            </div>
         </div>
     {/each}
 </div>

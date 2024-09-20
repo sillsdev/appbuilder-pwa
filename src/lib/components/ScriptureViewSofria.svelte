@@ -1263,8 +1263,11 @@ LOGGING:
                                                 const refText = generateHTML(text, 'header-ref');
                                                 spanV.innerHTML = refText;
                                                 if (workspace.phraseDiv === null) {
-                                                    workspace.phraseDiv = startPhrase(workspace, 'keep');
-                                                } 
+                                                    workspace.phraseDiv = startPhrase(
+                                                        workspace,
+                                                        'keep'
+                                                    );
+                                                }
                                                 workspace.phraseDiv.appendChild(spanV);
                                             } else {
                                                 addText(workspace, text);

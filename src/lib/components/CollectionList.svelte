@@ -33,21 +33,21 @@ Custom list of collections for the LayoutOptions menu
                 class="flex justify-between"
                 role="button"
             >
-                <div class="layout-item-block" >
+                <div class="layout-item-block">
                     {#if d.image}
                         <div class="layout-image-block" style="width:15%">
-                            <img class="layout-image" src="illustrations/{d.image}"/>
+                            <img class="layout-image" src="illustrations/{d.image}" />
                         </div>
                     {/if}
                     <div class="layout-text-block">
-                    <div class="layout-item-name">
-                        {d.name}
-                    </div>
-                    {#if d.description}
-                        <div class="layout-item-description">
-                            {d.description}
+                        <div class="layout-item-name">
+                            {d.name}
                         </div>
-                    {/if}
+                        {#if d.description}
+                            <div class="layout-item-description">
+                                {d.description}
+                            </div>
+                        {/if}
                     </div>
                 </div>
             </a>

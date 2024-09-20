@@ -14,7 +14,7 @@
     let title: string;
     let text: string;
 
-    $: heading = editing ? $t[title] ?? '' : note?.reference ?? '';
+    $: heading = editing ? ($t[title] ?? '') : (note?.reference ?? '');
 
     export function showModal() {
         if (note !== undefined) {
