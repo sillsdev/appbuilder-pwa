@@ -84,7 +84,7 @@ The navbar component.
                 }
                 case c:
                     $nextRef.chapter = e.detail.text;
-                    if (!showVerseSelector) {
+                    if (!showVerseSelector || $nextRef.chapter === 'i') {
                         await completeNavigation();
                     } else {
                         bookSelector.setActive(v);
