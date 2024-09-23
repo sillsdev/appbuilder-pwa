@@ -32,7 +32,7 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (!showVerseSelector) {
+                if (!showVerseSelector || $nextRef.chapter === 'i') {
                     await completeNavigation();
                 } else {
                     chapterSelector.setActive(v);
@@ -93,6 +93,16 @@ The navbar component.
         let count = Object.keys(chapters[chapter]).length;
         return count;
     }
+
+    let chapterIndicator = (chapter) => {
+        let value = '';
+        if (chapter === 'i') {
+            value = $t['Chapter_Introduction_Symbol'];
+        } else {
+            value = numerals.formatNumber(numeralSystem, chapter);
+        }
+        return value;
+    };
     let verseGridGroup = (chapter) => {
         let value = [];
         let selectedChapter = chapters[chapter];
@@ -135,7 +145,7 @@ The navbar component.
     <Dropdown bind:this={dropdown} on:nav-end={resetNavigation} cols="5">
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
-                {numerals.formatNumber(numeralSystem, chapter)}
+                {chapterIndicator(chapter)}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
