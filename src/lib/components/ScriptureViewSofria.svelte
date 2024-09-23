@@ -837,6 +837,23 @@ LOGGING:
         const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
+
+    const clickableClasses = ['seltext', 'r', 's', 'mt', 'imt2', 'ip', 'is', 'io', 'io2'];
+    function hasClickableClass(divElement: HTMLDivElement) {
+        if (divElement.classList.contains('seltxt') && divElement.id != '') {
+            return true;
+        } else {
+            return clickableClasses.some((cls) => divElement.classList.contains(cls));
+        }
+    }
+    function addOnClickDivs() {
+        var els = document.getElementsByTagName('div');
+        for (var i = 0; i < els.length; i++) {
+            if (hasClickableClass(els[i])) {
+                els[i].addEventListener('click', onClick, false);
+            }
+        }
+    }
     let bookRoot = document.createElement('div');
     if (scriptureLogs?.root) {
         console.log('START: %o', bookRoot);
@@ -932,18 +949,8 @@ LOGGING:
                                 console.log('End Document');
                             }
                             preprocessAction('endDocument', workspace);
+                            addOnClickDivs();
                             if (!displayingIntroduction) {
-                                var els = document.getElementsByTagName('div');
-                                for (var i = 0; i < els.length; i++) {
-                                    if (
-                                        (els[i].classList.contains('seltxt') && els[i].id != '') ||
-                                        els[i].classList.contains('r') ||
-                                        els[i].classList.contains('s') ||
-                                        els[i].classList.contains('mt')
-                                    ) {
-                                        els[i].addEventListener('click', onClick, false);
-                                    }
-                                }
                                 addNotedVerses(notes);
                                 addBookmarkedVerses(bookmarks);
                                 addHighlightedVerses(highlights);
@@ -1618,7 +1625,6 @@ LOGGING:
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 footnoteSpan.appendChild(workspace.footnoteDiv);
-                                console.log('Footnote DIV ', workspace.textType);
                                 if (workspace.textType.includes('heading')) {
                                     workspace.headerInnerDiv?.appendChild(footnoteSpan);
                                 } else if (workspace.textType.includes('title')) {
