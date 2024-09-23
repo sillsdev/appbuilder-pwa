@@ -937,8 +937,8 @@ LOGGING:
                                 for (var i = 0; i < els.length; i++) {
                                     if (
                                         (els[i].classList.contains('seltxt') && els[i].id != '') ||
-                                        els[i].classList.contains('r') || 
-                                        els[i].classList.contains('s') || 
+                                        els[i].classList.contains('r') ||
+                                        els[i].classList.contains('s') ||
                                         els[i].classList.contains('mt')
                                     ) {
                                         els[i].addEventListener('click', onClick, false);
@@ -1266,7 +1266,7 @@ LOGGING:
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
                                         if (blockType.includes('usfm:r')) {
-                                            const refText = generateHTML(text, 'header-ref');        
+                                            const refText = generateHTML(text, 'header-ref');
                                             // This is for usfm:r like you will find in CUK Headers
                                             // which contain references inline
                                             workspace.headerInnerDiv.innerHTML = refText;
@@ -1618,9 +1618,9 @@ LOGGING:
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 footnoteSpan.appendChild(workspace.footnoteDiv);
-                                console.log("Footnote DIV ", workspace.textType);
+                                console.log('Footnote DIV ', workspace.textType);
                                 if (workspace.textType.includes('heading')) {
-                                    workspace.headerInnerDiv?.appendChild(footnoteSpan);  
+                                    workspace.headerInnerDiv?.appendChild(footnoteSpan);
                                 } else if (workspace.textType.includes('title')) {
                                     workspace.titleSpan.appendChild(footnoteSpan);
                                 } else {
