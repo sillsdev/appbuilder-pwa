@@ -566,7 +566,6 @@ LOGGING:
         footnoteDiv.style.display = 'none';
         footnoteDiv.setAttribute('type', element.subType);
 
-        const div = workspace.phraseDiv.cloneNode(true);
         footnoteSpan = document.createElement('span');
         footnoteSpan.setAttribute('data-graft', footnoteId);
         const a = document.createElement('a');
@@ -838,6 +837,23 @@ LOGGING:
         const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
+
+    const clickableClasses = ['seltext', 'r', 's', 'mt', 'imt2', 'ip', 'is', 'io', 'io2'];
+    function hasClickableClass(divElement: HTMLDivElement) {
+        if (divElement.classList.contains('seltxt') && divElement.id != '') {
+            return true;
+        } else {
+            return clickableClasses.some((cls) => divElement.classList.contains(cls));
+        }
+    }
+    function addOnClickDivs() {
+        var els = document.getElementsByTagName('div');
+        for (var i = 0; i < els.length; i++) {
+            if (hasClickableClass(els[i])) {
+                els[i].addEventListener('click', onClick, false);
+            }
+        }
+    }
     let bookRoot = document.createElement('div');
     if (scriptureLogs?.root) {
         console.log('START: %o', bookRoot);
@@ -892,6 +908,7 @@ LOGGING:
                             workspace.titleGraft = false;
                             workspace.paragraphDiv = document.createElement('div');
                             workspace.titleBlockDiv = document.createElement('div');
+                            workspace.titleSpan = null;
                             workspace.verseDiv = null;
                             workspace.phraseDiv = null;
                             workspace.videoDiv = null;
@@ -899,8 +916,8 @@ LOGGING:
                             workspace.figureDiv = null;
                             workspace.subheaders = [];
                             workspace.textType = [];
-                            workspace.titleText = [];
-                            workspace.headerText = [];
+                            workspace.headerDiv = null;
+                            workspace.headerInnerDiv = null;
                             workspace.audioClips = [];
                             workspace.usfmWrapperType = '';
                             workspace.showWordsOfJesus = showRedLetters;
@@ -932,16 +949,8 @@ LOGGING:
                                 console.log('End Document');
                             }
                             preprocessAction('endDocument', workspace);
+                            addOnClickDivs();
                             if (!displayingIntroduction) {
-                                var els = document.getElementsByTagName('div');
-                                for (var i = 0; i < els.length; i++) {
-                                    if (
-                                        (els[i].classList.contains('seltxt') && els[i].id != '') ||
-                                        els[i].classList.contains('r')
-                                    ) {
-                                        els[i].addEventListener('click', onClick, false);
-                                    }
-                                }
                                 addNotedVerses(notes);
                                 addBookmarkedVerses(bookmarks);
                                 addHighlightedVerses(highlights);
@@ -980,27 +989,58 @@ LOGGING:
                                 var paraClass =
                                     context.sequences[0].block.subType.split(':')[1] ||
                                     context.sequences[0].block.subType;
-                                if (sequenceType === 'main' && !displayingIntroduction) {
-                                    workspace.lastPhraseTerminated = false;
+                                switch (sequenceType) {
+                                    case 'main': {
+                                        if (!displayingIntroduction) {
+                                            workspace.lastPhraseTerminated = false;
 
-                                    if (workspace.currentVerse != 'none') {
-                                        workspace.phraseDiv = startPhrase(workspace);
-                                        if (scriptureLogs?.paragraph) {
-                                            console.log(
-                                                'Paragraph Start phrase: %o',
-                                                workspace.phraseDiv
-                                            );
+                                            if (workspace.currentVerse != 'none') {
+                                                workspace.phraseDiv = startPhrase(workspace);
+                                                if (scriptureLogs?.paragraph) {
+                                                    console.log(
+                                                        'Paragraph Start phrase: %o',
+                                                        workspace.phraseDiv
+                                                    );
+                                                }
+                                            }
+                                            workspace.paragraphDiv = document.createElement('div');
+                                            workspace.paragraphDiv.classList.add(paraClass);
                                         }
+                                        break;
                                     }
-                                    workspace.paragraphDiv = document.createElement('div');
-                                    workspace.paragraphDiv.classList.add(paraClass);
-                                } else if (sequenceType == 'introduction') {
-                                    if (scriptureLogs?.paragraph) {
-                                        console.log('Introduction start phrase');
+                                    case 'introduction': {
+                                        if (scriptureLogs?.paragraph) {
+                                            console.log('Introduction start phrase');
+                                        }
+                                        workspace.phraseDiv = startPhrase(workspace, 'keep');
+                                        workspace.paragraphDiv = document.createElement('div');
+                                        workspace.paragraphDiv.classList.add(paraClass);
+                                        break;
                                     }
-                                    workspace.phraseDiv = startPhrase(workspace, 'keep');
-                                    workspace.paragraphDiv = document.createElement('div');
-                                    workspace.paragraphDiv.classList.add(paraClass);
+                                    case 'heading': {
+                                        workspace.headerDiv = document.createElement('div');
+                                        var headingParaClass =
+                                            context.sequences[0].block.subType.split(':')[1] ||
+                                            context.sequences[0].block.subType;
+                                        workspace.headerDiv.classList.add(headingParaClass);
+                                        const prefix = headingParaClass.replaceAll(/[0-9]/g, '');
+                                        workspace.subheaders.push(prefix);
+                                        const count = countSubheadingPrefixes(
+                                            workspace.subheaders,
+                                            prefix
+                                        );
+                                        workspace.headerInnerDiv = document.createElement('div');
+                                        workspace.headerInnerDiv.id = prefix + count;
+                                        break;
+                                    }
+                                    case 'title': {
+                                        workspace.titleSpan = document.createElement('span');
+                                        workspace.titleSpan.classList.add(paraClass);
+                                        break;
+                                    }
+                                    default: {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1028,6 +1068,35 @@ LOGGING:
                                     workspace.titleGraft
                                 )
                             ) {
+                                switch (sequenceType) {
+                                    case 'main': {
+                                        if (scriptureLogs?.paragraph) {
+                                            console.log('End main paragraph');
+                                        }
+                                        if (
+                                            workspace.phraseDiv != null &&
+                                            workspace.phraseDiv.innerText !== ''
+                                        ) {
+                                            appendPhrase(workspace);
+                                            workspace.phraseDiv = null;
+                                        }
+                                        if (versePerLine) {
+                                            if (workspace.verseDiv !== null) {
+                                                workspace.paragraphDiv.appendChild(
+                                                    workspace.verseDiv.cloneNode(true)
+                                                );
+                                                workspace.verseDiv = document.createElement('div');
+                                            }
+                                        }
+                                        // Build div
+                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                        if (workspace.videoDiv) {
+                                            workspace.root.appendChild(workspace.videoDiv);
+                                            workspace.videoDiv = null;
+                                        }
+                                        break;
+                                    }
+                                }
                                 if (sequenceType == 'main') {
                                     if (scriptureLogs?.paragraph) {
                                         console.log('End main paragraph');
@@ -1059,34 +1128,14 @@ LOGGING:
                                         context.sequences[0].block.subType.split(':')[1] ||
                                         context.sequences[0].block.subType;
                                     div.classList.add(paraClass);
-                                    const span = document.createElement('span');
-                                    span.classList.add(paraClass);
-                                    span.innerText = workspace.titleText;
-                                    div.appendChild(span);
+                                    div.appendChild(workspace.titleSpan);
                                     workspace.titleBlockDiv.appendChild(div);
-                                    workspace.titleText = '';
+                                    workspace.titleSpan = null;
                                 } else if (sequenceType == 'heading') {
-                                    const div = document.createElement('div');
-                                    var headingParaClass =
-                                        context.sequences[0].block.subType.split(':')[1] ||
-                                        context.sequences[0].block.subType;
-                                    div.classList.add(headingParaClass);
-                                    const prefix = headingParaClass.replaceAll(/[0-9]/g, '');
-                                    workspace.subheaders.push(prefix);
-                                    const count = countSubheadingPrefixes(
-                                        workspace.subheaders,
-                                        prefix
-                                    );
-                                    const innerDiv = document.createElement('div');
-                                    innerDiv.id = prefix + count;
-                                    if (headingParaClass == 'r') {
-                                        innerDiv.innerHTML = workspace.headerText;
-                                    } else {
-                                        innerDiv.innerText = workspace.headerText;
-                                    }
-                                    div.appendChild(innerDiv);
-                                    workspace.root.appendChild(div);
-                                    workspace.headerText = '';
+                                    workspace.headerDiv.appendChild(workspace.headerInnerDiv);
+                                    workspace.root.appendChild(workspace.headerDiv);
+                                    workspace.headerInnerDiv = null;
+                                    workspace.headerDiv = null;
                                 } else if (sequenceType == 'introduction') {
                                     if (
                                         workspace.phraseDiv != null &&
@@ -1217,16 +1266,20 @@ LOGGING:
                                 const text = context.sequences[0].element.text;
                                 switch (currentTextType(workspace)) {
                                     case 'title': {
-                                        workspace.titleText += text;
+                                        const child = document.createTextNode(text);
+                                        workspace.titleSpan.append(child);
                                         break;
                                     }
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
                                         if (blockType.includes('usfm:r')) {
                                             const refText = generateHTML(text, 'header-ref');
-                                            workspace.headerText += refText;
+                                            // This is for usfm:r like you will find in CUK Headers
+                                            // which contain references inline
+                                            workspace.headerInnerDiv.innerHTML = refText;
                                         } else {
-                                            workspace.headerText += text;
+                                            const child = document.createTextNode(text);
+                                            workspace.headerInnerDiv.appendChild(child);
                                         }
                                         break;
                                     }
@@ -1571,10 +1624,14 @@ LOGGING:
                             // Runs after all segments in graft have run
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
-                                const div = workspace.phraseDiv.cloneNode(true);
                                 footnoteSpan.appendChild(workspace.footnoteDiv);
-                                div.appendChild(footnoteSpan);
-                                workspace.phraseDiv = div.cloneNode(true);
+                                if (workspace.textType.includes('heading')) {
+                                    workspace.headerInnerDiv?.appendChild(footnoteSpan);
+                                } else if (workspace.textType.includes('title')) {
+                                    workspace.titleSpan.appendChild(footnoteSpan);
+                                } else {
+                                    workspace.phraseDiv?.appendChild(footnoteSpan);
+                                }
                                 if (workspace.lastPhraseTerminated) {
                                     // console.log('Add text start phrase (graft)');
                                     workspace.phraseDiv = startPhrase(workspace);
