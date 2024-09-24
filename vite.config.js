@@ -7,10 +7,13 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 // You don't need to add this to deps, it's included by @esbuild-plugins/node-modules-polyfill
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
+// For OPFS access
+import mkcert from 'vite-plugin-mkcert';
+import crossOriginIsolation from 'vite-plugin-cross-origin-isolation';
 
 /** @type {import('vite').UserConfig} */
 const config = {
-    plugins: [sveltekit()],
+    plugins: [sveltekit(), mkcert(), crossOriginIsolation()],
     worker: {
         format: 'es',
         plugins: () => []
