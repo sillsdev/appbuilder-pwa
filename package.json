@@ -27,6 +27,7 @@
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
         "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+        "@sqlite.org/sqlite-wasm": "^3.46.1-build3",
         "@sveltejs/adapter-static": "^3",
         "@sveltejs/kit": "^2",
         "@tailwindcss/typography": "^0.5.2",
@@ -63,6 +64,8 @@
         "ts-node": "^10.8.1",
         "typescript": "^5",
         "vite": "^5",
+        "vite-plugin-cross-origin-isolation": "^0.1.6",
+        "vite-plugin-mkcert": "^1.17.6",
         "vitest": "^2"
     },
     "volta": {
