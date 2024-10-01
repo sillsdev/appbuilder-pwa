@@ -4,7 +4,7 @@ export function convertReverseIndex(dataDir: string, verbose: number) {
     
 }
 export class ConvertReverseIndex extends Task {
-    public triggerFiles: string[] = [];
+    public triggerFiles: string[] = ["lexicon-en.idx"];
 
     constructor(dataDir: string) {
         super(dataDir);
