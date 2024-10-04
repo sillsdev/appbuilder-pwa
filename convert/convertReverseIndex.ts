@@ -28,35 +28,39 @@ function getEntries(dbPath: string): Map<number, string> {
 /**
  * Converts the reversal index by mapping glosses to head words from the database.
  */
-export function convertReverseIndex(dataDir: string, verbose: number) {
+export function convertReverseIndex(dataDir: string, verbose: number): string {
     const dbPath = path.join(dataDir, 'data.sqlite');
     const indexFilePath = path.join(dataDir, 'lexicon-en.idx');
-    const outputPath = path.join(dataDir, 'reverse_index_output.txt');
 
     // Get entries from the database
     const entries = getEntries(dbPath);
 
-    // Read and parse the reversal index file
-    const glossToIdMap = new Map<string, number>();
+    // Read index file content
     const content = readFileSync(indexFilePath, 'utf-8');
-    const lines = content.split('\n');
-    lines.forEach((line) => {
-        const [gloss, idStr] = line.split('\t');
-        if (gloss && idStr) {
-            glossToIdMap.set(gloss.trim(), parseInt(idStr.trim()));
+    const indexEntries = content.split('\n').map((line) => line.trim().split('\t'));
+
+    // Map glosses to entries
+    const reverseMap: { [key: string]: string[] } = {};
+    indexEntries.forEach(([gloss, ids]) => {
+        if (gloss && ids) {
+            const idList = ids.split(',').map((id) => id.trim());
+            reverseMap[gloss] = idList;
         }
     });
 
     // Map glosses to corresponding head words
     const reverseIndexOutput: string[] = [];
-    glossToIdMap.forEach((id, gloss) => {
-        const headWord = entries.get(id) || 'UNKNOWN';
-        reverseIndexOutput.push(`${gloss} -> ${headWord}`);
+    Object.entries(reverseMap).forEach(([gloss, idList]) => {
+        const headWords = idList.map((id) => entries.get(parseInt(id)) || 'UNKNOWN');
+        reverseIndexOutput.push(`${gloss} -> ${headWords.join(', ')}`);
     });
 
-    // Write the output to a file
-    writeFileSync(outputPath, reverseIndexOutput.join('\n'), 'utf-8');
-    if (verbose) console.log(`Generated reverse index at ${outputPath}`);
+    // Join the output as a string
+    const outputContent = reverseIndexOutput.join('\n');
+
+    if (verbose) console.log(`Generated reverse index content`);
+
+    return outputContent;
 }
 
 export class ConvertReverseIndex extends Task {
@@ -67,10 +71,19 @@ export class ConvertReverseIndex extends Task {
     }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
-        convertReverseIndex(this.dataDir, verbose);
+        // Call convertReverseIndex and get the generated content
+        const outputContent = convertReverseIndex(this.dataDir, verbose);
+
+        // Define the output file path
+        const outputPath = path.join(this.dataDir, 'reverse_index_output.txt');
+
+        // Write the content to the output file
+        writeFileSync(outputPath, outputContent, 'utf-8');
+
+        // Return the TaskOutput including the file path and content
         return {
             taskName: this.constructor.name,
-            files: [{ path: path.join(this.dataDir, 'reverse_index_output.txt'), content: '' }],
+            files: [{ path: outputPath, content: outputContent }],
         };
     }
 }
