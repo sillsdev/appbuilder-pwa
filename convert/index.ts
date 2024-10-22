@@ -59,7 +59,6 @@ const commonStepClasses = [
     ConvertConfig,
     ConvertStyles,
     ConvertManifest,
-    ConvertContents,
     ConvertMedia,
     ConvertFirebase,
     ConvertBadges,
@@ -68,6 +67,7 @@ const commonStepClasses = [
 
 //Classes only necessary for SAB
 const SABStepClasses = [
+    ConvertContents,
     ConvertPlans,
     ConvertBooks
 ];
