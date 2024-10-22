@@ -40,6 +40,20 @@ const verbose: number = verboseLevel
 const config = new ConvertConfig(dataDir).run(verbose);
 let programType = config.data.programType;
 
+//Used to sort the final list. This is neccesary because some scripts depend on others being run first.
+const stepClassesOrder = [
+    ConvertConfig,
+    ConvertContents,
+    ConvertPlans,
+    ConvertStyles,
+    ConvertManifest,
+    ConvertMedia,
+    ConvertBooks,
+    ConvertFirebase,
+    ConvertBadges,
+    ConvertAbout
+]
+
 //Classes common to both SAB and DAB
 const commonStepClasses = [
     ConvertConfig,
@@ -51,6 +65,7 @@ const commonStepClasses = [
     ConvertAbout
 ];
 
+//Classes only necessary for SAB
 const SABStepClasses = [
     ConvertContents,
     ConvertPlans,
@@ -67,7 +82,8 @@ const stepClasses: Task[] = [
     ...commonStepClasses,
     ...(programType == 'SAB' ? SABStepClasses : [])
     //...(programType == 'DAB' ? DABStepClasses : [])
-].map((x) => new x(dataDir));
+].sort((a, b) => {return stepClassesOrder.indexOf(a) - stepClassesOrder.indexOf(b);}).map((x) => new x(dataDir));
+
 const allPaths = new Set(
     stepClasses.reduce((acc, step) => acc.concat(step.triggerFiles), [] as string[])
 );
