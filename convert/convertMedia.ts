@@ -1,5 +1,4 @@
 import { ConfigTaskOutput } from './convertConfig';
-import { ContentsTaskOutput } from './convertContents';
 import { CopySyncOptions, cpSync, existsSync } from 'fs';
 import { rimraf } from 'rimraf';
 import path from 'path';
@@ -78,7 +77,6 @@ export class ConvertMedia extends Task {
         modifiedPaths: string[]
     ): Promise<TaskOutput> {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
-        const contents = outputs.get('ConvertContents') as ContentsTaskOutput;
         const modifiedDirectories = new Set<string>();
         for (const p of modifiedPaths) {
             // During the first run, paths are just the folders in the trigger files.
@@ -90,7 +88,7 @@ export class ConvertMedia extends Task {
                 modifiedDirectories.add(subdir);
             }
         }
-        await this.convertMedia(this.dataDir, config, contents, verbose, [...modifiedDirectories]);
+        await this.convertMedia(this.dataDir, config, verbose, [...modifiedDirectories]);
         return {
             taskName: this.constructor.name,
             files: []
@@ -99,7 +97,6 @@ export class ConvertMedia extends Task {
     async convertMedia(
         dataDir: string,
         configData: ConfigTaskOutput,
-        contentsData: ContentsTaskOutput,
         verbose: number,
         modifiedDirectories: string[]
     ) {
@@ -126,26 +123,11 @@ export class ConvertMedia extends Task {
             );
         }
 
-        // TEMP: copy audio files from quizzes and contents from root folder to
-        // assets folder
+        // audio files from quizzes and contents are not in the correct folder
         if (compareVersions(configData.data.programVersion!, '12.0') < 0) {
-            const items = contentsData.data.items;
-            if (items) {
-                const audioFiles = [];
-                for (const item of items) {
-                    if (item.audioFilename && Object.values(item.audioFilename).length > 0) {
-                        for (const audioFilename of Object.values(item.audioFilename)) {
-                            if (existsSync(path.join('data', audioFilename))) {
-                                audioFiles.push(audioFilename);
-                            }
-                        }
-                    }
-                }
-                if (audioFiles.length > 0) {
-                    cloneToAssets(audioFiles, verbose);
-                }
-            }
-            cloneToAssets(['quiz-right-answer.mp3', 'quiz-wrong-answer.mp3'], verbose);
+            throw Error(
+                `Version ${configData.data.programVersion} not supported. Use 12.0 or later`
+            );
         }
     }
 }
