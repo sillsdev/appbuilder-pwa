@@ -1074,8 +1074,8 @@ function parseLayouts(document: Document, bookCollections: any, verbose: number)
             const layoutCollections =
                 layoutCollectionElements.length > 0
                     ? Array.from(layoutCollectionElements).map((element) => {
-                          return element.attributes.getNamedItem('id')!.value;
-                      })
+                        return element.attributes.getNamedItem('id')!.value;
+                    })
                     : [bookCollections[0].id];
 
             layouts.push({
