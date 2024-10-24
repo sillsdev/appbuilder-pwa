@@ -37,18 +37,35 @@ const verbose: number = verboseLevel
         : 1
     : 0;
 
-const stepClasses: Task[] = [
+const config = new ConvertConfig(dataDir).run(verbose);
+const programType = config.data.programType;
+
+//Classes common to both SAB and DAB
+const commonStepClasses = [
     ConvertConfig,
-    ConvertContents,
-    ConvertPlans,
     ConvertStyles,
     ConvertManifest,
     ConvertMedia,
-    ConvertBooks,
     ConvertFirebase,
     ConvertBadges,
     ConvertAbout
+];
+
+//Classes only necessary for SAB
+const SABStepClasses = [ConvertContents, ConvertPlans, ConvertBooks];
+
+//The convert scripts for this project type have not been implemented yet
+// const DABStepClasses = [
+//     ConvertReversalIndex,
+//     ConvertSQLite
+// ];
+
+const stepClasses: Task[] = [
+    ...commonStepClasses,
+    ...(programType == 'SAB' ? SABStepClasses : [])
+    //...(programType == 'DAB' ? DABStepClasses : [])
 ].map((x) => new x(dataDir));
+
 const allPaths = new Set(
     stepClasses.reduce((acc, step) => acc.concat(step.triggerFiles), [] as string[])
 );
