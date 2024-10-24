@@ -52,11 +52,7 @@ const commonStepClasses = [
 ];
 
 //Classes only necessary for SAB
-const SABStepClasses = [
-    ConvertContents,
-    ConvertPlans,
-    ConvertBooks
-];
+const SABStepClasses = [ConvertContents, ConvertPlans, ConvertBooks];
 
 //The convert scripts for this project type have not been implemented yet
 // const DABStepClasses = [
