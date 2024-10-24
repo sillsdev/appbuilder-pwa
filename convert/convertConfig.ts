@@ -955,7 +955,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 const imageTag = tag.getElementsByTagName('image')[0];
 
                 let image = undefined;
-                if (imageTag.innerHTML) {
+                if (imageTag?.innerHTML) {
                     image = {
                         width: Number(imageTag.attributes.getNamedItem('width')!.value),
                         height: Number(imageTag.attributes.getNamedItem('height')!.value),
