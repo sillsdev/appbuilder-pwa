@@ -647,7 +647,7 @@ function convertConfig(dataDir: string, verbose: number) {
     // Audio Sources
     const audioSources = document
         .getElementsByTagName('audio-sources')[0]
-        .getElementsByTagName('audio-source');
+        ?.getElementsByTagName('audio-source');
     if (audioSources?.length > 0) {
         data.audio = { sources: {} };
         for (const source of audioSources) {
