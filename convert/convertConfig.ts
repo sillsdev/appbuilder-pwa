@@ -1024,11 +1024,12 @@ function filterFeaturesNotReady(data: ConfigData) {
     if (data.bookCollections) {
         // only allow single pane book collections
         // in SAB 12.1, the feature changed names from bc-allow-single-pane to bc-layout-allow-single-pane
-        data.bookCollections = data.bookCollections.filter(
-            (collection) =>
+        data.bookCollections = data.bookCollections.filter((collection) => {
+            const allowSinglePane =
                 collection?.features['bc-allow-single-pane'] ??
-                collection?.features['bc-layout-allow-single-pane']
-        );
+                collection?.features['bc-layout-allow-single-pane'];
+            return allowSinglePane !== false;
+        });
     }
     return data;
 }
