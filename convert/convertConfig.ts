@@ -487,7 +487,11 @@ function convertConfig(dataDir: string, verbose: number) {
             style: parseStylesInfo(stylesTag, verbose),
             styles
         });
-        if (verbose >= 3) console.log(`.... collection: `, JSON.stringify(data.bookCollections[0]));
+        if (verbose >= 3)
+            console.log(
+                `.... collection: `,
+                JSON.stringify(data.bookCollections[data.bookCollections.length - 1])
+            );
     }
     // After all the book collections have been parsed, we can determine some traits
     data.traits['has-glossary'] =
