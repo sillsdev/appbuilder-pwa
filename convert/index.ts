@@ -39,6 +39,11 @@ const programType = config.data.programType;
 
 //Classes common to both SAB and DAB
 const commonStepClasses = [
+const config = new ConvertConfig(dataDir).run(verbose);
+const programType = config.data.programType;
+
+//Classes common to both SAB and DAB
+const commonStepClasses = [
     ConvertConfig,
     ConvertContents,
     ConvertStyles,
