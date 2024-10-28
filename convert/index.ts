@@ -8,6 +8,7 @@ import { ConvertFirebase } from './convertFirebase';
 import { ConvertStyles } from './convertStyles';
 import { ConvertBadges } from './convertBadges';
 import { ConvertPlans } from './convertPlans';
+import { ConvertSQLite } from './convertSQLite';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
@@ -24,8 +25,8 @@ const suppliedDataDir = process.argv.find((arg) => arg.includes('--data-dir'));
 const dataDir = suppliedDataDir
     ? suppliedDataDir.split('=')[1]
     : process.argv.includes('--examples')
-      ? 'example_data'
-      : 'data';
+        ? 'example_data'
+        : 'data';
 
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
@@ -54,16 +55,15 @@ const commonStepClasses = [
 //Classes only necessary for SAB
 const SABStepClasses = [ConvertContents, ConvertPlans, ConvertBooks];
 
-//The convert scripts for this project type have not been implemented yet
-// const DABStepClasses = [
-//     ConvertReversalIndex,
-//     ConvertSQLite
-// ];
+const DABStepClasses = [
+    // ConvertReversalIndex,
+    ConvertSQLite
+];
 
 const stepClasses: Task[] = [
     ...commonStepClasses,
-    ...(programType == 'SAB' ? SABStepClasses : [])
-    //...(programType == 'DAB' ? DABStepClasses : [])
+    ...(programType == 'SAB' ? SABStepClasses : []),
+    ...(programType == 'DAB' ? DABStepClasses : [])
 ].map((x) => new x(dataDir));
 
 const allPaths = new Set(
