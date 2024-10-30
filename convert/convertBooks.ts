@@ -585,12 +585,21 @@ function convertScriptureBook(
             } else {
                 //read multiple files that have been split up (so that portions parameter is processed)
                 const extension = extname(bookPath);
-                const baseFilename = basename(bookPath, extension);
-                const regex = new RegExp(`${baseFilename}-\\d{3}\\.sfm`);
+                const baseFilename = basename(bookPath, extension).normalize('NFC');
 
                 //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
                 const matchingFiles = files.filter((file) => {
-                    return regex.test(file);
+                    const ext = extname(file);
+                    const filenameWithoutExt = basename(file, ext).normalize('NFC');
+
+                    // Check if the filename starts with baseFilename
+                    if (!filenameWithoutExt.startsWith(baseFilename)) return false;
+
+                    // Get the part after baseFilename
+                    const suffix = filenameWithoutExt.slice(baseFilename.length);
+
+                    // Check if it matches `-###` pattern
+                    return suffix.startsWith('-') && /^\d{3}$/.test(suffix.slice(1));
                 });
 
                 matchingFiles.sort();
