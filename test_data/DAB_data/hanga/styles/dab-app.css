@@ -1,0 +1,3383 @@
+@font-face {
+    font-family: font1;
+    src: url('/fonts/DejaVuSansCondensed.ttf')  format('truetype');
+    font-weight: normal; font-style: normal; 
+}
+@font-face {
+    font-family: font1;
+    src: url('/fonts/DejaVuSansCondensed-Bold.ttf')  format('truetype');
+    font-weight: bold; font-style: normal; 
+}
+@font-face {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    src: url('/fonts/DejaVuSansCondensed.ttf')  format('truetype');
+    font-weight: normal; font-style: normal; 
+}
+@font-face {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    src: url('/fonts/DejaVuSansCondensed-Bold.ttf')  format('truetype');
+    font-weight: bold; font-style: normal; 
+}
+@font-face {
+    font-family: font-en;
+    src: url('/fonts/DejaVuSansCondensed.ttf')  format('truetype');
+    font-weight: normal; font-style: normal; 
+}
+@font-face {
+    font-family: font-en;
+    src: url('/fonts/DejaVuSansCondensed-Bold.ttf')  format('truetype');
+    font-weight: bold; font-style: normal; 
+}
+
+body {
+    font-family: font1;
+    direction: ltr;
+    font-size: 18px;
+    font-weight: normal;
+    color: #000000;
+    background-color: #F0F0F0;
+    margin-top: 15px;
+    margin-left: 4%;
+    margin-right: 4%;
+}
+
+body.about {
+    margin-left: 4%;
+    margin-right: 4%;
+    color: #000000;
+    background-color: #F0F0F0;
+}
+
+div.entry-block-multiple {
+    border-bottom: thin solid #BBB;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+div.entry-block-single {
+}
+
+img.audio {
+    height: 1.4em;
+    width: 1.4em;
+    vertical-align: middle;
+    padding-left: 3px;
+}
+
+a.web-link {
+    text-decoration: underline;
+}
+
+a.email-link {
+    text-decoration: underline;
+}
+
+a.tel-link {
+    text-decoration: underline;
+}
+
+body.settings {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: #F0F0F0;
+    font-size: 16px;
+}
+
+body.settings-list {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 3px;
+    margin-right: 3px;
+    background-color: #F0F0F0;
+    font-size: 16px;
+}
+
+div.settings-category {
+    color: TitlesColor;
+    font-weight: bold;
+    margin-top: 12px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+div.settings-item {
+    padding: 16px;
+}
+
+div.settings-separator {
+    border-top: 1px solid #E0E0E0;
+}
+
+div.settings-title {
+    color: #000000;
+}
+
+div.settings-summary {
+    color: #606060;
+    font-size: 90%;
+    margin-top: 2px;
+}
+
+div.settings-checkbox-right {
+    float: right;
+    overflow: hidden;
+    width: 28px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 0px;
+}
+
+div.settings-checkbox-left {
+    float: left;
+    overflow: hidden;
+    width: 28px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 0px;
+}
+
+div.settings-list-title {
+    color: TitlesColor;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+div.settings-list-entry {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+div.settings-list-entry-name {
+    color: #000000;
+    overflow: hidden;
+    font-size: 18px;
+    margin-top: 6px;
+}
+
+div.settings-radio-left {
+    float: left;
+    width: 28px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 0px;
+}
+
+div.settings-radio-right {
+    float: right;
+    width: 28px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 0px;
+}
+
+body.message {
+    margin: 0;
+    background-color: #F0F0F0;
+    font-size: 16px;
+}
+
+div.message-title {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 8px;
+    color: TitlesColor;
+    font-weight: bold;
+    font-size: 125%;
+}
+
+div.message-text {
+    padding-left: 20px;
+    padding-right: 20px;
+    color: #000000;
+    font-size: 100%;
+}
+
+div.message-checkbox {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 24px;
+    padding-bottom: 12px;
+}
+
+div.message-checkbox-caption {
+    color: #000000;
+    font-size: 100%;
+    overflow: hidden;
+}
+
+div.message-checkbox-left {
+    float: left;
+    overflow: hidden;
+    width: 28px;
+    margin-left: 1px;
+    margin-right: 3px;
+    margin-top: 0px;
+}
+
+div.message-checkbox-right {
+    float: right;
+    overflow: hidden;
+    width: 28px;
+    margin-left: 3px;
+    margin-right: 1px;
+    margin-top: 0px;
+}
+
+div.message-footer {
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+    min-height: 52px;
+    width: 100%;
+}
+
+button.message-button {
+    color: TitlesColor;
+    background-color: transparent;
+    font-weight: bold;
+    letter-spacing: .08929em;
+    text-transform: uppercase;
+    height: 36px;
+    min-width: 64px;
+    vertical-align: middle;
+    border: none;
+    outline: none;
+    padding: 0 16px;
+}
+
+*[dir='ltr'], *[dir='rtl'] {
+    unicode-bidi: -moz-isolate;
+}
+
+a {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+div.entry {
+    border-left-width: 0pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    text-indent: -36pt;
+    margin-left: 45pt;
+    padding-bottom: 2pt;
+    padding-top: 1pt;
+    direction: ltr;
+}
+
+div.entry span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+div.entry span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+div.minorentryvariant {
+    border-left-width: 0pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    text-indent: -36pt;
+    margin-left: 45pt;
+    padding-bottom: 2pt;
+    padding-top: 1pt;
+    direction: ltr;
+}
+
+div.minorentryvariant span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+div.minorentryvariant span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.abbreviation {
+}
+
+.allomorph {
+}
+
+.allomorphs {
+}
+
+.configtarget {
+}
+
+.configtargets {
+}
+
+.definitionorgloss {
+}
+
+.entry {
+    border-left-width: 0pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    text-indent: -36pt;
+    margin-left: 45pt;
+    padding-bottom: 2pt;
+    padding-top: 1pt;
+    background-color: #FFF;
+    direction: ltr;
+}
+
+.entry span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+.entry span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.entry> .allomorphs .allomorph> .form> span {
+    font-weight: bold;
+}
+
+.entry> .allomorphs .allomorph> .form> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .allomorphs .allomorph> .form> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .allomorphs .allomorph> .form> span:first-child:before {
+    content: '(';
+}
+
+.entry> .allomorphs .allomorph> .form> span:last-child:after {
+    content: ')';
+}
+
+.entry> .allomorphs .allomorph> .form> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .allomorphs:after {
+    content: ' ';
+}
+
+.entry> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .dialectlabelsrs:after {
+    content: '] ';
+}
+
+.entry> .dialectlabelsrs:before {
+    content: '[';
+}
+
+.entry> .etymologies .etymology> .form> .for+ .for:before {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .form> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .gloss> .glos+ .glos:before {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .gloss> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .languagenotes> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .languages .language> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .languages:after {
+    content: ' ';
+}
+
+.entry> .etymologies .etymology> .languages> .language+ .language:before {
+    content: ', ';
+}
+
+.entry> .etymologies:after {
+    content: ') ';
+}
+
+.entry> .etymologies:before {
+    content: '(';
+}
+
+.entry> .etymologies> .etymology+ .etymology:before {
+    content: ' ';
+}
+
+.entry> .mainheadword> .mainheadwor+ .mainheadwor:before {
+    content: ' ';
+}
+
+.entry> .mainheadword> span {
+    font-weight: bold;
+}
+
+.entry> .mainheadword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .mainheadword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .mainheadword> span:last-child:after {
+    content: '  ';
+}
+
+.entry> .mainheadword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes .entrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes:after {
+    content: ' ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes> .entrytype+ .entrytype:before {
+    content: ',';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ',';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs:after {
+    content: ') ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .summarydefinition> .summarydefinitio+ .summarydefinitio:before {
+    content: ' ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets .configtarget> .summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .configtargets> .configtarget+ .configtarget:before {
+    content: ', ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .ownertype_abbreviation> .ownertype_abbreviatio+ .ownertype_abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span {
+    font-style: italic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span:last-child:after {
+    content: ': ';
+}
+
+.entry> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .minimallexreferences:after {
+    content: '  ';
+}
+
+.entry> .minimallexreferences> span+ span:before {
+    content: '; ';
+}
+
+.entry> .senses > .sensecontent .sensenumber {
+    font-weight: bold;
+}
+
+.entry> .senses > .sensecontent .sensenumber:after {
+    content: ') ';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .name> span:first-child:before {
+    content: ' (';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .name> span:last-child:after {
+    content: ')';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains:before {
+    content: 'ac. domains: ';
+}
+
+.entry> .senses > .sensecontent > .sense> .academicdomains> .academicdomain+ .academicdomain:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .definitionorgloss> .definitionorglos+ .definitionorglos:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .definitionorgloss> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .dialectlabelsrs:after {
+    content: ']';
+}
+
+.entry> .senses > .sensecontent > .sense> .dialectlabelsrs:before {
+    content: ' [';
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span span[lang|="en"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span:last-child:after {
+    content: ' - ';
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> .translatio+ .translatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span {
+    font-style: italic;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents:after {
+    content: ')';
+}
+
+.entry> .senses > .sensecontent > .sense> .examplescontents:before {
+    content: '(';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent {
+    text-indent: 0pt;
+    margin-left: -24pt;
+    padding-bottom: 6pt;
+    padding-right: 21pt;
+    background-color: #FFF;
+    direction: ltr;
+    display: block;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .discussion> .discussio+ .discussio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .discussion> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> .exampl+ .exampl:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span span[lang|="en"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> .translatio+ .translatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents> span+ span:before {
+    content: '  ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes .entrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes> .entrytype+ .entrytype:before {
+    content: ',';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ',';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs:after {
+    content: ') ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets> .configtarget+ .configtarget:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> .ownertype_abbreviatio+ .ownertype_abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span {
+    font-style: italic;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span:last-child:after {
+    content: ': ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences:after {
+    content: '. ';
+}
+
+.entry> .senses > .sensecontent > .sense> .lexsensereferences> span+ span:before {
+    content: '; ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis {
+    font-style: italic;
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .morphtypes:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .morphtypes> .morphtype+ .morphtype:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .partofspeech> .partofspeec+ .partofspeec:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .partofspeech> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots .slot> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots .slot> .name> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots:before {
+    content: ': ';
+}
+
+.entry> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots> .slot+ .slot:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .restrictions> .restriction+ .restriction:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .restrictions> span:first-child:before {
+    content: 'Restrictions: ';
+}
+
+.entry> .senses > .sensecontent > .sense> .restrictions> span:last-child:after {
+    content: '] ';
+}
+
+.entry> .senses > .sensecontent > .sense> .scientificname:after {
+    content: ') ';
+}
+
+.entry> .senses > .sensecontent > .sense> .scientificname:before {
+    content: '(';
+}
+
+.entry> .senses > .sensecontent > .sense> .senses > .sensecontent .sensenumber {
+    font-weight: bold;
+}
+
+.entry> .senses > .sensecontent > .sense> .senses > .sensecontent .sensenumber:after {
+    content: ') ';
+}
+
+.entry> .senses > .sensecontent > .sense> .senses:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .senses> span+ span:before {
+    content: '  ';
+}
+
+.entry> .senses > .sensecontent > .sense> .sensetype {
+    font-style: italic;
+}
+
+.entry> .senses > .sensecontent > .sense> .sensetype span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .sensetype span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .sensetype:after {
+    content: ') ';
+}
+
+.entry> .senses > .sensecontent > .sense> .sensetype:before {
+    content: '(';
+}
+
+.entry> .senses > .sensecontent > .sense> .sensetype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .usages .usage> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .usages:after {
+    content: '} ';
+}
+
+.entry> .senses > .sensecontent > .sense> .usages:before {
+    content: '{';
+}
+
+.entry> .senses > .sensecontent > .sense> .usages> .usage+ .usage:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> .headwor+ .headwor:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels .variantentrydialectlabel> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:after {
+    content: ']';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:before {
+    content: ' [';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs:after {
+    content: ') ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs:before {
+    content: '(';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantentrytypes:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantformentrybackref+ .variantformentrybackref:before {
+    content: '; ';
+}
+
+.entry> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantformentrybackref+.variantentrytypes:before {
+    content: ', ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs> .complexformtypes .complexformtype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs> .complexformtypes:after {
+    content: ' ';
+}
+
+.entry> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs> .visiblecomplexformbackref+ .visiblecomplexformbackref:before {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis {
+    font-style: italic;
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis:after {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .morphtypes:before {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .morphtypes> .morphtype+ .morphtype:before {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .partofspeech> .partofspeec+ .partofspeec:before {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .partofspeech> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots .slot> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots .slot> .name> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots:before {
+    content: ': ';
+}
+
+.entry> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots> .slot+ .slot:before {
+    content: ', ';
+}
+
+.entry> .senses:after {
+    content: ' ';
+}
+
+.entry> .senses> span.sensecontent+ span:before {
+    content: '  ';
+}
+
+.entry> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels .variantentrydialectlabel> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:after {
+    content: ']';
+}
+
+.entry> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:before {
+    content: ' [';
+}
+
+.entry> .variantformentrybackrefs:after {
+    content: ') ';
+}
+
+.entry> .variantformentrybackrefs:before {
+    content: '(';
+}
+
+.entry> .variantformentrybackrefs> .variantformentrybackref+ .variantformentrybackref:before {
+    content: '; ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .dialectlabelsrs:after {
+    content: ']';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .dialectlabelsrs:before {
+    content: ' [';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .glossorsummary> .glossorsummar+ .glossorsummar:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .glossorsummary> span:first-child:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .entrytypes .entrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .entrytypes> .entrytype+ .entrytype:before {
+    content: ',';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ', ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs:after {
+    content: ')';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ', ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .summary> .summar+ .summar:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs .visiblevariantentryref> .summary> span:first-child:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs:after {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs> .variantentrytypes .variantentrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs> .variantentrytypes .variantentrytype> .reverseabbr> span:last-child:after {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs> .variantentrytypes:after {
+    content: ' ';
+}
+
+.entry> .visiblevariantentryrefs> .visiblevariantentryref+ .visiblevariantentryref:before {
+    content: ', ';
+}
+
+.entry> .visiblevariantentryrefs> .visiblevariantentryref+.variantentrytypes:before {
+    content: ', ';
+}
+
+.entrytype {
+}
+
+.entrytypes {
+}
+
+.etymologies {
+}
+
+.etymology {
+}
+
+.example {
+}
+
+.examplescontent {
+}
+
+.examplescontents {
+}
+
+.form {
+}
+
+.gloss {
+}
+
+.headwor {
+}
+
+.headword {
+}
+
+.languagenotes {
+}
+
+.letHead {
+}
+
+.lexsensereference {
+}
+
+.lexsensereferences {
+}
+
+.mainentrysubsenses .mainentrysubsense {
+    clear: both;
+    white-space: pre-wrap;
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains .academicdomain> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains .academicdomain> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains .academicdomain> .name> span:first-child:before {
+    content: ' (';
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains .academicdomain> .name> span:last-child:after {
+    content: ')';
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains:before {
+    content: 'ac. domains: ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .academicdomains> .academicdomain+ .academicdomain:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .definitionorgloss> .definitionorglos+ .definitionorglos:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .definitionorgloss> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .dialectlabelsrs:after {
+    content: ']';
+}
+
+.mainentrysubsenses .mainentrysubsense> .dialectlabelsrs:before {
+    content: ' [';
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .example> span {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .example> span span[lang|="en"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .example> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .example> span:last-child:after {
+    content: ' - ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .example> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> .translatio+ .translatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span {
+    font-style: italic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents:after {
+    content: ')';
+}
+
+.mainentrysubsenses .mainentrysubsense> .examplescontents:before {
+    content: '(';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent {
+    text-indent: 0pt;
+    margin-left: -24pt;
+    padding-bottom: 6pt;
+    padding-right: 21pt;
+    background-color: #FFF;
+    direction: ltr;
+    display: block;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .discussion> .discussio+ .discussio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .discussion> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> .exampl+ .exampl:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span span[lang|="en"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> .translatio+ .translatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .extendednotecontents .extendednotecontent> .examplescontents> span+ span:before {
+    content: '  ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span {
+    font-weight: bold;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes .entrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes> .entrytype+ .entrytype:before {
+    content: ',';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ',';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs:after {
+    content: ') ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .configtargets> .configtarget+ .configtarget:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> .ownertype_abbreviatio+ .ownertype_abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span {
+    font-style: italic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span:last-child:after {
+    content: ': ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences:after {
+    content: '. ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .lexsensereferences> span+ span:before {
+    content: '; ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis {
+    font-style: italic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .morphtypes:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .morphtypes> .morphtype+ .morphtype:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .partofspeech> .partofspeec+ .partofspeec:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .partofspeech> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .slots .slot> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .slots .slot> .name> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .slots:before {
+    content: ': ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .morphosyntaxanalysis> .slots> .slot+ .slot:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .restrictions> .restriction+ .restriction:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .restrictions> span:first-child:before {
+    content: 'Restrictions: ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .restrictions> span:last-child:after {
+    content: '] ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .scientificname:after {
+    content: ') ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .scientificname:before {
+    content: '(';
+}
+
+.mainentrysubsenses .mainentrysubsense> .sensetype {
+    font-style: italic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .sensetype span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .sensetype span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .sensetype:after {
+    content: ') ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .sensetype:before {
+    content: '(';
+}
+
+.mainentrysubsenses .mainentrysubsense> .sensetype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .subsenses > .sensecontent .sensenumber {
+    font-weight: bold;
+}
+
+.mainentrysubsenses .mainentrysubsense> .subsenses > .sensecontent .sensenumber:after {
+    content: ') ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .subsenses > .sensecontent > .subsense {
+    background-color: #FFF;
+}
+
+.mainentrysubsenses .mainentrysubsense> .usages .usage> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .usages:after {
+    content: '} ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .usages:before {
+    content: '{';
+}
+
+.mainentrysubsenses .mainentrysubsense> .usages> .usage+ .usage:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .headword> .headwor+ .headwor:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .headword> span {
+    font-weight: bold;
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels .variantentrydialectlabel> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:after {
+    content: ']';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:before {
+    content: ' [';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs:after {
+    content: ') ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs:before {
+    content: '(';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs> .variantentrytypes:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs> .variantformentrybackref+ .variantformentrybackref:before {
+    content: '; ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .variantformentrybackrefs> .variantformentrybackref+.variantentrytypes:before {
+    content: ', ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span {
+    font-weight: bold;
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs> .complexformtypes .complexformtype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs> .complexformtypes:after {
+    content: ' ';
+}
+
+.mainentrysubsenses .mainentrysubsense> .visiblecomplexformbackrefs> .visiblecomplexformbackref+ .visiblecomplexformbackref:before {
+    content: ' ';
+}
+
+.mainheadword {
+}
+
+.minimallexreference {
+}
+
+.minimallexreferences {
+}
+
+.minorentryvariant {
+    border-left-width: 0pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    text-indent: -36pt;
+    margin-left: 45pt;
+    padding-bottom: 2pt;
+    padding-top: 1pt;
+    background-color: #FFF;
+    direction: ltr;
+}
+
+.minorentryvariant .pictures .picture {
+    float: right;
+    text-align: center;
+    margin: 0pt 0pt 4pt 4pt;
+    padding: 2pt;
+}
+
+.minorentryvariant .pictures .picture img {
+    max-height: 1in;
+}
+
+.minorentryvariant span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+.minorentryvariant span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.minorentryvariant> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .dialectlabelsrs:after {
+    content: '] ';
+}
+
+.minorentryvariant> .dialectlabelsrs:before {
+    content: '[';
+}
+
+.minorentryvariant> .etymologies .etymology> .form> .for+ .for:before {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .form> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .gloss> .glos+ .glos:before {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .gloss> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .languagenotes> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .languages .language> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .languages:after {
+    content: ' ';
+}
+
+.minorentryvariant> .etymologies .etymology> .languages> .language+ .language:before {
+    content: ', ';
+}
+
+.minorentryvariant> .etymologies:after {
+    content: ') ';
+}
+
+.minorentryvariant> .etymologies:before {
+    content: '(';
+}
+
+.minorentryvariant> .etymologies> .etymology+ .etymology:before {
+    content: ' ';
+}
+
+.minorentryvariant> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .headword> span:last-child:after {
+    content: '  ';
+}
+
+.minorentryvariant> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .headword .headwor> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .headword .headwor> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .headword .headwor> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .headword .headwor> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .headword> .headwor+ .headwor:before {
+    content: ',';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .variantentrytypes .variantentrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .variantentrytypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .variantentrytypes> .variantentrytype+ .variantentrytype:before {
+    content: ',';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs:after {
+    content: ') ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets .configtarget> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets:after {
+    content: ' ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .configtargets> .configtarget+ .configtarget:before {
+    content: ', ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .ownertype_abbreviation> .ownertype_abbreviatio+ .ownertype_abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span {
+    font-style: italic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span:last-child:after {
+    content: ': ';
+}
+
+.minorentryvariant> .minimallexreferences .minimallexreference> .ownertype_abbreviation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .minimallexreferences:after {
+    content: '. ';
+}
+
+.minorentryvariant> .minimallexreferences> span+ span:before {
+    content: '; ';
+}
+
+.minorentryvariant> .pictures .picture {
+    border-left-width: 0pt;
+    border-right-width: 0pt;
+    border-top-width: 0pt;
+    border-bottom-width: 0pt;
+    text-indent: 0pt;
+    margin-left: -24pt;
+    padding-bottom: 2pt;
+    padding-top: 0pt;
+    background-color: #FFF;
+    direction: ltr;
+}
+
+.minorentryvariant> .pictures .picture span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+.minorentryvariant> .pictures .picture span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.minorentryvariant> .pictures .picture> .captionContent .headword {
+    font-weight: bold;
+}
+
+.minorentryvariant> .pictures .picture> .captionContent .headword span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .pictures .picture> .captionContent .headword span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .pictures .picture> .captionContent .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .pictures .picture> .captionContent .headword[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+}
+
+.minorentryvariant> .pictures> div+ div:before {
+    content: '  ';
+}
+
+.minorentryvariant> .pictures> div:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent .sensenumber {
+    font-weight: bold;
+}
+
+.minorentryvariant> .senses > .sensecontent .sensenumber:after {
+    content: ') ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .name> span:first-child:before {
+    content: ' (';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains .academicdomain> .name> span:last-child:after {
+    content: ')';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains:before {
+    content: 'ac. domains: ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .academicdomains> .academicdomain+ .academicdomain:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .definitionorgloss> .definitionorglos+ .definitionorglos:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .definitionorgloss> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .dialectlabelsrs:after {
+    content: ']';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .dialectlabelsrs:before {
+    content: ' [';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .encyclopedicinfo:after {
+    content: ']';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .encyclopedicinfo:before {
+    content: ' [';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .encyclopedicinfo> .encyclopedicinf+ .encyclopedicinf:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> .exampl+ .exampl:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span span[lang|="en"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span:last-child:after {
+    content: ' - ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .example> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> .translatio+ .translatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span {
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents:after {
+    content: ')';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents:before {
+    content: '(';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .examplescontents> span+ span:before {
+    content: '  ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent {
+    text-indent: 0pt;
+    margin-left: -24pt;
+    padding-bottom: 6pt;
+    padding-right: 21pt;
+    background-color: #FFF;
+    direction: ltr;
+    display: block;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent span[lang|="en"] {
+    font-family: font-en;
+    background-color: #FFF;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+    background-color: #FFF;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .discussion> .discussio+ .discussio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .discussion> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> .exampl+ .exampl:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span span[lang|="en"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .example> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> .translatio+ .translatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents .examplescontent> .translationcontents .translationcontent> .translation> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .extendednotecontents .extendednotecontent> .examplescontents> span+ span:before {
+    content: '  ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes .entrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .entrytypes> .entrytype+ .entrytype:before {
+    content: ',';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs .primaryentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ',';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs:after {
+    content: ') ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets .configtarget> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .configtargets> .configtarget+ .configtarget:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> .ownertype_abbreviatio+ .ownertype_abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span {
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span:last-child:after {
+    content: ': ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences .lexsensereference> .ownertype_abbreviation> span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences:after {
+    content: '. ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .lexsensereferences> span+ span:before {
+    content: '; ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis {
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .morphtypes:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .morphtypes> .morphtype+ .morphtype:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .partofspeech> .partofspeec+ .partofspeec:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .partofspeech> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots .slot> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots .slot> .name> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots:before {
+    content: ': ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .morphosyntaxanalysis> .slots> .slot+ .slot:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .restrictions> .restriction+ .restriction:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .restrictions> span:first-child:before {
+    content: ' Restrictions: ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .restrictions> span:last-child:after {
+    content: '] ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .scientificname:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .senses > .sensecontent .sensenumber {
+    font-weight: bold;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .senses > .sensecontent .sensenumber:after {
+    content: ') ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .senses:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .senses> span+ span:before {
+    content: '  ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .sensetype {
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .sensetype span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .sensetype span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .sensetype:after {
+    content: ') ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .sensetype:before {
+    content: '(';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .sensetype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .usages .usage> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .usages:after {
+    content: '} ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .usages:before {
+    content: '{';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .usages> .usage+ .usage:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> .headwor+ .headwor:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels .variantentrydialectlabel> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:after {
+    content: ']';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:before {
+    content: ' [';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs:after {
+    content: ') ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs:before {
+    content: '(';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantentrytypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantformentrybackref+ .variantformentrybackref:before {
+    content: '; ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .variantformentrybackrefs> .variantformentrybackref+.variantentrytypes:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs> .complexformtypes .complexformtype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs> .complexformtypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sensecontent > .sense> .visiblecomplexformbackrefs> .visiblecomplexformbackref+ .visiblecomplexformbackref:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis {
+    font-style: italic;
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis span[lang|="en"] {
+    font-style: italic;
+    font-family: font-en;
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-style: italic;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .morphtypes:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .morphtypes> .morphtype+ .morphtype:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .partofspeech> .partofspeec+ .partofspeec:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .partofspeech> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots .slot> .name> .nam+ .nam:before {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots .slot> .name> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots:before {
+    content: ': ';
+}
+
+.minorentryvariant> .senses > .sharedgrammaticalinfo> .morphosyntaxanalysis> .slots> .slot+ .slot:before {
+    content: ', ';
+}
+
+.minorentryvariant> .senses:after {
+    content: ' ';
+}
+
+.minorentryvariant> .senses> span.sensecontent+ span:before {
+    content: '  ';
+}
+
+.minorentryvariant> .summarydefinition> .summarydefinitio+ .summarydefinitio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .headword> .headwor+ .headwor:before {
+    content: ', ';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels .variantentrydialectlabel> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:after {
+    content: ']';
+}
+
+.minorentryvariant> .variantformentrybackrefs .variantformentrybackref> .variantentrydialectlabels:before {
+    content: ' [';
+}
+
+.minorentryvariant> .variantformentrybackrefs:after {
+    content: ') ';
+}
+
+.minorentryvariant> .variantformentrybackrefs:before {
+    content: '(';
+}
+
+.minorentryvariant> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs> .variantentrytypes .variantentrytype> .abbreviation> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs> .variantentrytypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .variantformentrybackrefs> .variantformentrybackref+ .variantformentrybackref:before {
+    content: '; ';
+}
+
+.minorentryvariant> .variantformentrybackrefs> .variantformentrybackref+.variantentrytypes:before {
+    content: ', ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> .owningentry_summarydefinitio+ .owningentry_summarydefinitio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs .visiblecomplexformbackref> .owningentry_summarydefinition> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs:after {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs> .complexformtypes .complexformtype> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs> .complexformtypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblecomplexformbackrefs> .visiblecomplexformbackref+ .visiblecomplexformbackref:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .dialectlabelsrs .dialectlabelsr> .abbreviation> .abbreviatio+ .abbreviatio:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .dialectlabelsrs:after {
+    content: ']';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .dialectlabelsrs:before {
+    content: ' [';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .glossorsummary> .glossorsummar+ .glossorsummar:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .glossorsummary> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> .headwor+ .headwor:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .entrytypes .entrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .entrytypes> .entrytype+ .entrytype:before {
+    content: ',';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span {
+    font-weight: bold;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="en"] {
+    font-weight: bold;
+    font-family: font-en;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries .referencedentry> .headword> span[lang|="hag-Latn-GH-fonipa-x-emic"] {
+    font-weight: bold;
+    font-family: font-hag-Latn-GH-fonipa-x-emic;
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs .primaryentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ', ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs:after {
+    content: ')';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs:before {
+    content: ' (';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries .referencedentry> .primaryentryrefs> .primaryentryref+ .primaryentryref:before {
+    content: ', ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .referencedentries> .referencedentry+ .referencedentry:before {
+    content: ', ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .summary> .summar+ .summar:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs .visiblevariantentryref> .summary> span:first-child:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs:after {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs> .variantentrytypes .variantentrytype> .reverseabbr> .reverseabb+ .reverseabb:before {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs> .variantentrytypes .variantentrytype> .reverseabbr> span:last-child:after {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs> .variantentrytypes:after {
+    content: ' ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs> .visiblevariantentryref+ .visiblevariantentryref:before {
+    content: ', ';
+}
+
+.minorentryvariant> .visiblevariantentryrefs> .visiblevariantentryref+.variantentrytypes:before {
+    content: ', ';
+}
+
+.morphosyntaxanalysis {
+}
+
+.morphtype {
+}
+
+.morphtypes {
+}
+
+.name {
+}
+
+.ownertype_abbreviation {
+}
+
+.partofspeech {
+}
+
+.primaryentryref {
+}
+
+.primaryentryrefs {
+}
+
+.referencedentries {
+}
+
+.referencedentry {
+}
+
+.reverseabbr {
+}
+
+.scientificname {
+}
+
+.sense {
+}
+
+.sensecontent {
+}
+
+.sensenumber {
+}
+
+.senses {
+}
+
+.sharedgrammaticalinfo {
+}
+
+.slot {
+}
+
+.slots {
+}
+
+.translation {
+}
+
+.translationcontent {
+}
+
+.translationcontents {
+}
+
+.variantentrytype {
+}
+
+.variantentrytypes {
+}
+
+.visiblevariantentryref {
+}
+
+.visiblevariantentryrefs {
+}
+
+img { max-width: 100%; }
+
+#toolbar-top {
+    background: #FAFAFA;
+    border-bottom: 1px solid #DDD;
+    -moz-box-shadow: 0 5px 5px -5px #CCC;
+    -webkit-box-shadow: 0 5px 5px -5px #CCC;
+    box-shadow: 0 5px 5px -5px #CCC;
+    top: 0px;
+    width: 100%;
+    position: fixed;
+    z-index: 2000;
+    text-align: center;
+}
+#content {
+    max-width: 800px;
+    height: auto;
+    padding-left: 5%;
+    padding-right: 5%;
+    margin: 80px auto 150px;
+}
+.navigation-top {
+    text-align: center;
+    padding-top: 16px;
+    padding-bottom: 10px;
+}
+.button {
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: solid 1px #CCCCCC;
+    background: #F0F0F0;
+    padding: 2px;
+    margin-left: 2px;
+    margin-right: 2px;
+    text-decoration: none;
+    color: #808080;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+}
+.button:hover {
+    background: #DDDDDD;
+}
+.button a:link, .button a:visited {
+    text-decoration: none;
+    color: #808080;
+	 font-weight: bold;
+}
+.selectable {
+    cursor: pointer;
+}
+body[data-color-theme="Dark"] {
+--PrimaryColor: #181818;
+--PrimaryDarkColor: #121212;
+--AccentColor: #121212;
+--ActionBarColor: PrimaryColor;
+--StatusBarColor: PrimaryDarkColor;
+--TextColor: #E0E0E0;
+--BackgroundColor: #000000;
+--TitleBackgroundColor: #303030;
+--TabBackgroundColor: #303030;
+--TabTextColor: #E0E0E0;
+--DialogBackgroundColor: #202020;
+--PopupBackgroundColor: #101010;
+--DialogButtonColor: #E0E0E0;
+--TextHighlightColor: #404040;
+--LinkColor: #E1BEE7;
+--ShareButtonColor: PrimaryColor;
+--ShareButtonTextColor: #FFFFFF;
+--DrawerBackgroundColor: #101010;
+--DrawerItemTextColor: #D0D0D0;
+--DrawerItemIconColor: #C0C0C0;
+--TextColor1: #00FFFF;
+--TextColor2: #800000;
+--TextColor3: #008000;
+--TextColor4: #800080;
+--TextColor5: #FFFFFF;
+--TextColor6: #FFFFFF;
+--TextColor7: #FFFFFF;
+--TextColor8: #FFFFFF;
+--SearchTextColor: #E0E0E0;
+--SearchButtonColor: #505050;
+--SearchButtonTextColor: #FFFFFF;
+--SearchProgressButtonColor: #A0A0A0;
+--SearchProgressButtonTextColor: #FFFFFF;
+--SettingsTitleColor: #E0E0E0;
+--SettingsSummaryColor: #B0B0B0;
+--SettingsSeparatorColor: #404040;
+}
+body[data-color-theme="Sepia"] {
+--PrimaryColor: #4E342E;
+--PrimaryDarkColor: #3E2723;
+--AccentColor: #3E2723;
+--ActionBarColor: PrimaryColor;
+--StatusBarColor: PrimaryDarkColor;
+--TextColor: #5A4129;
+--BackgroundColor: #E9D8BA;
+--TitleBackgroundColor: #E9D8BA;
+--TabBackgroundColor: #E9D8BA;
+--TabTextColor: #5A4129;
+--DialogBackgroundColor: #E9D8BA;
+--PopupBackgroundColor: #E9D8BA;
+--DialogButtonColor: PrimaryColor;
+--TextHighlightColor: #D9D9D9;
+--LinkColor: #513A24;
+--ShareButtonColor: PrimaryColor;
+--ShareButtonTextColor: #FFFFFF;
+--DrawerBackgroundColor: #E9D8BA;
+--DrawerItemTextColor: #212121;
+--DrawerItemIconColor: #757575;
+--TextColor1: #000080;
+--TextColor2: #800000;
+--TextColor3: #008000;
+--TextColor4: #800080;
+--TextColor5: #0000FF;
+--TextColor6: #FF0000;
+--TextColor7: #0000FF;
+--TextColor8: #0000FF;
+--SearchTextColor: #000000;
+--SearchButtonColor: #505050;
+--SearchButtonTextColor: #FFFFFF;
+--SearchProgressButtonColor: #A0A0A0;
+--SearchProgressButtonTextColor: #FFFFFF;
+--SettingsTitleColor: #000000;
+--SettingsSummaryColor: #606060;
+--SettingsSeparatorColor: #C9C2C0;
+}
+body[data-color-theme="Normal"] {
+--PrimaryColor: #9C27B0;
+--PrimaryDarkColor: #7B1FA2;
+--AccentColor: #000000;
+--ActionBarColor: PrimaryColor;
+--StatusBarColor: PrimaryDarkColor;
+--TextColor: #000000;
+--BackgroundColor: #F0F0F0;
+--TitleBackgroundColor: #E1BEE7;
+--TabBackgroundColor: #E1BEE7;
+--TabTextColor: #000000;
+--DialogBackgroundColor: #F0F0F0;
+--PopupBackgroundColor: #E6E6E6;
+--DialogButtonColor: PrimaryColor;
+--TextHighlightColor: #D9D9D9;
+--LinkColor: #4A148C;
+--ShareButtonColor: PrimaryColor;
+--ShareButtonTextColor: #FFFFFF;
+--DrawerBackgroundColor: #FFFFFF;
+--DrawerItemTextColor: #212121;
+--DrawerItemIconColor: #757575;
+--TextColor1: #000080;
+--TextColor2: #800000;
+--TextColor3: #008000;
+--TextColor4: #800080;
+--TextColor5: #0000FF;
+--TextColor6: #FF0000;
+--TextColor7: #0000FF;
+--TextColor8: #0000FF;
+--SearchTextColor: #000000;
+--SearchButtonColor: #505050;
+--SearchButtonTextColor: #FFFFFF;
+--SearchProgressButtonColor: #A0A0A0;
+--SearchProgressButtonTextColor: #FFFFFF;
+--SettingsTitleColor: #000000;
+--SettingsSummaryColor: #606060;
+--SettingsSeparatorColor: #E0E0E0;
+}
+
