@@ -8,6 +8,9 @@ node_modules
 .env.*
 !.env.example
 data/*
+data-*/*
+!data-sandbox/*
+data-sandbox/node_modules
 !data/.empty
 static/sab-stylesheet.css
 static/badges
