@@ -15,7 +15,7 @@
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
-    import { CalendarMonthIcon, CheckboxOutlineIcon,  InfoIcon } from '$lib/icons';
+    import { CalendarMonthIcon, CheckboxOutlineIcon, InfoIcon } from '$lib/icons';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -119,35 +119,39 @@
             {/if}
             {#if selectedTab === 'calendar'}
                 <div class="plan-days-scroller" id="scroller">
-                    {#each $page.data.planData.items as item}
-                        <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
+                    <ul class="dy-menu-horizontal bg-base-200 rounded-box">
+                        {#each $page.data.planData.items as item}
+                            <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
                          plan-day-box plan-day-box-unselected plan-day-box-uncompleted -->
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <!-- the class plan-day-box in particular does not seem to work-->
-                        <div
-                            class="plan-day-box plan-day-box-uncompleted {selectedDay.day ===
-                            item.day
-                                ? 'selected plan-day-box-selected'
-                                : 'plan-day-box-unselected'}"
-                            id="D-1"
-                            on:click={() => (selectedDay = item)}
-                        >
-                            <div class="plan-day-box-content">
-                                <div class="plan-day-box-weekday">{$t['Plans_Day']}</div>
-                                <div class="plan-day-box-number">{item.day}</div>
-                            </div>
-                        </div>
-                    {/each}
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- the class plan-day-box in particular does not seem to work-->
+                            <li>
+                                <div
+                                    class="plan-day-box plan-day-box-uncompleted {selectedDay.day ===
+                                    item.day
+                                        ? 'selected plan-day-box-selected'
+                                        : 'plan-day-box-unselected'}"
+                                    id="D-1"
+                                    on:click={() => (selectedDay = item)}
+                                >
+                                    <div class="plan-day-box-content">
+                                        <div class="plan-day-box-weekday">{$t['Plans_Day']}</div>
+                                        <div class="plan-day-box-number">{item.day}</div>
+                                    </div>
+                                </div>
+                            </li>
+                        {/each}
+                    </ul>
                 </div>
 
                 <div class="plan-items" id="container">
                     <table class="plan-items-table">
                         <tbody>
                             {#each selectedDay.refs as ref, index}
-                                <tr class="plan-item" id={"R-" + index}>
+                                <tr class="plan-item" id={'R-' + index}>
                                     <td class="plan-item-checkbox plan-checkbox-image">
-                                        <CheckboxOutlineIcon/>
+                                        <CheckboxOutlineIcon />
                                     </td>
                                     <td class="plan-item-title">
                                         <span class="plan-item-reference">{ref}</span>

@@ -7,7 +7,8 @@ import BibleIcon from './BibleIcon.svelte';
 import BookmarkIcon from './BookmarkIcon.svelte';
 import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
 import CalendarMonthIcon from './CalendarMonthIcon.svelte';
-import CheckboxOutlineIcon from './CheckboxIcon.svelte';
+import CheckboxIcon from './CheckboxIcon.svelte';
+import CheckboxOutlineIcon from './CheckboxOutlineIcon.svelte';
 import ChevronIcon from './ChevronIcon.svelte';
 import CopyContentIcon from './CopyContentIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
@@ -44,6 +45,7 @@ export {
     BookmarkIcon,
     BookmarkOutlineIcon,
     CalendarMonthIcon,
+    CheckboxIcon,
     CheckboxOutlineIcon,
     ChevronIcon,
     CopyContentIcon,

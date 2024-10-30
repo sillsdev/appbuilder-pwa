@@ -72,7 +72,7 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
             'div.contents-item-audio-image { position:absolute; bottom:8px; right:8px; width:24px; height:24px; z-index:10; }'
         );
     }
-    if (compareVersions(configData.data.programVersion!, '12.2') < 0) {
+    if (compareVersions(configData.data.programVersion!, '12.6') < 0) {
         if (verbose) console.log('Add plan styles');
         tempStyles.push(
             '.plan-days-scroller { overflow-x: scroll; white-space: nowrap; margin-top: 6px; margin-bottom: 6px; }'

@@ -3,25 +3,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
-
-export type PlanItem = {
-    day: number;
-    heading?: string;
-    refs: string[];
-};
-
-export type PlansData = {
-    id: string;
-    title?: {
-        [lang: string]: string;
-    };
-    description?: {
-        [lang: string]: string;
-    };
-    image?: string;
-
-    items?: PlanItem[];
-};
+import { PlanItem, PlansData } from '../src/lib/data/plansData';
 
 function changeFileExtension(filename: string, ext: string): string {
     const lastDotIndex = filename.lastIndexOf('.');
@@ -129,7 +111,7 @@ function convertPlan(srcFile: string): PlansData {
                 break;
 
             case '\\heading':
-                item.heading = value;
+                item.heading = parseLocalizedLabel(value, item.heading);
                 break;
         }
     }
