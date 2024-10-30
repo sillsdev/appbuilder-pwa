@@ -114,6 +114,13 @@ function removeMissingFigures(text: string, _bcId: string, _bookId: string): str
     });
 }
 
+function trimTrailingWhitespace(text: string, _bcId: string, _bookId: string): string {
+    return text
+        .split('\n') // Split the text into lines
+        .map((line) => line.trimEnd()) // Trim trailing whitespace from each line
+        .join('\n'); // Join the lines back together
+}
+
 // Function to check if an image is missing
 function isImageMissing(imageSource: string): boolean {
     // Your logic to determine if the image is missing
@@ -127,7 +134,8 @@ const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[
     replaceVideoTags,
     replacePageTags,
     convertMarkdownsToMilestones,
-    removeMissingFigures
+    removeMissingFigures,
+    trimTrailingWhitespace
 ];
 
 function applyFilters(text: string, bcId: string, bookId: string): string {
