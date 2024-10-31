@@ -12,6 +12,8 @@ import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 
+const base = process.env.BUILD_BASE_PATH || '';
+
 /**
  * Loops through bookCollections property of configData.
  * Each collection and all associated books are imported into a SABProskomma instance.
@@ -114,6 +116,18 @@ function removeMissingFigures(text: string, _bcId: string, _bookId: string): str
     });
 }
 
+function updateImgTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(
+        /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
+        (_match, _path, fileName) => {
+            const imagePath = `${base}/illustrations/${fileName}`;
+
+            // If the image is missing in the "illustrations" folder, filter out the entire tag
+            return isImageMissing(fileName) ? '' : `<img src="${imagePath}">`;
+        }
+    );
+}
+
 function trimTrailingWhitespace(text: string, _bcId: string, _bookId: string): string {
     return text
         .split('\n') // Split the text into lines
@@ -129,7 +143,9 @@ function isImageMissing(imageSource: string): boolean {
     return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
 
-const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[] = [
+type FilterFunction = (text: string, bcId: string, bookId: string) => string;
+
+const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
     replacePageTags,
@@ -138,7 +154,14 @@ const filterFunctions: ((text: string, bcId: string, bookId: string) => string)[
     trimTrailingWhitespace
 ];
 
-function applyFilters(text: string, bcId: string, bookId: string): string {
+const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
+
+function applyFilters(
+    text: string,
+    filterFunctions: FilterFunction[],
+    bcId: string,
+    bookId: string
+): string {
     let filteredText = text;
     for (const filterFn of filterFunctions) {
         filteredText = filterFn(filteredText, bcId, bookId);
@@ -149,11 +172,13 @@ function applyFilters(text: string, bcId: string, bookId: string): string {
 //make final transformations to catalog entry before writing to file
 // 1. compress the chapter/verse map, if it exists
 // 2. add quizzes to entry, if defined for docset
-function transformCatalogEntry(entry: any, quizzes: any): any {
+// 3. add htmlBooks to entry, if defined for docset
+function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
     const ds = postQueries.parseChapterVerseMapInDocSets({
         docSets: [entry.data.docSets[0]]
     })[0];
     ds.quizzes = quizzes[ds.id];
+    ds.htmlBooks = htmlBooks[ds.id];
     return ds;
 }
 
@@ -180,6 +205,8 @@ export async function convertBooks(
     const catalogEntries: Promise<any>[] = [];
     /**quizzes by book collection*/
     const quizzes: any = {};
+    /**htmlBooks by book collection*/
+    const htmlBooks: any = {};
     /**array of files to be written*/
     const files: any[] = [];
 
@@ -232,7 +259,8 @@ export async function convertBooks(
             bcGlossary = loadGlossary(collection, dataDir);
         }
         //add empty array of quizzes for book collection
-        quizzes[context.bcId] = [];
+        quizzes[context.docSet] = [];
+        htmlBooks[context.docSet] = [];
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
@@ -244,7 +272,7 @@ export async function convertBooks(
                     break;
                 case 'quiz':
                     bookConverted = true;
-                    quizzes[context.bcId].push({ id: book.id, name: book.name });
+                    quizzes[context.docSet].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
                             'static',
@@ -259,7 +287,13 @@ export async function convertBooks(
                     break;
                 default:
                     bookConverted = true;
-                    convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
+                    if (book.format === 'html') {
+                        convertHtmlBook(context, book, files);
+                        process.stdout.write(` ${book.id}`);
+                        htmlBooks[context.docSet].push({ id: book.id, name: book.name });
+                    } else {
+                        convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
+                    }
                     break;
             }
             if (!bookConverted) {
@@ -289,7 +323,7 @@ export async function convertBooks(
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
-        if (quizzes[context.bcId].length > 0) {
+        if (quizzes[context.docSet].length > 0) {
             const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
@@ -307,7 +341,7 @@ export async function convertBooks(
     entries.forEach((entry) => {
         fs.writeFileSync(
             path.join(catalogPath, entry.data.docSets[0].id + '.json'),
-            JSON.stringify(transformCatalogEntry(entry, quizzes))
+            JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks))
         );
     });
     if (verbose) console.time('freeze');
@@ -385,6 +419,20 @@ export type Quiz = {
     }[];
     passScore?: number; //\pm
 };
+
+function convertHtmlBook(context: ConvertBookContext, book: BookData, files: any[]) {
+    const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
+    const dstFile = path.join('static', 'collections', context.bcId, book.file);
+
+    let content = fs.readFileSync(srcFile, 'utf-8');
+    content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id);
+    files.push({
+        path: dstFile,
+        content
+    });
+
+    //process.stdout.write(`copyHtmlBook: bookId:${book.id}, src:${srcFile}, dst:${dstFile}\n`);
+}
 
 function convertQuizBook(context: ConvertBookContext, book: BookData): Quiz {
     if (context.verbose) {
@@ -522,7 +570,7 @@ function convertScriptureBook(
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, context.bcId, book.id);
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
         if (context.configData.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }

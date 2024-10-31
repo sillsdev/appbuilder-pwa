@@ -21,6 +21,7 @@ export type StyleData = {
 export type BookData = {
     id: string;
     type?: string;
+    format?: string;
     name: string;
     abbreviation: string;
     additionalNames?: {
