@@ -398,6 +398,9 @@ function convertConfig(dataDir: string, verbose: number) {
             const footer = convertFooter(footerTags[0]?.innerHTML, document);
             if (verbose >= 2) console.log(`.... footer: `, footer);
 
+            const format = book.attributes.getNamedItem('format')?.value;
+            const file = book.getElementsByTagName('f')[0]?.innerHTML;
+
             books.push({
                 portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
                     ?.value,
@@ -409,13 +412,14 @@ function convertConfig(dataDir: string, verbose: number) {
                 fonts,
                 id: book.attributes.getNamedItem('id')!.value,
                 type: book.attributes.getNamedItem('type')?.value,
+                format,
                 name: book.getElementsByTagName('n')[0]?.innerHTML,
                 additionalNames,
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
                 testament: book.getElementsByTagName('g')[0]?.innerHTML,
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
-                file: book.getElementsByTagName('f')[0]?.innerHTML.replace(/\.\w*$/, '.usfm'),
+                file: format ? file : file.replace(/\.\w*$/, '.usfm'), // Default format is USFM and multiple files are combined into single .usfm
                 features: bookFeatures,
                 quizFeatures,
                 style,
