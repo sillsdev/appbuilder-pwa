@@ -192,7 +192,7 @@ function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
 
 type ConvertBookContext = {
     dataDir: string;
-    configData: ScriptureConfig;
+    scriptureConfig: ScriptureConfig;
     verbose: number;
     lang: string;
     docSet: string;
@@ -202,11 +202,11 @@ type ConvertBookContext = {
 const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
-    configData: ConfigTaskOutput,
+    scriptureConfig: ScriptureConfig,
     verbose: number
 ): Promise<BooksTaskOutput> {
     /**book collections from config*/
-    const collections = configData.data.bookCollections;
+    const collections = scriptureConfig.bookCollections;
     /**map of docSets and frozen archives*/
     const freezer = new Map<string, any>();
     /**array of catalog query promises*/
@@ -237,7 +237,7 @@ export async function convertBooks(
         const pk = new SABProskomma();
         const context: ConvertBookContext = {
             dataDir,
-            configData: configData.data,
+            scriptureConfig,
             verbose,
             lang: collection.languageCode,
             docSet: collection.languageCode + '_' + collection.id,
@@ -263,7 +263,7 @@ export async function convertBooks(
         //loop through books in collection
         const ignoredBooks = [];
         // If the collection has a glossary, load it
-        if (configData.data.traits['has-glossary']) {
+        if (scriptureConfig.traits['has-glossary']) {
             bcGlossary = loadGlossary(collection, dataDir);
         }
         //add empty array of quizzes for book collection
@@ -577,10 +577,10 @@ function convertScriptureBook(
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
         content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
-        if (context.configData.traits['has-glossary']) {
+        if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
-        if (context.configData.mainFeatures['hide-empty-verses'] === true) {
+        if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
             content = removeMissingVerses(content, context.bcId, book.id);
         }
         //query Proskomma with a mutation to add a document
@@ -683,7 +683,9 @@ export interface BooksTaskOutput extends TaskOutput {
  */
 export class ConvertBooks extends Task {
     public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
-    public static lastBookCollections: ConfigTaskOutput['data']['bookCollections'];
+
+    public static lastBookCollections: ScriptureConfig['bookCollections'];
+
     constructor(dataDir: string) {
         super(dataDir);
     }
@@ -693,12 +695,13 @@ export class ConvertBooks extends Task {
         modifiedPaths: string[]
     ): Promisable<BooksTaskOutput> {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+        const scriptureConfig = config.data as ScriptureConfig;
         // runs step only if necessary, as the step is fairly expensive
         if (
             !modifiedPaths.some((p) => p.startsWith('books')) &&
             deepCompareObjects(
                 ConvertBooks.lastBookCollections,
-                config.data.bookCollections,
+                scriptureConfig.bookCollections,
                 new Set(['id', 'books', 'languageCode'])
             )
         ) {
@@ -708,8 +711,8 @@ export class ConvertBooks extends Task {
             };
         }
 
-        const ret = convertBooks(this.dataDir, config, verbose);
-        ConvertBooks.lastBookCollections = config.data.bookCollections;
+        const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
+        ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
         return ret;
     }
 }
