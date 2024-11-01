@@ -2,9 +2,27 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { Task, TaskOutput } from './Task';
+import fs from 'fs';
 
-// Array of letters from 'a' to 'z'
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
+// Function to load ALPHABET from appdef.xml
+function loadAlphabetFromXML() {
+    const xmlPath = path.resolve(__dirname, '../data/appdef.xml');
+    const xmlData = fs.readFileSync(xmlPath, 'utf8');
+
+    // Use regex to find the alphabet within a type="gloss" writing-system
+    const alphabetMatch = xmlData.match(/<writing-system[^>]*type="gloss"[^>]*>[\s\S]*?<alphabet>(.*?)<\/alphabet>/);
+
+    if (alphabetMatch && alphabetMatch[1]) {
+        // Split the matched alphabet string by whitespace into an array of characters
+        return alphabetMatch[1].trim().split(' ');
+    } else {
+        throw new Error("Alphabet with type='gloss' not found in appdef.xml");
+    }
+}
+
+// Setting the ALPHABET as a dynamically loaded variable
+const ALPHABET = loadAlphabetFromXML();
+
 // Global variable for language
 const LANGUAGE = 'Hanga';  // Modify this for other languages
 
@@ -102,7 +120,7 @@ export class ConvertReverseIndex extends Task {
         convertReverseIndexForAllLetters(this.dataDir, verbose);
 
         // Collect the generated files
-        const outputDir = path.join(this.dataDir, 'static/reversal/language/');
+        const outputDir = path.join(this.dataDir, `static/reversal/language/${LANGUAGE}`);
         const files = ALPHABET.map((LETTER) => {
             const outputFilePath = path.join(outputDir, `${LETTER.toLowerCase()}.json`);
             const outputContent = readFileSync(outputFilePath, 'utf-8');
