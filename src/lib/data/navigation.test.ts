@@ -59,6 +59,32 @@ const config = {
                         textSize: 20,
                         verseNumbers: 'default'
                     }
+                },
+                {
+                    chapters: 1,
+                    chaptersN: '1',
+                    id: 'B001',
+                    name: 'Book 1',
+                    testament: 'Extra',
+                    abbreviation: 'BK1',
+                    audio: [],
+                    file: 'book1.html',
+                    features: {
+                        'show-chapter-numbers': false
+                    }
+                },
+                {
+                    chapters: 1,
+                    chaptersN: '1',
+                    id: 'B002',
+                    name: 'Book 2',
+                    testament: 'Extra',
+                    abbreviation: 'BK2',
+                    audio: [],
+                    file: 'book2.html',
+                    features: {
+                        'show-chapter-numbers': false
+                    }
                 }
             ]
         },
@@ -141,7 +167,18 @@ const catalog1: CatalogData = {
             }
         }
     ],
-    tags: {}
+    tags: {},
+    quizzes: {},
+    htmlBooks: [
+        {
+            id: 'B001',
+            name: 'Book 1'
+        },
+        {
+            id: 'B002',
+            name: 'Book 2'
+        }
+    ]
 };
 
 const catalog2: CatalogData = {
@@ -176,7 +213,9 @@ const catalog2: CatalogData = {
             versesByChapters: {}
         }
     ],
-    tags: {}
+    tags: {},
+    quizzes: {},
+    htmlBooks: []
 };
 
 function getTestCatalog(docSet: string): Promise<CatalogData> {
@@ -583,6 +622,25 @@ describe('goTo', () => {
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MAT', '2');
             expect(navContext.reference).toBe('eng_C01.MAT.2');
+        });
+    });
+
+    describe('html books', () => {
+        test('reference with html book', async () => {
+            const navContext = new TestNavigationContext(getTestCatalog, config);
+            await navContext.gotoInitial();
+            await navContext.goto('eng_C01', 'B001', '1');
+            expect(navContext.reference).toBe('eng_C01.B001.1');
+            expect(navContext.book).toBe('B001');
+            expect(navContext.prev.book).toBeNull();
+            expect(navContext.next.book).toBeNull();
+        });
+
+        test('allBookIds contain html', async () => {
+            const navContext = new TestNavigationContext(getTestCatalog, config);
+            await navContext.gotoInitial();
+            expect(navContext.allBookIds.includes('B001')).toBeTruthy();
+            expect(navContext.catalog.documents.find((b) => b.bookCode === 'B001')).toBeFalsy();
         });
     });
 });

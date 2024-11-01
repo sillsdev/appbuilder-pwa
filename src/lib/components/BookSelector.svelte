@@ -34,7 +34,7 @@ The navbar component.
         displayLabel ??
         config.bookCollections
             .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === book).name;
+            .books.find((x) => x.id === book)?.name;
 
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -134,7 +134,7 @@ The navbar component.
     /**list of books, quizzes, and quiz groups in current docSet*/
     $: books = $refs.catalog.documents;
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
+    $: chapters = books.find((d) => d.bookCode === book)?.versesByChapters ?? [];
 
     function getBookUrl(book) {
         let url;
@@ -152,7 +152,7 @@ The navbar component.
             .find((x) => x.id === colId)
             .books.forEach((book) => {
                 const url = getBookUrl(book);
-                if (books.find((x) => x.bookCode === book.id) || url) {
+                if ($refs.allBookIds.find((x) => x === book.id) || url) {
                     let label = book[bookLabel] || book.name;
                     let cell = { label, id: book.id, url };
                     let group = book.testament || '';
@@ -189,7 +189,7 @@ The navbar component.
     };
 
     let chapterGridGroup = (chapters) => {
-        let hasIntroduction = books.find((x) => x.bookCode === book).hasIntroduction;
+        let hasIntroduction = books.find((x) => x.bookCode === book)?.hasIntroduction;
         return [
             {
                 rows: hasIntroduction
