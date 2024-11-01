@@ -48,6 +48,7 @@
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
+    import HtmlBookView from '$lib/components/HtmlBookView.svelte';
     import { getFeatureValueString, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import { pinch, swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
@@ -132,28 +133,42 @@
     $: showBorderSetting = getFeatureValueBoolean('show-border', $refs.collection, $refs.book);
     $: showBorder =
         config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting);
-    $: viewSettings = {
-        audioPhraseEndChars: audioPhraseEndChars,
-        bodyFontSize: $bodyFontSize,
-        bodyLineHeight: $bodyLineHeight,
-        bookmarks: $bookmarks,
-        notes: $notes,
-        highlights: $highlights,
-        maxSelections: config.mainFeatures['annotation-max-select'],
-        redLetters: $userSettingsOrDefault['red-letters'],
-        references: $refs,
-        glossary: $glossary,
-        selectedVerses: selectedVerses,
-        themeColors: $themeColors,
-        verseLayout: $userSettingsOrDefault['verse-layout'],
-        viewShowBibleImages: $userSettingsOrDefault['display-images-in-bible-text'],
-        viewShowBibleVideos: $userSettingsOrDefault['display-videos-in-bible-text'],
-        viewShowIllustrations: config.mainFeatures['show-illustrations'],
-        viewShowVerses,
-        viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'],
-        font: $currentFont,
-        proskomma: $page.data?.proskomma
-    };
+    $: format = getFormat($refs.collection, $refs.book);
+    $: viewSettings =
+        format === 'html'
+            ? {
+                  references: $refs,
+                  bodyFontSize: $bodyFontSize,
+                  bodyLineHeight: $bodyLineHeight,
+                  fetch: $page.data.fetch
+              }
+            : {
+                  audioPhraseEndChars: audioPhraseEndChars,
+                  bodyFontSize: $bodyFontSize,
+                  bodyLineHeight: $bodyLineHeight,
+                  bookmarks: $bookmarks,
+                  notes: $notes,
+                  highlights: $highlights,
+                  maxSelections: config.mainFeatures['annotation-max-select'],
+                  redLetters: $userSettingsOrDefault['red-letters'],
+                  references: $refs,
+                  glossary: $glossary,
+                  selectedVerses: selectedVerses,
+                  themeColors: $themeColors,
+                  verseLayout: $userSettingsOrDefault['verse-layout'],
+                  viewShowBibleImages: $userSettingsOrDefault['display-images-in-bible-text'],
+                  viewShowBibleVideos: $userSettingsOrDefault['display-videos-in-bible-text'],
+                  viewShowIllustrations: config.mainFeatures['show-illustrations'],
+                  viewShowVerses,
+                  viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'],
+                  font: $currentFont,
+                  proskomma: $page.data?.proskomma
+              };
+
+    function getFormat(bcId, bookId) {
+        return config.bookCollections.find((x) => x.id === bcId)?.books.find((x) => x.id === bookId)
+            ?.format;
+    }
 
     $: stackSettings = {
         bodyFontSize: $bodyFontSize,
@@ -413,7 +428,8 @@
         bind:this={scrollingDiv}
         on:scroll={saveScrollPosition}
     >
-        <div class="flex flex-row mx-auto justify-center" style:direction={$direction}>
+        <!-- flex causes the imported html to display outside of the view port. Use md: -->
+        <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
                     on:click={prevChapter}
@@ -439,7 +455,11 @@
                             }}
                             on:swipe={doSwipe}
                         >
-                            <ScriptureViewSofria {...viewSettings} />
+                            {#if format === 'html'}
+                                <HtmlBookView {...viewSettings} />
+                            {:else}
+                                <ScriptureViewSofria {...viewSettings} />
+                            {/if}
                         </div>
                     </main>
                 </div>

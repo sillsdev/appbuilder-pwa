@@ -64,6 +64,7 @@ export function getStyle(configData: any, option: string, bc: string, book: stri
     const bookData = bcData.books.find((x) => x.id === book);
     // Use the style of the book, if defined.
     if (
+        bookData &&
         bookData.style != null &&
         bookData.style[option] != null &&
         bookData.style[option] !== 'inherit'

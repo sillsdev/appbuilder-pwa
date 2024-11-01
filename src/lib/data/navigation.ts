@@ -17,6 +17,7 @@ export class NavigationContext {
     title: string;
     name: string;
     catalog: CatalogData;
+    allBookIds: string[];
     next: { book: string | null; chapter: string | null } = { book: null, chapter: null };
     prev: { book: string | null; chapter: string | null } = { book: null, chapter: null };
     initialized = false;
@@ -26,7 +27,7 @@ export class NavigationContext {
 
     private docSets: string[];
     private books: string[];
-    private versesByChatper: { [chapter: string]: { [verse: string]: string } };
+    private versesByChapters: { [chapter: string]: { [verse: string]: string } };
 
     async gotoInitial(start: string = '') {
         this.docSets = this.config.bookCollections.map((bc) => `${bc.languageCode}_${bc.id}`);
@@ -73,9 +74,10 @@ export class NavigationContext {
             this.collection = docSet.split('_')[1];
             this.catalog = await this.fetchCatalog(this.docSet);
             this.books = this.catalog.documents.map((b) => b.bookCode);
+            this.allBookIds = [...this.books, ...this.catalog.htmlBooks.map((b) => b.id)];
             newBook = true;
         }
-        if (book !== this.book && this.books.includes(book)) {
+        if (book !== this.book && this.allBookIds.includes(book)) {
             this.book = book;
             newBook = true;
         }
@@ -84,9 +86,9 @@ export class NavigationContext {
 
     private updateChapterVerse(chapter: string, verse: string, newBook: boolean) {
         if (newBook) {
-            this.versesByChatper = this.catalog.documents.find(
-                (b) => this.book === b.bookCode
-            ).versesByChapters;
+            this.versesByChapters =
+                this.catalog.documents.find((b) => this.book === b.bookCode)?.versesByChapters ??
+                {};
         }
         this.updateChapter(chapter);
         this.verse = verse;
@@ -97,12 +99,13 @@ export class NavigationContext {
             // The "chapter" is an introduction.
             this.chapter = chapter;
             this.chapterLength = 1;
-        } else if (Object.keys(this.versesByChatper).includes(chapter)) {
+        } else if (Object.keys(this.versesByChapters).includes(chapter)) {
             // The new chapter is valid.
             this.chapter = chapter;
-            this.chapterLength = Object.keys(this.versesByChatper[this.chapter]).length;
-        } else if (Object.keys(this.versesByChatper).length === 0) {
+            this.chapterLength = Object.keys(this.versesByChapters[this.chapter]).length;
+        } else if (Object.keys(this.versesByChapters).length === 0) {
             // Seems like this should never happen, but the original reference store worked this way.
+            // Actually, HtmlBooks should hit this condition.
             this.chapter = '1';
             this.chapterLength = 1;
         }
@@ -119,8 +122,17 @@ export class NavigationContext {
 
     private updateHeadings() {
         const document = this.catalog.documents.find((b) => b.bookCode === this.book);
-        this.title = document.toc;
-        this.name = document.h;
+        if (document) {
+            this.title = document.toc;
+            this.name = document.h;
+            return;
+        }
+
+        const htmlBook = this.catalog.htmlBooks.find((b) => b.id === this.book);
+        if (htmlBook) {
+            this.title = htmlBook.name;
+            this.name = htmlBook.name;
+        }
     }
 
     private updateReference() {
@@ -131,11 +143,16 @@ export class NavigationContext {
     }
 
     private updateNextPrev() {
-        const chapters = Object.keys(this.versesByChatper);
-        const c = chapters.indexOf(this.chapter);
-        const b = this.books.indexOf(this.book);
-        this.updateNext(b, c, chapters);
-        this.updatePrev(b, c, chapters);
+        if (Object.keys(this.versesByChapters).length > 0) {
+            const chapters = Object.keys(this.versesByChapters);
+            const c = chapters.indexOf(this.chapter);
+            const b = this.books.indexOf(this.book);
+            this.updateNext(b, c, chapters);
+            this.updatePrev(b, c, chapters);
+        } else {
+            this.prev = { book: null, chapter: null };
+            this.next = { book: null, chapter: null };
+        }
     }
 
     private updateNext(bookNum: number, chapterNum: number, chapters: string[]) {

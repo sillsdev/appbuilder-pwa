@@ -1976,7 +1976,7 @@ LOGGING:
 
     $: (() => {
         performance.mark('query-start');
-        const bookHasIntroduction = books.find((x) => x.bookCode === currentBook).hasIntroduction;
+        const bookHasIntroduction = books.find((x) => x.bookCode === currentBook)?.hasIntroduction;
         let chapterToDisplay = currentChapter;
         if (bookHasIntroduction && chapterToDisplay == 'i') {
             chapterToDisplay = '1';

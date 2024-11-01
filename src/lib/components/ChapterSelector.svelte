@@ -75,10 +75,12 @@ The navbar component.
         nextRef.reset();
     }
 
-    function getChapterCount(book) {
-        let books = $refs.catalog.documents;
-        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
-        return count;
+    function getChapterCount(bookId) {
+        const book = $refs.catalog.documents.find((x) => x.bookCode === bookId);
+        if (book) {
+            return Object.keys(book.versesByChapters).length;
+        }
+        return 0;
     }
 
     function getVerseCount(book, chapter) {
@@ -86,7 +88,7 @@ The navbar component.
             return 0;
         }
         let books = $refs.catalog.documents;
-        let chapters = books.find((d) => d.bookCode === book).versesByChapters;
+        let chapters = books.find((d) => d.bookCode === book)?.versesByChapters;
         if (!chapters || Object.keys(chapters).length === 0) {
             return 0;
         }
@@ -134,7 +136,7 @@ The navbar component.
     /**list of books in current docSet*/
     $: books = $refs.catalog.documents;
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === book).versesByChapters;
+    $: chapters = books.find((d) => d.bookCode === book)?.versesByChapters;
     $: showSelector =
         config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0;
     const canSelect = config.mainFeatures['show-chapter-selector'];

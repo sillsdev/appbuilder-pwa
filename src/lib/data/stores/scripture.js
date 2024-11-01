@@ -151,11 +151,11 @@ export const fontChoices = derived(refs, ($refs) => {
     if (!$refs.initialized) return [];
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === $refs.book).fonts;
+        .books.find((x) => x.id === $refs.book)?.fonts;
     const colFonts = config.bookCollections.find((x) => x.id === $refs.collection).fonts;
     const allFonts = [...new Set(config.fonts.map((x) => x.family))];
     const currentFonts =
-        bookFonts.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
+        bookFonts?.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
     currentFont.update((current) => {
         if (currentFonts.indexOf(current) === -1) {
             return currentFonts[0];
