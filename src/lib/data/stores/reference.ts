@@ -17,6 +17,7 @@ interface ReferenceStore {
     next: { book: string | null; chapter: string | null };
     prev: { book: string | null; chapter: string | null };
     catalog: CatalogData;
+    allBookIds: string[];
     initialized: boolean;
 }
 
@@ -39,6 +40,7 @@ export const referenceStore = () => {
             next: nav.next,
             prev: nav.prev,
             catalog: nav.catalog,
+            allBookIds: nav.allBookIds,
             initialized: nav.initialized
         });
         localStorage.refs = nav.reference;

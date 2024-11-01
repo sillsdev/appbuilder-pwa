@@ -430,8 +430,6 @@ function convertHtmlBook(context: ConvertBookContext, book: BookData, files: any
         path: dstFile,
         content
     });
-
-    //process.stdout.write(`copyHtmlBook: bookId:${book.id}, src:${srcFile}, dst:${dstFile}\n`);
 }
 
 function convertQuizBook(context: ConvertBookContext, book: BookData): Quiz {
