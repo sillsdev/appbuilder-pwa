@@ -3,6 +3,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { Task, TaskOutput } from './Task';
 import fs from 'fs';
+import type { ConfigData } from '$config';
 
 // Function to load ALPHABET from appdef.xml
 function loadAlphabetFromXML() {
@@ -22,9 +23,6 @@ function loadAlphabetFromXML() {
 
 // Setting the ALPHABET as a dynamically loaded variable
 const ALPHABET = loadAlphabetFromXML();
-
-// Global variable for language
-const LANGUAGE = 'Hanga';  // Modify this for other languages
 
 /**
  * Reads entries from the data.sqlite database using the command-line sqlite3.
@@ -57,11 +55,11 @@ function getEntries(dbPath: string): Map<number, { name: string, homonym_index: 
  * Converts the reversal index by mapping glosses to head words from the database, and outputs a JSON file.
  * Generates JSON files for each letter in the alphabet.
  */
-export function convertReverseIndexForAllLetters(dataDir: string, verbose: number): void {
+function convertReverseIndexForAllLetters(dataDir: string, language: string, verbose: number): void {
     const dbPath = path.join(dataDir, 'data.sqlite');
     const indexFilePath = path.join(dataDir, 'lexicon-en.idx');
     // Output directory includes the language
-    const outputDir = path.join(dataDir, `static/reversal/language/${LANGUAGE}`);
+    const outputDir = path.join(dataDir, `static/reversal/language/${language}`);
 
     // Ensure the output directory exists, create it if not
     if (!existsSync(outputDir)) {
@@ -108,6 +106,7 @@ export function convertReverseIndexForAllLetters(dataDir: string, verbose: numbe
  * Class representing the ConvertReverseIndex task.
  * This class uses the convertReverseIndex function to generate the reversal index for all letters.
  */
+
 export class ConvertReverseIndex extends Task {
     public triggerFiles: string[] = ['lexicon-en.idx', 'data.sqlite'];
 
@@ -116,11 +115,33 @@ export class ConvertReverseIndex extends Task {
     }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
-        // Call convertReverseIndex for all letters
-        convertReverseIndexForAllLetters(this.dataDir, verbose);
+        // Get config data from previous outputs
+        const configOutput = outputs.get('ConvertConfig') as { data: ConfigData } | undefined;
+        if (!configOutput || !configOutput.data) {
+            throw new Error('Config data not found in outputs');
+        }
+
+        // For DAB projects, get the main language from writing systems
+        const writingSystems = Object.entries(configOutput.data.interfaceLanguages?.writingSystems || {});
+        const mainWritingSystem = writingSystems.find(([, ws]) =>
+            ws.displayNames && Object.values(ws.displayNames).length > 0
+        );
+
+        if (!mainWritingSystem) {
+            throw new Error('No writing system with display names found in config data');
+        }
+
+        // Get the first display name as the language name
+        const language = Object.values(mainWritingSystem[1].displayNames)[0];
+        if (!language) {
+            throw new Error('Language name not found in writing system display names');
+        }
+
+        // Call convertReverseIndex for all letters with the language from config
+        convertReverseIndexForAllLetters(this.dataDir, language, verbose);
 
         // Collect the generated files
-        const outputDir = path.join(this.dataDir, `static/reversal/language/${LANGUAGE}`);
+        const outputDir = path.join(this.dataDir, `static/reversal/language/${language}`);
         const files = ALPHABET.map((LETTER) => {
             const outputFilePath = path.join(outputDir, `${LETTER.toLowerCase()}.json`);
             const outputContent = readFileSync(outputFilePath, 'utf-8');
