@@ -10,8 +10,11 @@
         themeColors,
         modal,
         MODAL_COLLECTION,
-        MODAL_TEXT_APPERANCE
+        MODAL_TEXT_APPERANCE,
+        refs
     } from '$lib/data/stores';
+    import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
+    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
@@ -35,6 +38,18 @@
         } else {
             return 'plan-day-box-unselected';
         }
+    }
+    function getReferenceString(ref) {
+        // Reminder - get book collection id
+        let currentBookCollectionId = $refs.collection;
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
+        const displayString = getDisplayString(
+            currentBookCollectionId,
+            book,
+            toChapter,
+            verseRanges
+        );
+        return displayString;
     }
 </script>
 
@@ -154,7 +169,9 @@
                                         <CheckboxOutlineIcon />
                                     </td>
                                     <td class="plan-item-title">
-                                        <span class="plan-item-reference">{ref}</span>
+                                        <span class="plan-item-reference"
+                                            >{getReferenceString(ref)}</span
+                                        >
                                     </td>
                                 </tr>
                             {/each}

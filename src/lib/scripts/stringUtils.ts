@@ -1,9 +1,7 @@
 export function isNotBlank(str: string | null): boolean {
-    let result: boolean;
-    if (!isDefined(str)) {
-        result = false;
-    } else {
-        result = str.length > 0 && str.trim().length > 0;
+    let result: boolean = false;
+    if (str && isDefined(str)) {
+        result = str.length > 0 && str?.trim().length > 0;
     }
     return result;
 }
@@ -83,20 +81,20 @@ export function containsRomanScriptLetter(input: string): boolean {
     return /.*[a-zA-Z].*/.test(input);
 }
 export function stripNonDigits(input: string | null): string | null {
-    if (!isDefined(input)) {
+    if (input && isDefined(input)) {
+        const sb: string[] = [];
+
+        for (let i = 0; i < input.length; i++) {
+            const c = input.charAt(i);
+            if (c.charCodeAt(0) > 47 && c.charCodeAt(0) < 58) {
+                sb.push(c);
+            }
+        }
+
+        return sb.join('');
+    } else {
         return null;
     }
-
-    const sb: string[] = [];
-
-    for (let i = 0; i < input.length; i++) {
-        const c = input.charAt(i);
-        if (c.charCodeAt(0) > 47 && c.charCodeAt(0) < 58) {
-            sb.push(c);
-        }
-    }
-
-    return sb.join('');
 }
 export function stripAllExceptDigitsAndHyphens(input: string): string {
     const sb: string[] = [];
@@ -114,7 +112,7 @@ export function nextDigits(input: string | null, start: number): string {
     // Returns next digit string starting from the given start pos
     let result: string = '';
 
-    if (isDefined(input)) {
+    if (input && isDefined(input)) {
         let numDigits: number = 0;
         let firstDigitPos: number = -1;
 
@@ -175,7 +173,7 @@ export function isDigit(c: string): boolean {
     return /\d/.test(c);
 }
 export function nullToEmpty(str: string | null): string {
-    return isDefined(str) ? str : '';
+    return str && isDefined(str) ? str : '';
 }
 export function isDefined(input: any): boolean {
     let value = true;
@@ -184,11 +182,11 @@ export function isDefined(input: any): boolean {
     }
     return value;
 }
-function ciEqualsInner(a, b) {
+function ciEqualsInner(a: any, b: any) {
     return a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0;
 }
 
-export function ciEquals(a, b) {
+export function ciEquals(a: any, b: any) {
     if (typeof a !== 'string' || typeof b !== 'string') {
         return a === b;
     }
@@ -199,11 +197,11 @@ export function ciEquals(a, b) {
         : /*  fallback approach here  */
           a.toUpperCase() === b.toUpperCase();
 }
-export function pathJoin(parts, sep = '/') {
+export function pathJoin(parts: any, sep = '/') {
     const separator = sep;
     parts = parts
-        .filter((part) => isNotBlank(part))
-        .map((part, index) => {
+        .filter((part: any) => isNotBlank(part))
+        .map((part: any, index: any) => {
             if (index) {
                 part = part.replace(new RegExp('^' + separator), '');
             }

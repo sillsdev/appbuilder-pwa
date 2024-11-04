@@ -1,11 +1,7 @@
 import assert from 'assert';
-import {
-    getReferenceFromString
-} from '../src/lib/scripts/scripture-reference-utils';
-import {
-    getFilenameExt,
-    isBlank
-} from './stringUtils';
+
+import { getFilenameExt, isBlank } from './stringUtils';
+import { getReferenceFromString } from '../src/lib/scripts/scripture-reference-utils-common';
 
 enum ConversionFormat {
     HTML,

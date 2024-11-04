@@ -4,7 +4,7 @@ let fetchFn = fetch;
 
 export type PlanItem = {
     day: number;
-    heading?:  {
+    heading?: {
         [lang: string]: string;
     };
     refs: string[];
