@@ -1,4 +1,6 @@
 import { openDB, type DBSchema } from 'idb';
+import { writable } from 'svelte/store';
+import { invalidate } from '$app/navigation';
 
 /* 
 Database Information - from the issue 
@@ -65,3 +67,74 @@ export async function getPlans(): Promise<PlanItem[]> {
     const plans = await openPlans();
     return await plans.getAll('plans');
 }
+
+export interface PlanState {
+    id: string;
+    state: string;
+    date: number;
+}
+interface PlanStates extends DBSchema {
+    planstates: {
+        key: number;
+        value: PlanState;
+        indexes: {
+            idIndex: string;
+        };
+    };
+}
+
+let planStateDB = null;
+
+async function openPlanStates() {
+    if (!planStateDB) {
+        planStateDB = await openDB<PlanStates>('planstates', 1, {
+            upgrade(db) {
+                const planStateStore = db.createObjectStore('planstates', {
+                    keyPath: 'key',
+                    autoIncrement: true
+                });
+
+                planStateStore.createIndex('idIndex', 'id');
+            }
+        });
+    }
+    return planStateDB;
+}
+
+export async function getPlanStates(): Promise<PlanState[]> {
+    const planstates = await openPlanStates();
+    return await planstates.getAll('planstates');
+}
+
+export async function getLastPlanState(id: string) {
+    const planstates = await openPlanStates();
+    const tx = planstates.transaction('planstates', 'readonly');
+    const store = tx.objectStore('planstates');
+    const index = store.index('idIndex');
+    const records = await index.getAll(id);
+    await tx.done;
+    if (records.length === 0) {
+        return null;
+    }
+
+    const mostRecentRecord = records.reduce((latest, current) => {
+        return current.date > latest.date ? current : latest;
+    }, records[0]);
+    return mostRecentRecord.state;
+}
+
+export async function addPlanState(item: { id: string; state: string }) {
+    const planStates = await openPlanStates();
+    const date = new Date()[Symbol.toPrimitive]('number');
+    const nextItem = { ...item, date: date };
+    const tx = planStates.transaction('planstates', 'readwrite');
+    await tx.store.add(nextItem);
+    await tx.done;
+    notifyUpdated();
+}
+
+function notifyUpdated() {
+    planStatesLastUpdated.set(Date.now());
+    invalidate('planstates');
+}
+export const planStatesLastUpdated = writable(Date.now());

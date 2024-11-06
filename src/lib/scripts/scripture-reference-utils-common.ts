@@ -6,7 +6,6 @@
  * @author David Moore
  **/
 
-import { get } from 'svelte/store';
 import {
     containsRomanScriptLetter,
     getFirstDigitsAsInt,

@@ -8,21 +8,7 @@ export async function load({ depends }) {
     // Ignore entries if we don't currently have a collection for the entry.
     // This can happen during testing of different PWA at the same port and we don't
     // want to break the feature.
-    const plans = [
-        {
-            id: 'MRK16',
-            days: 16,
-            title: {
-                default: 'Mark in 16 days'
-            },
-            filename: 'plan-mark-16.txt',
-            image: {
-                width: 910,
-                height: 512,
-                file: 'plan-mark-16.jpg'
-            }
-        }
-    ];
+    const plans = [];
     depends('plans');
     console.log('Plans', plans);
     return { plans };

@@ -14,11 +14,12 @@
     } from '$lib/data/stores';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
+    import { getLastPlanState } from '$lib/data/planStates';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { goto } from '$app/navigation';
 
-    console.log(config.plans.plans); //all plans options
-    console.log($page.data.plans); //your plans
+    console.log('Config Plans', config.plans.plans); //all plans options
+    console.log('Data Plans', $page.data.plans); //your plans
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -32,18 +33,34 @@
 
     let availablePlans = [];
     let usedPlans = [];
-
     let allPlans = config.plans.plans || [];
-    let plansInUse = $page.data.plans || [];
-    if (plansInUse.length > 0) {
-        selectedTab = 'in-use';
-    }
+    let plansInUse = [];
+    const promises = allPlans.map((plan) =>
+        getLastPlanState(plan.id)
+            .then((planState) => {
+                if (planState && planState === 'started') {
+                    console.log('Plan in use', plan.id);
+                    plansInUse = [...plansInUse, plan];
+                } else {
+                    console.log('Plan not in use', plan.id);
+                }
+            })
+            .catch(console.error)
+    );
+    Promise.all(promises).then(() => {
+        console.log('For loop completed');
+        if (plansInUse.length > 0) {
+            selectedTab = 'in-use';
+        }
+    });
+    // let plansInUse = $page.data.plans || [];
 
     $: {
         availablePlans = allPlans.filter(
             (plan) => !plansInUse.some((usedPlan) => usedPlan.id === plan.id)
         );
         usedPlans = plansInUse;
+        console.log('usedPlans:', usedPlans);
     }
 </script>
 
@@ -123,8 +140,13 @@
             {:else if selectedTab === 'in-use'}
                 <ul>
                     {#each usedPlans as plan}
-                        <!-- ad onclick -->
-                        <div class="plan-chooser-plan plan-chooser-link" id={plan.id}>
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div
+                            class="plan-chooser-plan plan-chooser-link"
+                            id={plan.id}
+                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                        >
                             {#if plan.image}
                                 <div class="plan-image-block">
                                     <img

@@ -13,24 +13,35 @@
         MODAL_TEXT_APPERANCE,
         refs
     } from '$lib/data/stores';
+    import { getLastPlanState } from '$lib/data/planStates';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { base } from '$app/paths';
+    import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { CalendarMonthIcon, CheckboxOutlineIcon, InfoIcon } from '$lib/icons';
-
+    console.log('got to id page', $page.data);
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
 
     console.log('planData:', $page.data.planData);
+    console.log('style: ', convertStyle($s['ui.plans.tabs.icon']));
 
     //need some way to know the status of the plan
     //for now assume it's from choose plans
 
     let selectedTab = 'info';
+    let inUse = false;
     //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
-
+    getLastPlanState($page.data.planData.id)
+        .then((planState) => {
+            if (planState && planState === 'started') {
+                selectedTab = 'calendar';
+                inUse = true;
+            }
+        })
+        .catch(console.error);
     let selectedDay = $page.data.planData.items[0];
     function checkSelection(day) {
         if (day === selectedDay) {
@@ -67,7 +78,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-screen-md">
+    <div class="overflow-y-auto mx-auto md:max-w-screen-md w-full">
         {#if $page.data.planConfig.image}
             <div>
                 <img
@@ -125,11 +136,26 @@
                             $page.data.planData.description.default ??
                             ''}
                     </div>
-                    <div class="plan-button-block">
-                        <div class="plan-button" id="PLAN-start">
-                            {$t['Plans_Button_Start_Plan']}
+                    {#if inUse === true}
+                        <div class="plan-button-block">
+                            <div class="plan-button" id="PLAN-continue">
+                                <button on:click={() => (selectedTab = 'calendar')}>
+                                    {$t['Plans_Button_Continue_Reading']}
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    {:else}
+                        <div class="plan-button-block">
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <div class="plan-button" id="PLAN-start"
+                                    on:click={() =>
+                                        goto(`${base}/plans/${$page.data.planData.id}/settings`)}
+                                >
+                                    {$t['Plans_Button_Start_Plan']}
+                            </div>
+                        </div>
+                    {/if}
                 </div>
             {/if}
             {#if selectedTab === 'calendar'}
