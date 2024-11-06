@@ -14,6 +14,14 @@ import { hasAudioExtension, hasImageExtension } from './stringUtils';
 
 const base = process.env.BUILD_BASE_PATH || '';
 
+let bookCount = 0;
+function displayBookId(bookId: string) {
+    process.stdout.write(' ' + bookId);
+    ++bookCount;
+    if (bookCount % 10 === 0) {
+        process.stdout.write('\n');
+    }
+}
 /**
  * Loops through bookCollections property of configData.
  * Each collection and all associated books are imported into a SABProskomma instance.
@@ -283,13 +291,13 @@ export async function convertBooks(
                         ),
                         content: JSON.stringify(convertQuizBook(context, book), null, 2)
                     });
-                    process.stdout.write(` ${book.id}`);
+                    displayBookId(book.id);
                     break;
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
                         convertHtmlBook(context, book, files);
-                        process.stdout.write(` ${book.id}`);
+                        displayBookId(book.id);
                         htmlBooks[context.docSet].push({ id: book.id, name: book.name });
                     } else {
                         convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
@@ -612,7 +620,7 @@ function convertScriptureBook(
                         `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(r)}`
                     );
                 } else {
-                    process.stdout.write(` ${book.id}`);
+                    displayBookId(book.id);
                 }
                 resolve();
             }
