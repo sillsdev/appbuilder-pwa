@@ -4,9 +4,16 @@ import path from 'path';
 import { Task, TaskOutput } from './Task';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
-import type { ConfigData, BookCollectionData, BookCollectionAudioData, StyleData } from '$config';
+import type {
+    ScriptureConfig,
+    BookCollectionData,
+    BookCollectionAudioData,
+    StyleData
+} from '$config';
+import { ConvertFirebase } from 'convertFirebase';
 
-const data: ConfigData = {};
+const data: ScriptureConfig = {};
+const fontFamilies: string[] = [];
 
 function decodeFromXml(input: string): string {
     return input
@@ -203,17 +210,81 @@ function convertConfig(dataDir: string, verbose: number) {
         data.programVersion = '100.0';
     }
 
-    // Features
+    data.mainFeatures = parseFeatures(document, verbose);
+
+    data.fonts = parseFonts(document, verbose);
+
+    const { themes, defaultTheme } = parseColorThemes(document, verbose);
+    data.themes = themes;
+    if (defaultTheme !== '') {
+        data.defaultTheme = defaultTheme;
+    }
+
+    const mainStyles = document.querySelector('styles')!;
+    data.styles = parseStyles(mainStyles, verbose);
+
+    data.traits = parseTraits(document, dataDir, verbose);
+
+    data.bookCollections = parseBookCollections(document, verbose);
+
+    // After all the book collections have been parsed, we can determine some traits
+    data.traits['has-glossary'] =
+        data.bookCollections.filter(
+            (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
+        ).length > 0;
+
+    parseInterfaceLanguages(document, data, verbose);
+
+    parseMenuLocalizations(document, data, verbose);
+
+    parseKeys(document, data, verbose);
+
+    /* about?: string; */
+
+    parseAnalytics(document, data, verbose);
+
+    parseFirebase(document, data, verbose);
+
+    parseAudioSources(document, data, verbose);
+
+    parseVideos(document, data, verbose);
+
+    parseIllustrations(document, data, verbose);
+
+    parseLayouts(document, data, verbose);
+
+    parseBackgroundImages(document, data, verbose);
+
+    parseWatermarkImages(document, data, verbose);
+
+    parseMenuItems(document, data, verbose);
+
+    parsePlans(document, data, verbose);
+
+    /*
+    security?: {
+        features?: {
+            [key: string]: any;
+        };
+        pin: string;
+        mode: string;
+    };
+    */
+
+    return filterFeaturesNotReady(data);
+}
+
+function parseFeatures(document: Document, verbose: number) {
     const mainFeatureTags = document
         .querySelector('features[type=main]')
         ?.getElementsByTagName('e');
     if (!mainFeatureTags) throw new Error('Features tag not found in xml');
-    data.mainFeatures = {};
+    let mainFeatures: { [key: string]: any } = {};
 
     for (const tag of mainFeatureTags) {
         try {
             const value: any = tag.attributes.getNamedItem('value')!.value;
-            data.mainFeatures[tag.attributes.getNamedItem('name')!.value] = parseConfigValue(value);
+            mainFeatures[tag.attributes.getNamedItem('name')!.value] = parseConfigValue(value);
         } catch (e) {
             if (e instanceof ReferenceError) {
                 console.error(
@@ -222,12 +293,14 @@ function convertConfig(dataDir: string, verbose: number) {
             } else throw e;
         }
     }
-    if (verbose) console.log(`Converted ${Object.keys(data.mainFeatures).length} features`);
+    if (verbose) console.log(`Converted ${Object.keys(mainFeatures).length} features`);
 
-    // Fonts
+    return mainFeatures;
+}
+
+function parseFonts(document: Document, verbose: number) {
     const fontTags = document.getElementsByTagName('fonts')[0].getElementsByTagName('font');
-    const fontFamilies: string[] = [];
-    data.fonts = [];
+    let fonts = [];
 
     for (const tag of fontTags) {
         const family = tag.attributes.getNamedItem('family')!.value;
@@ -240,22 +313,27 @@ function convertConfig(dataDir: string, verbose: number) {
             .querySelector('sd[property=font-weight]')!
             .attributes.getNamedItem('value')!.value;
         fontFamilies.push(family);
-        data.fonts.push({ family, name, file, fontStyle, fontWeight });
+        fonts.push({ family, name, file, fontStyle, fontWeight });
     }
-    if (verbose) console.log(`Converted ${data.fonts.length} fonts`);
 
-    // Color themes
+    if (verbose) console.log(`Converted ${fonts.length} fonts`);
+
+    return fonts;
+}
+
+function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
     const colorSetTags = document.getElementsByTagName('colors');
-    data.themes = [];
+    let themes = [];
+    let defaultTheme = '';
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
         if (verbose >= 2) console.log(`. theme ${theme}`);
 
-        data.themes.push({
+        themes.push({
             name: theme,
             enabled: tag.attributes.getNamedItem('enabled')?.value === 'true',
             colorSets: Array.from(colorSetTags).map((cst) => {
@@ -269,6 +347,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     if (verbose >= 3) console.log(`.. colors[${name}]=${value} `);
                 }
                 if (verbose >= 3) console.log(`.. done with colorTags`);
+
                 Object.keys(colors).forEach((x) => {
                     if (verbose >= 3) console.log(`.. ${x}: colors[${x}]=${colors[x]}`);
                     while (!colors[x].startsWith('#')) {
@@ -284,6 +363,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     }
                 });
                 if (verbose >= 3) console.log(`.. done with resolving colors`);
+
                 const type = cst.getAttribute('type')!;
                 if (verbose >= 2) console.log(`.. ${type}: ${JSON.stringify(colors)}`);
                 return {
@@ -292,34 +372,39 @@ function convertConfig(dataDir: string, verbose: number) {
                 };
             })
         });
+
         if (tag.attributes.getNamedItem('default')?.value === 'true')
-            data.defaultTheme = data.themes[data.themes.length - 1].name;
+            defaultTheme = themes[themes.length - 1].name;
     }
-    if (verbose) console.log(`Converted ${data.themes.length} themes`);
 
-    // Styles
-    const mainStyles = document.querySelector('styles')!;
-    data.styles = parseStyles(mainStyles, verbose);
+    if (verbose) console.log(`Converted ${themes.length} themes`);
 
-    // Traits
+    return { themes, defaultTheme };
+}
+
+function parseTraits(document: Document, dataDir: string, verbose: number) {
     const traitTags = document.getElementsByTagName('traits')[0]?.getElementsByTagName('trait');
-    data.traits = {};
+    let traits: { [key: string]: any } = {};
 
     if (traitTags?.length > 0) {
         for (const tag of traitTags) {
-            data.traits[tag.attributes.getNamedItem('name')!.value] =
+            traits[tag.attributes.getNamedItem('name')!.value] =
                 tag.attributes.getNamedItem('value')?.value === 'true';
         }
     }
+
     // Add traits
-    data.traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
-    data.traits['has-illustrations'] = !dirEmpty(path.join(dataDir, 'illustrations'));
+    traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
+    traits['has-illustrations'] = !dirEmpty(path.join(dataDir, 'illustrations'));
 
-    if (verbose) console.log(`Converted ${Object.keys(data.traits).length} traits`);
+    if (verbose) console.log(`Converted ${Object.keys(traits).length} traits`);
 
-    // Book collections
+    return traits;
+}
+
+function parseBookCollections(document: Document, verbose: number) {
     const booksTags = document.getElementsByTagName('books');
-    data.bookCollections = [];
+    let bookCollections = [];
 
     for (const tag of booksTags) {
         if (verbose >= 2) console.log(`Converting Collection: ${tag.id}`);
@@ -472,7 +557,7 @@ function convertConfig(dataDir: string, verbose: number) {
         const bcStyles = tag.querySelector('styles');
         const styles = bcStyles ? parseStyles(bcStyles, verbose) : undefined;
 
-        data.bookCollections.push({
+        bookCollections.push({
             id: tag.id,
             collectionName,
             collectionAbbreviation,
@@ -490,83 +575,100 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 3)
             console.log(
                 `.... collection: `,
-                JSON.stringify(data.bookCollections[data.bookCollections.length - 1])
+                JSON.stringify(bookCollections[bookCollections.length - 1])
             );
     }
-    // After all the book collections have been parsed, we can determine some traits
-    data.traits['has-glossary'] =
-        data.bookCollections.filter(
-            (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
-        ).length > 0;
+
     if (verbose)
         console.log(
-            `Converted ${data.bookCollections.length} book collections with [${data.bookCollections
+            `Converted ${bookCollections.length} book collections with [${bookCollections
                 .map((x) => x.books.length)
                 .join(', ')}] books`
         );
 
-    // Inteface Languages
+    return bookCollections;
+}
+
+function parseInterfaceLanguages(document: Document, data: any, verbose: number): void {
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
     const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
 
     data.interfaceLanguages = { useSystemLanguage, writingSystems: {} };
+
     const writingSystemsTags = interfaceLanguagesTag
         .getElementsByTagName('writing-systems')[0]
         .getElementsByTagName('writing-system');
+
     for (const tag of writingSystemsTags) {
         const code: string = tag.attributes.getNamedItem('code')!.value;
         const fontFamily = tag.getElementsByTagName('font-family')[0].innerHTML;
         const textDirection = parseTrait(tag, 'text-direction');
+
         if (verbose >= 2) console.log(`.. writingSystem: ${code}`);
+
         const displaynamesTag = tag.getElementsByTagName('display-names')[0];
-        const displayNames: typeof data.interfaceLanguages.writingSystems.displayNames.displayNames =
-            {};
+        const displayNames: Record<string, string> = {};
+
         for (const form of displaynamesTag.getElementsByTagName('form')) {
             displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
         }
+
         data.interfaceLanguages.writingSystems[code] = { fontFamily, textDirection, displayNames };
     }
 
-    // Menu localizations
+    if (verbose)
+        console.log(
+            `Converted ${
+                Object.keys(data.interfaceLanguages.writingSystems).length
+            } writing systems`
+        );
+}
+
+function parseMenuLocalizations(document: Document, data: any, verbose: number): void {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
+
     for (const translationMappingsTag of translationMappingsTags) {
         const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
         data.translationMappings = { defaultLang, mappings: {} };
-        const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
 
-        for (const tag of translationMappingsTags) {
+        const translationMappingTags = translationMappingsTag.getElementsByTagName('tm');
+
+        for (const tag of translationMappingTags) {
             if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
-            const localizations: typeof data.translationMappings.mappings.key = {};
+
+            const localizations: Record<string, string> = {};
             for (const localization of tag.getElementsByTagName('t')) {
-                localizations[localization.attributes.getNamedItem('lang')!.value] = decodeFromXml(
-                    localization.innerHTML
-                );
+                const lang = localization.attributes.getNamedItem('lang')!.value;
+                localizations[lang] = decodeFromXml(localization.innerHTML);
             }
+
             if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
             data.translationMappings.mappings[tag.id] = localizations;
         }
-        if (verbose)
+
+        if (verbose) {
             console.log(
                 `Converted ${
                     Object.keys(data.translationMappings.mappings).length
                 } translation mappings`
             );
+        }
     }
+}
 
-    // Keys
+function parseKeys(document: Document, data: any, verbose: number): void {
     if (document.getElementsByTagName('keys').length > 0) {
         data.keys = Array.from(
             document.getElementsByTagName('keys')[0].getElementsByTagName('key')
         ).map((key) => key.innerHTML);
         if (verbose) console.log(`Converted ${data.keys.length} keys`);
     }
+}
 
-    /* about?: string; */
-
-    // Analytics
+function parseAnalytics(document: Document, data: any, verbose: number): void {
     const analyticsElements = document.getElementsByTagName('analytics');
 
-    // Ensure data.analytics is initialized if it doesn't exist - necessary??
+    // Initialize data.analytics if it doesn't exist
     if (!data.analytics) {
         data.analytics = {
             enabled: false,
@@ -577,7 +679,7 @@ function convertConfig(dataDir: string, verbose: number) {
     for (const analyticsElement of analyticsElements) {
         const enabledAttribute = analyticsElement.getAttribute('enabled');
 
-        if (enabledAttribute !== null && enabledAttribute === 'true') {
+        if (enabledAttribute === 'true') {
             data.analytics.enabled = true;
 
             // Get all analytics-provider elements within the current analytics element
@@ -592,12 +694,12 @@ function convertConfig(dataDir: string, verbose: number) {
 
                 let parameters: { [key: string]: string } | undefined = undefined;
                 const parametersTags = providerElement.getElementsByTagName('analytics-parameter');
-                if (parametersTags?.length > 0) {
+                if (parametersTags.length > 0) {
                     parameters = {};
                     for (const parameterTag of parametersTags) {
-                        const name = parameterTag.getAttribute('name')!;
-                        const value = parameterTag.getAttribute('value')!;
-                        parameters[name] = value;
+                        const paramName = parameterTag.getAttribute('name')!;
+                        const paramValue = parameterTag.getAttribute('value')!;
+                        parameters[paramName] = paramValue;
                     }
                 }
 
@@ -611,12 +713,13 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    if (verbose) console.log(`Converted ${analyticsElements.length} analyticsElements`);
+    if (verbose) console.log(`Converted ${analyticsElements.length} analytics elements`);
+}
 
-    // Firebase
+function parseFirebase(document: Document, data: any, verbose: number): void {
     const firebaseElements = document.getElementsByTagName('firebase');
 
-    // Ensure data.firebase is initialized if it doesn't exist
+    // Initialize data.firebase if it doesn't exist
     if (!data.firebase) {
         data.firebase = {
             features: {}
@@ -642,29 +745,29 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    if (verbose) console.log(`Converted ${firebaseElements.length} firebaseElements`);
+    if (verbose) console.log(`Converted ${firebaseElements.length} firebase elements`);
+}
 
-    // Audio Sources
+function parseAudioSources(document: Document, data: any, verbose: number): void {
     const audioSources = document
         .getElementsByTagName('audio-sources')[0]
         ?.getElementsByTagName('audio-source');
+
     if (audioSources?.length > 0) {
         data.audio = { sources: {} };
+
         for (const source of audioSources) {
-            const id = source.getAttribute('id')!.toString();
+            const id = source.getAttribute('id')!;
             if (verbose >= 2) console.log(`Converting audioSource: ${id}`);
-            const type = source.getAttribute('type')!.toString();
+            const type = source.getAttribute('type')!;
             const name = source.getElementsByTagName('name')[0].innerHTML;
-            if (verbose >= 3) console.log(`  type=${type}, name=${name}`);
-            data.audio.sources[id] = {
-                type: type,
-                name: name
-            };
+
+            data.audio.sources[id] = { type, name };
+
             if (type !== 'assets') {
                 data.audio.sources[id].accessMethods = source
                     .getElementsByTagName('access-methods')[0]
                     ?.getAttribute('value')!
-                    .toString()
                     .split('|');
                 data.audio.sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
 
@@ -682,150 +785,127 @@ function convertConfig(dataDir: string, verbose: number) {
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
         }
 
+        // Audio files
         const audioTags = document
             .getElementsByTagName('audio-files')[0]
             ?.getElementsByTagName('audio');
         if (audioTags?.length > 0) {
             data.audio.files = [];
-
             for (const tag of audioTags) {
                 const fileEntry = tag.getElementsByTagName('filename')[0];
                 if (!fileEntry) continue;
 
                 const filename = fileEntry.innerHTML;
                 const src = fileEntry.getAttribute('src') ?? '';
-
-                data.audio.files.push({
-                    name: filename,
-                    src: src
-                });
+                data.audio.files.push({ name: filename, src });
             }
         }
     }
-
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
+}
 
+function parseVideos(document: Document, data: any, verbose: number): void {
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
     if (videoTags?.length > 0) {
         data.videos = [];
 
         for (const tag of videoTags) {
             const placementTag = tag.getElementsByTagName('placement')[0];
-            const placement =
-                placementTag == undefined
-                    ? undefined
-                    : {
-                          pos: placementTag.attributes.getNamedItem('pos')!.value,
-                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                          collection: placementTag.attributes
-                              .getNamedItem('ref')!
-                              .value.split('|')[0]
-                      };
-            const tagWidth = tag.attributes.getNamedItem('width')
-                ? parseInt(tag.attributes.getNamedItem('width')!.value)
-                : 0;
-            const tagHeight = tag.attributes.getNamedItem('height')
-                ? parseInt(tag.attributes.getNamedItem('height')!.value)
-                : 0;
-            let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
-                ? tag.getElementsByTagName('online-url')[0]?.innerHTML
-                : '';
-            if (onlineUrlHTML) {
-                onlineUrlHTML = convertVideoUrl(onlineUrlHTML);
-            }
+            const placement = placementTag
+                ? {
+                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                      ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                      collection: placementTag.attributes.getNamedItem('ref')!.value.split('|')[0]
+                  }
+                : undefined;
+
+            const width = tag.getAttribute('width') ? parseInt(tag.getAttribute('width')!) : 0;
+            const height = tag.getAttribute('height') ? parseInt(tag.getAttribute('height')!) : 0;
+
+            let onlineUrl = tag.getElementsByTagName('online-url')[0]?.innerHTML || '';
+            if (onlineUrl) onlineUrl = convertVideoUrl(onlineUrl);
+
             const filenameTag = tag.getElementsByTagName('filename')[0];
             const filename = filenameTag ? filenameTag.innerHTML : '';
 
             data.videos.push({
-                id: tag.attributes.getNamedItem('id')!.value,
-                src: tag.attributes.getNamedItem('src')?.value,
-                width: tagWidth,
-                height: tagHeight,
+                id: tag.getAttribute('id')!,
+                src: tag.getAttribute('src'),
+                width,
+                height,
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
                 thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
-                onlineUrl: decodeFromXml(onlineUrlHTML),
-                filename: filename,
+                onlineUrl: decodeFromXml(onlineUrl),
+                filename,
                 placement
             });
         }
     }
+    data.traits['has-video'] = !!data.videos?.length;
+}
 
-    data.traits['has-video'] = data.videos && data.videos.length > 0;
+function parseIllustrations(document: Document, data: any, verbose: number): void {
     const imagesTags = document.getElementsByTagName('images');
     if (imagesTags?.length > 0) {
         data.illustrations = [];
+
         for (const tag of imagesTags) {
-            const imageType = tag.attributes.getNamedItem('type')
-                ? tag.attributes.getNamedItem('type')!.value
-                : '';
-            if (imageType === 'illustration') {
+            if (tag.getAttribute('type') === 'illustration') {
                 const illustrationTags = tag.getElementsByTagName('image');
-                if (illustrationTags?.length > 0) {
-                    for (const image of illustrationTags) {
-                        const filename = image.getElementsByTagName('filename')[0]
-                            ? image.getElementsByTagName('filename')[0]?.innerHTML
-                            : image.innerHTML;
-                        const imageWidth = image.attributes.getNamedItem('width')
-                            ? parseInt(image.attributes.getNamedItem('width')!.value)
-                            : 0;
-                        const imageHeight = image.attributes.getNamedItem('height')
-                            ? parseInt(image.attributes.getNamedItem('height')!.value)
-                            : 0;
-                        const placementTag = image.getElementsByTagName('placement')[0];
-                        const placement =
-                            placementTag == undefined
-                                ? undefined
-                                : {
-                                      pos: placementTag.attributes.getNamedItem('pos')!.value,
-                                      ref: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[1],
-                                      caption: placementTag.attributes.getNamedItem('caption')
-                                          ? placementTag.attributes.getNamedItem('caption')!.value
-                                          : '',
-                                      collection: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[0]
-                                  };
-                        data.illustrations.push({
-                            filename: filename,
-                            width: imageWidth,
-                            height: imageHeight,
-                            placement
-                        });
-                    }
+
+                for (const image of illustrationTags) {
+                    const filename =
+                        image.getElementsByTagName('filename')[0]?.innerHTML || image.innerHTML;
+                    const width = image.getAttribute('width')
+                        ? parseInt(image.getAttribute('width')!)
+                        : 0;
+                    const height = image.getAttribute('height')
+                        ? parseInt(image.getAttribute('height')!)
+                        : 0;
+
+                    const placementTag = image.getElementsByTagName('placement')[0];
+                    const placement = placementTag
+                        ? {
+                              pos: placementTag.getAttribute('pos')!,
+                              ref: placementTag.getAttribute('ref')?.split('|')[1],
+                              caption: placementTag.getAttribute('caption') || '',
+                              collection: placementTag.getAttribute('ref')?.split('|')[0]
+                          }
+                        : undefined;
+
+                    data.illustrations.push({ filename, width, height, placement });
                 }
             }
         }
     }
+    if (verbose) console.log(`Converted ${imagesTags?.length} illustrations`);
+}
+
+function parseLayouts(document: Document, data: any, verbose: number): void {
     const layoutRoot = document.getElementsByTagName('layouts')[0];
-    data.defaultLayout = layoutRoot?.attributes.getNamedItem('default')?.value;
+    data.defaultLayout = layoutRoot?.getAttribute('default');
 
     const layouts = layoutRoot?.getElementsByTagName('layout');
     if (layouts?.length > 0) {
         data.layouts = [];
+
         for (const layout of layouts) {
-            const mode = layout.attributes.getNamedItem('mode')!.value;
+            const mode = layout.getAttribute('mode')!;
             if (verbose >= 2) console.log(`Converting layout`, mode);
-            const enabled = layout.attributes.getNamedItem('enabled')!.value === 'true';
-            const featureElements = layout.getElementsByTagName('features')[0];
+
+            const enabled = layout.getAttribute('enabled') === 'true';
+
             const features: { [key: string]: string } = {};
+            const featureElements = layout.getElementsByTagName('features')[0];
             if (featureElements) {
                 for (const feature of featureElements.getElementsByTagName('e')) {
-                    const name = feature.attributes.getNamedItem('name')!.value;
-                    const value = feature.attributes.getNamedItem('value')!.value;
-                    if (verbose >= 2)
-                        console.log(`.. Converting feature: name=${name}, value=${value}`);
-                    features[name] = value;
+                    features[feature.getAttribute('name')!] = feature.getAttribute('value')!;
                 }
             }
-            const layoutCollectionElements = layout.getElementsByTagName('layout-collection');
-            const layoutCollections =
-                layoutCollectionElements.length > 0
-                    ? Array.from(layoutCollectionElements).map((element) => {
-                          return element.attributes.getNamedItem('id')!.value;
-                      })
-                    : [data.bookCollections[0].id];
+
+            const layoutCollections = Array.from(
+                layout.getElementsByTagName('layout-collection')
+            ).map((element) => element.getAttribute('id')!) || [data.bookCollections[0]?.id];
 
             data.layouts.push({
                 mode,
@@ -836,8 +916,9 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
     if (verbose) console.log(`Converted ${layouts?.length} layouts`);
+}
 
-    // Background images
+function parseBackgroundImages(document: Document, data: any, verbose: number) {
     const backgroundImages = document
         .querySelector('images[type=background]')
         ?.getElementsByTagName('image');
@@ -850,8 +931,10 @@ function convertConfig(dataDir: string, verbose: number) {
             data.backgroundImages.push({ width, height, filename });
         }
     }
+    if (verbose) console.log(`Converted ${backgroundImages?.length} background images`);
+}
 
-    // Watermark images
+function parseWatermarkImages(document: Document, data: any, verbose: number) {
     const watermarkImages = document
         .querySelector('images[type=watermark]')
         ?.getElementsByTagName('image');
@@ -864,8 +947,10 @@ function convertConfig(dataDir: string, verbose: number) {
             data.watermarkImages.push({ width, height, filename });
         }
     }
+    if (verbose) console.log(`Converted ${watermarkImages?.length} watermark images`);
+}
 
-    // Menu Items
+function parseMenuItems(document: Document, data: any, verbose: number) {
     const menuItems = document
         .getElementsByTagName('menu-items')[0]
         ?.getElementsByTagName('menu-item');
@@ -925,8 +1010,9 @@ function convertConfig(dataDir: string, verbose: number) {
             if (verbose >= 3) console.log(`....`, JSON.stringify(data.menuItems));
         }
     }
+}
 
-    //plans
+function parsePlans(document: Document, data: any, verbose: number) {
     const plansTags = document.getElementsByTagName('plans');
     if (plansTags?.length > 0) {
         const plansTag = plansTags[0];
@@ -951,7 +1037,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 for (const titleTag of titleTags) {
                     title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
                 }
-                //image
+                // Image
                 const imageTag = tag.getElementsByTagName('image')[0];
 
                 let image = undefined;
@@ -978,21 +1064,9 @@ function convertConfig(dataDir: string, verbose: number) {
             };
         }
     }
-
-    /*
-    security?: {
-        features?: {
-            [key: string]: any;
-        };
-        pin: string;
-        mode: string;
-    };
-    */
-
-    return filterFeaturesNotReady(data);
 }
 
-function filterFeaturesNotReady(data: ConfigData) {
+function filterFeaturesNotReady(data: ScriptureConfig) {
     // User Accounts is not done
     data.mainFeatures['user-accounts'] = false;
 
@@ -1035,7 +1109,7 @@ function filterFeaturesNotReady(data: ConfigData) {
 }
 
 export interface ConfigTaskOutput extends TaskOutput {
-    data: ConfigData;
+    data: ScriptureConfig;
 }
 
 /**
