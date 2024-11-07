@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import type { ConfigData, BookData } from '$config';
+import type { ScriptureConfig, BookData } from '$config';
 import type { ConfigTaskOutput } from './convertConfig';
 import { TaskOutput, Task, Promisable } from './Task';
 import * as fs from 'fs';
@@ -151,7 +151,7 @@ function transformCatalogEntry(entry: any, quizzes: any): any {
 
 type ConvertBookContext = {
     dataDir: string;
-    configData: ConfigData;
+    configData: ScriptureConfig;
     verbose: number;
     lang: string;
     docSet: string;
