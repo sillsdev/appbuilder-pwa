@@ -84,7 +84,10 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
     async setBooks() {
         this.nextBook = 0;
         const queryData = await this.pk.queryBooks(this.searchPhrase, this.options);
-        this.books = queryData.filter((bk) => bk.idParts.type === 'book');
+        // Note: We might need to filter if Proskomma includes other type of documents.
+        //       Currently, type = null for scripture books
+        // this.books = queryData.filter((bk) => bk.idParts.type === 'book');
+        this.books = queryData;
     }
 
     async versesOfBook(book: GQLBookId): Promise<SearchCandidate[]> {
