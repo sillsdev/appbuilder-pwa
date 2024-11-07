@@ -144,7 +144,7 @@ export type AppConfig = {
         pin: string;
         mode: string;
     };
-}
+};
 
 export type ScriptureConfig = AppConfig & {
     traits?: any;
@@ -254,7 +254,7 @@ export type ScriptureConfig = AppConfig & {
             };
         }[];
     };
-}
+};
 
 export type DictionaryConfig = AppConfig & {
     interfaceLanguages?: {
@@ -273,9 +273,8 @@ export type DictionaryConfig = AppConfig & {
                 inputButtons: string[];
                 features?: {
                     [key: string]: any;
-                }
+                };
             };
         };
     };
-
-}
+};
