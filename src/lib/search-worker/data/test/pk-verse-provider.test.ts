@@ -13,21 +13,14 @@ const testBooks: GQLBookId[] = [
         id: 'abc',
         bookCode: 'test1',
         idParts: {
-            type: 'book'
+            type: null
         }
     },
     {
         id: 'xyz',
         bookCode: 'test2',
         idParts: {
-            type: 'book'
-        }
-    },
-    {
-        id: 'songs123',
-        bookCode: 'test3',
-        idParts: {
-            type: 'song'
+            type: null
         }
     }
 ];
