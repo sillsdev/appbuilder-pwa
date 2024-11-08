@@ -98,11 +98,11 @@ export type AppConfig = {
     programType?: string;
     mainFeatures?: any;
     fonts?: {
-        family: string;
         name?: string;
+        family: string;
         file: string;
-        fontStyle: string;
         fontWeight: string;
+        fontStyle: string;
     }[];
     themes?: {
         name: string;
