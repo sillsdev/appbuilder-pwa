@@ -634,7 +634,8 @@ LOGGING:
     }
     function createFootnoteDiv(workspace, element) {
         let footnoteSpan = null;
-        let footnoteId = `X-${workspace.footnoteIndex + 1}`;
+        let footnoteId = `X-${workspace.footnoteIdIndex + 1}`;
+        workspace.footnoteIdIndex++;
         let footnoteDiv = document.createElement('div');
         footnoteDiv.id = footnoteId;
         footnoteDiv.style.display = 'none';
@@ -969,6 +970,7 @@ LOGGING:
                             bookRoot.replaceChildren();
                             workspace.root = bookRoot;
                             workspace.footnoteIndex = 0;
+                            workspace.footnoteIdIndex = 0;
                             workspace.introductionIndex = 0;
                             workspace.firstVerse = true;
                             workspace.currentVerse = 'none';
