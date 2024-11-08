@@ -10,7 +10,6 @@ import type {
     BookCollectionAudioData,
     StyleData
 } from '$config';
-import { ConvertFirebase } from 'convertFirebase';
 
 const data: ScriptureConfig = {};
 const fontFamilies: string[] = [];
@@ -279,7 +278,7 @@ function parseFeatures(document: Document, verbose: number) {
         .querySelector('features[type=main]')
         ?.getElementsByTagName('e');
     if (!mainFeatureTags) throw new Error('Features tag not found in xml');
-    let mainFeatures: { [key: string]: any } = {};
+    const mainFeatures: { [key: string]: any } = {};
 
     for (const tag of mainFeatureTags) {
         try {
@@ -300,7 +299,7 @@ function parseFeatures(document: Document, verbose: number) {
 
 function parseFonts(document: Document, verbose: number) {
     const fontTags = document.getElementsByTagName('fonts')[0].getElementsByTagName('font');
-    let fonts = [];
+    const fonts = [];
 
     for (const tag of fontTags) {
         const family = tag.attributes.getNamedItem('family')!.value;
@@ -326,7 +325,7 @@ function parseColorThemes(document: Document, verbose: number) {
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
     const colorSetTags = document.getElementsByTagName('colors');
-    let themes = [];
+    const themes = [];
     let defaultTheme = '';
 
     for (const tag of colorThemeTags) {
@@ -384,7 +383,7 @@ function parseColorThemes(document: Document, verbose: number) {
 
 function parseTraits(document: Document, dataDir: string, verbose: number) {
     const traitTags = document.getElementsByTagName('traits')[0]?.getElementsByTagName('trait');
-    let traits: { [key: string]: any } = {};
+    const traits: { [key: string]: any } = {};
 
     if (traitTags?.length > 0) {
         for (const tag of traitTags) {
@@ -404,7 +403,7 @@ function parseTraits(document: Document, dataDir: string, verbose: number) {
 
 function parseBookCollections(document: Document, verbose: number) {
     const booksTags = document.getElementsByTagName('books');
-    let bookCollections = [];
+    const bookCollections = [];
 
     for (const tag of booksTags) {
         if (verbose >= 2) console.log(`Converting Collection: ${tag.id}`);
@@ -823,7 +822,9 @@ function parseVideos(document: Document, data: any, verbose: number): void {
             const height = tag.getAttribute('height') ? parseInt(tag.getAttribute('height')!) : 0;
 
             let onlineUrl = tag.getElementsByTagName('online-url')[0]?.innerHTML || '';
-            if (onlineUrl) onlineUrl = convertVideoUrl(onlineUrl);
+            if (onlineUrl) {
+                onlineUrl = convertVideoUrl(onlineUrl);
+            }
 
             const filenameTag = tag.getElementsByTagName('filename')[0];
             const filename = filenameTag ? filenameTag.innerHTML : '';
