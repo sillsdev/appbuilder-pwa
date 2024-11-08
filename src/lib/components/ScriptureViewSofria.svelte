@@ -191,11 +191,85 @@ LOGGING:
             }
         }
     };
+    const getFootnoteCallerCharacter = (workspace, text, textType) => {
+        let callerType = 'default';
+        let callerSymbol = text;
+        let callerCustomSymbol = '';
+        let callerNoCallerToAuto = false;
+        switch (textType) {
+            case 'xref':
+                callerType = getFeatureValueString(
+                    'crossref-caller-type',
+                    references.collection,
+                    references.book
+                );
+                callerCustomSymbol = getFeatureValueString(
+                    'crossref-caller-symbol',
+                    references.collection,
+                    references.book
+                );
+                callerNoCallerToAuto = getFeatureValueBoolean(
+                    'crossref-caller-no-caller-to-auto',
+                    references.collection,
+                    references.book
+                );
+                break;
+
+            default:
+                callerType = getFeatureValueString(
+                    'footnote-caller-type',
+                    references.collection,
+                    references.book
+                );
+                callerCustomSymbol = getFeatureValueString(
+                    'footnote-caller-symbol',
+                    references.collection,
+                    references.book
+                );
+                callerNoCallerToAuto = getFeatureValueBoolean(
+                    'footnote-caller-no-caller-to-auto',
+                    references.collection,
+                    references.book
+                );
+                break;
+        }
+
+        if (callerType === 'custom-symbol') {
+            // Use whatever is specified as the custom symbol, even '-' or '+'
+            // This matches native app. Sigh.
+            return callerCustomSymbol;
+        } else if (callerType === 'abc') {
+            callerSymbol = '+';
+        } else if (callerNoCallerToAuto && callerSymbol === '-') {
+            callerSymbol = '+';
+        }
+
+        if (callerSymbol === '-') {
+            callerSymbol = null;
+        }
+
+        if (callerSymbol === '+') {
+            callerSymbol = fnc.charAt(workspace.footnoteIndex % 26);
+            workspace.footnoteIndex++;
+        }
+
+        return callerSymbol;
+    };
     const addGraftText = (workspace, text, textType, usfmType) => {
         if (workspace.textType.includes(textType)) {
             if (isDefined(workspace.footnoteDiv)) {
                 if (workspace.textType.includes('note_caller')) {
-                    workspace.footnoteDiv.setAttribute('nc', text);
+                    const caller = getFootnoteCallerCharacter(workspace, text, textType);
+                    if (!caller) {
+                        // Do not include the footnote
+                        workspace.foootnoteSpan = null;
+                    } else {
+                        // Assign the caller to the footnote sup
+                        const elements = workspace.footnoteSpan.querySelectorAll('sup.footnote');
+                        if (elements && elements.length > 0) {
+                            elements[0].innerHTML = caller;
+                        }
+                    }
                 } else {
                     const div = addTextNode(workspace.footnoteDiv, text, workspace);
                     workspace.footnoteDiv = div.cloneNode(true);
@@ -571,11 +645,9 @@ LOGGING:
         const a = document.createElement('a');
         const sup = document.createElement('sup');
         sup.classList.add('footnote');
-        sup.innerHTML = fnc.charAt(workspace.footnoteIndex % 26);
         a.appendChild(sup);
         a.classList.add('cursor-pointer');
         footnoteSpan.appendChild(a);
-        workspace.footnoteIndex++;
         if (scriptureLogs?.footnote) {
             console.log('Create Footnote %o %o', footnoteSpan, footnoteDiv);
         }
@@ -1614,7 +1686,7 @@ LOGGING:
                                 workspace.textType.push('footnote');
                                 const [span, footnoteDiv] = createFootnoteDiv(workspace, element);
                                 workspace.footnoteDiv = footnoteDiv.cloneNode(true);
-                                footnoteSpan = span;
+                                workspace.footnoteSpan = footnoteSpan = span;
                             } else if (element.subType === 'note_caller') {
                                 workspace.textType.push(element.subType);
                             }
@@ -1624,13 +1696,20 @@ LOGGING:
                             // Runs after all segments in graft have run
                             workspace.currentSequence = cachedSequencePointer;
                             if (element.subType === 'xref' || element.subType === 'footnote') {
-                                footnoteSpan.appendChild(workspace.footnoteDiv);
-                                if (workspace.textType.includes('heading')) {
-                                    workspace.headerInnerDiv?.appendChild(footnoteSpan);
-                                } else if (workspace.textType.includes('title')) {
-                                    workspace.titleSpan.appendChild(footnoteSpan);
-                                } else {
-                                    workspace.phraseDiv?.appendChild(footnoteSpan);
+                                if (footnoteSpan) {
+                                    // Add space after footnote if there are multiple footnotes.
+                                    const spaceNode = document.createTextNode('\u00A0\u00A0');
+                                    footnoteSpan.appendChild(workspace.footnoteDiv);
+                                    let parentDiv;
+                                    if (workspace.textType.includes('heading')) {
+                                        parentDiv = workspace.headerInnerDiv;
+                                    } else if (workspace.textType.includes('title')) {
+                                        parentDiv = workspace.titleSpan;
+                                    } else {
+                                        parentDiv = workspace.phraseDiv;
+                                    }
+                                    parentDiv?.appendChild(footnoteSpan);
+                                    parentDiv?.appendChild(spaceNode);
                                 }
                                 if (workspace.lastPhraseTerminated) {
                                     // console.log('Add text start phrase (graft)');
