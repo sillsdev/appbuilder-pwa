@@ -13,7 +13,10 @@ You will need to download the latest version of [Scripture App Builder](https://
 
 ### Develop
 
-Install dependencies by running `npm install` in the root directory and in convert:
+Install dependencies using `npm install`.
+
+If you use Scripture App Builder to generate data files, you must run `npm install` twice:
+once in the root directory and once in `convert/`:
 
 ```bash
 npm install
