@@ -91,7 +91,7 @@ export type AudioData = {
     }[];
 };
 
-export type ConfigData = {
+export type AppConfig = {
     name?: string;
     package?: string;
     version?: string;
@@ -123,6 +123,31 @@ export type ConfigData = {
         };
     }[];
     defaultTheme?: string;
+    translationMappings?: {
+        defaultLang: string;
+        mappings: {
+            [key: string]: {
+                [lang: string]: string;
+            };
+        };
+    };
+    about?: string; // TODO
+    firebase?: {
+        features: {
+            [name: string]: boolean;
+        };
+    };
+    security?: {
+        // TODO
+        features?: {
+            [key: string]: any;
+        };
+        pin: string;
+        mode: string;
+    };
+};
+
+export type ScriptureConfig = AppConfig & {
     traits?: any;
     bookCollections?: BookCollectionData[];
     interfaceLanguages?: {
@@ -137,16 +162,7 @@ export type ConfigData = {
             };
         };
     };
-    translationMappings?: {
-        defaultLang: string;
-        mappings: {
-            [key: string]: {
-                [lang: string]: string;
-            };
-        };
-    };
     keys?: string[];
-    about?: string; // TODO
     analytics?: {
         enabled: boolean;
         providers: {
@@ -157,11 +173,6 @@ export type ConfigData = {
                 [key: string]: string;
             };
         }[];
-    };
-    firebase?: {
-        features: {
-            [name: string]: boolean;
-        };
     };
     audio?: AudioData;
     videos?: {
@@ -226,7 +237,6 @@ export type ConfigData = {
             file: string;
         }[];
     }[];
-
     plans?: {
         features: {
             [key: string]: string;
@@ -245,13 +255,27 @@ export type ConfigData = {
             };
         }[];
     };
+};
 
-    security?: {
-        // TODO
-        features?: {
-            [key: string]: any;
+export type DictionaryConfig = AppConfig & {
+    interfaceLanguages?: {
+        useSystemLanguage: boolean;
+        writingSystems: {
+            [key: string]: {
+                displayNames: {
+                    [key: string]: string;
+                };
+                fontFamily: string;
+                textDirection: string;
+                sortMethod: {
+                    ignoreChars: string[];
+                };
+                alphabet: string[];
+                inputButtons: string[];
+                features?: {
+                    [key: string]: any;
+                };
+            };
         };
-        pin: string;
-        mode: string;
     };
 };

@@ -4,9 +4,14 @@ import path from 'path';
 import { Task, TaskOutput } from './Task';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
-import type { ConfigData, BookCollectionData, BookCollectionAudioData, StyleData } from '$config';
+import type {
+    ScriptureConfig,
+    BookCollectionData,
+    BookCollectionAudioData,
+    StyleData
+} from '$config';
 
-const data: ConfigData = {};
+const data: ScriptureConfig = {};
 
 function decodeFromXml(input: string): string {
     return input
@@ -996,7 +1001,7 @@ function convertConfig(dataDir: string, verbose: number) {
     return filterFeaturesNotReady(data);
 }
 
-function filterFeaturesNotReady(data: ConfigData) {
+function filterFeaturesNotReady(data: ScriptureConfig) {
     // User Accounts is not done
     data.mainFeatures['user-accounts'] = false;
 
@@ -1039,7 +1044,7 @@ function filterFeaturesNotReady(data: ConfigData) {
 }
 
 export interface ConfigTaskOutput extends TaskOutput {
-    data: ConfigData;
+    data: ScriptureConfig;
 }
 
 /**
