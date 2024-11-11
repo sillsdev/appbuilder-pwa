@@ -1,44 +1,67 @@
-// src/routes/+page.svelte
 <script lang="ts">
-import { onMount } from 'svelte';
-import { goto } from '$app/navigation';
-import { base } from '$app/paths';
-import config from '$lib/data/config';
+    import { t } from '$lib/data/stores';
+    import Navbar from '$lib/components/Navbar.svelte';
+    import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
 
-onMount(() => {
-  if (config.programType === 'DAB') {
-    goto(`${base}/lexicon`);
-  }
-});
-</script>
-
-// src/routes/lexicon/+page.svelte
-<script lang="ts">
-import { TabGroup, Tab } from '@/components/ui/tabs';
-import LexiconMainView from '$lib/components/LexiconMainView.svelte';
-import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
-import Navbar from '$lib/components/Navbar.svelte';
-
-let activeTab = 'main';
+    // Define the alphabet here
+    const alphabet = [
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f',
+        'g',
+        'h',
+        'i',
+        'j',
+        'k',
+        'l',
+        'm',
+        'n',
+        'o',
+        'p',
+        'q',
+        'r',
+        's',
+        't',
+        'u',
+        'v',
+        'w',
+        'x',
+        'y',
+        'z'
+    ];
+    let activeTab = 'main';
 </script>
 
 <div class="grid grid-rows-[auto,auto,1fr]" style="height:100vh;height:100dvh;">
-  <Navbar>
-    <label for="sidebar" slot="center">
-      <div class="btn btn-ghost normal-case text-xl">Lexicon</div>
-    </label>
-  </Navbar>
+    <Navbar>
+        <label for="sidebar" slot="center">
+            <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Dictionary']}</div>
+        </label>
+    </Navbar>
 
-  <TabGroup value={activeTab} onValueChange={(value) => activeTab = value} class="w-full">
-    <Tab value="main">Main</Tab>
-    <Tab value="reversal">Reversal</Tab>
-  </TabGroup>
+    <div class="tabs w-full">
+        <button
+            class="tab tab-bordered flex-1 {activeTab === 'main' ? 'tab-active' : ''}"
+            on:click={() => (activeTab = 'main')}
+        >
+            {$t['Dictionary_Main']}
+        </button>
+        <button
+            class="tab tab-bordered flex-1 {activeTab === 'reversal' ? 'tab-active' : ''}"
+            on:click={() => (activeTab = 'reversal')}
+        >
+            {$t['Dictionary_Reversal']}
+        </button>
+    </div>
 
-  <div class="overflow-y-auto">
-    {#if activeTab === 'main'}
-      <LexiconMainView />
-    {:else}
-      <LexiconReversalView />
-    {/if}
-  </div>
+    <div class="overflow-y-auto">
+        {#if activeTab === 'main'}
+            <!-- Your existing lexicon view here, pass alphabet if needed -->
+        {:else}
+            <LexiconReversalView {alphabet} />
+        {/if}
+    </div>
 </div>
