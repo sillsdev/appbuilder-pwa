@@ -14,12 +14,14 @@ LOGGING:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, refs, logs, modal, MODAL_NOTE, userSettings } from '$lib/data/stores';
+    import { footnotes, refs, logs, modal, plan, MODAL_NOTE, t, userSettings } from '$lib/data/stores';
     import {
         generateHTML,
+        getDisplayString,
         handleHeaderLinkPressed,
         isBibleBook
     } from '$lib/scripts/scripture-reference-utils';
+    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import {
         onClickText,
         deselectAllElements,
@@ -654,6 +656,58 @@ LOGGING:
         }
         return [footnoteSpan, footnoteDiv];
     }
+    function addPlanDiv(workspace, verseNumber) {
+        // If plan entry is -1, there is no active entry
+        if ($plan.planEntry !== -1) {
+            if (($plan.planBookId === references.book) && 
+                ($plan.planChapter.toString() === references.chapter) &&
+                ($plan.planToVerse.toString() === verseNumber)
+            ) {
+                console.log('PLAN DIV: Add entry:', verseNumber);
+                const planDiv = document.createElement('div');
+                planDiv.id = 'plan-progress';
+                planDiv.classList.add('plan-progress-block');
+                appendProgressTextDiv(planDiv, 'plan-progress-info', '', $t['Plans_Progress_Item_Completed']);
+                appendProgressTextDiv(planDiv, 'plan-progress-reference', '',getPlanReferenceString($plan.planReference));
+                const hr = document.createElement('hr');
+                if (plan.nextReference !== '') {
+                    planDiv.append(hr);
+                    appendProgressTextDiv(planDiv, 'plan-progress-info', '', $t['Plans_Progress_Next_Reading']);
+                    appendProgressTextDiv(planDiv, 'plan-progress-reference', '', getPlanReferenceString($plan.planNextReference));
+                    appendProgressTextDiv(planDiv, 'plan-progress-button', 'PLAN-next', $t['Button_Next']);
+                } else {
+                    appendProgressTextDiv(planDiv, 'plan-progress-button', 'PLAN-view', $t['Plans_Button_View_Plan']);
+                }
+                console.log('PLAN DIV: Div: ', planDiv, workspace.paragraphDiv);
+                workspace.root.appendChild(workspace.paragraphDiv);
+                workspace.root.appendChild(planDiv);
+                workspace.paragraphDiv = document.createElement('div');
+                workspace.paragraphDiv.classList.add('p');
+            } else {
+                console.log('PLAN DIV - Add Entry - no match:', $plan.planToVerse.toString(), verseNumber);
+            }
+        } else {
+            console.log('PLAN DIV - no active entry');
+        }
+    }
+    function appendProgressTextDiv(progressDiv: HTMLDivElement, divClass: string, divId: string, stringId: string) {
+        const textDiv = document.createElement('div');
+        textDiv.classList.add(divClass);
+        const textNode = document.createTextNode(stringId);
+        textDiv.append(textNode);
+        progressDiv.append(textDiv);
+    }
+    function getPlanReferenceString(ref) {
+        let currentBookCollectionId = references.collection;
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
+        const displayString = getDisplayString(
+            currentBookCollectionId,
+            book,
+            toChapter,
+            verseRanges
+        );
+        return displayString;
+    }
     function placeElement(
         document: Document,
         container: HTMLElement,
@@ -1166,7 +1220,9 @@ LOGGING:
                                             }
                                         }
                                         // Build div
-                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                        if (workspace.paragraphDiv.innerHTML !== '') {
+                                            workspace.root.appendChild(workspace.paragraphDiv); 
+                                        } 
                                         if (workspace.videoDiv) {
                                             workspace.root.appendChild(workspace.videoDiv);
                                             workspace.videoDiv = null;
@@ -1194,7 +1250,9 @@ LOGGING:
                                         }
                                     }
                                     // Build div
-                                    workspace.root.appendChild(workspace.paragraphDiv);
+                                    if (workspace.paragraphDiv.innerHTML !== '') {
+                                        workspace.root.appendChild(workspace.paragraphDiv); 
+                                    } 
                                     if (workspace.videoDiv) {
                                         workspace.root.appendChild(workspace.videoDiv);
                                         workspace.videoDiv = null;
@@ -1287,6 +1345,7 @@ LOGGING:
                                 workspace.phraseDiv = null;
                                 addBookmarksDiv(workspace);
                                 addNotesDiv(workspace);
+                                addPlanDiv(workspace, element.atts['number']);
                                 workspace.currentVerse = 'none';
                             }
                         }

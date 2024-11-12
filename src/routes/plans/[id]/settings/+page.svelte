@@ -41,12 +41,14 @@
             </div>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div class="plan-button" id="plan-continue"
-                    on:click={async function () {
-                        await startPlan($page.data.planConfig.id);
-                    }}
-                >
-                    {$t['Button_Continue']}
+            <div
+                class="plan-button"
+                id="plan-continue"
+                on:click={async function () {
+                    await startPlan($page.data.planConfig.id);
+                }}
+            >
+                {$t['Button_Continue']}
             </div>
         </div>
     </div>

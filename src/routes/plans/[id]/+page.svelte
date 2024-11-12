@@ -2,17 +2,7 @@
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
 
-    import {
-        language,
-        s,
-        t,
-        convertStyle,
-        themeColors,
-        modal,
-        MODAL_COLLECTION,
-        MODAL_TEXT_APPERANCE,
-        refs
-    } from '$lib/data/stores';
+    import { language, s, t, convertStyle, plan, refs } from '$lib/data/stores';
     import { getLastPlanState } from '$lib/data/planStates';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
@@ -61,6 +51,40 @@
             verseRanges
         );
         return displayString;
+    }
+
+    function goToDailyReference(item, ref, index) {
+        // Only go to reference if in an active plan
+        if (inUse) {
+            let currentBookCollectionId = $refs.collection;
+            const [collection, book, fromChapter, toChapter, verseRanges] =
+                getReferenceFromString(ref);
+            const [fromVerse, toVerse, separator] = verseRanges[0];
+            let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
+            let nextReference = '';
+            if (selectedDay.refs.length > index + 1) {
+                nextReference = selectedDay.refs[index + 1];
+            }
+            $plan = {
+                planId: $page.data.planData.id,
+                planDay: item.day,
+                planEntry: index,
+                planBookId: book,
+                planChapter: toChapter,
+                planFromVerse: fromVerse,
+                planToVerse: toVerse,
+                planReference: ref,
+                planNextReference: nextReference,
+                completed: false
+            };
+            refs.set({
+                docSet: currentBookCollectionId,
+                book: book,
+                chapter: toChapter.toString(),
+                verse: destinationVerse.toString()
+            });
+            goto(`${base}/text`);
+        }
     }
 </script>
 
@@ -148,11 +172,13 @@
                         <div class="plan-button-block">
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <!-- svelte-ignore a11y-no-static-element-interactions -->
-                            <div class="plan-button" id="PLAN-start"
-                                    on:click={() =>
-                                        goto(`${base}/plans/${$page.data.planData.id}/settings`)}
-                                >
-                                    {$t['Plans_Button_Start_Plan']}
+                            <div
+                                class="plan-button"
+                                id="PLAN-start"
+                                on:click={() =>
+                                    goto(`${base}/plans/${$page.data.planData.id}/settings`)}
+                            >
+                                {$t['Plans_Button_Start_Plan']}
                             </div>
                         </div>
                     {/if}
@@ -190,7 +216,11 @@
                     <table class="plan-items-table">
                         <tbody>
                             {#each selectedDay.refs as ref, index}
-                                <tr class="plan-item" id={'R-' + index}>
+                                <tr
+                                    class="plan-item"
+                                    id={'R-' + index}
+                                    on:click={goToDailyReference(selectedDay, ref, index)}
+                                >
                                     <td class="plan-item-checkbox plan-checkbox-image">
                                         <CheckboxOutlineIcon />
                                     </td>
