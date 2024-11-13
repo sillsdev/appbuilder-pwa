@@ -308,9 +308,12 @@ function convertConfig(dataDir: string, verbose: number) {
             data.menuItems = menuItems;
         }
 
-        const plans = parsePlans(document, verbose);
-        if (plans !== null) {
-            data.plans = plans;
+        const {features, plans} = parsePlans(document, verbose);
+        if (plans.length > 0) {
+            data.plans = {
+                features,
+                plans
+            };
         }
     }
 
@@ -726,7 +729,10 @@ function parseInterfaceLanguages(
 
 function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
-    let translationMappings: { defaultLang: string, mappings: Record<string, Record<string, string>> } = {
+    let translationMappings: {
+        defaultLang: string;
+        mappings: Record<string, Record<string, string>>;
+    } = {
         defaultLang: '',
         mappings: {}
     };
@@ -748,9 +754,7 @@ function parseMenuLocalizations(document: Document, verbose: number) {
         }
         if (verbose)
             console.log(
-                `Converted ${
-                    Object.keys(translationMappings.mappings).length
-                } translation mappings`
+                `Converted ${Object.keys(translationMappings.mappings).length} translation mappings`
             );
     }
     return translationMappings;
@@ -908,7 +912,6 @@ function parseAudioSources(document: Document, verbose: number) {
     }
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
-    
     return { sources, files };
 }
 
@@ -1188,8 +1191,7 @@ function parsePlans(document: Document, verbose: number) {
 
     if (verbose) console.log(`Converted ${plansTags.length} plans`);
 
-    const dataPlans = { features, plans }
-    return dataPlans;
+    return { features, plans };
 }
 
 function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
