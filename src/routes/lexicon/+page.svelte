@@ -2,36 +2,9 @@
     import { t } from '$lib/data/stores';
     import Navbar from '$lib/components/Navbar.svelte';
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
+    import { page } from '$app/stores';
 
-    // Define the alphabet here
-    const alphabet = [
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f',
-        'g',
-        'h',
-        'i',
-        'j',
-        'k',
-        'l',
-        'm',
-        'n',
-        'o',
-        'p',
-        'q',
-        'r',
-        's',
-        't',
-        'u',
-        'v',
-        'w',
-        'x',
-        'y',
-        'z'
-    ];
+    const { alphabet, initialReversalData } = $page.data;
     let activeTab = 'main';
 </script>
 
@@ -59,9 +32,9 @@
 
     <div class="overflow-y-auto">
         {#if activeTab === 'main'}
-            <!-- Your existing lexicon view here, pass alphabet if needed -->
+            <!-- Your existing lexicon view here -->
         {:else}
-            <LexiconReversalView {alphabet} />
+            <LexiconReversalView {alphabet} initialData={initialReversalData} />
         {/if}
     </div>
 </div>

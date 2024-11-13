@@ -4,17 +4,20 @@
     import AlphabetStrip from './AlphabetStrip.svelte';
 
     export let alphabet: string[];
-    let currentLetter = alphabet[0];
-    let reversalData: {
+    export let initialData: {
         [key: string]: Array<{ index: number; name: string; homonym_index: number }>;
-    } = {};
-    let loading = true;
+    };
 
-    onMount(async () => {
-        await loadReversalData(currentLetter);
-    });
+    let currentLetter = alphabet[0];
+    let reversalData = initialData;
+    let loading = false;
 
     async function loadReversalData(letter: string) {
+        if (letter === alphabet[0] && Object.keys(initialData).length > 0) {
+            reversalData = initialData;
+            return;
+        }
+
         loading = true;
         try {
             const response = await fetch(
