@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import contents from '$lib/data/contents';
+    import config from '$lib/data/config';
     import { isFirstLaunch, audioActive } from '$lib/data/stores';
     import { navigateToTextReference } from '$lib/navigate';
 

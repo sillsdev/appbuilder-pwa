@@ -3,9 +3,20 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
+    import config from '$lib/data/config';
+    import { onMount } from 'svelte';
 
     const { alphabet, initialReversalData } = $page.data;
     let activeTab = 'main';
+
+    onMount(() => {
+        // Redirect to text view if not a DAB program
+        if (config.programType !== 'DAB') {
+            goto(`${base}/text`);
+        }
+    });
 </script>
 
 <div class="grid grid-rows-[auto,auto,1fr]" style="height:100vh;height:100dvh;">

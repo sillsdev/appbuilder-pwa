@@ -1,3 +1,5 @@
+import { base } from '$app/paths';
+
 /** @type {import('./$types').PageLoad} */
 export async function load({ fetch }) {
     // Load the first letter of the alphabet's data by default
