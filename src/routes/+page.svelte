@@ -1,6 +1,7 @@
 <script>
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
+    import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import { audioActive, isFirstLaunch } from '$lib/data/stores';
     import { getRoute, navigateToTextReference } from '$lib/navigate';
@@ -14,9 +15,9 @@
         if ($page.data?.ref) {
             navigateToTextReference($page.data.ref);
         } else if (launchAction === 'contents' || ($isFirstLaunch && launchAction)) {
-            goto(`${base}/contents/1`);
+            goto(getRoute(`/contents/1`));
         } else if (config.programType === 'DAB') {
-            goto(`${base}/lexicon`);
+            goto(getRoute(`/lexicon`));
         } else {
             goto(getRoute(`/text`));
         }
