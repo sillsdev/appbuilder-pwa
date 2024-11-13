@@ -308,10 +308,9 @@ function convertConfig(dataDir: string, verbose: number) {
             data.menuItems = menuItems;
         }
 
-        const { features, plans } = parsePlans(document, verbose);
-        if (data.plans) {
-            data.plans.features = features;
-            data.plans.plans = plans;
+        const plans = parsePlans(document, verbose);
+        if (plans !== null) {
+            data.plans = plans;
         }
     }
 
@@ -727,34 +726,32 @@ function parseInterfaceLanguages(
 
 function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
-    const translationMappings: { defaultLang: string; mappings: { [key: string]: any } } = {
+    let translationMappings: { defaultLang: string, mappings: Record<string, Record<string, string>> } = {
         defaultLang: '',
         mappings: {}
     };
     for (const translationMappingsTag of translationMappingsTags) {
-        translationMappings.defaultLang =
-            translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
+        const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
+        translationMappings.defaultLang = defaultLang;
+        const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
 
-        const translationMappingTags = translationMappingsTag.getElementsByTagName('tm');
-
-        for (const tag of translationMappingTags) {
+        for (const tag of translationMappingsTags) {
             if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
-
             const localizations: Record<string, string> = {};
             for (const localization of tag.getElementsByTagName('t')) {
-                const lang = localization.attributes.getNamedItem('lang')!.value;
-                localizations[lang] = decodeFromXml(localization.innerHTML);
+                localizations[localization.attributes.getNamedItem('lang')!.value] = decodeFromXml(
+                    localization.innerHTML
+                );
             }
-
             if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
             translationMappings.mappings[tag.id] = localizations;
         }
-
-        if (verbose) {
+        if (verbose)
             console.log(
-                `Converted ${Object.keys(translationMappings.mappings).length} translation mappings`
+                `Converted ${
+                    Object.keys(translationMappings.mappings).length
+                } translation mappings`
             );
-        }
     }
     return translationMappings;
 }
@@ -774,7 +771,7 @@ function parseKeys(document: Document, verbose: number) {
 function parseAnalytics(document: Document, verbose: number) {
     const analyticsElements = document.getElementsByTagName('analytics');
 
-    let analytics: { enabled: boolean; providers: any[] } = {
+    const analytics: { enabled: boolean; providers: any[] } = {
         enabled: false,
         providers: []
     };
@@ -910,6 +907,8 @@ function parseAudioSources(document: Document, verbose: number) {
         }
     }
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
+
+    
     return { sources, files };
 }
 
@@ -939,8 +938,8 @@ function parseVideos(document: Document, verbose: number) {
             const filename = filenameTag ? filenameTag.innerHTML : '';
 
             videos.push({
-                id: tag.getAttribute('id')!,
-                src: tag.getAttribute('src') || '',
+                id: tag.attributes.getNamedItem('id')!.value,
+                src: tag.attributes.getNamedItem('src')?.value,
                 width,
                 height,
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
@@ -1189,7 +1188,8 @@ function parsePlans(document: Document, verbose: number) {
 
     if (verbose) console.log(`Converted ${plansTags.length} plans`);
 
-    return { features, plans };
+    const dataPlans = { features, plans }
+    return dataPlans;
 }
 
 function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
