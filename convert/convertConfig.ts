@@ -308,7 +308,7 @@ function convertConfig(dataDir: string, verbose: number) {
             data.menuItems = menuItems;
         }
 
-        const {features, plans} = parsePlans(document, verbose);
+        const { features, plans } = parsePlans(document, verbose);
         if (plans.length > 0) {
             data.plans = {
                 features,
