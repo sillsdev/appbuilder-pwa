@@ -212,13 +212,6 @@ function convertConfig(dataDir: string, verbose: number) {
     // Program type determines data object type
     const data = setConfigType(programType);
 
-    data.programType = programType;
-    data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
-    if (Number.isNaN(splitVersion(data.programVersion)[0])) {
-        // Development version so use a "high" number
-        data.programVersion = '100.0';
-    }
-
     // Name
     data.name = document.getElementsByTagName('app-name')[0].innerHTML;
     if (verbose) console.log(`Converting ${data.name}...`);
@@ -231,6 +224,13 @@ function convertConfig(dataDir: string, verbose: number) {
     data.version = document
         .getElementsByTagName('version')[0]
         .attributes.getNamedItem('name')!.value;
+
+    data.programType = programType;
+    data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
+    if (Number.isNaN(splitVersion(data.programVersion)[0])) {
+        // Development version so use a "high" number
+        data.programVersion = '100.0';
+    }
 
     data.mainFeatures = parseFeatures(document, verbose);
 
@@ -254,27 +254,58 @@ function convertConfig(dataDir: string, verbose: number) {
             data.bookCollections.filter(
                 (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
             ).length > 0;
+    }
 
+    data.interfaceLanguages = parseInterfaceLanguages(document, data, verbose);
+
+    data.translationMappings = parseMenuLocalizations(document, verbose);
+
+    if (isScriptureConfig(data)) {
         data.keys = parseKeys(document, verbose);
+        /* about?: string; */
         data.analytics = parseAnalytics(document, verbose);
-        data.videos = parseVideos(document, verbose);
-        data.traits['has-video'] = !!data.videos?.length;
+    }
+
+    data.firebase = parseFirebase(document, verbose);
+
+    if (isScriptureConfig(data)) {
+        data.audio = { sources: {} };
+        const { sources, files } = parseAudioSources(document, verbose);
+        if (data.audio) {
+            if (sources != null) {
+                data.audio.sources = sources;
+            }
+            if (files.length > 0) {
+                data.audio.files = files;
+            }
+        }
+
+        const videos = parseVideos(document, verbose);
+        if (videos.length > 0) {
+            data.videos = videos;
+        }
+        data.traits['has-video'] = data.videos && data.videos.length > 0;
         data.illustrations = parseIllustrations(document, verbose);
 
         const { layouts, defaultLayout } = parseLayouts(document, data.bookCollections, verbose);
-        data.layouts = layouts;
         if (defaultLayout !== null) {
             data.defaultLayout = defaultLayout;
         }
+        data.layouts = layouts;
 
-        data.backgroundImages = parseBackgroundImages(document, verbose);
-        data.watermarkImages = parseWatermarkImages(document, verbose);
-        data.menuItems = parseMenuItems(document, verbose);
+        const backgroundImages = parseBackgroundImages(document, verbose);
+        if (backgroundImages.length > 0) {
+            data.backgroundImages = backgroundImages;
+        }
 
-        const { sources, files } = parseAudioSources(document, verbose);
-        if (data.audio) {
-            data.audio.sources = sources;
-            data.audio.files = files;
+        const watermarkImages = parseWatermarkImages(document, verbose);
+        if (watermarkImages.length > 0) {
+            data.watermarkImages = watermarkImages;
+        }
+
+        const menuItems = parseMenuItems(document, verbose);
+        if (menuItems.length > 0) {
+            data.menuItems = menuItems;
         }
 
         const { features, plans } = parsePlans(document, verbose);
@@ -283,15 +314,6 @@ function convertConfig(dataDir: string, verbose: number) {
             data.plans.plans = plans;
         }
     }
-
-    // Needs to be modified to correctly parse writing-systems for DAB
-    data.interfaceLanguages = parseInterfaceLanguages(document, verbose);
-
-    data.translationMappings = parseMenuLocalizations(document, verbose);
-
-    /* about?: string; */
-
-    data.firebase = parseFirebase(document, verbose);
 
     /*
     security?: {
@@ -625,13 +647,17 @@ function parseBookCollections(document: Document, verbose: number) {
     return bookCollections;
 }
 
-function parseInterfaceLanguages(document: Document, verbose: number) {
+function parseInterfaceLanguages(
+    document: Document,
+    data: ScriptureConfig | DictionaryConfig,
+    verbose: number
+) {
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
     const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
     const interfaceLanguages: {
         useSystemLanguage: boolean;
         writingSystems: { [key: string]: any };
-    } = { useSystemLanguage: false, writingSystems: {} };
+    } = { useSystemLanguage, writingSystems: {} };
 
     const writingSystemsTags = interfaceLanguagesTag
         .getElementsByTagName('writing-systems')[0]
@@ -641,9 +667,6 @@ function parseInterfaceLanguages(document: Document, verbose: number) {
         const code: string = tag.attributes.getNamedItem('code')!.value;
         const fontFamily = tag.getElementsByTagName('font-family')[0].innerHTML;
         const textDirection = parseTrait(tag, 'text-direction');
-
-        if (verbose >= 2) console.log(`.. writingSystem: ${code}`);
-
         const displaynamesTag = tag.getElementsByTagName('display-names')[0];
         const displayNames: Record<string, string> = {};
 
@@ -651,9 +674,50 @@ function parseInterfaceLanguages(document: Document, verbose: number) {
             displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
         }
 
-        interfaceLanguages.writingSystems[code] = { fontFamily, textDirection, displayNames };
-    }
+        const writingSystemConfig: any = {
+            fontFamily,
+            textDirection,
+            displayNames
+        };
 
+        if (isDictionaryConfig(data)) {
+            const sortMethodTag = tag.getElementsByTagName('sort-method')[0];
+            const sortMethod = {
+                ignoreChars: Array.from(sortMethodTag?.getElementsByTagName('ignore') || []).map(
+                    (ignore) => ignore.innerHTML
+                )
+            };
+
+            const alphabetTag = tag.getElementsByTagName('alphabet')[0];
+            const alphabet = Array.from(alphabetTag?.getElementsByTagName('letter') || []).map(
+                (letter) => letter.innerHTML
+            );
+
+            const inputButtonsTag = tag.getElementsByTagName('input-buttons')[0];
+            const inputButtons = Array.from(
+                inputButtonsTag?.getElementsByTagName('button') || []
+            ).map((button) => button.innerHTML);
+            // Optional features
+            const featuresTag = tag.getElementsByTagName('features')[0];
+            const features: Record<string, any> = {};
+            if (featuresTag) {
+                for (const feature of featuresTag.getElementsByTagName('feature')) {
+                    features[feature.getAttribute('name')!] = feature.getAttribute('value')!;
+                }
+            }
+
+            // Add DAB-specific fields to the writing system config
+            writingSystemConfig.sortMethod = sortMethod;
+            writingSystemConfig.alphabet = alphabet;
+            writingSystemConfig.inputButtons = inputButtons;
+            writingSystemConfig.features = features;
+        }
+        interfaceLanguages.writingSystems[code] = writingSystemConfig;
+
+        if (verbose >= 2) {
+            console.log(`.. writing system ${code}`);
+        }
+    }
     if (verbose)
         console.log(
             `Converted ${Object.keys(interfaceLanguages.writingSystems).length} writing systems`
@@ -668,7 +732,8 @@ function parseMenuLocalizations(document: Document, verbose: number) {
         mappings: {}
     };
     for (const translationMappingsTag of translationMappingsTags) {
-        const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
+        translationMappings.defaultLang =
+            translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
 
         const translationMappingTags = translationMappingsTag.getElementsByTagName('tm');
 
@@ -812,6 +877,7 @@ function parseAudioSources(document: Document, verbose: number) {
                 sources[id].accessMethods = source
                     .getElementsByTagName('access-methods')[0]
                     ?.getAttribute('value')!
+                    .toString()
                     .split('|');
                 sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
 
