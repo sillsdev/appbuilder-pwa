@@ -16,6 +16,8 @@
             navigateToTextReference($page.data.ref);
         } else if (launchAction === 'contents' || ($isFirstLaunch && launchAction)) {
             goto(`${base}/contents/1`);
+        } else if (config.programType === 'DAB') {
+            goto(`${base}/lexicon`);
         } else {
             goto(`${base}/text`);
         }
