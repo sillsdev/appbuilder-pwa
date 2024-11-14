@@ -8,10 +8,11 @@ import type {
     ScriptureConfig,
     BookCollectionData,
     BookCollectionAudioData,
-    StyleData
+    StyleData,
+    DictionaryConfig
 } from '$config';
 
-const data: ScriptureConfig = {};
+const fontFamilies: string[] = [];
 
 function decodeFromXml(input: string): string {
     return input
@@ -180,11 +181,36 @@ function convertCollectionFooter(collectionTag: Element, document: Document) {
     return footer;
 }
 
+function setConfigType(programType: string) {
+    if (programType === 'SAB') {
+        return {} as ScriptureConfig;
+    } else if (programType === 'DAB') {
+        return {} as DictionaryConfig;
+    } else {
+        throw new Error(`Unsupported program type parsed: ${programType}`);
+    }
+}
+
+function isScriptureConfig(data: ScriptureConfig | DictionaryConfig): data is ScriptureConfig {
+    return data.programType === 'SAB';
+}
+
+function isDictionaryConfig(data: ScriptureConfig | DictionaryConfig): data is DictionaryConfig {
+    return data.programType === 'DAB';
+}
+
 function convertConfig(dataDir: string, verbose: number) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
     });
     const { document } = dom.window;
+
+    // Program info
+    const appDefinition = document.getElementsByTagName('app-definition')[0];
+    const programType = appDefinition.attributes.getNamedItem('type')!.value;
+
+    // Program type determines data object type
+    const data = setConfigType(programType);
 
     // Name
     data.name = document.getElementsByTagName('app-name')[0].innerHTML;
@@ -199,26 +225,122 @@ function convertConfig(dataDir: string, verbose: number) {
         .getElementsByTagName('version')[0]
         .attributes.getNamedItem('name')!.value;
 
-    // Program info
-    const appDefinition = document.getElementsByTagName('app-definition')[0];
-    data.programType = appDefinition.attributes.getNamedItem('type')!.value;
+    data.programType = programType;
     data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
     if (Number.isNaN(splitVersion(data.programVersion)[0])) {
         // Development version so use a "high" number
         data.programVersion = '100.0';
     }
 
-    // Features
+    data.mainFeatures = parseFeatures(document, verbose);
+
+    data.fonts = parseFonts(document, verbose);
+
+    const { themes, defaultTheme } = parseColorThemes(document, verbose);
+    data.themes = themes;
+    if (defaultTheme !== '') {
+        data.defaultTheme = defaultTheme;
+    }
+
+    const mainStyles = document.querySelector('styles')!;
+    data.styles = parseStyles(mainStyles, verbose);
+
+    if (isScriptureConfig(data)) {
+        data.traits = parseTraits(document, dataDir, verbose);
+        data.bookCollections = parseBookCollections(document, verbose);
+
+        // After all the book collections have been parsed, we can determine some traits
+        data.traits['has-glossary'] =
+            data.bookCollections.filter(
+                (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
+            ).length > 0;
+    }
+
+    data.interfaceLanguages = parseInterfaceLanguages(document, data, verbose);
+
+    data.translationMappings = parseMenuLocalizations(document, verbose);
+
+    if (isScriptureConfig(data)) {
+        data.keys = parseKeys(document, verbose);
+        /* about?: string; */
+        data.analytics = parseAnalytics(document, verbose);
+    }
+
+    data.firebase = parseFirebase(document, verbose);
+
+    if (isScriptureConfig(data)) {
+        data.audio = { sources: {} };
+        const { sources, files } = parseAudioSources(document, verbose);
+        if (data.audio) {
+            if (sources != null) {
+                data.audio.sources = sources;
+            }
+            if (files.length > 0) {
+                data.audio.files = files;
+            }
+        }
+
+        const videos = parseVideos(document, verbose);
+        if (videos.length > 0) {
+            data.videos = videos;
+        }
+        data.traits['has-video'] = data.videos && data.videos.length > 0;
+        data.illustrations = parseIllustrations(document, verbose);
+
+        const { layouts, defaultLayout } = parseLayouts(document, data.bookCollections, verbose);
+        if (defaultLayout !== null) {
+            data.defaultLayout = defaultLayout;
+        }
+        data.layouts = layouts;
+
+        const backgroundImages = parseBackgroundImages(document, verbose);
+        if (backgroundImages.length > 0) {
+            data.backgroundImages = backgroundImages;
+        }
+
+        const watermarkImages = parseWatermarkImages(document, verbose);
+        if (watermarkImages.length > 0) {
+            data.watermarkImages = watermarkImages;
+        }
+
+        const menuItems = parseMenuItems(document, verbose);
+        if (menuItems.length > 0) {
+            data.menuItems = menuItems;
+        }
+
+        const { features, plans } = parsePlans(document, verbose);
+        if (plans.length > 0) {
+            data.plans = {
+                features,
+                plans
+            };
+        }
+    }
+
+    /*
+    security?: {
+        features?: {
+            [key: string]: any;
+        };
+        pin: string;
+        mode: string;
+    };
+    */
+
+    return filterFeaturesNotReady(data);
+}
+
+function parseFeatures(document: Document, verbose: number) {
     const mainFeatureTags = document
         .querySelector('features[type=main]')
         ?.getElementsByTagName('e');
     if (!mainFeatureTags) throw new Error('Features tag not found in xml');
-    data.mainFeatures = {};
+    const mainFeatures: { [key: string]: any } = {};
 
     for (const tag of mainFeatureTags) {
         try {
             const value: any = tag.attributes.getNamedItem('value')!.value;
-            data.mainFeatures[tag.attributes.getNamedItem('name')!.value] = parseConfigValue(value);
+            mainFeatures[tag.attributes.getNamedItem('name')!.value] = parseConfigValue(value);
         } catch (e) {
             if (e instanceof ReferenceError) {
                 console.error(
@@ -227,12 +349,14 @@ function convertConfig(dataDir: string, verbose: number) {
             } else throw e;
         }
     }
-    if (verbose) console.log(`Converted ${Object.keys(data.mainFeatures).length} features`);
+    if (verbose) console.log(`Converted ${Object.keys(mainFeatures).length} features`);
 
-    // Fonts
+    return mainFeatures;
+}
+
+function parseFonts(document: Document, verbose: number) {
     const fontTags = document.getElementsByTagName('fonts')[0].getElementsByTagName('font');
-    const fontFamilies: string[] = [];
-    data.fonts = [];
+    const fonts = [];
 
     for (const tag of fontTags) {
         const family = tag.attributes.getNamedItem('family')!.value;
@@ -245,22 +369,27 @@ function convertConfig(dataDir: string, verbose: number) {
             .querySelector('sd[property=font-weight]')!
             .attributes.getNamedItem('value')!.value;
         fontFamilies.push(family);
-        data.fonts.push({ family, name, file, fontStyle, fontWeight });
+        fonts.push({ family, name, file, fontStyle, fontWeight });
     }
-    if (verbose) console.log(`Converted ${data.fonts.length} fonts`);
 
-    // Color themes
+    if (verbose) console.log(`Converted ${fonts.length} fonts`);
+
+    return fonts;
+}
+
+function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
     const colorSetTags = document.getElementsByTagName('colors');
-    data.themes = [];
+    const themes = [];
+    let defaultTheme = '';
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
         if (verbose >= 2) console.log(`. theme ${theme}`);
 
-        data.themes.push({
+        themes.push({
             name: theme,
             enabled: tag.attributes.getNamedItem('enabled')?.value === 'true',
             colorSets: Array.from(colorSetTags).map((cst) => {
@@ -274,6 +403,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     if (verbose >= 3) console.log(`.. colors[${name}]=${value} `);
                 }
                 if (verbose >= 3) console.log(`.. done with colorTags`);
+
                 Object.keys(colors).forEach((x) => {
                     if (verbose >= 3) console.log(`.. ${x}: colors[${x}]=${colors[x]}`);
                     while (!colors[x].startsWith('#')) {
@@ -289,6 +419,7 @@ function convertConfig(dataDir: string, verbose: number) {
                     }
                 });
                 if (verbose >= 3) console.log(`.. done with resolving colors`);
+
                 const type = cst.getAttribute('type')!;
                 if (verbose >= 2) console.log(`.. ${type}: ${JSON.stringify(colors)}`);
                 return {
@@ -297,34 +428,39 @@ function convertConfig(dataDir: string, verbose: number) {
                 };
             })
         });
+
         if (tag.attributes.getNamedItem('default')?.value === 'true')
-            data.defaultTheme = data.themes[data.themes.length - 1].name;
+            defaultTheme = themes[themes.length - 1].name;
     }
-    if (verbose) console.log(`Converted ${data.themes.length} themes`);
 
-    // Styles
-    const mainStyles = document.querySelector('styles')!;
-    data.styles = parseStyles(mainStyles, verbose);
+    if (verbose) console.log(`Converted ${themes.length} themes`);
 
-    // Traits
+    return { themes, defaultTheme };
+}
+
+function parseTraits(document: Document, dataDir: string, verbose: number) {
     const traitTags = document.getElementsByTagName('traits')[0]?.getElementsByTagName('trait');
-    data.traits = {};
+    const traits: { [key: string]: any } = {};
 
     if (traitTags?.length > 0) {
         for (const tag of traitTags) {
-            data.traits[tag.attributes.getNamedItem('name')!.value] =
+            traits[tag.attributes.getNamedItem('name')!.value] =
                 tag.attributes.getNamedItem('value')?.value === 'true';
         }
     }
+
     // Add traits
-    data.traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
-    data.traits['has-illustrations'] = !dirEmpty(path.join(dataDir, 'illustrations'));
+    traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
+    traits['has-illustrations'] = !dirEmpty(path.join(dataDir, 'illustrations'));
 
-    if (verbose) console.log(`Converted ${Object.keys(data.traits).length} traits`);
+    if (verbose) console.log(`Converted ${Object.keys(traits).length} traits`);
 
-    // Book collections
+    return traits;
+}
+
+function parseBookCollections(document: Document, verbose: number) {
     const booksTags = document.getElementsByTagName('books');
-    data.bookCollections = [];
+    const bookCollections = [];
 
     for (const tag of booksTags) {
         if (verbose >= 2) console.log(`Converting Collection: ${tag.id}`);
@@ -481,7 +617,7 @@ function convertConfig(dataDir: string, verbose: number) {
         const bcStyles = tag.querySelector('styles');
         const styles = bcStyles ? parseStyles(bcStyles, verbose) : undefined;
 
-        data.bookCollections.push({
+        bookCollections.push({
             id: tag.id,
             collectionName,
             collectionAbbreviation,
@@ -499,95 +635,156 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 3)
             console.log(
                 `.... collection: `,
-                JSON.stringify(data.bookCollections[data.bookCollections.length - 1])
+                JSON.stringify(bookCollections[bookCollections.length - 1])
             );
     }
-    // After all the book collections have been parsed, we can determine some traits
-    data.traits['has-glossary'] =
-        data.bookCollections.filter(
-            (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
-        ).length > 0;
+
     if (verbose)
         console.log(
-            `Converted ${data.bookCollections.length} book collections with [${data.bookCollections
+            `Converted ${bookCollections.length} book collections with [${bookCollections
                 .map((x) => x.books.length)
                 .join(', ')}] books`
         );
 
-    // Inteface Languages
+    return bookCollections;
+}
+
+function parseInterfaceLanguages(
+    document: Document,
+    data: ScriptureConfig | DictionaryConfig,
+    verbose: number
+) {
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
     const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
+    const interfaceLanguages: {
+        useSystemLanguage: boolean;
+        writingSystems: { [key: string]: any };
+    } = { useSystemLanguage, writingSystems: {} };
 
-    data.interfaceLanguages = { useSystemLanguage, writingSystems: {} };
     const writingSystemsTags = interfaceLanguagesTag
         .getElementsByTagName('writing-systems')[0]
         .getElementsByTagName('writing-system');
+
     for (const tag of writingSystemsTags) {
         const code: string = tag.attributes.getNamedItem('code')!.value;
         const fontFamily = tag.getElementsByTagName('font-family')[0].innerHTML;
         const textDirection = parseTrait(tag, 'text-direction');
-        if (verbose >= 2) console.log(`.. writingSystem: ${code}`);
         const displaynamesTag = tag.getElementsByTagName('display-names')[0];
-        const displayNames: typeof data.interfaceLanguages.writingSystems.displayNames.displayNames =
-            {};
+        const displayNames: Record<string, string> = {};
+
         for (const form of displaynamesTag.getElementsByTagName('form')) {
             displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
         }
-        data.interfaceLanguages.writingSystems[code] = { fontFamily, textDirection, displayNames };
-    }
 
-    // Menu localizations
+        const writingSystemConfig: any = {
+            fontFamily,
+            textDirection,
+            displayNames
+        };
+
+        if (isDictionaryConfig(data)) {
+            const sortMethodTag = tag.getElementsByTagName('sort-method')[0];
+            const sortMethod = {
+                ignoreChars: Array.from(sortMethodTag?.getElementsByTagName('ignore') || []).map(
+                    (ignore) => ignore.innerHTML
+                )
+            };
+
+            const alphabetTag = tag.getElementsByTagName('alphabet')[0];
+            const alphabet = Array.from(alphabetTag?.getElementsByTagName('letter') || []).map(
+                (letter) => letter.innerHTML
+            );
+
+            const inputButtonsTag = tag.getElementsByTagName('input-buttons')[0];
+            const inputButtons = Array.from(
+                inputButtonsTag?.getElementsByTagName('button') || []
+            ).map((button) => button.innerHTML);
+            // Optional features
+            const featuresTag = tag.getElementsByTagName('features')[0];
+            const features: Record<string, any> = {};
+            if (featuresTag) {
+                for (const feature of featuresTag.getElementsByTagName('feature')) {
+                    features[feature.getAttribute('name')!] = feature.getAttribute('value')!;
+                }
+            }
+
+            // Add DAB-specific fields to the writing system config
+            writingSystemConfig.sortMethod = sortMethod;
+            writingSystemConfig.alphabet = alphabet;
+            writingSystemConfig.inputButtons = inputButtons;
+            writingSystemConfig.features = features;
+        }
+        interfaceLanguages.writingSystems[code] = writingSystemConfig;
+
+        if (verbose >= 2) {
+            console.log(`.. writing system ${code}`);
+        }
+    }
+    if (verbose)
+        console.log(
+            `Converted ${Object.keys(interfaceLanguages.writingSystems).length} writing systems`
+        );
+    return interfaceLanguages;
+}
+
+function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
+    let translationMappings: {
+        defaultLang: string;
+        mappings: Record<string, Record<string, string>>;
+    } = {
+        defaultLang: '',
+        mappings: {}
+    };
     for (const translationMappingsTag of translationMappingsTags) {
         const defaultLang = translationMappingsTag.attributes.getNamedItem('default-lang')!.value;
-        data.translationMappings = { defaultLang, mappings: {} };
+        translationMappings.defaultLang = defaultLang;
         const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
 
         for (const tag of translationMappingsTags) {
             if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
-            const localizations: typeof data.translationMappings.mappings.key = {};
+            const localizations: Record<string, string> = {};
             for (const localization of tag.getElementsByTagName('t')) {
                 localizations[localization.attributes.getNamedItem('lang')!.value] = decodeFromXml(
                     localization.innerHTML
                 );
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
-            data.translationMappings.mappings[tag.id] = localizations;
+            translationMappings.mappings[tag.id] = localizations;
         }
         if (verbose)
             console.log(
-                `Converted ${
-                    Object.keys(data.translationMappings.mappings).length
-                } translation mappings`
+                `Converted ${Object.keys(translationMappings.mappings).length} translation mappings`
             );
     }
+    return translationMappings;
+}
 
-    // Keys
+function parseKeys(document: Document, verbose: number) {
     if (document.getElementsByTagName('keys').length > 0) {
-        data.keys = Array.from(
+        const keys = Array.from(
             document.getElementsByTagName('keys')[0].getElementsByTagName('key')
         ).map((key) => key.innerHTML);
-        if (verbose) console.log(`Converted ${data.keys.length} keys`);
+        if (verbose) console.log(`Converted ${keys.length} keys`);
+
+        return keys;
     }
+    return [];
+}
 
-    /* about?: string; */
-
-    // Analytics
+function parseAnalytics(document: Document, verbose: number) {
     const analyticsElements = document.getElementsByTagName('analytics');
 
-    // Ensure data.analytics is initialized if it doesn't exist - necessary??
-    if (!data.analytics) {
-        data.analytics = {
-            enabled: false,
-            providers: []
-        };
-    }
+    const analytics: { enabled: boolean; providers: any[] } = {
+        enabled: false,
+        providers: []
+    };
 
     for (const analyticsElement of analyticsElements) {
         const enabledAttribute = analyticsElement.getAttribute('enabled');
 
-        if (enabledAttribute !== null && enabledAttribute === 'true') {
-            data.analytics.enabled = true;
+        if (enabledAttribute === 'true') {
+            analytics.enabled = true;
 
             // Get all analytics-provider elements within the current analytics element
             const providerElements = analyticsElement.getElementsByTagName('analytics-provider');
@@ -601,18 +798,18 @@ function convertConfig(dataDir: string, verbose: number) {
 
                 let parameters: { [key: string]: string } | undefined = undefined;
                 const parametersTags = providerElement.getElementsByTagName('analytics-parameter');
-                if (parametersTags?.length > 0) {
+                if (parametersTags.length > 0) {
                     parameters = {};
                     for (const parameterTag of parametersTags) {
-                        const name = parameterTag.getAttribute('name')!;
-                        const value = parameterTag.getAttribute('value')!;
-                        parameters[name] = value;
+                        const paramName = parameterTag.getAttribute('name')!;
+                        const paramValue = parameterTag.getAttribute('value')!;
+                        parameters[paramName] = paramValue;
                     }
                 }
 
                 // Add the provider to the providers array
                 if (id && name && type) {
-                    data.analytics.providers.push({ id, name, type, parameters });
+                    analytics.providers.push({ id, name, type, parameters });
                 }
             }
 
@@ -620,17 +817,13 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    if (verbose) console.log(`Converted ${analyticsElements.length} analyticsElements`);
+    if (verbose) console.log(`Converted ${analyticsElements.length} analytics elements`);
+    return analytics;
+}
 
-    // Firebase
+function parseFirebase(document: Document, verbose: number) {
     const firebaseElements = document.getElementsByTagName('firebase');
-
-    // Ensure data.firebase is initialized if it doesn't exist
-    if (!data.firebase) {
-        data.firebase = {
-            features: {}
-        };
-    }
+    let firebase: { features: { [key: string]: any } } = { features: {} };
 
     // Iterate over firebaseElements and update data.firebase.features
     for (const firebaseElement of firebaseElements) {
@@ -645,198 +838,189 @@ function convertConfig(dataDir: string, verbose: number) {
 
                 // Update data.firebase.features
                 if (name) {
-                    data.firebase.features[name] = value;
+                    firebase.features[name] = value;
                 }
             }
         }
     }
 
-    if (verbose) console.log(`Converted ${firebaseElements.length} firebaseElements`);
+    if (verbose) console.log(`Converted ${firebaseElements.length} firebase elements`);
+    return firebase;
+}
 
-    // Audio Sources
+function parseAudioSources(document: Document, verbose: number) {
     const audioSources = document
         .getElementsByTagName('audio-sources')[0]
         ?.getElementsByTagName('audio-source');
+    const sources: {
+        [key: string]: {
+            type: string;
+            name: string;
+            accessMethods?: string[];
+            folder?: string;
+            address?: string;
+            key?: string;
+            damId?: string;
+        };
+    } = {};
+    const files: { name: string; src: string }[] = [];
+
     if (audioSources?.length > 0) {
-        data.audio = { sources: {} };
         for (const source of audioSources) {
-            const id = source.getAttribute('id')!.toString();
+            const id = source.getAttribute('id')!;
             if (verbose >= 2) console.log(`Converting audioSource: ${id}`);
-            const type = source.getAttribute('type')!.toString();
+            const type = source.getAttribute('type')!;
             const name = source.getElementsByTagName('name')[0].innerHTML;
-            if (verbose >= 3) console.log(`  type=${type}, name=${name}`);
-            data.audio.sources[id] = {
-                type: type,
-                name: name
-            };
+
+            sources[id] = { type, name };
+
             if (type !== 'assets') {
-                data.audio.sources[id].accessMethods = source
+                sources[id].accessMethods = source
                     .getElementsByTagName('access-methods')[0]
                     ?.getAttribute('value')!
                     .toString()
                     .split('|');
-                data.audio.sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
+                sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
 
                 const address = source.getElementsByTagName('address')[0]?.innerHTML;
                 if (isValidUrl(address)) {
-                    data.audio.sources[id].address = address;
+                    sources[id].address = address;
                 }
 
                 if (type === 'fcbh') {
-                    data.audio.sources[id].key = source.getElementsByTagName('key')[0].innerHTML;
-                    data.audio.sources[id].damId =
-                        source.getElementsByTagName('dam-id')[0].innerHTML;
+                    sources[id].key = source.getElementsByTagName('key')[0].innerHTML;
+                    sources[id].damId = source.getElementsByTagName('dam-id')[0].innerHTML;
                 }
             }
-            if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
+            if (verbose >= 3) console.log(`....`, JSON.stringify(sources[id]));
         }
 
+        // Audio files
         const audioTags = document
             .getElementsByTagName('audio-files')[0]
             ?.getElementsByTagName('audio');
         if (audioTags?.length > 0) {
-            data.audio.files = [];
-
             for (const tag of audioTags) {
                 const fileEntry = tag.getElementsByTagName('filename')[0];
                 if (!fileEntry) continue;
 
                 const filename = fileEntry.innerHTML;
                 const src = fileEntry.getAttribute('src') ?? '';
-
-                data.audio.files.push({
-                    name: filename,
-                    src: src
-                });
+                files.push({ name: filename, src });
             }
         }
     }
-
     if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
 
-    const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
-    if (videoTags?.length > 0) {
-        data.videos = [];
+    return { sources, files };
+}
 
+function parseVideos(document: Document, verbose: number) {
+    const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
+    const videos: any[] = [];
+    if (videoTags?.length > 0) {
         for (const tag of videoTags) {
             const placementTag = tag.getElementsByTagName('placement')[0];
-            const placement =
-                placementTag == undefined
-                    ? undefined
-                    : {
-                          pos: placementTag.attributes.getNamedItem('pos')!.value,
-                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                          collection: placementTag.attributes
-                              .getNamedItem('ref')!
-                              .value.split('|')[0]
-                      };
-            const tagWidth = tag.attributes.getNamedItem('width')
-                ? parseInt(tag.attributes.getNamedItem('width')!.value)
-                : 0;
-            const tagHeight = tag.attributes.getNamedItem('height')
-                ? parseInt(tag.attributes.getNamedItem('height')!.value)
-                : 0;
-            let onlineUrlHTML = tag.getElementsByTagName('online-url')[0]
-                ? tag.getElementsByTagName('online-url')[0]?.innerHTML
-                : '';
-            if (onlineUrlHTML) {
-                onlineUrlHTML = convertVideoUrl(onlineUrlHTML);
+            const placement = placementTag
+                ? {
+                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                      ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                      collection: placementTag.attributes.getNamedItem('ref')!.value.split('|')[0]
+                  }
+                : undefined;
+
+            const width = tag.getAttribute('width') ? parseInt(tag.getAttribute('width')!) : 0;
+            const height = tag.getAttribute('height') ? parseInt(tag.getAttribute('height')!) : 0;
+
+            let onlineUrl = tag.getElementsByTagName('online-url')[0]?.innerHTML || '';
+            if (onlineUrl) {
+                onlineUrl = convertVideoUrl(onlineUrl);
             }
+
             const filenameTag = tag.getElementsByTagName('filename')[0];
             const filename = filenameTag ? filenameTag.innerHTML : '';
 
-            data.videos.push({
+            videos.push({
                 id: tag.attributes.getNamedItem('id')!.value,
                 src: tag.attributes.getNamedItem('src')?.value,
-                width: tagWidth,
-                height: tagHeight,
+                width,
+                height,
                 title: tag.getElementsByTagName('title')[0]?.innerHTML,
                 thumbnail: tag.getElementsByTagName('thumbnail')[0]?.innerHTML,
-                onlineUrl: decodeFromXml(onlineUrlHTML),
-                filename: filename,
+                onlineUrl: decodeFromXml(onlineUrl),
+                filename,
                 placement
             });
         }
     }
+    if (verbose) console.log(`Converted ${videoTags?.length} videos`);
 
-    data.traits['has-video'] = data.videos && data.videos.length > 0;
+    return videos;
+}
+
+function parseIllustrations(document: Document, verbose: number) {
     const imagesTags = document.getElementsByTagName('images');
+    const illustrations: any[] = [];
     if (imagesTags?.length > 0) {
-        data.illustrations = [];
         for (const tag of imagesTags) {
-            const imageType = tag.attributes.getNamedItem('type')
-                ? tag.attributes.getNamedItem('type')!.value
-                : '';
-            if (imageType === 'illustration') {
+            if (tag.getAttribute('type') === 'illustration') {
                 const illustrationTags = tag.getElementsByTagName('image');
-                if (illustrationTags?.length > 0) {
-                    for (const image of illustrationTags) {
-                        const filename = image.getElementsByTagName('filename')[0]
-                            ? image.getElementsByTagName('filename')[0]?.innerHTML
-                            : image.innerHTML;
-                        const imageWidth = image.attributes.getNamedItem('width')
-                            ? parseInt(image.attributes.getNamedItem('width')!.value)
-                            : 0;
-                        const imageHeight = image.attributes.getNamedItem('height')
-                            ? parseInt(image.attributes.getNamedItem('height')!.value)
-                            : 0;
-                        const placementTag = image.getElementsByTagName('placement')[0];
-                        const placement =
-                            placementTag == undefined
-                                ? undefined
-                                : {
-                                      pos: placementTag.attributes.getNamedItem('pos')!.value,
-                                      ref: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[1],
-                                      caption: placementTag.attributes.getNamedItem('caption')
-                                          ? placementTag.attributes.getNamedItem('caption')!.value
-                                          : '',
-                                      collection: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[0]
-                                  };
-                        data.illustrations.push({
-                            filename: filename,
-                            width: imageWidth,
-                            height: imageHeight,
-                            placement
-                        });
-                    }
+
+                for (const image of illustrationTags) {
+                    const filename =
+                        image.getElementsByTagName('filename')[0]?.innerHTML || image.innerHTML;
+                    const width = image.getAttribute('width')
+                        ? parseInt(image.getAttribute('width')!)
+                        : 0;
+                    const height = image.getAttribute('height')
+                        ? parseInt(image.getAttribute('height')!)
+                        : 0;
+
+                    const placementTag = image.getElementsByTagName('placement')[0];
+                    const placement = placementTag
+                        ? {
+                              pos: placementTag.getAttribute('pos')! || '',
+                              ref: placementTag.getAttribute('ref')?.split('|')[1] || '',
+                              caption: placementTag.getAttribute('caption') || '',
+                              collection: placementTag.getAttribute('ref')?.split('|')[0] || ''
+                          }
+                        : undefined;
+
+                    illustrations.push({ filename, width, height, placement });
                 }
             }
         }
     }
-    const layoutRoot = document.getElementsByTagName('layouts')[0];
-    data.defaultLayout = layoutRoot?.attributes.getNamedItem('default')?.value;
+    if (verbose) console.log(`Converted ${imagesTags?.length} illustrations`);
+    return illustrations;
+}
 
-    const layouts = layoutRoot?.getElementsByTagName('layout');
-    if (layouts?.length > 0) {
-        data.layouts = [];
-        for (const layout of layouts) {
-            const mode = layout.attributes.getNamedItem('mode')!.value;
+function parseLayouts(document: Document, bookCollections: any, verbose: number) {
+    const layoutRoot = document.getElementsByTagName('layouts')[0];
+    let defaultLayout = layoutRoot?.getAttribute('default');
+    const layouts = [];
+
+    const layoutTags = layoutRoot?.getElementsByTagName('layout');
+    if (layoutTags?.length > 0) {
+        for (const layout of layoutTags) {
+            const mode = layout.getAttribute('mode')!;
             if (verbose >= 2) console.log(`Converting layout`, mode);
-            const enabled = layout.attributes.getNamedItem('enabled')!.value === 'true';
-            const featureElements = layout.getElementsByTagName('features')[0];
+
+            const enabled = layout.getAttribute('enabled') === 'true';
+
             const features: { [key: string]: string } = {};
+            const featureElements = layout.getElementsByTagName('features')[0];
             if (featureElements) {
                 for (const feature of featureElements.getElementsByTagName('e')) {
-                    const name = feature.attributes.getNamedItem('name')!.value;
-                    const value = feature.attributes.getNamedItem('value')!.value;
-                    if (verbose >= 2)
-                        console.log(`.. Converting feature: name=${name}, value=${value}`);
-                    features[name] = value;
+                    features[feature.getAttribute('name')!] = feature.getAttribute('value')!;
                 }
             }
-            const layoutCollectionElements = layout.getElementsByTagName('layout-collection');
-            const layoutCollections =
-                layoutCollectionElements.length > 0
-                    ? Array.from(layoutCollectionElements).map((element) => {
-                          return element.attributes.getNamedItem('id')!.value;
-                      })
-                    : [data.bookCollections[0].id];
 
-            data.layouts.push({
+            const layoutCollections = Array.from(
+                layout.getElementsByTagName('layout-collection')
+            ).map((element) => element.getAttribute('id')!) || [bookCollections[0]?.id];
+
+            layouts.push({
                 mode,
                 enabled,
                 layoutCollections,
@@ -844,43 +1028,54 @@ function convertConfig(dataDir: string, verbose: number) {
             });
         }
     }
-    if (verbose) console.log(`Converted ${layouts?.length} layouts`);
+    if (verbose) console.log(`Converted ${layoutTags?.length} layouts`);
 
-    // Background images
-    const backgroundImages = document
+    return { layouts, defaultLayout };
+}
+
+function parseBackgroundImages(document: Document, verbose: number) {
+    const backgroundImageTags = document
         .querySelector('images[type=background]')
         ?.getElementsByTagName('image');
-    if (backgroundImages) {
-        data.backgroundImages = [];
-        for (const backgroundImage of backgroundImages) {
+    const backgroundImages = [];
+    if (backgroundImageTags) {
+        for (const backgroundImage of backgroundImageTags) {
             const width = backgroundImage.getAttribute('width')!;
             const height = backgroundImage.getAttribute('height')!;
             const filename = backgroundImage.innerHTML;
-            data.backgroundImages.push({ width, height, filename });
+            backgroundImages.push({ width, height, filename });
         }
     }
+    if (verbose) console.log(`Converted ${backgroundImageTags?.length} background images`);
 
-    // Watermark images
-    const watermarkImages = document
+    return backgroundImages;
+}
+
+function parseWatermarkImages(document: Document, verbose: number) {
+    const watermarkImageTags = document
         .querySelector('images[type=watermark]')
         ?.getElementsByTagName('image');
-    if (watermarkImages) {
-        data.watermarkImages = [];
-        for (const watermarkImage of watermarkImages) {
+    const watermarkImages = [];
+    if (watermarkImageTags) {
+        for (const watermarkImage of watermarkImageTags) {
             const width = watermarkImage.getAttribute('width')!;
             const height = watermarkImage.getAttribute('height')!;
             const filename = watermarkImage.innerHTML;
-            data.watermarkImages.push({ width, height, filename });
+            watermarkImages.push({ width, height, filename });
         }
     }
+    if (verbose) console.log(`Converted ${watermarkImageTags?.length} watermark images`);
 
-    // Menu Items
-    const menuItems = document
+    return watermarkImages;
+}
+
+function parseMenuItems(document: Document, verbose: number) {
+    const menuItemTags = document
         .getElementsByTagName('menu-items')[0]
         ?.getElementsByTagName('menu-item');
-    if (menuItems?.length > 0) {
-        data.menuItems = [];
-        for (const menuItem of menuItems) {
+    const menuItems = [];
+    if (menuItemTags?.length > 0) {
+        for (const menuItem of menuItemTags) {
             const type = menuItem.attributes.getNamedItem('type')!.value;
             if (verbose >= 2) console.log(`.. Converting menuItem: ${type}`);
             if (verbose >= 3) console.log('.... menuItem:', menuItem.outerHTML);
@@ -923,7 +1118,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 }
             }
 
-            data.menuItems.push({
+            menuItems.push({
                 type,
                 title,
                 link,
@@ -931,16 +1126,27 @@ function convertConfig(dataDir: string, verbose: number) {
                 images
             });
 
-            if (verbose >= 3) console.log(`....`, JSON.stringify(data.menuItems));
+            if (verbose >= 3) console.log(`....`, JSON.stringify(menuItems));
         }
     }
 
-    //plans
+    return menuItems;
+}
+
+function parsePlans(document: Document, verbose: number) {
+    const features: { [key: string]: string } = {};
+    const plans: {
+        id: string;
+        days: number;
+        title: { [lang: string]: string };
+        filename: string;
+        image?: { width: number; height: number; file: string };
+    }[] = [];
+
     const plansTags = document.getElementsByTagName('plans');
     if (plansTags?.length > 0) {
         const plansTag = plansTags[0];
         const featuresTag = plansTag.getElementsByTagName('features')[0];
-        const features: { [key: string]: string } = {};
         if (featuresTag) {
             for (const feature of featuresTag.getElementsByTagName('e')) {
                 const name = feature.attributes.getNamedItem('name')!.value;
@@ -952,7 +1158,6 @@ function convertConfig(dataDir: string, verbose: number) {
         }
 
         const planTags = plansTag.getElementsByTagName('plan');
-        const plans = [];
         if (planTags?.length > 0) {
             for (const tag of planTags) {
                 const titleTags = tag.getElementsByTagName('title')[0].getElementsByTagName('t');
@@ -960,7 +1165,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 for (const titleTag of titleTags) {
                     title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
                 }
-                //image
+                // Image
                 const imageTag = tag.getElementsByTagName('image')[0];
 
                 let image = undefined;
@@ -981,39 +1186,39 @@ function convertConfig(dataDir: string, verbose: number) {
                 };
                 plans.push(plan);
             }
-            data.plans = {
-                features,
-                plans
-            };
         }
     }
 
-    /*
-    security?: {
-        features?: {
-            [key: string]: any;
-        };
-        pin: string;
-        mode: string;
-    };
-    */
+    if (verbose) console.log(`Converted ${plansTags.length} plans`);
 
-    return filterFeaturesNotReady(data);
+    return { features, plans };
 }
 
-function filterFeaturesNotReady(data: ScriptureConfig) {
+function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
     // User Accounts is not done
     data.mainFeatures['user-accounts'] = false;
 
     // Two pane and Verse-By-Verse are not done
-    if (data.layouts) {
-        for (const layout of data.layouts) {
-            if (layout.mode === 'two' || layout.mode === 'verse-by-verse') {
-                layout.enabled = false;
+    if (isScriptureConfig(data)) {
+        // Two pane and Verse-By-Verse are not done
+        if (data.layouts) {
+            for (const layout of data.layouts) {
+                if (layout.mode === 'two' || layout.mode === 'verse-by-verse') {
+                    layout.enabled = false;
+                }
             }
         }
+        if (data.bookCollections) {
+            // only allow single pane book collections
+            // in SAB 12.1, the feature changed names from bc-allow-single-pane to bc-layout-allow-single-pane
+            data.bookCollections = data.bookCollections.filter((collection) => {
+                const allowSinglePane =
+                    collection?.features['bc-allow-single-pane'] ??
+                    collection?.features['bc-layout-allow-single-pane'];
+                return allowSinglePane !== false;
+            });
+        }
     }
-
     // Verse on image is not done
     data.mainFeatures['text-on-image'] = false;
 
@@ -1029,22 +1234,11 @@ function filterFeaturesNotReady(data: ScriptureConfig) {
     data.mainFeatures['settings-daily-reminder-time'] = false;
     data.mainFeatures['settings-keep-screen-on'] = false;
     data.mainFeatures['settings-share-usage-data'] = false;
-
-    if (data.bookCollections) {
-        // only allow single pane book collections
-        // in SAB 12.1, the feature changed names from bc-allow-single-pane to bc-layout-allow-single-pane
-        data.bookCollections = data.bookCollections.filter((collection) => {
-            const allowSinglePane =
-                collection?.features['bc-allow-single-pane'] ??
-                collection?.features['bc-layout-allow-single-pane'];
-            return allowSinglePane !== false;
-        });
-    }
     return data;
 }
 
 export interface ConfigTaskOutput extends TaskOutput {
-    data: ScriptureConfig;
+    data: ScriptureConfig | DictionaryConfig;
 }
 
 /**
