@@ -6,9 +6,9 @@ import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
 import type {
     ScriptureConfig,
-    BookCollectionData,
-    BookCollectionAudioData,
-    StyleData,
+    BookCollectionConfig,
+    BookCollectionAudioConfig,
+    StyleConfig,
     DictionaryConfig
 } from '$config';
 
