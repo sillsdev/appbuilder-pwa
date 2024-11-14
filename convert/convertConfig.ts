@@ -6,9 +6,9 @@ import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
 import type {
     ScriptureConfig,
-    BookCollectionData,
-    BookCollectionAudioData,
-    StyleData,
+    BookCollectionConfig,
+    BookCollectionAudioConfig,
+    StyleConfig,
     DictionaryConfig
 } from '$config';
 
@@ -74,7 +74,7 @@ function parseStyles(stylesTag: Element, verbose: number) {
 
     return styles;
 }
-function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleData {
+function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleConfig {
     return {
         font: stylesInfoTag.getElementsByTagName('text-font')[0].attributes.getNamedItem('family')!
             .value,
@@ -473,11 +473,11 @@ function parseBookCollections(document: Document, verbose: number) {
                 feature.attributes.getNamedItem('value')!.value
             );
         }
-        const books: BookCollectionData['books'] = [];
+        const books: BookCollectionConfig['books'] = [];
         const bookTags = tag.getElementsByTagName('book');
         for (const book of bookTags) {
             if (verbose >= 2) console.log(`. book: ${book.id}`);
-            const audio: BookCollectionAudioData[] = [];
+            const audio: BookCollectionAudioConfig[] = [];
             for (const page of book.getElementsByTagName('page')) {
                 if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
                 const audioTag = page.getElementsByTagName('audio')[0];

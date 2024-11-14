@@ -1,6 +1,6 @@
 type HTML = string;
 
-export type BookCollectionAudioData = {
+export type BookCollectionAudioConfig = {
     num: number;
     src: string;
     len?: number;
@@ -9,7 +9,7 @@ export type BookCollectionAudioData = {
     timingFile: string;
 };
 
-export type StyleData = {
+export type StyleConfig = {
     font: string;
     textSize: number;
     lineHeight: number;
@@ -18,7 +18,7 @@ export type StyleData = {
     verseNumbers: string;
 };
 
-export type BookData = {
+export type BookConfig = {
     id: string;
     type?: string;
     format?: string;
@@ -34,11 +34,11 @@ export type BookData = {
     chaptersN: string; // 1-34
     fonts: string[];
     file: string;
-    audio: BookCollectionAudioData[];
+    audio: BookCollectionAudioConfig[];
     features: any;
     quizFeatures?: any;
     footer?: HTML;
-    style?: StyleData;
+    style?: StyleConfig;
     styles?: {
         name: string;
         category?: string;
@@ -48,11 +48,11 @@ export type BookData = {
     }[];
 };
 
-export type BookCollectionData = {
+export type BookCollectionConfig = {
     id: string;
     features: any;
-    books: BookData[];
-    style?: StyleData;
+    books: BookConfig[];
+    style?: StyleConfig;
     fonts: string[];
     languageCode: string;
     languageName?: string;
@@ -73,7 +73,7 @@ export type BookCollectionData = {
     collectionDescription?: string;
 };
 
-export type AudioData = {
+export type AudioConfig = {
     sources: {
         [key: string]: {
             type: string;
@@ -149,7 +149,7 @@ export type AppConfig = {
 
 export type ScriptureConfig = AppConfig & {
     traits?: any;
-    bookCollections?: BookCollectionData[];
+    bookCollections?: BookCollectionConfig[];
     interfaceLanguages?: {
         useSystemLanguage: boolean;
         writingSystems: {
@@ -174,7 +174,7 @@ export type ScriptureConfig = AppConfig & {
             };
         }[];
     };
-    audio?: AudioData;
+    audio?: AudioConfig;
     videos?: {
         id: string;
         src?: string;
