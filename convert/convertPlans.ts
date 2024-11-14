@@ -1,3 +1,4 @@
+import type { ScriptureConfig } from '$config';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
@@ -35,7 +36,7 @@ function changeFileExtension(filename: string, ext: string): string {
 
 export function convertPlans(
     dataDir: string,
-    configData: ConfigTaskOutput,
+    scriptureConfig: ScriptureConfig,
     verbose: number
 ): PlansTaskOutput {
     const plansDir = path.join(dataDir, 'plans');
@@ -52,7 +53,7 @@ export function convertPlans(
     }
 
     const files: any[] = [];
-    const planConfig = configData.data.plans?.plans;
+    const planConfig = scriptureConfig.plans?.plans;
     if (planConfig) {
         for (const plan of planConfig) {
             if (plan.image) {
@@ -157,7 +158,8 @@ export class ConvertPlans extends Task {
     }
     public run(verbose: number, outputs: Map<string, TaskOutput>): PlansTaskOutput {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+        const scriptureConfig = config.data as ScriptureConfig;
 
-        return convertPlans(this.dataDir, config, verbose);
+        return convertPlans(this.dataDir, scriptureConfig, verbose);
     }
 }

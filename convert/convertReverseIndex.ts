@@ -1,134 +1,111 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
-import type { ConfigData } from '$config';
+import type { DictionaryConfig, WritingSystemConfig } from '$config';
 
-function extractAlphabet(indexEntries: string[][]): string[] {
-    const firstChars = new Set<string>();
-    indexEntries.forEach(([gloss]) => {
-        if (gloss && gloss.trim()) {
-            const firstChar = gloss.trim()[0].toUpperCase();
-            if (firstChar) {
-                firstChars.add(firstChar);
-            }
-        }
-    });
-
-    return Array.from(firstChars).sort();
+interface ReversalEntry {
+    index: number;
+    name: string;
+    homonym_index?: number;
 }
 
-function convertReverseIndexForAllLetters(
+function convertReverseIndex(
     dataDir: string,
     language: string,
     alphabet: string[]
 ): void {
-    const indexFilePath = path.join(dataDir, 'lexicon-en.idx');
+    const indexFilePath = path.join(dataDir, `lexicon-${language}.idx`);
     const outputDir = path.join('static', 'reversal', 'language', language);
+
+    if (!existsSync(indexFilePath)) {
+        console.warn(`No reversal index found for language: ${language}`);
+        return;
+    }
+
     const content = readFileSync(indexFilePath, 'utf-8');
     const indexEntries = content.split('\n').map((line) => line.trim().split('\t'));
 
-    const letterHasEntries = new Map<string, boolean>();
-    alphabet.forEach(letter => {
-        const upperLetter = letter.trim()[0].toUpperCase();
-        letterHasEntries.set(upperLetter, false);
-    });
+    if (!existsSync(outputDir)) {
+        mkdirSync(outputDir, { recursive: true });
+    }
 
-    indexEntries.forEach(([gloss]) => {
-        if (gloss) {
-            const firstChar = gloss.trim()[0].toUpperCase();
-            if (firstChar && letterHasEntries.has(firstChar)) {
-                letterHasEntries.set(firstChar, true);
-            }
-        }
-    });
+    // Process each letter of the alphabet
+    alphabet.forEach((letter) => {
+        const LETTER = letter.trim()[0].toUpperCase();
+        const reversalMap: { [key: string]: ReversalEntry[] } = {};
 
-    const hasAnyEntries = Array.from(letterHasEntries.values()).some(hasEntries => hasEntries);
-
-    if (hasAnyEntries) {
-        if (!existsSync(outputDir)) {
-            mkdirSync(outputDir, { recursive: true });
-        }
-
-        alphabet.forEach((letter) => {
-            const LETTER = letter.trim()[0].toUpperCase();
-            if (letterHasEntries.get(LETTER)) {
-                const reverseMap: { [key: string]: Array<{ index: number, name: string }> } = {};
-
-                indexEntries.forEach(([gloss, ids]) => {
-                    if (gloss && ids && gloss.trim()[0].toUpperCase() === LETTER) {
-                        const idList = ids.split(',').map((id) => parseInt(id.trim()));
-                        reverseMap[gloss] = idList.map((id) => ({
-                            index: id,
-                            name: gloss,
-                        }));
+        // Process entries for this letter
+        indexEntries.forEach(([gloss, ids]) => {
+            if (gloss && ids && gloss.trim()[0].toUpperCase() === LETTER) {
+                // Split IDs and handle homonym indexes
+                const idList = ids.split(',').map(id => {
+                    const trimmed = id.trim();
+                    const match = trimmed.match(/^(\d+)(?:\^(\d+))?$/);
+                    if (match) {
+                        const entry: ReversalEntry = {
+                            index: parseInt(match[1]),
+                            name: gloss
+                        };
+                        if (match[2]) {
+                            entry.homonym_index = parseInt(match[2]);
+                        }
+                        return entry;
                     }
-                });
+                    return null;
+                }).filter((entry): entry is ReversalEntry => entry !== null);
 
-                if (Object.keys(reverseMap).length > 0) {
-                    const outputFilePath = path.join(outputDir, `${LETTER.toLowerCase()}.json`);
-                    writeFileSync(outputFilePath, JSON.stringify(reverseMap, null, 4), 'utf-8');
+                if (idList.length > 0) {
+                    reversalMap[gloss] = idList;
                 }
             }
         });
-    }
+
+        if (Object.keys(reversalMap).length > 0) {
+            const outputFilePath = path.join(outputDir, `${LETTER.toLowerCase()}.json`);
+            writeFileSync(outputFilePath, JSON.stringify(reversalMap, null, 4), 'utf-8');
+        }
+    });
 }
 
 export class ConvertReverseIndex extends Task {
-    public triggerFiles: string[] = ['lexicon-en.idx'];
+    public triggerFiles: string[] = ['lexicon-*.idx'];
 
     constructor(dataDir: string) {
         super(dataDir);
     }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
-        const configOutput = outputs.get('ConvertConfig') as { data: ConfigData } | undefined;
+        const configOutput = outputs.get('ConvertConfig') as { data: DictionaryConfig } | undefined;
         if (!configOutput || !configOutput.data) {
             throw new Error('Config data not found in outputs');
         }
 
-        if (!configOutput.data.interfaceLanguages) {
-            throw new Error('No interfaceLanguages found in config data');
+        if (!configOutput.data.writingSystems) {
+            throw new Error('No writing systems found in config data');
         }
 
-        const writingSystems = Object.entries(configOutput.data.interfaceLanguages?.writingSystems || {});
+        // Get all lexicon index files in the data directory
+        const files = this.triggerFiles
+            .map(pattern => pattern.replace('*', '(.+)'))
+            .map(pattern => new RegExp(pattern));
 
-        let glossSystem = writingSystems.find(([_, ws]) => {
-            return ws.textDirection === 'gloss';
-        });
+        const indexFiles = readdirSync(this.dataDir)
+            .filter(file => files.some(pattern => pattern.test(file)))
+            .map(file => {
+                const match = file.match(/lexicon-(.+)\.idx$/);
+                return match ? match[1] : null;
+            })
+            .filter((lang): lang is string => lang !== null);
 
-        if (!glossSystem) {
-            glossSystem = writingSystems.find(([code]) => code === 'en');
-        }
-
-        if (!glossSystem && writingSystems.length > 0) {
-            glossSystem = writingSystems[0];
-        }
-
-        if (!glossSystem) {
-            throw new Error('No suitable writing system found in config data');
-        }
-
-        const [language] = glossSystem;
-
-        let alphabet: string[] = [];
-        for (const collection of configOutput.data.bookCollections || []) {
-            if (collection.languageCode === language && Array.isArray(collection.fonts)) {
-                alphabet = collection.fonts;
-                break;
+        // Process each index file
+        for (const languageCode of indexFiles) {
+            const writingSystem = configOutput.data.writingSystems[languageCode];
+            if (writingSystem?.alphabet) {
+                convertReverseIndex(this.dataDir, languageCode, writingSystem.alphabet);
+            } else {
+                console.warn(`No alphabet configuration found for language ${languageCode}`);
             }
         }
-
-        if (!alphabet.length) {
-            if (verbose) {
-                console.log(`No alphabet found in config for ${language}, extracting from entries`);
-            }
-            const indexFilePath = path.join(this.dataDir, 'lexicon-en.idx');
-            const content = readFileSync(indexFilePath, 'utf-8');
-            const indexEntries = content.split('\n').map((line) => line.trim().split('\t'));
-            alphabet = extractAlphabet(indexEntries);
-        }
-
-        convertReverseIndexForAllLetters(this.dataDir, language, alphabet);
 
         return {
             taskName: this.constructor.name,
