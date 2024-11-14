@@ -3,6 +3,7 @@ import jsdom from 'jsdom';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
+import { ScriptureConfig } from '$config';
 
 type ContentItem = {
     id: number;
@@ -69,7 +70,11 @@ function decodeFromXml(input: string): string {
         .replace('&amp;', '&');
 }
 
-export function convertContents(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
+export function convertContents(
+    dataDir: string,
+    scriptureConfig: ScriptureConfig,
+    verbose: number
+) {
     const contentsDir = path.join(dataDir, 'contents');
     const destDir = path.join('static', 'contents');
     if (existsSync(contentsDir)) {
@@ -183,7 +188,7 @@ export function convertContents(dataDir: string, configData: ConfigTaskOutput, v
                 // Proskomma can only handle USFM and the other book types include non-
                 // standard SFM tags.
 
-                configData.data.bookCollections?.some((collection) => {
+                scriptureConfig.bookCollections?.some((collection) => {
                     if (verbose) console.log(`Searching for ${linkTarget} in ${collection.id}`);
                     const book = collection.books.find((x) => x.id === linkTarget);
                     if (book && book.type) {
@@ -264,8 +269,9 @@ export class ConvertContents extends Task {
     }
     public run(verbose: number, outputs: Map<string, TaskOutput>): ContentsTaskOutput {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+        const scriptureConfig = config.data as ScriptureConfig;
 
-        const data = convertContents(this.dataDir, config, verbose);
+        const data = convertContents(this.dataDir, scriptureConfig, verbose);
         return {
             taskName: 'ConvertContents',
             data,
