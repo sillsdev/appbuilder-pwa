@@ -1,5 +1,5 @@
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
-import type { AudioData } from '$config';
+import type { AudioConfig } from '$config';
 
 export function checkForMilestoneLinks(
     textType: string[],
@@ -9,7 +9,7 @@ export function checkForMilestoneLinks(
     milestoneLink: string,
     numberOfClips: number,
     subType: string,
-    audioConfig: AudioData,
+    audioConfig: AudioConfig,
     onClickFunction: (e: any) => void
 ) {
     switch (subType) {
@@ -98,7 +98,7 @@ function getAudioLinkHtml(
     link: string,
     text: string,
     clipNumber: number,
-    audioConfig: AudioData,
+    audioConfig: AudioConfig,
     onClickFunction: (e: any) => void
 ): [HTMLElement, HTMLElement] {
     const audio = document.createElement('audio');
