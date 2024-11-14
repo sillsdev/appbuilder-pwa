@@ -1,7 +1,7 @@
 import { describe, expect, beforeEach, it } from 'vitest';
 import { checkForMilestoneLinks } from './milestoneLinks';
-import type { AudioData } from '$config';
-const emptyAudio: AudioData = {
+import type { AudioConfig } from '$config';
+const emptyAudio: AudioConfig = {
     sources: {},
     files: []
 };
@@ -308,7 +308,7 @@ describe('milestoneLinks', () => {
         let footnoteWebLinks;
         let audioElements;
         beforeEach(() => {
-            const audioConfig: AudioData = {
+            const audioConfig: AudioConfig = {
                 sources: {
                     a1: {
                         type: 'assets',
@@ -388,7 +388,7 @@ describe('milestoneLinks', () => {
         let footnoteWebLinks;
         let audioElements;
         beforeEach(() => {
-            const audioConfig: AudioData = {
+            const audioConfig: AudioConfig = {
                 sources: {
                     d1: {
                         type: 'download',
