@@ -92,28 +92,26 @@ export type AudioConfig = {
 };
 
 export type WritingSystemConfig = {
-    [key: string]: {
-        displayNames: {
-            [key: string]: string;
-        };
-        fontFamily: string;
-        textDirection: string;
+    displayNames: {
+        [key: string]: string;
     };
+    fontFamily: string;
+    textDirection: string;
 };
 
 export type DictionaryWritingSystemConfig = WritingSystemConfig & {
     code: string;
     type: string;
-    trait: {
+    trait?: {
         [key: string]: string;
     };
     sortingMethod: {
         type: string;
         ignoreChars?: string[];
     };
-    alphabet: string[];
+    alphabet?: string[];
     inputButtons?: string[];
-    reversalFilename: string;
+    reversalFilename?: string;
     features?: {
         [name: string]: boolean;
     };
@@ -204,7 +202,9 @@ export type AppConfig = {
     };
     interfaceLanguages?: {
         useSystemLanguage: boolean;
-        writingSystems: WritingSystemConfig;
+        writingSystems: {
+            [key: string]: WritingSystemConfig;
+        };
     };
     keys?: string[];
     analytics?: {
@@ -278,7 +278,9 @@ export type ScriptureConfig = AppConfig & {
 };
 
 export type DictionaryConfig = AppConfig & {
-    writingSystems: DictionaryWritingSystemConfig;
+    writingSystems: {
+        [key: string]: DictionaryWritingSystemConfig;
+    };
     indexes: {
         [key: string]: {
             displayed: boolean;
