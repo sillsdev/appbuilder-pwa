@@ -91,6 +91,34 @@ export type AudioConfig = {
     }[];
 };
 
+export type WritingSystemConfig = {
+    [key: string]: {
+        displayNames: {
+            [key: string]: string;
+        };
+        fontFamily: string;
+        textDirection: string;
+    };
+};
+
+export type DictionaryWritingSystemConfig = WritingSystemConfig & {
+    code: string;
+    type: string;
+    trait: {
+        [key: string]: string;
+    };
+    sortingMethod: {
+        type: string;
+        ignoreChars?: string[];
+    };
+    alphabet: string[];
+    inputButtons?: string[];
+    reversalFilename: string;
+    features?: {
+        [name: string]: boolean;
+    };
+};
+
 export type AppConfig = {
     name?: string;
     package?: string;
@@ -98,6 +126,7 @@ export type AppConfig = {
     programVersion?: string;
     programType?: string;
     mainFeatures?: any;
+    audio?: AudioConfig;
     fonts?: {
         name?: string;
         family: string;
@@ -131,12 +160,40 @@ export type AppConfig = {
             };
         };
     };
+    illustrations?: {
+        width: number;
+        height: number;
+        filename: string;
+        placement?: {
+            pos: string;
+            ref: string;
+            collection: string;
+            caption: string;
+        };
+    }[];
     about?: string; // TODO
     firebase?: {
         features: {
             [name: string]: boolean;
         };
     };
+    menuItems?: {
+        type: string;
+        title: {
+            [lang: string]: string;
+        };
+        link?: {
+            [lang: string]: string;
+        };
+        linkId?: {
+            [lang: string]: string;
+        };
+        images?: {
+            width: number;
+            height: number;
+            file: string;
+        }[];
+    }[];
     security?: {
         // TODO
         features?: {
@@ -145,22 +202,9 @@ export type AppConfig = {
         pin: string;
         mode: string;
     };
-};
-
-export type ScriptureConfig = AppConfig & {
-    traits?: any;
-    bookCollections?: BookCollectionConfig[];
     interfaceLanguages?: {
         useSystemLanguage: boolean;
-        writingSystems: {
-            [key: string]: {
-                displayNames: {
-                    [key: string]: string;
-                };
-                fontFamily: string;
-                textDirection: string;
-            };
-        };
+        writingSystems: WritingSystemConfig;
     };
     keys?: string[];
     analytics?: {
@@ -174,7 +218,11 @@ export type ScriptureConfig = AppConfig & {
             };
         }[];
     };
-    audio?: AudioConfig;
+};
+
+export type ScriptureConfig = AppConfig & {
+    traits?: any;
+    bookCollections?: BookCollectionConfig[];
     videos?: {
         id: string;
         src?: string;
@@ -188,17 +236,6 @@ export type ScriptureConfig = AppConfig & {
             pos: string;
             ref: string;
             collection: string;
-        };
-    }[];
-    illustrations?: {
-        width: number;
-        height: number;
-        filename: string;
-        placement?: {
-            pos: string;
-            ref: string;
-            collection: string;
-            caption: string;
         };
     }[];
     defaultLayout?: string;
@@ -219,23 +256,6 @@ export type ScriptureConfig = AppConfig & {
         width: string;
         height: string;
         filename: string;
-    }[];
-    menuItems?: {
-        type: string;
-        title: {
-            [lang: string]: string;
-        };
-        link?: {
-            [lang: string]: string;
-        };
-        linkId?: {
-            [lang: string]: string;
-        };
-        images?: {
-            width: number;
-            height: number;
-            file: string;
-        }[];
     }[];
     plans?: {
         features: {
@@ -258,24 +278,10 @@ export type ScriptureConfig = AppConfig & {
 };
 
 export type DictionaryConfig = AppConfig & {
-    interfaceLanguages?: {
-        useSystemLanguage: boolean;
-        writingSystems: {
-            [key: string]: {
-                displayNames: {
-                    [key: string]: string;
-                };
-                fontFamily: string;
-                textDirection: string;
-                sortMethod: {
-                    ignoreChars: string[];
-                };
-                alphabet: string[];
-                inputButtons: string[];
-                features?: {
-                    [key: string]: any;
-                };
-            };
+    writingSystems: DictionaryWritingSystemConfig;
+    indexes: {
+        [key: string]: {
+            displayed: boolean;
         };
     };
 };
