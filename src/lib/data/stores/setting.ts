@@ -12,7 +12,14 @@ export const SETTINGS_CATEGORY_TEXT_DISPLAY = 'Settings_Category_Text_Display';
 setDefaultStorage('development', 'false');
 export const development = readable(localStorage.development === 'true');
 
-export const defaultSettings: { [key: string]: string | boolean } = {
+const commonDefaultSettings: { [key: string]: string | boolean } = {
+    'app-layout-direction': config.mainFeatures['app-layout-direction'],
+    'keep-screen-on': false,
+    'audio-access-method': config.mainFeatures['audio-access-method'],
+    'audio-auto-download': 'prompt'
+};
+
+const sabDefaultSettings = {
     'verse-numbers': config.mainFeatures['show-verse-numbers'],
     'verse-layout': config.mainFeatures['verse-layout'],
     'show-border': config.mainFeatures['show-border'],
@@ -36,126 +43,137 @@ export const defaultSettings: { [key: string]: string | boolean } = {
     'desktop-sidebar': false,
     'scripture-logs': false
 };
+
+export const defaultSettings =
+    config.programType === 'SAB'
+        ? { ...commonDefaultSettings, ...sabDefaultSettings }
+        : commonDefaultSettings;
+
 export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
-    const hasVerses = config.traits['has-verse-numbers'];
-
-    // "Text Display"
+    const isSAB = config.programType === 'SAB';
+    const hasVerses = config.traits?.['has-verse-numbers'] || false;
     const settings = new Array<App.UserPreferenceSetting>();
-    if (config.mainFeatures['settings-verse-numbers'] && hasVerses) {
-        // Verse Numbers
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Verse_Numbers',
-            key: 'verse-numbers'
-        });
-    }
+    if (isSAB) {
+        // "Text Display"
+        if (config.mainFeatures['settings-verse-numbers'] && hasVerses) {
+            // Verse Numbers
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Verse_Numbers',
+                key: 'verse-numbers'
+            });
+        }
 
-    if (config.mainFeatures['settings-verse-layout'] && hasVerses) {
-        // Verse Layout
-        settings.push({
-            type: 'list',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Verse_Layout',
-            key: 'verse-layout',
-            entries: ['Settings_Verse_Layout_Paragraphs', 'Settings_Verse_Layout_One_Per_Line'],
-            values: ['paragraphs', 'one-per-line']
-        });
-    }
+        if (config.mainFeatures['settings-verse-layout'] && hasVerses) {
+            // Verse Layout
+            settings.push({
+                type: 'list',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Verse_Layout',
+                key: 'verse-layout',
+                entries: ['Settings_Verse_Layout_Paragraphs', 'Settings_Verse_Layout_One_Per_Line'],
+                values: ['paragraphs', 'one-per-line']
+            });
+        }
 
-    if (config.mainFeatures['settings-show-border'] && config.traits['has-borders']) {
-        // Show Border
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Show_Border',
-            summary: 'Settings_Show_Border_Summary',
-            key: 'show-border'
-        });
-    }
+        if (config.mainFeatures['settings-show-border'] && config.traits['has-borders']) {
+            // Show Border
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Show_Border',
+                summary: 'Settings_Show_Border_Summary',
+                key: 'show-border'
+            });
+        }
 
-    if (config.mainFeatures['settings-red-letters'] && config.mainFeatures['wj-enabled']) {
-        // Red letters
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Red_Letters',
-            summary: 'Settings_Red_Letters_Summary',
-            key: 'red-letters'
-        });
-    }
+        if (config.mainFeatures['settings-red-letters'] && config.mainFeatures['wj-enabled']) {
+            // Red letters
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Red_Letters',
+                summary: 'Settings_Red_Letters_Summary',
+                key: 'red-letters'
+            });
+        }
 
-    if (config.mainFeatures['settings-glossary-links'] && config.traits['has-glossary']) {
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Glossary_Words',
-            key: 'glossary-words'
-        });
-        // Show links to glossary words
-    }
+        if (config.mainFeatures['settings-glossary-links'] && config.traits['has-glossary']) {
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Glossary_Words',
+                key: 'glossary-words'
+            });
+            // Show links to glossary words
+        }
 
-    if (
-        config.mainFeatures['settings-display-images-in-bible-text'] &&
-        config.traits['has-illustrations']
-    ) {
-        // Images in Bible Text
-        settings.push({
-            type: 'list',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Display_Images_In_Bible_Text',
-            key: 'display-images-in-bible-text',
-            entries: ['Settings_Display_Images_Normal', 'Settings_Display_Images_Hidden'],
-            values: ['normal', 'hidden']
-        });
-    }
+        if (
+            config.mainFeatures['settings-display-images-in-bible-text'] &&
+            config.traits['has-illustrations']
+        ) {
+            // Images in Bible Text
+            settings.push({
+                type: 'list',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Display_Images_In_Bible_Text',
+                key: 'display-images-in-bible-text',
+                entries: ['Settings_Display_Images_Normal', 'Settings_Display_Images_Hidden'],
+                values: ['normal', 'hidden']
+            });
+        }
 
-    if (
-        config.mainFeatures['settings-display-videos-in-bible-text'] &&
-        config.traits['has-video']
-    ) {
-        // Videos in Bible Text
-        settings.push({
-            type: 'list',
-            category: SETTINGS_CATEGORY_TEXT_DISPLAY,
-            title: 'Settings_Display_Videos_In_Bible_Text',
-            key: 'display-videos-in-bible-text',
-            entries: ['Settings_Display_Videos_Normal', 'Settings_Display_Videos_Hidden'],
-            values: ['normal', 'hidden']
-        });
-    }
+        if (
+            config.mainFeatures['settings-display-videos-in-bible-text'] &&
+            config.traits['has-video']
+        ) {
+            // Videos in Bible Text
+            settings.push({
+                type: 'list',
+                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                title: 'Settings_Display_Videos_In_Bible_Text',
+                key: 'display-videos-in-bible-text',
+                entries: ['Settings_Display_Videos_Normal', 'Settings_Display_Videos_Hidden'],
+                values: ['normal', 'hidden']
+            });
+        }
 
-    // "Audio"
-    if (config.mainFeatures['settings-audio-highlight-phrase'] && config.traits['has-sync-audio']) {
-        // Synchronised phrase highlighting
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_AUDIO,
-            title: 'Settings_Audio_Highlight_Phrase',
-            summary: 'Settings_Audio_Highlight_Phrase_Summary',
-            key: 'audio-highlight-phrase'
-        });
-    }
+        // "Audio"
+        if (
+            config.mainFeatures['settings-audio-highlight-phrase'] &&
+            config.traits['has-sync-audio']
+        ) {
+            // Synchronised phrase highlighting
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_AUDIO,
+                title: 'Settings_Audio_Highlight_Phrase',
+                summary: 'Settings_Audio_Highlight_Phrase_Summary',
+                key: 'audio-highlight-phrase'
+            });
+        }
 
-    if (config.mainFeatures['settings-audio-speed'] && config.traits['has-audio']) {
-        // Playback speed
-        settings.push({
-            type: 'list',
-            category: SETTINGS_CATEGORY_AUDIO,
-            title: 'Settings_Audio_Speed',
-            key: 'audio-speed',
-            entries: [
-                '0.4x',
-                '0.6x',
-                '0.7x',
-                '0.8x',
-                'Settings_Audio_Speed_Normal',
-                '1.2x',
-                '1.4x',
-                '1.6x'
-            ],
-            values: ['0.4', '0.6', '0.7', '0.8', '1.0', '1.2', '1.4', '1.6']
-        });
+        if (config.mainFeatures['settings-audio-speed'] && config.traits['has-audio']) {
+            // Playback speed
+            settings.push({
+                type: 'list',
+                category: SETTINGS_CATEGORY_AUDIO,
+                title: 'Settings_Audio_Speed',
+                key: 'audio-speed',
+                entries: [
+                    '0.4x',
+                    '0.6x',
+                    '0.7x',
+                    '0.8x',
+                    'Settings_Audio_Speed_Normal',
+                    '1.2x',
+                    '1.4x',
+                    '1.6x'
+                ],
+                values: ['0.4', '0.6', '0.7', '0.8', '1.0', '1.2', '1.4', '1.6']
+            });
+        }
     }
 
     const hasAudioSourceWithAccessModeChoice =
@@ -195,94 +213,96 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         });
     }
 
-    // "Notifications"
-    if (config.mainFeatures['settings-verse-of-the-day'] && hasVerses) {
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_NOTIFICATIONS,
-            title: 'Settings_Verse_Of_The_Day',
-            key: 'verse-of-the-day'
-        });
-    }
-    // "Verse of the day"
-    if (config.mainFeatures['settings-verse-of-the-day-time'] && hasVerses) {
-        // "Time for verse of the day
-        settings.push({
-            type: 'time',
-            category: SETTINGS_CATEGORY_NOTIFICATIONS,
-            title: 'Settings_Verse_Of_The_Day_Time',
-            key: 'verse-of-the-day-time'
-        });
-    }
-
-    const bcList = config.bookCollections.filter(
-        (bc) => bc.features['bc-allow-verse-of-the-day'] === true
-    );
-    if (config.mainFeatures['settings-verse-of-the-day-book-collection'] && hasVerses) {
-        // "Translation for verse of the day"
-        if (bcList.length > 1) {
-            const entries = [];
-            const values = [];
-            bcList.forEach((bc) => {
-                entries.push(bc.collectionName);
-                values.push(bc.id);
-            });
-            const bcId = config.mainFeatures['verse-of-the-day-book-collection'];
-            const defaultValue = !bcId ? bcId : bcList[0].id;
-
+    if (isSAB) {
+        // "Notifications"
+        if (config.mainFeatures['settings-verse-of-the-day'] && hasVerses) {
             settings.push({
-                type: 'list',
+                type: 'checkbox',
                 category: SETTINGS_CATEGORY_NOTIFICATIONS,
-                title: 'Settings_Verse_Of_The_Day_Book_Collection',
-                key: 'verse-of-the-day-book-collection',
-                defaultValue,
-                entries,
-                values
+                title: 'Settings_Verse_Of_The_Day',
+                key: 'verse-of-the-day'
             });
         }
-    }
+        // "Verse of the day"
+        if (config.mainFeatures['settings-verse-of-the-day-time'] && hasVerses) {
+            // "Time for verse of the day
+            settings.push({
+                type: 'time',
+                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                title: 'Settings_Verse_Of_The_Day_Time',
+                key: 'verse-of-the-day-time'
+            });
+        }
 
-    if (config.mainFeatures['settings-daily-reminder']) {
-        // "Daily reminder"
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_NOTIFICATIONS,
-            title: 'Settings_Daily_Reminder',
-            key: 'daily-reminder'
-        });
-    }
+        const bcList = config.bookCollections.filter(
+            (bc) => bc.features['bc-allow-verse-of-the-day'] === true
+        );
+        if (config.mainFeatures['settings-verse-of-the-day-book-collection'] && hasVerses) {
+            // "Translation for verse of the day"
+            if (bcList.length > 1) {
+                const entries = [];
+                const values = [];
+                bcList.forEach((bc) => {
+                    entries.push(bc.collectionName);
+                    values.push(bc.id);
+                });
+                const bcId = config.mainFeatures['verse-of-the-day-book-collection'];
+                const defaultValue = !bcId ? bcId : bcList[0].id;
 
-    if (config.mainFeatures['settings-daily-reminder-time']) {
-        // "Time for daily reminder"
-        settings.push({
-            type: 'time',
-            category: SETTINGS_CATEGORY_NOTIFICATIONS,
-            title: 'Settings_Daily_Reminder_Time',
-            key: 'daily-reminder-time'
-        });
-    }
+                settings.push({
+                    type: 'list',
+                    category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                    title: 'Settings_Verse_Of_The_Day_Book_Collection',
+                    key: 'verse-of-the-day-book-collection',
+                    defaultValue,
+                    entries,
+                    values
+                });
+            }
+        }
 
-    // "Navigation"
-    if (config.mainFeatures['settings-book-selection'] && config.traits['has-multiple-books']) {
-        // Book Selection
-        settings.push({
-            type: 'list',
-            category: SETTINGS_CATEGORY_NAVIGATION,
-            title: 'Settings_Book_Selection',
-            key: 'book-selection',
-            entries: ['Settings_Book_Selection_List', 'Settings_Book_Selection_Grid'],
-            values: ['list', 'grid']
-        });
-    }
+        if (config.mainFeatures['settings-daily-reminder']) {
+            // "Daily reminder"
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                title: 'Settings_Daily_Reminder',
+                key: 'daily-reminder'
+            });
+        }
 
-    if (config.mainFeatures['settings-verse-selection'] && hasVerses) {
-        // Verse Selector
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_NAVIGATION,
-            title: 'Settings_Verse_Selection',
-            key: 'verse-selection'
-        });
+        if (config.mainFeatures['settings-daily-reminder-time']) {
+            // "Time for daily reminder"
+            settings.push({
+                type: 'time',
+                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                title: 'Settings_Daily_Reminder_Time',
+                key: 'daily-reminder-time'
+            });
+        }
+
+        // "Navigation"
+        if (config.mainFeatures['settings-book-selection'] && config.traits['has-multiple-books']) {
+            // Book Selection
+            settings.push({
+                type: 'list',
+                category: SETTINGS_CATEGORY_NAVIGATION,
+                title: 'Settings_Book_Selection',
+                key: 'book-selection',
+                entries: ['Settings_Book_Selection_List', 'Settings_Book_Selection_Grid'],
+                values: ['list', 'grid']
+            });
+        }
+
+        if (config.mainFeatures['settings-verse-selection'] && hasVerses) {
+            // Verse Selector
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_NAVIGATION,
+                title: 'Settings_Verse_Selection',
+                key: 'verse-selection'
+            });
+        }
     }
 
     // "User Interface"
@@ -356,12 +376,14 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             });
         }
 
-        settings.push({
-            type: 'checkbox',
-            category: SETTINGS_CATEGORY_INTERFACE,
-            title: 'Scripture Logs',
-            key: 'scripture-logs'
-        });
+        if (isSAB) {
+            settings.push({
+                type: 'checkbox',
+                category: SETTINGS_CATEGORY_INTERFACE,
+                title: 'Scripture Logs',
+                key: 'scripture-logs'
+            });
+        }
     }
     return settings;
 })();
