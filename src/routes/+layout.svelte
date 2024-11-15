@@ -4,8 +4,11 @@
     import FontSelector from '$lib/components/FontSelector.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
+<<<<<<< HEAD
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
+=======
+>>>>>>> 21b6475 (Handle DAB/SAB differences in layout)
     import catalog from '$lib/data/catalogData';
     import config from '$lib/data/config';
     import {
@@ -24,6 +27,21 @@
 
     const isSAB = config.programType == 'SAB';
 
+<<<<<<< HEAD
+=======
+    // Delay import components only used in SAB
+    let NoteDialog;
+    let CollectionSelector;
+    if (isSAB) {
+        import('$lib/components/NoteDialog.svelte').then((module) => {
+            NoteDialog = module;
+        });
+        import('$lib/components/CollectionSelector.svelte').then((module) => {
+            CollectionSelector = module;
+        });
+    }
+
+>>>>>>> 21b6475 (Handle DAB/SAB differences in layout)
     if (isSAB && !$refs.initialized) {
         catalog.setFetch(fetch);
         // When this async function completes, $refs.intialized will be true.
@@ -83,11 +101,27 @@
         <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 
         {#if isSAB}
+<<<<<<< HEAD
             <!-- Add Note Menu -->
             <NoteDialog bind:this={noteDialog} />
 
             <!-- Collection Selector Menu -->
             <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
+=======
+            {#if NoteDialog}
+                <!-- Add Note Menu -->
+                <svelte:component this={NoteDialog} bind:this={noteDialog} />
+            {/if}
+
+            {#if CollectionSelector}
+                <!-- Collection Selector Menu -->
+                <svelte:component
+                    this={CollectionSelector}
+                    bind:this={collectionSelector}
+                    vertOffset={NAVBAR_HEIGHT}
+                />
+            {/if}
+>>>>>>> 21b6475 (Handle DAB/SAB differences in layout)
         {/if}
 
         <!-- Text Appearance Options Menu -->
