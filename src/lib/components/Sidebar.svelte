@@ -31,6 +31,7 @@ The sidebar/drawer.
         MODAL_TEXT_APPERANCE,
         MODAL_COLLECTION,
         theme,
+        themeColors,
         userPreferenceSettings
     } from '$lib/data/stores';
     import contents from '$lib/data/contents';
@@ -81,7 +82,7 @@ The sidebar/drawer.
     }
 
     $: textColor = $s['ui.drawer.item.text']['color'];
-    $: iconColor = $s['ui.drawer.item.icon']['color'];
+    $: iconColor = $s['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor'];
     $: contentBackgroundColor = $s['ui.background']['background-color'];
     $: drawerBackgroundColor = $s['ui.drawer']['background-color'];
 </script>
