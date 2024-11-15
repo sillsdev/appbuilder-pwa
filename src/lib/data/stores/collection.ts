@@ -15,7 +15,7 @@ function findCollection(id) {
 }
 
 function createInitCollections(): App.CollectionGroup {
-    const layouts = config.layouts;
+    const layouts = config.layouts || [];
     const initCollections: App.CollectionGroup = {};
 
     for (const layout of layouts) {
