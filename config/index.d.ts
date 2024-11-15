@@ -92,6 +92,7 @@ export type AudioConfig = {
 };
 
 export type WritingSystemConfig = {
+    type: string;
     displayNames: {
         [key: string]: string;
     };
@@ -100,12 +101,7 @@ export type WritingSystemConfig = {
 };
 
 export type DictionaryWritingSystemConfig = WritingSystemConfig & {
-    code: string;
-    type: string;
-    trait?: {
-        [key: string]: string;
-    };
-    sortingMethod: {
+    sortMethod: {
         type: string;
         ignoreChars?: string[];
     };

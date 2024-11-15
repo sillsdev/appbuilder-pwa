@@ -9,7 +9,10 @@ import type {
     BookCollectionConfig,
     BookCollectionAudioConfig,
     StyleConfig,
-    DictionaryConfig
+    DictionaryConfig,
+    AppConfig,
+    WritingSystemConfig,
+    DictionaryWritingSystemConfig
 } from '$config';
 
 const fontFamilies: string[] = [];
@@ -254,6 +257,18 @@ function convertConfig(dataDir: string, verbose: number) {
             data.bookCollections.filter(
                 (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
             ).length > 0;
+    }
+    if(isDictionaryConfig(data)){
+        const writingSystems: {[key: string] : DictionaryWritingSystemConfig} = {};
+         const writingSystemsTag = document.getElementsByTagName('writing-systems')[0];
+        const writingSystemTags = writingSystemsTag.getElementsByTagName('writing-system');
+        for(const tag of writingSystemTags){
+          const writingSystem =  parseDictionaryWritingSystem(tag, verbose);
+          const code : string = tag.attributes.getNamedItem('code')!.value;
+          writingSystems[code] = writingSystem;
+        }
+
+        data.writingSystems = writingSystems;
     }
 
     data.interfaceLanguages = parseInterfaceLanguages(document, data, verbose);
@@ -651,14 +666,14 @@ function parseBookCollections(document: Document, verbose: number) {
 
 function parseInterfaceLanguages(
     document: Document,
-    data: ScriptureConfig | DictionaryConfig,
+    data: AppConfig,
     verbose: number
 ) {
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
     const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
     const interfaceLanguages: {
         useSystemLanguage: boolean;
-        writingSystems: { [key: string]: any };
+        writingSystems: { [key: string]: WritingSystemConfig };
     } = { useSystemLanguage, writingSystems: {} };
 
     const writingSystemsTags = interfaceLanguagesTag
@@ -666,56 +681,10 @@ function parseInterfaceLanguages(
         .getElementsByTagName('writing-system');
 
     for (const tag of writingSystemsTags) {
-        const code: string = tag.attributes.getNamedItem('code')!.value;
-        const fontFamily = tag.getElementsByTagName('font-family')[0].innerHTML;
-        const textDirection = parseTrait(tag, 'text-direction');
-        const displaynamesTag = tag.getElementsByTagName('display-names')[0];
-        const displayNames: Record<string, string> = {};
-
-        for (const form of displaynamesTag.getElementsByTagName('form')) {
-            displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
-        }
-
-        const writingSystemConfig: any = {
-            fontFamily,
-            textDirection,
-            displayNames
-        };
-
-        if (isDictionaryConfig(data)) {
-            const sortMethodTag = tag.getElementsByTagName('sort-method')[0];
-            const sortMethod = {
-                ignoreChars: Array.from(sortMethodTag?.getElementsByTagName('ignore') || []).map(
-                    (ignore) => ignore.innerHTML
-                )
-            };
-
-            const alphabetTag = tag.getElementsByTagName('alphabet')[0];
-            const alphabet = Array.from(alphabetTag?.getElementsByTagName('letter') || []).map(
-                (letter) => letter.innerHTML
-            );
-
-            const inputButtonsTag = tag.getElementsByTagName('input-buttons')[0];
-            const inputButtons = Array.from(
-                inputButtonsTag?.getElementsByTagName('button') || []
-            ).map((button) => button.innerHTML);
-            // Optional features
-            const featuresTag = tag.getElementsByTagName('features')[0];
-            const features: Record<string, any> = {};
-            if (featuresTag) {
-                for (const feature of featuresTag.getElementsByTagName('feature')) {
-                    features[feature.getAttribute('name')!] = feature.getAttribute('value')!;
-                }
-            }
-
-            // Add DAB-specific fields to the writing system config
-            writingSystemConfig.sortMethod = sortMethod;
-            writingSystemConfig.alphabet = alphabet;
-            writingSystemConfig.inputButtons = inputButtons;
-            writingSystemConfig.features = features;
-        }
-        interfaceLanguages.writingSystems[code] = writingSystemConfig;
-
+        const code : string = tag.attributes.getNamedItem('code')!.value;
+        const writingSystem = parseWritingSystem(tag, verbose);
+        interfaceLanguages.writingSystems[code] = writingSystem;
+      
         if (verbose >= 2) {
             console.log(`.. writing system ${code}`);
         }
@@ -726,6 +695,88 @@ function parseInterfaceLanguages(
         );
     return interfaceLanguages;
 }
+
+function parseWritingSystem (element: Element, verbose: number) : WritingSystemConfig
+{
+    const type = element.attributes.getNamedItem('type')!.value;
+    const fontFamily = element.getElementsByTagName('font-family')[0].innerHTML;
+    const textDirection = parseTrait(element, 'text-direction');
+    const displaynamesTag = element.getElementsByTagName('display-names')[0];
+    const displayNames: Record<string, string> = {};
+    for (const form of displaynamesTag.getElementsByTagName('form')) {
+        displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
+    }
+    const writingSystem: WritingSystemConfig = {
+        type,
+        fontFamily,
+        textDirection,
+        displayNames
+    };
+    
+    return writingSystem;
+}
+function parseDictionaryWritingSystem(
+    element: Element,
+    verbose: number
+): DictionaryWritingSystemConfig {
+    const writingSystemConfig = parseWritingSystem(element, verbose);
+
+    let sortMethod: { type: string; ignoreChars?: string[] };
+    const sortMethodTag = element.getElementsByTagName('sort-method')[0];
+    if (sortMethodTag) {
+        const type = sortMethodTag.attributes.getNamedItem('type')?.value;
+        const ignoreCharsTag = sortMethodTag.getElementsByTagName('ignore-chars')[0];
+        const ignoreChars = ignoreCharsTag
+            ? ignoreCharsTag.textContent?.split(/\s+/).filter((char) => char)
+            : undefined;
+        sortMethod = { type: type || "default", ignoreChars };
+    } else {
+        sortMethod = { type: "default" };
+    }
+
+    let alphabet: string[] | undefined;
+    const alphabetTag = element.getElementsByTagName('alphabet')[0];
+    if (alphabetTag) {
+        alphabet = alphabetTag.textContent?.split(/\s+/).filter((letter) => letter);
+    }
+
+    let inputButtons: string[] | undefined;
+    const inputButtonsTag = element.getElementsByTagName('input-buttons')[0];
+    if (inputButtonsTag) {
+        inputButtons = inputButtonsTag.textContent
+            ?.split(/\s+/)
+            .filter((button) => button);
+    }
+
+    // Parse the features
+    let features: Record<string, boolean> | undefined;
+    const featuresTag = element.getElementsByTagName('features')[0];
+    if (featuresTag) {
+        features = {};
+        for (const feature of featuresTag.getElementsByTagName('e')) {
+            const name = feature.getAttribute('name');
+            const value = feature.getAttribute('value');
+            if (name && value) {
+                features[name] = value === 'true';
+            }
+        }
+    }
+    let reversalFilename: string | undefined;
+    const reversalFilenameTag = element.getElementsByTagName('reversal-filename')[0];
+    if (reversalFilenameTag) {
+        reversalFilename = reversalFilenameTag.textContent?.trim();
+    }
+
+    return {
+        ...writingSystemConfig,
+        sortMethod,
+        alphabet,
+        inputButtons,
+        features,
+        reversalFilename,
+    };
+}
+
 
 function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
