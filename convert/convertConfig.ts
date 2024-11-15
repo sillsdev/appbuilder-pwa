@@ -268,18 +268,18 @@ function convertConfig(dataDir: string, verbose: number) {
 
     data.firebase = parseFirebase(document, verbose);
 
-    if (isScriptureConfig(data)) {
-        data.audio = { sources: {} };
-        const { sources, files } = parseAudioSources(document, verbose);
-        if (data.audio) {
-            if (sources != null) {
-                data.audio.sources = sources;
-            }
-            if (files.length > 0) {
-                data.audio.files = files;
-            }
+    data.audio = { sources: {} };
+    const { sources, files } = parseAudioSources(document, verbose);
+    if (data.audio) {
+        if (sources != null) {
+            data.audio.sources = sources;
         }
+        if (files.length > 0) {
+            data.audio.files = files;
+        }
+    }
 
+    if (isScriptureConfig(data)) {
         const videos = parseVideos(document, verbose);
         if (videos.length > 0) {
             data.videos = videos;
