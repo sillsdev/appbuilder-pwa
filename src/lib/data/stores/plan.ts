@@ -12,6 +12,7 @@ interface PlanStore {
     planToVerse: number;
     planReference: string;
     planNextReference: string;
+    planNextReferenceIndex: number;
     completed: boolean;
 }
 

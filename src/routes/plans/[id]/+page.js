@@ -1,6 +1,5 @@
 import config from '../../../lib/data/config';
-import { getPlanData } from '../../../lib/data/PlansData';
-
+import { getPlanData } from '../../../lib/data/plansData';
 export async function load({ params, fetch }) {
     const allPlans = config.plans.plans;
 

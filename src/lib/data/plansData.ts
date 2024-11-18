@@ -41,15 +41,18 @@ export async function getPlanData(planConfig: any): Promise<PlansData> {
     return planData;
 }
 
-export async function getNextPlanReference(planConfig: any, planItem: PlanItem, currentIndex: number ): Promise<string> {
+export async function getNextPlanReference(planConfig: any, planItem: PlanItem, currentIndex: number ): Promise<[string, number]> {
     let planData = await getPlanData(planConfig);
-    let nextReference;
+    let nextReference = '';
+    let nextReferenceIndex = -1;
     if (planData) {
         // This needs to be expanded to check for first incomplete item in the list
         // once the database for the progress is completed
         if (planItem.refs.length + 1 > currentIndex) {
-            nextReference = planItem.refs[currentIndex + 1];
+            nextReferenceIndex = currentIndex + 1;
+            nextReference = planItem.refs[nextReferenceIndex];
         }
     }
-    return nextReference;
+    console.log('PLAN DIV: Next Reference:', nextReference);
+    return [nextReference, nextReferenceIndex];
 }
