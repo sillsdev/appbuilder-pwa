@@ -29,6 +29,7 @@ const defaultPlanStore = {
     planToVerse: 0,
     planReference: '',
     planNextReference: '',
+    planNextReferenceIndex: -1,
     completed: false
 };
 setDefaultStorage('plan', JSON.stringify(defaultPlanStore));

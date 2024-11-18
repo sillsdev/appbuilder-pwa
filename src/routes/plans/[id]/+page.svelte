@@ -4,6 +4,7 @@
 
     import { language, s, t, convertStyle, plan, refs } from '$lib/data/stores';
     import { getLastPlanState } from '$lib/data/planStates';
+    import { getNextPlanReference } from '$lib/data/plansData';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { base } from '$app/paths';
@@ -61,29 +62,33 @@
                 getReferenceFromString(ref);
             const [fromVerse, toVerse, separator] = verseRanges[0];
             let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-            let nextReference = '';
-            if (selectedDay.refs.length > index + 1) {
-                nextReference = selectedDay.refs[index + 1];
-            }
-            $plan = {
-                planId: $page.data.planData.id,
-                planDay: item.day,
-                planEntry: index,
-                planBookId: book,
-                planChapter: toChapter,
-                planFromVerse: fromVerse,
-                planToVerse: toVerse,
-                planReference: ref,
-                planNextReference: nextReference,
-                completed: false
-            };
-            refs.set({
-                docSet: currentBookCollectionId,
-                book: book,
-                chapter: toChapter.toString(),
-                verse: destinationVerse.toString()
+            getNextPlanReference($page.data.planConfig, item, index).then(nextIndex => {
+                let nextReference = '';
+                if (nextIndex != -1 ) {
+                    nextReference = selectedDay.refs[nextIndex];
+                }
+                console.log('PLAN DIV: next', nextIndex, nextReference);
+                $plan = {
+                    planId: $page.data.planData.id,
+                    planDay: item.day,
+                    planEntry: index,
+                    planBookId: book,
+                    planChapter: toChapter,
+                    planFromVerse: fromVerse,
+                    planToVerse: toVerse,
+                    planReference: ref,
+                    planNextReference: nextReference,
+                    planNextReferenceIndex: nextIndex,
+                    completed: false
+                };
+                refs.set({
+                    docSet: currentBookCollectionId,
+                    book: book,
+                    chapter: toChapter.toString(),
+                    verse: destinationVerse.toString()
+                });
+                goto(`${base}/text`);
             });
-            goto(`${base}/text`);
         }
     }
 </script>

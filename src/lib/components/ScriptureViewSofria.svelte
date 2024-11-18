@@ -14,7 +14,16 @@ LOGGING:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, refs, logs, modal, plan, MODAL_NOTE, t, userSettings } from '$lib/data/stores';
+    import {
+        footnotes,
+        refs,
+        logs,
+        modal,
+        plan,
+        MODAL_NOTE,
+        t,
+        userSettings
+    } from '$lib/data/stores';
     import {
         generateHTML,
         getDisplayString,
@@ -36,6 +45,8 @@ LOGGING:
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -81,7 +92,61 @@ LOGGING:
 
     let container: HTMLElement;
     let displayingIntroduction = false;
+
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
+    let planDivObserver; // To store the observer instance
+    let planObservationCompleted = false;
+    // Function to observe the visibility of the plan div
+    function observeVisibility() {
+        if (planDivObserver) {
+            planDivObserver.disconnect(); // Disconnect any previous observer before creating a new one
+            planDivObserver = null; // Clear the observer reference
+        }
+        if (planDivInChapter() && !$plan.completed) {
+            console.log('PLAN DIV: Checking');
+            const target = document.getElementById('PLAN-next');
+            if (target) {
+                console.log('PLAN DIV: Starting observation');
+                planObservationCompleted = false;
+                planDivObserver = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting && !planObservationCompleted) {
+                                console.log('PLAN DIV: Div Visible');
+                                $plan.completed = true;
+                                planObservationCompleted = true;
+                                planDivObserver.disconnect(); // Stop observing after it becomes visible
+                                planDivObserver = null; // Clear the observer reference after disconnecting
+                            }
+                        });
+                    },
+                    {
+                        threshold: 0.1 // Adjust as needed
+                    }
+                );
+
+                planDivObserver.observe(target);
+            }
+        }
+    }
+    onMount(() => {
+        if (planDivInChapter) {
+            observeVisibility();
+        }
+    });
+
+    afterUpdate(() => {
+        if (references) {
+            observeVisibility();
+        }
+    });
+
+    onDestroy(() => {
+        if (planDivObserver) {
+            planDivObserver.disconnect();
+            planDivObserver = null;
+        }
+    });
 
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
@@ -656,42 +721,116 @@ LOGGING:
         }
         return [footnoteSpan, footnoteDiv];
     }
-    function addPlanDiv(workspace, verseNumber) {
+
+    const planDivInChapter = () => {
+        let planEntryInChapter = false;
         // If plan entry is -1, there is no active entry
         if ($plan.planEntry !== -1) {
-            if (($plan.planBookId === references.book) && 
-                ($plan.planChapter.toString() === references.chapter) &&
-                ($plan.planToVerse.toString() === verseNumber)
+            if (
+                $plan.planBookId === references.book &&
+                $plan.planChapter.toString() === references.chapter
             ) {
-                console.log('PLAN DIV: Add entry:', verseNumber);
-                const planDiv = document.createElement('div');
-                planDiv.id = 'plan-progress';
-                planDiv.classList.add('plan-progress-block');
-                appendProgressTextDiv(planDiv, 'plan-progress-info', '', $t['Plans_Progress_Item_Completed']);
-                appendProgressTextDiv(planDiv, 'plan-progress-reference', '',getPlanReferenceString($plan.planReference));
-                const hr = document.createElement('hr');
-                if (plan.nextReference !== '') {
-                    planDiv.append(hr);
-                    appendProgressTextDiv(planDiv, 'plan-progress-info', '', $t['Plans_Progress_Next_Reading']);
-                    appendProgressTextDiv(planDiv, 'plan-progress-reference', '', getPlanReferenceString($plan.planNextReference));
-                    appendProgressTextDiv(planDiv, 'plan-progress-button', 'PLAN-next', $t['Button_Next']);
-                } else {
-                    appendProgressTextDiv(planDiv, 'plan-progress-button', 'PLAN-view', $t['Plans_Button_View_Plan']);
-                }
-                console.log('PLAN DIV: Div: ', planDiv, workspace.paragraphDiv);
-                workspace.root.appendChild(workspace.paragraphDiv);
-                workspace.root.appendChild(planDiv);
-                workspace.paragraphDiv = document.createElement('div');
-                workspace.paragraphDiv.classList.add('p');
-            } else {
-                console.log('PLAN DIV - Add Entry - no match:', $plan.planToVerse.toString(), verseNumber);
+                planEntryInChapter = true;
             }
-        } else {
-            console.log('PLAN DIV - no active entry');
+        }
+        return planEntryInChapter;
+    };
+    function addPlanDiv(workspace, verseNumber) {
+        if (planDivInChapter() && $plan.planToVerse.toString() === verseNumber) {
+            console.log(
+                'PLAN DIV: Add entry: %o %o Next: %o',
+                verseNumber,
+                planDivInChapter,
+                $plan.planNextReference
+            );
+            const planDiv = document.createElement('div');
+            planDiv.id = 'plan-progress';
+            planDiv.classList.add('plan-progress-block');
+            appendPlanProgressTextDiv(
+                planDiv,
+                'plan-progress-info',
+                '',
+                $t['Plans_Progress_Item_Completed'],
+                false
+            );
+            appendPlanProgressTextDiv(
+                planDiv,
+                'plan-progress-reference',
+                '',
+                getPlanReferenceString($plan.planReference),
+                false
+            );
+            const hr = document.createElement('hr');
+            if ($plan.planNextReference !== '') {
+                planDiv.append(hr);
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-info',
+                    '',
+                    $t['Plans_Progress_Next_Reading'],
+                    false
+                );
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-reference',
+                    '',
+                    getPlanReferenceString($plan.planNextReference),
+                    false
+                );
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-button',
+                    'PLAN-next',
+                    $t['Button_Next'],
+                    true
+                );
+            } else {
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-button',
+                    'PLAN-next',
+                    $t['Plans_Button_View_Plan'],
+                    true
+                );
+            }
+            console.log('PLAN DIV: Div: ', planDiv, workspace.paragraphDiv);
+            workspace.root.appendChild(workspace.paragraphDiv);
+            workspace.root.appendChild(planDiv);
+            workspace.paragraphDiv = document.createElement('div');
+            workspace.paragraphDiv.classList.add('p');
+        } else if ((planDivInChapter() === false) && ($plan.completed === true)) {
+            // If we are no longer in the plan chapter and the plan section
+            // has been read, clear plan so that the plan item will not 
+            // appear if you go back to that chapter
+            console.log('PLAN DIV - clear entry');
+            $plan = {
+                planId: '',
+                planDay: 0,
+                planEntry: -1,
+                planBookId: '',
+                planChapter: 0,
+                planFromVerse: 0,
+                planToVerse: 0,
+                planReference: '',
+                planNextReference: '',
+                completed: false
+            };
         }
     }
-    function appendProgressTextDiv(progressDiv: HTMLDivElement, divClass: string, divId: string, stringId: string) {
+    function appendPlanProgressTextDiv(
+        progressDiv: HTMLDivElement,
+        divClass: string,
+        divId: string,
+        stringId: string,
+        addClick: boolean
+    ) {
         const textDiv = document.createElement('div');
+        if (divId !== '') {
+            textDiv.id = divId;
+        }
+        if (addClick) {
+            textDiv.onclick = (event) => planClicked();
+        }
         textDiv.classList.add(divClass);
         const textNode = document.createTextNode(stringId);
         textDiv.append(textNode);
@@ -707,6 +846,23 @@ LOGGING:
             verseRanges
         );
         return displayString;
+    }
+    function planClicked() {
+        console.log("PLAN DIV: Plan clicked");
+        if ($plan.planNextReference === '') {
+            goto(`${base}/plans/${$plan.planId}`);
+        } else {
+            let currentBookCollectionId = references.collection;
+            const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString($plan.planNextReference);
+            const [fromVerse, toVerse, separator] = verseRanges[0];
+            let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
+            refs.set({
+                docSet: currentBookCollectionId,
+                book: book,
+                chapter: toChapter.toString(),
+                verse: destinationVerse.toString()
+            });
+        }
     }
     function placeElement(
         document: Document,
@@ -1091,6 +1247,7 @@ LOGGING:
                                 if (showImage()) {
                                     addIllustrations(illustrations);
                                 }
+                                addPlanDiv(workspace, '-1');
                             }
                             addFooter(document, workspace.root, docSet);
                         }
@@ -1221,8 +1378,8 @@ LOGGING:
                                         }
                                         // Build div
                                         if (workspace.paragraphDiv.innerHTML !== '') {
-                                            workspace.root.appendChild(workspace.paragraphDiv); 
-                                        } 
+                                            workspace.root.appendChild(workspace.paragraphDiv);
+                                        }
                                         if (workspace.videoDiv) {
                                             workspace.root.appendChild(workspace.videoDiv);
                                             workspace.videoDiv = null;
@@ -1251,8 +1408,8 @@ LOGGING:
                                     }
                                     // Build div
                                     if (workspace.paragraphDiv.innerHTML !== '') {
-                                        workspace.root.appendChild(workspace.paragraphDiv); 
-                                    } 
+                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                    }
                                     if (workspace.videoDiv) {
                                         workspace.root.appendChild(workspace.videoDiv);
                                         workspace.videoDiv = null;
