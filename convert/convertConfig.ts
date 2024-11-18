@@ -721,25 +721,17 @@ function parseDictionaryWritingSystem(
     if (sortMethodTag) {
         const type = sortMethodTag.attributes.getNamedItem('type')?.value;
         const ignoreCharsTag = sortMethodTag.getElementsByTagName('ignore-chars')[0];
-        const ignoreChars = ignoreCharsTag
-            ? ignoreCharsTag.textContent?.split(/\s+/).filter((char) => char)
-            : undefined;
+        const ignoreChars = ignoreCharsTag ? ignoreCharsTag.innerHTML.split(/\s+/) : undefined;
         sortMethod = { type: type || 'default', ignoreChars };
     } else {
         sortMethod = { type: 'default' };
     }
 
-    let alphabet: string[] | undefined;
     const alphabetTag = element.getElementsByTagName('alphabet')[0];
-    if (alphabetTag) {
-        alphabet = alphabetTag.textContent?.split(/\s+/).filter((letter) => letter);
-    }
+    const alphabet = alphabetTag ? alphabetTag.innerHTML.split(/\s+/) : undefined;
 
-    let inputButtons: string[] | undefined;
     const inputButtonsTag = element.getElementsByTagName('input-buttons')[0];
-    if (inputButtonsTag) {
-        inputButtons = inputButtonsTag.textContent?.split(/\s+/).filter((button) => button);
-    }
+    const inputButtons = inputButtonsTag ? inputButtonsTag.innerHTML.split(/\s+/) : undefined;
 
     // Parse the features
     let features: Record<string, boolean> | undefined;
