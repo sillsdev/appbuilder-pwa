@@ -258,14 +258,14 @@ function convertConfig(dataDir: string, verbose: number) {
                 (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
             ).length > 0;
     }
-    if (isDictionaryConfig(data)) {
-        const writingSystems: { [key: string]: DictionaryWritingSystemConfig } = {};
-        const writingSystemsTag = document.getElementsByTagName('writing-systems')[0];
+    if(isDictionaryConfig(data)){
+        const writingSystems: {[key: string] : DictionaryWritingSystemConfig} = {};
+         const writingSystemsTag = document.getElementsByTagName('writing-systems')[0];
         const writingSystemTags = writingSystemsTag.getElementsByTagName('writing-system');
-        for (const tag of writingSystemTags) {
-            const writingSystem = parseDictionaryWritingSystem(tag, verbose);
-            const code: string = tag.attributes.getNamedItem('code')!.value;
-            writingSystems[code] = writingSystem;
+        for(const tag of writingSystemTags){
+          const writingSystem =  parseDictionaryWritingSystem(tag, verbose);
+          const code : string = tag.attributes.getNamedItem('code')!.value;
+          writingSystems[code] = writingSystem;
         }
 
         data.writingSystems = writingSystems;
@@ -664,7 +664,11 @@ function parseBookCollections(document: Document, verbose: number) {
     return bookCollections;
 }
 
-function parseInterfaceLanguages(document: Document, data: AppConfig, verbose: number) {
+function parseInterfaceLanguages(
+    document: Document,
+    data: AppConfig,
+    verbose: number
+) {
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
     const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
     const interfaceLanguages: {
@@ -677,10 +681,10 @@ function parseInterfaceLanguages(document: Document, data: AppConfig, verbose: n
         .getElementsByTagName('writing-system');
 
     for (const tag of writingSystemsTags) {
-        const code: string = tag.attributes.getNamedItem('code')!.value;
+        const code : string = tag.attributes.getNamedItem('code')!.value;
         const writingSystem = parseWritingSystem(tag, verbose);
         interfaceLanguages.writingSystems[code] = writingSystem;
-
+      
         if (verbose >= 2) {
             console.log(`.. writing system ${code}`);
         }
@@ -692,7 +696,8 @@ function parseInterfaceLanguages(document: Document, data: AppConfig, verbose: n
     return interfaceLanguages;
 }
 
-function parseWritingSystem(element: Element, verbose: number): WritingSystemConfig {
+function parseWritingSystem (element: Element, verbose: number) : WritingSystemConfig
+{
     const type = element.attributes.getNamedItem('type')!.value;
     const fontFamily = element.getElementsByTagName('font-family')[0].innerHTML;
     const textDirection = parseTrait(element, 'text-direction');
@@ -707,7 +712,7 @@ function parseWritingSystem(element: Element, verbose: number): WritingSystemCon
         textDirection,
         displayNames
     };
-
+    
     return writingSystem;
 }
 function parseDictionaryWritingSystem(
@@ -724,9 +729,9 @@ function parseDictionaryWritingSystem(
         const ignoreChars = ignoreCharsTag
             ? ignoreCharsTag.textContent?.split(/\s+/).filter((char) => char)
             : undefined;
-        sortMethod = { type: type || 'default', ignoreChars };
+        sortMethod = { type: type || "default", ignoreChars };
     } else {
-        sortMethod = { type: 'default' };
+        sortMethod = { type: "default" };
     }
 
     let alphabet: string[] | undefined;
@@ -738,7 +743,9 @@ function parseDictionaryWritingSystem(
     let inputButtons: string[] | undefined;
     const inputButtonsTag = element.getElementsByTagName('input-buttons')[0];
     if (inputButtonsTag) {
-        inputButtons = inputButtonsTag.textContent?.split(/\s+/).filter((button) => button);
+        inputButtons = inputButtonsTag.textContent
+            ?.split(/\s+/)
+            .filter((button) => button);
     }
 
     // Parse the features
@@ -766,9 +773,10 @@ function parseDictionaryWritingSystem(
         alphabet,
         inputButtons,
         features,
-        reversalFilename
+        reversalFilename,
     };
 }
+
 
 function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
