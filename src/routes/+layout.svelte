@@ -4,6 +4,8 @@
     import FontSelector from '$lib/components/FontSelector.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
+    import NoteDialog from '$lib/components/NoteDialog.svelte';
+    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import catalog from '$lib/data/catalogData';
     import config from '$lib/data/config';
     import {
@@ -21,18 +23,6 @@
     } from '$lib/data/stores';
 
     const isSAB = config.programType == 'SAB';
-
-    // Delay import components only used in SAB
-    let NoteDialog;
-    let CollectionSelector;
-    if (isSAB) {
-        import('$lib/components/NoteDialog.svelte').then((module) => {
-            NoteDialog = module;
-        });
-        import('$lib/components/CollectionSelector.svelte').then((module) => {
-            CollectionSelector = module;
-        });
-    }
 
     if (isSAB && !$refs.initialized) {
         catalog.setFetch(fetch);
@@ -93,19 +83,11 @@
         <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 
         {#if isSAB}
-            {#if NoteDialog}
-                <!-- Add Note Menu -->
-                <svelte:component this={NoteDialog} bind:this={noteDialog} />
-            {/if}
+            <!-- Add Note Menu -->
+            <NoteDialog bind:this={noteDialog} />
 
-            {#if CollectionSelector}
-                <!-- Collection Selector Menu -->
-                <svelte:component
-                    this={CollectionSelector}
-                    bind:this={collectionSelector}
-                    vertOffset={NAVBAR_HEIGHT}
-                />
-            {/if}
+            <!-- Collection Selector Menu -->
+            <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
         {/if}
 
         <!-- Text Appearance Options Menu -->
