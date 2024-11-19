@@ -5,10 +5,15 @@
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
 <<<<<<< HEAD
+<<<<<<< HEAD
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
 =======
 >>>>>>> 21b6475 (Handle DAB/SAB differences in layout)
+=======
+    import NoteDialog from '$lib/components/NoteDialog.svelte';
+    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
+>>>>>>> 58a6696 (Fix layout object references (#726))
     import catalog from '$lib/data/catalogData';
     import config from '$lib/data/config';
     import {
@@ -28,6 +33,7 @@
     const isSAB = config.programType == 'SAB';
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     // Delay import components only used in SAB
     let NoteDialog;
@@ -42,6 +48,8 @@
     }
 
 >>>>>>> 21b6475 (Handle DAB/SAB differences in layout)
+=======
+>>>>>>> 58a6696 (Fix layout object references (#726))
     if (isSAB && !$refs.initialized) {
         catalog.setFetch(fetch);
         // When this async function completes, $refs.intialized will be true.
@@ -102,6 +110,7 @@
 
         {#if isSAB}
 <<<<<<< HEAD
+<<<<<<< HEAD
             <!-- Add Note Menu -->
             <NoteDialog bind:this={noteDialog} />
 
@@ -122,6 +131,13 @@
                 />
             {/if}
 >>>>>>> 21b6475 (Handle DAB/SAB differences in layout)
+=======
+            <!-- Add Note Menu -->
+            <NoteDialog bind:this={noteDialog} />
+
+            <!-- Collection Selector Menu -->
+            <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
+>>>>>>> 58a6696 (Fix layout object references (#726))
         {/if}
 
         <!-- Text Appearance Options Menu -->
