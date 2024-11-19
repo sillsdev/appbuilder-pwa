@@ -63,7 +63,6 @@
             const [fromVerse, toVerse, separator] = verseRanges[0];
             let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
             getNextPlanReference($page.data.planConfig, item, index).then(([nextReference, nextIndex]) => {
-                console.log('PLAN DIV: next', nextIndex, nextReference);
                 $plan = {
                     planId: $page.data.planData.id,
                     planDay: item.day,

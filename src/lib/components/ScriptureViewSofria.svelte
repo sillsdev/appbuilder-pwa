@@ -15,6 +15,7 @@ LOGGING:
     import config from '$lib/data/config';
     import { base } from '$app/paths';
     import {
+        audioPlayer,
         footnotes,
         refs,
         logs,
@@ -40,7 +41,7 @@ LOGGING:
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import { audioPlayer } from '$lib/data/stores';
+    import { getNextPlanReference, getPlanData } from '$lib/data/plansData';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
@@ -737,12 +738,6 @@ LOGGING:
     };
     function addPlanDiv(workspace, verseNumber) {
         if (planDivInChapter() && $plan.planToVerse.toString() === verseNumber) {
-            console.log(
-                'PLAN DIV: Add entry: %o %o Next: %o',
-                verseNumber,
-                planDivInChapter,
-                $plan.planNextReference
-            );
             const planDiv = document.createElement('div');
             planDiv.id = 'plan-progress';
             planDiv.classList.add('plan-progress-block');
@@ -793,7 +788,6 @@ LOGGING:
                     true
                 );
             }
-            console.log('PLAN DIV: Div: ', planDiv, workspace.paragraphDiv);
             workspace.root.appendChild(workspace.paragraphDiv);
             workspace.root.appendChild(planDiv);
             workspace.paragraphDiv = document.createElement('div');
@@ -802,7 +796,6 @@ LOGGING:
             // If we are no longer in the plan chapter and the plan section
             // has been read, clear plan so that the plan item will not 
             // appear if you go back to that chapter
-            console.log('PLAN DIV - clear entry');
             $plan = {
                 planId: '',
                 planDay: 0,
@@ -847,21 +840,44 @@ LOGGING:
         );
         return displayString;
     }
+    async function gotoPlanReference() {
+        let currentBookCollectionId = references.collection;
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString($plan.planNextReference);
+        const [fromVerse, toVerse, separator] = verseRanges[0];
+        let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
+        const allPlans = config.plans.plans;
+        const id = $plan.planId;
+        const planConfig = allPlans.find((x) => x.id === id);
+        let planData = await getPlanData(planConfig);
+        const item = planData.items[$plan.planDay - 1];
+        const [ nextReference, nextIndex ] = await getNextPlanReference(planConfig, item, $plan.planNextReferenceIndex);
+        const newEntry = $plan.planNextReferenceIndex;
+        const newReference = $plan.planNextReference;
+        $plan = {
+            planId: $plan.planId,
+            planDay: $plan.planDay,
+            planEntry: newEntry,
+            planBookId: book,
+            planChapter: toChapter,
+            planFromVerse: fromVerse,
+            planToVerse: toVerse,
+            planReference: newReference,
+            planNextReference: nextReference,
+            planNextReferenceIndex: nextIndex,
+            completed: false
+        };
+        refs.set({
+            docSet: currentBookCollectionId,
+            book: book,
+            chapter: toChapter.toString(),
+            verse: destinationVerse.toString()
+        });
+    }
     function planClicked() {
-        console.log("PLAN DIV: Plan clicked");
         if ($plan.planNextReference === '') {
             goto(`${base}/plans/${$plan.planId}`);
         } else {
-            let currentBookCollectionId = references.collection;
-            const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString($plan.planNextReference);
-            const [fromVerse, toVerse, separator] = verseRanges[0];
-            let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-            refs.set({
-                docSet: currentBookCollectionId,
-                book: book,
-                chapter: toChapter.toString(),
-                verse: destinationVerse.toString()
-            });
+            gotoPlanReference();
         }
     }
     function placeElement(

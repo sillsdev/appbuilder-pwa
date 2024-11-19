@@ -48,11 +48,10 @@ export async function getNextPlanReference(planConfig: any, planItem: PlanItem, 
     if (planData) {
         // This needs to be expanded to check for first incomplete item in the list
         // once the database for the progress is completed
-        if (planItem.refs.length + 1 > currentIndex) {
+        if (planItem.refs.length > currentIndex + 1) {
             nextReferenceIndex = currentIndex + 1;
             nextReference = planItem.refs[nextReferenceIndex];
         }
     }
-    console.log('PLAN DIV: Next Reference:', nextReference);
     return [nextReference, nextReferenceIndex];
 }
