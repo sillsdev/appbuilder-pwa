@@ -40,7 +40,7 @@ export class NavigationContext {
             await this.goto(
                 this.docSets[0],
                 collection.books[0].id,
-                collection.books[0].chaptersN.split('-')[0],
+                collection.books[0].chaptersN.split('-')[0], //TODO: what if chaptersN is undefined?
                 '1'
             );
         }
