@@ -1051,9 +1051,13 @@ function parseLayouts(document: Document, bookCollections: any, verbose: number)
                 }
             }
 
-            const layoutCollections = Array.from(
-                layout.getElementsByTagName('layout-collection')
-            ).map((element) => element.getAttribute('id')!) || [bookCollections[0]?.id];
+            const layoutCollectionElements = layout.getElementsByTagName('layout-collection');
+            const layoutCollections =
+                layoutCollectionElements.length > 0
+                    ? Array.from(layoutCollectionElements).map((element) => {
+                          return element.attributes.getNamedItem('id')!.value;
+                      })
+                    : [bookCollections[0].id];
 
             layouts.push({
                 mode,
