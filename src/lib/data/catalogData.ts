@@ -23,7 +23,7 @@ export interface CatalogData {
     }[];
     tags: {};
     quizzes: {};
-    htmlBooks: {
+    htmlBooks?: {
         id: string;
         name: string;
     }[];

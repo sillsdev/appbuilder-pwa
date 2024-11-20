@@ -74,7 +74,10 @@ export class NavigationContext {
             this.collection = docSet.split('_')[1];
             this.catalog = await this.fetchCatalog(this.docSet);
             this.books = this.catalog.documents.map((b) => b.bookCode);
-            this.allBookIds = [...this.books, ...this.catalog.htmlBooks.map((b) => b.id)];
+            this.allBookIds = [
+                ...this.books,
+                ...(this.catalog.htmlBooks ? this.catalog.htmlBooks.map((b) => b.id) : [])
+            ];
             newBook = true;
         }
         if (book !== this.book && this.allBookIds.includes(book)) {
@@ -128,7 +131,7 @@ export class NavigationContext {
             return;
         }
 
-        const htmlBook = this.catalog.htmlBooks.find((b) => b.id === this.book);
+        const htmlBook = this.catalog.htmlBooks?.find((b) => b.id === this.book);
         if (htmlBook) {
             this.title = htmlBook.name;
             this.name = htmlBook.name;
