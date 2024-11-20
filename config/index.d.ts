@@ -30,8 +30,8 @@ export type BookConfig = {
     testament: string;
     section: string; // Pentateuch
     portions?: string;
-    chapters: number;
-    chaptersN: string; // 1-34
+    chapters?: number;
+    chaptersN?: string; // 1-34
     fonts: string[];
     file: string;
     audio: BookCollectionAudioConfig[];
