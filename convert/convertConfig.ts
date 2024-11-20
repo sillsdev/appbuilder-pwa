@@ -557,14 +557,23 @@ function parseBookCollections(document: Document, verbose: number) {
             const format = book.attributes.getNamedItem('format')?.value;
             const file = book.getElementsByTagName('f')[0]?.innerHTML;
 
+            let chapters;
+            const chaptersTag = book.getElementsByTagName('ct')[0];
+            if (chaptersTag) {
+                chapters = parseInt(chaptersTag.attributes.getNamedItem('c')!.value);
+            }
+
+            let chaptersN;
+            const cnTag = book.getElementsByTagName('cn')[0];
+            if (cnTag) {
+                chaptersN = cnTag.attributes.getNamedItem('value')!.value;
+            }
+
             books.push({
                 portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
                     ?.value,
-                chapters: parseInt(
-                    book.getElementsByTagName('ct')[0].attributes.getNamedItem('c')!.value
-                ),
-                chaptersN: book.getElementsByTagName('cn')[0].attributes.getNamedItem('value')!
-                    .value,
+                chapters,
+                chaptersN,
                 fonts,
                 id: book.attributes.getNamedItem('id')!.value,
                 type: book.attributes.getNamedItem('type')?.value,
