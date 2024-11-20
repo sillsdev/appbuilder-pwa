@@ -1,5 +1,6 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
+import { requestPersistentStorage } from '$lib/data/persistent-storage';
 
 export interface QuizScore {
     date: number;
@@ -62,6 +63,7 @@ export async function addQuiz(item: {
             bookIndex: bookIndex
         };
         await quiz.add('quiz', nextItem);
+        requestPersistentStorage();
     } catch (error) {
         console.error('Error adding quiz result:', error);
     }

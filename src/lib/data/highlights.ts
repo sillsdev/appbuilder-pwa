@@ -1,5 +1,6 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
+import { requestPersistentStorage } from '$lib/data/persistent-storage';
 import { writable } from 'svelte/store';
 import { invalidate } from '$app/navigation';
 
@@ -147,6 +148,7 @@ export async function getHighlights(): Promise<HighlightItem[]> {
 
 function notifyUpdated() {
     highlightsLastUpdated.set(Date.now());
+    requestPersistentStorage();
     invalidate('highlights');
 }
 

@@ -1,4 +1,5 @@
 import { openDB, type DBSchema } from 'idb';
+import { requestPersistentStorage } from '$lib/data/persistent-storage';
 
 export interface HistoryItem {
     date: number;
@@ -60,6 +61,7 @@ export async function addHistory(
         clearTimeout(nextTimer);
         nextTimer = null;
         nextItem = null;
+        requestPersistentStorage();
     }, 2000);
 }
 

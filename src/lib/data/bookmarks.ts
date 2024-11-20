@@ -1,5 +1,6 @@
 import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
+import { requestPersistentStorage } from '$lib/data/persistent-storage';
 import { writable } from 'svelte/store';
 import { invalidate } from '$app/navigation';
 
@@ -118,6 +119,7 @@ export async function getBookmarks(): Promise<BookmarkItem[]> {
 
 function notifyUpdated() {
     bookmarksLastUpdated.set(Date.now());
+    requestPersistentStorage();
     invalidate('bookmarks');
 }
 
