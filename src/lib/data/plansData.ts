@@ -2,7 +2,7 @@ import { base } from '$app/paths';
 
 let fetchFn = fetch;
 
-export type PlanItem = {
+export type PlanDataItem = {
     day: number;
     heading?: {
         [lang: string]: string;
@@ -20,7 +20,7 @@ export type PlansData = {
     };
     image?: string;
 
-    items?: PlanItem[];
+    items?: PlanDataItem[];
 };
 
 export async function getPlanData(planConfig: any): Promise<PlansData> {
@@ -39,19 +39,4 @@ export async function getPlanData(planConfig: any): Promise<PlansData> {
         console.error('Error fetching plan JSON file:', error);
     }
     return planData;
-}
-
-export async function getNextPlanReference(planConfig: any, planItem: PlanItem, currentIndex: number ): Promise<[string, number]> {
-    let planData = await getPlanData(planConfig);
-    let nextReference = '';
-    let nextReferenceIndex = -1;
-    if (planData) {
-        // This needs to be expanded to check for first incomplete item in the list
-        // once the database for the progress is completed
-        if (planItem.refs.length > currentIndex + 1) {
-            nextReferenceIndex = currentIndex + 1;
-            nextReference = planItem.refs[nextReferenceIndex];
-        }
-    }
-    return [nextReference, nextReferenceIndex];
 }

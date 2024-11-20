@@ -65,4 +65,3 @@ export async function getPlans(): Promise<PlanItem[]> {
     const plans = await openPlans();
     return await plans.getAll('plans');
 }
-

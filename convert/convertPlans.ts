@@ -3,7 +3,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
-import { PlanItem, PlansData } from '../src/lib/data/plansData';
+import { PlanDataItem, PlansData } from '../src/lib/data/plansData';
 
 function changeFileExtension(filename: string, ext: string): string {
     const lastDotIndex = filename.lastIndexOf('.');
@@ -80,8 +80,8 @@ function convertPlan(srcFile: string): PlansData {
     let id = '';
     let title: { [lang: string]: string } = {};
     let description: { [lang: string]: string } = {};
-    const items: PlanItem[] = [];
-    let item: PlanItem = { day: 0, refs: [] };
+    const items: PlanDataItem[] = [];
+    let item: PlanDataItem = { day: 0, refs: [] };
     for (const line of planSFM.split(/\r?\n/)) {
         const [tag, ...parts] = line.split(' ');
         const value = parts.join(' ');

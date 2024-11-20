@@ -41,13 +41,15 @@ LOGGING:
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import { getNextPlanReference, getPlanData } from '$lib/data/plansData';
+    import { getPlanData } from '$lib/data/plansData';
+    import { getNextPlanReference } from '$lib/data/planProgressItems';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
     import { afterUpdate, onDestroy, onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { addPlanProgressItem } from '$lib/data/planProgressItems';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -118,6 +120,11 @@ LOGGING:
                                 planObservationCompleted = true;
                                 planDivObserver.disconnect(); // Stop observing after it becomes visible
                                 planDivObserver = null; // Clear the observer reference after disconnecting
+                                addPlanProgressItem({
+                                    id: $plan.planId,
+                                    day: $plan.planDay,
+                                    itemIndex: $plan.planEntry
+                                });
                             }
                         });
                     },
@@ -792,9 +799,9 @@ LOGGING:
             workspace.root.appendChild(planDiv);
             workspace.paragraphDiv = document.createElement('div');
             workspace.paragraphDiv.classList.add('p');
-        } else if ((planDivInChapter() === false) && ($plan.completed === true)) {
+        } else if (planDivInChapter() === false && $plan.completed === true) {
             // If we are no longer in the plan chapter and the plan section
-            // has been read, clear plan so that the plan item will not 
+            // has been read, clear plan so that the plan item will not
             // appear if you go back to that chapter
             $plan = {
                 planId: '',
@@ -842,7 +849,9 @@ LOGGING:
     }
     async function gotoPlanReference() {
         let currentBookCollectionId = references.collection;
-        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString($plan.planNextReference);
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(
+            $plan.planNextReference
+        );
         const [fromVerse, toVerse, separator] = verseRanges[0];
         let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
         const allPlans = config.plans.plans;
@@ -850,7 +859,11 @@ LOGGING:
         const planConfig = allPlans.find((x) => x.id === id);
         let planData = await getPlanData(planConfig);
         const item = planData.items[$plan.planDay - 1];
-        const [ nextReference, nextIndex ] = await getNextPlanReference(planConfig, item, $plan.planNextReferenceIndex);
+        const [nextReference, nextIndex] = await getNextPlanReference(
+            $plan.planId,
+            item,
+            $plan.planNextReferenceIndex
+        );
         const newEntry = $plan.planNextReferenceIndex;
         const newReference = $plan.planNextReference;
         $plan = {

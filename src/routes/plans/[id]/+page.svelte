@@ -4,7 +4,7 @@
 
     import { language, s, t, convertStyle, plan, refs } from '$lib/data/stores';
     import { getLastPlanState } from '$lib/data/planStates';
-    import { getNextPlanReference } from '$lib/data/plansData';
+    import { getNextPlanReference, getFirstIncompleteDay } from '$lib/data/planProgressItems';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { base } from '$app/paths';
@@ -25,15 +25,37 @@
     let selectedTab = 'info';
     let inUse = false;
     //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
-    getLastPlanState($page.data.planData.id)
-        .then((planState) => {
-            if (planState && planState === 'started') {
-                selectedTab = 'calendar';
-                inUse = true;
-            }
-        })
-        .catch(console.error);
+    // getLastPlanState($page.data.planData.id)
+    //     .then((planState) => {
+    //         if (planState && planState === 'started') {
+    //             selectedTab = 'calendar';
+    //             inUse = true;
+    //         }
+    //     })
+    //     .catch(console.error);
+    checkPlanState();
     let selectedDay = $page.data.planData.items[0];
+    async function checkPlanState() {
+        const planState = await getLastPlanState($page.data.planData.id);
+        if (planState && planState === 'started') {
+            selectedTab = 'calendar';
+            inUse = true;
+            const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData);
+            if (firstIncompletePlanDay === -1) {
+                // TODO: This means it is complete, which may come up elsewhere but needs
+                // to be looked at later
+            } else {
+                const dayIndex = $page.data.planData.items.findIndex(
+                    (item) => item.day === firstIncompletePlanDay
+                );
+                console.log('PLAN DIV: dayIndex:', dayIndex);
+                if (dayIndex != -1) {
+                    // Should always be found but
+                    selectedDay = $page.data.planData.items[dayIndex];
+                }
+            }
+        }
+    }
     function checkSelection(day) {
         if (day === selectedDay) {
             return 'selected plan-day-box-selected';
@@ -62,28 +84,30 @@
                 getReferenceFromString(ref);
             const [fromVerse, toVerse, separator] = verseRanges[0];
             let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-            getNextPlanReference($page.data.planConfig, item, index).then(([nextReference, nextIndex]) => {
-                $plan = {
-                    planId: $page.data.planData.id,
-                    planDay: item.day,
-                    planEntry: index,
-                    planBookId: book,
-                    planChapter: toChapter,
-                    planFromVerse: fromVerse,
-                    planToVerse: toVerse,
-                    planReference: ref,
-                    planNextReference: nextReference,
-                    planNextReferenceIndex: nextIndex,
-                    completed: false
-                };
-                refs.set({
-                    docSet: currentBookCollectionId,
-                    book: book,
-                    chapter: toChapter.toString(),
-                    verse: destinationVerse.toString()
-                });
-                goto(`${base}/text`);
-            });
+            getNextPlanReference($page.data.planData.id, item, index).then(
+                ([nextReference, nextIndex]) => {
+                    $plan = {
+                        planId: $page.data.planData.id,
+                        planDay: item.day,
+                        planEntry: index,
+                        planBookId: book,
+                        planChapter: toChapter,
+                        planFromVerse: fromVerse,
+                        planToVerse: toVerse,
+                        planReference: ref,
+                        planNextReference: nextReference,
+                        planNextReferenceIndex: nextIndex,
+                        completed: false
+                    };
+                    refs.set({
+                        docSet: currentBookCollectionId,
+                        book: book,
+                        chapter: toChapter.toString(),
+                        verse: destinationVerse.toString()
+                    });
+                    goto(`${base}/text`);
+                }
+            );
         }
     }
 </script>
