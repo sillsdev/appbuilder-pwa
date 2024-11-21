@@ -134,7 +134,9 @@
             <label for="sidebar" slot="center">
                 <div class="btn btn-ghost normal-case text-xl">
                     <!--back navigation isn't quite right-->
-                    {$page.data.planConfig.title[$language] ?? $page.data.planConfig.title.default ?? ''}
+                    {$page.data.planConfig.title[$language] ??
+                        $page.data.planConfig.title.default ??
+                        ''}
                 </div>
             </label>
             <!-- <div slot="right-buttons" class="flex items-center"> -->
