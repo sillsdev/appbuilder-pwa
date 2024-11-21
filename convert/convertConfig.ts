@@ -269,6 +269,16 @@ function convertConfig(dataDir: string, verbose: number) {
         }
 
         data.writingSystems = writingSystems;
+        // Parsing indexes
+        const indexes: { [key: string]: { displayed: boolean } } = {};
+        const indexesTag = document.getElementsByTagName('indexes')[0];
+        const indexTags = indexesTag.getElementsByTagName('index');
+        for (const tag of indexTags) {
+            const lang: string = tag.attributes.getNamedItem('lang')!.value;
+            const displayed: boolean = tag.attributes.getNamedItem('displayed')!.value === 'true';
+            indexes[lang] = { displayed };
+        }
+        data.indexes = indexes;
     }
 
     data.interfaceLanguages = parseInterfaceLanguages(document, data, verbose);
