@@ -11,7 +11,7 @@
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
-    import { CalendarMonthIcon, CheckboxOutlineIcon, InfoIcon } from '$lib/icons';
+    import { CalendarMonthIcon, CheckboxOutlineIcon, CheckboxIcon, InfoIcon } from '$lib/icons';
     console.log('got to id page', $page.data);
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -49,12 +49,23 @@
                     (item) => item.day === firstIncompletePlanDay
                 );
                 console.log('PLAN DIV: dayIndex:', dayIndex);
+                // Should always be found but
                 if (dayIndex != -1) {
-                    // Should always be found but
                     selectedDay = $page.data.planData.items[dayIndex];
                 }
             }
         }
+    }
+    function referenceCompleted(day, refIndex) {
+        let completed = false;
+        // While there should only be 0 or one match, this will get any present
+        const matchingEntries = $page.data.planCompletionData.filter(
+            (item) => item.day === day && item.itemIndex === refIndex
+        );
+        if (matchingEntries.length > 0) {
+            completed = true;
+        }
+        return completed;
     }
     function checkSelection(day) {
         if (day === selectedDay) {
@@ -246,7 +257,11 @@
                                     on:click={goToDailyReference(selectedDay, ref, index)}
                                 >
                                     <td class="plan-item-checkbox plan-checkbox-image">
-                                        <CheckboxOutlineIcon />
+                                        {#if referenceCompleted(selectedDay.day, index) === true}
+                                            <CheckboxIcon />
+                                        {:else}
+                                            <CheckboxOutlineIcon />
+                                        {/if}
                                     </td>
                                     <td class="plan-item-title">
                                         <span class="plan-item-reference"

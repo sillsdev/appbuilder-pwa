@@ -1,5 +1,7 @@
 import config from '../../../lib/data/config';
 import { getPlanData } from '../../../lib/data/plansData';
+import { getAllProgressItemsForPlan } from '$lib/data/PlanProgressItems';
+
 export async function load({ params, fetch }) {
     const allPlans = config.plans.plans;
 
@@ -9,7 +11,9 @@ export async function load({ params, fetch }) {
 
     console.log('plan:', planConfig);
 
-    let planData = await getPlanData(planConfig);
+    const planData = await getPlanData(fetch, planConfig);
 
-    return { planConfig, planData };
+    const planCompletionData = await getAllProgressItemsForPlan(id);
+
+    return { planConfig, planData, planCompletionData };
 }

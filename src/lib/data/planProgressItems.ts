@@ -53,6 +53,13 @@ export async function addPlanProgressItem(item: { id: string; day: number; itemI
         notifyUpdatedPlanStates();
     }
 }
+export async function getAllProgressItemsForPlan(planId: string): Promise<[PlanProgressItem]> {
+    const db = await openPlanProgressItems();
+    const tx = db.transaction('planprogressitems');
+    const index = tx.store.index('planIndex');
+    const planProgressRecords = await index.getAll(planId);
+    return planProgressRecords;
+}
 export async function getCompletedRefsForDay(planId: string, planDay: number): Promise<[number]> {
     const db = await openPlanProgressItems();
     const tx = db.transaction('planprogressitems');
@@ -67,19 +74,12 @@ export async function getFirstIncompleteDay(planData: PlansData): Promise<number
     let nextIncompleteDay = -1;
     for (let i = 0; i < planData.items.length; i++) {
         const completedRefs = await getCompletedRefsForDay(planData.id, planData.items[i].day);
-        console.log(
-            'PLAN DIV: getFirstIncompleteDay: ',
-            planData.items[i].day,
-            completedRefs.length,
-            planData.items[i].refs.length
-        );
         if (completedRefs.length !== planData.items[i].refs.length) {
             // This day has some items that are not completed
             nextIncompleteDay = planData.items[i].day;
             break;
         }
     }
-    console.log('PLAN DIV: getFirstIncompleteDay: return ', nextIncompleteDay);
     return nextIncompleteDay;
 }
 export async function getNextPlanReference(

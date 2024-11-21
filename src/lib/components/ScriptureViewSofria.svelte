@@ -857,7 +857,7 @@ LOGGING:
         const allPlans = config.plans.plans;
         const id = $plan.planId;
         const planConfig = allPlans.find((x) => x.id === id);
-        let planData = await getPlanData(planConfig);
+        let planData = await getPlanData(fetch, planConfig);
         const item = planData.items[$plan.planDay - 1];
         const [nextReference, nextIndex] = await getNextPlanReference(
             $plan.planId,

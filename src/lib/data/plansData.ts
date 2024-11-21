@@ -1,7 +1,5 @@
 import { base } from '$app/paths';
 
-let fetchFn = fetch;
-
 export type PlanDataItem = {
     day: number;
     heading?: {
@@ -23,7 +21,7 @@ export type PlansData = {
     items?: PlanDataItem[];
 };
 
-export async function getPlanData(planConfig: any): Promise<PlansData> {
+export async function getPlanData(fetch: any, planConfig: any): Promise<PlansData> {
     const src = `${base}/plans/${planConfig.jsonFilename}`;
     let planData;
 
