@@ -18,11 +18,16 @@
         });
         goto(`${base}/plans/${id}`);
     }
+    function handleBackNavigation(event) {
+        event.preventDefault();
+        const id = $page.data.planConfig.id;
+        goto(`${base}/plans/${id}`);
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar>
+        <Navbar on:backNavigation={handleBackNavigation}>
             <!-- <div slot="left-buttons" /> -->
             <label for="sidebar" slot="center">
                 <div class="btn btn-ghost normal-case text-xl">
