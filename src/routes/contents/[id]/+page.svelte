@@ -10,7 +10,7 @@
         MODAL_COLLECTION,
         convertStyle,
         contentsStack,
-        MODAL_TEXT_APPERANCE,
+        MODAL_TEXT_APPEARANCE,
         contentsFontSize
     } from '$lib/data/stores';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
@@ -185,7 +185,7 @@
                         <label
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
                             on:click={() =>
-                                modal.open(MODAL_TEXT_APPERANCE, { contentsMode: true })}
+                                modal.open(MODAL_TEXT_APPEARANCE, { contentsMode: true })}
                         >
                             <TextAppearanceIcon color="white" />
                         </label>

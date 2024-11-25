@@ -29,7 +29,7 @@ The sidebar/drawer.
         direction,
         refs,
         modal,
-        MODAL_TEXT_APPERANCE,
+        MODAL_TEXT_APPEARANCE,
         MODAL_COLLECTION,
         theme,
         themeColors,
@@ -211,7 +211,7 @@ The sidebar/drawer.
                 <button
                     style:color={textColor}
                     class="btn"
-                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                    on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
                 >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </button>

@@ -2,7 +2,16 @@
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
 
-    import { language, s, t, convertStyle, plan, refs } from '$lib/data/stores';
+    import {
+        language,
+        s,
+        t,
+        convertStyle,
+        plan,
+        refs,
+        modal,
+        MODAL_STOP_PLAN
+    } from '$lib/data/stores';
     import { getLastPlanState } from '$lib/data/planStates';
     import { getNextPlanReference, getFirstIncompleteDay } from '$lib/data/planProgressItems';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
@@ -11,14 +20,18 @@
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { compareVersions } from '$lib/scripts/stringUtils';
-    import { CalendarMonthIcon, CheckboxOutlineIcon, CheckboxIcon, InfoIcon } from '$lib/icons';
+    import {
+        CalendarMonthIcon,
+        CheckboxOutlineIcon,
+        SettingsIcon,
+        CheckboxIcon,
+        InfoIcon
+    } from '$lib/icons';
     console.log('got to id page', $page.data);
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
 
-    console.log('planData:', $page.data.planData);
-    console.log('style: ', convertStyle($s['ui.plans.tabs.icon']));
-
+    const barIconColor = $s['ui.bar.text-select.icon']['color'];
     //need some way to know the status of the plan
     //for now assume it's from choose plans
 
@@ -35,6 +48,7 @@
     //     .catch(console.error);
     checkPlanState();
     let selectedDay = $page.data.planData.items[0];
+    let planId = $page.data.planData.id;
     async function checkPlanState() {
         const planState = await getLastPlanState($page.data.planData.id);
         if (planState && planState === 'started') {
@@ -125,6 +139,7 @@
         event.preventDefault();
         goto(`${base}/plans`);
     }
+    
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -170,7 +185,8 @@
                 aria-label="info icon"
                 style={convertStyle($s['ui.plans.tabs.text'])}
             >
-                <InfoIcon style={convertStyle($s['ui.plans.tabs.icon'])}></InfoIcon>
+                <InfoIcon color={barIconColor} style={convertStyle($s['ui.plans.tabs.icon'])}
+                ></InfoIcon>
             </div>
 
             <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -180,9 +196,25 @@
                 on:click={() => (selectedTab = 'calendar')}
                 aria-label="calendar logo"
             >
-                <CalendarMonthIcon style={convertStyle($s['ui.plans.tabs.icon'])}
+                <CalendarMonthIcon
+                    color={barIconColor}
+                    style={convertStyle($s['ui.plans.tabs.icon'])}
                 ></CalendarMonthIcon>
             </div>
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            {#if inUse === true}
+                <div
+                    name="my_tabs_1"
+                    class="dy-tab {selectedTab === 'settings' ? 'dy-tab-active' : ''}"
+                    on:click={() => (selectedTab = 'settings')}
+                    aria-label="settings icon"
+                >
+                    <SettingsIcon
+                        color={barIconColor}
+                        style={convertStyle($s['ui.plans.tabs.icon'])}
+                    ></SettingsIcon>
+                </div>
+            {/if}
         </div>
 
         <div id="container" class="plan-chooser">
@@ -264,9 +296,9 @@
                                 >
                                     <td class="plan-item-checkbox plan-checkbox-image">
                                         {#if referenceCompleted(selectedDay.day, index) === true}
-                                            <CheckboxIcon />
+                                            <CheckboxIcon color={barIconColor} />
                                         {:else}
-                                            <CheckboxOutlineIcon />
+                                            <CheckboxOutlineIcon color={barIconColor} />
                                         {/if}
                                     </td>
                                     <td class="plan-item-title">
@@ -278,6 +310,22 @@
                             {/each}
                         </tbody>
                     </table>
+                </div>
+            {/if}
+            {#if selectedTab === 'settings'}
+                <div id="container" class="plan-config">
+                    <div class="plan-config-info">
+                        {$t['Plans_Config_Stop_Plan_info']}
+                    </div>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <div
+                        class="plan-button plan-config-button"
+                        id="PLAN-stop"
+                        on:click={() => modal.open(MODAL_STOP_PLAN, planId)}
+                    >
+                        {$t['Plans_Button_Stop_Plan']}
+                    </div>
                 </div>
             {/if}
         </div>

@@ -60,6 +60,17 @@ export async function getAllProgressItemsForPlan(planId: string): Promise<[PlanP
     const planProgressRecords = await index.getAll(planId);
     return planProgressRecords;
 }
+export async function deleteAllProgressItemsForPlan(planId: string) {
+    const db = await openPlanProgressItems();
+    const tx = db.transaction('planprogressitems', 'readwrite');
+    const index = tx.store.index('planIndex');
+    const planProgressRecords = await index.getAllKeys(planId);
+    for (const key of planProgressRecords) {
+        await tx.store.delete(key);
+    }
+    await tx.done;
+    console.log(`Plan: Deleted ${planProgressRecords.length} records with plan ID "${planId}"`);
+}
 export async function getCompletedRefsForDay(planId: string, planDay: number): Promise<[number]> {
     const db = await openPlanProgressItems();
     const tx = db.transaction('planprogressitems');

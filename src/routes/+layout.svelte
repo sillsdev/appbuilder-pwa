@@ -15,12 +15,15 @@
         MODAL_COLLECTION,
         MODAL_FONT,
         MODAL_NOTE,
-        MODAL_TEXT_APPERANCE,
+        MODAL_TEXT_APPEARANCE,
+        MODAL_STOP_PLAN,
         NAVBAR_HEIGHT,
         refs,
         s,
         theme
     } from '$lib/data/stores';
+    import '$lib/app.css';
+    import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
 
     const isSAB = config.programType == 'SAB';
 
@@ -48,12 +51,16 @@
                         noteDialog.note = data;
                         noteDialog.showModal();
                         break;
-                    case MODAL_TEXT_APPERANCE:
+                    case MODAL_TEXT_APPEARANCE:
                         textAppearanceSelector.options = data;
                         textAppearanceSelector.showModal();
                         break;
                     case MODAL_FONT:
                         fontSelector.showModal();
+                        break;
+                    case MODAL_STOP_PLAN:
+                        planStopDialog.planId = data;
+                        planStopDialog.showModal();
                         break;
                 }
             });
@@ -65,6 +72,7 @@
     let collectionSelector;
     let fontSelector;
     let noteDialog;
+    let planStopDialog;
 </script>
 
 <svelte:head>
@@ -94,6 +102,8 @@
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
         <FontSelector bind:this={fontSelector} />
+
+        <PlanStopDialog bind:this={planStopDialog} vertOffset={NAVBAR_HEIGHT} />
     </div>
 
     <Sidebar on:showModal={showModal}>

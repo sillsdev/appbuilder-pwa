@@ -10,7 +10,7 @@
         themeColors,
         modal,
         MODAL_COLLECTION,
-        MODAL_TEXT_APPERANCE
+        MODAL_TEXT_APPEARANCE
     } from '$lib/data/stores';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -53,7 +53,6 @@
             selectedTab = 'in-use';
         }
     });
-    // let plansInUse = $page.data.plans || [];
 
     $: {
         availablePlans = allPlans.filter(

@@ -27,8 +27,9 @@ export const layout = writable(singleLayout);
 
 export const MODAL_COLLECTION = 'collection';
 export const MODAL_NOTE = 'note';
-export const MODAL_TEXT_APPERANCE = 'text-appearance';
+export const MODAL_TEXT_APPEARANCE = 'text-appearance';
 export const MODAL_FONT = 'font';
+export const MODAL_STOP_PLAN = 'stop-plan';
 
 function createModal() {
     const { subscribe, set } = writable([]);
