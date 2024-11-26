@@ -15,6 +15,11 @@ jobs:
 
             - uses: volta-cli/action@v4
 
+            - name: App Builder Prerequisites Install
+              uses: ConorMacBride/install-package@v1
+              with:
+                  apt: openjfx libopenjfx-jni
+
             - name: App Builders Install
               run: |
                   docker pull ghcr.io/sillsdev/app-builders:latest
@@ -23,6 +28,7 @@ jobs:
                   docker cp "$container_id:/" ./app-builders
                   docker rm "$container_id"
                   chmod +x ./app-builders/*.sh
+                  java -version
                   ./app-builders/sab.sh -? | head -n 4
 
             - name: NPM Install
