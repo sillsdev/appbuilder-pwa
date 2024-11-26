@@ -32,6 +32,7 @@
     let selectedTab = 'available';
 
     let availablePlans = [];
+    let completedPlans = [];
     let usedPlans = [];
     let allPlans = config.plans.plans || [];
     let plansInUse = [];
@@ -41,6 +42,8 @@
                 if (planState && planState === 'started') {
                     console.log('Plan in use', plan.id);
                     plansInUse = [...plansInUse, plan];
+                } if (planState && planState === 'completed' ) {
+                    completedPlans = [...completedPlans, plan];
                 } else {
                     console.log('Plan not in use', plan.id);
                 }
@@ -100,6 +103,17 @@
                 aria-label={$t['Plans_Tab_Choose_Plan']}
                 style={convertStyle($s['ui.plans.tabs.text'])}
             />
+            {#if completedPlans.length > 0}
+                <input
+                    type="radio"
+                    name="my_tabs_1"
+                    role="tab"
+                    class="dy-tab dy-tab-bordered {selectedTab === 'completed' ? 'dy-tab-active' : ''}"
+                    on:click={() => (selectedTab = 'completed')}
+                    aria-label={$t['Plans_Tab_Completed_Plans']}
+                    style={convertStyle($s['ui.plans.tabs.text'])}
+                />
+            {/if}
         </div>
 
         <div id="container" class="plan-chooser">
@@ -140,6 +154,38 @@
                 <ul>
                     {#each usedPlans as plan}
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div
+                            class="plan-chooser-plan plan-chooser-link"
+                            id={plan.id}
+                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                        >
+                            {#if plan.image}
+                                <div class="plan-image-block">
+                                    <img
+                                        class="plan-image"
+                                        src="{base}/{imageFolder}/{plan.image.file}"
+                                        alt={plan.image.file}
+                                        width={plan.image.width}
+                                        height={plan.image.height}
+                                    />
+                                </div>
+                            {/if}
+                            <div class="plan-text-block">
+                                <div class="plan-chooser-title">
+                                    {plan.title[$language] ?? plan.title.default ?? ''}
+                                </div>
+                                <div class="plan-chooser-days">
+                                    {$t['Plans_Number_Days'].replace('%d', plan.days)}
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </ul>
+            {:else if selectedTab === 'completed'}
+                <ul>
+                    {#each completedPlans as plan}
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <div
                             class="plan-chooser-plan plan-chooser-link"

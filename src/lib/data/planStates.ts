@@ -88,6 +88,7 @@ export async function addPlanState(item: { id: string; state: string }) {
 }
 
 function notifyUpdatedPlanStates() {
+    console.log("PLAN STATE UPDATED");
     planStatesLastUpdated.set(Date.now());
     invalidate('planstates');
 }

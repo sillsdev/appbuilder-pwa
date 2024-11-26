@@ -9,8 +9,6 @@ export async function load({ params, fetch }) {
 
     const planConfig = allPlans.find((x) => x.id === id);
 
-    console.log('plan:', planConfig);
-
     const planData = await getPlanData(fetch, planConfig);
 
     const planCompletionData = await getAllProgressItemsForPlan(id);

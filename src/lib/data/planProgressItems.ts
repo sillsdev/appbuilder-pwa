@@ -61,15 +61,17 @@ export async function getAllProgressItemsForPlan(planId: string): Promise<[PlanP
     return planProgressRecords;
 }
 export async function deleteAllProgressItemsForPlan(planId: string) {
-    const db = await openPlanProgressItems();
-    const tx = db.transaction('planprogressitems', 'readwrite');
-    const index = tx.store.index('planIndex');
-    const planProgressRecords = await index.getAllKeys(planId);
-    for (const key of planProgressRecords) {
-        await tx.store.delete(key);
+    if (planId) {
+        const db = await openPlanProgressItems();
+        const tx = db.transaction('planprogressitems', 'readwrite');
+        const index = tx.store.index('planIndex');
+        const planProgressRecords = await index.getAllKeys(planId);
+        for (const key of planProgressRecords) {
+            await tx.store.delete(key);
+        }
+        await tx.done;
+        console.log(`Plan: Deleted ${planProgressRecords.length} records with plan ID "${planId}"`);
     }
-    await tx.done;
-    console.log(`Plan: Deleted ${planProgressRecords.length} records with plan ID "${planId}"`);
 }
 export async function getCompletedRefsForDay(planId: string, planDay: number): Promise<[number]> {
     const db = await openPlanProgressItems();
@@ -81,14 +83,16 @@ export async function getCompletedRefsForDay(planId: string, planDay: number): P
     );
     return completedRefsForDay;
 }
-export async function getFirstIncompleteDay(planData: PlansData): Promise<number> {
+export async function getFirstIncompleteDay(planData: PlansData, excludeDay: number): Promise<number> {
     let nextIncompleteDay = -1;
     for (let i = 0; i < planData.items.length; i++) {
         const completedRefs = await getCompletedRefsForDay(planData.id, planData.items[i].day);
         if (completedRefs.length !== planData.items[i].refs.length) {
             // This day has some items that are not completed
-            nextIncompleteDay = planData.items[i].day;
-            break;
+            if (planData.items[i].day !== excludeDay) {
+                nextIncompleteDay = planData.items[i].day;
+                break;
+            }
         }
     }
     return nextIncompleteDay;

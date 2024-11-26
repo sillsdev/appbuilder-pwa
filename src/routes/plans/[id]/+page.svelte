@@ -54,7 +54,7 @@
         if (planState && planState === 'started') {
             selectedTab = 'calendar';
             inUse = true;
-            const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData);
+            const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData, -1);
             if (firstIncompletePlanDay === -1) {
                 // TODO: This means it is complete, which may come up elsewhere but needs
                 // to be looked at later
@@ -104,6 +104,7 @@
     function goToDailyReference(item, ref, index) {
         // Only go to reference if in an active plan
         if (inUse) {
+            console.log('PLAN DIV gotoDailyReference:', item.day);
             let currentBookCollectionId = $refs.collection;
             const [collection, book, fromChapter, toChapter, verseRanges] =
                 getReferenceFromString(ref);
