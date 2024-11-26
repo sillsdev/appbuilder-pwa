@@ -15,10 +15,11 @@ jobs:
 
             - uses: volta-cli/action@v4
 
-            - name: App Builder Prerequisites Install
-              uses: ConorMacBride/install-package@v1
+            - uses: actions/setup-java@v4
               with:
-                  apt: openjfx libopenjfx-jni
+                  distribution: 'zulu'
+                  java-version: '17'
+                  java-package: 'jre+fx'
 
             - name: App Builders Install
               run: |
