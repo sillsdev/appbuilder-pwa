@@ -61,7 +61,7 @@ jobs:
                         pushd "$PROJECT_DIR" > /dev/null
                         PROJECT_FILE=$(find . -type f -name "*.appDef")
                         echo "PROJECT_FILE=$PROJECT_FILE"
-                        "$HOME/app-builders/${PROGRAM}.sh" -load "$PROJECT_FILE" -build-modern-pwa-data-files -no-save -fp pwa-repo="${WORK_DIR}/data"
+                        "$HOME/app-builders/${PROGRAM}.sh" -load "$PROJECT_FILE" -build-modern-pwa-data-files -no-save -fp pwa-repo="$WORK_DIR"
                         popd > /dev/null
                         find "$WORK_DIR/data"
                         npm run convert
