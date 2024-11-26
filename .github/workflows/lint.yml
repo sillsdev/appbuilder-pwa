@@ -25,12 +25,12 @@ jobs:
               run: |
                   docker pull ghcr.io/sillsdev/app-builders:latest
                   container_id=$(docker create ghcr.io/sillsdev/app-builders:latest bash)
-                  mkdir ./app-builders
-                  docker cp "$container_id:/" ./app-builders
+                  mkdir /app-builders
+                  docker cp "$container_id:/" /app-builders
                   docker rm "$container_id"
-                  chmod +x ./app-builders/*.sh
+                  chmod +x /app-builders/*.sh
                   java -version
-                  ./app-builders/sab.sh -? | head -n 4
+                  /app-builders/sab.sh -? | head -n 4
 
             - name: NPM Install
               run: |
