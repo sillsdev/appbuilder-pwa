@@ -45,7 +45,7 @@ jobs:
             - name: Run Tests
               run: |
                   WORK_DIR=$(pwd)
-                  for PROGRAM in sab rab; do
+                  for PROGRAM in sab dab; do
                     echo "Processing projects for $PROGRAM"
                     mkdir -p "$HOME/projects/$PROGRAM"
                     PROJECTS=$(jq -r ".${PROGRAM}.projects[]" "test_data/projects/index.json")
@@ -63,7 +63,6 @@ jobs:
                         echo "PROJECT_FILE=$PROJECT_FILE"
                         "$HOME/app-builders/${PROGRAM}.sh" -load "$PROJECT_FILE" -build-modern-pwa-data-files -no-save -fp pwa-repo="$WORK_DIR"
                         popd > /dev/null
-                        find "$WORK_DIR/data"
                         npm run convert
                         npm run test
                     done
