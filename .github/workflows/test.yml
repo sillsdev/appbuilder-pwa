@@ -49,19 +49,16 @@ jobs:
                     echo "Processing projects for $PROGRAM"
                     mkdir -p "$HOME/projects/$PROGRAM"
                     PROJECTS=$(jq -r ".${PROGRAM}.projects[]" "test_data/projects/index.json")
-                    echo "PROJECTS=$PROJECTS"
                     for PROJECT_ZIP in $PROJECTS; do
                         PROJECT_NAME=$(basename "$PROJECT_ZIP" .zip)
-                        echo "Processing project: $PROJECT_NAME"
+                        echo "Project: $PROJECT_NAME"
                         PROJECT_DIR="$HOME/projects/${PROGRAM}/$PROJECT_NAME"
-                        echo "PROJECT_DIR=${PROJECT_DIR}"
                         mkdir -p "$PROJECT_DIR"
                         unzip -q "test_data/projects/${PROGRAM}/$PROJECT_ZIP" -d "$PROJECT_DIR"
-                        npm run clean:all
+                        npm run clean:all > /dev/null
                         pushd "$PROJECT_DIR" > /dev/null
                         PROJECT_FILE=$(find . -type f -name "*.appDef")
-                        echo "PROJECT_FILE=$PROJECT_FILE"
-                        "$HOME/app-builders/${PROGRAM}.sh" -load "$PROJECT_FILE" -build-modern-pwa-data-files -no-save -fp pwa-repo="$WORK_DIR"
+                        "$HOME/app-builders/${PROGRAM}.sh" -load "$PROJECT_FILE" -build-modern-pwa-data-files -no-save -fp pwa-repo="$WORK_DIR" > /dev/null
                         popd > /dev/null
                         npm run convert
                         npm run test
