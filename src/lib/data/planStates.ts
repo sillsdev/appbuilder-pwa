@@ -61,6 +61,15 @@ export async function getPlanStates(): Promise<PlanState[]> {
 }
 
 export async function getLastPlanState(id: string) {
+    let result = null;
+    const record = await getLastPlanStateRecord(id);
+    if (record) {
+        result = record.state;
+    }
+    return result;
+}
+
+export async function getLastPlanStateRecord(id: string) {
     const planstates = await openPlanStates();
     const tx = planstates.transaction('planstates', 'readonly');
     const store = tx.objectStore('planstates');
@@ -74,7 +83,7 @@ export async function getLastPlanState(id: string) {
     const mostRecentRecord = records.reduce((latest, current) => {
         return current.date > latest.date ? current : latest;
     }, records[0]);
-    return mostRecentRecord.state;
+    return mostRecentRecord;
 }
 
 export async function addPlanState(item: { id: string; state: string }) {

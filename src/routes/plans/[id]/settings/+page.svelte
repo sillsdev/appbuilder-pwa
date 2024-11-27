@@ -44,6 +44,9 @@
             <div class="plan-setup-title">
                 {$t['Plans_Setup_Start_Completed_Title']}
             </div>
+            <div class="plan-setup-title">
+                {$t['Plans_Setup_Start_Completed_Message']}
+            </div>
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div

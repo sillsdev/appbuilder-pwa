@@ -192,17 +192,17 @@ LOGGING:
     $: {
         if ($currentPlanData && $plan.planDay) {
             getFirstIncompleteDay($currentPlanData, $plan.planDay).then(day => {
-                console.log('PLAN DIV: updated nextPlanDay: ', day);
                 nextPlanDay = day;
                 if ($plan.planId) {
+                    // The first is true before the end of plan div becomes visible
+                    // When it becomes visible, the records are deleted and nextPlanDay
+                    // is 1 but the plan status is now completed.  So must check both
+                    // to know if the reference being viewed is the last.
                     if (($plan.planNextReference === '') && (nextPlanDay === -1)) {
                         lastPlanReference = true;
-                        console.log('PLAN DIV: updated completion status: ', lastPlanReference);
                     } else {
-                        console.log('Updating completion status');
                         getLastPlanState($plan.planId).then(state => {
                             lastPlanReference = state === 'completed';
-                            console.log('PLAN DIV: updated completion status: ', lastPlanReference);
                         });
                     }
                 }
@@ -781,7 +781,6 @@ LOGGING:
             const planDiv = document.createElement('div');
             planDiv.id = 'plan-progress';
             planDiv.classList.add('plan-progress-block');
-            console.log('PLAN DIV: addPlanDiv nextRef: %o, nextDay: %o ', $plan.planNextReference, nextPlanDay);
             if (lastPlanReference) {
                 // plan is complete once this item finishes
                 console.log('Plan Finished Div Added');

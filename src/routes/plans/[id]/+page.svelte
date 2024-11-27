@@ -12,7 +12,7 @@
         modal,
         MODAL_STOP_PLAN
     } from '$lib/data/stores';
-    import { getLastPlanState } from '$lib/data/planStates';
+    import { getLastPlanState, getLastPlanStateRecord } from '$lib/data/planStates';
     import { getNextPlanReference, getFirstIncompleteDay } from '$lib/data/planProgressItems';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
@@ -38,34 +38,39 @@
     let selectedTab = 'info';
     let inUse = false;
     //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
-    // getLastPlanState($page.data.planData.id)
-    //     .then((planState) => {
-    //         if (planState && planState === 'started') {
-    //             selectedTab = 'calendar';
-    //             inUse = true;
-    //         }
-    //     })
-    //     .catch(console.error);
     checkPlanState();
     let selectedDay = $page.data.planData.items[0];
     let planId = $page.data.planData.id;
+    let currentPlanStatus = '';
+    let currentStatusDateString = '';
     async function checkPlanState() {
-        const planState = await getLastPlanState($page.data.planData.id);
-        if (planState && planState === 'started') {
-            selectedTab = 'calendar';
-            inUse = true;
-            const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData, -1);
-            if (firstIncompletePlanDay === -1) {
-                // TODO: This means it is complete, which may come up elsewhere but needs
-                // to be looked at later
-            } else {
-                const dayIndex = $page.data.planData.items.findIndex(
-                    (item) => item.day === firstIncompletePlanDay
-                );
-                console.log('PLAN DIV: dayIndex:', dayIndex);
-                // Should always be found but
-                if (dayIndex != -1) {
-                    selectedDay = $page.data.planData.items[dayIndex];
+        const planStateRecord = await getLastPlanStateRecord($page.data.planData.id)
+        if (planStateRecord) {
+            const planState = planStateRecord.state;
+            currentPlanStatus = planState;
+            const statusDate = new Date(planStateRecord.date);
+            currentStatusDateString = statusDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+            })
+            console.log('PLAN DIV: checkPlanState State: %o, Date: %o', currentPlanStatus, currentStatusDateString);
+            if (planState && planState === 'started') {
+                selectedTab = 'calendar';
+                inUse = true;
+                const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData, -1);
+                if (firstIncompletePlanDay === -1) {
+                    // TODO: This means it is complete, which may come up elsewhere but needs
+                    // to be looked at later
+                } else {
+                    const dayIndex = $page.data.planData.items.findIndex(
+                        (item) => item.day === firstIncompletePlanDay
+                    );
+                    console.log('PLAN DIV: dayIndex:', dayIndex);
+                    // Should always be found but
+                    if (dayIndex != -1) {
+                        selectedDay = $page.data.planData.items[dayIndex];
+                    }
                 }
             }
         }
@@ -141,6 +146,17 @@
         goto(`${base}/plans`);
     }
     
+    function buildStatusDateString() {
+        let result = '';
+        if (currentPlanStatus === 'started') {
+            const formatString = $t['Plans_Date_Started'];
+            result = formatString.replace('%s', currentStatusDateString);
+        } else if (currentPlanStatus === 'completed') {
+            const formatString = $t['Plans_Date_Completed'];
+            result = formatString.replace('%s', currentStatusDateString);
+        }
+        return result;
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -234,6 +250,11 @@
                             $page.data.planData.description.default ??
                             ''}
                     </div>
+                    {#if currentPlanStatus === 'started' || currentPlanStatus === 'completed'}
+                        <div class="plan-state-and-date">
+                            {buildStatusDateString()}
+                        </div>
+                    {/if}
                     {#if inUse === true}
                         <div class="plan-button-block">
                             <div class="plan-button" id="PLAN-continue">
