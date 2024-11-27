@@ -16,17 +16,12 @@ import path from 'path';
 
 // Possible arguments:
 // --data-dir=<path> (override data path)
-// --examples (convert examples; incompatible with --data-dir)
 // --watch (watch for changes)
 // --watch-timeout=<ms> (time between changes)
 // --verbose (log more messages to console)
 
 const suppliedDataDir = process.argv.find((arg) => arg.includes('--data-dir'));
-const dataDir = suppliedDataDir
-    ? suppliedDataDir.split('=')[1]
-    : process.argv.includes('--examples')
-      ? 'example_data'
-      : 'data';
+const dataDir = suppliedDataDir ? suppliedDataDir.split('=')[1] : 'data';
 
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
