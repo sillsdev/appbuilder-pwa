@@ -387,7 +387,7 @@ export async function getAudioSourceInfo(item: {
 
         audioPath = result.data[0].path;
     } else if (audioSource.type === 'assets') {
-        audioPath = pathJoin(['/audio/', audio.filename]);
+        audioPath = pathJoin([`${base}/audio/`, audio.filename]);
     } else if (audioSource.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
