@@ -58,7 +58,7 @@ The sidebar/drawer.
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
     const showNotes = config.mainFeatures['annotation-notes'];
     const showHighlights = config.mainFeatures['annotation-highlights'];
-    const showPlans = config.plans.plans.length > 0;
+    const showPlans = config.plans?.plans.length > 0;
     const showShare =
         config.mainFeatures['share-app-link'] ||
         config.mainFeatures['share-download-app-link'] ||

@@ -61,10 +61,12 @@ async function updatePlanState(planId) {
     }
 }
 async function updatePlanData(planId) {
-    const allPlans = config.plans.plans;
-    const planConfig = allPlans.find((x) => x.id === planId);
-    if (planConfig) {
-        const result = await getPlanData(fetch, planConfig);
-        currentPlanData.set(result);
+    if (config.plans) {
+        const allPlans = config.plans.plans;
+        const planConfig = allPlans.find((x) => x.id === planId);
+        if (planConfig) {
+            const result = await getPlanData(fetch, planConfig);
+            currentPlanData.set(result);
+        }
     }
 }

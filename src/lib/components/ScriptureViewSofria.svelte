@@ -44,7 +44,6 @@ LOGGING:
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import { getPlanData } from '$lib/data/plansData';
     import { deleteAllProgressItemsForPlan, getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
@@ -53,7 +52,7 @@ LOGGING:
     import { afterUpdate, onDestroy, onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { addPlanProgressItem } from '$lib/data/planProgressItems';
-    import { addPlanState } from '$lib/data/planStates';
+    import { addPlanState, getLastPlanState } from '$lib/data/planStates';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -127,7 +126,7 @@ LOGGING:
                                     day: $plan.planDay,
                                     itemIndex: $plan.planEntry
                                 });
-                                if (nextPlanDay === -1) {
+                                if (lastPlanReference) {
                                     console.log('PLAN DIV: Plan completed ', $plan.planId);
                                     addPlanState({
                                         id: $plan.planId,
@@ -188,22 +187,25 @@ LOGGING:
         return str.trim().length === 0;
     };
 
-    let planData;
     let nextPlanDay;
-    const allPlans = config.plans.plans;
-    $: planConfig = allPlans.find((x) => x.id === $plan.planId);
+    let lastPlanReference;
     $: {
-        if (planConfig) {
-            getPlanData(fetch, planConfig).then(data => {
-                planData = data;
-            });
-        }
-    }
-    $: {
-        if (planData && $plan.planDay) {
-            getFirstIncompleteDay(planData, $plan.planDay).then(day => {
-                console.log("NEXT PLAN DAY: ", day);
-                nextPlanDay = day; 
+        if ($currentPlanData && $plan.planDay) {
+            getFirstIncompleteDay($currentPlanData, $plan.planDay).then(day => {
+                console.log('PLAN DIV: updated nextPlanDay: ', day);
+                nextPlanDay = day;
+                if ($plan.planId) {
+                    if (($plan.planNextReference === '') && (nextPlanDay === -1)) {
+                        lastPlanReference = true;
+                        console.log('PLAN DIV: updated completion status: ', lastPlanReference);
+                    } else {
+                        console.log('Updating completion status');
+                        getLastPlanState($plan.planId).then(state => {
+                            lastPlanReference = state === 'completed';
+                            console.log('PLAN DIV: updated completion status: ', lastPlanReference);
+                        });
+                    }
+                }
             });
         } else {
             nextPlanDay = null;
@@ -776,11 +778,11 @@ LOGGING:
     };
     function addPlanDiv(workspace, verseNumber) {
         if (planDivInChapter() && $plan.planToVerse.toString() === verseNumber) {
-            console.log('Add plan div', planData, $currentPlanData);
             const planDiv = document.createElement('div');
             planDiv.id = 'plan-progress';
             planDiv.classList.add('plan-progress-block');
-            if (($plan.planNextReference === '') && (nextPlanDay === -1)) {
+            console.log('PLAN DIV: addPlanDiv nextRef: %o, nextDay: %o ', $plan.planNextReference, nextPlanDay);
+            if (lastPlanReference) {
                 // plan is complete once this item finishes
                 console.log('Plan Finished Div Added');
                 appendPlanProgressTextDiv(
@@ -801,8 +803,8 @@ LOGGING:
                     planDiv,
                     'plan-progress-info',
                     '',
-                    planData.title[$language] ??
-                    planData.title.default ??
+                    $currentPlanData.title[$language] ??
+                    $currentPlanData.title.default ??
                     '',
                     false
                 );
@@ -923,8 +925,8 @@ LOGGING:
         );
         const [fromVerse, toVerse, separator] = verseRanges[0];
         let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-        if (planData) {
-            const item = planData.items[$plan.planDay - 1];
+        if ($currentPlanData) {
+            const item = $currentPlanData.items[$plan.planDay - 1];
             const [nextReference, nextIndex] = await getNextPlanReference(
                 $plan.planId,
                 item,

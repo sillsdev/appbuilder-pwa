@@ -185,7 +185,7 @@
             {:else if selectedTab === 'completed'}
                 <ul>
                     {#each completedPlans as plan}
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <div
                             class="plan-chooser-plan plan-chooser-link"
