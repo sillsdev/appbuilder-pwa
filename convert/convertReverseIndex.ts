@@ -1,30 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 import { Task, TaskOutput } from './Task';
 import type { ConfigData } from '$config';
-
-function getEntries(dbPath: string): Map<number, { name: string, homonym_index: number }> {
-    const entryMap = new Map<number, { name: string, homonym_index: number }>();
-    try {
-        const query = 'SELECT id, name, homonym_index FROM entries';
-        const command = `sqlite3 "${dbPath}" "${query}"`;
-        const result = execSync(command).toString();
-
-        result.split('\n').forEach((line) => {
-            const [idStr, name, homonymIndexStr] = line.split('|');
-            if (idStr && name) {
-                entryMap.set(parseInt(idStr.trim()), {
-                    name: name.trim(),
-                    homonym_index: homonymIndexStr ? parseInt(homonymIndexStr.trim()) : 0,
-                });
-            }
-        });
-    } catch (error) {
-        console.error('Error executing sqlite3 command:', error);
-    }
-    return entryMap;
-}
 
 function extractAlphabet(indexEntries: string[][]): string[] {
     const firstChars = new Set<string>();
@@ -43,19 +20,19 @@ function extractAlphabet(indexEntries: string[][]): string[] {
 function convertReverseIndexForAllLetters(
     dataDir: string,
     language: string,
+    alphabet: string[],
     verbose: number
 ): void {
-    const dbPath = path.join(dataDir, 'data.sqlite');
     const indexFilePath = path.join(dataDir, 'lexicon-en.idx');
     const outputDir = path.join('static', 'reversal', 'language', language);
-
-    const entries = getEntries(dbPath);
     const content = readFileSync(indexFilePath, 'utf-8');
     const indexEntries = content.split('\n').map((line) => line.trim().split('\t'));
-    const alphabet = extractAlphabet(indexEntries);
 
     const letterHasEntries = new Map<string, boolean>();
-    alphabet.forEach(letter => letterHasEntries.set(letter, false));
+    alphabet.forEach(letter => {
+        const upperLetter = letter.trim()[0].toUpperCase();
+        letterHasEntries.set(upperLetter, false);
+    });
 
     indexEntries.forEach(([gloss]) => {
         if (gloss) {
@@ -73,21 +50,18 @@ function convertReverseIndexForAllLetters(
             mkdirSync(outputDir, { recursive: true });
         }
 
-        alphabet.forEach((LETTER) => {
+        alphabet.forEach((letter) => {
+            const LETTER = letter.trim()[0].toUpperCase();
             if (letterHasEntries.get(LETTER)) {
-                const reverseMap: { [key: string]: Array<{ index: number, name: string, homonym_index: number }> } = {};
+                const reverseMap: { [key: string]: Array<{ index: number, name: string }> } = {};
 
                 indexEntries.forEach(([gloss, ids]) => {
                     if (gloss && ids && gloss.trim()[0].toUpperCase() === LETTER) {
-                        const idList = ids.split(',').map((id) => id.trim());
-                        reverseMap[gloss] = idList.map((id) => {
-                            const entry = entries.get(parseInt(id));
-                            return {
-                                index: parseInt(id),
-                                name: entry ? entry.name : 'UNKNOWN',
-                                homonym_index: entry ? entry.homonym_index : 0,
-                            };
-                        });
+                        const idList = ids.split(',').map((id) => parseInt(id.trim()));
+                        reverseMap[gloss] = idList.map((id) => ({
+                            index: id,
+                            name: gloss,
+                        }));
                     }
                 });
 
@@ -101,7 +75,7 @@ function convertReverseIndexForAllLetters(
 }
 
 export class ConvertReverseIndex extends Task {
-    public triggerFiles: string[] = ['lexicon-en.idx', 'data.sqlite'];
+    public triggerFiles: string[] = ['lexicon-en.idx'];
 
     constructor(dataDir: string) {
         super(dataDir);
@@ -119,7 +93,9 @@ export class ConvertReverseIndex extends Task {
 
         const writingSystems = Object.entries(configOutput.data.interfaceLanguages?.writingSystems || {});
 
-        let glossSystem = writingSystems.find(([_, ws]) => ws.textDirection === 'gloss');
+        let glossSystem = writingSystems.find(([_, ws]) => {
+            return ws.textDirection === 'gloss';
+        });
 
         if (!glossSystem) {
             glossSystem = writingSystems.find(([code]) => code === 'en');
@@ -135,7 +111,25 @@ export class ConvertReverseIndex extends Task {
 
         const [language] = glossSystem;
 
-        convertReverseIndexForAllLetters(this.dataDir, language, verbose);
+        let alphabet: string[] = [];
+        for (const collection of configOutput.data.bookCollections || []) {
+            if (collection.languageCode === language && Array.isArray(collection.fonts)) {
+                alphabet = collection.fonts;
+                break;
+            }
+        }
+
+        if (!alphabet.length) {
+            if (verbose) {
+                console.log(`No alphabet found in config for ${language}, extracting from entries`);
+            }
+            const indexFilePath = path.join(this.dataDir, 'lexicon-en.idx');
+            const content = readFileSync(indexFilePath, 'utf-8');
+            const indexEntries = content.split('\n').map((line) => line.trim().split('\t'));
+            alphabet = extractAlphabet(indexEntries);
+        }
+
+        convertReverseIndexForAllLetters(this.dataDir, language, alphabet, verbose);
 
         return {
             taskName: this.constructor.name,
