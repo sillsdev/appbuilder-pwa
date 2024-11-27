@@ -8,6 +8,17 @@ import type { ConfigData, BookCollectionData, BookCollectionAudioData, StyleData
 
 const data: ConfigData = {};
 
+function safeGetElementsByTagName(element: Element | undefined | null, tagName: string): HTMLCollectionOf<Element> {
+    if (!element) {
+        return document.createElement('div').getElementsByTagName(tagName);
+    }
+    return element.getElementsByTagName(tagName);
+}
+
+function elementExists(element: Element | undefined | null): boolean {
+    return element !== undefined && element !== null;
+}
+
 function decodeFromXml(input: string): string {
     return input
         .replace('&quot;', '"')
@@ -386,8 +397,8 @@ function convertConfig(dataDir: string, verbose: number) {
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
                 ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                      .filter((x) => fontFamilies.includes(x.innerHTML))
-                      .map((x) => x.innerHTML)
+                    .filter((x) => fontFamilies.includes(x.innerHTML))
+                    .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -435,8 +446,8 @@ function convertConfig(dataDir: string, verbose: number) {
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                  .filter((x) => fontFamilies.includes(x.innerHTML))
-                  .map((x) => x.innerHTML)
+                .filter((x) => fontFamilies.includes(x.innerHTML))
+                .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -503,24 +514,47 @@ function convertConfig(dataDir: string, verbose: number) {
 
     // Inteface Languages
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
-    const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
+    if (elementExists(interfaceLanguagesTag)) {
+        data.interfaceLanguages = {
+            useSystemLanguage: false,
+            writingSystems: {}
+        };
 
-    data.interfaceLanguages = { useSystemLanguage, writingSystems: {} };
-    const writingSystemsTags = interfaceLanguagesTag
-        .getElementsByTagName('writing-systems')[0]
-        .getElementsByTagName('writing-system');
-    for (const tag of writingSystemsTags) {
-        const code: string = tag.attributes.getNamedItem('code')!.value;
-        const fontFamily = tag.getElementsByTagName('font-family')[0].innerHTML;
-        const textDirection = parseTrait(tag, 'text-direction');
-        if (verbose >= 2) console.log(`.. writingSystem: ${code}`);
-        const displaynamesTag = tag.getElementsByTagName('display-names')[0];
-        const displayNames: typeof data.interfaceLanguages.writingSystems.displayNames.displayNames =
-            {};
-        for (const form of displaynamesTag.getElementsByTagName('form')) {
-            displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
+        const useSystemLanguageElement = safeGetElementsByTagName(interfaceLanguagesTag, 'trait')[0];
+        if (useSystemLanguageElement) {
+            data.interfaceLanguages.useSystemLanguage = useSystemLanguageElement.getAttribute('value') === 'true';
         }
-        data.interfaceLanguages.writingSystems[code] = { fontFamily, textDirection, displayNames };
+
+        const writingSystemsElement = safeGetElementsByTagName(interfaceLanguagesTag, 'writing-systems')[0];
+        if (writingSystemsElement) {
+            const writingSystemElements = safeGetElementsByTagName(writingSystemsElement, 'writing-system');
+            for (const system of writingSystemElements) {
+                const code = system.getAttribute('code');
+                if (!code) continue;
+
+                const fontFamilyElement = safeGetElementsByTagName(system, 'font-family')[0];
+                const textDirectionElement = safeGetElementsByTagName(system, 'trait')[0];
+                const displayNamesElement = safeGetElementsByTagName(system, 'display-names')[0];
+
+                const writingSystem: any = {
+                    fontFamily: fontFamilyElement?.innerHTML || 'system',
+                    textDirection: textDirectionElement?.getAttribute('value') || 'LTR',
+                    displayNames: {}
+                };
+
+                if (displayNamesElement) {
+                    const formElements = safeGetElementsByTagName(displayNamesElement, 'form');
+                    for (const form of formElements) {
+                        const lang = form.getAttribute('lang');
+                        if (lang) {
+                            writingSystem.displayNames[lang] = form.innerHTML;
+                        }
+                    }
+                }
+
+                data.interfaceLanguages.writingSystems[code] = writingSystem;
+            }
+        }
     }
 
     // Menu localizations
@@ -543,8 +577,7 @@ function convertConfig(dataDir: string, verbose: number) {
         }
         if (verbose)
             console.log(
-                `Converted ${
-                    Object.keys(data.translationMappings.mappings).length
+                `Converted ${Object.keys(data.translationMappings.mappings).length
                 } translation mappings`
             );
     }
@@ -641,65 +674,58 @@ function convertConfig(dataDir: string, verbose: number) {
     if (verbose) console.log(`Converted ${firebaseElements.length} firebaseElements`);
 
     // Audio Sources
-    const audioSources = document
-        .getElementsByTagName('audio-sources')[0]
-        .getElementsByTagName('audio-source');
-    if (audioSources?.length > 0) {
-        data.audio = { sources: {} };
-        for (const source of audioSources) {
-            const id = source.getAttribute('id')!.toString();
-            if (verbose >= 2) console.log(`Converting audioSource: ${id}`);
-            const type = source.getAttribute('type')!.toString();
-            const name = source.getElementsByTagName('name')[0].innerHTML;
-            if (verbose >= 3) console.log(`  type=${type}, name=${name}`);
-            data.audio.sources[id] = {
-                type: type,
-                name: name
-            };
-            if (type !== 'assets') {
-                data.audio.sources[id].accessMethods = source
-                    .getElementsByTagName('access-methods')[0]
-                    ?.getAttribute('value')!
-                    .toString()
-                    .split('|');
-                data.audio.sources[id].folder = source.getElementsByTagName('folder')[0]?.innerHTML;
+    const audioSourcesElement = document.getElementsByTagName('audio-sources')[0];
+    if (elementExists(audioSourcesElement)) {
+        const audioSources = safeGetElementsByTagName(audioSourcesElement, 'audio-source');
 
-                const address = source.getElementsByTagName('address')[0]?.innerHTML;
-                if (isValidUrl(address)) {
-                    data.audio.sources[id].address = address;
+        if (audioSources?.length > 0) {
+            data.audio = { sources: {} };
+            for (const source of audioSources) {
+                const id = source.getAttribute('id')?.toString();
+                if (!id) continue;
+
+                const type = source.getAttribute('type')?.toString();
+                const nameElement = safeGetElementsByTagName(source, 'name')[0];
+                const name = nameElement?.innerHTML;
+
+                if (!type || !name) continue;
+
+                data.audio.sources[id] = {
+                    type: type,
+                    name: name
+                };
+
+                if (type !== 'assets') {
+                    const accessMethodsElement = safeGetElementsByTagName(source, 'access-methods')[0];
+                    const folderElement = safeGetElementsByTagName(source, 'folder')[0];
+                    const addressElement = safeGetElementsByTagName(source, 'address')[0];
+
+                    if (accessMethodsElement) {
+                        data.audio.sources[id].accessMethods = accessMethodsElement.getAttribute('value')?.toString().split('|');
+                    }
+                    if (folderElement) {
+                        data.audio.sources[id].folder = folderElement.innerHTML;
+                    }
+                    if (addressElement?.innerHTML) {
+                        data.audio.sources[id].address = addressElement.innerHTML;
+                    }
+
+                    if (type === 'fcbh') {
+                        const keyElement = safeGetElementsByTagName(source, 'key')[0];
+                        const damIdElement = safeGetElementsByTagName(source, 'dam-id')[0];
+                        if (keyElement) {
+                            data.audio.sources[id].key = keyElement.innerHTML;
+                        }
+                        if (damIdElement) {
+                            data.audio.sources[id].damId = damIdElement.innerHTML;
+                        }
+                    }
                 }
-
-                if (type === 'fcbh') {
-                    data.audio.sources[id].key = source.getElementsByTagName('key')[0].innerHTML;
-                    data.audio.sources[id].damId =
-                        source.getElementsByTagName('dam-id')[0].innerHTML;
-                }
-            }
-            if (verbose >= 3) console.log(`....`, JSON.stringify(data.audio.sources[id]));
-        }
-
-        const audioTags = document
-            .getElementsByTagName('audio-files')[0]
-            ?.getElementsByTagName('audio');
-        if (audioTags?.length > 0) {
-            data.audio.files = [];
-
-            for (const tag of audioTags) {
-                const fileEntry = tag.getElementsByTagName('filename')[0];
-                if (!fileEntry) continue;
-
-                const filename = fileEntry.innerHTML;
-                const src = fileEntry.getAttribute('src') ?? '';
-
-                data.audio.files.push({
-                    name: filename,
-                    src: src
-                });
             }
         }
     }
 
-    if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
+    if (verbose) console.log(`Converted ${Object.keys(data.audio?.sources || {}).length} audio sources`);
 
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
     if (videoTags?.length > 0) {
@@ -711,12 +737,12 @@ function convertConfig(dataDir: string, verbose: number) {
                 placementTag == undefined
                     ? undefined
                     : {
-                          pos: placementTag.attributes.getNamedItem('pos')!.value,
-                          ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                          collection: placementTag.attributes
-                              .getNamedItem('ref')!
-                              .value.split('|')[0]
-                      };
+                        pos: placementTag.attributes.getNamedItem('pos')!.value,
+                        ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                        collection: placementTag.attributes
+                            .getNamedItem('ref')!
+                            .value.split('|')[0]
+                    };
             const tagWidth = tag.attributes.getNamedItem('width')
                 ? parseInt(tag.attributes.getNamedItem('width')!.value)
                 : 0;
@@ -772,17 +798,17 @@ function convertConfig(dataDir: string, verbose: number) {
                             placementTag == undefined
                                 ? undefined
                                 : {
-                                      pos: placementTag.attributes.getNamedItem('pos')!.value,
-                                      ref: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[1],
-                                      caption: placementTag.attributes.getNamedItem('caption')
-                                          ? placementTag.attributes.getNamedItem('caption')!.value
-                                          : '',
-                                      collection: placementTag.attributes
-                                          .getNamedItem('ref')!
-                                          .value.split('|')[0]
-                                  };
+                                    pos: placementTag.attributes.getNamedItem('pos')!.value,
+                                    ref: placementTag.attributes
+                                        .getNamedItem('ref')!
+                                        .value.split('|')[1],
+                                    caption: placementTag.attributes.getNamedItem('caption')
+                                        ? placementTag.attributes.getNamedItem('caption')!.value
+                                        : '',
+                                    collection: placementTag.attributes
+                                        .getNamedItem('ref')!
+                                        .value.split('|')[0]
+                                };
                         data.illustrations.push({
                             filename: filename,
                             width: imageWidth,
@@ -819,8 +845,8 @@ function convertConfig(dataDir: string, verbose: number) {
             const layoutCollections =
                 layoutCollectionElements.length > 0
                     ? Array.from(layoutCollectionElements).map((element) => {
-                          return element.attributes.getNamedItem('id')!.value;
-                      })
+                        return element.attributes.getNamedItem('id')!.value;
+                    })
                     : [data.bookCollections[0].id];
 
             data.layouts.push({
