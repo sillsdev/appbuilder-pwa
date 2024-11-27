@@ -33,7 +33,7 @@
         userSettingsOrDefault,
         analytics
     } from '$lib/data/stores';
-    import { updateAudioPlayer, seekToVerse } from '$lib/data/audio';
+    import { updateAudioPlayer, seekToVerse, playStop } from '$lib/data/audio';
     import {
         AudioIcon,
         SearchIcon,
@@ -319,6 +319,11 @@
     }
     $: showBackButton =
         contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0;
+
+    onDestroy(() => {
+        // stop audio when changing routes
+        playStop();
+    });
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">

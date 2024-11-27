@@ -125,6 +125,12 @@ export function playPause() {
     }
     audioPlayerStore.set(currentAudioPlayer);
 }
+export function playStop() {
+    if (!currentAudioPlayer.loaded) return;
+    if (currentAudioPlayer.playing === true) {
+        pause();
+    }
+}
 // changes chapter
 export async function skip(direction) {
     pause();
