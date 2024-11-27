@@ -4,6 +4,7 @@ import { goto } from '$app/navigation';
 import { base } from '$app/paths';
 import { get } from 'svelte/store';
 import { logScreenView } from '$lib/data/analytics';
+import { playStop } from '$lib/data/audio';
 
 function logHistoryItemAdded(itemAdded: HistoryItem) {
     logScreenView(itemAdded);
@@ -21,6 +22,7 @@ export async function navigateToText(item: {
     chapter: string;
     verse?: string;
 }) {
+    playStop();
     await refs.set({
         docSet: item.docSet,
         book: item.book,
@@ -35,6 +37,7 @@ export async function navigateToText(item: {
 }
 
 export async function navigateToTextReference(reference: string) {
+    playStop();
     await refs.setReference(reference);
     const nowRef: any = get(refs);
     goto(`${base}/text`);
@@ -49,6 +52,7 @@ export async function navigateToTextReference(reference: string) {
 }
 
 export async function navigateToTextChapterInDirection(direction: number) {
+    playStop();
     await refs.skip(direction);
     const nowRef: any = get(refs);
     addHistory(
