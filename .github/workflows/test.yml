@@ -60,6 +60,7 @@ jobs:
                         PROJECT_FILE=$(find . -type f -name "*.appDef")
                         "$HOME/app-builders/${PROGRAM}.sh" -load "$PROJECT_FILE" -build-modern-pwa-data-files -no-save -fp pwa-repo="$WORK_DIR" > /dev/null
                         popd > /dev/null
+                        npm run build
                         npm run convert
                         npm run test
                     done
