@@ -44,6 +44,7 @@ const programType = config.data.programType;
 //Classes common to both SAB and DAB
 const commonStepClasses = [
     ConvertConfig,
+    ConvertContents,
     ConvertStyles,
     ConvertManifest,
     ConvertMedia,
@@ -53,7 +54,7 @@ const commonStepClasses = [
 ];
 
 //Classes only necessary for SAB
-const SABStepClasses = [ConvertContents, ConvertPlans, ConvertBooks];
+const SABStepClasses = [ConvertPlans, ConvertBooks];
 
 const DABStepClasses = [
     // ConvertReversalIndex,
