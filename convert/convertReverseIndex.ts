@@ -20,8 +20,7 @@ function extractAlphabet(indexEntries: string[][]): string[] {
 function convertReverseIndexForAllLetters(
     dataDir: string,
     language: string,
-    alphabet: string[],
-    verbose: number
+    alphabet: string[]
 ): void {
     const indexFilePath = path.join(dataDir, 'lexicon-en.idx');
     const outputDir = path.join('static', 'reversal', 'language', language);
@@ -129,7 +128,7 @@ export class ConvertReverseIndex extends Task {
             alphabet = extractAlphabet(indexEntries);
         }
 
-        convertReverseIndexForAllLetters(this.dataDir, language, alphabet, verbose);
+        convertReverseIndexForAllLetters(this.dataDir, language, alphabet);
 
         return {
             taskName: this.constructor.name,
