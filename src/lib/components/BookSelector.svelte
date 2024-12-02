@@ -19,6 +19,10 @@ The navbar component.
     $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
     $: verseCount = getVerseCount(chapter, chapters);
     $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
+    $: chaptersLabels =
+        config.bookCollections
+            .find((x) => $refs.collection === x.id)
+            .books.find((x) => book === x.id).chaptersLabels ?? {};
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
     $: listView = $userSettingsOrDefault['book-selection'] === 'list';
@@ -144,6 +148,18 @@ The navbar component.
         return url;
     }
 
+    function getChapterLabel(chapter) {
+        if (chapter === 'i') {
+            return $t['Chapter_Introduction_Symbol'];
+        }
+
+        if (chaptersLabels[Number(chapter)] !== undefined) {
+            return chaptersLabels[Number(chapter)];
+        }
+
+        return numerals.formatNumber(numeralSystem, chapter);
+    }
+
     let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
         let groups = [];
         var lastGroup = null;
@@ -196,7 +212,7 @@ The navbar component.
                     ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
                     : null,
                 cells: Object.keys(chapters).map((x) => ({
-                    label: numerals.formatNumber(numeralSystem, x),
+                    label: getChapterLabel(x),
                     id: x
                 }))
             }

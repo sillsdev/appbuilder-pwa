@@ -21,6 +21,10 @@ The navbar component.
     $: showVerseSelector = $userSettingsOrDefault['verse-selection'];
     $: verseCount = getVerseCount(book, chapter);
     $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
+    $: chaptersLabels =
+        config.bookCollections
+            .find((x) => $refs.collection === x.id)
+            .books.find((x) => book === x.id).chaptersLabels ?? {};
 
     $: c = $t.Selector_Chapter;
     $: v = $t.Selector_Verse;
@@ -83,6 +87,18 @@ The navbar component.
         return 0;
     }
 
+    function getChapterLabel(chapter) {
+        if (chapter === 'i') {
+            return $t['Chapter_Introduction_Symbol'];
+        }
+
+        if (chaptersLabels[Number(chapter)] !== undefined) {
+            return chaptersLabels[Number(chapter)];
+        }
+
+        return numerals.formatNumber(numeralSystem, chapter);
+    }
+
     function getVerseCount(book, chapter) {
         if (!chapter || chapter === 'i') {
             return 0;
@@ -96,15 +112,24 @@ The navbar component.
         return count;
     }
 
-    let chapterIndicator = (chapter) => {
+    // Needs to be reactive when the chapter changes if there is a nextRef.book
+    let chapterIndicator = (book, chapter) => {
+        chaptersLabels =
+            config.bookCollections
+                .find((x) => $refs.collection === x.id)
+                .books.find((x) => book === x.id)?.chaptersLabels ?? {};
+
         let value = '';
         if (chapter === 'i') {
             value = $t['Chapter_Introduction_Symbol'];
+        } else if (chaptersLabels[chapter] !== undefined) {
+            value = chaptersLabels[chapter];
         } else {
             value = numerals.formatNumber(numeralSystem, chapter);
         }
         return value;
     };
+
     let verseGridGroup = (chapter) => {
         let value = [];
         let selectedChapter = chapters[chapter];
@@ -147,7 +172,7 @@ The navbar component.
     <Dropdown bind:this={dropdown} on:nav-end={resetNavigation} cols="5">
         <svelte:fragment slot="label">
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
-                {chapterIndicator(chapter)}
+                {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
@@ -175,7 +200,7 @@ The navbar component.
                                                   ]
                                                 : null,
                                             cells: Object.keys(chapters).map((x) => ({
-                                                label: numerals.formatNumber(numeralSystem, x),
+                                                label: getChapterLabel(x),
                                                 id: x
                                             }))
                                         }

@@ -503,8 +503,18 @@ function parseBookCollections(document: Document, verbose: number) {
         for (const book of bookTags) {
             if (verbose >= 2) console.log(`. book: ${book.id}`);
             const audio: BookCollectionAudioConfig[] = [];
+            let chaptersLabels: { [key: string]: string } | undefined;
             for (const page of book.getElementsByTagName('page')) {
                 if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
+                const char = page.attributes.getNamedItem('char')?.value;
+                if (char) {
+                    if (!chaptersLabels) {
+                        // Initialize for the first one
+                        chaptersLabels = {};
+                    }
+                    const chapterNum = page.attributes.getNamedItem('num')!.value;
+                    chaptersLabels[chapterNum] = char;
+                }
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
                 const fTag = audioTag.getElementsByTagName('f')[0];
@@ -584,6 +594,7 @@ function parseBookCollections(document: Document, verbose: number) {
                     ?.value,
                 chapters,
                 chaptersN,
+                chaptersLabels,
                 fonts,
                 id: book.attributes.getNamedItem('id')!.value,
                 type: book.attributes.getNamedItem('type')?.value,

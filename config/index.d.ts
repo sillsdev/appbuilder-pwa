@@ -32,6 +32,7 @@ export type BookConfig = {
     portions?: string;
     chapters?: number;
     chaptersN?: string; // 1-34
+    chaptersLabels?: { [key: string]: string };
     fonts: string[];
     file: string;
     audio: BookCollectionAudioConfig[];
