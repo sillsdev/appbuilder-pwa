@@ -52,7 +52,7 @@ planStatesLastUpdated.subscribe(() => {
     if ($plan) {
         updatePlanState($plan.planId);
     }
-})
+});
 // Function to update the current plan state
 async function updatePlanState(planId) {
     if (planId) {

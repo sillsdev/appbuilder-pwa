@@ -38,7 +38,8 @@
             .then((planState) => {
                 if (planState && planState === 'started') {
                     plansInUse = [...plansInUse, plan];
-                } if (planState && planState === 'completed' ) {
+                }
+                if (planState && planState === 'completed') {
                     completedPlans = [...completedPlans, plan];
                 }
             })
@@ -100,7 +101,9 @@
                     type="radio"
                     name="my_tabs_1"
                     role="tab"
-                    class="dy-tab dy-tab-bordered {selectedTab === 'completed' ? 'dy-tab-active' : ''}"
+                    class="dy-tab dy-tab-bordered {selectedTab === 'completed'
+                        ? 'dy-tab-active'
+                        : ''}"
                     on:click={() => (selectedTab = 'completed')}
                     aria-label={$t['Plans_Tab_Completed_Plans']}
                     style={convertStyle($s['ui.plans.tabs.text'])}

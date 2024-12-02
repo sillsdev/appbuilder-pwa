@@ -2,7 +2,6 @@
 @component
 Plan Stop Modal Dialog component.
 -->
-
 <svelte:options accessors={true} />
 
 <script>
@@ -58,7 +57,7 @@ Plan Stop Modal Dialog component.
 
             <div class="flex w-full justify-between dy-modal-action">
                 <div class="message-buttons">
-                    <button class="dy-btn message-button" id="no" >
+                    <button class="dy-btn message-button" id="no">
                         {$t['Button_No']}
                     </button>
                     <button class="dy-btn message-button" id="yes" on:click={() => handleYes()}>

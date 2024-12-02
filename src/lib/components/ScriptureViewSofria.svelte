@@ -44,7 +44,11 @@ LOGGING:
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import { deleteAllProgressItemsForPlan, getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
+    import {
+        deleteAllProgressItemsForPlan,
+        getFirstIncompleteDay,
+        getNextPlanReference
+    } from '$lib/data/planProgressItems';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
@@ -189,17 +193,17 @@ LOGGING:
     let lastPlanReference;
     $: {
         if ($currentPlanData && $plan.planDay) {
-            getFirstIncompleteDay($currentPlanData, $plan.planDay).then(day => {
+            getFirstIncompleteDay($currentPlanData, $plan.planDay).then((day) => {
                 nextPlanDay = day;
                 if ($plan.planId) {
                     // The first is true before the end of plan div becomes visible
                     // When it becomes visible, the records are deleted and nextPlanDay
                     // is 1 but the plan status is now completed.  So must check both
                     // to know if the reference being viewed is the last.
-                    if (($plan.planNextReference === '') && (nextPlanDay === -1)) {
+                    if ($plan.planNextReference === '' && nextPlanDay === -1) {
                         lastPlanReference = true;
                     } else {
-                        getLastPlanState($plan.planId).then(state => {
+                        getLastPlanState($plan.planId).then((state) => {
                             lastPlanReference = state === 'completed';
                         });
                     }
@@ -799,9 +803,7 @@ LOGGING:
                     planDiv,
                     'plan-progress-info',
                     '',
-                    $currentPlanData.title[$language] ??
-                    $currentPlanData.title.default ??
-                    '',
+                    $currentPlanData.title[$language] ?? $currentPlanData.title.default ?? '',
                     false
                 );
                 appendPlanProgressTextDiv(

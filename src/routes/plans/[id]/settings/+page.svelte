@@ -5,7 +5,7 @@
     import { addPlanState } from '$lib/data/planStates';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
-    
+
     async function startPlan(id) {
         await addPlanState({
             id: id,

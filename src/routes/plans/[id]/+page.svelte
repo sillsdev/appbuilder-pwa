@@ -43,7 +43,7 @@
     let currentPlanStatus = '';
     let currentStatusDateString = '';
     async function checkPlanState() {
-        const planStateRecord = await getLastPlanStateRecord($page.data.planData.id)
+        const planStateRecord = await getLastPlanStateRecord($page.data.planData.id);
         if (planStateRecord) {
             const planState = planStateRecord.state;
             currentPlanStatus = planState;
@@ -51,8 +51,8 @@
             currentStatusDateString = statusDate.toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'long',
-                year: 'numeric',
-            })
+                year: 'numeric'
+            });
             if (planState && planState === 'started') {
                 selectedTab = 'calendar';
                 inUse = true;
@@ -141,7 +141,7 @@
         event.preventDefault();
         goto(`${base}/plans`);
     }
-    
+
     function buildStatusDateString() {
         let result = '';
         if (currentPlanStatus === 'started') {

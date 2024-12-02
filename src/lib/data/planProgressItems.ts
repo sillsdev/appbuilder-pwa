@@ -83,7 +83,10 @@ export async function getCompletedRefsForDay(planId: string, planDay: number): P
     );
     return completedRefsForDay;
 }
-export async function getFirstIncompleteDay(planData: PlansData, excludeDay: number): Promise<number> {
+export async function getFirstIncompleteDay(
+    planData: PlansData,
+    excludeDay: number
+): Promise<number> {
     let nextIncompleteDay = -1;
     for (let i = 0; i < planData.items.length; i++) {
         const completedRefs = await getCompletedRefsForDay(planData.id, planData.items[i].day);
