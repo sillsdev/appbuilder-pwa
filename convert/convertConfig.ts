@@ -1199,6 +1199,7 @@ function parsePlans(document: Document, verbose: number) {
         days: number;
         title: { [lang: string]: string };
         filename: string;
+        jsonFilename: string;
         image?: { width: number; height: number; file: string };
     }[] = [];
 
