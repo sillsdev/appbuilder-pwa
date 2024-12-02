@@ -36,7 +36,7 @@ The navbar component.
         switch (e.detail.tab) {
             case c:
                 $nextRef.chapter = e.detail.text;
-                if (!showVerseSelector || $nextRef.chapter === 'i') {
+                if (!showVerseSelector || $nextRef.chapter === 'i' || verseCount === 0) {
                     await completeNavigation();
                 } else {
                     chapterSelector.setActive(v);
