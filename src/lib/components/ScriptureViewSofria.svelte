@@ -835,13 +835,16 @@ LOGGING:
         return source;
     }
     function showImage() {
+        return viewShowIllustrations && showImageInBook();
+    }
+    function showImageInBook() {
         const showBibleImage = viewShowBibleImages === 'normal';
-        const showImages = currentIsBibleBook && showBibleImage && viewShowIllustrations;
+        const showImages = !currentIsBibleBook || showBibleImage;
         return showImages;
     }
     function showVideo() {
         const showBibleVideo = viewShowBibleVideos === 'normal';
-        const showVideos = currentIsBibleBook && showBibleVideo;
+        const showVideos = !currentIsBibleBook || showBibleVideo;
         return showVideos;
     }
     function addFigureDiv(source: string, workspace: any) {
@@ -1358,8 +1361,13 @@ LOGGING:
                                         break;
                                     }
                                     case 'fig': {
-                                        const divFigureText = createIllustrationCaptionBlock(text);
-                                        workspace.figureDiv.append(divFigureText);
+                                        // This is a HACK!
+                                        // see https://github.com/Proskomma/proskomma-json-tools/issues/63
+                                        if (text !== 'NO_CAPTION') {
+                                            const divFigureText =
+                                                createIllustrationCaptionBlock(text);
+                                            workspace.figureDiv.append(divFigureText);
+                                        }
                                         break;
                                     }
                                     case 'audioc':

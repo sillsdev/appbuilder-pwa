@@ -91,6 +91,32 @@ function removeMissingVerses(text: string, _bcId: string, _bookId: string): stri
     });
 }
 
+// This is a HACK!!!
+// See https://github.com/Proskomma/proskomma-json-tools/issues/63
+//
+function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): string {
+    // Regular expression to match \fig markers
+    const figRegex = /\\fig\s(.*?)\\fig\*/g;
+
+    // Replace each \fig marker with the appropriate action
+    return text.replace(figRegex, (match, figContent) => {
+        // Split the content of the \fig marker by pipe (|)
+        const parts = figContent.split('|');
+
+        // Extract the image caption
+        let imageCaption = parts[0];
+
+        // Check if the image caption is missing
+        if (!imageCaption) {
+            // Caption is missing, return "NO_CAPTION" as the caption inside of the original \fig marker
+            return match.replace('|', 'NO_CAPTION|');
+        } else {
+            // Caption is present, return the original \fig marker
+            return match;
+        }
+    });
+}
+
 function removeMissingFigures(text: string, _bcId: string, _bookId: string): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
@@ -158,6 +184,7 @@ const usfmFilterFunctions: FilterFunction[] = [
     replaceVideoTags,
     replacePageTags,
     convertMarkdownsToMilestones,
+    handleNoCaptionFigures,
     removeMissingFigures,
     trimTrailingWhitespace
 ];
