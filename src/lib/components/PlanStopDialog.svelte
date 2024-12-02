@@ -29,14 +29,9 @@ Plan Stop Modal Dialog component.
         await deleteAllProgressItemsForPlan(planId);
     }
     function handleYes() {
-        console.log('Yes', planId);
         stopPlan().then(() => {
             goto(`${base}/plans`);
         });
-    }
-
-    function handleNo() {
-        console.log('No');
     }
 
     export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
@@ -63,7 +58,7 @@ Plan Stop Modal Dialog component.
 
             <div class="flex w-full justify-between dy-modal-action">
                 <div class="message-buttons">
-                    <button class="dy-btn message-button" id="no" on:click={() => handleNo()}>
+                    <button class="dy-btn message-button" id="no" >
                         {$t['Button_No']}
                     </button>
                     <button class="dy-btn message-button" id="yes" on:click={() => handleYes()}>

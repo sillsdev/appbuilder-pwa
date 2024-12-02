@@ -18,9 +18,6 @@
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { goto } from '$app/navigation';
 
-    console.log('Config Plans', config.plans.plans); //all plans options
-    console.log('Data Plans', $page.data.plans); //your plans
-
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
 
@@ -40,18 +37,14 @@
         getLastPlanState(plan.id)
             .then((planState) => {
                 if (planState && planState === 'started') {
-                    console.log('Plan in use', plan.id);
                     plansInUse = [...plansInUse, plan];
                 } if (planState && planState === 'completed' ) {
                     completedPlans = [...completedPlans, plan];
-                } else {
-                    console.log('Plan not in use', plan.id);
                 }
             })
             .catch(console.error)
     );
     Promise.all(promises).then(() => {
-        console.log('For loop completed');
         if (plansInUse.length > 0) {
             selectedTab = 'in-use';
         }
@@ -62,7 +55,6 @@
             (plan) => !plansInUse.some((usedPlan) => usedPlan.id === plan.id)
         );
         usedPlans = plansInUse;
-        console.log('usedPlans:', usedPlans);
     }
 </script>
 

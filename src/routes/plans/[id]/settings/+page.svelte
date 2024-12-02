@@ -5,12 +5,7 @@
     import { addPlanState } from '$lib/data/planStates';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
-
-    console.log('Got to settings.svelte', $page);
-
-    let planConfig = $page.data.planConfig;
-    console.log(planConfig);
-
+    
     async function startPlan(id) {
         await addPlanState({
             id: id,

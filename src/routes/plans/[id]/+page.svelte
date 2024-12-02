@@ -27,7 +27,6 @@
         CheckboxIcon,
         InfoIcon
     } from '$lib/icons';
-    console.log('got to id page', $page.data);
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
 
@@ -54,7 +53,6 @@
                 month: 'long',
                 year: 'numeric',
             })
-            console.log('PLAN DIV: checkPlanState State: %o, Date: %o', currentPlanStatus, currentStatusDateString);
             if (planState && planState === 'started') {
                 selectedTab = 'calendar';
                 inUse = true;
@@ -66,7 +64,6 @@
                     const dayIndex = $page.data.planData.items.findIndex(
                         (item) => item.day === firstIncompletePlanDay
                     );
-                    console.log('PLAN DIV: dayIndex:', dayIndex);
                     // Should always be found but
                     if (dayIndex != -1) {
                         selectedDay = $page.data.planData.items[dayIndex];
@@ -109,7 +106,6 @@
     function goToDailyReference(item, ref, index) {
         // Only go to reference if in an active plan
         if (inUse) {
-            console.log('PLAN DIV gotoDailyReference:', item.day);
             let currentBookCollectionId = $refs.collection;
             const [collection, book, fromChapter, toChapter, verseRanges] =
                 getReferenceFromString(ref);

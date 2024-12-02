@@ -116,7 +116,6 @@ LOGGING:
                     (entries) => {
                         entries.forEach((entry) => {
                             if (entry.isIntersecting && !planObservationCompleted) {
-                                console.log('PLAN DIV: Div Visible');
                                 $plan.completed = true;
                                 planObservationCompleted = true;
                                 planDivObserver.disconnect(); // Stop observing after it becomes visible
@@ -127,7 +126,6 @@ LOGGING:
                                     itemIndex: $plan.planEntry
                                 });
                                 if (lastPlanReference) {
-                                    console.log('PLAN DIV: Plan completed ', $plan.planId);
                                     addPlanState({
                                         id: $plan.planId,
                                         state: 'completed'
@@ -783,7 +781,6 @@ LOGGING:
             planDiv.classList.add('plan-progress-block');
             if (lastPlanReference) {
                 // plan is complete once this item finishes
-                console.log('Plan Finished Div Added');
                 appendPlanProgressTextDiv(
                     planDiv,
                     'plan-progress-title',
@@ -815,7 +812,6 @@ LOGGING:
                     true
                 );
             } else {
-                console.log("Plan Div added");
                 appendPlanProgressTextDiv(
                     planDiv,
                     'plan-progress-info',
@@ -955,7 +951,6 @@ LOGGING:
         }
     }
     function planClicked() {
-        console.log('Clicked "%o" "%o" "%o"',$plan.planNextReference, nextPlanDay, $currentPlanState);
         if ($plan.planNextReference === '') {
             if ($currentPlanState === 'completed') {
                 goto(`${base}/plans`);

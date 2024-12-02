@@ -10,6 +10,5 @@ export async function load({ depends }) {
     // want to break the feature.
     const plans = [];
     depends('plans');
-    console.log('Plans', plans);
     return { plans };
 }
