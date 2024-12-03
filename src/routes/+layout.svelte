@@ -1,27 +1,30 @@
 <script lang="ts">
-    import catalog from '$lib/data/catalogData';
+    import { base } from '$app/paths';
+    import '$lib/app.css';
+    import FontSelector from '$lib/components/FontSelector.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
+    import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
+    import NoteDialog from '$lib/components/NoteDialog.svelte';
+    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
+    import catalog from '$lib/data/catalogData';
+    import config from '$lib/data/config';
     import {
         analytics,
         direction,
-        s,
-        refs,
-        theme,
         modal,
         MODAL_COLLECTION,
+        MODAL_FONT,
         MODAL_NOTE,
         MODAL_TEXT_APPERANCE,
         NAVBAR_HEIGHT,
-        MODAL_FONT
+        refs,
+        s,
+        theme
     } from '$lib/data/stores';
-    import { base } from '$app/paths';
-    import '$lib/app.css';
-    import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
-    import NoteDialog from '$lib/components/NoteDialog.svelte';
-    import FontSelector from '$lib/components/FontSelector.svelte';
 
-    if (!$refs.initialized) {
+    const isSAB = config.programType == 'SAB';
+
+    if (isSAB && !$refs.initialized) {
         catalog.setFetch(fetch);
         // When this async function completes, $refs.intialized will be true.
         refs.init();
@@ -31,6 +34,7 @@
         analytics.init();
     }
 
+    $: showPage = !isSAB || $refs.initialized;
     $: $modal, showModal();
 
     function showModal() {
@@ -64,26 +68,30 @@
 </script>
 
 <svelte:head>
-    <meta name="theme-color" content={$s['ui.bar.action']['background-color']} />
-    <link rel="stylesheet" href="{base}/styles/sab-app.css" />
-    {#if $refs.initialized}
-        <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
+    <meta name="theme-color" content={$s['ui.bar.action']?.['background-color']} />
+    <link rel="stylesheet" href="{base}/styles/{config.programType.toLowerCase()}-app.css" />
+    {#if isSAB}
+        {#if $refs.initialized}
+            <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
+        {/if}
+        <link rel="stylesheet" href="{base}/override-sab.css" />
     {/if}
-    <link rel="stylesheet" href="{base}/override-sab.css" />
 </svelte:head>
 
-{#if $refs.initialized}
+{#if showPage}
     <div>
         <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 
-        <!-- Add Note Menu -->
-        <NoteDialog bind:this={noteDialog} />
+        {#if isSAB}
+            <!-- Add Note Menu -->
+            <NoteDialog bind:this={noteDialog} />
+
+            <!-- Collection Selector Menu -->
+            <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
+        {/if}
 
         <!-- Text Appearance Options Menu -->
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
-
-        <!-- Collection Selector Menu -->
-        <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
 
         <FontSelector bind:this={fontSelector} />
     </div>

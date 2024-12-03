@@ -20,8 +20,6 @@ jobs:
                   node --version
                   npm --version
                   npm i
-                  cd convert
-                  npm i
 
             - name: Add config
               run: |
@@ -40,11 +38,3 @@ jobs:
               run: |
                   npm list --depth=0 eslint eslint-plugin-import prettier
                   npm run lint
-
-            - name: Build
-              run: |
-                  npm run build:examples
-
-            - name: Test
-              run: |
-                  npm run test

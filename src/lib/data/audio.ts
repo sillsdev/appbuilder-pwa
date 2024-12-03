@@ -125,6 +125,12 @@ export function playPause() {
     }
     audioPlayerStore.set(currentAudioPlayer);
 }
+export function playStop() {
+    if (!currentAudioPlayer.loaded) return;
+    if (currentAudioPlayer.playing === true) {
+        pause();
+    }
+}
 // changes chapter
 export async function skip(direction) {
     pause();
@@ -387,7 +393,7 @@ export async function getAudioSourceInfo(item: {
 
         audioPath = result.data[0].path;
     } else if (audioSource.type === 'assets') {
-        audioPath = pathJoin(['/audio/', audio.filename]);
+        audioPath = pathJoin([`${base}/audio/`, audio.filename]);
     } else if (audioSource.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }

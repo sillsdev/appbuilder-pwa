@@ -30,8 +30,8 @@ export type BookConfig = {
     testament: string;
     section: string; // Pentateuch
     portions?: string;
-    chapters: number;
-    chaptersN: string; // 1-34
+    chapters?: number;
+    chaptersN?: string; // 1-34
     fonts: string[];
     file: string;
     audio: BookCollectionAudioConfig[];
@@ -92,6 +92,7 @@ export type AudioConfig = {
 };
 
 export type WritingSystemConfig = {
+    type: string;
     displayNames: {
         [key: string]: string;
     };
@@ -100,12 +101,7 @@ export type WritingSystemConfig = {
 };
 
 export type DictionaryWritingSystemConfig = WritingSystemConfig & {
-    code: string;
-    type: string;
-    trait?: {
-        [key: string]: string;
-    };
-    sortingMethod: {
+    sortMethod: {
         type: string;
         ignoreChars?: string[];
     };
