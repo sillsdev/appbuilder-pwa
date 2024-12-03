@@ -57,10 +57,8 @@
                 selectedTab = 'calendar';
                 inUse = true;
                 const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData, -1);
-                if (firstIncompletePlanDay === -1) {
-                    // TODO: This means it is complete, which may come up elsewhere but needs
-                    // to be looked at later
-                } else {
+                if (firstIncompletePlanDay !== -1) {
+                    // -1 means the plan is complete, which really shouldn't show up here
                     const dayIndex = $page.data.planData.items.findIndex(
                         (item) => item.day === firstIncompletePlanDay
                     );
