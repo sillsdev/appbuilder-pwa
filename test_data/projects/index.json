@@ -1,7 +1,8 @@
 {
     "sab" : {
         "projects" : [
-            "web_gospels.zip"
+            "web_gospels.zip",
+            "sab_pwa_test.zip"
         ]
     },
     "dab": {
