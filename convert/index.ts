@@ -63,7 +63,6 @@ const DABStepClasses = [
 ];
 
 const stepClasses: Task[] = [
-    ...commonStepClasses,
     ...(programType == 'SAB' ? SABStepClasses : []),
     ...(programType == 'DAB' ? DABStepClasses : [])
 ].map((x) => new x(dataDir));
