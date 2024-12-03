@@ -103,6 +103,17 @@
         return displayString;
     }
 
+    function checkReference(book, chapter) {
+        let value = false;
+        const books = $refs.catalog.documents;
+        const bookInCatalog = books.find((d) => d.bookCode === book);
+        const chaptersInBook = bookInCatalog?.versesByChapters ?? [];
+        const chapterInBook = Object.keys(chaptersInBook).find((x) => x === chapter.toString());
+        if (bookInCatalog && chapterInBook) {
+            value = true;
+        }
+        return value;
+    }
     function goToDailyReference(item, ref, index) {
         // Only go to reference if in an active plan
         if (inUse) {
@@ -110,31 +121,33 @@
             const [collection, book, fromChapter, toChapter, verseRanges] =
                 getReferenceFromString(ref);
             const [fromVerse, toVerse, separator] = verseRanges[0];
-            let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-            getNextPlanReference($page.data.planData.id, item, index).then(
-                ([nextReference, nextIndex]) => {
-                    $plan = {
-                        planId: $page.data.planData.id,
-                        planDay: item.day,
-                        planEntry: index,
-                        planBookId: book,
-                        planChapter: toChapter,
-                        planFromVerse: fromVerse,
-                        planToVerse: toVerse,
-                        planReference: ref,
-                        planNextReference: nextReference,
-                        planNextReferenceIndex: nextIndex,
-                        completed: false
-                    };
-                    refs.set({
-                        docSet: currentBookCollectionId,
-                        book: book,
-                        chapter: toChapter.toString(),
-                        verse: destinationVerse.toString()
-                    });
-                    goto(`${base}/text`);
-                }
-            );
+            if (checkReference(book, toChapter)) {
+                let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
+                getNextPlanReference($page.data.planData.id, item, index).then(
+                    ([nextReference, nextIndex]) => {
+                        $plan = {
+                            planId: $page.data.planData.id,
+                            planDay: item.day,
+                            planEntry: index,
+                            planBookId: book,
+                            planChapter: toChapter,
+                            planFromVerse: fromVerse,
+                            planToVerse: toVerse,
+                            planReference: ref,
+                            planNextReference: nextReference,
+                            planNextReferenceIndex: nextIndex,
+                            completed: false
+                        };
+                        refs.set({
+                            docSet: currentBookCollectionId,
+                            book: book,
+                            chapter: toChapter.toString(),
+                            verse: destinationVerse.toString()
+                        });
+                        goto(`${base}/text`);
+                    }
+                );
+            }
         }
     }
     function handleBackNavigation(event) {
