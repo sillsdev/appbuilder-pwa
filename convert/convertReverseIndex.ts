@@ -9,11 +9,7 @@ interface ReversalEntry {
     homonym_index?: number;
 }
 
-function convertReverseIndex(
-    dataDir: string,
-    language: string,
-    alphabet: string[],
-): void {
+function convertReverseIndex(dataDir: string, language: string, alphabet: string[]): void {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
     const outputDir = path.join('static', 'reversal', 'language', language);
 
@@ -35,21 +31,24 @@ function convertReverseIndex(
 
         indexEntries.forEach(([gloss, ids]) => {
             if (gloss && ids && gloss.trim()[0].toUpperCase() === LETTER) {
-                const idList = ids.split(',').map(id => {
-                    const trimmed = id.trim();
-                    const match = trimmed.match(/^(\d+)(?:\^(\d+))?$/);
-                    if (match) {
-                        const entry: ReversalEntry = {
-                            index: parseInt(match[1]),
-                            name: gloss
-                        };
-                        if (match[2]) {
-                            entry.homonym_index = parseInt(match[2]);
+                const idList = ids
+                    .split(',')
+                    .map((id) => {
+                        const trimmed = id.trim();
+                        const match = trimmed.match(/^(\d+)(?:\^(\d+))?$/);
+                        if (match) {
+                            const entry: ReversalEntry = {
+                                index: parseInt(match[1]),
+                                name: gloss
+                            };
+                            if (match[2]) {
+                                entry.homonym_index = parseInt(match[2]);
+                            }
+                            return entry;
                         }
-                        return entry;
-                    }
-                    return null;
-                }).filter((entry): entry is ReversalEntry => entry !== null);
+                        return null;
+                    })
+                    .filter((entry): entry is ReversalEntry => entry !== null);
 
                 if (idList.length > 0) {
                     reversalMap[gloss] = idList;
@@ -85,11 +84,7 @@ export class ConvertReverseIndex extends Task {
             const writingSystem = configOutput.data.writingSystems[lang];
 
             if (writingSystem.reversalFilename && writingSystem.alphabet) {
-                convertReverseIndex(
-                    this.dataDir,
-                    lang,
-                    writingSystem.alphabet
-                );
+                convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
             }
         }
 

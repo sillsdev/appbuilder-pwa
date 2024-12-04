@@ -52,10 +52,7 @@ const commonStepClasses = [
 //Classes only necessary for SAB
 const SABStepClasses = [ConvertPlans, ConvertBooks];
 
-const DABStepClasses = [
-    ConvertReverseIndex,
-    ConvertSQLite
-];
+const DABStepClasses = [ConvertReverseIndex, ConvertSQLite];
 
 const stepClasses: Task[] = [
     ...commonStepClasses,
