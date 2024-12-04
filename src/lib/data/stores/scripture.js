@@ -149,13 +149,16 @@ export const glossary = derived(docSet, async ($docSet) => {
 
 function getDefaultCurrentFonts() {
     const currentFonts = {};
-    for (let collection of config.bookCollections) {
-        // Sometimes, the collection.style.font doesn't exist in the array of fonts!
-        currentFonts[collection.id] =
-            collection.style.font &&
-            config.fonts.some((font) => font.family === collection.style.font)
-                ? collection.style.font
-                : config.fonts[0].family;
+    // This is for Scripture PWA, not Dictionary
+    if (config?.bookCollections) {
+        for (let collection of config.bookCollections) {
+            // Sometimes, the collection.style.font doesn't exist in the array of fonts!
+            currentFonts[collection.id] =
+                collection.style.font &&
+                config.fonts.some((font) => font.family === collection.style.font)
+                    ? collection.style.font
+                    : config.fonts[0].family;
+        }
     }
     return currentFonts;
 }
