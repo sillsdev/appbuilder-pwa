@@ -14,8 +14,7 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
     const outputDir = path.join('static', 'reversal', 'language', language);
 
     if (!existsSync(indexFilePath)) {
-        console.warn(`No reversal index found for language: ${language}`);
-        return;
+        throw new Error(`Required reversal index not found: ${indexFilePath}`);
     }
 
     const content = readFileSync(indexFilePath, 'utf-8');
