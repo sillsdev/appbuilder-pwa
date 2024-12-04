@@ -146,7 +146,29 @@ export const glossary = derived(docSet, async ($docSet) => {
     }
     return glossaryResults;
 });
-export const currentFont = writable(config.fonts[0].family);
+
+function getDefaultCurrentFonts() {
+    const currentFonts = {};
+    for (let collection of config.bookCollections) {
+        // Sometimes, the collection.style.font doesn't exist in the array of fonts!
+        currentFonts[collection.id] =
+            collection.style.font &&
+            config.fonts.some((font) => font.family === collection.style.font)
+                ? collection.style.font
+                : config.fonts[0].family;
+    }
+    return currentFonts;
+}
+setDefaultStorage('currentFonts', JSON.stringify(getDefaultCurrentFonts()));
+
+export const currentFonts = writable(JSON.parse(localStorage.currentFonts));
+currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fonts)));
+
+export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
+    if (!$refs.initialized) return config.fonts[0].family;
+    return $currentFonts[$refs.collection];
+});
+
 export const fontChoices = derived(refs, ($refs) => {
     if (!$refs.initialized) return [];
     const bookFonts = config.bookCollections
@@ -156,12 +178,6 @@ export const fontChoices = derived(refs, ($refs) => {
     const allFonts = [...new Set(config.fonts.map((x) => x.family))];
     const currentFonts =
         bookFonts?.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
-    currentFont.update((current) => {
-        if (currentFonts.indexOf(current) === -1) {
-            return currentFonts[0];
-        }
-        return current;
-    });
     return currentFonts;
 });
 
