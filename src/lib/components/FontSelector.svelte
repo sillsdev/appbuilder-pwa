@@ -5,7 +5,7 @@ Font Selector component.
 <script>
     import Modal from './Modal.svelte';
     import FontList from './FontList.svelte';
-    import { convertStyle, currentFont, s, t } from '$lib/data/stores';
+    import { convertStyle, currentFont, currentFonts, refs, s, t } from '$lib/data/stores';
 
     const modalId = 'fontSelector';
     let modal;
@@ -17,7 +17,10 @@ Font Selector component.
     }
 
     function handleOk() {
-        $currentFont = fontList.selectedFont;
+        currentFonts.update((fonts) => {
+            fonts[$refs.collection] = fontList.selectedFont;
+            return fonts;
+        });
     }
 </script>
 
