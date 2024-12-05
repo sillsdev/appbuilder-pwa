@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
 import path from 'path';
 import { TaskOutput, Task } from './Task';
-
+import { compareVersions } from './stringUtils';
+import { ConfigTaskOutput } from 'convertConfig';
 export interface StylesTaskOutput extends TaskOutput {
     taskName: 'ConvertStyles';
 }
@@ -13,7 +14,7 @@ export interface StylesTaskOutput extends TaskOutput {
  * The margin-top and margin-bottom are changed to padding-top and padding-bottom and attached
  * to the #content element instead.
  */
-export function convertStyles(dataDir: string, verbose: number) {
+export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
     const dstDir = path.join('static', 'styles');
     mkdirSync(dstDir, { recursive: true });
@@ -26,7 +27,7 @@ export function convertStyles(dataDir: string, verbose: number) {
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
         // Until App Builders 12.0 is released, then add these styles
-        const tempStyles = srcFile.endsWith('-app.css') ? getContentsStyles() : '';
+        const tempStyles = srcFile.endsWith('-app.css') ? getTempStyles(configData, verbose) : '';
         const updatedFileContents =
             tempStyles +
             lines
@@ -55,21 +56,44 @@ export function convertStyles(dataDir: string, verbose: number) {
     });
 }
 
-function getContentsStyles(): string {
-    const contentsStyles: string[] = [];
-    contentsStyles.push('div.contents-item-locked { position:relative; }');
-    contentsStyles.push(
-        "div.contents-item-locked::after { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 50px solid transparent; border-top: 50px solid yellow; background-size: cover; border-width: 70px; }"
-    );
+function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
+    const tempStyles: string[] = [];
+    if (compareVersions(configData.data.programVersion!, '12.0') < 0) {
+        if (verbose) console.log('Add contents styles');
+        tempStyles.push('div.contents-item-locked { position:relative; }');
+        tempStyles.push(
+            "div.contents-item-locked::after { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 50px solid transparent; border-top: 50px solid yellow; background-size: cover; border-width: 70px; }"
+        );
 
-    contentsStyles.push(
-        'div.contents-item-locked-image { position:absolute; top:8px; right:8px; z-index:10; }'
-    );
-    contentsStyles.push(
-        'div.contents-item-audio-image { position:absolute; bottom:8px; right:8px; width:24px; height:24px; z-index:10; }'
-    );
-
-    return contentsStyles.join('\n') + '\n';
+        tempStyles.push(
+            'div.contents-item-locked-image { position:absolute; top:8px; right:8px; z-index:10; }'
+        );
+        tempStyles.push(
+            'div.contents-item-audio-image { position:absolute; bottom:8px; right:8px; width:24px; height:24px; z-index:10; }'
+        );
+    }
+    if (compareVersions(configData.data.programVersion!, '12.6') < 0) {
+        if (verbose) console.log('Add plan styles');
+        tempStyles.push(
+            '.plan-days-scroller { overflow-x: scroll; white-space: nowrap; margin-top: 6px; margin-bottom: 6px; }'
+        );
+        tempStyles.push('.plan-days-scroller::-webkit-scrollbar { display: none; }');
+        tempStyles.push('.plan-days-scroller { -ms-overflow-style: none; scrollbar-width: none; }');
+        tempStyles.push(
+            '.plan-day-box { display: inline-block; position:relative; width: 60px; height: 60px; border: 1px solid; border-bottom: 3px solid; text-align: center; cursor: pointer; }'
+        );
+        tempStyles.push(
+            '.plan-day-box.selected { border-top: 3px solid; border-left: 3px solid; border-right: 3px solid; border-bottom: 3px; padding-bottom: 2px; }'
+        );
+        tempStyles.push(
+            '.plan-day-box.blank { border-top: 1px; border-left: 1px; border-right: 1px; border-bottom: 3px solid; }'
+        );
+        tempStyles.push(
+            '.plan-day-box-content { position:absolute; top:50%; left:50%; transform: translate(-50%, -50%); }'
+        );
+        tempStyles.push('.plan-checkbox-image { display:block; }');
+    }
+    return tempStyles.join('\n') + '\n';
 }
 
 export class ConvertStyles extends Task {
@@ -78,8 +102,9 @@ export class ConvertStyles extends Task {
     constructor(dataDir: string) {
         super(dataDir);
     }
-    public async run(verbose: number) {
-        convertStyles(this.dataDir, verbose);
+    public async run(verbose: number, outputs: Map<string, TaskOutput>) {
+        const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+        convertStyles(this.dataDir, config, verbose);
         return {
             taskName: this.constructor.name,
             files: []

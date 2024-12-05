@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, beforeEach, afterEach, it } from 'vitest';
-import { generateHTMLTest, isBibleBook } from './scripture-reference-utils';
+import { generateHTMLTest, isBibleBook, getDisplayStringMain } from './scripture-reference-utils';
 import config from '../../../test_data/data/config';
 import { catalog } from '../../../test_data/data/catalog';
 
@@ -631,6 +631,18 @@ describe('Scripture Reference Utilities', () => {
                 const result = isBibleBook(item, config);
                 expect(result).toEqual(true);
             });
+        });
+    });
+    describe('getDisplayString', () => {
+        it('returns string for chapter only reference', () => {
+            const verseRanges: [number, number, string][] = [[-1, -1, '-']];
+            const displayString = getDisplayStringMain(config, 'C01', 'MAT', 1, verseRanges);
+            expect(displayString).toEqual('Matthew 1');
+        });
+        it('returns string for verse range reference', () => {
+            const verseRanges: [number, number, string][] = [[3, 13, '-']];
+            const displayString = getDisplayStringMain(config, 'C01', 'MAT', 1, verseRanges);
+            expect(displayString).toEqual('Matthew 1:3-13');
         });
     });
 });

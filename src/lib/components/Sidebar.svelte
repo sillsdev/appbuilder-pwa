@@ -15,7 +15,8 @@ The sidebar/drawer.
         SettingsIcon,
         TextAppearanceIcon,
         AboutIcon,
-        HomeIcon
+        HomeIcon,
+        CalendarMonthIcon
     } from '$lib/icons';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
@@ -28,13 +29,14 @@ The sidebar/drawer.
         direction,
         refs,
         modal,
-        MODAL_TEXT_APPERANCE,
+        MODAL_TEXT_APPEARANCE,
         MODAL_COLLECTION,
         theme,
         themeColors,
         userPreferenceSettings
     } from '$lib/data/stores';
     import contents from '$lib/data/contents';
+
     const drawerId = 'sidebar';
     let menuToggle = false;
 
@@ -56,6 +58,7 @@ The sidebar/drawer.
     const showBookmarks = config.mainFeatures['annotation-bookmarks'];
     const showNotes = config.mainFeatures['annotation-notes'];
     const showHighlights = config.mainFeatures['annotation-highlights'];
+    const showPlans = config.plans?.plans.length > 0;
     const showShare =
         config.mainFeatures['share-app-link'] ||
         config.mainFeatures['share-download-app-link'] ||
@@ -189,6 +192,13 @@ The sidebar/drawer.
                 </li>
                 <div class="dy-divider m-1" />
             {/if}
+            {#if showPlans}
+                <li>
+                    <a href="{base}/plans" style:color={textColor}>
+                        <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
+                    </a>
+                </li>
+            {/if}
             {#if showSettings}
                 <li>
                     <a href="{base}/settings" style:color={textColor}>
@@ -201,7 +211,7 @@ The sidebar/drawer.
                 <button
                     style:color={textColor}
                     class="btn"
-                    on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                    on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
                 >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </button>

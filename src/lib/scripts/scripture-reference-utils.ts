@@ -9,6 +9,7 @@ import config from '../data/config';
 import type { CatalogData } from '../data/catalogData';
 import { getVerseText, refs } from '../data/stores';
 import {
+    containsRomanScriptLetter,
     ciEquals,
     getFirstDigitsAsInt,
     getIntFromString,
@@ -16,10 +17,15 @@ import {
     isDefined,
     isNotBlank,
     isPositiveInteger,
-    nullToEmpty
+    nullToEmpty,
+    splitString,
+    stripAllExceptDigitsAndHyphens
 } from './stringUtils';
-import { getIntFromNumberString } from './numeralUtils';
-
+import {
+    convertDigitsInStringToDefaultNumeralSystem,
+    getIntFromNumberString
+} from './numeralUtils';
+import * as numerals from './numeralSystem';
 let ref: any;
 let bookCollections: any;
 let collection: any;
@@ -910,4 +916,63 @@ export async function handleHeaderLinkPressed(start, end, colors): Promise<strin
     root.appendChild(iconDiv);
 
     return root.outerHTML;
+}
+
+// Function is split this way to allow for testing with test config data
+export function getDisplayString(
+    collection: string,
+    bookId: string,
+    chapter: number,
+    ranges: [number, number, string][]
+) {
+    return getDisplayStringMain(config, collection, bookId, chapter, ranges);
+}
+export function getDisplayStringMain(
+    cfg: any,
+    collection: string,
+    bookId: string,
+    chapter: number,
+    ranges: [number, number, string][]
+) {
+    let displayString = '';
+    const chapterVerseSeparator = cfg.bookCollections.find((x) => x.id === collection).features[
+        'ref-chapter-verse-separator'
+    ];
+    const verseRangeSeparator = cfg.bookCollections.find((x) => x.id === collection).features[
+        'ref-verse-range-separator'
+    ];
+    const RIGHT_TO_LEFT_MARK = '\u200F';
+    const bookCollection = cfg.bookCollections.find((x) => x.id === collection);
+    if (bookCollection) {
+        const textDirection = bookCollection.style.textDirection;
+        const rtl = textDirection.toLowerCase() === 'rtl';
+        const numeralSystem = numerals.systemForBook(cfg, collection, bookId);
+        const chapterString = numerals.formatNumber(numeralSystem, chapter.toString());
+        const bookName = bookCollection.books.find((x) => x.id === bookId)?.name || bookId;
+        if (rtl) {
+            displayString = ' ';
+        }
+        displayString = displayString + bookName + ' ' + chapterString;
+
+        const [fromVerse, toVerse, separator] = ranges[0];
+        if (fromVerse > -1) {
+            const fromVerseString = numerals.formatNumber(numeralSystem, fromVerse.toString());
+            if (rtl) {
+                displayString =
+                    displayString + RIGHT_TO_LEFT_MARK + chapterVerseSeparator + fromVerseString;
+                if (toVerse > -1) {
+                    const toVerseString = numerals.formatNumber(numeralSystem, toVerse.toString());
+                    displayString =
+                        displayString + RIGHT_TO_LEFT_MARK + verseRangeSeparator + toVerseString;
+                }
+            } else {
+                displayString = displayString + chapterVerseSeparator + fromVerseString;
+                if (toVerse > -1) {
+                    const toVerseString = numerals.formatNumber(numeralSystem, toVerse.toString());
+                    displayString = displayString + verseRangeSeparator + toVerseString;
+                }
+            }
+        }
+    }
+    return displayString;
 }

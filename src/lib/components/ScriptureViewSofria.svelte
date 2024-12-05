@@ -14,12 +14,27 @@ LOGGING:
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import config from '$lib/data/config';
     import { base } from '$app/paths';
-    import { footnotes, refs, logs, modal, MODAL_NOTE, userSettings } from '$lib/data/stores';
+    import {
+        audioPlayer,
+        currentPlanData,
+        currentPlanState,
+        footnotes,
+        refs,
+        language,
+        logs,
+        modal,
+        plan,
+        MODAL_NOTE,
+        t,
+        userSettings
+    } from '$lib/data/stores';
     import {
         generateHTML,
+        getDisplayString,
         handleHeaderLinkPressed,
         isBibleBook
     } from '$lib/scripts/scripture-reference-utils';
+    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import {
         onClickText,
         deselectAllElements,
@@ -29,11 +44,19 @@ LOGGING:
     import { createVideoBlock, addVideoLinks } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import { audioPlayer } from '$lib/data/stores';
+    import {
+        deleteAllProgressItemsForPlan,
+        getFirstIncompleteDay,
+        getNextPlanReference
+    } from '$lib/data/planProgressItems';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { addPlanProgressItem } from '$lib/data/planProgressItems';
+    import { addPlanState, getLastPlanState } from '$lib/data/planStates';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -79,7 +102,70 @@ LOGGING:
 
     let container: HTMLElement;
     let displayingIntroduction = false;
+
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
+    let planDivObserver; // To store the observer instance
+    let planObservationCompleted = false;
+    // Function to observe the visibility of the plan div
+    function observeVisibility() {
+        if (planDivObserver) {
+            planDivObserver.disconnect(); // Disconnect any previous observer before creating a new one
+            planDivObserver = null; // Clear the observer reference
+        }
+        if (planDivInChapter() && !$plan.completed) {
+            const target = document.getElementById('PLAN-next');
+            if (target) {
+                planObservationCompleted = false;
+                planDivObserver = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting && !planObservationCompleted) {
+                                $plan.completed = true;
+                                planObservationCompleted = true;
+                                planDivObserver.disconnect(); // Stop observing after it becomes visible
+                                planDivObserver = null; // Clear the observer reference after disconnecting
+                                addPlanProgressItem({
+                                    id: $plan.planId,
+                                    day: $plan.planDay,
+                                    itemIndex: $plan.planEntry
+                                });
+                                if (lastPlanReference) {
+                                    addPlanState({
+                                        id: $plan.planId,
+                                        state: 'completed'
+                                    });
+                                    deleteAllProgressItemsForPlan($plan.planId);
+                                }
+                            }
+                        });
+                    },
+                    {
+                        threshold: 0.1 // Adjust as needed
+                    }
+                );
+
+                planDivObserver.observe(target);
+            }
+        }
+    }
+    onMount(() => {
+        if (planDivInChapter) {
+            observeVisibility();
+        }
+    });
+
+    afterUpdate(() => {
+        if (references) {
+            observeVisibility();
+        }
+    });
+
+    onDestroy(() => {
+        if (planDivObserver) {
+            planDivObserver.disconnect();
+            planDivObserver = null;
+        }
+    });
 
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
@@ -103,6 +189,30 @@ LOGGING:
         return str.trim().length === 0;
     };
 
+    let nextPlanDay;
+    let lastPlanReference;
+    $: {
+        if ($currentPlanData && $plan.planDay) {
+            getFirstIncompleteDay($currentPlanData, $plan.planDay).then((day) => {
+                nextPlanDay = day;
+                if ($plan.planId) {
+                    // The first is true before the end of plan div becomes visible
+                    // When it becomes visible, the records are deleted and nextPlanDay
+                    // is 1 but the plan status is now completed.  So must check both
+                    // to know if the reference being viewed is the last.
+                    if ($plan.planNextReference === '' && nextPlanDay === -1) {
+                        lastPlanReference = true;
+                    } else {
+                        getLastPlanState($plan.planId).then((state) => {
+                            lastPlanReference = state === 'completed';
+                        });
+                    }
+                }
+            });
+        } else {
+            nextPlanDay = null;
+        }
+    }
     $: $selectedVerses, updateSelections(selectedVerses);
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
@@ -654,6 +764,205 @@ LOGGING:
         }
         return [footnoteSpan, footnoteDiv];
     }
+
+    const planDivInChapter = () => {
+        let planEntryInChapter = false;
+        // If plan entry is -1, there is no active entry
+        if ($plan.planEntry !== -1) {
+            if (
+                $plan.planBookId === references.book &&
+                $plan.planChapter.toString() === references.chapter
+            ) {
+                planEntryInChapter = true;
+            }
+        }
+        return planEntryInChapter;
+    };
+    function addPlanDiv(workspace, verseNumber) {
+        if (planDivInChapter() && $plan.planToVerse.toString() === verseNumber) {
+            const planDiv = document.createElement('div');
+            planDiv.id = 'plan-progress';
+            planDiv.classList.add('plan-progress-block');
+            if (lastPlanReference) {
+                // plan is complete once this item finishes
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-title',
+                    '',
+                    $t['Plans_Progress_Congratulations'],
+                    false
+                );
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-info',
+                    '',
+                    $t['Plans_Progress_Plan_Completed'],
+                    false
+                );
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-info',
+                    '',
+                    $currentPlanData.title[$language] ?? $currentPlanData.title.default ?? '',
+                    false
+                );
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-button',
+                    'PLAN-next',
+                    $t['Plans_Button_View_Plans'],
+                    true
+                );
+            } else {
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-info',
+                    '',
+                    $t['Plans_Progress_Item_Completed'],
+                    false
+                );
+                appendPlanProgressTextDiv(
+                    planDiv,
+                    'plan-progress-reference',
+                    '',
+                    getPlanReferenceString($plan.planReference),
+                    false
+                );
+                const hr = document.createElement('hr');
+                if ($plan.planNextReference === '') {
+                    // No more entries for current day
+                    appendPlanProgressTextDiv(
+                        planDiv,
+                        'plan-progress-button',
+                        'PLAN-next',
+                        $t['Plans_Button_View_Plan'],
+                        true
+                    );
+                } else {
+                    planDiv.append(hr);
+                    appendPlanProgressTextDiv(
+                        planDiv,
+                        'plan-progress-info',
+                        '',
+                        $t['Plans_Progress_Next_Reading'],
+                        false
+                    );
+                    appendPlanProgressTextDiv(
+                        planDiv,
+                        'plan-progress-reference',
+                        '',
+                        getPlanReferenceString($plan.planNextReference),
+                        false
+                    );
+                    appendPlanProgressTextDiv(
+                        planDiv,
+                        'plan-progress-button',
+                        'PLAN-next',
+                        $t['Button_Next'],
+                        true
+                    );
+                }
+            }
+            workspace.root.appendChild(workspace.paragraphDiv);
+            workspace.root.appendChild(planDiv);
+            workspace.paragraphDiv = document.createElement('div');
+            workspace.paragraphDiv.classList.add('p');
+        } else if (planDivInChapter() === false && $plan.completed === true) {
+            // If we are no longer in the plan chapter and the plan section
+            // has been read, clear plan so that the plan item will not
+            // appear if you go back to that chapter
+            $plan = {
+                planId: '',
+                planDay: 0,
+                planEntry: -1,
+                planBookId: '',
+                planChapter: 0,
+                planFromVerse: 0,
+                planToVerse: 0,
+                planReference: '',
+                planNextReference: '',
+                completed: false
+            };
+        }
+    }
+    function appendPlanProgressTextDiv(
+        progressDiv: HTMLDivElement,
+        divClass: string,
+        divId: string,
+        stringId: string,
+        addClick: boolean
+    ) {
+        const textDiv = document.createElement('div');
+        if (divId !== '') {
+            textDiv.id = divId;
+        }
+        if (addClick) {
+            textDiv.onclick = (event) => planClicked();
+        }
+        textDiv.classList.add(divClass);
+        const textNode = document.createTextNode(stringId);
+        textDiv.append(textNode);
+        progressDiv.append(textDiv);
+    }
+    function getPlanReferenceString(ref) {
+        let currentBookCollectionId = references.collection;
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
+        const displayString = getDisplayString(
+            currentBookCollectionId,
+            book,
+            toChapter,
+            verseRanges
+        );
+        return displayString;
+    }
+    async function gotoPlanReference() {
+        let currentBookCollectionId = references.collection;
+        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(
+            $plan.planNextReference
+        );
+        const [fromVerse, toVerse, separator] = verseRanges[0];
+        let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
+        if ($currentPlanData) {
+            const item = $currentPlanData.items[$plan.planDay - 1];
+            const [nextReference, nextIndex] = await getNextPlanReference(
+                $plan.planId,
+                item,
+                $plan.planNextReferenceIndex
+            );
+            const newEntry = $plan.planNextReferenceIndex;
+            const newReference = $plan.planNextReference;
+            $plan = {
+                planId: $plan.planId,
+                planDay: $plan.planDay,
+                planEntry: newEntry,
+                planBookId: book,
+                planChapter: toChapter,
+                planFromVerse: fromVerse,
+                planToVerse: toVerse,
+                planReference: newReference,
+                planNextReference: nextReference,
+                planNextReferenceIndex: nextIndex,
+                completed: false
+            };
+            refs.set({
+                docSet: currentBookCollectionId,
+                book: book,
+                chapter: toChapter.toString(),
+                verse: destinationVerse.toString()
+            });
+        }
+    }
+    function planClicked() {
+        if ($plan.planNextReference === '') {
+            if ($currentPlanState === 'completed') {
+                goto(`${base}/plans`);
+            } else {
+                goto(`${base}/plans/${$plan.planId}`);
+            }
+        } else {
+            gotoPlanReference();
+        }
+    }
     function placeElement(
         document: Document,
         container: HTMLElement,
@@ -949,7 +1258,8 @@ LOGGING:
         notes: any[],
         highlights: any[],
         videos: any[],
-        illustrations: any[]
+        illustrations: any[],
+        nextPlanDay: number
     ) => {
         // Is it possible that this could be called and proskomma is not set yet?
         if (!proskomma) return;
@@ -1037,6 +1347,7 @@ LOGGING:
                                 if (showImage()) {
                                     addIllustrations(illustrations);
                                 }
+                                addPlanDiv(workspace, '-1');
                             }
                             addFooter(document, workspace.root, docSet);
                         }
@@ -1166,7 +1477,9 @@ LOGGING:
                                             }
                                         }
                                         // Build div
-                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                        if (workspace.paragraphDiv.innerHTML !== '') {
+                                            workspace.root.appendChild(workspace.paragraphDiv);
+                                        }
                                         if (workspace.videoDiv) {
                                             workspace.root.appendChild(workspace.videoDiv);
                                             workspace.videoDiv = null;
@@ -1194,7 +1507,9 @@ LOGGING:
                                         }
                                     }
                                     // Build div
-                                    workspace.root.appendChild(workspace.paragraphDiv);
+                                    if (workspace.paragraphDiv.innerHTML !== '') {
+                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                    }
                                     if (workspace.videoDiv) {
                                         workspace.root.appendChild(workspace.videoDiv);
                                         workspace.videoDiv = null;
@@ -1287,6 +1602,7 @@ LOGGING:
                                 workspace.phraseDiv = null;
                                 addBookmarksDiv(workspace);
                                 addNotesDiv(workspace);
+                                addPlanDiv(workspace, element.atts['number']);
                                 workspace.currentVerse = 'none';
                             }
                         }
@@ -2090,7 +2406,8 @@ LOGGING:
             notes,
             highlights,
             videos,
-            illustrations
+            illustrations,
+            nextPlanDay
         );
         performance.mark('query-end');
         performance.measure('query-duration', 'query-start', 'query-end');

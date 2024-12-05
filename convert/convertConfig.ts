@@ -14,6 +14,7 @@ import type {
     WritingSystemConfig,
     DictionaryWritingSystemConfig
 } from '$config';
+import { basename, extname } from 'path';
 
 const fontFamilies: string[] = [];
 
@@ -1209,6 +1210,7 @@ function parsePlans(document: Document, verbose: number) {
         days: number;
         title: { [lang: string]: string };
         filename: string;
+        jsonFilename: string;
         image?: { width: number; height: number; file: string };
     }[] = [];
 
@@ -1246,11 +1248,17 @@ function parsePlans(document: Document, verbose: number) {
                     };
                 }
 
+                const filename = tag.getElementsByTagName('filename')[0].innerHTML;
+                const ext = extname(filename);
+                const baseFilename = basename(filename, ext);
+                const jsonFilename = baseFilename + '.json';
+
                 const plan = {
                     id: tag.attributes.getNamedItem('id')!.value,
                     days: Number(tag.attributes.getNamedItem('days')!.value),
                     title,
-                    filename: tag.getElementsByTagName('filename')[0].innerHTML,
+                    filename,
+                    jsonFilename,
                     image
                 };
                 plans.push(plan);

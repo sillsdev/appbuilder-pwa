@@ -5,6 +5,8 @@ Custom list of collections for the LayoutOptions menu
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { themeColors, convertStyle, s } from '$lib/data/stores';
+    import { base } from '$app/paths';
+
     // array of all selectable docsets
     export let docSets: App.CollectionEntry[] = [];
     // selected docset to highlight
@@ -36,7 +38,7 @@ Custom list of collections for the LayoutOptions menu
                 <div class="layout-item-block">
                     {#if d.image}
                         <div class="layout-image-block" style="width:15%">
-                            <img class="layout-image" src="illustrations/{d.image}" />
+                            <img class="layout-image" src="{base}/illustrations/{d.image}" />
                         </div>
                     {/if}
                     <div class="layout-text-block">

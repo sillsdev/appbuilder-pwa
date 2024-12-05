@@ -27,7 +27,7 @@
         userSettings,
         contentsStack,
         modal,
-        MODAL_TEXT_APPERANCE,
+        MODAL_TEXT_APPEARANCE,
         MODAL_COLLECTION,
         NAVBAR_HEIGHT,
         userSettingsOrDefault,
@@ -379,7 +379,7 @@
                     <label
                         for="textAppearanceSelector"
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                        on:click={() => modal.open(MODAL_TEXT_APPERANCE)}
+                        on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
                         ><TextAppearanceIcon color="white" /></label
                     >
 

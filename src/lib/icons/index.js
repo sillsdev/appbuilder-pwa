@@ -6,6 +6,9 @@ import ArrowForwardIcon from './ArrowForwardIcon.svelte';
 import BibleIcon from './BibleIcon.svelte';
 import BookmarkIcon from './BookmarkIcon.svelte';
 import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
+import CalendarMonthIcon from './CalendarMonthIcon.svelte';
+import CheckboxIcon from './CheckboxIcon.svelte';
+import CheckboxOutlineIcon from './CheckboxOutlineIcon.svelte';
 import ChevronIcon from './ChevronIcon.svelte';
 import CopyContentIcon from './CopyContentIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
@@ -15,6 +18,7 @@ import HamburgerIcon from './HamburgerIcon.svelte';
 import HighlightIcon from './HighlightIcon.svelte';
 import HistoryIcon from './HistoryIcon.svelte';
 import HomeIcon from './HomeIcon.svelte';
+import InfoIcon from './InfoIcon.svelte';
 import LaunchIcon from './LaunchIcon.svelte';
 import MoreVertIcon from './MoreVertIcon.svelte';
 import NoteIcon from './NoteIcon.svelte';
@@ -27,7 +31,7 @@ import SortIcon from './SortIcon.svelte';
 import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import TriangleLeftIcon from './TriangleLeftIcon.svelte';
 import TriangleRightIcon from './TriangleRightIcon.svelte';
-import VerseByVerseIcon from './VerseByVerseIcon.svelte';
+import VerseByVerseIcon from './CalendarMonthIcon.svelte';
 import { AudioIcon } from './audio';
 import { ImageIcon } from './image';
 
@@ -40,6 +44,9 @@ export {
     BibleIcon,
     BookmarkIcon,
     BookmarkOutlineIcon,
+    CalendarMonthIcon,
+    CheckboxIcon,
+    CheckboxOutlineIcon,
     ChevronIcon,
     CopyContentIcon,
     DeleteSweepIcon,
@@ -50,6 +57,7 @@ export {
     HistoryIcon,
     HomeIcon,
     ImageIcon,
+    InfoIcon,
     LaunchIcon,
     MoreVertIcon,
     NoteIcon,
