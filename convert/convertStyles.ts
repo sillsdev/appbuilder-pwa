@@ -24,6 +24,8 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
         const dstFile = path.join(dstDir, file);
         if (verbose) console.log('Converting: ', srcFile);
 
+        let swapped = false;
+
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
         // Until App Builders 12.0 is released, then add these styles
@@ -32,6 +34,35 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
             tempStyles +
             lines
                 .map((line) => {
+                    if (line.indexOf('body {') === 0 && srcFile.includes('-app.css')) {
+                        const m = line.match(/direction: (LTR|RTL);/);
+                        if (m) {
+                            // See CommonReaderAppBuilderCore::doBeforeSavingNewApp
+                            // if the first book collection was RTL, then it swapped all the styles
+                            // We want to use the styles that do the right thing when direction
+                            // changes.
+                            swapped = m[1] === 'RTL';
+                        }
+                    }
+                    if (swapped) {
+                        line = line.replace('padding-right', 'padding-inline-start');
+                        line = line.replace('padding-left', 'padding-inline-end');
+                        line = line.replace('margin-right', 'margin-inline-start');
+                        line = line.replace('margin-left', 'margin-inline-end');
+                        line = line.replace('float: right', 'float: inline-start');
+                        line = line.replace('float: left', 'float: inline-end');
+                        line = line.replace('text-align: right', 'text-align: start');
+                        line = line.replace('text-align: left', 'text-align: end');
+                    } else {
+                        line = line.replace('padding-left', 'padding-inline-start');
+                        line = line.replace('padding-right', 'padding-inline-end');
+                        line = line.replace('margin-left', 'margin-inline-start');
+                        line = line.replace('margin-right', 'margin-inline-end');
+                        line = line.replace('float: left', 'float: inline-start');
+                        line = line.replace('float: right', 'float: inline-end');
+                        line = line.replace('text-align: left', 'text-align: start');
+                        line = line.replace('text-align: right', 'text-align: end');
+                    }
                     if (line.indexOf('body {') === 0 && line.indexOf('margin-top') > 0) {
                         const parts = line.split('margin-top');
                         line = parts[0].replace('body', '#container') + '}\n';
@@ -41,10 +72,6 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                     }
                     if (line.indexOf('body') === 0) {
                         line = line.replace('body', '#container');
-                    }
-                    if (line.indexOf('div.c-drop') === 0) {
-                        line = line.replace('padding-right', 'padding-inline-end');
-                        line = line.replace('float: left', 'display: inline-block');
                     }
                     if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
                         line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
