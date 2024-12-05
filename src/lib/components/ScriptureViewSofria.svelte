@@ -41,7 +41,7 @@ LOGGING:
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
     import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
-    import { createVideoBlock, addVideoLinks } from '$lib/video';
+    import { createVideoBlock, addVideoLinks, createVideoBlockFromUrl } from '$lib/video';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
     import {
@@ -2186,11 +2186,21 @@ LOGGING:
                                 case 'usfm:zvideo': {
                                     const id = element.atts['id'][0];
                                     const video = config.videos.find((x) => x.id === id);
-                                    workspace.videoDiv = createVideoBlock(
-                                        document,
-                                        video,
-                                        workspace.currentVideoIndex++
-                                    );
+                                    if (video) {
+                                        workspace.videoDiv = createVideoBlock(
+                                            document,
+                                            video,
+                                            workspace.currentVideoIndex++
+                                        );
+                                    } else {
+                                        // Proskomma did replacement of slashes in id
+                                        const videoUrl = id.replace(/÷/g, '/');
+                                        workspace.videoDiv = createVideoBlockFromUrl(
+                                            document,
+                                            videoUrl,
+                                            config.mainFeatures
+                                        );
+                                    }
                                     break;
                                 }
                                 case 'usfm:zaudioc': {
