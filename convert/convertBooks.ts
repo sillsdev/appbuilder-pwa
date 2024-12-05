@@ -15,7 +15,15 @@ import { hasAudioExtension, hasImageExtension } from './stringUtils';
 const base = process.env.BUILD_BASE_PATH || '';
 
 let bookCount = 0;
-function displayBookId(bookId: string) {
+let bookCountCollectionId: string;
+function displayBookId(bcId: string, bookId: string) {
+    if (bookCountCollectionId !== bcId) {
+        const header = `${bcId}:`;
+        const space = (4 - (header.length % 4)) % 4;
+        bookCount = (header.length + space) / 4;
+        process.stdout.write(header + ' '.repeat(space));
+        bookCountCollectionId = bcId;
+    }
     process.stdout.write(' ' + bookId);
     ++bookCount;
     if (bookCount % 10 === 0) {
@@ -277,7 +285,6 @@ export async function convertBooks(
             );
         }
         usedLangs.add(context.lang);
-        process.stdout.write(`  ${context.bcId}:`);
         if (verbose)
             console.log(
                 'converting collection: ' + collection.id + ' to docSet: ' + context.docSet
@@ -318,13 +325,13 @@ export async function convertBooks(
                         ),
                         content: JSON.stringify(convertQuizBook(context, book), null, 2)
                     });
-                    displayBookId(book.id);
+                    displayBookId(context.bcId, book.id);
                     break;
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
                         convertHtmlBook(context, book, files);
-                        displayBookId(book.id);
+                        displayBookId(context.bcId, book.id);
                         htmlBooks[context.docSet].push({ id: book.id, name: book.name });
                     } else {
                         convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
@@ -647,7 +654,7 @@ function convertScriptureBook(
                         `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(r)}`
                     );
                 } else {
-                    displayBookId(book.id);
+                    displayBookId(context.bcId, book.id);
                 }
                 resolve();
             }
