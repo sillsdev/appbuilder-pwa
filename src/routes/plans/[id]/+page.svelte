@@ -309,7 +309,7 @@
                 </div>
             {/if}
             {#if selectedTab === 'calendar'}
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
                 <div
                     class="plan-days-scroller"
                     id="scroller"
@@ -390,6 +390,7 @@
         </div>
     </div>
 </div>
+
 <style>
     .plan-days-scroller {
         user-select: none;
