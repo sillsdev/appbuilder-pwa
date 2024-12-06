@@ -24,7 +24,9 @@ const ENTRIES_PER_CHUNK = 100;
 
 function getBaseLetter(char: string, alphabet: string[]): string {
     // Find the first alphabet entry that matches this character
-    const alphabetEntry = alphabet.find(entry => char.toLowerCase().startsWith(entry.toLowerCase()));
+    const alphabetEntry = alphabet.find((entry) =>
+        char.toLowerCase().startsWith(entry.toLowerCase())
+    );
     if (!alphabetEntry) {
         // If no match found in alphabet, use normalization as fallback
         return char.normalize('NFD')[0].toUpperCase();
@@ -32,11 +34,7 @@ function getBaseLetter(char: string, alphabet: string[]): string {
     return alphabetEntry[0].toUpperCase();
 }
 
-function convertReverseIndex(
-    dataDir: string,
-    language: string,
-    alphabet: string[],
-): void {
+function convertReverseIndex(dataDir: string, language: string, alphabet: string[]): void {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
     const outputDir = path.join('static', 'reversal', 'language', language);
 
@@ -46,14 +44,15 @@ function convertReverseIndex(
 
     // Read and process the reversal index file
     const content = readFileSync(indexFilePath, 'utf-8');
-    const indexEntries = content.split('\n')
+    const indexEntries = content
+        .split('\n')
         .map((line) => line.trim().split('\t'))
         .filter(([gloss]) => gloss?.length > 0);
 
     // Group entries by first letter
     const entriesByLetter: { [letter: string]: [string, string][] } = {};
 
-    indexEntries.forEach(entry => {
+    indexEntries.forEach((entry) => {
         if (!entry || !entry[0]) return;
         const gloss = entry[0];
 
@@ -89,21 +88,24 @@ function convertReverseIndex(
             if (!gloss || !ids) continue;
 
             // Process IDs for this entry
-            const idList = ids.split(',').map(id => {
-                const trimmed = id.trim();
-                const match = trimmed.match(/^(\d+)(?:\^(\d+))?$/);
-                if (match) {
-                    const entry: ReversalEntry = {
-                        index: parseInt(match[1]),
-                        name: gloss
-                    };
-                    if (match[2]) {
-                        entry.homonym_index = parseInt(match[2]);
+            const idList = ids
+                .split(',')
+                .map((id) => {
+                    const trimmed = id.trim();
+                    const match = trimmed.match(/^(\d+)(?:\^(\d+))?$/);
+                    if (match) {
+                        const entry: ReversalEntry = {
+                            index: parseInt(match[1]),
+                            name: gloss
+                        };
+                        if (match[2]) {
+                            entry.homonym_index = parseInt(match[2]);
+                        }
+                        return entry;
                     }
-                    return entry;
-                }
-                return null;
-            }).filter((entry): entry is ReversalEntry => entry !== null);
+                    return null;
+                })
+                .filter((entry): entry is ReversalEntry => entry !== null);
 
             if (idList.length > 0) {
                 if (currentCount === 0) {
@@ -138,11 +140,7 @@ function convertReverseIndex(
     });
 
     // Write main index file
-    writeFileSync(
-        path.join(outputDir, 'index.json'),
-        JSON.stringify(mainIndex, null, 4),
-        'utf-8'
-    );
+    writeFileSync(path.join(outputDir, 'index.json'), JSON.stringify(mainIndex, null, 4), 'utf-8');
 }
 
 export class ConvertReverseIndex extends Task {
@@ -170,11 +168,7 @@ export class ConvertReverseIndex extends Task {
                     console.log(`Processing reversal index for language: ${lang}`);
                 }
 
-                convertReverseIndex(
-                    this.dataDir,
-                    lang,
-                    writingSystem.alphabet
-                );
+                convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
             }
         }
 
