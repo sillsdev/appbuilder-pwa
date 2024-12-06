@@ -396,7 +396,6 @@
         user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
-        overflow: auto; /* Ensure it's scrollable */
         cursor: grab; /* Change cursor to indicate draggable area */
     }
 
