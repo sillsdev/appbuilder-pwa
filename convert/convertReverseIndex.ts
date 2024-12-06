@@ -9,17 +9,6 @@ interface ReversalEntry {
     homonym_index?: number;
 }
 
-interface ReversalIndex {
-    totalEntries: number;
-    chunks: {
-        file: string;
-        startWord: string;
-        endWord: string;
-        entryCount: number;
-        letter: string;
-    }[];
-}
-
 const ENTRIES_PER_CHUNK = 100;
 
 function getBaseLetter(char: string, alphabet: string[]): string {
@@ -63,18 +52,12 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
         mkdirSync(outputDir, { recursive: true });
     }
 
-    const mainIndex: ReversalIndex = {
-        totalEntries: indexEntries.length,
-        chunks: []
-    };
-
     Object.entries(entriesByLetter).forEach(([letter, entries]) => {
         entries.sort(([a], [b]) => a.localeCompare(b, language));
 
         let currentChunk: { [key: string]: ReversalEntry[] } = {};
         let currentCount = 0;
         let chunkIndex = 0;
-        let chunkFirstWord = '';
 
         for (let i = 0; i < entries.length; i++) {
             const [gloss, ids] = entries[i];
@@ -100,10 +83,6 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
                 .filter((entry): entry is ReversalEntry => entry !== null);
 
             if (idList.length > 0) {
-                if (currentCount === 0) {
-                    chunkFirstWord = gloss;
-                }
-
                 currentChunk[gloss] = idList;
                 currentCount++;
 
@@ -113,14 +92,6 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
 
                     writeFileSync(chunkPath, JSON.stringify(currentChunk, null, 4), 'utf-8');
 
-                    mainIndex.chunks.push({
-                        file: chunkFileName,
-                        startWord: chunkFirstWord,
-                        endWord: gloss,
-                        entryCount: currentCount,
-                        letter: letter.toLowerCase()
-                    });
-
                     currentChunk = {};
                     currentCount = 0;
                     chunkIndex++;
@@ -128,8 +99,6 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
             }
         }
     });
-
-    writeFileSync(path.join(outputDir, 'index.json'), JSON.stringify(mainIndex, null, 4), 'utf-8');
 }
 
 export class ConvertReverseIndex extends Task {
