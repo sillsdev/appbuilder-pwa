@@ -164,6 +164,28 @@
         }
         return result;
     }
+
+    let isDragging = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    function handleMouseDown(event) {
+        isDragging = true;
+        startX = event.pageX - scroller.offsetLeft;
+        scrollLeft = scroller.scrollLeft;
+    }
+
+    function handleMouseMove(event) {
+        if (!isDragging) return;
+        event.preventDefault();
+        const x = event.pageX - scroller.offsetLeft;
+        const walk = (x - startX) * 2; // Adjust scroll speed
+        scroller.scrollLeft = scrollLeft - walk;
+    }
+
+    function handleMouseUp() {
+        isDragging = false;
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -287,7 +309,15 @@
                 </div>
             {/if}
             {#if selectedTab === 'calendar'}
-                <div class="plan-days-scroller" id="scroller">
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div
+                    class="plan-days-scroller"
+                    id="scroller"
+                    on:mousedown={handleMouseDown}
+                    on:mousemove={handleMouseMove}
+                    on:mouseup={handleMouseUp}
+                    on:mouseleave={handleMouseUp}
+                >
                     <ul class="dy-menu-horizontal bg-base-200 rounded-box">
                         {#each $page.data.planData.items as item}
                             <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
@@ -360,3 +390,16 @@
         </div>
     </div>
 </div>
+<style>
+    .plan-days-scroller {
+        user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        overflow: auto; /* Ensure it's scrollable */
+        cursor: grab; /* Change cursor to indicate draggable area */
+    }
+
+    .plan-days-scroller:active {
+        cursor: grabbing; /* While dragging */
+    }
+</style>
