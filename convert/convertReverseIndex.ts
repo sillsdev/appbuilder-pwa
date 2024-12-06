@@ -23,12 +23,10 @@ interface ReversalIndex {
 const ENTRIES_PER_CHUNK = 100;
 
 function getBaseLetter(char: string, alphabet: string[]): string {
-    // Find the first alphabet entry that matches this character
     const alphabetEntry = alphabet.find((entry) =>
         char.toLowerCase().startsWith(entry.toLowerCase())
     );
     if (!alphabetEntry) {
-        // If no match found in alphabet, use normalization as fallback
         return char.normalize('NFD')[0].toUpperCase();
     }
     return alphabetEntry[0].toUpperCase();
@@ -42,14 +40,12 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
         throw new Error(`Required reversal index not found: ${indexFilePath}`);
     }
 
-    // Read and process the reversal index file
     const content = readFileSync(indexFilePath, 'utf-8');
     const indexEntries = content
         .split('\n')
         .map((line) => line.trim().split('\t'))
         .filter(([gloss]) => gloss?.length > 0);
 
-    // Group entries by first letter
     const entriesByLetter: { [letter: string]: [string, string][] } = {};
 
     indexEntries.forEach((entry) => {
@@ -72,9 +68,7 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
         chunks: []
     };
 
-    // Process each letter
     Object.entries(entriesByLetter).forEach(([letter, entries]) => {
-        // Sort entries for this letter
         entries.sort(([a], [b]) => a.localeCompare(b, language));
 
         let currentChunk: { [key: string]: ReversalEntry[] } = {};
@@ -82,12 +76,10 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
         let chunkIndex = 0;
         let chunkFirstWord = '';
 
-        // Process entries for the current letter
         for (let i = 0; i < entries.length; i++) {
             const [gloss, ids] = entries[i];
             if (!gloss || !ids) continue;
 
-            // Process IDs for this entry
             const idList = ids
                 .split(',')
                 .map((id) => {
@@ -115,7 +107,6 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
                 currentChunk[gloss] = idList;
                 currentCount++;
 
-                // Check if we need to write current chunk
                 if (currentCount >= ENTRIES_PER_CHUNK || i === entries.length - 1) {
                     const chunkFileName = `${letter.toLowerCase()}-${String(chunkIndex + 1).padStart(3, '0')}.json`;
                     const chunkPath = path.join(outputDir, chunkFileName);
@@ -130,7 +121,6 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
                         letter: letter.toLowerCase()
                     });
 
-                    // Reset for next chunk
                     currentChunk = {};
                     currentCount = 0;
                     chunkIndex++;
@@ -139,7 +129,6 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
         }
     });
 
-    // Write main index file
     writeFileSync(path.join(outputDir, 'index.json'), JSON.stringify(mainIndex, null, 4), 'utf-8');
 }
 
