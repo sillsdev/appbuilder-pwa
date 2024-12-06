@@ -70,7 +70,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-screen-md">
+    <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"
