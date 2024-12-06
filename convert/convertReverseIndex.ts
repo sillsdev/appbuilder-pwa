@@ -25,9 +25,9 @@ function convertReverseIndex(
     dataDir: string,
     language: string,
     alphabet: string[],
-    reversalFilename: string
+    //reversalFilename: string
 ): void {
-    const indexFilePath = path.join(dataDir, 'reversal', reversalFilename);
+    const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
     const outputDir = path.join('static', 'reversal', 'language', language);
 
     if (!existsSync(indexFilePath)) {
@@ -135,7 +135,7 @@ export class ConvertReverseIndex extends Task {
                     this.dataDir,
                     lang,
                     writingSystem.alphabet,
-                    writingSystem.reversalFilename
+                    //writingSystem.reversalFilename
                 );
             }
         }
