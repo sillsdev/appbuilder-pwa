@@ -5,9 +5,7 @@ import config from '$lib/data/config';
 export async function load({ params, fetch }) {
     const id = params.id;
     const collection = params.collection;
-
-    const bookCollection = config.bookCollections.find((x) => x.id === collection);
-    const book = bookCollection.books.find((x) => x.id === id);
+    console.log(`Songs: collection=${collection} id=${id}`);
 
     let songs;
     try {
@@ -23,7 +21,7 @@ export async function load({ params, fetch }) {
 
     return {
         collection,
-        id,
+        book: id,
         songs
     };
 }
