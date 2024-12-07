@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 import type { DictionaryConfig } from '$config';
+import * as fs from 'fs';
 
 interface ReversalEntry {
     index: number;
@@ -27,7 +28,19 @@ function convertReverseIndex(
     alphabet: string[],
     //reversalFilename: string
 ): void {
-    const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
+    // Get the first .idx file in the folder
+    const idxFiles = fs.readdirSync(path.join(dataDir, 'reversal'))
+        .filter((file: string) => file.endsWith('.idx'));
+    const firstIdxFile = idxFiles.length > 0 ? idxFiles[0] : null;
+
+    if (!firstIdxFile) {
+        throw new Error('No .idx file found in the reversal directory.');
+    }
+
+    // Construct the path to the first .idx file
+    const indexFilePath = path.join(dataDir, 'reversal', firstIdxFile);
+
+    //const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
     const outputDir = path.join('static', 'reversal', 'language', language);
 
     if (!existsSync(indexFilePath)) {
