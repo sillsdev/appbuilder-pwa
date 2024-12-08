@@ -25,11 +25,12 @@ function getBaseLetter(char: string, alphabet: string[]): string {
 function convertReverseIndex(
     dataDir: string,
     language: string,
-    alphabet: string[],
+    alphabet: string[]
     //reversalFilename: string
 ): void {
     // Get the first .idx file in the folder
-    const idxFiles = fs.readdirSync(path.join(dataDir, 'reversal'))
+    const idxFiles = fs
+        .readdirSync(path.join(dataDir, 'reversal'))
         .filter((file: string) => file.endsWith('.idx'));
     const firstIdxFile = idxFiles.length > 0 ? idxFiles[0] : null;
 
@@ -147,7 +148,7 @@ export class ConvertReverseIndex extends Task {
                 convertReverseIndex(
                     this.dataDir,
                     lang,
-                    writingSystem.alphabet,
+                    writingSystem.alphabet
                     //writingSystem.reversalFilename
                 );
             }
