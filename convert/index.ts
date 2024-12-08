@@ -9,6 +9,7 @@ import { ConvertStyles } from './convertStyles';
 import { ConvertBadges } from './convertBadges';
 import { ConvertPlans } from './convertPlans';
 import { ConvertSQLite } from './convertSQLite';
+import { ConvertReverseIndex } from './convertReverseIndex';
 import { watch } from 'chokidar';
 import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
@@ -51,10 +52,7 @@ const commonStepClasses = [
 //Classes only necessary for SAB
 const SABStepClasses = [ConvertPlans, ConvertBooks];
 
-const DABStepClasses = [
-    // ConvertReversalIndex,
-    ConvertSQLite
-];
+const DABStepClasses = [ConvertReverseIndex, ConvertSQLite];
 
 const stepClasses: Task[] = [
     ...commonStepClasses,
