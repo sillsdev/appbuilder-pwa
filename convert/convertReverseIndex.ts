@@ -21,12 +21,7 @@ function getBaseLetter(char: string, alphabet: string[]): string {
     return alphabetEntry[0].toUpperCase();
 }
 
-function convertReverseIndex(
-    dataDir: string,
-    language: string,
-    alphabet: string[],
-    //reversalFilename: string
-): void {
+function convertReverseIndex(dataDir: string, language: string, alphabet: string[]): void {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
     const outputDir = path.join('static', 'reversal', 'language', language);
 
@@ -131,12 +126,7 @@ export class ConvertReverseIndex extends Task {
                     console.log(`Processing reversal index for language: ${lang}`);
                 }
 
-                convertReverseIndex(
-                    this.dataDir,
-                    lang,
-                    writingSystem.alphabet,
-                    //writingSystem.reversalFilename
-                );
+                convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
             }
         }
 
