@@ -35,6 +35,7 @@ static/songs
 static/plans
 static/quiz
 static/data.sqlite
+static/reversal
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js

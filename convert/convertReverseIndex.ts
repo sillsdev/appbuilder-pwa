@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { Task, TaskOutput } from './Task';
+import { FileContent, Task, TaskOutput } from './Task';
 import type { DictionaryConfig } from '$config';
 
 interface ReversalEntry {
@@ -11,22 +11,35 @@ interface ReversalEntry {
 
 const ENTRIES_PER_CHUNK = 100;
 
-function getBaseLetter(char: string, alphabet: string[]): string {
-    const alphabetEntry = alphabet.find((entry) =>
-        char.toLowerCase().startsWith(entry.toLowerCase())
-    );
-    if (!alphabetEntry) {
-        return char.normalize('NFD')[0].toUpperCase();
-    }
-    return alphabetEntry[0].toUpperCase();
+function makeEntryLetter(char: string) {
+    return char.toUpperCase();
 }
 
-function convertReverseIndex(dataDir: string, language: string, alphabet: string[]): void {
+function getBaseLetter(char: string, alphabet: string[]): string | null {
+    const alphabetEntry = alphabet.find((entry) =>
+        char.normalize('NFD')[0].toLowerCase().startsWith(entry.toLowerCase())
+    );
+    if (!alphabetEntry) {
+        return null;
+    }
+    return makeEntryLetter(alphabetEntry[0]);
+}
+
+export function convertReverseIndex(
+    dataDir: string,
+    language: string,
+    alphabet: string[]
+): FileContent[] {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
-    const outputDir = path.join('static', 'reversal', 'language', language);
+    const outputDir = path.join('static', 'reversal', language);
+    const files: FileContent[] = [];
 
     if (!existsSync(indexFilePath)) {
         throw new Error(`Required reversal index not found: ${indexFilePath}`);
+    }
+
+    if (!existsSync(outputDir)) {
+        mkdirSync(outputDir, { recursive: true });
     }
 
     const content = readFileSync(indexFilePath, 'utf-8');
@@ -37,20 +50,19 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
 
     const entriesByLetter: { [letter: string]: [string, string][] } = {};
 
+    let latestLetter = makeEntryLetter(alphabet[0]);
     indexEntries.forEach((entry) => {
         if (!entry || !entry[0]) return;
         const gloss = entry[0];
 
         const firstLetter = getBaseLetter(gloss, alphabet);
-        if (!entriesByLetter[firstLetter]) {
-            entriesByLetter[firstLetter] = [];
+        const entryLetter = firstLetter ?? latestLetter;
+        if (!entriesByLetter[entryLetter]) {
+            entriesByLetter[entryLetter] = [];
         }
-        entriesByLetter[firstLetter].push([entry[0], entry[1]]);
+        entriesByLetter[entryLetter].push([entry[0], entry[1]]);
+        latestLetter = entryLetter;
     });
-
-    if (!existsSync(outputDir)) {
-        mkdirSync(outputDir, { recursive: true });
-    }
 
     Object.entries(entriesByLetter).forEach(([letter, entries]) => {
         entries.sort(([a], [b]) => a.localeCompare(b, language));
@@ -90,7 +102,10 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
                     const chunkFileName = `${letter.toLowerCase()}-${String(chunkIndex + 1).padStart(3, '0')}.json`;
                     const chunkPath = path.join(outputDir, chunkFileName);
 
-                    writeFileSync(chunkPath, JSON.stringify(currentChunk, null, 4), 'utf-8');
+                    files.push({
+                        path: chunkPath,
+                        content: JSON.stringify(currentChunk, null, 2)
+                    });
 
                     currentChunk = {};
                     currentCount = 0;
@@ -99,6 +114,8 @@ function convertReverseIndex(dataDir: string, language: string, alphabet: string
             }
         }
     });
+
+    return files;
 }
 
 export class ConvertReverseIndex extends Task {
@@ -118,6 +135,7 @@ export class ConvertReverseIndex extends Task {
             throw new Error('No writing systems found in config data');
         }
 
+        let files: FileContent[] = [];
         for (const lang in configOutput.data.writingSystems) {
             const writingSystem = configOutput.data.writingSystems[lang];
 
@@ -126,13 +144,14 @@ export class ConvertReverseIndex extends Task {
                     console.log(`Processing reversal index for language: ${lang}`);
                 }
 
-                convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
+                const langFiles = convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
+                files.push(...langFiles);
             }
         }
 
         return {
             taskName: this.constructor.name,
-            files: []
+            files
         };
     }
 }

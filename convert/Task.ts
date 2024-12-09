@@ -1,9 +1,11 @@
+export type FileContent = {
+    path: string;
+    content: string;
+};
+
 export interface TaskOutput {
     taskName: string;
-    files: {
-        path: string;
-        content: string;
-    }[];
+    files: FileContent[];
 }
 
 export type Promisable<T> = T | Promise<T>;
