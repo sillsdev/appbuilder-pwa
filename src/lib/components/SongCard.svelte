@@ -10,16 +10,23 @@
     }
 </script>
 
-<div
-    class="history-item-block dy-card w-100 bg-base-100"
-    style={convertStyle($s['ui.song.border'])}
->
+<div>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div style="text-decoration:none;" on:click={onSongClick}>
-        <div class="flex">
-            <div class="flex-none w-14" style={convertStyle($s['ui.song.number'])}>{id}</div>
-            <div class="flex-1" style={convertStyle($s['ui.song.title'])}>{title}</div>
+        <div class="flex space-x-4 h-16 border-b-2">
+            <div
+                class="flex-none w-16 flex items-center justify-end"
+                style={convertStyle($s['ui.song.number'])}
+            >
+                {id}
+            </div>
+            <div
+                class="flex-1 flex items-center justify-start"
+                style={convertStyle($s['ui.song.title'])}
+            >
+                {title}
+            </div>
         </div>
     </div>
 </div>

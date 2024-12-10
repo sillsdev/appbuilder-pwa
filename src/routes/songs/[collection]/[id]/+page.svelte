@@ -24,25 +24,25 @@
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"
-            style={convertStyle($s['ui.song.tabs'])}
+            style={convertStyle($s['ui.selector.tabs'])}
         >
             <input
                 type="radio"
                 name="songs"
                 role="tab"
-                class="dy-tab dy-tab-bordered {selectedTab === 'number' ? 'dy-tab-active' : ''}"
+                class="dy-tab {selectedTab === 'number' ? 'dy-tab-active' : ''}"
                 on:click={() => (selectedTab = 'number')}
                 aria-label={$t['Song_List_By_Number']}
-                style={convertStyle($s['ui.song.number'])}
+                style={convertStyle($s['ui.selector.tabs'])}
             />
             <input
                 type="radio"
                 name="songs"
                 role="tab"
-                class="dy-tab dy-tab-bordered {selectedTab === 'title' ? 'dy-tab-active' : ''}"
+                class="dy-tab {selectedTab === 'title' ? 'dy-tab-active' : ''}"
                 on:click={() => (selectedTab = 'title')}
                 aria-label={$t['Song_List_By_Title']}
-                style={convertStyle($s['ui.song.title'])}
+                style={convertStyle($s['ui.selector.tabs'])}
             />
         </div>
 
@@ -59,3 +59,10 @@
         </div>
     </div>
 </div>
+
+<style lang="postcss">
+    .dy-tabs-bordered > .dy-tab-active {
+        @apply border-b-[6px];
+        @apply !border-white;
+    }
+</style>
