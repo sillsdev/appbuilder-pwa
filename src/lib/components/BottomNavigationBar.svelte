@@ -11,7 +11,7 @@ TODO:
     import config from '$lib/data/config';
     import { refs, s, language, languageDefault, theme } from '$lib/data/stores';
     import { castToNavButtonType, NavButtonType } from '$lib/scripts/bottomNavButtonType';
-    import  contents from '$lib/data/contents';
+    import contents from '$lib/data/contents';
 
     export let barType = undefined;
 
