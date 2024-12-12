@@ -77,7 +77,7 @@ TODO:
                 goto(`${base}/settings`);
                 break;
             default:
-                console.log('unknown NavBar button type pressed');
+                console.log('BottomNavigation Bar: Unknown NavBar button type pressed', buttonType);
                 break;
         }
     }
