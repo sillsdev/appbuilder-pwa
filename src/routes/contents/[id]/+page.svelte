@@ -264,11 +264,11 @@
             {/each}
         </div>
     </div>
-    {#if bottomNavBarEnabled }
-    <div class="bottom-nav-bar" >
-        <div>
-            <BottomNavigationBar {barType} />
+    {#if bottomNavBarEnabled}
+        <div class="bottom-nav-bar">
+            <div>
+                <BottomNavigationBar {barType} />
+            </div>
         </div>
-    </div>
-{/if}
+    {/if}
 </div>

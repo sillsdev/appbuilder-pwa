@@ -216,8 +216,8 @@
             {/if}
         </div>
     </div>
-    {#if bottomNavBarEnabled }
-        <div class="bottom-nav-bar" >
+    {#if bottomNavBarEnabled}
+        <div class="bottom-nav-bar">
             <div>
                 <BottomNavigationBar {barType} />
             </div>

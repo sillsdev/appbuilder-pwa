@@ -13,11 +13,10 @@ TODO:
     import { castToNavButtonType, NavButtonType } from '$lib/scripts/bottomNavButtonType';
     import contents from '$lib/data/contents';
 
-    export let barType = undefined
+    export let barType = undefined;
 
     const bottomNavBarItems = config?.bottomNavBarItems;
 
-    console.log("bottomNavBarItems:", bottomNavBarItems);
     $: barBackgroundColor = $s['ui.bottom-navigation.']['background-color'];
     $: barIconColor = $s['ui.bottom-navigation.item.icon']['color'];
     $: barIconSelectedColor = $s['ui.bottom-navigation.item.icon.selected']['color'];
@@ -41,7 +40,7 @@ TODO:
             case NavButtonType.Search:
                 value = showSearch;
                 break;
-            default: 
+            default:
                 value = true;
         }
         return value;
@@ -50,7 +49,7 @@ TODO:
     function handleClick(buttonType: NavButtonType, link: string) {
         switch (buttonType) {
             case NavButtonType.Contents:
-                let gotoLink = (link && link !== '') ? link : '1';
+                let gotoLink = link && link !== '' ? link : '1';
                 goto(`${base}/contents/${gotoLink}`);
                 break;
             case NavButtonType.About:
@@ -60,11 +59,11 @@ TODO:
                 if (link && link !== '') {
                     const [bc, book] = link.split('|');
                     refs.set({
-                            docSet: bc,
-                            book: book,
-                            chapter: '1',
-                            verse: '1'
-                        });
+                        docSet: bc,
+                        book: book,
+                        chapter: '1',
+                        verse: '1'
+                    });
                 }
                 goto(`${base}/text`);
                 break;
@@ -84,34 +83,35 @@ TODO:
     }
 </script>
 
-<div
-    class="h-16 bg-base-100 mx-auto "
-    style:background-color={barBackgroundColor}
->
+<div class="h-16 bg-base-100 mx-auto" style:background-color={barBackgroundColor}>
     <div class="flex justify-center flex-grow">
         <!-- Controls -->
-        <div class="dy-btn-group ">
+        <div class="dy-btn-group">
             {#if bottomNavBarItems}
                 {#each bottomNavBarItems as item}
                     {#if showButton(castToNavButtonType(item.type))}
                         <button
-                            class="dy-btn dy-btn-ghost flex-col gap-0 "
+                            class="dy-btn dy-btn-ghost flex-col gap-0"
                             style="margin: 0.5rem 0; "
-                            on:click={() => handleClick(castToNavButtonType(item.type), item.link['default'])}
+                            on:click={() =>
+                                handleClick(castToNavButtonType(item.type), item.link['default'])}
                         >
-                            <picture
-                                class:invert={$theme === 'Dark'}
-                            >
+                            <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
                                 <img
                                     src="{base}/icons/menu-items/{item.images[0].file}"
                                     alt="Home Icon"
-                                    class="dy-w-10 dy-h-10 {barType === item.type ? "opacity-100" : "opacity-50"}"
+                                    class="dy-w-10 dy-h-10 {barType === item.type
+                                        ? 'opacity-100'
+                                        : 'opacity-50'}"
                                 />
                             </picture>
                             <!-- Text -->
-                            <span class="dy-text-center"
-                                style="color: {barType === item.type ? barTextSelectedColor : barTextColor}"
+                            <span
+                                class="dy-text-center"
+                                style="color: {barType === item.type
+                                    ? barTextSelectedColor
+                                    : barTextColor}"
                             >
                                 {item.title[$language] || item.title[languageDefault]}
                             </span>
