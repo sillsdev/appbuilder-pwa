@@ -81,13 +81,7 @@
         }
         return completed;
     }
-    function checkSelection(day) {
-        if (day === selectedDay) {
-            return 'selected plan-day-box-selected';
-        } else {
-            return 'plan-day-box-unselected';
-        }
-    }
+
     function getReferenceString(ref) {
         // Reminder - get book collection id
         let currentBookCollectionId = $refs.collection;

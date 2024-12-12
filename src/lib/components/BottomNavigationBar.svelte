@@ -50,7 +50,6 @@ TODO:
     function handleClick(buttonType: NavButtonType, link: string) {
         switch (buttonType) {
             case NavButtonType.Contents:
-                console.log('goto Contents: ', link);
                 let gotoLink = (link && link !== '') ? link : '1';
                 goto(`${base}/contents/${gotoLink}`);
                 break;
@@ -58,6 +57,15 @@ TODO:
                 goto(`${base}/about`);
                 break;
             case NavButtonType.Bible:
+                if (link && link !== '') {
+                    const [bc, book] = link.split('|');
+                    refs.set({
+                            docSet: bc,
+                            book: book,
+                            chapter: '1',
+                            verse: '1'
+                        });
+                }
                 goto(`${base}/text`);
                 break;
             case NavButtonType.Plans:
@@ -77,18 +85,18 @@ TODO:
 </script>
 
 <div
-    class="h-16 bg-base-100 mx-auto flex items-center flex-col"
+    class="h-16 bg-base-100 mx-auto "
     style:background-color={barBackgroundColor}
 >
-    <div class="flex flex-col justify-center flex-grow">
+    <div class="flex justify-center flex-grow">
         <!-- Controls -->
-        <div class="dy-btn-group place-self-center">
+        <div class="dy-btn-group ">
             {#if bottomNavBarItems}
                 {#each bottomNavBarItems as item}
                     {#if showButton(castToNavButtonType(item.type))}
                         <button
-                            class="dy-btn dy-btn-ghost "
-                            style="flex-direction: column; margin: 0.5rem 0;"
+                            class="dy-btn dy-btn-ghost flex-col gap-0 "
+                            style="margin: 0.5rem 0; "
                             on:click={() => handleClick(castToNavButtonType(item.type), item.link['default'])}
                         >
                             <picture
