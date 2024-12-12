@@ -189,6 +189,23 @@ export type AppConfig = {
             file: string;
         }[];
     }[];
+    bottomNavBarItems?: {
+        type: string;
+        title: {
+            [lang: string]: string;
+        };
+        link?: {
+            [lang: string]: string;
+        };
+        linkId?: {
+            [lang: string]: string;
+        };
+        images?: {
+            width: number;
+            height: number;
+            file: string;
+        }[];
+    }[];
     security?: {
         // TODO
         features?: {

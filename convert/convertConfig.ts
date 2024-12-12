@@ -329,9 +329,15 @@ function convertConfig(dataDir: string, verbose: number) {
             data.watermarkImages = watermarkImages;
         }
 
-        const menuItems = parseMenuItems(document, verbose);
+        console.log('Converting menu items');
+        const menuItems = parseMenuItems(document, 'drawer', verbose);
         if (menuItems.length > 0) {
             data.menuItems = menuItems;
+        }
+
+        const bottomNavigationItems = parseMenuItems(document, 'bottom', verbose);
+        if (bottomNavigationItems.length > 0) {
+            data.bottomNavBarItems = bottomNavigationItems;
         }
 
         const { features, plans } = parsePlans(document, verbose);
@@ -1139,12 +1145,11 @@ function parseWatermarkImages(document: Document, verbose: number) {
     return watermarkImages;
 }
 
-function parseMenuItems(document: Document, verbose: number) {
-    const menuItemTags = document
-        .getElementsByTagName('menu-items')[0]
-        ?.getElementsByTagName('menu-item');
+function parseMenuItems(document: Document, type: string, verbose: number) {
+    const firstMenuItemsByType = document.querySelector(`menu-items[type="${type}"]`);
+    const menuItemTags = firstMenuItemsByType?.getElementsByTagName('menu-item');
     const menuItems = [];
-    if (menuItemTags?.length > 0) {
+    if (menuItemTags && menuItemTags?.length > 0) {
         for (const menuItem of menuItemTags) {
             const type = menuItem.attributes.getNamedItem('type')!.value;
             if (verbose >= 2) console.log(`.. Converting menuItem: ${type}`);
