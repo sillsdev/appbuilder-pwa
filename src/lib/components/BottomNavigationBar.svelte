@@ -5,13 +5,13 @@ Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play
 TODO:
 - display audio not found message in UI when audio is not found
 -->
-<script lang="ts">
+<script>
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { refs, s, language, languageDefault, theme } from '$lib/data/stores';
     import { castToNavButtonType, NavButtonType } from '$lib/scripts/bottomNavButtonType';
-    import { contents } from '$lib/data/contents';
+    import  contents from '$lib/data/contents';
 
     export let barType = undefined;
 
@@ -28,7 +28,7 @@ TODO:
     const showSearch = config.mainFeatures['search'];
     const showPlans = config.plans?.plans.length > 0;
 
-    function showButton(buttonType: NavButtonType): boolean {
+    function showButton(buttonType) {
         let value = true;
         switch (buttonType) {
             case NavButtonType.Contents:
@@ -46,7 +46,7 @@ TODO:
         return value;
     }
 
-    function handleClick(buttonType: NavButtonType, link: string) {
+    function handleClick(buttonType, link) {
         switch (buttonType) {
             case NavButtonType.Contents:
                 let gotoLink = link && link !== '' ? link : '1';
