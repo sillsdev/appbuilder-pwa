@@ -45,7 +45,16 @@ TODO:
         }
         return value;
     }
-
+    function selectedLink(buttonType, link) {
+        let value = buttonType === barType;
+        if (buttonType === NavButtonType.Bible) {
+            // Don't highlight link for specific book
+            if (link && link !== '') {
+                value = false;
+            }
+        }
+        return value;
+    }
     function handleClick(buttonType, link) {
         switch (buttonType) {
             case NavButtonType.Contents:
@@ -104,7 +113,7 @@ TODO:
                                 <img
                                     src="{base}/icons/menu-items/{item.images[0].file}"
                                     alt="Home Icon"
-                                    class="dy-w-10 dy-h-10 {barType === item.type
+                                    class="dy-w-10 dy-h-10 {selectedLink(item.type, item.link['default'])
                                         ? 'opacity-100'
                                         : 'opacity-50'}"
                                 />
@@ -112,7 +121,7 @@ TODO:
                             <!-- Text -->
                             <span
                                 class="dy-text-center"
-                                style="color: {barType === item.type
+                                style="color: {selectedLink(item.type, item.link['default'])
                                     ? barTextSelectedColor
                                     : barTextColor}"
                             >
