@@ -113,7 +113,10 @@ TODO:
                                 <img
                                     src="{base}/icons/menu-items/{item.images[0].file}"
                                     alt="Home Icon"
-                                    class="dy-w-10 dy-h-10 {selectedLink(item.type, item.link['default'])
+                                    class="dy-w-10 dy-h-10 {selectedLink(
+                                        item.type,
+                                        item.link['default']
+                                    )
                                         ? 'opacity-100'
                                         : 'opacity-50'}"
                                 />
