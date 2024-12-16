@@ -18,11 +18,8 @@ TODO:
     const bottomNavBarItems = config?.bottomNavBarItems;
 
     $: barBackgroundColor = $s['ui.bottom-navigation.']['background-color'];
-    $: barIconColor = $s['ui.bottom-navigation.item.icon']['color'];
-    $: barIconSelectedColor = $s['ui.bottom-navigation.item.icon.selected']['color'];
     $: barTextColor = $s['ui.bottom-navigation.item.text']['color'];
     $: barTextSelectedColor = $s['ui.bottom-navigation.item.text.selected']['color'];
-    $: paneLineColor = $s['ui.pane-separator-line']['color'];
 
     const showContents = contents.screens?.length > 0;
     const showSearch = config.mainFeatures['search'];
@@ -122,43 +119,45 @@ TODO:
     }
 </script>
 
-<div class="h-16 bg-base-100 mx-auto" style:background-color={barBackgroundColor}>
-    <div class="grid {gridColumns()} gap-2 justify-items-center items-center h-full">
-        <!-- Controls -->
-        {#if bottomNavBarItems}
-            {#each bottomNavBarItems as item}
-                {#if showButton(castToNavButtonType(item.type))}
-                    <button
-                        class="dy-btn dy-btn-ghost flex-col gap-0"
-                        style="margin: 0.5rem 0; "
-                        on:click={() =>
-                            handleClick(castToNavButtonType(item.type), item.link['default'])}
-                    >
-                        <picture class:invert={$theme === 'Dark'}>
-                            <!-- Image Icon -->
-                            <img
-                                src="{base}/icons/menu-items/{item.images[0].file}"
-                                alt="Home Icon"
-                                class="dy-w-10 dy-h-10 {selectedLink(
-                                    item.type,
-                                    item.link['default']
-                                )
-                                    ? 'opacity-100'
-                                    : 'opacity-50'}"
-                            />
-                        </picture>
-                        <!-- Text -->
-                        <span
-                            class="dy-text-center"
-                            style="color: {selectedLink(item.type, item.link['default'])
-                                ? barTextSelectedColor
-                                : barTextColor}"
+<div class="h-16 bg-base-100" style:background-color={barBackgroundColor}>
+    <div class="mx-auto max-w-screen-md" style:background-color={barBackgroundColor}>
+        <div class="grid {gridColumns()} gap-2 justify-items-center items-center h-full">
+            <!-- Controls -->
+            {#if bottomNavBarItems}
+                {#each bottomNavBarItems as item}
+                    {#if showButton(castToNavButtonType(item.type))}
+                        <button
+                            class="dy-btn dy-btn-ghost flex-col gap-0"
+                            style="margin: 0.5rem 0; "
+                            on:click={() =>
+                                handleClick(castToNavButtonType(item.type), item.link['default'])}
                         >
-                            {item.title[$language] || item.title[languageDefault]}
-                        </span>
-                    </button>
-                {/if}
-            {/each}
-        {/if}
+                            <picture class:invert={$theme === 'Dark'}>
+                                <!-- Image Icon -->
+                                <img
+                                    src="{base}/icons/menu-items/{item.images[0].file}"
+                                    alt="Home Icon"
+                                    class="dy-w-10 dy-h-10 {selectedLink(
+                                        item.type,
+                                        item.link['default']
+                                    )
+                                        ? 'opacity-100'
+                                        : 'opacity-50'}"
+                                />
+                            </picture>
+                            <!-- Text -->
+                            <span
+                                class="dy-text-center"
+                                style="color: {selectedLink(item.type, item.link['default'])
+                                    ? barTextSelectedColor
+                                    : barTextColor}"
+                            >
+                                {item.title[$language] || item.title[languageDefault]}
+                            </span>
+                        </button>
+                    {/if}
+                {/each}
+            {/if}
+        </div>
     </div>
 </div>
