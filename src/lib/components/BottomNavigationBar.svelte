@@ -55,6 +55,25 @@ TODO:
         }
         return value;
     }
+    function gridColumns() {
+        let value = 'grid-cols-5';
+        if (bottomNavBarItems) {
+            switch (bottomNavBarItems.length) {
+                case 2:
+                    value = 'grid-cols-2';
+                    break;
+                case 3:
+                    value = 'grid-cols-3';
+                    break;
+                case 4:
+                    value = 'grid-cols-4';
+                    break;
+                default:
+                    value = 'grid-cols-5';
+            }
+        }
+        return value;
+    }
     function handleClick(buttonType, link) {
         switch (buttonType) {
             case NavButtonType.Contents:
@@ -67,8 +86,16 @@ TODO:
             case NavButtonType.Bible:
                 if (link && link !== '') {
                     const [bc, book] = link.split('|');
+                    const refBc = config.bookCollections.find((x) => x.id === bc);
+                    let refDocSet = '';
+                    if (refBc) {
+                        refDocSet = refBc.languageCode + '_' + refBc.id;
+                    } else {
+                        // Invalid collection
+                        return;
+                    }
                     refs.set({
-                        docSet: bc,
+                        docSet: refDocSet,
                         book: book,
                         chapter: '1',
                         verse: '1'
@@ -96,44 +123,42 @@ TODO:
 </script>
 
 <div class="h-16 bg-base-100 mx-auto" style:background-color={barBackgroundColor}>
-    <div class="flex justify-center flex-grow">
+    <div class="grid {gridColumns()} gap-2 justify-items-center items-center h-full">
         <!-- Controls -->
-        <div class="dy-btn-group">
-            {#if bottomNavBarItems}
-                {#each bottomNavBarItems as item}
-                    {#if showButton(castToNavButtonType(item.type))}
-                        <button
-                            class="dy-btn dy-btn-ghost flex-col gap-0"
-                            style="margin: 0.5rem 0; "
-                            on:click={() =>
-                                handleClick(castToNavButtonType(item.type), item.link['default'])}
+        {#if bottomNavBarItems}
+            {#each bottomNavBarItems as item}
+                {#if showButton(castToNavButtonType(item.type))}
+                    <button
+                        class="dy-btn dy-btn-ghost flex-col gap-0"
+                        style="margin: 0.5rem 0; "
+                        on:click={() =>
+                            handleClick(castToNavButtonType(item.type), item.link['default'])}
+                    >
+                        <picture class:invert={$theme === 'Dark'}>
+                            <!-- Image Icon -->
+                            <img
+                                src="{base}/icons/menu-items/{item.images[0].file}"
+                                alt="Home Icon"
+                                class="dy-w-10 dy-h-10 {selectedLink(
+                                    item.type,
+                                    item.link['default']
+                                )
+                                    ? 'opacity-100'
+                                    : 'opacity-50'}"
+                            />
+                        </picture>
+                        <!-- Text -->
+                        <span
+                            class="dy-text-center"
+                            style="color: {selectedLink(item.type, item.link['default'])
+                                ? barTextSelectedColor
+                                : barTextColor}"
                         >
-                            <picture class:invert={$theme === 'Dark'}>
-                                <!-- Image Icon -->
-                                <img
-                                    src="{base}/icons/menu-items/{item.images[0].file}"
-                                    alt="Home Icon"
-                                    class="dy-w-10 dy-h-10 {selectedLink(
-                                        item.type,
-                                        item.link['default']
-                                    )
-                                        ? 'opacity-100'
-                                        : 'opacity-50'}"
-                                />
-                            </picture>
-                            <!-- Text -->
-                            <span
-                                class="dy-text-center"
-                                style="color: {selectedLink(item.type, item.link['default'])
-                                    ? barTextSelectedColor
-                                    : barTextColor}"
-                            >
-                                {item.title[$language] || item.title[languageDefault]}
-                            </span>
-                        </button>
-                    {/if}
-                {/each}
-            {/if}
-        </div>
+                            {item.title[$language] || item.title[languageDefault]}
+                        </span>
+                    </button>
+                {/if}
+            {/each}
+        {/if}
     </div>
 </div>

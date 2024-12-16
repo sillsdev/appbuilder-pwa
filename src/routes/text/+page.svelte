@@ -74,12 +74,6 @@
                 if (now - lastChangeTime > 500) {
                     // The timing thing fixes a problem with occasional vibrating
                     // when you hit the bottom of the screen
-                    console.log(
-                        'SCROLLING DIRECTION CHANGE: ',
-                        newScrollingUp,
-                        oldSavedScroll,
-                        savedScrollPosition
-                    );
                     scrollingUp = newScrollingUp;
                     lastChangeTime = now;
                 }
