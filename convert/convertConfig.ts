@@ -329,7 +329,6 @@ function convertConfig(dataDir: string, verbose: number) {
             data.watermarkImages = watermarkImages;
         }
 
-        console.log('Converting menu items');
         const menuItems = parseMenuItems(document, 'drawer', verbose);
         if (menuItems.length > 0) {
             data.menuItems = menuItems;

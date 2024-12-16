@@ -59,7 +59,6 @@
     import { slide } from 'svelte/transition';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
-    import { NavButtonType } from '$lib/scripts/bottomNavButtonType';
 
     let scrollingUp = true;
     let savedScrollPosition = 0;
@@ -103,6 +102,7 @@
     }
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
+    const barType = 'book';
 
     async function prevChapter() {
         await navigateToTextChapterInDirection(-1);
@@ -311,7 +311,6 @@
     $: updateAudioPlayer($refs);
     $: newRefScroll($refs);
     const navBarHeight = NAVBAR_HEIGHT;
-    const barType = NavButtonType.Bible;
     onMount(() => {
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
@@ -523,11 +522,7 @@
         </div>
     {/if}
     {#if scrollingUp && bottomNavBarEnabled && !$selectedVerses.length > 0}
-        <div class="bottom-nav-bar" transition:slide={{ duration: 300 }}>
-            <div>
-                <BottomNavigationBar {barType} />
-            </div>
-        </div>
+        <BottomNavigationBar {barType} />
     {/if}
 </div>
 

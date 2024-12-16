@@ -20,7 +20,6 @@
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import { NavButtonType } from '$lib/scripts/bottomNavButtonType';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
 
     const imageFolder =
@@ -170,7 +169,7 @@
     }
     $: showBackButton = $contentsStack.length > 0;
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
-    const barType = NavButtonType.Contents;
+    const barType = 'contents';
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -265,10 +264,6 @@
         </div>
     </div>
     {#if bottomNavBarEnabled}
-        <div class="bottom-nav-bar">
-            <div>
-                <BottomNavigationBar {barType} />
-            </div>
-        </div>
+        <BottomNavigationBar {barType} />
     {/if}
 </div>

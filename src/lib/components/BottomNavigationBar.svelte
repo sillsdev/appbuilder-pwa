@@ -1,16 +1,11 @@
 <!--
 @component
-Based on an audio component found at https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0.
-Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play/Pause, Seek, and Skip functionality.  
-TODO:
-- display audio not found message in UI when audio is not found
 -->
 <script>
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { refs, s, language, languageDefault, theme } from '$lib/data/stores';
-    import { castToNavButtonType, NavButtonType } from '$lib/scripts/bottomNavButtonType';
     import contents from '$lib/data/contents';
 
     export let barType = undefined;
@@ -28,13 +23,13 @@ TODO:
     function showButton(buttonType) {
         let value = true;
         switch (buttonType) {
-            case NavButtonType.Contents:
+            case 'contents':
                 value = showContents;
                 break;
-            case NavButtonType.Plans:
+            case 'plans':
                 value = showPlans;
                 break;
-            case NavButtonType.Search:
+            case 'search':
                 value = showSearch;
                 break;
             default:
@@ -44,7 +39,7 @@ TODO:
     }
     function selectedLink(buttonType, link) {
         let value = buttonType === barType;
-        if (buttonType === NavButtonType.Bible) {
+        if (buttonType === 'book') {
             // Don't highlight link for specific book
             if (link && link !== '') {
                 value = false;
@@ -73,14 +68,14 @@ TODO:
     }
     function handleClick(buttonType, link) {
         switch (buttonType) {
-            case NavButtonType.Contents:
+            case 'contents':
                 let gotoLink = link && link !== '' ? link : '1';
                 goto(`${base}/contents/${gotoLink}`);
                 break;
-            case NavButtonType.About:
+            case 'about':
                 goto(`${base}/about`);
                 break;
-            case NavButtonType.Bible:
+            case 'book':
                 if (link && link !== '') {
                     const [bc, book] = link.split('|');
                     const refBc = config.bookCollections.find((x) => x.id === bc);
@@ -100,13 +95,13 @@ TODO:
                 }
                 goto(`${base}/text`);
                 break;
-            case NavButtonType.Plans:
+            case 'plans':
                 goto(`${base}/plans`);
                 break;
-            case NavButtonType.Search:
+            case 'search':
                 goto(`${base}/search/${$refs.collection}`);
                 break;
-            case NavButtonType.Settings:
+            case 'settings':
                 goto(`${base}/settings`);
                 break;
             default:
@@ -119,35 +114,30 @@ TODO:
     }
 </script>
 
-<div class="h-16 bg-base-100" style:background-color={barBackgroundColor}>
-    <div class="mx-auto max-w-screen-md" style:background-color={barBackgroundColor}>
-        <div class="grid {gridColumns()} gap-2 justify-items-center items-center h-full">
+<div class="h-16" style:background-color={barBackgroundColor}>
+    <div class="mx-auto max-w-screen-md">
+        <div class="grid {gridColumns()} justify-items-center">
             <!-- Controls -->
             {#if bottomNavBarItems}
                 {#each bottomNavBarItems as item}
-                    {#if showButton(castToNavButtonType(item.type))}
+                    {#if showButton(item.type)}
                         <button
-                            class="dy-btn dy-btn-ghost flex-col gap-0"
-                            style="margin: 0.5rem 0; "
-                            on:click={() =>
-                                handleClick(castToNavButtonType(item.type), item.link['default'])}
+                            class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
+                            on:click={() => handleClick(item.type, item.link['default'])}
                         >
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
                                 <img
                                     src="{base}/icons/menu-items/{item.images[0].file}"
-                                    alt="Home Icon"
-                                    class="dy-w-10 dy-h-10 {selectedLink(
-                                        item.type,
-                                        item.link['default']
-                                    )
+                                    alt=""
+                                    class={selectedLink(item.type, item.link['default'])
                                         ? 'opacity-100'
-                                        : 'opacity-50'}"
+                                        : 'opacity-50'}
                                 />
                             </picture>
                             <!-- Text -->
                             <span
-                                class="dy-text-center"
+                                class="text-center"
                                 style="color: {selectedLink(item.type, item.link['default'])
                                     ? barTextSelectedColor
                                     : barTextColor}"
