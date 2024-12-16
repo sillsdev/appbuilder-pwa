@@ -17,6 +17,7 @@
     import { getLastPlanState } from '$lib/data/planStates';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { goto } from '$app/navigation';
+    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -57,6 +58,8 @@
         );
         usedPlans = plansInUse;
     }
+    const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
+    const barType = 'plans';
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -212,4 +215,7 @@
             {/if}
         </div>
     </div>
+    {#if bottomNavBarEnabled}
+        <BottomNavigationBar {barType} />
+    {/if}
 </div>

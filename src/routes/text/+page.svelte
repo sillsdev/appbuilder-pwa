@@ -56,12 +56,27 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
+    import { slide } from 'svelte/transition';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
+    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
 
+    let scrollingUp = true;
     let savedScrollPosition = 0;
+    let lastChangeTime = 0;
     function saveScrollPosition() {
         if (scrollingDiv) {
+            const now = Date.now();
+            const oldSavedScroll = savedScrollPosition;
             savedScrollPosition = scrollingDiv.scrollTop;
+            const newScrollingUp = oldSavedScroll - savedScrollPosition > 0;
+            if (newScrollingUp != scrollingUp) {
+                if (now - lastChangeTime > 500) {
+                    // The timing thing fixes a problem with occasional vibrating
+                    // when you hit the bottom of the screen
+                    scrollingUp = newScrollingUp;
+                    lastChangeTime = now;
+                }
+            }
         }
     }
     afterUpdate(() => {
@@ -85,6 +100,9 @@
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
+
+    const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
+    const barType = 'book';
 
     async function prevChapter() {
         await navigateToTextChapterInDirection(-1);
@@ -502,6 +520,9 @@
                 <AudioBar />
             </div>
         </div>
+    {/if}
+    {#if scrollingUp && bottomNavBarEnabled && !$selectedVerses.length > 0}
+        <BottomNavigationBar {barType} />
     {/if}
 </div>
 

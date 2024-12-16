@@ -113,7 +113,23 @@ export type DictionaryWritingSystemConfig = WritingSystemConfig & {
         [name: string]: boolean;
     };
 };
-
+export type MenuItemConfig = {
+    type: string;
+    title: {
+        [lang: string]: string;
+    };
+    link?: {
+        [lang: string]: string;
+    };
+    linkId?: {
+        [lang: string]: string;
+    };
+    images?: {
+        width: number;
+        height: number;
+        file: string;
+    }[];
+};
 export type AppConfig = {
     name?: string;
     package?: string;
@@ -172,23 +188,8 @@ export type AppConfig = {
             [name: string]: boolean;
         };
     };
-    menuItems?: {
-        type: string;
-        title: {
-            [lang: string]: string;
-        };
-        link?: {
-            [lang: string]: string;
-        };
-        linkId?: {
-            [lang: string]: string;
-        };
-        images?: {
-            width: number;
-            height: number;
-            file: string;
-        }[];
-    }[];
+    menuItems?: MenuItemConfig[];
+    bottomNavBarItems?: MenuItemConfig[];
     security?: {
         // TODO
         features?: {
