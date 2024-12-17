@@ -62,7 +62,8 @@ export function generateAnchor(refClass: string, start, end = undefined): HTMLEl
     if (isNotBlank(refClass)) {
         anchor.classList.add(refClass);
     }
-    anchor.href = '#';
+    // use `javascript:void(0)` instead of `#` for anchor so that ref gets a:link styling
+    anchor.href = 'javascript:void(0)';
     anchor.innerHTML = start.phrase;
     anchor.setAttribute('data-start-ref', JSON.stringify(start));
     anchor.setAttribute('data-end-ref', JSON.stringify(end));
