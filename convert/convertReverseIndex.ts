@@ -27,11 +27,12 @@ function getBaseLetter(char: string, alphabet: string[]): string | null {
 
 export function convertReverseIndex(
     dataDir: string,
+    staticDir: string,
     language: string,
     alphabet: string[]
 ): FileContent[] {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
-    const outputDir = path.join('static', 'reversal', language);
+    const outputDir = path.join(staticDir, 'reversal', language);
     const files: FileContent[] = [];
 
     if (!existsSync(indexFilePath)) {
@@ -121,10 +122,6 @@ export function convertReverseIndex(
 export class ConvertReverseIndex extends Task {
     public triggerFiles: string[] = ['reversal'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
-    }
-
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         const configOutput = outputs.get('ConvertConfig') as { data: DictionaryConfig } | undefined;
         if (!configOutput || !configOutput.data) {
@@ -144,7 +141,12 @@ export class ConvertReverseIndex extends Task {
                     console.log(`Processing reversal index for language: ${lang}`);
                 }
 
-                const langFiles = convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
+                const langFiles = convertReverseIndex(
+                    this.dataDir,
+                    this.outDirs.static,
+                    lang,
+                    writingSystem.alphabet
+                );
                 files.push(...langFiles);
             }
         }

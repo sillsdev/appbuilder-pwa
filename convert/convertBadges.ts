@@ -1,14 +1,15 @@
-import { Promisable, Task, TaskOutput } from './Task';
+import { Promisable, Task, TaskOutDirs, TaskOutput } from './Task';
 import path from 'path';
 import { ConfigTaskOutput } from './convertConfig';
 import { copyFile, existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 
 export async function convertBadges(
     badgesDir: string,
+    outDir: string,
     configData: ConfigTaskOutput,
     verbose: number
 ) {
-    const dstBadgeDir = path.join('static', 'badges');
+    const dstBadgeDir = path.join(outDir, 'badges');
     if (!configData.data.mainFeatures['share-apple-app-link']) {
         if (existsSync(dstBadgeDir)) {
             rmSync(dstBadgeDir, { recursive: true });
@@ -61,8 +62,8 @@ export interface BadgesTaskOutput extends TaskOutput {
 export class ConvertBadges extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
     public badgesDir: string;
-    constructor(dataDir: string) {
-        super(dataDir);
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
         this.badgesDir = path.join(__dirname, 'badges');
     }
     public run(
@@ -72,7 +73,7 @@ export class ConvertBadges extends Task {
     ): Promisable<BadgesTaskOutput> {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
 
-        convertBadges(this.badgesDir, config, verbose);
+        convertBadges(this.badgesDir, this.outDirs.static, config, verbose);
         return {
             taskName: 'ConvertBadges',
             files: []

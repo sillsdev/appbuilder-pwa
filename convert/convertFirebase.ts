@@ -8,10 +8,10 @@ export interface FirebaseTaskOutput extends TaskOutput {
 /**
  * Convert firebase-config.js to module or provide null definition
  */
-export function convertFirebase(dataDir: string, verbose: number) {
+export function convertFirebase(dataDir: string, outDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'firebase-config.js');
     const srcExists = existsSync(srcFile);
-    const dstFile = path.join('src', 'lib', 'data', 'firebase-config.js');
+    const dstFile = path.join(outDir, 'firebase-config.js');
     if (verbose) console.log(`FirebaseConfig: path=${srcFile}, exists=${srcExists}`);
     if (srcExists) {
         let content = readFileSync(srcFile, 'utf-8');
@@ -26,11 +26,8 @@ export function convertFirebase(dataDir: string, verbose: number) {
 export class ConvertFirebase extends Task {
     public triggerFiles: string[] = ['firebase-config.js'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
-    }
     public async run(verbose: number) {
-        convertFirebase(this.dataDir, verbose);
+        convertFirebase(this.dataDir, this.outDirs.firebase, verbose);
         return {
             taskName: this.constructor.name,
             files: []
