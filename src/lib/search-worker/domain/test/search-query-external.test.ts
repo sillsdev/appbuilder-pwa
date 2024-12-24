@@ -92,9 +92,9 @@ test('is not complete until response indicates', async () => {
     expect(query.isComplete).toBe(false);
 });
 
-test('throws error on invalid response', () => {
+test('throws error on invalid response', async () => {
     const messenger = new TestMessenger();
     const outboundHandler = messenger.outboundHandler(invalidResponse);
     const query = new SearchQueryExternal({ id: 4, outboundHandler });
-    expect(() => query.getResults()).rejects.toThrow(invalidResponse.type);
+    await expect(() => query.getResults()).rejects.toThrow(invalidResponse.type);
 });
