@@ -242,6 +242,7 @@ type ConvertBookContext = {
 const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
+    staticDir: string,
     scriptureConfig: ScriptureConfig,
     verbose: number
 ): Promise<BooksTaskOutput> {
@@ -261,7 +262,7 @@ export async function convertBooks(
     // copy book-related folder resources
     ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('static', folder);
+        const folderDstDir = path.join(staticDir, folder);
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
@@ -322,7 +323,7 @@ export async function convertBooks(
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
-                            'static',
+                            staticDir,
                             'collections',
                             context.bcId,
                             'quizzes',
@@ -335,7 +336,7 @@ export async function convertBooks(
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
-                        convertHtmlBook(context, book, files);
+                        convertHtmlBook(context, book, staticDir, files);
                         displayBookId(context.bcId, book.id);
                         htmlBooks[context.docSet].push({ id: book.id, name: book.name });
                     } else {
@@ -364,14 +365,14 @@ export async function convertBooks(
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
 
         //check if folder exists for collection
-        const collPath = path.join('static', 'collections', context.bcId);
+        const collPath = path.join(staticDir, 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
             if (verbose) console.log('creating: ' + collPath);
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
-            const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
+            const qPath = path.join(staticDir, 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 fs.mkdirSync(qPath, { recursive: true });
@@ -380,7 +381,7 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-    const catalogPath = path.join('static', 'collections', 'catalog');
+    const catalogPath = path.join(staticDir, 'collections', 'catalog');
     if (!fs.existsSync(catalogPath)) {
         if (verbose) console.log('creating: ' + catalogPath);
         fs.mkdirSync(catalogPath, { recursive: true });
@@ -399,14 +400,14 @@ export async function convertBooks(
     //push files to be written to files array
     freezer.forEach((value, key) =>
         files.push({
-            path: path.join('static', 'collections', key + '.pkf'),
+            path: path.join(staticDir, 'collections', key + '.pkf'),
             content: value
         })
     );
 
     //write index file
     fs.writeFileSync(
-        path.join('static', 'collections', 'index.json'),
+        path.join(staticDir, 'collections', 'index.json'),
         `[${(() => {
             //export collection names as array
             let s = '';
@@ -467,9 +468,14 @@ export type Quiz = {
     passScore?: number; //\pm
 };
 
-function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
+function convertHtmlBook(
+    context: ConvertBookContext,
+    book: BookConfig,
+    staticDir: string,
+    files: any[]
+) {
     const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
-    const dstFile = path.join('static', 'collections', context.bcId, book.file);
+    const dstFile = path.join(staticDir, 'collections', context.bcId, book.file);
 
     let content = fs.readFileSync(srcFile, 'utf-8');
     content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id);
@@ -725,9 +731,6 @@ export class ConvertBooks extends Task {
 
     public static lastBookCollections: ScriptureConfig['bookCollections'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
-    }
     public run(
         verbose: number,
         outputs: Map<string, TaskOutput>,
@@ -750,7 +753,7 @@ export class ConvertBooks extends Task {
             };
         }
 
-        const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
+        const ret = convertBooks(this.dataDir, this.outDirs.static, scriptureConfig, verbose);
         ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
         return ret;
     }

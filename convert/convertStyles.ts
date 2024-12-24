@@ -14,9 +14,14 @@ export interface StylesTaskOutput extends TaskOutput {
  * The margin-top and margin-bottom are changed to padding-top and padding-bottom and attached
  * to the #content element instead.
  */
-export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
+export function convertStyles(
+    dataDir: string,
+    staticDir: string,
+    configData: ConfigTaskOutput,
+    verbose: number
+) {
     const srcDir = path.join(dataDir, 'styles');
-    const dstDir = path.join('static', 'styles');
+    const dstDir = path.join(staticDir, 'styles');
     mkdirSync(dstDir, { recursive: true });
 
     readdirSync(srcDir).forEach((file) => {
@@ -126,12 +131,9 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
 export class ConvertStyles extends Task {
     public triggerFiles: string[] = ['styles'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
-    }
     public async run(verbose: number, outputs: Map<string, TaskOutput>) {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
-        convertStyles(this.dataDir, config, verbose);
+        convertStyles(this.dataDir, this.outDirs.static, config, verbose);
         return {
             taskName: this.constructor.name,
             files: []

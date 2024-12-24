@@ -11,7 +11,7 @@ import { ConvertPlans } from './convertPlans';
 import { ConvertSQLite } from './convertSQLite';
 import { ConvertReverseIndex } from './convertReverseIndex';
 import { watch } from 'chokidar';
-import { Task, TaskOutput } from './Task';
+import { Task, TaskOutDirs, TaskOutput } from './Task';
 import { writeFile } from 'fs';
 import path from 'path';
 
@@ -23,6 +23,11 @@ import path from 'path';
 
 const suppliedDataDir = process.argv.find((arg) => arg.includes('--data-dir'));
 const dataDir = suppliedDataDir ? suppliedDataDir.split('=')[1] : 'data';
+const outDirs: TaskOutDirs = {
+    static: 'static',
+    config: path.join('src', 'lib', 'data'),
+    firebase: path.join('src', 'lib', 'data')
+};
 
 const watchTimeoutArg = process.argv.find((arg) => arg.includes('--watch-timeout'));
 const watchTimeout = watchTimeoutArg ? parseInt(watchTimeoutArg.split('=')[1]) : 100;
@@ -34,7 +39,7 @@ const verbose: number = verboseLevel
         : 1
     : 0;
 
-const config = new ConvertConfig(dataDir).run(verbose);
+const config = new ConvertConfig(dataDir, outDirs).run(verbose);
 const programType = config.data.programType;
 
 //Classes common to both SAB and DAB
@@ -58,7 +63,7 @@ const stepClasses: Task[] = [
     ...commonStepClasses,
     ...(programType == 'SAB' ? SABStepClasses : []),
     ...(programType == 'DAB' ? DABStepClasses : [])
-].map((x) => new x(dataDir));
+].map((x) => new x(dataDir, outDirs));
 
 const allPaths = new Set(
     stepClasses.reduce((acc, step) => acc.concat(step.triggerFiles), [] as string[])

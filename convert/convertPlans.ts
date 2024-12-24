@@ -18,11 +18,12 @@ function changeFileExtension(filename: string, ext: string): string {
 
 export function convertPlans(
     dataDir: string,
+    staticDir: string,
     scriptureConfig: ScriptureConfig,
     verbose: number
 ): PlansTaskOutput {
     const plansDir = path.join(dataDir, 'plans');
-    const destDir = path.join('static', 'plans');
+    const destDir = path.join(staticDir, 'plans');
     if (existsSync(plansDir)) {
         if (existsSync(destDir)) {
             rmSync(destDir, { recursive: true });
@@ -135,13 +136,10 @@ export interface PlansTaskOutput extends TaskOutput {
 export class ConvertPlans extends Task {
     public triggerFiles: string[] = ['appdef.xml', 'plans'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
-    }
     public run(verbose: number, outputs: Map<string, TaskOutput>): PlansTaskOutput {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
         const scriptureConfig = config.data as ScriptureConfig;
 
-        return convertPlans(this.dataDir, scriptureConfig, verbose);
+        return convertPlans(this.dataDir, this.outDirs.static, scriptureConfig, verbose);
     }
 }

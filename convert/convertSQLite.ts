@@ -9,9 +9,9 @@ export interface SQLiteTaskOutput extends TaskOutput {
 /**
  * Copies data.sqlite to the static folder.
  */
-export function convertSQLite(dataDir: string, verbose: number) {
+export function convertSQLite(dataDir: string, staticDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'data.sqlite');
-    const dstFile = path.join('static', 'data.sqlite');
+    const dstFile = path.join(staticDir, 'data.sqlite');
     copyFile(srcFile, dstFile, function (err: any) {
         if (err) throw err;
         if (verbose) console.log(`Copied ${srcFile} to ${dstFile}`);
@@ -21,12 +21,8 @@ export function convertSQLite(dataDir: string, verbose: number) {
 export class ConvertSQLite extends Task {
     public triggerFiles: string[] = ['data.sqlite'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
-    }
-
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
-        convertSQLite(this.dataDir, verbose);
+        convertSQLite(this.dataDir, this.outDirs.static, verbose);
         return {
             taskName: this.constructor.name,
             files: []
