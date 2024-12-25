@@ -1,7 +1,7 @@
 import type { ScriptureConfig } from '$config';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
 import { PlanDataItem, PlansData } from '../src/lib/data/plansData';
 
@@ -135,6 +135,10 @@ export interface PlansTaskOutput extends TaskOutput {
 
 export class ConvertPlans extends Task {
     public triggerFiles: string[] = ['appdef.xml', 'plans'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public run(verbose: number, outputs: Map<string, TaskOutput>): PlansTaskOutput {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;

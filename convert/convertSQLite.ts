@@ -1,6 +1,6 @@
 import { copyFile } from 'fs';
 import path from 'path';
-import { Task, TaskOutput } from './Task';
+import { Task, TaskOutDirs, TaskOutput } from './Task';
 
 export interface SQLiteTaskOutput extends TaskOutput {
     taskName: 'ConvertSQLite';
@@ -20,6 +20,10 @@ export function convertSQLite(dataDir: string, staticDir: string, verbose: numbe
 
 export class ConvertSQLite extends Task {
     public triggerFiles: string[] = ['data.sqlite'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertSQLite(this.dataDir, this.outDirs.static, verbose);

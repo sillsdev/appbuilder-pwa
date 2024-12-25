@@ -1,6 +1,6 @@
 import { readFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { FileContent, Task, TaskOutput } from './Task';
+import { FileContent, Task, TaskOutDirs, TaskOutput } from './Task';
 import type { DictionaryConfig } from '$config';
 
 interface ReversalEntry {
@@ -121,6 +121,10 @@ export function convertReverseIndex(
 
 export class ConvertReverseIndex extends Task {
     public triggerFiles: string[] = ['reversal'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         const configOutput = outputs.get('ConvertConfig') as { data: DictionaryConfig } | undefined;
