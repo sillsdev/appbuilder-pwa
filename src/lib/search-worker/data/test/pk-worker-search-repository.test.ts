@@ -139,7 +139,7 @@ describe('ensureLoaded', () => {
         expect(decoder.decode(searchRepo.lastLoaded)).toBe('abc');
     });
 
-    test('throws error if window returns invalid url response', () => {
+    test('throws error if window returns invalid url response', async () => {
         const getImplementation = (pk: SABProskomma) => new TestSearchRepository();
         const fetch = async (_) => new Response('abc');
         const requestHandler = new TestRequestHandler({ type: 'bogus' });
@@ -150,7 +150,7 @@ describe('ensureLoaded', () => {
             getImplementation
         });
 
-        expect(async () => repo.ensureLoaded('test')).rejects.toThrow('bogus');
+        await expect(async () => repo.ensureLoaded('test')).rejects.toThrow('bogus');
     });
 
     test('loads each docset once', async () => {
