@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 
 export interface ManifestTaskOutput extends TaskOutput {
     taskName: 'ConvertManifest';
@@ -43,6 +43,10 @@ export function convertManifest(dataDir: string, staticDir: string, verbose: num
 }
 export class ConvertManifest extends Task {
     public triggerFiles: string[] = ['manifest.json'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertManifest(this.dataDir, this.outDirs.static, verbose);

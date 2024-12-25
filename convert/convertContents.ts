@@ -1,7 +1,7 @@
 import { cpSync, existsSync, readFileSync, rmSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
 import { ScriptureConfig } from '$config';
 
@@ -264,6 +264,10 @@ export interface ContentsTaskOutput extends TaskOutput {
 
 export class ConvertContents extends Task {
     public triggerFiles: string[] = ['contents.xml', 'appdef.xml', 'contents'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public run(verbose: number, outputs: Map<string, TaskOutput>): ContentsTaskOutput {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;

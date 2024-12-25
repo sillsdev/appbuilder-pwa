@@ -3,7 +3,7 @@
 
 import type { ScriptureConfig, BookConfig } from '$config';
 import type { ConfigTaskOutput } from './convertConfig';
-import { TaskOutput, Task, Promisable } from './Task';
+import { TaskOutput, Task, Promisable, TaskOutDirs } from './Task';
 import * as fs from 'fs';
 import path, { basename, extname } from 'path';
 import { SABProskomma } from '../src/lib/sab-proskomma';
@@ -730,6 +730,10 @@ export class ConvertBooks extends Task {
     public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
 
     public static lastBookCollections: ScriptureConfig['bookCollections'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public run(
         verbose: number,

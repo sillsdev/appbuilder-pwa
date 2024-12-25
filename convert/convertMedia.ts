@@ -2,7 +2,7 @@ import { ConfigTaskOutput } from './convertConfig';
 import { CopySyncOptions, cpSync, existsSync, stat } from 'fs';
 import { rimraf } from 'rimraf';
 import path from 'path';
-import { Task, TaskOutput } from './Task';
+import { Task, TaskOutDirs, TaskOutput } from './Task';
 import { compareVersions } from './stringUtils';
 
 function cpSyncOptional(source: string, destination: string, opts?: CopySyncOptions): boolean {
@@ -66,6 +66,10 @@ export class ConvertMedia extends Task {
         'videos',
         'icons'
     ];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(
         verbose: number,

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 import { compareVersions } from './stringUtils';
 import { ConfigTaskOutput } from 'convertConfig';
 export interface StylesTaskOutput extends TaskOutput {
@@ -130,6 +130,10 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
 
 export class ConvertStyles extends Task {
     public triggerFiles: string[] = ['styles'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>) {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;

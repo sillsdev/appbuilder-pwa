@@ -1,6 +1,6 @@
 import { copyFile } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 
 export interface AboutTaskOutput extends TaskOutput {
     taskName: 'ConvertAbout';
@@ -18,6 +18,10 @@ export function convertAbout(dataDir: string, outDir: string, verbose: number) {
 }
 export class ConvertAbout extends Task {
     public triggerFiles: string[] = ['about.partial.html'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
         convertAbout(this.dataDir, this.outDirs.static, verbose);

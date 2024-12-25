@@ -1,6 +1,6 @@
 import { existsSync, copyFile, unlinkSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 
 export interface FirebaseTaskOutput extends TaskOutput {
     taskName: 'ConvertFirebase';
@@ -25,6 +25,10 @@ export function convertFirebase(dataDir: string, outDir: string, verbose: number
 
 export class ConvertFirebase extends Task {
     public triggerFiles: string[] = ['firebase-config.js'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
 
     public async run(verbose: number) {
         convertFirebase(this.dataDir, this.outDirs.firebase, verbose);
