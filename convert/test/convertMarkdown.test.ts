@@ -1,7 +1,7 @@
 import { describe, expect, beforeEach, it, test } from 'vitest';
 import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { convertMarkdownsToHTML, convertMarkdownsToMilestones } from './convertMarkdown';
+import { convertMarkdownsToHTML, convertMarkdownsToMilestones } from '../convertMarkdown';
 
 describe('convertMarkdownsToMilestones', () => {
     const data = readFileSync(path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'), 'utf8');
