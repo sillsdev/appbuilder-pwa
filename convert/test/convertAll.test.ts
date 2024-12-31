@@ -4,9 +4,10 @@ import path from 'path';
 import { TaskOutDirs } from 'Task';
 import { test, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest';
 import { mkdir, readdir, readFile, rm, rmdir, stat, writeFile } from 'fs/promises';
-import { compare, CompareFileHandler, Options } from 'dir-compare';
+import { compare, CompareFileHandler, DiffSet, Options } from 'dir-compare';
 import { fileCompareHandlers } from 'dir-compare';
 import { isText } from 'istextorbinary';
+import { decompressSync, strFromU8 } from 'fflate';
 
 const testDir = path.join('convert', 'test_apps');
 
@@ -23,6 +24,9 @@ async function setupOutDirs(outDirs: TaskOutDirs) {
     await createEmptyDir(outDirs.firebase);
 }
 
+/**
+ * Use line-based comparison for text files only
+ */
 const adaptiveCompareHandler: CompareFileHandler = {
     compareSync: function (
         path1: string,
@@ -50,25 +54,67 @@ const adaptiveCompareHandler: CompareFileHandler = {
     }
 };
 
-describe('Test apps', () => {
-    const compDirs = async function (actual: PathLike, expected: PathLike) {
-        const pollOptions = { timeout: 500 };
-        const cmpOptions = {
-            compareFileSync: adaptiveCompareHandler.compareSync,
-            compareFileAsync: adaptiveCompareHandler.compareAsync,
-            compareContent: true,
-            ignoreLineEnding: true,
-            compareTimeStamp: false,
-            excludeFilter: '*.pkf,**/collections/catalog/*'
-        };
-        await expect
-            .poll(async () => {
-                const result = await compare(actual.toString(), expected.toString(), cmpOptions);
-                return result.diffSet?.filter((diff) => diff.state != 'equal');
-            }, pollOptions)
-            .toEqual([]);
+async function assertDirsEqual(actual: PathLike, expected: PathLike, excludeFilter: string) {
+    const pollOptions = { timeout: 500 };
+    const cmpOptions = {
+        compareFileSync: adaptiveCompareHandler.compareSync,
+        compareFileAsync: adaptiveCompareHandler.compareAsync,
+        compareContent: true,
+        ignoreLineEnding: true,
+        compareTimeStamp: false,
+        excludeFilter
     };
+    await expect
+        .poll(async () => {
+            const result = await compare(actual.toString(), expected.toString(), cmpOptions);
+            return result.diffSet?.filter((diff) => diff.state != 'equal');
+        }, pollOptions)
+        .toEqual([]);
+}
 
+function maskDocIds(catalog: any) {
+    catalog.documents = catalog.documents?.map((doc: any) => (doc.id = 'xxx'));
+}
+
+async function readJson(filePath: string) {
+    const contents = await readFile(filePath);
+    return JSON.parse(strFromU8(contents));
+}
+
+async function assertCatalogFilesEqual(
+    filenames: string[],
+    actualCatalog: string,
+    expectedCatalog: string
+) {
+    for (const file of filenames) {
+        const actual = await readJson(path.join(actualCatalog, file));
+        const expected = await readJson(path.join(expectedCatalog, file));
+        maskDocIds(actual);
+        maskDocIds(expected);
+        expect(actual).toEqual(expected);
+    }
+}
+
+function catalogDir(conversionDir: PathLike) {
+    return path.join(conversionDir.toString(), 'static', 'collections', 'catalog');
+}
+
+async function assertCatalogsEqual(actualConversion: PathLike, expectedConversion: PathLike) {
+    const actualCatalog = catalogDir(actualConversion);
+    const expectedCatalog = catalogDir(expectedConversion);
+    const actualFiles = await readdir(actualCatalog);
+    const expectedFiles = await readdir(expectedCatalog);
+    expect(actualFiles).toEqual(expectedFiles);
+    await assertCatalogFilesEqual(actualFiles, actualCatalog, expectedCatalog);
+}
+
+async function assertConversionsEqual(actual: PathLike, expected: PathLike) {
+    const excludeFilter = '*.pkf,**/collections/catalog/*';
+    await assertDirsEqual(actual, expected, excludeFilter);
+    await assertCatalogsEqual(actual, expected);
+}
+
+describe('Test apps', () => {
     test('Test app 1, no watch', async () => {
         const baseDir = path.join(testDir, 'test_app1');
         const dirActual = path.join(baseDir, 'actual');
@@ -87,6 +133,6 @@ describe('Test apps', () => {
         await setupOutDirs(outDirs);
         const converter = new ConvertAll(params, outDirs);
         await converter.run();
-        await compDirs(dirActual, dirExpected);
+        await assertConversionsEqual(dirActual, dirExpected);
     });
 });
