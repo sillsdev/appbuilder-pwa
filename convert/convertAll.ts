@@ -22,6 +22,11 @@ export interface ConversionParams {
     verbose: number;
 }
 
+export interface ConversionResult {
+    success: boolean;
+    killProcess: boolean;
+}
+
 //Classes common to both SAB and DAB
 const commonStepClasses = [
     ConvertConfig,
@@ -137,7 +142,7 @@ export class ConvertAll {
         return true;
     }
 
-    async run() {
+    async run(): Promise<ConversionResult> {
         if (this.watch) {
             (async () => {
                 console.log('Compiling...');
@@ -211,8 +216,13 @@ export class ConvertAll {
                     }, this.watchTimeout);
                 });
             })();
+            return {
+                success: true,
+                killProcess: false
+            };
         } else {
-            this.fullConvert(true).then((success) => process.exit(success ? 0 : 1));
+            const success = await this.fullConvert(true);
+            return { success, killProcess: true };
         }
     }
 }
