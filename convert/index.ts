@@ -17,5 +17,12 @@ const outDirs: TaskOutDirs = {
     firebase: path.join('src', 'lib', 'data')
 };
 
-const converter = new ConvertAll(params, outDirs);
-converter.run();
+async function main() {
+    const converter = new ConvertAll(params, outDirs);
+    const result = await converter.run();
+    if (result.killProcess) {
+        process.exit(result.success ? 0 : 1);
+    }
+}
+
+main();
