@@ -1,0 +1,3691 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app-definition type="SAB" program-version="12.3">
+    <app-name lang="default">WEB Gospels</app-name>
+    <apk-filename append-version="true">WEB_Gospels.apk</apk-filename>
+    <package>com.bluevire.eng.web.gospels</package>
+    <version code="1" name="1.0"/>
+    <multiple-apks value="false"/>
+    <android-sdk min="21"/>
+    <install-location value="preferExternal"/>
+    <ipa-filename append-version="true">WEB_Gospels.ipa</ipa-filename>
+    <ipa-version build="1" name="1.0"/>
+    <ipa-asset-filename>WEB_Gospels.zip</ipa-asset-filename>
+    <ipa-app-type>assets</ipa-app-type>
+    <ipa-container-audio>false</ipa-container-audio>
+    <database-filename>data.sqlite</database-filename>
+    <about enabled="true">
+        <filename>about.txt</filename>
+    </about>
+    <audio-sources>
+        <audio-source id="d1" type="download" default="true">
+            <name>web-s3</name>
+            <access-methods value="stream|download" />
+            <folder>WEB Gospels</folder>
+            <address>https://sil-stg-scriptoria-resources.s3.amazonaws.com/web</address>
+        </audio-source>
+    </audio-sources>
+    <expiry type="none">
+        <filename>expiry.txt</filename>
+    </expiry>
+    <features type="main">
+        <e name="app-layout-direction" value="ltr"/>
+        <e name="search" value="true"/>
+        <e name="search-input-buttons" value="true"/>
+        <e name="search-whole-words-show" value="true"/>
+        <e name="search-whole-words-default" value="true"/>
+        <e name="search-accents-show" value="false"/>
+        <e name="search-accents-default" value="false"/>
+        <e name="search-accents-to-remove" value="\u0300 \u0301 \u0302 á&gt;a à&gt;a è&gt;e é&gt;e"/>
+        <e name="start-at-reference" value=""/>
+        <e name="start-at-reference-always" value="false"/>
+        <e name="splash-screen" value="false"/>
+        <e name="splash-screen-duration" value="800"/>
+        <e name="splash-screen-ios" value="false"/>
+        <e name="splash-screen-duration-ios" value="800"/>
+        <e name="annotation-bookmarks" value="true"/>
+        <e name="annotation-notes" value="true"/>
+        <e name="annotation-highlights" value="true"/>
+        <e name="annotation-share-email" value=""/>
+        <e name="annotation-share-subject" value=""/>
+        <e name="annotation-max-select" value="20"/>
+        <e name="history" value="true"/>
+        <e name="book-select" value="grid"/>
+        <e name="book-group-titles" value="true"/>
+        <e name="book-show-glossary" value="true"/>
+        <e name="book-swipe-between-books" value="true"/>
+        <e name="pinch-zoom" value="true"/>
+        <e name="text-size-min" value="10"/>
+        <e name="text-size-max" value="60"/>
+        <e name="full-screen-double-tap" value="true"/>
+        <e name="text-font-size-slider" value="true"/>
+        <e name="text-line-height-slider" value="true"/>
+        <e name="audio-allow-turn-on-off" value="true"/>
+        <e name="audio-turn-on-at-startup" value="false"/>
+        <e name="audio-phrase-end-chars" value=". ? ! : ; ,"/>
+        <e name="audio-goto-next-chapter" value="true"/>
+        <e name="audio-goto-next-book" value="false"/>
+        <e name="audio-pause-on-phone-call" value="true"/>
+        <e name="audio-search-all" value="true"/>
+        <e name="audio-no-media-file" value="false"/>
+        <e name="audio-seekbar-style" value="if-no-timing-info"/>
+        <e name="audio-highlight-phrase" value="true"/>
+        <e name="audio-speed" value="1.0"/>
+        <e name="audio-access-method" value="download"/>
+        <e name="audio-download-mode" value="prompt"/>
+        <e name="audio-play-button-size" value="normal"/>
+        <e name="audio-play-button-style" value="arrow"/>
+        <e name="audio-repeat-mode-button" value="true"/>
+        <e name="audio-repeat-mode-hint" value="true"/>
+        <e name="audio-repeat-selection-button" value="true"/>
+        <e name="audio-repeat-selection-wait-time" value="2000"/>
+        <e name="text-select-play-audio" value="true"/>
+        <e name="video-allow-fullscreen" value="true"/>
+        <e name="video-show-titles" value="true"/>
+        <e name="video-full-screen-width" value="true"/>
+        <e name="video-youtube-related-same-channel" value="true"/>
+        <e name="video-access-method" value="stream"/>
+        <e name="show-chapter-numbers" value="true"/>
+        <e name="show-verse-numbers" value="true"/>
+        <e name="chapter-number-format" value="drop-cap"/>
+        <e name="verse-layout" value="paragraphs"/>
+        <e name="wj-enabled" value="false"/>
+        <e name="show-red-letters" value="false"/>
+        <e name="show-glossary-words" value="true"/>
+        <e name="show-illustrations" value="false"/>
+        <e name="zoom-illustrations" value="true"/>
+        <e name="resize-illustrations" value="true"/>
+        <e name="resize-illustrations-width" value="480"/>
+        <e name="backgrounds-crop" value="true"/>
+        <e name="backgrounds-resize" value="true"/>
+        <e name="backgrounds-resize-width" value="1080"/>
+        <e name="scripture-refs-display" value="popup"/>
+        <e name="scripture-refs-display-from-popup" value="popup"/>
+        <e name="show-chapter-number-on-app-bar" value="true"/>
+        <e name="show-chapter-selector" value="true"/>
+        <e name="show-chapter-selector-after-book" value="true"/>
+        <e name="show-verse-selector" value="true"/>
+        <e name="display-images-in-bible-text" value="normal"/>
+        <e name="display-videos-in-bible-text" value="normal"/>
+        <e name="hide-empty-verses" value="true"/>
+        <e name="hide-empty-chapters" value="true"/>
+        <e name="hide-verse-number-1" value="true"/>
+        <e name="verse-of-the-day" value="false"/>
+        <e name="verse-of-the-day-default" value="false"/>
+        <e name="verse-of-the-day-time" value="12:00"/>
+        <e name="verse-of-the-day-christmas-date" value="default"/>
+        <e name="verse-of-the-day-easter-date" value="western"/>
+        <e name="verse-of-the-day-book-collection" value=""/>
+        <e name="verse-of-the-day-style" value="default"/>
+        <e name="daily-reminder" value="false"/>
+        <e name="daily-reminder-default" value="false"/>
+        <e name="daily-reminder-time" value="07:30"/>
+        <e name="text-on-image" value="false"/>
+        <e name="text-on-image-video" value="false"/>
+        <e name="text-on-image-watermark-width" value="20"/>
+        <e name="text-on-image-watermark-margin" value="1"/>
+        <e name="text-on-image-watermark-position" value="bottom-right"/>
+        <e name="layout-config-change-nav-drawer-menu" value="true"/>
+        <e name="layout-config-change-toolbar-button" value="true"/>
+        <e name="layout-config-change-viewer-button" value="true"/>
+        <e name="layout-config-first-launch" value="false"/>
+        <e name="security-prevent-screenshots" value="false"/>
+        <e name="settings-app-layout-direction" value="false"/>
+        <e name="settings-book-selection" value="true"/>
+        <e name="settings-interface-language" value="true"/>
+        <e name="settings-red-letters" value="false"/>
+        <e name="settings-daily-reminder" value="false"/>
+        <e name="settings-daily-reminder-time" value="false"/>
+        <e name="settings-verse-of-the-day" value="false"/>
+        <e name="settings-verse-of-the-day-time" value="false"/>
+        <e name="settings-verse-of-the-day-book-collection" value="false"/>
+        <e name="settings-display-images-in-bible-text" value="true"/>
+        <e name="settings-display-videos-in-bible-text" value="true"/>
+        <e name="settings-show-border" value="true"/>
+        <e name="settings-verse-numbers" value="true"/>
+        <e name="settings-verse-layout" value="true"/>
+        <e name="settings-verse-selection" value="true"/>
+        <e name="settings-glossary-links" value="true"/>
+        <e name="settings-audio-highlight-phrase" value="true"/>
+        <e name="settings-audio-speed" value="true"/>
+        <e name="settings-audio-download-mode" value="true"/>
+        <e name="settings-audio-access-method" value="true"/>
+        <e name="settings-video-access-method" value="true"/>
+        <e name="settings-keep-screen-on" value="true"/>
+        <e name="settings-share-usage-data" value="false"/>
+        <e name="share-app-link" value="false"/>
+        <e name="share-download-app-link" value="false"/>
+        <e name="share-download-app-link-url" value=""/>
+        <e name="share-apk-file" value="true"/>
+        <e name="user-accounts" value="false"/>
+        <e name="user-account-data-deletion-url" value=""/>
+        <e name="editor" value="false"/>
+        <e name="editor-folder" value="Scripture Editor"/>
+        <e name="share-apple-id" value=""/>
+        <e name="input-buttons" value=""/>
+        <e name="share-apple-app-link" value="false"/>
+    </features>
+    <firebase>
+        <features type="firebase">
+            <e name="firebase-analytics" value="false"/>
+            <e name="firebase-crashlytics" value="false"/>
+            <e name="firebase-messaging" value="false"/>
+            <e name="firebase-database" value="false"/>
+            <e name="firebase-in-app-messaging" value="false"/>
+        </features>
+        <api-key>AIzaSyANPntOi_siWq_EuCQolND3zIXSqPe8pOQ</api-key>
+    </firebase>
+    <fonts>
+        <font-handling>
+            <viewer type="default"/>
+        </font-handling>
+        <font family="font1">
+            <font-name>Charis SIL (Full)</font-name>
+            <display-name>Charis SIL</display-name>
+            <f format="truetype">CharisSIL-R.ttf</f>
+            <sd property="font-weight" value="normal"/>
+            <sd property="font-style" value="normal"/>
+        </font>
+        <font family="font1">
+            <font-name>Charis SIL (Full) Bold</font-name>
+            <display-name>Charis SIL</display-name>
+            <f format="truetype">CharisSIL-B.ttf</f>
+            <sd property="font-weight" value="bold"/>
+            <sd property="font-style" value="normal"/>
+        </font>
+    </fonts>
+    <color-scheme name="Dark Orange"/>
+    <color-themes>
+        <color-theme name="Normal" enabled="true" default="true"/>
+        <color-theme name="Sepia" enabled="true"/>
+        <color-theme name="Dark" enabled="true"/>
+    </color-themes>
+    <colors type="main">
+        <color name="PrimaryColor">
+            <cm theme="Normal" value="#AD4428"/>
+            <cm theme="Sepia" value="#4E342E"/>
+            <cm theme="Dark" value="#181818"/>
+        </color>
+        <color name="PrimaryDarkColor">
+            <cm theme="Normal" value="#9C351E"/>
+            <cm theme="Sepia" value="#3E2723"/>
+            <cm theme="Dark" value="#121212"/>
+        </color>
+        <color name="AccentColor">
+            <cm theme="Normal" value="#FFC107"/>
+            <cm theme="Sepia" value="#3E2723"/>
+            <cm theme="Dark" value="#121212"/>
+        </color>
+        <color name="ActionBarColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="PrimaryColor"/>
+            <cm theme="Dark" value="PrimaryColor"/>
+        </color>
+        <color name="StatusBarColor">
+            <cm theme="Normal" value="PrimaryDarkColor"/>
+            <cm theme="Sepia" value="PrimaryDarkColor"/>
+            <cm theme="Dark" value="PrimaryDarkColor"/>
+        </color>
+        <color name="TextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="TitlesColor">
+            <cm theme="Normal" value="#831F0F"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="VerseNumberColor">
+            <cm theme="Normal" value="#9C351E"/>
+            <cm theme="Sepia" value="#8D6E63"/>
+            <cm theme="Dark" value="#E6C7BF"/>
+        </color>
+        <color name="TextHighlightColor">
+            <cm theme="Normal" value="#FFFF99"/>
+            <cm theme="Sepia" value="#FFFF99"/>
+            <cm theme="Dark" value="#404040"/>
+        </color>
+        <color name="LinkColor">
+            <cm theme="Normal" value="#831F0F"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E6C7BF"/>
+        </color>
+        <color name="HintColor">
+            <cm theme="Normal" value="#101010"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#A0A0A0"/>
+        </color>
+        <color name="BackgroundColor">
+            <cm theme="Normal" value="#F0F0F0"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="DialogBackgroundColor">
+            <cm theme="Normal" value="#F0F0F0"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="FootnoteBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#1A1A1A"/>
+        </color>
+        <color name="PopupBackgroundColor">
+            <cm theme="Normal" value="#E6E6E6"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="FooterBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#DCCBAD"/>
+            <cm theme="Dark" value="#252525"/>
+        </color>
+        <color name="FooterPane2BackgroundColor">
+            <cm theme="Normal" value="#D0D0D0"/>
+            <cm theme="Sepia" value="#D9C6A5"/>
+            <cm theme="Dark" value="#252525"/>
+        </color>
+        <color name="AnnotationItemBackgroundColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#ECDDC4"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="HistoryItemBackgroundColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#ECDDC4"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="DividerColor">
+            <cm theme="Normal" value="#D0D0D0"/>
+            <cm theme="Sepia" value="#D1C3A8"/>
+            <cm theme="Dark" value="#404040"/>
+        </color>
+        <color name="ImageTabsBackgroundColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="StudyBibleBackgroundColor">
+            <cm theme="Normal" value="#EDD8D2"/>
+            <cm theme="Sepia" value="#DECDB0"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="StudyBibleHeadingBackgroundColor">
+            <cm theme="Normal" value="#932D18"/>
+            <cm theme="Sepia" value="#DECDB0"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="StudyBibleHeadingHoverColor">
+            <cm theme="Normal" value="#9C351E"/>
+            <cm theme="Sepia" value="#DECDB0"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="BookTabsBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E3CDA7"/>
+            <cm theme="Dark" value="#1A1A1A"/>
+        </color>
+        <color name="BookTabsIconColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="BookTabsTextColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="SliderBarColor">
+            <cm theme="Normal" value="#D3D3D3"/>
+            <cm theme="Sepia" value="#D1C3A8"/>
+            <cm theme="Dark" value="#FFFFFF"/>
+        </color>
+        <color name="SliderProgressColor">
+            <cm theme="Normal" value="#C67C69"/>
+            <cm theme="Sepia" value="#8D6E63"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="DialogButtonColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="PrimaryColor"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ShareButtonColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="PrimaryColor"/>
+            <cm theme="Dark" value="PrimaryColor"/>
+        </color>
+        <color name="ShareButtonTextColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#FFFFFF"/>
+            <cm theme="Dark" value="#FFFFFF"/>
+        </color>
+        <color name="Pane1BackgroundColor">
+            <cm theme="Normal" value="#F0F0F0"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="Pane2BackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E6D3B2"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="Pane1NameTextColor">
+            <cm theme="Normal" value="#909090"/>
+            <cm theme="Sepia" value="#AA796E"/>
+            <cm theme="Dark" value="#707070"/>
+        </color>
+        <color name="Pane2NameTextColor">
+            <cm theme="Normal" value="#909090"/>
+            <cm theme="Sepia" value="#AA796E"/>
+            <cm theme="Dark" value="#707070"/>
+        </color>
+        <color name="PaneSeparatorColor">
+            <cm theme="Normal" value="#D0D0D0"/>
+            <cm theme="Sepia" value="#AA796E"/>
+            <cm theme="Dark" value="#505050"/>
+        </color>
+        <color name="PaneSeparatorHandleColor">
+            <cm theme="Normal" value="#C0C0C0"/>
+            <cm theme="Sepia" value="#AA796E"/>
+            <cm theme="Dark" value="#909090"/>
+        </color>
+        <color name="PaneSeparatorHandleGripColor">
+            <cm theme="Normal" value="#F0F0F0"/>
+            <cm theme="Sepia" value="#D9C4BF"/>
+            <cm theme="Dark" value="#040404"/>
+        </color>
+        <color name="PaneNameBorderColor">
+            <cm theme="Normal" value="#D3D3D3"/>
+            <cm theme="Sepia" value="#AA796E"/>
+            <cm theme="Dark" value="#707070"/>
+        </color>
+        <color name="LayoutBackgroundColor">
+            <cm theme="Normal" value="#F4F4F4"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="LayoutTitleColor">
+            <cm theme="Normal" value="#831F0F"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="LayoutSubtitleColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="LayoutSubtitleBackgroundColor">
+            <cm theme="Normal" value="#E5E5E5"/>
+            <cm theme="Sepia" value="#DCCBAD"/>
+            <cm theme="Dark" value="#252525"/>
+        </color>
+        <color name="LayoutItemNameColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="LayoutItemDescriptionColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="LayoutItemBlockShadowColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#DCCBAD"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="LayoutItemSelectedBackgroundColor">
+            <cm theme="Normal" value="#E6C7BF"/>
+            <cm theme="Sepia" value="#DCCBAD"/>
+            <cm theme="Dark" value="#252525"/>
+        </color>
+        <color name="ChapterButtonColor">
+            <cm theme="Normal" value="#E6C7BF"/>
+            <cm theme="Sepia" value="#D7CCC8"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="ChapterButtonTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ChapterButtonIntroColor">
+            <cm theme="Normal" value="#EDD8D2"/>
+            <cm theme="Sepia" value="#EFEBE9"/>
+            <cm theme="Dark" value="#383838"/>
+        </color>
+        <color name="BookListDefaultColor">
+            <cm theme="Normal" value="#E8E8E8"/>
+            <cm theme="Sepia" value="#DED4C1"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="BookButtonDefaultColor">
+            <cm theme="Normal" value="#E6C7BF"/>
+            <cm theme="Sepia" value="#D7CCC8"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="BookButtonTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ButtonSelectedColor">
+            <cm theme="Normal" value="#D6A294"/>
+            <cm theme="Sepia" value="#BCAAA4"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="DrawerBackgroundColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="DrawerItemTextColor">
+            <cm theme="Normal" value="#212121"/>
+            <cm theme="Sepia" value="#212121"/>
+            <cm theme="Dark" value="#D0D0D0"/>
+        </color>
+        <color name="DrawerItemIconColor">
+            <cm theme="Normal" value="#757575"/>
+            <cm theme="Sepia" value="#757575"/>
+            <cm theme="Dark" value="#C0C0C0"/>
+        </color>
+        <color name="BottomNavigationBackgroundColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#ECDDC4"/>
+            <cm theme="Dark" value="#242424"/>
+        </color>
+        <color name="BottomNavigationItemIconColor">
+            <cm theme="Normal" value="#757575"/>
+            <cm theme="Sepia" value="#757575"/>
+            <cm theme="Dark" value="#C0C0C0"/>
+        </color>
+        <color name="BottomNavigationSelectedItemIconColor">
+            <cm theme="Normal" value="#AD4428"/>
+            <cm theme="Sepia" value="#151515"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="BottomNavigationItemTextColor">
+            <cm theme="Normal" value="#212121"/>
+            <cm theme="Sepia" value="#212121"/>
+            <cm theme="Dark" value="#D0D0D0"/>
+        </color>
+        <color name="BottomNavigationSelectedItemTextColor">
+            <cm theme="Normal" value="#AD4428"/>
+            <cm theme="Sepia" value="#151515"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="SearchTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="SearchButtonColor">
+            <cm theme="Normal" value="#505050"/>
+            <cm theme="Sepia" value="#505050"/>
+            <cm theme="Dark" value="#505050"/>
+        </color>
+        <color name="SearchButtonTextColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#FFFFFF"/>
+            <cm theme="Dark" value="#FFFFFF"/>
+        </color>
+        <color name="SearchProgressButtonColor">
+            <cm theme="Normal" value="#A0A0A0"/>
+            <cm theme="Sepia" value="#A0A0A0"/>
+            <cm theme="Dark" value="#A0A0A0"/>
+        </color>
+        <color name="SearchProgressButtonTextColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#FFFFFF"/>
+            <cm theme="Dark" value="#FFFFFF"/>
+        </color>
+        <color name="SettingsTitleColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="SettingsSummaryColor">
+            <cm theme="Normal" value="#606060"/>
+            <cm theme="Sepia" value="#606060"/>
+            <cm theme="Dark" value="#B0B0B0"/>
+        </color>
+        <color name="SettingsSeparatorColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#C9C2C0"/>
+            <cm theme="Dark" value="#404040"/>
+        </color>
+        <color name="HighlighterPenYellow">
+            <cm theme="Normal" value="#FFFFCC"/>
+            <cm theme="Sepia" value="#FFFFCC"/>
+            <cm theme="Dark" value="#FFFFCC"/>
+        </color>
+        <color name="HighlighterPenGreen">
+            <cm theme="Normal" value="#D6FFEA"/>
+            <cm theme="Sepia" value="#D6FFEA"/>
+            <cm theme="Dark" value="#D6FFEA"/>
+        </color>
+        <color name="HighlighterPenBlue">
+            <cm theme="Normal" value="#B8FBF9"/>
+            <cm theme="Sepia" value="#B8FBF9"/>
+            <cm theme="Dark" value="#B8FBF9"/>
+        </color>
+        <color name="HighlighterPenOrange">
+            <cm theme="Normal" value="#FFE6BC"/>
+            <cm theme="Sepia" value="#FFE6BC"/>
+            <cm theme="Dark" value="#FFE6BC"/>
+        </color>
+        <color name="HighlighterPenPink">
+            <cm theme="Normal" value="#FFD6FF"/>
+            <cm theme="Sepia" value="#FFD6FF"/>
+            <cm theme="Dark" value="#FFD6FF"/>
+        </color>
+        <color name="HighlighterPenTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="AudioBarColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#ECDDC4"/>
+            <cm theme="Dark" value="#242424"/>
+        </color>
+        <color name="AudioBarIconColor">
+            <cm theme="Normal" value="#757575"/>
+            <cm theme="Sepia" value="#757575"/>
+            <cm theme="Dark" value="#C0C0C0"/>
+        </color>
+        <color name="AudioBarPlayIconColor">
+            <cm theme="Normal" value="#757575"/>
+            <cm theme="Sepia" value="#757575"/>
+            <cm theme="Dark" value="#C0C0C0"/>
+        </color>
+        <color name="ToolbarShadowColor">
+            <cm theme="Normal" value="#D0D0D0"/>
+            <cm theme="Sepia" value="#D0B294"/>
+            <cm theme="Dark" value="#404040"/>
+        </color>
+        <color name="QuizAnswerBackgroundColor">
+            <cm theme="Normal" value="#E6C7BF"/>
+            <cm theme="Sepia" value="#D7CCC8"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="QuizAnswerHighlightBackgroundColor">
+            <cm theme="Normal" value="#C67C69"/>
+            <cm theme="Sepia" value="#D3C6C1"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="QuizAnswerTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="QuizRightAnswerBackgroundColor">
+            <cm theme="Normal" value="#008000"/>
+            <cm theme="Sepia" value="#008000"/>
+            <cm theme="Dark" value="#008000"/>
+        </color>
+        <color name="QuizRightAnswerTextColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#FFFFFF"/>
+            <cm theme="Dark" value="#FFFFFF"/>
+        </color>
+        <color name="QuizWrongAnswerBackgroundColor">
+            <cm theme="Normal" value="#C11B17"/>
+            <cm theme="Sepia" value="#C11B17"/>
+            <cm theme="Dark" value="#C11B17"/>
+        </color>
+        <color name="QuizWrongAnswerTextColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#FFFFFF"/>
+            <cm theme="Dark" value="#FFFFFF"/>
+        </color>
+        <color name="VideoBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E0E0E0"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="TextSelectionBarColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#ECDDC4"/>
+            <cm theme="Dark" value="#242424"/>
+        </color>
+        <color name="TextSelectionBarIconColor">
+            <cm theme="Normal" value="#757575"/>
+            <cm theme="Sepia" value="#757575"/>
+            <cm theme="Dark" value="#C0C0C0"/>
+        </color>
+        <color name="ContentsBackgroundColor">
+            <cm theme="Normal" value="#F4F4F4"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="ContentsItemBlockRefColor">
+            <cm theme="Normal" value="#FFFFFF"/>
+            <cm theme="Sepia" value="#F2E9D8"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="ContentsItemBlockScreenColor">
+            <cm theme="Normal" value="#FDFDFD"/>
+            <cm theme="Sepia" value="#F2E9D8"/>
+            <cm theme="Dark" value="#202020"/>
+        </color>
+        <color name="ContentsItemBlockShadowColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E0E0E0"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="ContentsItemTouchColor">
+            <cm theme="Normal" value="#EEEEEE"/>
+            <cm theme="Sepia" value="#EEEEEE"/>
+            <cm theme="Dark" value="#151515"/>
+        </color>
+        <color name="ContentsTitleColor">
+            <cm theme="Normal" value="#831F0F"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ContentsSubtitleColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ContentsReferenceColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ContentsHeadingTitleColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="ContentsHeadingSubtitleColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#5A4129"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="PlanBackgroundColor">
+            <cm theme="Normal" value="#F0F0F0"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="PlanButtonColor">
+            <cm theme="Normal" value="#E6C7BF"/>
+            <cm theme="Sepia" value="#D7CCC8"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="PlanButtonTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="PlanTabsBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E3CDA7"/>
+            <cm theme="Dark" value="#1A1A1A"/>
+        </color>
+        <color name="PlanTabsIconColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="PlanTabsTextColor">
+            <cm theme="Normal" value="PrimaryColor"/>
+            <cm theme="Sepia" value="#513A24"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="PlanDayUnselectedBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E3CDA7"/>
+            <cm theme="Dark" value="#1A1A1A"/>
+        </color>
+        <color name="PlanDayEmptyBackgroundColor">
+            <cm theme="Normal" value="#C0C0C0"/>
+            <cm theme="Sepia" value="#B48B6A"/>
+            <cm theme="Dark" value="#101010"/>
+        </color>
+        <color name="PlanItemTouchColor">
+            <cm theme="Normal" value="#E5E5E5"/>
+            <cm theme="Sepia" value="#E5E5E5"/>
+            <cm theme="Dark" value="#151515"/>
+        </color>
+        <color name="PlanProgressBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E3CDA7"/>
+            <cm theme="Dark" value="#252525"/>
+        </color>
+        <color name="PlanDateTimeBackgroundColor">
+            <cm theme="Normal" value="#E0E0E0"/>
+            <cm theme="Sepia" value="#E3CDA7"/>
+            <cm theme="Dark" value="#1A1A1A"/>
+        </color>
+        <color name="VerseByVerseColor1">
+            <cm theme="Normal" value="#000080"/>
+            <cm theme="Sepia" value="#000080"/>
+            <cm theme="Dark" value="#E0FFFF"/>
+        </color>
+        <color name="VerseByVerseColor2">
+            <cm theme="Normal" value="#8B008B"/>
+            <cm theme="Sepia" value="#8B008B"/>
+            <cm theme="Dark" value="#FFB6C1"/>
+        </color>
+        <color name="AssistantBackgroundColor">
+            <cm theme="Normal" value="#F0F0F0"/>
+            <cm theme="Sepia" value="#E9D8BA"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="AssistantButtonColor">
+            <cm theme="Normal" value="#DDDDDD"/>
+            <cm theme="Sepia" value="#D7CCC8"/>
+            <cm theme="Dark" value="#303030"/>
+        </color>
+        <color name="AssistantButtonTextColor">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#E0E0E0"/>
+        </color>
+        <color name="AssistantTaskColor1">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="AssistantTaskColor2">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="AssistantTaskColor3">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="AssistantTaskColor4">
+            <cm theme="Normal" value="#000000"/>
+            <cm theme="Sepia" value="#000000"/>
+            <cm theme="Dark" value="#000000"/>
+        </color>
+        <color name="AssistantTaskBackgroundColor1">
+            <cm theme="Normal" value="#D7E8FA"/>
+            <cm theme="Sepia" value="#D7E8FA"/>
+            <cm theme="Dark" value="#D7E8FA"/>
+        </color>
+        <color name="AssistantTaskBackgroundColor2">
+            <cm theme="Normal" value="#E3F4E1"/>
+            <cm theme="Sepia" value="#E3F4E1"/>
+            <cm theme="Dark" value="#E3F4E1"/>
+        </color>
+        <color name="AssistantTaskBackgroundColor3">
+            <cm theme="Normal" value="#FADDE1"/>
+            <cm theme="Sepia" value="#FADDE1"/>
+            <cm theme="Dark" value="#FADDE1"/>
+        </color>
+        <color name="AssistantTaskBackgroundColor4">
+            <cm theme="Normal" value="#FFF9C4"/>
+            <cm theme="Sepia" value="#FFF9C4"/>
+            <cm theme="Dark" value="#FFF9C4"/>
+        </color>
+        <color name="CustomColor1">
+            <cm theme="Normal" value="#FF0000"/>
+            <cm theme="Sepia" value="#FF0000"/>
+            <cm theme="Dark" value="#FF0000"/>
+        </color>
+        <color name="CustomColor2">
+            <cm theme="Normal" value="#00FF00"/>
+            <cm theme="Sepia" value="#00FF00"/>
+            <cm theme="Dark" value="#00FF00"/>
+        </color>
+        <color name="CustomColor3">
+            <cm theme="Normal" value="#0000FF"/>
+            <cm theme="Sepia" value="#0000FF"/>
+            <cm theme="Dark" value="#0000FF"/>
+        </color>
+        <color name="CustomColor4">
+            <cm theme="Normal" value="#00FFFF"/>
+            <cm theme="Sepia" value="#00FFFF"/>
+            <cm theme="Dark" value="#00FFFF"/>
+        </color>
+        <color name="CustomColor5">
+            <cm theme="Normal" value="#FFFF00"/>
+            <cm theme="Sepia" value="#FFFF00"/>
+            <cm theme="Dark" value="#FFFF00"/>
+        </color>
+    </colors>
+    <styles>
+        <style name="ui.background" category="ui">
+            <sd property="background-color" value="BackgroundColor"/>
+        </style>
+        <style name="ui.dialog" category="ui">
+            <sd property="background-color" value="DialogBackgroundColor"/>
+        </style>
+        <style name="ui.dialog.button" category="ui">
+            <sd property="color" value="DialogButtonColor"/>
+        </style>
+        <style name="ui.menu" category="ui">
+            <sd property="font-weight" value="normal"/>
+            <sd property="font-size" value="18sp"/>
+        </style>
+        <style name="ui.share.button" category="ui">
+            <sd property="color" value="ShareButtonTextColor"/>
+            <sd property="background-color" value="ShareButtonColor"/>
+            <sd property="text-transform" value="uppercase"/>
+        </style>
+        <style name="ui.pwa" category="ui">
+            <sd property="theme-color" value="PrimaryColor"/>
+            <sd property="background-color" value="PrimaryColor"/>
+        </style>
+        <style name="ui.bar.action" category="ui">
+            <sd property="background-color" value="ActionBarColor"/>
+        </style>
+        <style name="ui.bar.audio" category="ui">
+            <sd property="background-color" value="AudioBarColor"/>
+        </style>
+        <style name="ui.bar.audio.icon" category="ui">
+            <sd property="color" value="AudioBarIconColor"/>
+        </style>
+        <style name="ui.bar.audio.play.icon" category="ui">
+            <sd property="color" value="AudioBarPlayIconColor"/>
+        </style>
+        <style name="ui.bar.audio.hint.text" category="ui">
+            <sd property="font-weight" value="normal"/>
+            <sd property="font-size" value="18sp"/>
+            <sd property="color" value="TextColor"/>
+            <sd property="background-color" value="AudioBarColor"/>
+        </style>
+        <style name="ui.bar.text-select" category="ui">
+            <sd property="background-color" value="TextSelectionBarColor"/>
+        </style>
+        <style name="ui.bar.text-select.icon" category="ui">
+            <sd property="color" value="TextSelectionBarIconColor"/>
+        </style>
+        <style name="ui.bar.status" category="ui">
+            <sd property="background-color" value="StatusBarColor"/>
+        </style>
+        <style name="ui.screen-title" category="ui">
+            <sd property="font-size" value="18sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="white"/>
+        </style>
+        <style name="ui.contents-title" category="ui">
+            <sd property="font-family" value="font1"/>
+            <sd property="font-size" value="19sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="white"/>
+        </style>
+        <style name="ui.drawer" category="ui">
+            <sd property="background-color" value="DrawerBackgroundColor"/>
+        </style>
+        <style name="ui.drawer.item.text" category="ui">
+            <sd property="color" value="DrawerItemTextColor"/>
+        </style>
+        <style name="ui.drawer.item.icon" category="ui">
+            <sd property="color" value="DrawerItemIconColor"/>
+        </style>
+        <style name="ui.bottom-navigation." category="ui">
+            <sd property="background-color" value="BottomNavigationBackgroundColor"/>
+        </style>
+        <style name="ui.bottom-navigation.item.text" category="ui">
+            <sd property="color" value="BottomNavigationItemTextColor"/>
+        </style>
+        <style name="ui.bottom-navigation.item.text.selected" category="ui">
+            <sd property="color" value="BottomNavigationSelectedItemTextColor"/>
+        </style>
+        <style name="ui.bottom-navigation.item.icon" category="ui">
+            <sd property="color" value="BottomNavigationItemIconColor"/>
+        </style>
+        <style name="ui.bottom-navigation.item.icon.selected" category="ui">
+            <sd property="color" value="BottomNavigationSelectedItemIconColor"/>
+        </style>
+        <style name="ui.pane1" category="ui">
+            <sd property="background-color" value="Pane1BackgroundColor"/>
+        </style>
+        <style name="ui.pane2" category="ui">
+            <sd property="background-color" value="Pane2BackgroundColor"/>
+        </style>
+        <style name="ui.pane1.name" category="ui">
+            <sd property="color" value="Pane1NameTextColor"/>
+            <sd property="background-color" value="Pane1BackgroundColor"/>
+            <sd property="border-color" value="PaneNameBorderColor"/>
+        </style>
+        <style name="ui.pane2.name" category="ui">
+            <sd property="color" value="Pane2NameTextColor"/>
+            <sd property="background-color" value="Pane2BackgroundColor"/>
+            <sd property="border-color" value="PaneNameBorderColor"/>
+        </style>
+        <style name="ui.pane-separator-line" category="ui">
+            <sd property="color" value="PaneSeparatorColor"/>
+            <sd property="width" value="2dp"/>
+        </style>
+        <style name="ui.pane-separator-handle" category="ui">
+            <sd property="color" value="PaneSeparatorHandleColor"/>
+            <sd property="width" value="12dp"/>
+            <sd property="height" value="60dp"/>
+        </style>
+        <style name="ui.pane-separator-handle-grip" category="ui">
+            <sd property="color" value="PaneSeparatorHandleGripColor"/>
+        </style>
+        <style name="ui.layouts.tabs" category="ui">
+            <sd property="color" value="ActionBarColor"/>
+            <sd property="background-color" value="DialogBackgroundColor"/>
+        </style>
+        <style name="ui.layouts.title" category="ui">
+            <sd property="color" value="TextColor"/>
+            <sd property="font-weight" value="bold"/>
+        </style>
+        <style name="ui.layouts.number" category="ui">
+            <sd property="color" value="TextColor"/>
+            <sd property="font-weight" value="normal"/>
+        </style>
+        <style name="ui.layouts.selector" category="ui">
+            <sd property="color" value="TextColor"/>
+            <sd property="font-weight" value="normal"/>
+        </style>
+        <style name="ui.selector.book" category="ui">
+            <sd property="font-size" value="20sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="white"/>
+        </style>
+        <style name="ui.selector.chapter" category="ui">
+            <sd property="font-size" value="20sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="white"/>
+        </style>
+        <style name="ui.selector.tabs" category="ui">
+            <sd property="color" value="white"/>
+            <sd property="background-color" value="ActionBarColor"/>
+        </style>
+        <style name="ui.button.book-list" category="ui">
+            <sd property="font-size" value="23sp"/>
+            <sd property="color" value="BookButtonTextColor"/>
+            <sd property="background-color" value="BookListDefaultColor"/>
+            <sd property="height" value="50dp"/>
+        </style>
+        <style name="ui.button.book-grid" category="ui">
+            <sd property="font-size" value="16sp"/>
+            <sd property="font-weight" value="normal"/>
+            <sd property="color" value="BookButtonTextColor"/>
+            <sd property="background-color" value="BookButtonDefaultColor"/>
+            <sd property="width" value="50dp"/>
+            <sd property="height" value="50dp"/>
+        </style>
+        <style name="ui.text.book-group-title" category="ui">
+            <sd property="font-size" value="16sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="BookButtonTextColor"/>
+            <sd property="height" value="30dp"/>
+        </style>
+        <style name="ui.button.chapter-number" category="ui">
+            <sd property="font-size" value="18sp"/>
+            <sd property="font-weight" value="normal"/>
+            <sd property="color" value="ChapterButtonTextColor"/>
+            <sd property="background-color" value="ChapterButtonColor"/>
+            <sd property="width" value="50dp"/>
+            <sd property="height" value="50dp"/>
+        </style>
+        <style name="ui.button.chapter-intro" category="ui">
+            <sd property="font-size" value="16sp"/>
+            <sd property="font-weight" value="normal"/>
+            <sd property="color" value="ChapterButtonTextColor"/>
+            <sd property="background-color" value="ChapterButtonIntroColor"/>
+            <sd property="height" value="35dp"/>
+        </style>
+        <style name="ui.button.verse-number" category="ui">
+            <sd property="font-size" value="18sp"/>
+            <sd property="font-weight" value="normal"/>
+            <sd property="color" value="ChapterButtonTextColor"/>
+            <sd property="background-color" value="ChapterButtonColor"/>
+            <sd property="width" value="50dp"/>
+            <sd property="height" value="50dp"/>
+        </style>
+        <style name="ui.book.tabs" category="ui">
+            <sd property="color" value="ActionBarColor"/>
+            <sd property="background-color" value="BookTabsBackgroundColor"/>
+        </style>
+        <style name="ui.book.tabs.icon" category="ui">
+            <sd property="color" value="BookTabsIconColor"/>
+        </style>
+        <style name="ui.book.tabs.text" category="ui">
+            <sd property="color" value="BookTabsTextColor"/>
+        </style>
+        <style name="ui.search.entry-text" category="ui">
+            <sd property="font-size" value="22sp"/>
+            <sd property="color" value="SearchTextColor"/>
+        </style>
+        <style name="ui.search.button" category="ui">
+            <sd property="font-size" value="18sp"/>
+            <sd property="color" value="SearchButtonTextColor"/>
+            <sd property="background-color" value="SearchButtonColor"/>
+        </style>
+        <style name="ui.search.checkbox" category="ui">
+            <sd property="font-size" value="18sp"/>
+            <sd property="color" value="TextColor"/>
+        </style>
+        <style name="ui.search.buttons" category="ui">
+            <sd property="font-family" value="font1"/>
+            <sd property="font-size" value="22sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="SearchButtonTextColor"/>
+            <sd property="background-color" value="SearchButtonColor"/>
+            <sd property="width" value="30dp"/>
+            <sd property="height" value="35dp"/>
+        </style>
+        <style name="ui.search.results-reference" category="ui">
+            <sd property="font-family" value="font1"/>
+            <sd property="font-size" value="20sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="TitlesColor"/>
+        </style>
+        <style name="ui.search.results-context" category="ui">
+            <sd property="font-family" value="font1"/>
+            <sd property="font-size" value="19sp"/>
+            <sd property="color" value="TextColor"/>
+        </style>
+        <style name="ui.search.progress-label" category="ui">
+            <sd property="font-size" value="18sp"/>
+            <sd property="color" value="TextColor"/>
+        </style>
+        <style name="ui.search.info-panel" category="ui">
+            <sd property="font-size" value="13sp"/>
+            <sd property="color" value="TextColor"/>
+        </style>
+        <style name="ui.search.progress-button" category="ui">
+            <sd property="font-size" value="22sp"/>
+            <sd property="color" value="SearchProgressButtonTextColor"/>
+            <sd property="background-color" value="SearchProgressButtonColor"/>
+        </style>
+        <style name="ui.song.number" category="ui">
+            <sd property="font-size" value="22sp"/>
+            <sd property="font-weight" value="bold"/>
+            <sd property="color" value="TextColor"/>
+        </style>
+        <style name="ui.song.title" category="ui">
+            <sd property="font-size" value="20sp"/>
+            <sd property="color" value="TextColor"/>
+        </style>
+        <style name="ui.song.tabs" category="ui">
+            <sd property="color" value="white"/>
+            <sd property="background-color" value="ActionBarColor"/>
+        </style>
+        <style name="ui.song.border" category="ui">
+            <sd property="background-color" value="DividerColor"/>
+        </style>
+        <style name="ui.verse-notification" category="ui">
+            <sd property="font-weight" value="normal"/>
+            <sd property="font-style" value="normal"/>
+        </style>
+        <style name="ui.text-on-image" category="ui">
+            <sd property="font-weight" value="bold"/>
+            <sd property="font-style" value="normal"/>
+            <sd property="color" value="white"/>
+        </style>
+        <style name="ui.plans.tabs" category="ui">
+            <sd property="color" value="ActionBarColor"/>
+            <sd property="background-color" value="PlanTabsBackgroundColor"/>
+        </style>
+        <style name="ui.plans.tabs.icon" category="ui">
+            <sd property="color" value="PlanTabsIconColor"/>
+        </style>
+        <style name="ui.plans.tabs.text" category="ui">
+            <sd property="color" value="PlanTabsTextColor"/>
+        </style>
+    </styles>
+    <traits>
+        <trait name="has-audio" value="true"/>
+        <trait name="has-verse-numbers" value="true"/>
+        <trait name="has-multiple-books" value="true"/>
+        <trait name="has-sync-audio" value="true"/>
+    </traits>
+    <markers></markers>
+    <colors type="books">
+        <color name="Gospel">
+            <cm theme="Normal" value="#DEB4A9"/>
+            <cm theme="Sepia" value="#C9BBB6"/>
+            <cm theme="Dark" value="#151515"/>
+        </color>
+    </colors>
+    <books id="C01">
+        <book-collection-name>World English Bible</book-collection-name>
+        <book-collection-abbrev>web</book-collection-abbrev>
+        <features type="bc">
+            <e name="show-scripture-refs" value="true"/>
+            <e name="ref-chapter-verse-separator" value=":"/>
+            <e name="ref-verse-range-separator" value="-"/>
+            <e name="ref-verse-list-separator" value=","/>
+            <e name="ref-chapter-range-separator" value="-"/>
+            <e name="ref-chapter-list-separator" value=";"/>
+            <e name="ref-extra-material" value=""/>
+            <e name="ref-parse-introductions" value="false"/>
+            <e name="ref-parse-glossary" value="false"/>
+            <e name="show-footnotes" value="true"/>
+            <e name="footnote-caller-type" value="default"/>
+            <e name="footnote-caller-symbol" value=""/>
+            <e name="footnote-caller-no-caller-to-auto" value="true"/>
+            <e name="show-cross-refs" value="true"/>
+            <e name="crossref-caller-type" value="default"/>
+            <e name="crossref-caller-symbol" value=""/>
+            <e name="crossref-caller-no-caller-to-auto" value="true"/>
+            <e name="numerals-type" value="default"/>
+            <e name="bc-allow-copy-text" value="true"/>
+            <e name="bc-allow-long-press-select" value="true"/>
+            <e name="bc-allow-share-text" value="true"/>
+            <e name="bc-allow-text-on-image" value="true"/>
+            <e name="bc-allow-text-on-image-edit-text" value="true"/>
+            <e name="bc-allow-verse-of-the-day" value="true"/>
+            <e name="bc-allow-share-audio" value="false"/>
+            <e name="bc-allow-share-video" value="false"/>
+            <e name="bc-layout-allow-single-pane" value="true"/>
+            <e name="bc-layout-allow-two-pane" value="true"/>
+            <e name="bc-layout-allow-verse-by-verse" value="true"/>
+            <e name="bc-layout-selector-single-pane" value="true"/>
+            <e name="bc-layout-selector-two-pane-1" value="true"/>
+            <e name="bc-layout-selector-two-pane-2" value="true"/>
+            <e name="bc-layout-selector-verse-by-verse-1" value="true"/>
+            <e name="bc-layout-selector-verse-by-verse-2" value="true"/>
+            <e name="bc-layout-restricted" value="false"/>
+            <e name="study-bible-explanatory-text-box" value="false"/>
+            <e name="study-bible-explanatory-text-collapsible" value="false"/>
+            <e name="study-bible-sidebars-collapsible" value="true"/>
+            <e name="study-bible-footnote-keyword-links" value="true"/>
+        </features>
+        <metadata>
+            <meta name="copyright-text" content="Public Domain"/>
+        </metadata>
+        <styles-info>
+            <text-font family="font1"/>
+            <text-size value="20"/>
+            <line-height value="120"/>
+            <text-direction value="LTR"/>
+            <numeral-system value="Default"/>
+            <verse-number-style value="default"/>
+            <styles>
+                <style name="div.footer">
+                    <sd property="direction" value="LTR"/>
+                    <sd property="text-align" value="left"/>
+                </style>
+                <style name="span.footer">
+                    <sd property="font-family" value="font1"/>
+                    <sd property="font-size" value="80%"/>
+                </style>
+            </styles>
+        </styles-info>
+        <font-choice type="all" />
+        <writing-system code="eng">
+            <display-names>
+                <form lang="default">English</form>
+            </display-names>
+        </writing-system>
+        <book id="MAT">
+            <n>Matthew</n>
+            <v>Mat</v>
+            <g>NT</g>
+            <sg>Gospel</sg>
+            <ct c="1" i="1"/>
+            <cn value="1"/>
+            <font-choice type="book-collection" />
+            <f>70-MATeng-web.usfm</f>
+            <page num="0"></page>
+            <page num="1">
+                <audio>
+                    <f src="d1" len="224496" size="1825367">B01___01_Matthew_____ENGWEBN2DA.mp3</f>
+                    <y>C01-41-MAT-01-timing.txt</y>
+                </audio>
+            </page>
+            <features type="book">
+                <e name="wj-marked" value="true"/>
+            </features>
+        </book>
+        <book id="MRK">
+            <n>Mark</n>
+            <v>Mrk</v>
+            <g>NT</g>
+            <sg>Gospel</sg>
+            <ct c="2" i="1"/>
+            <cn value="1-2"/>
+            <font-choice type="book-collection" />
+            <f>71-MRKeng-web.usfm</f>
+            <features type="book">
+                <e name="wj-marked" value="true"/>
+                <e name="show-chapter-numbers" value="inherit"/>
+                <e name="show-verse-numbers" value="inherit"/>
+                <e name="lock-orientation" value="none"/>
+            </features>
+            <footer lang=""><![CDATA[Hello world]]></footer>
+            <styles-info>
+                <text-font family="font1"/>
+                <text-size value="20"/>
+                <line-height value="120"/>
+                <text-direction value="LTR"/>
+                <numeral-system value="Default"/>
+                <verse-number-style value="default"/>
+            </styles-info>
+        </book>
+    </books>
+    <books id="C02">
+        <book-collection-name>Greek</book-collection-name>
+        <book-collection-abbrev>grc</book-collection-abbrev>
+        <book-collection-description>Greek New Testament</book-collection-description>
+        <features type="bc">
+            <e name="show-scripture-refs" value="true"/>
+            <e name="ref-chapter-verse-separator" value=":"/>
+            <e name="ref-verse-range-separator" value="-"/>
+            <e name="ref-verse-list-separator" value=","/>
+            <e name="ref-chapter-range-separator" value="—"/>
+            <e name="ref-chapter-list-separator" value=";"/>
+            <e name="ref-extra-material" value=""/>
+            <e name="ref-parse-introductions" value="false"/>
+            <e name="ref-parse-glossary" value="false"/>
+            <e name="show-footnotes" value="true"/>
+            <e name="footnote-caller-type" value="default"/>
+            <e name="footnote-caller-symbol" value=""/>
+            <e name="footnote-caller-no-caller-to-auto" value="true"/>
+            <e name="show-cross-refs" value="true"/>
+            <e name="crossref-caller-type" value="default"/>
+            <e name="crossref-caller-symbol" value=""/>
+            <e name="crossref-caller-no-caller-to-auto" value="true"/>
+            <e name="numerals-type" value="default"/>
+            <e name="bc-allow-copy-text" value="true"/>
+            <e name="bc-allow-long-press-select" value="true"/>
+            <e name="bc-allow-share-text" value="true"/>
+            <e name="bc-allow-text-on-image" value="true"/>
+            <e name="bc-allow-text-on-image-edit-text" value="true"/>
+            <e name="bc-allow-verse-of-the-day" value="true"/>
+            <e name="bc-allow-share-audio" value="false"/>
+            <e name="bc-allow-share-video" value="false"/>
+            <e name="bc-layout-allow-single-pane" value="true"/>
+            <e name="bc-layout-allow-two-pane" value="true"/>
+            <e name="bc-layout-allow-verse-by-verse" value="true"/>
+            <e name="bc-layout-selector-single-pane" value="true"/>
+            <e name="bc-layout-selector-two-pane-1" value="true"/>
+            <e name="bc-layout-selector-two-pane-2" value="true"/>
+            <e name="bc-layout-selector-verse-by-verse-1" value="true"/>
+            <e name="bc-layout-selector-verse-by-verse-2" value="true"/>
+            <e name="bc-layout-restricted" value="false"/>
+            <e name="study-bible-explanatory-text-box" value="false"/>
+            <e name="study-bible-explanatory-text-collapsible" value="false"/>
+            <e name="study-bible-sidebars-collapsible" value="true"/>
+            <e name="study-bible-footnote-keyword-links" value="true"/>
+        </features>
+        <metadata>
+            <meta name="copyright-text" content="Greek, Ancient: The Greek New Testament According to Family 35, Third Edition\n© 2020, Wilbur N. Pickering\nThis work is licensed under a Creative Commons Attribution-NoDerivatives 4.0 International License (CC BY-ND 4.0)."/>
+        </metadata>
+        <styles-info>
+            <text-font family="font1"/>
+            <text-size value="20"/>
+            <line-height value="120"/>
+            <text-direction value="LTR"/>
+            <numeral-system value="Default"/>
+            <verse-number-style value="default"/>
+            <styles></styles>
+        </styles-info>
+        <font-choice type="all" />
+        <writing-system code="grc">
+            <display-names>
+                <form lang="default">Ancient Greek</form>
+            </display-names>
+        </writing-system>
+        <book id="JHN">
+            <n>John</n>
+            <v>ΚΑΤΑ ΙΩΑΝΝΗΝ</v>
+            <g>NT</g>
+            <sg>Gospel</sg>
+            <ct c="1"/>
+            <cn value="1"/>
+            <font-choice type="book-collection" />
+            <f>JHN.usfm</f>
+        </book>
+    </books>
+    <layouts default="single">
+        <layout mode="single" enabled="true">
+            <layout-collection id="C01"/>
+        </layout>
+        <layout mode="two" enabled="true">
+            <layout-collection id="C01"/>
+            <layout-collection id="C02"/>
+            <features type="layout">
+                <e name="link" value="true"/>
+                <e name="size-portrait" value="60"/>
+                <e name="size-landscape" value="60"/>
+            </features>
+        </layout>
+        <layout mode="verse-by-verse" enabled="true">
+            <layout-collection id="C01"/>
+            <layout-collection id="C02"/>
+        </layout>
+    </layouts>
+    <tab-types>
+        <tab-type id="T" style="image">
+            <tab-name>
+                <t lang="default">Text</t>
+            </tab-name>
+            <images type="tab">
+                <image width="24" height="24">ic_article_black_24px.png</image>
+                <image width="48" height="48">ic_article_black_48px.png</image>
+                <image width="72" height="72">ic_article_black_72px.png</image>
+            </images>
+        </tab-type>
+        <tab-type id="Q" style="image">
+            <tab-name>
+                <t lang="default">Questions</t>
+            </tab-name>
+            <images type="tab">
+                <image width="24" height="24">ic_help_outline_black_24px.png</image>
+                <image width="48" height="48">ic_help_outline_black_48px.png</image>
+                <image width="72" height="72">ic_help_outline_black_72px.png</image>
+            </images>
+        </tab-type>
+        <tab-type id="N" style="image">
+            <tab-name>
+                <t lang="default">Notes</t>
+            </tab-name>
+            <images type="tab">
+                <image width="24" height="24">ic_info_black_24px.png</image>
+                <image width="48" height="48">ic_info_black_48px.png</image>
+                <image width="72" height="72">ic_info_black_72px.png</image>
+            </images>
+        </tab-type>
+        <tab-type id="M" style="image">
+            <tab-name>
+                <t lang="default">Music</t>
+            </tab-name>
+            <images type="tab">
+                <image width="24" height="24">ic_piano_black_24px.png</image>
+                <image width="48" height="48">ic_piano_black_48px.png</image>
+                <image width="72" height="72">ic_piano_black_72px.png</image>
+            </images>
+        </tab-type>
+        <tab-type id="V" style="image">
+            <tab-name>
+                <t lang="default">Video</t>
+            </tab-name>
+            <images type="tab">
+                <image width="24" height="24">ic_movie_black_24px.png</image>
+                <image width="48" height="48">ic_movie_black_48px.png</image>
+                <image width="72" height="72">ic_movie_black_72px.png</image>
+            </images>
+        </tab-type>
+        <tab-type id="A" style="image">
+            <tab-name>
+                <t lang="default">Assistant</t>
+            </tab-name>
+            <images type="tab">
+                <image width="24" height="24">ic_contact_support_black_24px.png</image>
+                <image width="48" height="48">ic_contact_support_black_48px.png</image>
+                <image width="72" height="72">ic_contact_support_black_72px.png</image>
+            </images>
+        </tab-type>
+    </tab-types>
+    <assistant enabled="false">
+        <heading>
+            <t lang="default">How can I help?</t>
+        </heading>
+        <footer>
+            <t lang="default">This answer was generated by an AI assistant. Please use its responses with discernment. We would value your feedback on how it could be improved.</t>
+        </footer>
+    </assistant>
+    <menu-items type="drawer">
+        <menu-item type="website">
+            <title>
+                <t lang="en">Visit our Website</t>
+                <t lang="fr">Visitez notre site web</t>
+                <t lang="de">Visit our Website</t>
+                <t lang="es">Visite nuestra página web</t>
+            </title>
+            <link>
+                <t lang="default">https://bju.edu</t>
+            </link>
+            <images type="menu-item">
+                <image width="24" height="24">ic_globe_black_24px.png</image>
+                <image width="48" height="48">ic_globe_black_48px.png</image>
+                <image width="72" height="72">ic_globe_black_72px.png</image>
+            </images>
+        </menu-item>
+        <menu-item type="whatsapp">
+            <title>
+                <t lang="en">Chat with us on WhatsApp</t>
+                <t lang="fr">Chattez avec nous sur WhatsApp</t>
+                <t lang="de">Chat with us on WhatsApp</t>
+                <t lang="es">Chatea con nosotros en WhatsApp</t>
+            </title>
+            <link>
+                <t lang="default">https://wa.me/</t>
+            </link>
+            <images type="menu-item">
+                <image width="24" height="24">ic_whatsapp_black_24px.png</image>
+                <image width="48" height="48">ic_whatsapp_black_48px.png</image>
+                <image width="72" height="72">ic_whatsapp_black_72px.png</image>
+            </images>
+        </menu-item>
+    </menu-items>
+    <menu-items type="bottom">
+        <menu-item type="settings">
+            <title>
+                <t lang="en">Settings</t>
+                <t lang="fr">Paramètres</t>
+                <t lang="de">Einstellungen</t>
+                <t lang="es">Configuraciones</t>
+            </title>
+            <images type="menu-item">
+                <image width="24" height="24">ic_settings_black_24px.png</image>
+                <image width="48" height="48">ic_settings_black_48px.png</image>
+                <image width="72" height="72">ic_settings_black_72px.png</image>
+            </images>
+        </menu-item>
+        <menu-item type="search">
+            <title>
+                <t lang="en">Search</t>
+                <t lang="fr">Rechercher</t>
+                <t lang="de">Suche</t>
+                <t lang="es">Buscar</t>
+            </title>
+            <images type="menu-item">
+                <image width="24" height="24">ic_search_black_24px.png</image>
+                <image width="48" height="48">ic_search_black_48px.png</image>
+                <image width="72" height="72">ic_search_black_72px.png</image>
+            </images>
+        </menu-item>
+    </menu-items>
+    <security mode="any">
+        <features>
+            <e name="access-code-length" value="8"/>
+            <e name="access-code-algorithm" value="C"/>
+            <e name="require-internet" value="false"/>
+            <e name="calc-code" value=""/>
+        </features>
+        <pin>81A4HdPGfAs=</pin>
+    </security>
+    <interface-languages>
+        <trait name="use-system-language" value="true"/>
+        <writing-systems>
+            <writing-system code="en" type="interface">
+                <display-names>
+                    <form lang="en">English</form>
+                    <form lang="fr">Anglais</form>
+                    <form lang="es">Inglés</form>
+                    <form lang="de">Englisch</form>
+                </display-names>
+                <font-family>system</font-family>
+                <trait name="text-direction" value="LTR"/>
+            </writing-system>
+            <writing-system code="fr" type="interface">
+                <display-names>
+                    <form lang="en">French</form>
+                    <form lang="fr">Français</form>
+                    <form lang="es">Francés</form>
+                    <form lang="de">Französisch</form>
+                </display-names>
+                <font-family>system</font-family>
+                <trait name="text-direction" value="LTR"/>
+            </writing-system>
+            <writing-system code="de" type="interface">
+                <display-names>
+                    <form lang="en">German</form>
+                    <form lang="fr">Allemand</form>
+                    <form lang="de">Deutsch</form>
+                    <form lang="es">Alemán</form>
+                </display-names>
+                <font-family>system</font-family>
+                <trait name="text-direction" value="LTR"/>
+            </writing-system>
+            <writing-system code="es" type="interface">
+                <display-names>
+                    <form lang="en">Spanish</form>
+                    <form lang="fr">Espagnol</form>
+                    <form lang="es">Español</form>
+                    <form lang="de">Spanisch</form>
+                </display-names>
+                <font-family>system</font-family>
+                <trait name="text-direction" value="LTR"/>
+            </writing-system>
+        </writing-systems>
+    </interface-languages>
+    <translation-mappings default-lang="en">
+        <tm id="Menu_Bible">
+            <t lang="en">Bible</t>
+            <t lang="fr">Bible</t>
+            <t lang="es">Biblia</t>
+            <t lang="de">Bibel</t>
+        </tm>
+        <tm id="Menu_Contents">
+            <t lang="en">Contents</t>
+            <t lang="fr">Contenu</t>
+            <t lang="es">Contenido</t>
+            <t lang="de">Inhalt</t>
+        </tm>
+        <tm id="Menu_Search">
+            <t lang="en">Search</t>
+            <t lang="fr">Rechercher</t>
+            <t lang="es">Buscar</t>
+            <t lang="de">Suche</t>
+        </tm>
+        <tm id="Menu_Layout">
+            <t lang="en">Language &amp; Layout</t>
+            <t lang="fr">Langue et agencement</t>
+            <t lang="es">Idioma y Diseño</t>
+            <t lang="de">Sprache und Layout</t>
+        </tm>
+        <tm id="Menu_History">
+            <t lang="en">History</t>
+            <t lang="fr">Historique</t>
+            <t lang="es">Historia</t>
+            <t lang="de">Verlauf</t>
+        </tm>
+        <tm id="Menu_Settings">
+            <t lang="en">Settings</t>
+            <t lang="fr">Paramètres</t>
+            <t lang="es">Configuraciones</t>
+            <t lang="de">Einstellungen</t>
+        </tm>
+        <tm id="Menu_About">
+            <t lang="en">About</t>
+            <t lang="fr">A propos</t>
+            <t lang="es">Acerca de</t>
+            <t lang="de">Impressum</t>
+        </tm>
+        <tm id="Menu_Text_Appearance">
+            <t lang="en">Text Appearance</t>
+            <t lang="fr">Taille de police</t>
+            <t lang="es">Tamaño del texto</t>
+            <t lang="de">Texteinstellungen</t>
+        </tm>
+        <tm id="Menu_Share_App">
+            <t lang="en">Share App</t>
+            <t lang="fr">Partager application</t>
+            <t lang="es">Compartir aplicación</t>
+            <t lang="de">App weitergeben</t>
+        </tm>
+        <tm id="Menu_Downloads">
+            <t lang="en">Downloads</t>
+            <t lang="fr">Téléchargements</t>
+            <t lang="es">Descargas</t>
+            <t lang="de">Herunterladen</t>
+        </tm>
+        <tm id="Menu_Edit">
+            <t lang="en">Edit</t>
+            <t lang="fr">Editer</t>
+            <t lang="es">Editar</t>
+            <t lang="de">Bearbeiten</t>
+        </tm>
+        <tm id="Menu_Users_Add">
+            <t lang="en">Add User</t>
+            <t lang="fr">Ajouter utilisateur</t>
+            <t lang="es">Añadir usuario</t>
+            <t lang="de">Benutzer hinzufügen</t>
+        </tm>
+        <tm id="Menu_Users_List">
+            <t lang="en">Users</t>
+            <t lang="fr">Utilisateurs</t>
+            <t lang="es">Usuarios</t>
+            <t lang="de">Benutzer</t>
+        </tm>
+        <tm id="Menu_Home">
+            <t lang="en">Home</t>
+            <t lang="fr">Accueil</t>
+            <t lang="es">Bienvenido</t>
+            <t lang="de">Startseite</t>
+        </tm>
+        <tm id="Menu_Reset_Contents">
+            <t lang="en">Reset Contents</t>
+            <t lang="fr">Réinitialiser le contenu</t>
+            <t lang="de">Inhalt zurücksetzen</t>
+        </tm>
+        <tm id="Menu_Plans">
+            <t lang="en">Plans</t>
+            <t lang="fr">Plans</t>
+            <t lang="es">Planes</t>
+        </tm>
+        <tm id="Menu_Item_Copy">
+            <t lang="en">Copy</t>
+            <t lang="fr">Copier</t>
+            <t lang="es">Copiar</t>
+            <t lang="de">Kopieren</t>
+        </tm>
+        <tm id="Menu_Item_Share">
+            <t lang="en">Share</t>
+            <t lang="fr">Partager</t>
+            <t lang="es">Compartir</t>
+            <t lang="de">Teilen Sie</t>
+        </tm>
+        <tm id="Menu_Item_Image">
+            <t lang="en">Image</t>
+            <t lang="fr">Image</t>
+            <t lang="es">Imagen</t>
+            <t lang="de">Bild</t>
+        </tm>
+        <tm id="Annotation_Bookmarks">
+            <t lang="en">Bookmarks</t>
+            <t lang="fr">Signets</t>
+            <t lang="es">Marcadores</t>
+            <t lang="de">Lesezeichen</t>
+        </tm>
+        <tm id="Annotation_Highlights">
+            <t lang="en">Highlights</t>
+            <t lang="fr">Surlignements</t>
+            <t lang="es">Resaltados</t>
+            <t lang="de">Farbmarkierungen</t>
+        </tm>
+        <tm id="Annotation_Notes">
+            <t lang="en">Notes</t>
+            <t lang="fr">Notes</t>
+            <t lang="es">Notas</t>
+            <t lang="de">Notizen</t>
+        </tm>
+        <tm id="Annotation_Note_Add">
+            <t lang="en">Add Note</t>
+            <t lang="fr">Ajouter note</t>
+            <t lang="es">Añadir Nota</t>
+            <t lang="de">Notiz hinzufügen</t>
+        </tm>
+        <tm id="Annotation_Note_Edit">
+            <t lang="en">Edit Note</t>
+            <t lang="fr">Modifier note</t>
+            <t lang="es">Editar nota</t>
+            <t lang="de">Notiz bearbeiten</t>
+        </tm>
+        <tm id="Annotation_Menu_View">
+            <t lang="en">View</t>
+            <t lang="fr">Voir</t>
+            <t lang="es">Ver</t>
+            <t lang="de">Ansicht</t>
+        </tm>
+        <tm id="Annotation_Menu_Delete">
+            <t lang="en">Delete</t>
+            <t lang="fr">Supprimer</t>
+            <t lang="es">Borrar</t>
+            <t lang="de">Löschen</t>
+        </tm>
+        <tm id="Annotation_Menu_Edit">
+            <t lang="en">Edit</t>
+            <t lang="fr">Modifier</t>
+            <t lang="es">Editar</t>
+            <t lang="de">Bearbeiten</t>
+        </tm>
+        <tm id="Annotation_Menu_Share">
+            <t lang="en">Share</t>
+            <t lang="fr">Partager</t>
+            <t lang="es">Compartir</t>
+            <t lang="de">Teilen</t>
+        </tm>
+        <tm id="Annotation_Sort_Order_Reference">
+            <t lang="en">By Reference</t>
+            <t lang="fr">Par référence</t>
+            <t lang="es">Por Referencia</t>
+            <t lang="de">Nach Referenz</t>
+        </tm>
+        <tm id="Annotation_Sort_Order_Date">
+            <t lang="en">By Date</t>
+            <t lang="fr">Par date</t>
+            <t lang="es">Por fecha</t>
+            <t lang="de">Nach Datum</t>
+        </tm>
+        <tm id="Annotation_Sort_Order_Color">
+            <t lang="en">By Color</t>
+            <t lang="fr">Par couleur</t>
+            <t lang="es">Por Color</t>
+            <t lang="de">Nach Farbe</t>
+        </tm>
+        <tm id="Annotation_Bookmarks_None">
+            <t lang="en">You do not have any bookmarks</t>
+            <t lang="fr">Vous n&apos;avez aucun signet</t>
+            <t lang="es">No tienes marcadores</t>
+            <t lang="de">Sie haben keine Lesezeichen</t>
+        </tm>
+        <tm id="Annotation_Bookmarks_None_Info">
+            <t lang="en">To add one, tap on a verse and press the Bookmark button.</t>
+            <t lang="fr">Pour en ajouter un, appuyez sur un verset et appuyez sur le bouton Signet.</t>
+            <t lang="es">Para añadir uno, toca un verso y presiona el botón de Marcador.</t>
+            <t lang="de">Um eines hinzuzufügen, tippen Sie auf einen Vers und drücken Sie die Lesezeichen-Taste.</t>
+        </tm>
+        <tm id="Annotation_Highlights_None">
+            <t lang="en">You do not have any highlights</t>
+            <t lang="fr">Vous n&apos;avez aucun surlignement</t>
+            <t lang="es">No tienes resaltados</t>
+            <t lang="de">Sie haben keine Markierungen</t>
+        </tm>
+        <tm id="Annotation_Highlights_None_Info">
+            <t lang="en">To add one, tap on a verse, press the Highlight button and select a color.</t>
+            <t lang="fr">Pour en ajouter un, appuyez sur un verset, appuyez sur le bouton Surligner et sélectionnez une couleur.</t>
+            <t lang="es">Para añadir uno, toca un verso, presiona el botón de Resaltar y selecciona un color.</t>
+            <t lang="de">Um eines hinzuzufügen, tippen Sie auf einen Vers, drücken Sie die Markieren-Taste und wählen Sie eine Farbe.</t>
+        </tm>
+        <tm id="Annotation_Notes_None">
+            <t lang="en">You do not have any notes</t>
+            <t lang="fr">Vous n&apos;avez aucune note</t>
+            <t lang="es">No tienes notas</t>
+            <t lang="de">Sie haben keine Notizen</t>
+        </tm>
+        <tm id="Annotation_Notes_None_Info">
+            <t lang="en">To add one, tap on a verse, press the Notes button and type the note.</t>
+            <t lang="fr">Pour en ajouter une, appuyez sur un verset, appuyez sur le bouton Notes et saisissez la note.</t>
+            <t lang="es">Para añadir una, toca un verso, presiona el botón de Notas y escribe la nota.</t>
+            <t lang="de">Um eine hinzuzufügen, tippen Sie auf einen Vers, drücken Sie die Notiz-Taste und geben Sie die Notiz ein.</t>
+        </tm>
+        <tm id="History_None">
+            <t lang="en">There is no history</t>
+            <t lang="fr">Il n&apos;y a pas d&apos;historique</t>
+            <t lang="es">No hay historial</t>
+            <t lang="de">Es gibt keine Geschichte</t>
+        </tm>
+        <tm id="History_None_Info">
+            <t lang="en">Items will be added here as you select different books and chapters.</t>
+            <t lang="fr">Des éléments seront ajoutés ici à mesure que vous sélectionnez différents livres et chapitres.</t>
+            <t lang="es">Los elementos se agregarán aquí a medida que seleccione diferentes libros y capítulos.</t>
+            <t lang="de">Elemente werden hier hinzugefügt, sobald Sie verschiedene Bücher und Kapitel auswählen.</t>
+        </tm>
+        <tm id="Button_OK">
+            <t lang="en">OK</t>
+            <t lang="fr">OK</t>
+            <t lang="es">OK</t>
+            <t lang="de">OK</t>
+        </tm>
+        <tm id="Button_Yes">
+            <t lang="en">Yes</t>
+            <t lang="fr">Oui</t>
+            <t lang="es">Si</t>
+            <t lang="de">Ja</t>
+        </tm>
+        <tm id="Button_No">
+            <t lang="en">No</t>
+            <t lang="fr">Non</t>
+            <t lang="es">No</t>
+            <t lang="de">Nein</t>
+        </tm>
+        <tm id="Button_No_Thanks">
+            <t lang="en">No Thanks</t>
+            <t lang="fr">Non Merci</t>
+            <t lang="es">No Gracias</t>
+            <t lang="de">Nein Danke</t>
+        </tm>
+        <tm id="Button_Close">
+            <t lang="en">Close</t>
+            <t lang="fr">Fermer</t>
+            <t lang="es">Cerrar</t>
+            <t lang="de">Schließen</t>
+        </tm>
+        <tm id="Button_Cancel">
+            <t lang="en">Cancel</t>
+            <t lang="fr">Annuler</t>
+            <t lang="es">Cancelar</t>
+            <t lang="de">Beenden</t>
+        </tm>
+        <tm id="Button_Continue">
+            <t lang="en">Continue</t>
+            <t lang="fr">Continuer</t>
+            <t lang="es">Continuar</t>
+            <t lang="de">Fortsetzen</t>
+        </tm>
+        <tm id="Button_Delete">
+            <t lang="en">Delete</t>
+            <t lang="fr">Supprimer</t>
+            <t lang="es">Borrar</t>
+            <t lang="de">Löschen</t>
+        </tm>
+        <tm id="Button_Next">
+            <t lang="en">Next</t>
+            <t lang="fr">Suivant</t>
+            <t lang="es">Siguiente</t>
+            <t lang="de">Weiter</t>
+        </tm>
+        <tm id="Button_Share">
+            <t lang="en">Share</t>
+            <t lang="fr">Partager</t>
+            <t lang="es">Compartir</t>
+            <t lang="de">Teilen Sie</t>
+        </tm>
+        <tm id="Button_Start">
+            <t lang="en">Start</t>
+            <t lang="fr">Commencer</t>
+            <t lang="es">Iniciar</t>
+            <t lang="de">Start</t>
+        </tm>
+        <tm id="Button_Submit">
+            <t lang="en">Submit</t>
+            <t lang="fr">Soumettre</t>
+            <t lang="es">Aceptar</t>
+            <t lang="de">Absenden</t>
+        </tm>
+        <tm id="Button_Sign_Up">
+            <t lang="en">Sign Up</t>
+            <t lang="fr">S&apos;inscrire</t>
+            <t lang="es">Inscríbete</t>
+            <t lang="de">Anmeldung</t>
+        </tm>
+        <tm id="Button_Skip">
+            <t lang="en">Skip</t>
+            <t lang="fr">Sauter</t>
+            <t lang="es">Omitir</t>
+            <t lang="de">Überspringen</t>
+        </tm>
+        <tm id="Button_Read">
+            <t lang="en">Read</t>
+            <t lang="fr">Lire</t>
+            <t lang="es">Leer</t>
+            <t lang="de">Lesen Sie</t>
+        </tm>
+        <tm id="Button_Listen">
+            <t lang="en">Listen</t>
+            <t lang="fr">Écouter</t>
+            <t lang="es">Escuchar</t>
+            <t lang="de">Hören Sie</t>
+        </tm>
+        <tm id="Button_Create_Image">
+            <t lang="en">Create Image</t>
+            <t lang="fr">Créer image</t>
+            <t lang="es">Crear imagen</t>
+            <t lang="de">Bild erstellen</t>
+        </tm>
+        <tm id="Button_Audio_Play">
+            <t lang="en">Play</t>
+        </tm>
+        <tm id="Button_Audio_Pause">
+            <t lang="en">Pause</t>
+        </tm>
+        <tm id="Button_Audio_Forward">
+            <t lang="en">Forward</t>
+        </tm>
+        <tm id="Button_Audio_Back">
+            <t lang="en">Back</t>
+        </tm>
+        <tm id="Button_Audio_Forward_Section">
+            <t lang="en">Forward Section</t>
+        </tm>
+        <tm id="Button_Audio_Back_Section">
+            <t lang="en">Back Section</t>
+        </tm>
+        <tm id="Button_Open_Drawer">
+            <t lang="en">Open Drawer</t>
+            <t lang="fr">Ouvrir le tiroir</t>
+            <t lang="es">Abrir cajón</t>
+        </tm>
+        <tm id="Button_Close_Drawer">
+            <t lang="en">Close Drawer</t>
+            <t lang="fr">Fermer le tiroir</t>
+            <t lang="es">Cerrar cajón</t>
+        </tm>
+        <tm id="Date_Today">
+            <t lang="en">Today</t>
+            <t lang="fr">Aujourd&apos;hui</t>
+            <t lang="es">Hoy</t>
+            <t lang="de">Heute</t>
+        </tm>
+        <tm id="Date_Yesterday">
+            <t lang="en">Yesterday</t>
+            <t lang="fr">Hier</t>
+            <t lang="es">Ayer</t>
+            <t lang="de">Gestern</t>
+        </tm>
+        <tm id="Day_Sunday">
+            <t lang="en">Sunday</t>
+            <t lang="fr">Dimanche</t>
+            <t lang="es">Domingo</t>
+            <t lang="de">Sonntag</t>
+        </tm>
+        <tm id="Day_Sunday_Short">
+            <t lang="en">Sun</t>
+            <t lang="fr">Dim</t>
+            <t lang="es">Dom</t>
+            <t lang="de">So</t>
+        </tm>
+        <tm id="Day_Monday">
+            <t lang="en">Monday</t>
+            <t lang="fr">Lundi</t>
+            <t lang="es">Lunes</t>
+            <t lang="de">Montag</t>
+        </tm>
+        <tm id="Day_Monday_Short">
+            <t lang="en">Mon</t>
+            <t lang="fr">Lun</t>
+            <t lang="es">Lun</t>
+            <t lang="de">Mo</t>
+        </tm>
+        <tm id="Day_Tuesday">
+            <t lang="en">Tuesday</t>
+            <t lang="fr">Mardi</t>
+            <t lang="es">Martes</t>
+            <t lang="de">Dienstag</t>
+        </tm>
+        <tm id="Day_Tuesday_Short">
+            <t lang="en">Tue</t>
+            <t lang="fr">Mar</t>
+            <t lang="es">Mar</t>
+            <t lang="de">Di</t>
+        </tm>
+        <tm id="Day_Wednesday">
+            <t lang="en">Wednesday</t>
+            <t lang="fr">Mercredi</t>
+            <t lang="es">Miércoles</t>
+            <t lang="de">Mittwoch</t>
+        </tm>
+        <tm id="Day_Wednesday_Short">
+            <t lang="en">Wed</t>
+            <t lang="fr">Mer</t>
+            <t lang="es">Mié</t>
+            <t lang="de">Mi</t>
+        </tm>
+        <tm id="Day_Thursday">
+            <t lang="en">Thursday</t>
+            <t lang="fr">Jeudi</t>
+            <t lang="es">Jueves</t>
+            <t lang="de">Donnerstag</t>
+        </tm>
+        <tm id="Day_Thursday_Short">
+            <t lang="en">Thu</t>
+            <t lang="fr">Jeu</t>
+            <t lang="es">Jue</t>
+            <t lang="de">Do</t>
+        </tm>
+        <tm id="Day_Friday">
+            <t lang="en">Friday</t>
+            <t lang="fr">Vendredi</t>
+            <t lang="es">Viernes</t>
+            <t lang="de">Freitag</t>
+        </tm>
+        <tm id="Day_Friday_Short">
+            <t lang="en">Fri</t>
+            <t lang="fr">Ven</t>
+            <t lang="es">Vie</t>
+            <t lang="de">Fr</t>
+        </tm>
+        <tm id="Day_Saturday">
+            <t lang="en">Saturday</t>
+            <t lang="fr">Samedi</t>
+            <t lang="es">Sábado</t>
+            <t lang="de">Samstag</t>
+        </tm>
+        <tm id="Day_Saturday_Short">
+            <t lang="en">Sat</t>
+            <t lang="fr">Sam</t>
+            <t lang="es">Sáb</t>
+            <t lang="de">Sa</t>
+        </tm>
+        <tm id="Month_January">
+            <t lang="en">January</t>
+        </tm>
+        <tm id="Month_January_Short">
+            <t lang="en">Jan</t>
+        </tm>
+        <tm id="Month_February">
+            <t lang="en">February</t>
+        </tm>
+        <tm id="Month_February_Short">
+            <t lang="en">Feb</t>
+        </tm>
+        <tm id="Month_March">
+            <t lang="en">March</t>
+        </tm>
+        <tm id="Month_March_Short">
+            <t lang="en">Mar</t>
+        </tm>
+        <tm id="Month_April">
+            <t lang="en">April</t>
+        </tm>
+        <tm id="Month_April_Short">
+            <t lang="en">Apr</t>
+        </tm>
+        <tm id="Month_May">
+            <t lang="en">May</t>
+        </tm>
+        <tm id="Month_May_Short">
+            <t lang="en">May</t>
+        </tm>
+        <tm id="Month_June">
+            <t lang="en">June</t>
+        </tm>
+        <tm id="Month_June_Short">
+            <t lang="en">Jun</t>
+        </tm>
+        <tm id="Month_July">
+            <t lang="en">July</t>
+        </tm>
+        <tm id="Month_July_Short">
+            <t lang="en">Jul</t>
+        </tm>
+        <tm id="Month_August">
+            <t lang="en">August</t>
+        </tm>
+        <tm id="Month_August_Short">
+            <t lang="en">Aug</t>
+        </tm>
+        <tm id="Month_September">
+            <t lang="en">September</t>
+        </tm>
+        <tm id="Month_September_Short">
+            <t lang="en">Sep</t>
+        </tm>
+        <tm id="Month_October">
+            <t lang="en">October</t>
+        </tm>
+        <tm id="Month_October_Short">
+            <t lang="en">Oct</t>
+        </tm>
+        <tm id="Month_November">
+            <t lang="en">November</t>
+        </tm>
+        <tm id="Month_November_Short">
+            <t lang="en">Nov</t>
+        </tm>
+        <tm id="Month_December">
+            <t lang="en">December</t>
+        </tm>
+        <tm id="Month_December_Short">
+            <t lang="en">Dec</t>
+        </tm>
+        <tm id="Search">
+            <t lang="en">Search</t>
+            <t lang="fr">Recherche</t>
+            <t lang="es">Buscar</t>
+            <t lang="de">Suche</t>
+        </tm>
+        <tm id="Search_Text_Hint">
+            <t lang="en">Search</t>
+            <t lang="fr">Recherche</t>
+            <t lang="es">Buscar</t>
+            <t lang="de">Suche</t>
+        </tm>
+        <tm id="Search_Match_Whole_Words">
+            <t lang="en">Match whole words</t>
+            <t lang="fr">Mots entiers</t>
+            <t lang="es">Coincidir Palabras Completas</t>
+            <t lang="de">Ganze Wörter</t>
+        </tm>
+        <tm id="Search_Match_Accents">
+            <t lang="en">Match accents and tones</t>
+            <t lang="fr">Accents et tons</t>
+            <t lang="es">Coincidir Acentos y tonos</t>
+            <t lang="de">Akzente und Töne einbeziehen</t>
+        </tm>
+        <tm id="Search_Searching">
+            <t lang="en">Searching...</t>
+            <t lang="fr">Recherche en cours...</t>
+            <t lang="es">Buscando...</t>
+            <t lang="de">Suche läuft...</t>
+        </tm>
+        <tm id="Search_Number_Found">
+            <t lang="en">Found: %,d</t>
+            <t lang="fr">Nombre : %,d</t>
+            <t lang="es">Encontrados: %,d</t>
+            <t lang="de">Gefunden: %,d</t>
+        </tm>
+        <tm id="Search_No_Matches_Found">
+            <t lang="en">No matches found</t>
+            <t lang="fr">Aucun résultat trouvé</t>
+            <t lang="es">No hay ninguna coincidencia</t>
+            <t lang="de">Keine Treffer gefunden</t>
+        </tm>
+        <tm id="Search_Again_Button">
+            <t lang="en">Search</t>
+            <t lang="fr">Recherche</t>
+            <t lang="es">Buscar</t>
+            <t lang="de">Suche</t>
+        </tm>
+        <tm id="Search_Cancel_Button">
+            <t lang="en">Cancel</t>
+            <t lang="fr">Annuler</t>
+            <t lang="es">Cancelar</t>
+            <t lang="de">Beenden</t>
+        </tm>
+        <tm id="Audio_Download_Title">
+            <t lang="en">Audio Download</t>
+            <t lang="fr">Téléchargement audio</t>
+            <t lang="es">Descarga de audio</t>
+            <t lang="de">Audio-Download</t>
+        </tm>
+        <tm id="Audio_Download_Confirm">
+            <t lang="en">Download audio file?</t>
+            <t lang="fr">Télécharger fichier audio ?</t>
+            <t lang="es">¿Descargar archivo de audio?</t>
+            <t lang="de">Audiodatei herunterladen?</t>
+        </tm>
+        <tm id="Audio_Download_Auto">
+            <t lang="en">Download automatically from now on</t>
+            <t lang="fr">Télécharger automatiquement à partir de maintenant</t>
+            <t lang="es">Descargar audio automáticamente a partir de ahora</t>
+            <t lang="de">Ab jetzt automatisch herunterladen</t>
+        </tm>
+        <tm id="Audio_Download_Connect">
+            <t lang="en">To download audio files, please connect to the internet.</t>
+            <t lang="fr">Pour télécharger les fichiers audio, veuillez vous connecter à l&apos;internet</t>
+            <t lang="es">Para descargar archivos de audio, por favor conectese a internet</t>
+            <t lang="de">Um die Audiodateien herunterzuladen, bitte mit dem Internet verbinden.</t>
+        </tm>
+        <tm id="Audio_Download_Error">
+            <t lang="en">Download Error:</t>
+            <t lang="fr">Erreur de téléchargement :</t>
+            <t lang="es">Error de descarga:</t>
+            <t lang="de">Fehler beim Herunterladen:</t>
+        </tm>
+        <tm id="Audio_Download_Timeout">
+            <t lang="en">Timed out connecting to audio server.</t>
+            <t lang="fr">Délai de connexion au serveur audio.</t>
+            <t lang="de">Die Verbindung zum Audioserver wurde unterbrochen.</t>
+        </tm>
+        <tm id="Audio_Downloading">
+            <t lang="en">Downloading %book %chapter...</t>
+            <t lang="fr">Téléchargement de %book %chapter...</t>
+            <t lang="es">Descargando %book %chapter...</t>
+            <t lang="de">Heruntergeladen %book %chapter</t>
+        </tm>
+        <tm id="Audio_Check_Connection">
+            <t lang="en">Please check your internet connection.</t>
+            <t lang="fr">Veuillez vérifier votre connexion internet</t>
+            <t lang="es">Por favor revise su conexión a Internet</t>
+            <t lang="de">Bitte überprüfen Sie Ihre Internetverbindung.</t>
+        </tm>
+        <tm id="Audio_File_Not_Found">
+            <t lang="en">Audio file not found</t>
+            <t lang="fr">Fichier audio introuvable</t>
+            <t lang="es">Archivo de audio no encontrado</t>
+            <t lang="de">Audiodatei wurde nicht gefunden.</t>
+        </tm>
+        <tm id="Audio_Fail_DBT_Location">
+            <t lang="en">Failed to get audio download information</t>
+            <t lang="fr">Informations de téléchargement introuvables</t>
+            <t lang="es">Fallo al conseguir información sobre la descarga de audio</t>
+            <t lang="de">Fehler beim Abruf der Audio-Download Information</t>
+        </tm>
+        <tm id="Audio_Fail_DBT_Permission">
+            <t lang="en">Not allowed to download audio</t>
+        </tm>
+        <tm id="Audio_Looking_For_File">
+            <t lang="en">Looking for audio file on your device...</t>
+            <t lang="fr">Recherche du fichier audio sur votre appareil...</t>
+            <t lang="de">Audiodatei wird auf ihrem Gerät gesucht...</t>
+            <t lang="es">Buscando el archivo de audio en su dispositivo...</t>
+        </tm>
+        <tm id="Audio_Creating_Audio">
+            <t lang="en">Creating audio file...</t>
+            <t lang="fr">Créer fichier audio...</t>
+            <t lang="es">Creando un archivo de audio...</t>
+            <t lang="de">Audiodatei erstellen…</t>
+        </tm>
+        <tm id="Audio_Repeat_Off_Continue">
+            <t lang="en">Play to next page</t>
+            <t lang="fr">Aller à la page suivante</t>
+        </tm>
+        <tm id="Audio_Repeat_Off_Stop">
+            <t lang="en">Stop at end of page</t>
+            <t lang="fr">Arrêter en fin de page</t>
+        </tm>
+        <tm id="Audio_Repeat_Page">
+            <t lang="en">Repeat page</t>
+            <t lang="fr">Répéter la page</t>
+        </tm>
+        <tm id="Audio_Repeat_Selection">
+            <t lang="en">Repeat selection</t>
+            <t lang="fr">Répéter la sélection</t>
+        </tm>
+        <tm id="Video_Download_Title">
+            <t lang="en">Video Download</t>
+            <t lang="fr">Téléchargement vidéo</t>
+            <t lang="de">Videodownload</t>
+            <t lang="es">Descarga de video</t>
+        </tm>
+        <tm id="Video_Download_Confirm">
+            <t lang="en">Download video file?</t>
+            <t lang="fr">Télécharger fichier vidéo ?</t>
+            <t lang="de">Videodatei herunterladen?</t>
+            <t lang="es">¿Descargar el archivo de vídeo?</t>
+        </tm>
+        <tm id="Video_Downloading">
+            <t lang="en">Downloading video...</t>
+            <t lang="fr">Téléchargement de la vidéo...</t>
+            <t lang="de">Videodatei wird heruntergeladen...</t>
+            <t lang="es">Descargando el video...</t>
+        </tm>
+        <tm id="Video_Downloaded">
+            <t lang="en">Video downloaded</t>
+            <t lang="fr">Vidéo téléchargée</t>
+            <t lang="de">Video wurde heruntergeladen.</t>
+            <t lang="es">Video descargado</t>
+        </tm>
+        <tm id="Video_Looking_For_File">
+            <t lang="en">Looking for video file on your device...</t>
+            <t lang="fr">Recherche du fichier vidéo sur votre appareil...</t>
+            <t lang="de">Videodatei wird auf ihrem Gerät gesucht...</t>
+            <t lang="es">Buscando el archivo de video en su dispositivo...</t>
+        </tm>
+        <tm id="Video_Creating_Video">
+            <t lang="en">Creating video...</t>
+            <t lang="fr">Créer vidéo...</t>
+            <t lang="es">Creando el video...</t>
+            <t lang="de">Video erstellen…</t>
+        </tm>
+        <tm id="Video_File_Not_Found">
+            <t lang="en">Video file not found</t>
+            <t lang="fr">Fichier vidéo introuvable</t>
+            <t lang="es">Archivo de video no encontrado</t>
+        </tm>
+        <tm id="App_Downloading_App">
+            <t lang="en">Downloading app...</t>
+            <t lang="fr">Téléchargement de l&apos;application...</t>
+            <t lang="de">App herunterladen…</t>
+        </tm>
+        <tm id="App_File_Error">
+            <t lang="en">Error processing downloaded app</t>
+            <t lang="fr">Erreur de traitement de l&apos;application téléchargée</t>
+            <t lang="de">Fehler beim Verarbeiten der heruntergeladenen App</t>
+        </tm>
+        <tm id="Selector_Book">
+            <t lang="en">BOOK</t>
+            <t lang="fr">LIVRE</t>
+            <t lang="es">LIBRO</t>
+            <t lang="de">BUCH</t>
+        </tm>
+        <tm id="Selector_Chapter">
+            <t lang="en">CHAPTER</t>
+            <t lang="fr">CHAPITRE</t>
+            <t lang="es">CAPÍTULO</t>
+            <t lang="de">KAPITEL</t>
+        </tm>
+        <tm id="Selector_Verse">
+            <t lang="en">VERSE</t>
+            <t lang="fr">VERSET</t>
+            <t lang="es">VERSÍCULO</t>
+            <t lang="de">VERS</t>
+        </tm>
+        <tm id="Share_Apk_File">
+            <t lang="en">Share App Installer File</t>
+            <t lang="fr">Partager fichier d&apos;installation de l&apos;appli</t>
+            <t lang="es">Compartir archivo del instalador de la aplicación</t>
+            <t lang="de">App-Datei weitergeben</t>
+        </tm>
+        <tm id="Share_Apk_File_Via">
+            <t lang="en">Share App via</t>
+            <t lang="fr">Partager application par</t>
+            <t lang="es">Compartir a través de</t>
+            <t lang="de">App weitergeben mit</t>
+        </tm>
+        <tm id="Share_App_Link">
+            <t lang="en">Share Link to App on Google Play</t>
+            <t lang="fr">Partager lien à l&apos;appli sur Google Play</t>
+            <t lang="es">Compartir enlace de aplicación en Google Play</t>
+            <t lang="de">Den Link der App zu Google Play weitergeben</t>
+        </tm>
+        <tm id="Share_App_Link_Recommend">
+            <t lang="en">I can recommend this app:</t>
+            <t lang="fr">Je peux recommander cette application :</t>
+            <t lang="es">Puedo recomendar esta aplicación</t>
+            <t lang="de">Ich kann diese App empfehlen:</t>
+        </tm>
+        <tm id="Share_App_Link_Via">
+            <t lang="en">Share Link via</t>
+            <t lang="fr">Partager lien par</t>
+            <t lang="es">Compartir enlace a través de</t>
+            <t lang="de">Den Link weitergeben mit</t>
+        </tm>
+        <tm id="Share_Via">
+            <t lang="en">Share via</t>
+            <t lang="fr">Partager par</t>
+            <t lang="es">Compartir a través de</t>
+            <t lang="de">Weitergeben mit</t>
+        </tm>
+        <tm id="Share_Text">
+            <t lang="en">Share Text</t>
+            <t lang="fr">Partager texte</t>
+            <t lang="es">Compartir texto</t>
+            <t lang="de">Text teilen</t>
+        </tm>
+        <tm id="Share_Audio">
+            <t lang="en">Share Audio</t>
+            <t lang="fr">Partager audio</t>
+            <t lang="es">Compartir Audio</t>
+            <t lang="de">Audio teilen</t>
+        </tm>
+        <tm id="Share_Image">
+            <t lang="en">Share Image</t>
+            <t lang="fr">Partager image</t>
+            <t lang="es">Compartir imagen</t>
+            <t lang="de">Bild teilen</t>
+        </tm>
+        <tm id="Share_Video">
+            <t lang="en">Share Video</t>
+            <t lang="fr">Partager vidéo</t>
+            <t lang="es">Compartir Video</t>
+            <t lang="de">Video teilen</t>
+        </tm>
+        <tm id="Settings_Title">
+            <t lang="en">Settings</t>
+            <t lang="fr">Paramètres</t>
+            <t lang="es">Configuraciones</t>
+            <t lang="de">Einstellungen</t>
+        </tm>
+        <tm id="Settings_Category_Text_Display">
+            <t lang="en">Text Display</t>
+            <t lang="fr">Affichage du texte</t>
+            <t lang="es">Visualizar texto</t>
+            <t lang="de">Textansicht</t>
+        </tm>
+        <tm id="Settings_Category_Navigation">
+            <t lang="en">Navigation</t>
+            <t lang="fr">Navigation</t>
+            <t lang="es">Navegación</t>
+            <t lang="de">Steuerung</t>
+        </tm>
+        <tm id="Settings_Category_Notifications">
+            <t lang="en">Notifications</t>
+            <t lang="fr">Notifications</t>
+            <t lang="es">Notificaciones</t>
+            <t lang="de">Benachrichtigungen</t>
+        </tm>
+        <tm id="Settings_Category_Audio">
+            <t lang="en">Audio</t>
+            <t lang="fr">Audio</t>
+            <t lang="es">Audio</t>
+            <t lang="de">Audio</t>
+        </tm>
+        <tm id="Settings_Category_Video">
+            <t lang="en">Video</t>
+            <t lang="fr">Vidéo</t>
+        </tm>
+        <tm id="Settings_Category_Interface">
+            <t lang="en">User Interface</t>
+            <t lang="fr">Interface utilisateur</t>
+            <t lang="es">Interfaz del usuario</t>
+            <t lang="de">Benutzeroberfläche</t>
+        </tm>
+        <tm id="Settings_Book_Selection">
+            <t lang="en">Book selection</t>
+            <t lang="fr">Sélection de livres</t>
+            <t lang="es">Selección de Libros</t>
+            <t lang="de">Buchauswahl</t>
+        </tm>
+        <tm id="Settings_Book_Selection_List">
+            <t lang="en">List of book names</t>
+            <t lang="fr">Liste de noms de livres</t>
+            <t lang="es">Lista de nombres de libros</t>
+            <t lang="de">Liste der Buchnamen</t>
+        </tm>
+        <tm id="Settings_Book_Selection_Grid">
+            <t lang="en">Grid of book abbreviations</t>
+            <t lang="fr">Grille d&apos;abréviations de livres</t>
+            <t lang="es">Cuadrícula de abreviaturas de libros</t>
+            <t lang="de">Grafische Buchauswahl</t>
+        </tm>
+        <tm id="Settings_Red_Letters">
+            <t lang="en">Red letters</t>
+            <t lang="fr">Paroles de Jésus en rouge</t>
+            <t lang="es">Letras rojas</t>
+            <t lang="de">Rote Schrift</t>
+        </tm>
+        <tm id="Settings_Red_Letters_Summary">
+            <t lang="en">Show the words of Jesus in red</t>
+            <t lang="fr">Afficher les paroles de Jésus en rouge</t>
+            <t lang="es">Mostrar Palabras de Jesús en rojo</t>
+            <t lang="de">Die Worte Jesu in roter Schrift anzeigen</t>
+        </tm>
+        <tm id="Settings_Display_Images_In_Bible_Text">
+            <t lang="en">Images in Bible text</t>
+            <t lang="fr">Images dans le texte biblique</t>
+            <t lang="es">Imágenes en texto bíblico</t>
+            <t lang="de">Bilder im Bibeltext</t>
+        </tm>
+        <tm id="Settings_Display_Videos_In_Bible_Text">
+            <t lang="en">Videos in Bible text</t>
+            <t lang="fr">Vidéos dans le texte biblique</t>
+            <t lang="es">Vídeos en texto bíblico</t>
+            <t lang="de">Videos im Bibeltext</t>
+        </tm>
+        <tm id="Settings_Display_Images_Normal">
+            <t lang="en">Show images</t>
+            <t lang="fr">Montrer les images</t>
+            <t lang="es">Mostrar imágenes</t>
+            <t lang="de">Bilder zeigen</t>
+        </tm>
+        <tm id="Settings_Display_Images_Hidden">
+            <t lang="en">Hide images</t>
+            <t lang="fr">Cacher les images</t>
+            <t lang="es">Ocultar imágenes</t>
+            <t lang="de">Bilder ausblenden</t>
+        </tm>
+        <tm id="Settings_Display_Videos_Normal">
+            <t lang="en">Show normal size</t>
+            <t lang="fr">Montrer en taille normale</t>
+            <t lang="es">Mostrar tamaño normal</t>
+            <t lang="de">Normale Größe zeigen</t>
+        </tm>
+        <tm id="Settings_Display_Videos_Small">
+            <t lang="en">Show small size</t>
+            <t lang="fr">Montrer en petite taille</t>
+            <t lang="de">Kleine Größe zeigen</t>
+        </tm>
+        <tm id="Settings_Display_Videos_Hidden">
+            <t lang="en">Hide videos</t>
+            <t lang="fr">Cacher les vidéos</t>
+            <t lang="es">Ocultar videos</t>
+            <t lang="de">Videos ausblenden</t>
+        </tm>
+        <tm id="Settings_Show_Border">
+            <t lang="en">Show border</t>
+            <t lang="fr">Bordure autour du texte</t>
+            <t lang="es">Mostrar borde al texto</t>
+            <t lang="de">Rahmen anzeigen</t>
+        </tm>
+        <tm id="Settings_Show_Border_Summary">
+            <t lang="en">Show decorative border around text</t>
+            <t lang="fr">Afficher une bordure decorative autour du texte</t>
+            <t lang="es">Mostrar un borde decorativo alrededor del texto</t>
+            <t lang="de">Einen dekorativen Rahmen um den Text anzeigen</t>
+        </tm>
+        <tm id="Settings_Verse_Numbers">
+            <t lang="en">Show verse numbers</t>
+            <t lang="fr">Afficher numéros de versets</t>
+            <t lang="es">Mostrar números de versículos</t>
+            <t lang="de">Versnummern anzeigen</t>
+        </tm>
+        <tm id="Settings_Verse_Layout">
+            <t lang="en">Verse layout</t>
+            <t lang="fr">Mise en page des versets</t>
+            <t lang="es">Distribución de Versículos</t>
+            <t lang="de">Versanordnung</t>
+        </tm>
+        <tm id="Settings_Verse_Layout_Paragraphs">
+            <t lang="en">Verses in paragraphs</t>
+            <t lang="fr">Versets en paragraphes</t>
+            <t lang="es">Versículos en párrafos</t>
+            <t lang="de">Verse in Absätzen anzeigen</t>
+        </tm>
+        <tm id="Settings_Verse_Layout_One_Per_Line">
+            <t lang="en">One verse per line</t>
+            <t lang="fr">Un verset par ligne</t>
+            <t lang="es">Un versículo por línea</t>
+            <t lang="de">Verse einzeln anzeigen</t>
+        </tm>
+        <tm id="Settings_Verse_Selection">
+            <t lang="en">Show verse selector</t>
+            <t lang="fr">Montrer sélecteur de versets</t>
+            <t lang="es">Mostrar Selector de Versículos</t>
+            <t lang="de">Versauswahl anzeigen</t>
+        </tm>
+        <tm id="Settings_Interface_Language">
+            <t lang="en">Language</t>
+            <t lang="fr">Langue</t>
+            <t lang="es">Idioma</t>
+            <t lang="de">Benutzersprache</t>
+        </tm>
+        <tm id="Settings_Layout_Direction">
+            <t lang="en">Layout direction</t>
+            <t lang="fr">Direction de mise en page</t>
+            <t lang="es">Dirección de la distribución</t>
+            <t lang="de">Richtung des Layouts</t>
+        </tm>
+        <tm id="Settings_Layout_Direction_LTR">
+            <t lang="en">Left to Right</t>
+            <t lang="fr">De gauche à droite</t>
+            <t lang="es">De izquierda a derecha</t>
+            <t lang="de">von links nach rechts</t>
+        </tm>
+        <tm id="Settings_Layout_Direction_RTL">
+            <t lang="en">Right to Left</t>
+            <t lang="fr">De droite à gauche</t>
+            <t lang="es">De derecha a izquierda</t>
+            <t lang="de">von rechts nach links</t>
+        </tm>
+        <tm id="Settings_Layout_Direction_Interface_Language">
+            <t lang="en">Direction of interface language</t>
+            <t lang="fr">Direction de la langue de l&apos;interface</t>
+            <t lang="es">Dirección del idioma de interfaz</t>
+            <t lang="de">Schreibrichtung der Benutzersprache</t>
+        </tm>
+        <tm id="Settings_Layout_Direction_Text">
+            <t lang="en">Direction of current text</t>
+            <t lang="fr">Direction du texte actuel</t>
+            <t lang="es">Dirección del texto actual</t>
+            <t lang="de">Schreibrichtung des aktuellen Textes</t>
+        </tm>
+        <tm id="Settings_Audio_Highlight_Phrase">
+            <t lang="en">Highlight synchronized phrases</t>
+            <t lang="es">Resaltar las frases sincronizadas</t>
+            <t lang="fr">Phrases synchronisées en jaune</t>
+            <t lang="de">Synchronisierte Wortgruppen farblich markieren</t>
+        </tm>
+        <tm id="Settings_Audio_Highlight_Phrase_Summary">
+            <t lang="en">Show current phrase in yellow when playing audio</t>
+            <t lang="es">Mostrar la frase actual en amarillo al reproducir el audio</t>
+            <t lang="fr">Afficher la phrase en cours en jaune lors de la lecture audio</t>
+            <t lang="de">Beim Abspielen des Tons die entsprechende Wortgruppe gelb markieren</t>
+        </tm>
+        <tm id="Settings_Audio_Speed">
+            <t lang="en">Playback speed</t>
+            <t lang="fr">Vitesse de lecture</t>
+            <t lang="es">Velocidad de reproducción</t>
+            <t lang="de">Abspielgeschwindigkeit</t>
+        </tm>
+        <tm id="Settings_Audio_Speed_Normal">
+            <t lang="en">Normal</t>
+            <t lang="fr">Normale</t>
+            <t lang="es">Normal</t>
+            <t lang="de">Normal</t>
+        </tm>
+        <tm id="Settings_Audio_Access_Method">
+            <t lang="en">Audio download or streaming</t>
+            <t lang="fr">Streaming ou téléchargement audio</t>
+            <t lang="de">Audio herunterladen oder streamen</t>
+        </tm>
+        <tm id="Settings_Audio_Access_Method_Download">
+            <t lang="en">Download audio files</t>
+            <t lang="fr">Télécharger fichiers audio</t>
+            <t lang="de">Herunterladen von Audiodateien</t>
+        </tm>
+        <tm id="Settings_Audio_Access_Method_Stream">
+            <t lang="en">Stream audio files</t>
+            <t lang="fr">Streaming audio</t>
+            <t lang="de">Audiodateien streamen</t>
+        </tm>
+        <tm id="Settings_Video_Access_Method">
+            <t lang="en">Video download or streaming</t>
+            <t lang="fr">Streaming ou téléchargement vidéo</t>
+        </tm>
+        <tm id="Settings_Video_Access_Method_Download">
+            <t lang="en">Download video files</t>
+            <t lang="fr">Télécharger fichiers vidéo</t>
+        </tm>
+        <tm id="Settings_Video_Access_Method_Stream">
+            <t lang="en">Stream video files</t>
+            <t lang="fr">Streaming vidéo</t>
+        </tm>
+        <tm id="Settings_Audio_Download_Mode">
+            <t lang="en">Audio file download</t>
+            <t lang="fr">Téléchargement de fichiers audio</t>
+            <t lang="es">Descargar archivos de audio</t>
+            <t lang="de">Herunterladen der Audiodatei</t>
+        </tm>
+        <tm id="Settings_Audio_Download_Prompt">
+            <t lang="en">Always ask before downloading</t>
+            <t lang="fr">Demander avant de télécharger</t>
+            <t lang="es">Siempre preguntar antes de descargar</t>
+            <t lang="de">Vor dem Herunterladen immer fragen</t>
+        </tm>
+        <tm id="Settings_Audio_Download_Automatic">
+            <t lang="en">Download automatically</t>
+            <t lang="fr">Télécharger automatiquement</t>
+            <t lang="es">Descargar automáticamente</t>
+            <t lang="de">Automatisch herunterladen</t>
+        </tm>
+        <tm id="Settings_Audio_Download_Automatic_Wifi">
+            <t lang="en">Download automatically if using WiFi</t>
+            <t lang="fr">Télécharger automatiquement si vous êtes sur WiFi</t>
+            <t lang="es">Descargar automáticamente si usa WiFi</t>
+            <t lang="de">Automatisch herunterladen wenn WLAN genutzt wird</t>
+        </tm>
+        <tm id="Settings_Keep_Screen_On">
+            <t lang="en">Keep screen on</t>
+            <t lang="fr">Garder l&apos;écran allumé</t>
+            <t lang="es">Mantener la pantalla encendida</t>
+            <t lang="de">Display eingeschaltet lassen</t>
+        </tm>
+        <tm id="Settings_Share_Usage_Data">
+            <t lang="en">Share usage data</t>
+            <t lang="fr">Partager des données d&apos;utilisation</t>
+            <t lang="es">Compartir datos de uso</t>
+            <t lang="de">Nutzerdaten weitergeben</t>
+        </tm>
+        <tm id="Settings_Verse_Of_The_Day">
+            <t lang="en">Verse of the day</t>
+            <t lang="fr">Verset du jour</t>
+            <t lang="es">Versículo del día</t>
+            <t lang="de">Vers des Tages</t>
+        </tm>
+        <tm id="Settings_Verse_Of_The_Day_Time">
+            <t lang="en">Time for verse of the day</t>
+            <t lang="fr">L&apos;heure du verset du jour</t>
+            <t lang="es">Tiempo para el versículo del día</t>
+            <t lang="de">Zeitpunkt für Vers des Tages</t>
+        </tm>
+        <tm id="Settings_Verse_Of_The_Day_Book_Collection">
+            <t lang="en">Translation for verse of the day</t>
+            <t lang="fr">Traduction pour le verset du jour</t>
+            <t lang="es">Traducción para el versículo del día</t>
+            <t lang="de">Übersetzung für Vers des Tages</t>
+        </tm>
+        <tm id="Settings_Daily_Reminder">
+            <t lang="en">Daily reminder</t>
+            <t lang="fr">Rappel quotidien</t>
+            <t lang="es">Recordatorio diario</t>
+            <t lang="de">Tägliche Erinnerung</t>
+        </tm>
+        <tm id="Settings_Daily_Reminder_Time">
+            <t lang="en">Time for daily reminder</t>
+            <t lang="fr">L&apos;heure du rappel quotidien</t>
+            <t lang="es">Tiempo para el recordatorio diario</t>
+            <t lang="de">Zeitpunkt für die tägliche Erinnerung</t>
+        </tm>
+        <tm id="Account_Page_Title">
+            <t lang="en">My Account</t>
+            <t lang="fr">Mon compte</t>
+            <t lang="de">Mein Konto</t>
+        </tm>
+        <tm id="Account_Sign_In_Title">
+            <t lang="en">Sign In</t>
+            <t lang="fr">S&apos;identifier</t>
+            <t lang="de">Anmelden</t>
+        </tm>
+        <tm id="Account_Sign_In_Button">
+            <t lang="en">Sign In</t>
+            <t lang="fr">S&apos;identifier</t>
+            <t lang="de">Anmelden</t>
+        </tm>
+        <tm id="Account_Sign_Up_Title">
+            <t lang="en">Sign Up</t>
+            <t lang="fr">S&apos;inscrire</t>
+            <t lang="de">Registrieren</t>
+        </tm>
+        <tm id="Account_Sign_Up_Button">
+            <t lang="en">Sign Up</t>
+            <t lang="fr">S&apos;inscrire</t>
+            <t lang="de">Registrieren</t>
+        </tm>
+        <tm id="Account_Sign_Out_Button">
+            <t lang="en">Sign Out</t>
+            <t lang="fr">Déconnecter</t>
+            <t lang="de">Abmelden</t>
+        </tm>
+        <tm id="Account_Sign_Out_Button_Confirmation">
+            <t lang="en">Do you want to sign out?\n\nAny new highlights, notes and bookmarks will not be saved to your account.</t>
+            <t lang="fr">Voulez-vous vous déconnecter ?\n\nLes nouveaux surlignements, notes et signets ne seront pas enregistrés sur votre compte.</t>
+            <t lang="de">Möchten Sie sich abmelden?\n\nNeue Markierungen, Notizen und Lesezeichen werden nicht in Ihrem Konto gespeichert.</t>
+        </tm>
+        <tm id="Account_Full_Name">
+            <t lang="en">Your Name</t>
+            <t lang="fr">Votre Nom</t>
+            <t lang="de">Vollständiger Name</t>
+        </tm>
+        <tm id="Account_Email_Address">
+            <t lang="en">Email Address</t>
+            <t lang="fr">Adresse courriel</t>
+            <t lang="de">E-Mail Adresse</t>
+        </tm>
+        <tm id="Account_Password">
+            <t lang="en">Password</t>
+            <t lang="fr">Mot de passe</t>
+            <t lang="de">Passwort</t>
+        </tm>
+        <tm id="Account_Confirm_Password">
+            <t lang="en">Confirm Password</t>
+            <t lang="fr">Confirmer mot de passe</t>
+            <t lang="de">Bestätigen Sie Ihr Passwort</t>
+        </tm>
+        <tm id="Account_Forgot_Password">
+            <t lang="en">Forgot Password?</t>
+            <t lang="fr">Mot de passe oublié ?</t>
+            <t lang="de">Passwort vergessen?</t>
+        </tm>
+        <tm id="Account_Reset_Password">
+            <t lang="en">Reset Password</t>
+            <t lang="fr">Réinitialiser mot de passe</t>
+            <t lang="de">Passwort zurücksetzen</t>
+        </tm>
+        <tm id="Account_Change_Password">
+            <t lang="en">Change Password</t>
+            <t lang="fr">Changer mot de passe</t>
+            <t lang="de">Passwort ändern</t>
+        </tm>
+        <tm id="Account_Current_Password">
+            <t lang="en">Current Password</t>
+            <t lang="fr">Mot de passe actuel</t>
+            <t lang="de">Aktuelles Passwort</t>
+        </tm>
+        <tm id="Account_New_Password">
+            <t lang="en">New Password</t>
+            <t lang="fr">Nouveau mot de passe</t>
+            <t lang="de">Neues Passwort</t>
+        </tm>
+        <tm id="Account_Confirm_New_Password">
+            <t lang="en">Confirm New Password</t>
+            <t lang="fr">Confirmer nouveau mot de passe</t>
+            <t lang="de">Bestätigen Sie das neue Passwort</t>
+        </tm>
+        <tm id="Account_Change_Profile">
+            <t lang="en">Change Profile</t>
+            <t lang="fr">Modifier profil</t>
+            <t lang="de">Profil ändern</t>
+        </tm>
+        <tm id="Account_Enter_Password">
+            <t lang="en">Enter Password</t>
+            <t lang="fr">Saisir mot de passe</t>
+            <t lang="de">Passwort eingeben</t>
+        </tm>
+        <tm id="Account_Save_Changes_Button">
+            <t lang="en">Save Changes</t>
+            <t lang="fr">Enregistrer</t>
+            <t lang="de">Änderungen speichern</t>
+        </tm>
+        <tm id="Account_Delete_Account_Button">
+            <t lang="en">Delete Account</t>
+            <t lang="fr">Supprimer compte</t>
+            <t lang="de">Konto löschen</t>
+        </tm>
+        <tm id="Account_Delete_Account_Title">
+            <t lang="en">Delete Account</t>
+            <t lang="fr">Supprimer compte</t>
+            <t lang="de">Konto löschen</t>
+        </tm>
+        <tm id="Account_Delete_Account_Info">
+            <t lang="en">If you delete your account, all your saved highlights, notes and bookmarks will be deleted.\n\nPlease enter your password to confirm that you want to do this.</t>
+            <t lang="fr">Si vous supprimez votre compte, tous les surlignements, notes et signets que vous avez enregistrés seront supprimés.\n\nVeuillez saisir votre mot de passe pour confirmer que vous souhaitez le faire.</t>
+            <t lang="es">Si elimina su cuenta, se borrarán todos sus destacados, notas y marcadores guardados.\n\nIntroduzca su contraseña para confirmar que desea hacerlo.</t>
+        </tm>
+        <tm id="Account_Login_Page_Heading">
+            <t lang="en">Sign In or Sign Up</t>
+            <t lang="fr">S&apos;identifier ou s&apos;inscrire</t>
+            <t lang="de">Anmelden oder Registrieren</t>
+        </tm>
+        <tm id="Account_Login_Page_Info">
+            <t lang="en">You can save your highlights, notes and bookmarks - and synchronize them with other devices.</t>
+            <t lang="fr">Vous pouvez enregistrer vos surlignements, vos notes et vos signets - et les synchroniser avec d&apos;autres appareils.</t>
+            <t lang="de">Sie können Ihre Markierungen, Notizen, Lesezeichen und den Verlauf speichern - und mit anderen Geräten synchronisieren</t>
+        </tm>
+        <tm id="Account_Logged_In_Page_Info">
+            <t lang="en">Your highlights, notes and bookmarks are being saved to your account when you are connected to the internet.</t>
+            <t lang="fr">Vos surlignements, notes et signets sont enregistrés sur votre compte lorsque vous êtes connecté à l&apos;internet.</t>
+            <t lang="de">Ihre Markierungen, Notizen, Lesezeichen und der Verlauf werden in Ihrem Konto gespeichert, wenn Sie mit dem Internet verbunden sind.</t>
+        </tm>
+        <tm id="Account_Message_Enter_Name">
+            <t lang="en">Please enter your name.</t>
+            <t lang="fr">Veuillez saisir votre nom.</t>
+            <t lang="de">Bitte geben Sie Ihren Namen ein.</t>
+        </tm>
+        <tm id="Account_Message_Enter_Valid_Email">
+            <t lang="en">Please enter a valid email address.</t>
+            <t lang="fr">Veuillez entrer une adresse e-mail valide.</t>
+            <t lang="de">Bitte geben Sie eine gültige E-Mail-Adresse ein.</t>
+        </tm>
+        <tm id="Account_Message_Enter_Valid_Password">
+            <t lang="en">Please enter a valid password. Passwords must have at least six characters and can contain letters, numbers and punctuation.</t>
+            <t lang="fr">Veuillez saisir un mot de passe valide. Les mots de passe doivent comporter au moins six caractères et peuvent contenir des lettres, des chiffres et des signes de ponctuation.</t>
+            <t lang="de">Bitte geben Sie ein gültiges Passwort ein. Passwörter müssen aus mindestens sechs Zeichen bestehen und können Buchstaben, Zahlen und Sonderzeichen enthalten.</t>
+        </tm>
+        <tm id="Account_Message_Enter_Email_And_Password">
+            <t lang="en">Please enter your email address and password.</t>
+            <t lang="fr">Veuillez saisir votre adresse e-mail et votre mot de passe.</t>
+            <t lang="de">Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.</t>
+        </tm>
+        <tm id="Account_Message_Passwords_Not_Matching">
+            <t lang="en">Your password confirmation did not match your new password. Please try again.</t>
+            <t lang="fr">La confirmation de votre mot de passe ne correspond pas à votre nouveau mot de passe. Veuillez réessayer.</t>
+            <t lang="de">Die Bestätigung Ihres Passworts stimmte nicht mit Ihrem neuen Passwort überein. Bitte versuchen Sie es erneut.</t>
+        </tm>
+        <tm id="Account_Message_Incorrect_Email_Password">
+            <t lang="en">Sorry, we cannot find this email address and/or password. Please try again.</t>
+            <t lang="fr">Désolé, nous ne trouvons pas cette adresse e-mail et/ou ce mot de passe. Veuillez réessayer.</t>
+            <t lang="de">Leider können wir diese E-Mail-Adresse und/oder dieses Passwort nicht finden. Bitte versuchen Sie es erneut.</t>
+        </tm>
+        <tm id="Account_Message_Sign_In_Error">
+            <t lang="en">Sorry, we were unable to sign you in.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu vous connecter.</t>
+            <t lang="de">Leider konnten wir Sie nicht anmelden.</t>
+        </tm>
+        <tm id="Account_Message_Sign_Up_Error">
+            <t lang="en">Sorry, we were unable to sign you up.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu vous inscrire.</t>
+            <t lang="de">Leider konnten wir Sie nicht registrieren.</t>
+        </tm>
+        <tm id="Account_Message_Database_Error">
+            <t lang="en">Please report the following database error:</t>
+            <t lang="fr">Veuillez signaler l&apos;erreur suivante :</t>
+            <t lang="de">Bitte melden Sie den folgenden Datenbankfehler:</t>
+        </tm>
+        <tm id="Account_Message_Change_Password_Error">
+            <t lang="en">Sorry, we were unable to change your password.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu modifier votre mot de passe.</t>
+            <t lang="de">Leider konnten wir Ihr Passwort nicht ändern.</t>
+        </tm>
+        <tm id="Account_Message_Change_Profile_Error">
+            <t lang="en">Sorry, we were unable to change your profile.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu modifier votre profil.</t>
+            <t lang="de">Leider konnten wir Ihr Profil nicht ändern.</t>
+        </tm>
+        <tm id="Account_Message_Check_Internet">
+            <t lang="en">Please check your internet connection.</t>
+            <t lang="fr">Veuillez vérifier votre connexion Internet.</t>
+            <t lang="de">Bitte überprüfen Sie Ihre Internetverbindung.</t>
+        </tm>
+        <tm id="Account_Message_Reset_Password_Email_Sent">
+            <t lang="en">We have sent you an email to reset your password.</t>
+            <t lang="fr">Nous vous avons envoyé un courriel pour réinitialiser votre mot de passe.</t>
+            <t lang="de">Wir haben Ihnen eine E-Mail geschickt, um Ihr Passwort zurückzusetzen.</t>
+        </tm>
+        <tm id="Account_Message_Email_Already_In_Use">
+            <t lang="en">This email address is already in use.</t>
+            <t lang="fr">Cette adresse e-mail est déjà utilisée.</t>
+            <t lang="de">Diese E-Mail-Adresse ist bereits in Gebrauch.</t>
+        </tm>
+        <tm id="Account_Message_Delete_Account_Error">
+            <t lang="en">Sorry, we were unable to delete your account.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu supprimer votre compte.</t>
+            <t lang="es">Lo sentimos, no hemos podido eliminar su cuenta.\n\nPor favor, compruebe que ha introducido correctamente su contraseña y que dispone de conexión a Internet.</t>
+            <t lang="de">Es tut uns leid, wir konnten Ihr Konto nicht löschen.</t>
+        </tm>
+        <tm id="Account_Message_Delete_Account_Success">
+            <t lang="en">Your account was deleted successfully.</t>
+            <t lang="fr">Votre compte a été supprimé avec succès.</t>
+            <t lang="de">Ihr Konto wurde erfolgreich gelöscht.</t>
+        </tm>
+        <tm id="Account_Message_Delete_Account_Need_Password">
+            <t lang="en">Please enter your password to delete this account.</t>
+        </tm>
+        <tm id="Notification_Verse_Of_The_Day_Title">
+            <t lang="en">Verse of the Day</t>
+            <t lang="fr">Verset du jour</t>
+            <t lang="es">Versículo del día</t>
+            <t lang="de">Vers des Tages</t>
+        </tm>
+        <tm id="Notification_Daily_Reminder_Title">
+            <t lang="en">Daily Reminder</t>
+            <t lang="fr">Rappel quotidien</t>
+            <t lang="es">Recordatorio diario</t>
+            <t lang="de">Tägliche Erinnerung</t>
+        </tm>
+        <tm id="Notification_Daily_Reminder_Message">
+            <t lang="en">Time to read or listen to God&apos;s Word</t>
+            <t lang="fr">C&apos;est le moment de lire ou d&apos;écouter la Parole de Dieu</t>
+            <t lang="es">Tiempo para leer o escuchar la Palabra de Dios</t>
+            <t lang="de">Zeit zum Lesen oder Hören auf Gottes Wort</t>
+        </tm>
+        <tm id="Notification_Channel_Name_Messages">
+            <t lang="en">Messages</t>
+            <t lang="fr">Messages</t>
+            <t lang="es">Mensajes</t>
+            <t lang="de">Nachrichten</t>
+        </tm>
+        <tm id="Notification_Channel_Name_Media_Player">
+            <t lang="en">Media Player</t>
+            <t lang="fr">Lecteur média</t>
+            <t lang="es">Reproductor de Medios</t>
+            <t lang="de">Mediaplayer</t>
+        </tm>
+        <tm id="Notification_Channel_Name_Verse_Of_The_Day">
+            <t lang="en">Verse of the Day</t>
+            <t lang="fr">Verset du jour</t>
+            <t lang="es">Versículo del día</t>
+            <t lang="de">Vers des Tages</t>
+        </tm>
+        <tm id="Notification_Channel_Name_Daily_Reminder">
+            <t lang="en">Daily Reminder</t>
+            <t lang="fr">Rappel quotidien</t>
+            <t lang="es">Recordatorio diario</t>
+            <t lang="de">Tägliche Erinnerung</t>
+        </tm>
+        <tm id="Notification_Channel_Name_Images">
+            <t lang="en">Images</t>
+            <t lang="fr">Images</t>
+            <t lang="es">Imagenes</t>
+            <t lang="de">Bilder</t>
+        </tm>
+        <tm id="Notification_Channel_Name_Plans">
+            <t lang="en">Plans</t>
+            <t lang="fr">Plans</t>
+            <t lang="es">Planes</t>
+            <t lang="de">Pläne</t>
+        </tm>
+        <tm id="Notification_Please_Allow">
+            <t lang="en">This app would like to send you notifications.</t>
+            <t lang="fr">Veuillez autoriser cette application à vous envoyer des notifications.</t>
+            <t lang="de">Bitte erlauben Sie dieser App, Ihnen Benachrichtigungen zu senden.</t>
+        </tm>
+        <tm id="Notification_Reason_1">
+            <t lang="en">You can receive %s.</t>
+            <t lang="fr">Vous pouvez recevoir %s.</t>
+        </tm>
+        <tm id="Notification_Reason_2">
+            <t lang="en">You can receive %s and %s.</t>
+            <t lang="fr">Vous pouvez recevoir %s and %s.</t>
+        </tm>
+        <tm id="Notification_Reason_3">
+            <t lang="en">You can receive %s, %s and %s.</t>
+            <t lang="fr">Vous pouvez recevoir %s, %s et %s.</t>
+        </tm>
+        <tm id="Notification_Reason_Verse_Of_The_Day">
+            <t lang="en">a verse of the day</t>
+            <t lang="fr">un verset du jour</t>
+            <t lang="es">un versículo del día</t>
+        </tm>
+        <tm id="Notification_Reason_Daily_Reminders">
+            <t lang="en">daily reminders</t>
+            <t lang="fr">des rappels quotidiens</t>
+            <t lang="es">recordatorios diarios</t>
+        </tm>
+        <tm id="Notification_Reason_Push_Notifications">
+            <t lang="en">messages from the app developers</t>
+            <t lang="fr">messages des développeurs de l&apos;application</t>
+        </tm>
+        <tm id="Song_List_By_Number">
+            <t lang="en">BY NUMBER</t>
+            <t lang="fr">PAR NUMÉRO</t>
+            <t lang="es">POR NÚMERO</t>
+            <t lang="de">Nach Liednummer</t>
+        </tm>
+        <tm id="Song_List_By_Title">
+            <t lang="en">BY TITLE</t>
+            <t lang="fr">PAR TITRE</t>
+            <t lang="es">POR TÍTULO</t>
+            <t lang="de">Nach Titel</t>
+        </tm>
+        <tm id="Text_On_Image_Title">
+            <t lang="en">Image</t>
+            <t lang="fr">Image</t>
+            <t lang="es">Imagen</t>
+            <t lang="de">Bild</t>
+        </tm>
+        <tm id="Text_On_Image_Saved">
+            <t lang="en">Image saved</t>
+            <t lang="fr">Image enregistrée</t>
+            <t lang="es">Imagen grabada</t>
+            <t lang="de">Bild gespeichert</t>
+        </tm>
+        <tm id="Text_On_Image_Video_Saved">
+            <t lang="en">Video saved</t>
+            <t lang="fr">Vidéo enregistrée</t>
+            <t lang="de">Video gespeichert</t>
+        </tm>
+        <tm id="Text_On_Image_Save_Image">
+            <t lang="en">Save Image</t>
+            <t lang="fr">Enregistrer image</t>
+            <t lang="de">Bild speichern</t>
+        </tm>
+        <tm id="Text_On_Image_Save_Video">
+            <t lang="en">Save Video</t>
+            <t lang="fr">Enregistrer vidéo</t>
+            <t lang="de">Video speichern</t>
+        </tm>
+        <tm id="Crop_Image_Title">
+            <t lang="en">Crop Image</t>
+            <t lang="fr">Recadrer image</t>
+            <t lang="de">Bild zuschneiden</t>
+        </tm>
+        <tm id="Edit_Text_On_Image_Title">
+            <t lang="en">Edit Text</t>
+            <t lang="fr">Modifier texte</t>
+            <t lang="de">Text bearbeiten</t>
+        </tm>
+        <tm id="Book_Group_OT">
+            <t lang="en">Old Testament</t>
+            <t lang="fr">Ancien Testament</t>
+            <t lang="es">Antiguo Testamento</t>
+            <t lang="de">Altes Testament</t>
+        </tm>
+        <tm id="Book_Group_NT">
+            <t lang="en">New Testament</t>
+            <t lang="fr">Nouveau Testament</t>
+            <t lang="es">Nuevo Testamento</t>
+            <t lang="de">Neues Testament</t>
+        </tm>
+        <tm id="Book_Group_DC">
+            <t lang="en">Deuterocanonical</t>
+            <t lang="fr">Deutérocanonique</t>
+            <t lang="es">Deuterocanónico</t>
+            <t lang="de">Apokryphen</t>
+        </tm>
+        <tm id="Layout_Screen_Title">
+            <t lang="en">Select Language &amp; Layout</t>
+            <t lang="fr">Langue et agencement</t>
+            <t lang="de">Sprache und Layout auswählen</t>
+        </tm>
+        <tm id="Layout_Single_Pane">
+            <t lang="en">Single Pane</t>
+            <t lang="fr">Volet unique</t>
+            <t lang="es">Un solo panel</t>
+            <t lang="de">Ein Fenster</t>
+        </tm>
+        <tm id="Layout_Two_Pane">
+            <t lang="en">Two Panes</t>
+            <t lang="fr">Deux volets</t>
+            <t lang="es">Dos paneles</t>
+            <t lang="de">Zwei Fenster</t>
+        </tm>
+        <tm id="Layout_Interlinear">
+            <t lang="en">Verse by Verse</t>
+            <t lang="fr">Verset par verset</t>
+            <t lang="es">Versículo por versículo</t>
+            <t lang="de">Vers für Vers</t>
+        </tm>
+        <tm id="Plans_Button_Start_Plan">
+            <t lang="en">Start Plan</t>
+            <t lang="fr">Commencer</t>
+            <t lang="es">Iniciar Plan</t>
+            <t lang="de">Plan Starten</t>
+        </tm>
+        <tm id="Plans_Button_Start_Again">
+            <t lang="en">Start Again</t>
+            <t lang="fr">Recommencer</t>
+            <t lang="es">Empezar de Nuevo</t>
+            <t lang="de">Nochmal Starten</t>
+        </tm>
+        <tm id="Plans_Button_Stop_Plan">
+            <t lang="en">Stop Plan</t>
+            <t lang="fr">Arrêter plan</t>
+            <t lang="es">Detener plan</t>
+            <t lang="de">Plan Stoppen</t>
+        </tm>
+        <tm id="Plans_Button_Continue_Reading">
+            <t lang="en">Continue</t>
+            <t lang="fr">Continuer</t>
+            <t lang="es">Continuar</t>
+            <t lang="de">Fortsetzen</t>
+        </tm>
+        <tm id="Plans_Button_Next_Reading">
+            <t lang="en">Next</t>
+            <t lang="fr">Suivant</t>
+            <t lang="es">Siguiente</t>
+            <t lang="de">Nächster</t>
+        </tm>
+        <tm id="Plans_Button_View_Plan">
+            <t lang="en">View Plan</t>
+            <t lang="fr">Voir plan</t>
+            <t lang="es">Ver Plan</t>
+            <t lang="de">Plan Ansehen</t>
+        </tm>
+        <tm id="Plans_Button_View_Plans">
+            <t lang="en">View Plans</t>
+            <t lang="fr">Voir plans</t>
+            <t lang="es">Ver Planes</t>
+            <t lang="de">Pläne Ansehen</t>
+        </tm>
+        <tm id="Plans_Tab_My_Plans">
+            <t lang="en">My Plans</t>
+            <t lang="fr">Mes plans</t>
+            <t lang="es">Mis Planes</t>
+            <t lang="de">Meine Pläne</t>
+        </tm>
+        <tm id="Plans_Tab_Choose_Plan">
+            <t lang="en">Choose Plan</t>
+            <t lang="fr">Choisir plan</t>
+            <t lang="es">Elegir Plan</t>
+            <t lang="de">Plan Auswählen</t>
+        </tm>
+        <tm id="Plans_Tab_Completed_Plans">
+            <t lang="en">Completed</t>
+            <t lang="fr">Terminés</t>
+            <t lang="es">Completados</t>
+            <t lang="de">Abgeschlossen</t>
+        </tm>
+        <tm id="Plans_Day">
+            <t lang="en">Day</t>
+            <t lang="fr">Jour</t>
+            <t lang="es">Día</t>
+            <t lang="de">Tag</t>
+        </tm>
+        <tm id="Plans_Number_Days">
+            <t lang="en">%d days</t>
+            <t lang="fr">%d jours</t>
+            <t lang="es">%d días</t>
+            <t lang="de">%d Tage</t>
+        </tm>
+        <tm id="Plans_Date_Started">
+            <t lang="en">You started this plan on %s.</t>
+            <t lang="fr">Vous avez commencé ce plan le %s.</t>
+            <t lang="es">Comenzaste este plan el %s.</t>
+            <t lang="de">Sie haben diesen Plan am %s begonnen.</t>
+        </tm>
+        <tm id="Plans_Date_Completed">
+            <t lang="en">You completed this plan on %s.</t>
+            <t lang="fr">Vous avez terminé ce plan le %s.</t>
+            <t lang="es">Completaste este plan el %s.</t>
+            <t lang="de">Sie haben diesen Plan am %s abgeschlossen.</t>
+        </tm>
+        <tm id="Plans_Day_Items_Empty">
+            <t lang="en">There is nothing to read today</t>
+            <t lang="fr">Il n&apos;y a rien à lire aujourd&apos;hui</t>
+            <t lang="es">No hay nada que leer hoy</t>
+            <t lang="de">Heute gibt es nichts zu lesen</t>
+        </tm>
+        <tm id="Plans_Progress_Item_Reading">
+            <t lang="en">You are reading</t>
+            <t lang="fr">Vous êtes en train de lire</t>
+            <t lang="es">Estás leyendo</t>
+            <t lang="de">Du liest gerade</t>
+        </tm>
+        <tm id="Plans_Progress_Item_Completed">
+            <t lang="en">You have completed</t>
+            <t lang="fr">Vous avez lu</t>
+            <t lang="es">Has completado</t>
+            <t lang="de">Du hast abgeschlossen</t>
+        </tm>
+        <tm id="Plans_Progress_Congratulations">
+            <t lang="en">Congratulations!</t>
+            <t lang="fr">Félicitations !</t>
+            <t lang="es">¡Felicidades!</t>
+            <t lang="de">Glückwunsch!</t>
+        </tm>
+        <tm id="Plans_Progress_Plan_Completed">
+            <t lang="en">You have completed the plan</t>
+            <t lang="fr">Vous avez terminé le plan</t>
+            <t lang="es">Has completado el plan</t>
+            <t lang="de">Du hast den Plan abgeschlossen</t>
+        </tm>
+        <tm id="Plans_Progress_Next_Reading">
+            <t lang="en">The next reading is</t>
+            <t lang="fr">La lecture suivante est</t>
+            <t lang="es">La próxima lectura es</t>
+            <t lang="de">Die nächste Lesung ist</t>
+        </tm>
+        <tm id="Plans_Reminder_Notification_Message">
+            <t lang="en">It&apos;s time to read:</t>
+            <t lang="fr">Il est temps de lire :</t>
+            <t lang="es">Es hora de leer:</t>
+            <t lang="de">Es ist Zeit zu lesen:</t>
+        </tm>
+        <tm id="Plans_Config_Setup_Reminders_Info">
+            <t lang="en">To set the reminder times:</t>
+            <t lang="fr">Pour définir les heures de rappel :</t>
+            <t lang="es">Para establecer los horarios de recordatorio:</t>
+            <t lang="de">Um die Erinnerungszeiten einzustellen:</t>
+        </tm>
+        <tm id="Plans_Config_Setup_Reminders_Button">
+            <t lang="en">Set Up Reminders</t>
+            <t lang="fr">Configurer les rappels</t>
+            <t lang="es">Configurar recordatorios</t>
+            <t lang="de">Erinnerungen einrichten</t>
+        </tm>
+        <tm id="Plans_Config_Change_Dates_Info">
+            <t lang="en">To change the dates, including the start date:</t>
+            <t lang="fr">Pour changer les dates, y compris la date de début :</t>
+            <t lang="es">Para cambiar las fechas, incluida la fecha de inicio:</t>
+            <t lang="de">Um die Daten zu ändern, einschließlich des Startdatums:</t>
+        </tm>
+        <tm id="Plans_Config_Change_Dates_Button">
+            <t lang="en">Change Dates</t>
+            <t lang="fr">Changer les dates</t>
+            <t lang="es">Cambiar fechas</t>
+            <t lang="de">Termine ändern</t>
+        </tm>
+        <tm id="Plans_Config_Stop_Plan_info">
+            <t lang="en">To stop this plan and delete your progress information:</t>
+            <t lang="fr">Pour arrêter ce plan et supprimer vos informations de progression :</t>
+            <t lang="es">Para detener este plan y borrar su información de progreso:</t>
+            <t lang="de">Um diesen Plan zu stoppen und Ihre Fortschrittsinformationen zu löschen:</t>
+        </tm>
+        <tm id="Plans_Stop_Plan_Confirm_Title">
+            <t lang="en">Stop Plan</t>
+            <t lang="fr">Arrêter le plan</t>
+            <t lang="es">Detener plan</t>
+            <t lang="de">Plan stoppen</t>
+        </tm>
+        <tm id="Plans_Stop_Plan_Confirm_Message">
+            <t lang="en">Do you want to stop this plan and delete all of your progress information?</t>
+            <t lang="fr">Voulez-vous arrêter ce plan et supprimer toutes vos informations de progression?</t>
+            <t lang="es">¿Quieres detener este plan y borrar toda tu información de progreso?</t>
+            <t lang="de">Möchten Sie diesen Plan stoppen und alle Ihre Fortschrittsinformationen löschen?</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Assign_Dates">
+            <t lang="en">Would you like to assign dates to the plan?</t>
+            <t lang="fr">Souhaitez-vous attribuer des dates au plan?</t>
+            <t lang="es">¿Quieres asignar fechas al plan?</t>
+            <t lang="de">Möchten Sie dem Plan Termine zuweisen?</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Assign_Dates_Yes">
+            <t lang="en">Yes, assign dates to finish in %d days</t>
+            <t lang="fr">Oui, attribuer des dates pour finir en %d jours</t>
+            <t lang="es">Sí, asignar fechas para terminar en %d días</t>
+            <t lang="de">Ja, Termine festlegen, um in %d Tagen fertig zu sein</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Assign_Dates_No">
+            <t lang="en">No, I will go at my own pace</t>
+            <t lang="fr">Non, je vais à mon propre rythme</t>
+            <t lang="es">No, iré a mi propio ritmo</t>
+            <t lang="de">Nein, ich werde in meinem eigenen Tempo vorgehen</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Start_Date">
+            <t lang="en">On which date would you like to start this plan?</t>
+            <t lang="fr">À quelle date souhaitez-vous commencer ce plan?</t>
+            <t lang="es">¿En qué fecha te gustaría comenzar este plan?</t>
+            <t lang="de">An welchem Datum möchten Sie diesen Plan beginnen?</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Start_Date_Today">
+            <t lang="en">Today</t>
+            <t lang="fr">Aujourd&apos;hui</t>
+            <t lang="es">Hoy</t>
+            <t lang="de">Heute</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Start_Date_Tomorrow">
+            <t lang="en">Tomorrow</t>
+            <t lang="fr">Demain</t>
+            <t lang="es">Mañana</t>
+            <t lang="de">Morgen</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Start_Date_Other">
+            <t lang="en">Another day</t>
+            <t lang="fr">Un autre jour</t>
+            <t lang="es">Otro día</t>
+            <t lang="de">Ein anderer Tag</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Start_Date_Specify">
+            <t lang="en">Specify the start date</t>
+            <t lang="fr">Choisir la date de début</t>
+            <t lang="es">Especificar la fecha de inicio</t>
+            <t lang="de">Startdatum festlegen</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Days_of_Week">
+            <t lang="en">On which days of the week would you like to do this plan?</t>
+            <t lang="fr">Lesquels jours de la semaine souhaitez-vous suivre ce plan?</t>
+            <t lang="es">¿En qué días de la semana te gustaría hacer este plan?</t>
+            <t lang="de">An welchen Wochentagen möchten Sie diesen Plan durchführen?</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Reminder">
+            <t lang="en">Would you like to get a reminder notification each day?</t>
+            <t lang="fr">Souhaitez-vous recevoir une notification de rappel chaque jour?</t>
+            <t lang="es">¿Te gustaría recibir una notificación de recordatorio cada día?</t>
+            <t lang="de">Möchten Sie täglich eine Erinnerungsbenachrichtigung erhalten?</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Reminder_Yes_1">
+            <t lang="en">Yes, once a day</t>
+            <t lang="fr">Oui, une fois par jour</t>
+            <t lang="es">Sí, una vez al día</t>
+            <t lang="de">Ja, einmal am Tag</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Reminder_Yes_2">
+            <t lang="en">Yes, twice a day</t>
+            <t lang="fr">Oui, deux fois par jour</t>
+            <t lang="es">Sí, dos veces al día</t>
+            <t lang="de">Ja, zweimal am Tag</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Reminder_Time">
+            <t lang="en">Specify a time for the reminder</t>
+            <t lang="fr">Choisir une heure pour le rappel</t>
+            <t lang="es">Especificar una hora para el recordatorio</t>
+            <t lang="de">Eine Zeit für die Erinnerung festlegen</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Reminder_Time_1">
+            <t lang="en">Specify a time for the first reminder (in the morning)</t>
+            <t lang="fr">Choisir une heure pour le premier rappel (le matin)</t>
+            <t lang="es">Especificar una hora para el primer recordatorio (por la mañana)</t>
+            <t lang="de">Zeit für die erste Erinnerung festlegen (morgens)</t>
+        </tm>
+        <tm id="Plans_Setup_Question_Reminder_Time_2">
+            <t lang="en">Specify a time for the second reminder (in the evening)</t>
+            <t lang="fr">Choisir une heure pour le deuxième rappel (le soir)</t>
+            <t lang="es">Especificar una hora para el segundo recordatorio (por la tarde)</t>
+            <t lang="de">Zeit für die zweite Erinnerung festlegen (abends)</t>
+        </tm>
+        <tm id="Plans_Setup_Start_Completed_Title">
+            <t lang="en">Setup Completed</t>
+            <t lang="fr">Configuration Terminée</t>
+            <t lang="es">Configuración Completada</t>
+            <t lang="de">Einrichtung Abgeschlossen</t>
+        </tm>
+        <tm id="Plans_Setup_Start_Completed_Message">
+            <t lang="en">You are ready to start the plan. On the next page, tap on a Bible reference to begin.</t>
+            <t lang="fr">Vous êtes prêt à commencer le plan. Sur la page suivante, appuyez sur une référence biblique pour commencer.</t>
+            <t lang="es">Estás listo para empezar el plan. En la siguiente página, toca una referencia bíblica para comenzar.</t>
+            <t lang="de">Sie sind bereit, mit dem Plan zu beginnen. Auf der nächsten Seite, tippen Sie auf eine Bibelstelle, um anzufangen.</t>
+        </tm>
+        <tm id="Plans_Setup_Dates_Completed_Title">
+            <t lang="en">Dates Saved</t>
+            <t lang="fr">Dates Enregistrées</t>
+            <t lang="es">Fechas Guardadas</t>
+            <t lang="de">Daten Gespeichert</t>
+        </tm>
+        <tm id="Plans_Setup_Dates_Completed_Message">
+            <t lang="en">Your date selections have been saved successfully.</t>
+            <t lang="fr">Vos sélections de dates ont été enregistrées avec succès.</t>
+            <t lang="es">Tus selecciones de fechas se han guardado con éxito.</t>
+            <t lang="de">Ihre Datumsauswahlen wurden erfolgreich gespeichert.</t>
+        </tm>
+        <tm id="Plans_Setup_Reminders_Completed_Title">
+            <t lang="en">Reminder Times</t>
+            <t lang="fr">Horaires des Rappels</t>
+            <t lang="es">Horarios de Recordatorios</t>
+            <t lang="de">Erinnerungszeiten</t>
+        </tm>
+        <tm id="Plans_Setup_Reminders_Completed_Message">
+            <t lang="en">Your reminder choices have been saved successfully.</t>
+            <t lang="fr">Vos choix de rappels ont été enregistrés avec succès.</t>
+            <t lang="es">Tus elecciones de recordatorios se han guardado con éxito.</t>
+            <t lang="de">Ihre Erinnerungsauswahlen wurden erfolgreich gespeichert.</t>
+        </tm>
+        <tm id="Quiz_Score_Page_Message_Before">
+            <t lang="en">You scored</t>
+            <t lang="fr">Vous avez obtenu un score de</t>
+            <t lang="de">Sie haben</t>
+        </tm>
+        <tm id="Quiz_Score_Page_Message_After">
+            <t lang="en">out of %n% questions</t>
+            <t lang="fr">sur %n% questions</t>
+            <t lang="de">von %n% der Fragen</t>
+        </tm>
+        <tm id="Quiz_Access_Code_Message">
+            <t lang="en">Please enter the access code to unlock this quiz.</t>
+        </tm>
+        <tm id="Quiz_Access_After_Message">
+            <t lang="en">Before accessing this quiz, you need to pass the following quizzes:</t>
+        </tm>
+        <tm id="Assistant_Introduction_Chapter_Message">
+            <t lang="en">The Assistant is unavailable for book introductions. To use it, please move to one of the chapters.</t>
+            <t lang="fr">L&apos;Assistant n&apos;est pas disponible pour les introductions de livres. Pour l&apos;utiliser, veuillez passer à l&apos;un des chapitres.</t>
+            <t lang="es">El Asistente no está disponible para las introducciones de libros. Para usarlo, por favor pase a uno de los capítulos.</t>
+            <t lang="de">Der Assistent ist für Bucheinführungen nicht verfügbar. Um ihn zu verwenden, gehen Sie bitte zu einem der Kapitel.</t>
+        </tm>
+        <tm id="Text_Copied">
+            <t lang="en">Text copied</t>
+            <t lang="fr">Texte copié</t>
+            <t lang="es">Texto copiado</t>
+            <t lang="de">Text kopiert</t>
+        </tm>
+        <tm id="Version_Number">
+            <t lang="en">Version %s</t>
+            <t lang="fr">Version %s</t>
+            <t lang="es">Versión %s</t>
+            <t lang="de">Version %s</t>
+        </tm>
+        <tm id="Security_Calculator">
+            <t lang="en">Calculator</t>
+            <t lang="fr">Calculatrice</t>
+            <t lang="es">Calculadora</t>
+            <t lang="de">Taschenrechner</t>
+        </tm>
+        <tm id="Security_Device_Id">
+            <t lang="en">Device ID</t>
+            <t lang="fr">ID de l&apos;appareil</t>
+            <t lang="es">ID del aparato</t>
+            <t lang="de">Geräte-ID</t>
+        </tm>
+        <tm id="Security_Enter_PIN">
+            <t lang="en">Please enter your PIN</t>
+            <t lang="fr">Veuillez saisir votre code</t>
+            <t lang="es">Por favor ingrese su PIN</t>
+            <t lang="de">Bitte geben Sie Ihre PIN ein</t>
+        </tm>
+        <tm id="Security_Incorrect_PIN">
+            <t lang="en">Incorrect PIN</t>
+            <t lang="fr">Code incorrect</t>
+            <t lang="es">PIN Incorrecto</t>
+            <t lang="de">Falsche PIN</t>
+        </tm>
+        <tm id="User_Missing_Fields">
+            <t lang="en">Please complete the following fields to continue:</t>
+            <t lang="fr">Veuillez remplir les champs suivants pour continuer :</t>
+            <t lang="de">Bitte füllen Sie die folgenden Felder aus, um fortzufahren:</t>
+        </tm>
+        <tm id="User_Check_Internet">
+            <t lang="en">Please check that you have an internet connection, then press the button again to continue.</t>
+            <t lang="fr">Veuillez vérifier que vous disposez d&apos;une connexion Internet, puis appuyez à nouveau sur le bouton pour continuer.</t>
+            <t lang="de">Bitte überprüfen Sie, ob Sie eine Internetverbindung haben, und drücken Sie dann erneut auf die Schaltfläche, um fortzufahren.</t>
+        </tm>
+        <tm id="User_Database_Sign_In_Error">
+            <t lang="en">Sorry, we were unable to sign in to the database server.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu nous connecter au serveur de la base de données.</t>
+            <t lang="de">Es tut uns leid, wir konnten uns nicht am Datenbankserver anmelden.</t>
+        </tm>
+        <tm id="User_Database_Add_User_Error">
+            <t lang="en">Sorry, we were unable to add this information to the online database.</t>
+            <t lang="fr">Désolé, nous n&apos;avons pas pu ajouter cette information à la base de données en ligne.</t>
+            <t lang="de">Es tut uns leid, wir konnten diese Information nicht in die Online-Datenbank aufnehmen.</t>
+        </tm>
+        <tm id="Language_en">
+            <t lang="en">English</t>
+            <t lang="fr">Anglais</t>
+            <t lang="es">Inglés</t>
+            <t lang="de">Englisch</t>
+        </tm>
+        <tm id="Language_fr">
+            <t lang="en">French</t>
+            <t lang="fr">Français</t>
+            <t lang="es">Francés</t>
+            <t lang="de">Französisch</t>
+        </tm>
+        <tm id="Language_am">
+            <t lang="en">Amharic</t>
+            <t lang="fr">Amharique</t>
+            <t lang="es">Amárico</t>
+        </tm>
+        <tm id="Language_ar">
+            <t lang="en">Arabic</t>
+            <t lang="fr">Arabe</t>
+            <t lang="de">Arabisch</t>
+            <t lang="es">Árabe</t>
+        </tm>
+        <tm id="Language_az">
+            <t lang="en">Azerbaijani</t>
+            <t lang="fr">Azéri</t>
+            <t lang="de">Aserbaidschanisch</t>
+            <t lang="es">Azerbaiyán</t>
+        </tm>
+        <tm id="Language_de">
+            <t lang="en">German</t>
+            <t lang="fr">Allemand</t>
+            <t lang="de">Deutsch</t>
+            <t lang="es">Alemán</t>
+        </tm>
+        <tm id="Language_es">
+            <t lang="en">Spanish</t>
+            <t lang="fr">Espagnol</t>
+            <t lang="es">Español</t>
+            <t lang="de">Spanisch</t>
+        </tm>
+        <tm id="Language_fa">
+            <t lang="en">Farsi</t>
+            <t lang="fr">Farsi</t>
+            <t lang="es">Farsi</t>
+            <t lang="de">Farsi</t>
+        </tm>
+        <tm id="Language_hi">
+            <t lang="en">Hindi</t>
+            <t lang="fr">Hindi</t>
+            <t lang="es">Hindi</t>
+            <t lang="de">Hindi</t>
+        </tm>
+        <tm id="Language_id">
+            <t lang="en">Indonesian</t>
+            <t lang="fr">Indonesien</t>
+            <t lang="es">Indonesio</t>
+            <t lang="de">Indonesisch</t>
+        </tm>
+        <tm id="Language_ko">
+            <t lang="en">Korean</t>
+            <t lang="fr">Coréen</t>
+            <t lang="es">Coreano</t>
+            <t lang="de">Koreanisch</t>
+        </tm>
+        <tm id="Language_mal">
+            <t lang="en">Malayalam</t>
+            <t lang="fr">Malayalam</t>
+            <t lang="es">Malabar</t>
+            <t lang="de">Malayalam</t>
+        </tm>
+        <tm id="Language_ms">
+            <t lang="en">Bahasa Melayu</t>
+            <t lang="fr">Bahasa Melayu</t>
+            <t lang="es">Bahasa Melayu</t>
+            <t lang="de">Bahasa Melayu</t>
+        </tm>
+        <tm id="Language_my">
+            <t lang="en">Burmese</t>
+            <t lang="fr">Birman</t>
+            <t lang="es">Birmano</t>
+        </tm>
+        <tm id="Language_nl">
+            <t lang="en">Dutch</t>
+            <t lang="fr">Néerlandais</t>
+            <t lang="es">Holandés</t>
+            <t lang="de">Niederländisch</t>
+        </tm>
+        <tm id="Language_pt">
+            <t lang="en">Portuguese</t>
+            <t lang="fr">Portugais</t>
+            <t lang="es">Portugués</t>
+            <t lang="de">Portugiesisch</t>
+        </tm>
+        <tm id="Language_ru">
+            <t lang="en">Russian</t>
+            <t lang="fr">Russe</t>
+            <t lang="es">Ruso</t>
+            <t lang="de">Russisch</t>
+        </tm>
+        <tm id="Language_sr">
+            <t lang="en">Serbian</t>
+            <t lang="fr">Serbe</t>
+            <t lang="es">Serbio</t>
+        </tm>
+        <tm id="Language_sw">
+            <t lang="en">Swahili</t>
+            <t lang="fr">Swahili</t>
+            <t lang="es">Suajili</t>
+        </tm>
+        <tm id="Language_ta">
+            <t lang="en">Tamil</t>
+            <t lang="fr">Tamoul</t>
+            <t lang="es">Tamil</t>
+        </tm>
+        <tm id="Language_te">
+            <t lang="en">Telugu</t>
+            <t lang="fr">Télougou</t>
+            <t lang="es">Telugu</t>
+            <t lang="de">Telugu</t>
+        </tm>
+        <tm id="Language_th">
+            <t lang="en">Thai</t>
+            <t lang="fr">Thaï</t>
+            <t lang="es">Tailandés</t>
+            <t lang="de">Thailändisch</t>
+        </tm>
+        <tm id="Language_tr">
+            <t lang="en">Turkish</t>
+            <t lang="es">Turco</t>
+            <t lang="fr">Turc</t>
+            <t lang="de">Türkisch</t>
+        </tm>
+        <tm id="Language_uk">
+            <t lang="en">Ukrainian</t>
+            <t lang="fr">Ukrainien</t>
+            <t lang="es">Ucraniano</t>
+            <t lang="de">Ukrainisch</t>
+        </tm>
+        <tm id="Language_vi">
+            <t lang="en">Vietnamese</t>
+            <t lang="fr">Vietnamien</t>
+            <t lang="es">Vietnamita</t>
+            <t lang="de">Vietnamesisch</t>
+        </tm>
+        <tm id="Language_zh">
+            <t lang="en">Chinese (Simplified)</t>
+            <t lang="fr">Chinois (simplifié)</t>
+            <t lang="es">Chino (Simplificado)</t>
+            <t lang="de">Chinesisch (Kurzzeichen)</t>
+        </tm>
+        <tm id="Language_zu">
+            <t lang="en">Zulu</t>
+            <t lang="fr">Zoulou</t>
+            <t lang="es">Zulú</t>
+            <t lang="de">Zulu</t>
+        </tm>
+        <tm id="Chapter_Introduction_Title">
+            <t lang="en">Introduction</t>
+            <t lang="fr">Introduction</t>
+            <t lang="es">Introducción</t>
+            <t lang="de">Einführung</t>
+        </tm>
+        <tm id="Chapter_Introduction_Symbol">
+            <t lang="en">i</t>
+            <t lang="fr">i</t>
+            <t lang="es">i</t>
+            <t lang="de">i</t>
+        </tm>
+        <tm id="Share_Apk_Link">
+            <t lang="en">Share Link to App Installer File</t>
+            <t lang="fr">Partager le lien vers le fichier d&apos;installation de l&apos;appli</t>
+            <t lang="es">Compartir enlace al archivo del instalador de la aplicación</t>
+            <t lang="de">Link zur App-Datei weitergeben</t>
+        </tm>
+        <tm id="Download_APK">
+            <t lang="en">Download APK</t>
+            <t lang="fr">Télécharger l&apos;APK</t>
+            <t lang="es">Descargar APK</t>
+            <t lang="de">APK herunterladen</t>
+        </tm>
+        <tm id="Settings_Glossary_Words">
+            <t lang="en">Show glossary words</t>
+            <t lang="fr">Montrer mots du glossaire</t>
+            <t lang="es">Mostrar palabras del glosario</t>
+            <t lang="de">Wörter im Glossar anzeigen</t>
+        </tm>
+        <tm id="Security_Permission_Denied">
+            <t lang="en">This device does not have permission to use this app.</t>
+            <t lang="fr">Cet appareil n&apos;a pas la permission d&apos;utiliser cette application.</t>
+            <t lang="de">Dieses Gerät hat keine Berechtigung zur Nutzung dieser App.</t>
+        </tm>
+        <tm id="iOS_Photo_Library_Usage_Description">
+            <t lang="en">so we can give you a choice of background images</t>
+            <t lang="fr">pour nous permettre de vous donner un choix d&apos;images d&apos;arrière-plan</t>
+            <t lang="es">para que podamos ofrecerle una selección de imágenes de fondo</t>
+            <t lang="de">damit wir Ihnen eine Auswahl an Hintergrundbildern bieten können</t>
+        </tm>
+        <tm id="iOS_Photo_Library_Add_Usage_Description">
+            <t lang="en">so we can save the images you create</t>
+            <t lang="fr">pour nous permettre d&apos;enregistrer les images que vous créez</t>
+            <t lang="es">para que podamos guardar las imágenes que crea</t>
+        </tm>
+        <tm id="Editor_Insert">
+            <t lang="en">Insert Marker</t>
+            <t lang="fr">Insérer Marqueur</t>
+            <t lang="es">Insertar Marcador</t>
+            <t lang="de">Markierung einfügen</t>
+        </tm>
+        <tm id="Editor_Insert_Paragraph">
+            <t lang="en">Paragraph (\\p)</t>
+            <t lang="fr">Paragraphe (\\p)</t>
+            <t lang="es">Párrafo (\p)</t>
+            <t lang="de">Absatz (\\p)</t>
+        </tm>
+        <tm id="Editor_Insert_Poetry">
+            <t lang="en">Poetry (\\q1)</t>
+            <t lang="fr">Poesie (\\q1)</t>
+            <t lang="es">Poesía (\q1)</t>
+            <t lang="de">Gedicht (\\q1)</t>
+        </tm>
+        <tm id="Editor_Insert_SubHeading">
+            <t lang="en">Sub Heading (\\s)</t>
+            <t lang="fr">Sous-titre (\\s)</t>
+            <t lang="es">Subtítulo (\s)</t>
+            <t lang="de">Zwischenüberschrift (\\\s)</t>
+        </tm>
+        <tm id="Editor_Insert_Footnote">
+            <t lang="en">Footnote (\\f ...\\f*)</t>
+            <t lang="fr">Note (\\f ...\\f*)</t>
+            <t lang="es">Nota de pie de página (\f ...\f*)</t>
+            <t lang="de">Fußnote (\\\f …\\f*)</t>
+        </tm>
+        <tm id="Editor_Insert_Other">
+            <t lang="en">Other (\\)</t>
+            <t lang="fr">Autre (\\)</t>
+            <t lang="es">Otro (\\)</t>
+            <t lang="de">Sonstiges (\\\)</t>
+        </tm>
+        <tm id="Grandroid_Load_Fail">
+            <t lang="en">Sorry, the text may not display correctly on this device.</t>
+            <t lang="fr">Désolé, le texte peut ne pas s&apos;afficher correctement sur cet appareil.</t>
+            <t lang="es">Lamentablemente el texto no puede mostrarse correctamente en este dispositivo.</t>
+            <t lang="de">Verzeihung, eventuell wird der Text auf diesem Gerät nicht korrekt angezeigt.</t>
+        </tm>
+        <tm id="Grandroid_Load_Fail_42_43_Intel">
+            <t lang="en">Sorry, the text may not display correctly on Intel devices for Android 4.2 or 4.3.</t>
+            <t lang="fr">Désolé, le texte peut ne pas s&apos;afficher correctement sur les appareils Intel pour Android 4.2 ou 4.3.</t>
+            <t lang="es">Lamentablemente el texto no puede mostrarse correctamente en dispositivos Intel para Android 4.2 o 4.3.</t>
+            <t lang="de">Verzeihung, eventuell wird der Text auf Intel Geräten mit Android 4.2 oder 4.3 nicht korrekt angezeigt.</t>
+        </tm>
+        <tm id="Grandroid_Load_Fail_42_43_Other">
+            <t lang="en">Sorry, the text may not display correctly on this device for Android 4.2 or 4.3.</t>
+            <t lang="fr">Désolé, le texte peut ne pas s&apos;afficher correctement sur cet appareil pour Android 4.2 ou 4.3.</t>
+            <t lang="es">Lamentablemente el texto no puede mostrarse correctamente en dispositivos Intel para Android 4.2 o 4.3.</t>
+            <t lang="de">Verzeihung, eventull wird der Text auf diesem Gerät mit Android 4.2 oder 4.3 nicht korrekt angezeigt.</t>
+        </tm>
+        <tm id="Account_Delete_Account">
+            <t lang="en">Delete Account</t>
+            <t lang="fr">Supprimer compte</t>
+            <t lang="de">Konto löschen</t>
+        </tm>
+        <tm id="Account_Delete_Account_Confirmation">
+            <t lang="en">Do you want to delete your account?\n\nAll your saved highlights, notes and bookmarks will be deleted.</t>
+            <t lang="fr">Voulez-vous supprimer votre compte ? Tous les surlignements, notes et signets que vous avez enregistrés seront supprimés.</t>
+            <t lang="de">Möchten Sie Ihr Konto löschen?\n\nAlle Ihre gespeicherten Highlights, Notizen und Lesezeichen werden gelöscht.</t>
+        </tm>
+        <tm id="Notification_Please_Allow_Info">
+            <t lang="en">Please allow the notification if you would like to receive a Verse of the Day and daily reminders.</t>
+            <t lang="fr">Vous pouvez recevoir un verset du jour et des rappels quotidiens.</t>
+            <t lang="de">Sie können einen Vers des Tages und tägliche Erinnerungen erhalten.</t>
+        </tm>
+        <tm id="Language_blsaahsdflasdf">
+            <t lang="en">Stuff</t>
+        </tm>
+    </translation-mappings>
+    <keys>
+        <key>D03B-4851-BF1E-6DEE</key>
+    </keys>
+</app-definition>

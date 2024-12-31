@@ -1,0 +1,4 @@
+#container { font-family: font1; direction: LTR; font-size: 20px; font-weight: normal; font-style: normal; color: var(--TextColor); }
+#content { padding-top: 16px; padding-bottom: 10px; }
+div.footer { direction: LTR; text-align: start; }
+span.footer { font-family: font1; font-size: 80%; }
