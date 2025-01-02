@@ -7,7 +7,9 @@ import { mkdir, readdir, readFile, rm, rmdir, stat, writeFile } from 'fs/promise
 import { compare, CompareFileHandler, DiffSet, Options } from 'dir-compare';
 import { fileCompareHandlers } from 'dir-compare';
 import { isText } from 'istextorbinary';
-import { decompressSync, strFromU8 } from 'fflate';
+import { strFromU8 } from 'fflate';
+import { PkBookSpec, PkTestLogger } from '../convertBooks';
+import { testApp1Books } from './bookSpecs/testApp1Books';
 
 const testDir = path.join('convert', 'test_apps');
 
@@ -114,6 +116,13 @@ async function assertConversionsEqual(actual: PathLike, expected: PathLike) {
     await assertCatalogsEqual(actual, expected);
 }
 
+function assertSetsEqual(actual: any[], expected: any[]) {
+    expect(actual.length).toBe(expected.length);
+    for (const item of expected) {
+        expect(actual).toContainEqual(item);
+    }
+}
+
 describe('Test apps', () => {
     test('Test app 1, no watch', async () => {
         const baseDir = path.join(testDir, 'test_app1');
@@ -131,8 +140,15 @@ describe('Test apps', () => {
             firebase: path.join(dirActual, 'config')
         };
         await setupOutDirs(outDirs);
+
+        // Capture book input to Proskomma
+        const bookSpecs: PkBookSpec[] = [];
+        PkTestLogger.instance().setOnBookCreated((spec) => bookSpecs.push(spec));
+
         const converter = new ConvertAll(params, outDirs);
         await converter.run();
         await assertConversionsEqual(dirActual, dirExpected);
+
+        assertSetsEqual(bookSpecs, testApp1Books);
     });
 });
