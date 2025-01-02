@@ -12,6 +12,37 @@ import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 
+export interface PkBookSpec {
+    lang: string;
+    abbr: string;
+    contentType: string;
+    content: string;
+    section: string;
+    testament: string;
+}
+
+/**
+ * Utility to log events for testing
+ */
+export class PkTestLogger {
+    private constructor() {}
+
+    private static _instance = new PkTestLogger();
+    private _onBookCreated = (spec: PkBookSpec) => {};
+
+    static instance() {
+        return this._instance;
+    }
+
+    onBookCreated(spec: PkBookSpec) {
+        this._onBookCreated(spec);
+    }
+
+    setOnBookCreated(callback: (spec: PkBookSpec) => void) {
+        this._onBookCreated = callback;
+    }
+}
+
 const base = process.env.BUILD_BASE_PATH || '';
 
 let bookCount = 0;
@@ -610,6 +641,46 @@ function updateExplanation(
     return explanation;
 }
 
+interface AddBookResult {
+    success: boolean;
+    error: string;
+}
+
+function createBook(pk: SABProskomma, spec: PkBookSpec): Promise<AddBookResult> {
+    PkTestLogger.instance().onBookCreated(spec);
+    //query Proskomma with a mutation to add a document
+    //more efficient than original pk.addDocument call
+    //as it can be run asynchronously
+    let resolveQuery: (result: AddBookResult) => void;
+    const promise = new Promise<AddBookResult>((resolve) => {
+        resolveQuery = resolve;
+    });
+    pk.gqlQuery(
+        `mutation {
+                addDocument(
+                    selectors: [
+                        {key: "lang", value: "${spec.lang}"},
+                        {key: "abbr", value: "${spec.abbr}"}
+                    ],
+                    contentType: "${spec.contentType}",
+                    content: """${spec.content}""",
+                    tags: [
+                        "sections:${spec.section}",
+                        "testament:${spec.testament}"
+                    ]
+                )
+            }`,
+        (r: any) => {
+            const success = r.data?.addDocument ? true : false;
+            resolveQuery({
+                success,
+                error: success ? '' : JSON.stringify(r)
+            });
+        }
+    );
+    return promise;
+}
+
 function convertScriptureBook(
     pk: SABProskomma,
     context: ConvertBookContext,
@@ -628,48 +699,32 @@ function convertScriptureBook(
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
             content = removeMissingVerses(content, context.bcId, book.id);
         }
-        //query Proskomma with a mutation to add a document
-        //more efficient than original pk.addDocument call
-        //as it can be run asynchronously
         //process.stdout.write(`Adding: ${book.file}\n${content}\n`);
-        pk.gqlQuery(
-            `mutation {
-                addDocument(
-                    selectors: [
-                        {key: "lang", value: "${context.lang}"}, 
-                        {key: "abbr", value: "${context.bcId}"}
-                    ], 
-                    contentType: "${book.file.split('.').pop()}", 
-                    content: """${content}""",
-                    tags: [
-                        "sections:${book.section}",
-                        "testament:${book.testament}"
-                    ]
-                )
-            }`,
-            (r: any) => {
-                //log if document added successfully
-                if (context.verbose)
-                    console.log(
-                        (r.data?.addDocument ? '' : 'failed: ') +
-                            context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
-                    );
-                //if the document is not added successfully, the response returned by Proskomma includes an error message
-                if (!r.data?.addDocument) {
-                    const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
-                    throw Error(
-                        `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(r)}`
-                    );
-                } else {
-                    displayBookId(context.bcId, book.id);
-                }
-                resolve();
+        createBook(pk, {
+            lang: context.lang,
+            abbr: context.bcId,
+            contentType: `${book.file.split('.').pop()}`,
+            content,
+            section: book.section,
+            testament: book.testament
+        }).then((result) => {
+            if (context.verbose)
+                console.log(
+                    (result.success ? '' : 'failed: ') +
+                        context.docSet +
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                );
+            if (result.success) {
+                displayBookId(context.bcId, book.id);
+            } else {
+                const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+                throw Error(`Adding document, likely not USFM? : ${bookPath}\n${result.error}`);
             }
-        );
+            resolve();
+        });
     }
     //push new Proskomma mutation to docs array
     docs.push(
