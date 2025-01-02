@@ -1233,6 +1233,9 @@
             <features type="book">
                 <e name="wj-marked" value="true"/>
             </features>
+            <additional-names>
+                <name>The First Gospel</name>
+            </additional-names>
         </book>
         <book id="MRK">
             <n>Mark</n>

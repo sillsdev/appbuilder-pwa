@@ -1201,6 +1201,11 @@ export default {
           "fonts": [],
           "id": "MAT",
           "name": "Matthew",
+          "additionalNames": [
+            {
+              "name": "The First Gospel"
+            }
+          ],
           "section": "Gospel",
           "testament": "NT",
           "abbreviation": "Mat",
