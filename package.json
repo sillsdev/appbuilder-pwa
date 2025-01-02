@@ -22,7 +22,7 @@
         "clean:all": "npm run clean && npm run clean:data",
         "test": "vitest",
         "test:ui": "vitest --ui",
-        "coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
