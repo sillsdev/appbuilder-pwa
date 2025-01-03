@@ -315,9 +315,11 @@ describe('goToInitial', async () => {
         expect(navContext.verse).toBe('1');
     });
 
-    test('call to goto before gotoInitial is error', () => {
+    test('call to goto before gotoInitial is error', async () => {
         const context = new TestNavigationContext(getTestCatalog, config);
-        expect(() => context.goto('eng_C01', 'MAT', '1', '2')).rejects.toThrowError('gotoInitial');
+        await expect(() => context.goto('eng_C01', 'MAT', '1', '2')).rejects.toThrowError(
+            'gotoInitial'
+        );
     });
 });
 

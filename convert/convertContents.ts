@@ -1,7 +1,7 @@
 import { cpSync, existsSync, readFileSync, rmSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
 import { ScriptureConfig } from '$config';
 
@@ -72,11 +72,12 @@ function decodeFromXml(input: string): string {
 
 export function convertContents(
     dataDir: string,
+    outDir: string,
     scriptureConfig: ScriptureConfig,
     verbose: number
 ) {
     const contentsDir = path.join(dataDir, 'contents');
-    const destDir = path.join('static', 'contents');
+    const destDir = path.join(outDir, 'contents');
     if (existsSync(contentsDir)) {
         cpSync(contentsDir, destDir, { recursive: true });
     } else {
@@ -264,14 +265,15 @@ export interface ContentsTaskOutput extends TaskOutput {
 export class ConvertContents extends Task {
     public triggerFiles: string[] = ['contents.xml', 'appdef.xml', 'contents'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
     }
+
     public run(verbose: number, outputs: Map<string, TaskOutput>): ContentsTaskOutput {
         const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
         const scriptureConfig = config.data as ScriptureConfig;
 
-        const data = convertContents(this.dataDir, scriptureConfig, verbose);
+        const data = convertContents(this.dataDir, this.outDirs.static, scriptureConfig, verbose);
         return {
             taskName: 'ConvertContents',
             data,

@@ -1,6 +1,6 @@
 import { readFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { FileContent, Task, TaskOutput } from './Task';
+import { FileContent, Task, TaskOutDirs, TaskOutput } from './Task';
 import type { DictionaryConfig } from '$config';
 
 interface ReversalEntry {
@@ -27,11 +27,12 @@ function getBaseLetter(char: string, alphabet: string[]): string | null {
 
 export function convertReverseIndex(
     dataDir: string,
+    staticDir: string,
     language: string,
     alphabet: string[]
 ): FileContent[] {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
-    const outputDir = path.join('static', 'reversal', language);
+    const outputDir = path.join(staticDir, 'reversal', language);
     const files: FileContent[] = [];
 
     if (!existsSync(indexFilePath)) {
@@ -121,8 +122,8 @@ export function convertReverseIndex(
 export class ConvertReverseIndex extends Task {
     public triggerFiles: string[] = ['reversal'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
     }
 
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
@@ -144,7 +145,12 @@ export class ConvertReverseIndex extends Task {
                     console.log(`Processing reversal index for language: ${lang}`);
                 }
 
-                const langFiles = convertReverseIndex(this.dataDir, lang, writingSystem.alphabet);
+                const langFiles = convertReverseIndex(
+                    this.dataDir,
+                    this.outDirs.static,
+                    lang,
+                    writingSystem.alphabet
+                );
                 files.push(...langFiles);
             }
         }

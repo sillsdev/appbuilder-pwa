@@ -153,10 +153,10 @@ describe('createQuery', () => {
         expect(response).toEqual(testNewQueryResponse);
     });
 
-    test('throw error on invalid response', () => {
+    test('throw error on invalid response', async () => {
         const io = new TestMessageIO(testInvalidResponse);
         const session = getTestSearchSession({ messageIO: io });
-        expect(() => session.createQuery('hello', testSearchOptions)).rejects.toThrow(
+        await expect(() => session.createQuery('hello', testSearchOptions)).rejects.toThrow(
             testInvalidResponse.type
         );
     });
