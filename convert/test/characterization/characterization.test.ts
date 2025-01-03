@@ -1,5 +1,5 @@
 import { existsSync, PathLike, Stats } from 'fs';
-import { ConversionParams, ConvertAll } from '../convertAll';
+import { ConversionParams, ConvertAll } from '../../convertAll';
 import path from 'path';
 import { Task, TaskOutDirs } from 'Task';
 import { test, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest';
@@ -8,14 +8,14 @@ import { compare, CompareFileHandler, DiffSet, Options } from 'dir-compare';
 import { fileCompareHandlers } from 'dir-compare';
 import { isText } from 'istextorbinary';
 import { strFromU8 } from 'fflate';
-import { PkBookSpec, PkTestLogger } from '../convertBooks';
+import { PkBookSpec, PkTestLogger } from '../../convertBooks';
 import { testApp1Books } from './bookSpecs/testApp1Books';
 
 interface TestAppOutput {
     bookSpecs: PkBookSpec[];
 }
 
-const testDir = path.join('convert', 'test_apps');
+const testAppsDir = path.join('convert', 'test', 'characterization', 'test_apps');
 
 async function createEmptyDir(path: PathLike) {
     if (existsSync(path)) {
@@ -159,7 +159,7 @@ async function runAndVerifyTestApp(
 
 describe('Test apps', () => {
     test('Test app 1, no watch', async () => {
-        const baseDir = path.join(testDir, 'test_app1');
+        const baseDir = path.join(testAppsDir, 'test_app1');
         const dirActual = path.join(baseDir, 'actual');
         const dirExpected = path.join(baseDir, 'expected');
 

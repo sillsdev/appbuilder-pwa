@@ -22,7 +22,8 @@
         "clean:all": "npm run clean && npm run clean:data",
         "test": "vitest --exclude \"**/characterization.test.ts\"",
         "test:ui": "vitest --ui --exclude \"**/characterization.test.ts\"",
-        "test:characterization": "vitest"
+        "test:characterization": "vitest",
+        "test:snapshot": "rimraf --glob **/characterization/**/expected && vitest"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
