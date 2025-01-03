@@ -1,7 +1,7 @@
 import { existsSync, PathLike, Stats } from 'fs';
 import { ConversionParams, ConvertAll } from '../convertAll';
 import path from 'path';
-import { TaskOutDirs } from 'Task';
+import { Task, TaskOutDirs } from 'Task';
 import { test, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest';
 import { mkdir, readdir, readFile, rm, rmdir, stat, writeFile } from 'fs/promises';
 import { compare, CompareFileHandler, DiffSet, Options } from 'dir-compare';
@@ -10,6 +10,10 @@ import { isText } from 'istextorbinary';
 import { strFromU8 } from 'fflate';
 import { PkBookSpec, PkTestLogger } from '../convertBooks';
 import { testApp1Books } from './bookSpecs/testApp1Books';
+
+interface TestAppOutput {
+    bookSpecs: PkBookSpec[];
+}
 
 const testDir = path.join('convert', 'test_apps');
 
@@ -20,10 +24,17 @@ async function createEmptyDir(path: PathLike) {
     await mkdir(path);
 }
 
-async function setupOutDirs(outDirs: TaskOutDirs) {
-    await createEmptyDir(outDirs.static);
-    await createEmptyDir(outDirs.config);
-    await createEmptyDir(outDirs.firebase);
+async function setupOutDirs(base: string): Promise<TaskOutDirs> {
+    const dirs = {
+        static: path.join(base, 'static'),
+        config: path.join(base, 'config'),
+        firebase: path.join(base, 'config')
+    };
+    await createEmptyDir(base);
+    await createEmptyDir(dirs.static);
+    await createEmptyDir(dirs.config);
+    await createEmptyDir(dirs.firebase);
+    return dirs;
 }
 
 /**
@@ -123,32 +134,46 @@ function assertSetsEqual(actual: any[], expected: any[]) {
     }
 }
 
+async function runTestApp(params: ConversionParams, outDir: string): Promise<TestAppOutput> {
+    const outSubdirs = await setupOutDirs(outDir);
+
+    // Capture book input to Proskomma
+    const bookSpecs: PkBookSpec[] = [];
+    PkTestLogger.instance().setOnBookCreated((spec) => bookSpecs.push(spec));
+
+    const converter = new ConvertAll(params, outSubdirs);
+    await converter.run();
+
+    return { bookSpecs };
+}
+
+async function runAndVerifyTestApp(
+    params: ConversionParams,
+    dirActual: string,
+    dirExpected: string
+) {
+    const output = await runTestApp(params, dirActual);
+    await assertConversionsEqual(dirActual, dirExpected);
+    assertSetsEqual(output.bookSpecs, testApp1Books);
+}
+
 describe('Test apps', () => {
     test('Test app 1, no watch', async () => {
         const baseDir = path.join(testDir, 'test_app1');
         const dirActual = path.join(baseDir, 'actual');
         const dirExpected = path.join(baseDir, 'expected');
+
         const params: ConversionParams = {
             dataDir: path.join(baseDir, 'input'),
             watch: false,
             watchTimeout: 0,
             verbose: 0
         };
-        const outDirs: TaskOutDirs = {
-            static: path.join(dirActual, 'static'),
-            config: path.join(dirActual, 'config'),
-            firebase: path.join(dirActual, 'config')
-        };
-        await setupOutDirs(outDirs);
 
-        // Capture book input to Proskomma
-        const bookSpecs: PkBookSpec[] = [];
-        PkTestLogger.instance().setOnBookCreated((spec) => bookSpecs.push(spec));
-
-        const converter = new ConvertAll(params, outDirs);
-        await converter.run();
-        await assertConversionsEqual(dirActual, dirExpected);
-
-        assertSetsEqual(bookSpecs, testApp1Books);
+        if (existsSync(dirExpected)) {
+            await runAndVerifyTestApp(params, dirActual, dirExpected);
+        } else {
+            await runTestApp(params, dirExpected);
+        }
     });
 });

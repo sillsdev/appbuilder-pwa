@@ -20,9 +20,9 @@
         "clean": "rimraf .svelte-kit build src/lib/data/config.js src/lib/data/catalog.js src/lib/data/firebase-config.js src/lib/data/contents.js static/about.partial.html static/assets static/badges static/clips static/collections static/images static/fonts static/styles static/illustrations static/watermarks static/audio static/timings static/videos static/backgrounds static/icons static/borders static/plans static/quiz static/contents static/manifest.json static/data.sqlite && echo 🔔 Reminder: The project cannot be built until the conversion scripts are run again.",
         "clean:data": "rimraf --glob data/*",
         "clean:all": "npm run clean && npm run clean:data",
-        "test": "vitest",
-        "test:ui": "vitest --ui",
-        "test:coverage": "vitest run --coverage"
+        "test": "vitest --exclude \"**/characterization.test.ts\"",
+        "test:ui": "vitest --ui --exclude \"**/characterization.test.ts\"",
+        "test:characterization": "vitest"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
