@@ -389,7 +389,16 @@ LOGGING:
             console.warn('%s ignored: %s', usfmType, text);
         }
     };
+    const fixText = (text) => {
+        if (text === '| default=""') {
+            // HACK: Proskomma adds default="" to anonymous bars in text
+            // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
+            text = '| ';
+        }
+        return text;
+    };
     const addText = (workspace, text) => {
+        text = fixText(text);
         if (scriptureLogs?.text) {
             console.log('Adding text:', text);
         }
