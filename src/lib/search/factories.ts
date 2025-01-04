@@ -2,8 +2,8 @@ import { makeSearchQueryGenerator } from '$lib/search-worker/factories';
 import { ConfigRepository } from './data/repositories/config-repository';
 import { SearchConfigRepositoryImpl } from './data/repositories/search-config-repository-impl';
 import { SearchStorageRepositoryImpl } from './data/repositories/search-storage-repository-impl';
-import { SearchConfigManagerImpl } from './domain/search-config-manager-impl';
 import type { SearchPresenter } from './domain/interfaces/presentation-interfaces';
+import { SearchConfigManagerImpl } from './domain/search-config-manager-impl';
 import { SearchQueryManagerImpl } from './domain/search-query-manager-impl';
 import { SearchSession } from './domain/search-session';
 

@@ -1,10 +1,5 @@
-import {
-    RegexHelpers,
-    makeRegex as makeRegex,
-    makeRegexPattern,
-    type RegexOptions
-} from '../regex-helpers';
 import { afterAll, describe, expect, test, vi } from 'vitest';
+import { RegexHelpers, makeRegex, makeRegexPattern, type RegexOptions } from '../regex-helpers';
 
 const RegexToken = RegexHelpers.RegexToken;
 const RegexGroup = RegexHelpers.RegexGroup;

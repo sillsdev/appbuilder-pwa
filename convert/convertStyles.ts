@@ -1,8 +1,8 @@
-import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
-import path from 'path';
-import { TaskOutput, Task } from './Task';
-import { compareVersions } from './stringUtils';
 import { ConfigTaskOutput } from 'convertConfig';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import path from 'path';
+import { Task, TaskOutput } from './Task';
+import { compareVersions } from './stringUtils';
 export interface StylesTaskOutput extends TaskOutput {
     taskName: 'ConvertStyles';
 }

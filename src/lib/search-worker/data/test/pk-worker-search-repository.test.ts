@@ -1,16 +1,16 @@
+import type { SABProskomma } from '$lib/sab-proskomma';
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
+import type { MessageRequest, MessageResponse } from '$lib/utils/worker-messenger/message';
+import type { RequestHandler } from '$lib/utils/worker-messenger/messenger';
 import { describe, expect, test, vi } from 'vitest';
 import type {
     GQLBlockToken,
     GQLBookId,
     ProskommaSearchRepository
 } from '../interfaces/pk-search-repository';
-import { ProksommaWorkerSearchRepository } from '../repositories/pk-worker-search-repository';
-import type { MessageRequest, MessageResponse } from '$lib/utils/worker-messenger/message';
-import type { RequestHandler } from '$lib/utils/worker-messenger/messenger';
-import type { DocsetUrlResponse } from '../interfaces/responses';
-import type { SABProskomma } from '$lib/sab-proskomma';
 import { isDocsetUrlRequest } from '../interfaces/requests';
+import type { DocsetUrlResponse } from '../interfaces/responses';
+import { ProksommaWorkerSearchRepository } from '../repositories/pk-worker-search-repository';
 
 const testSearchOptions: SearchOptions = {
     docSet: 'test',

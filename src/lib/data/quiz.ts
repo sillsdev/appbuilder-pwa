@@ -1,5 +1,5 @@
-import { openDB, type DBSchema } from 'idb';
 import config from '$lib/data/config';
+import { openDB, type DBSchema } from 'idb';
 
 export interface QuizScore {
     date: number;

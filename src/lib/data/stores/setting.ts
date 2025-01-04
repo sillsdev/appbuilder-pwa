@@ -1,7 +1,7 @@
-import { writable, readable, get, derived } from 'svelte/store';
-import { setDefaultStorage, mergeDefaultStorage } from '$lib/data/stores/storage';
-import { getDefaultLanguage } from '$lib/data/language';
 import config from '$lib/data/config';
+import { getDefaultLanguage } from '$lib/data/language';
+import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
+import { derived, get, readable, writable } from 'svelte/store';
 
 export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
 export const SETTINGS_CATEGORY_NAVIGATION = 'Settings_Category_Navigation';

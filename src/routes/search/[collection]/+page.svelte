@@ -11,8 +11,7 @@
     import SearchResultList from '$lib/components/SearchResultList.svelte';
     import { onMount, tick, type ComponentEvents } from 'svelte';
     import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
-
+    import { getRoute } from '$lib/navigate';
     export let data;
 
     let phrase: string;
@@ -50,7 +49,7 @@
     const session = makeSearchSession(presenter);
 
     function handleSubmit(event: ComponentEvents<SearchForm>['submit']) {
-        goto(`${base}/search/${data.collection}?savedResults=true`);
+        goto(getRoute(`/search/${data.collection}?savedResults=true`));
         queryId++;
         const options = {
             collection: data.collection,

@@ -7,6 +7,10 @@
  **/
 
 import {
+    convertDigitsInStringToDefaultNumeralSystem,
+    getIntFromNumberString
+} from './numeralUtils';
+import {
     containsRomanScriptLetter,
     getFirstDigitsAsInt,
     getIntFromString,
@@ -15,10 +19,6 @@ import {
     splitString,
     stripAllExceptDigitsAndHyphens
 } from './stringUtils';
-import {
-    convertDigitsInStringToDefaultNumeralSystem,
-    getIntFromNumberString
-} from './numeralUtils';
 
 export function getReferenceFromString(
     reference: string

@@ -1,10 +1,14 @@
-import { refs } from '$lib/data/stores';
-import { addHistory, type HistoryItem } from '$lib/data/history';
 import { goto } from '$app/navigation';
 import { base } from '$app/paths';
-import { get } from 'svelte/store';
 import { logScreenView } from '$lib/data/analytics';
 import { playStop } from '$lib/data/audio';
+import { addHistory, type HistoryItem } from '$lib/data/history';
+import { refs } from '$lib/data/stores';
+import { get } from 'svelte/store';
+
+export function getRoute(route: string) {
+    return `${base}/#${route}`;
+}
 
 function logHistoryItemAdded(itemAdded: HistoryItem) {
     logScreenView(itemAdded);
@@ -12,7 +16,7 @@ function logHistoryItemAdded(itemAdded: HistoryItem) {
 
 export function navigateToUrl(item: { collection: string; book: string; url: string }) {
     addHistory({ ...item, chapter: '' }, logHistoryItemAdded);
-    goto(item.url);
+    goto(getRoute(item.url));
 }
 
 export async function navigateToText(item: {
@@ -33,14 +37,14 @@ export async function navigateToText(item: {
         { collection: item.collection, book: item.book, chapter: item.chapter, verse: item.verse },
         logHistoryItemAdded
     );
-    goto(`${base}/text`);
+    goto(getRoute('/text'));
 }
 
 export async function navigateToTextReference(reference: string) {
     playStop();
     await refs.setReference(reference);
     const nowRef: any = get(refs);
-    goto(`${base}/text`);
+    goto(getRoute('/text'));
     addHistory(
         {
             collection: nowRef.collection,

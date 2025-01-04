@@ -1,12 +1,12 @@
 import type { SearchResult } from '$lib/search/domain/entities';
 import type { SearchOptions, SearchQuery } from '$lib/search/domain/interfaces/data-interfaces';
+import type { Message, MessageResponse } from '$lib/utils/worker-messenger/message';
 import type { MessageIO, RequestHandler } from '$lib/utils/worker-messenger/messenger';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import type { ExternalQueryOptions } from '../interfaces/domain-interfaces';
-import { SearchSessionExternal } from '../search-session-external';
 import { isNewQueryRequest, type NewQueryRequest } from '../interfaces/requests';
 import type { NewQueryResponse } from '../interfaces/responses';
-import type { Message, MessageResponse } from '$lib/utils/worker-messenger/message';
+import { SearchSessionExternal } from '../search-session-external';
 
 const testMessageRequest: MessageResponse = {
     type: 'test-request'

@@ -62,10 +62,10 @@ heavily modified because it did not support more than 2 panes and touch was not 
 <div
     class="wrapper"
     bind:this={container}
-    on:pointermove={onPointermove}
-    on:pointerup={onPointerup}
-    on:pointerleave={onPointerup}
-    on:pointercancel={onPointerup}
+    onpointermove={onPointermove}
+    onpointerup={onPointerup}
+    onpointerleave={onPointerup}
+    onpointercancel={onPointerup}
 >
     {#each panes as p, i}
         <div class="pane" style="width: {widths[i]}%" bind:this={paneElems[i]}>
@@ -76,8 +76,8 @@ heavily modified because it did not support more than 2 panes and touch was not 
                 class="separator"
                 bind:this={separators[i]}
                 style="left: {edges[i]}%"
-                on:pointerdown={(e) => onPointerdown(e, i)}
-            />
+                onpointerdown={(e) => onPointerdown(e, i)}
+            ></div>
         {/if}
     {/each}
 </div>

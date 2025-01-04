@@ -1,9 +1,9 @@
+import { ScriptureConfig } from '$config';
 import { cpSync, existsSync, readFileSync, rmSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { Task, TaskOutput } from './Task';
 import { ConfigTaskOutput } from './convertConfig';
-import { ScriptureConfig } from '$config';
 
 type ContentItem = {
     id: number;

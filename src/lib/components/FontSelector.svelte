@@ -3,9 +3,9 @@
 Font Selector component.
 -->
 <script>
-    import Modal from './Modal.svelte';
-    import FontList from './FontList.svelte';
     import { convertStyle, currentFont, currentFonts, refs, s, t } from '$lib/data/stores';
+    import FontList from './FontList.svelte';
+    import Modal from './Modal.svelte';
 
     const modalId = 'fontSelector';
     let modal;
@@ -37,7 +37,7 @@ Font Selector component.
             <button
                 style={convertStyle($s['ui.dialog.button'])}
                 class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                on:click={() => handleOk()}>{$t['Button_OK']}</button
+                onclick={() => handleOk()}>{$t['Button_OK']}</button
             >
         </div>
     </svelte:fragment>

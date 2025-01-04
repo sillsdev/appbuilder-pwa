@@ -1,5 +1,5 @@
-import { getNotes } from '$lib/data/notes';
 import config from '$lib/data/config';
+import { getNotes } from '$lib/data/notes';
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ depends }) {

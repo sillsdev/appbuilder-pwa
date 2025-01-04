@@ -3,7 +3,7 @@
 A simple dropdown menu from DaisyUI.
 -->
 <script lang="ts">
-    import { s, convertStyle } from '$lib/data/stores';
+    import { convertStyle, s } from '$lib/data/stores';
     import { createEventDispatcher, onDestroy } from 'svelte';
     export let cols = 6;
     const dispatch = createEventDispatcher();
@@ -38,7 +38,7 @@ A simple dropdown menu from DaisyUI.
 
 <!-- https://github.com/saadeghi/daisyui/discussions/2469 
      how to make dropdown align with screen instead of label -->
-<details bind:this={details} class="dy-dropdown max-sm:[position:unset]" on:toggle={onToggle}>
+<details bind:this={details} class="dy-dropdown max-sm:[position:unset]" ontoggle={onToggle}>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <summary class="dy-btn dy-btn-ghost p-0.5 no-animation flex-nowrap">
         <slot name="label" />
@@ -50,7 +50,7 @@ A simple dropdown menu from DaisyUI.
         class:min-w-[22rem]={cols == 6}
         class:min-w-[18rem]={cols == 5}
         style={convertStyle($s['ui.background'])}
-        on:blur={() => dispatch('nav-end')}
+        onblur={() => dispatch('nav-end')}
     >
         <slot name="content" />
     </div>

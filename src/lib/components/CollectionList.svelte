@@ -3,9 +3,9 @@
 Custom list of collections for the LayoutOptions menu
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { themeColors, convertStyle, s } from '$lib/data/stores';
     import { base } from '$app/paths';
+    import { themeColors } from '$lib/data/stores';
+    import { createEventDispatcher } from 'svelte';
 
     // array of all selectable docsets
     export let docSets: App.CollectionEntry[] = [];
@@ -28,7 +28,7 @@ Custom list of collections for the LayoutOptions menu
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-interactive-supports-focus -->
             <a
-                on:click={() => handleClick(d)}
+                onclick={() => handleClick(d)}
                 style:background-color={selectedLayouts.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}

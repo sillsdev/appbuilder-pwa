@@ -1,9 +1,9 @@
 import type { ScriptureConfig } from '$config';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
-import { ConfigTaskOutput } from './convertConfig';
 import { PlanDataItem, PlansData } from '../src/lib/data/plansData';
+import { Task, TaskOutput } from './Task';
+import { ConfigTaskOutput } from './convertConfig';
 
 function changeFileExtension(filename: string, ext: string): string {
     const lastDotIndex = filename.lastIndexOf('.');

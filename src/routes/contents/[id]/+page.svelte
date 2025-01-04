@@ -13,14 +13,14 @@
         MODAL_TEXT_APPEARANCE,
         contentsFontSize
     } from '$lib/data/stores';
-    import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
+    import { compareVersions } from '$lib/scripts/stringUtils';
     import { base } from '$app/paths';
-    import { refs } from '$lib/data/stores';
     import { navigateToText } from '$lib/navigate';
     import { goto } from '$app/navigation';
     import config from '$lib/data/config';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import { getRoute } from '$lib/navigate';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -62,14 +62,14 @@
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
-                await goto(`${base}/contents/${item.linkTarget}`);
+                await goto(getRoute(`/contents/${item.linkTarget}`));
                 break;
             case 'other':
                 //switch on item.linkLocation
                 switch (item.linkLocation) {
                     case 'about':
                     case 'settings':
-                        goto(`${base}/${item.linkLocation}`);
+                        goto(getRoute(`/${item.linkLocation}`));
                         break;
                     case 'layout':
                         modal.open(MODAL_COLLECTION);
@@ -85,7 +85,7 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                goto(`${base}/${item.linkLocation}`);
+                goto(getRoute(`/${item.linkLocation}`));
                 break;
         }
     }
@@ -164,7 +164,7 @@
         event.preventDefault();
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(`${base}/contents/${menuId}`);
+            goto(getRoute(`/contents/${menuId}`));
         }
     }
     $: showBackButton = $contentsStack.length > 0;
@@ -187,7 +187,7 @@
                         <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                         <label
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                            on:click={() =>
+                            onclick={() =>
                                 modal.open(MODAL_TEXT_APPEARANCE, { contentsMode: true })}
                         >
                             <TextAppearanceIcon color="white" />
@@ -208,7 +208,7 @@
                 <div
                     class="contents-item-block contents-link-ref"
                     id={item.id}
-                    on:click={(event) => onClick(event, item)}
+                    onclick={(event) => onClick(event, item)}
                 >
                     <!--check for the various elements in the item-->
                     {#if item.audioFilename[$language] || item.audioFilename.default}
@@ -216,7 +216,7 @@
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <div
                             class="contents-item-audio-image"
-                            on:click={(event) => playAudio(event, item)}
+                            onclick={(event) => playAudio(event, item)}
                         >
                             <AudioIcon.Volume></AudioIcon.Volume>
                         </div>

@@ -1,6 +1,6 @@
 <script>
-    import { AudioIcon } from '$lib/icons';
     import { s, t, userSettings } from '$lib/data/stores';
+    import { AudioIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
     let modalId = 'playback';
@@ -27,7 +27,7 @@
                     type="radio"
                     name="speed"
                     value="0.4"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '0.4'}
                 />
                 0.4x
@@ -37,7 +37,7 @@
                     type="radio"
                     name="speed"
                     value="0.6"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '0.6'}
                 />
                 0.6x
@@ -47,7 +47,7 @@
                     type="radio"
                     name="speed"
                     value="0.7"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '0.7'}
                 />
                 0.7x
@@ -57,7 +57,7 @@
                     type="radio"
                     name="speed"
                     value="0.8"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '0.8'}
                 />
                 0.8x
@@ -67,7 +67,7 @@
                     type="radio"
                     name="speed"
                     value="1"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '1.0'}
                 />
                 {$t['Settings_Audio_Speed_Normal']}
@@ -77,7 +77,7 @@
                     type="radio"
                     name="speed"
                     value="1.2"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '1.2'}
                 />
                 1.2x
@@ -87,7 +87,7 @@
                     type="radio"
                     name="speed"
                     value="1.4"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '1.4'}
                 />
                 1.4x
@@ -97,7 +97,7 @@
                     type="radio"
                     name="speed"
                     value="1.6"
-                    on:click={setPlaySpeed}
+                    onclick={setPlaySpeed}
                     checked={$userSettings['audio-speed'] === '1.6'}
                 />
                 1.6x

@@ -6,9 +6,7 @@ The navbar component. We have sliders that update reactively to both font size a
 <svelte:options accessors={true} />
 
 <script>
-    import Modal from './Modal.svelte';
-    import Slider from './Slider.svelte';
-    import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
+    import config from '$lib/data/config';
     import {
         bodyFontSize,
         bodyLineHeight,
@@ -18,13 +16,15 @@ The navbar component. We have sliders that update reactively to both font size a
         language,
         languages,
         modal,
+        MODAL_FONT,
         monoIconColor,
         theme,
         themeColors,
-        themes,
-        MODAL_FONT
+        themes
     } from '$lib/data/stores';
-    import config from '$lib/data/config';
+    import { ImageIcon, TextAppearanceIcon } from '$lib/icons';
+    import Modal from './Modal.svelte';
+    import Slider from './Slider.svelte';
 
     let modalId = 'textAppearanceSelector';
     let modalThis;
@@ -104,6 +104,7 @@ The navbar component. We have sliders that update reactively to both font size a
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <Modal bind:this={modalThis} id={modalId} useLabel={false} addCSS={positioningCSS}
         ><!--addCSS is a prop for injecting CSS into the modal-->
         <svelte:fragment slot="content">
@@ -158,7 +159,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             style:font-family={$currentFont}
                             style:font-size="large"
                             style:color={$monoIconColor}
-                            on:click={() => modal.open(MODAL_FONT)}
+                            onclick={() => modal.open(MODAL_FONT)}
                             >{config.fonts.find((x) => x.family === $currentFont).name}</button
                         >
                     </div>
@@ -175,24 +176,24 @@ The navbar component. We have sliders that update reactively to both font size a
                                 class="dy-btn-sm"
                                 style:background-color={buttonBackground('Normal')}
                                 style:border={buttonBorder('Normal', $theme)}
-                                on:click={() => ($theme = 'Normal')}
-                            />
+                                onclick={() => ($theme = 'Normal')}
+                            ></button>
                         {/if}
                         {#if themes.includes('Sepia')}
                             <button
                                 class="dy-btn-sm"
                                 style:background-color={buttonBackground('Sepia')}
                                 style:border={buttonBorder('Sepia', $theme)}
-                                on:click={() => ($theme = 'Sepia')}
-                            />
+                                onclick={() => ($theme = 'Sepia')}
+                            ></button>
                         {/if}
                         {#if themes.includes('Dark')}
                             <button
                                 class="dy-btn-sm"
                                 style:background-color={buttonBackground('Dark')}
                                 style:border={buttonBorder('Dark', $theme)}
-                                on:click={() => ($theme = 'Dark')}
-                            />
+                                onclick={() => ($theme = 'Dark')}
+                            ></button>
                         {/if}
                     </div>
                 {/if}

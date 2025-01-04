@@ -71,7 +71,7 @@
                 <div
                     id="google-play"
                     class="w-48 md:w-72 lg:w-[25rem]"
-                    on:click={() =>
+                    onclick={() =>
                         shareLink(
                             'Google Play',
                             `https://play.google.com/store/apps/details?id=${config.package}&hl=${$language}`
@@ -86,7 +86,7 @@
                 <div
                     id="apple-store"
                     class="w-48 md:w-64 lg:w-96"
-                    on:click={() =>
+                    onclick={() =>
                         shareLink(
                             'App Store',
                             `https://apps.apple.com/app/${config.mainFeatures['share-apple-id']}?l=${$language}`
@@ -107,7 +107,7 @@
                     />
                 </div>
             {/if}
-            <p />
+            <p></p>
         </div>
     </div>
 </div>

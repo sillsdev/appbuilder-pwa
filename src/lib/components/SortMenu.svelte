@@ -31,7 +31,7 @@ Dispatches a menuaction event when an option is selected from the menu.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-missing-attribute -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <li><a on:click={() => handleAction(a)}>{a}</a></li>
+            <li><a onclick={() => handleAction(a)}>{a}</a></li>
         {/each}
     </ul>
 </div>

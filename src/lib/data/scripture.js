@@ -1,11 +1,11 @@
-import { get } from 'svelte/store';
 import { base } from '$app/paths';
-import { SABProskomma } from '$lib/sab-proskomma';
-import { thaw } from '../scripts/thaw';
-import { pk } from '$lib/data/stores/pk';
 import config from '$lib/data/config';
+import { pk } from '$lib/data/stores/pk';
+import { SABProskomma } from '$lib/sab-proskomma';
+import { get } from 'svelte/store';
+import { thaw } from '../scripts/thaw';
 
-export async function initProskomma({ fetch }) {
+export async function initProskomma() {
     let proskomma = get(pk);
     if (!proskomma) {
         proskomma = new SABProskomma();
@@ -22,10 +22,17 @@ export async function initProskomma({ fetch }) {
     return proskomma;
 }
 
+/**
+ * @param {string} docSet
+ */
 export function getDocSetUrl(docSet) {
     return `${base}/collections/${docSet}.pkf`;
 }
 
+/**
+ * @param {string} docSet
+ * @param {(arg0: string) => any} fetch
+ */
 export async function fetchDocSet(docSet, fetch) {
     performance.mark('pk-fetch-start');
 
@@ -38,6 +45,11 @@ export async function fetchDocSet(docSet, fetch) {
     return new Uint8Array(buffer);
 }
 
+/**
+ * @param {import("proskomma-core").Proskomma} proskomma
+ * @param {string} docSet
+ * @param {(arg0: string) => any} fetch
+ */
 export async function loadDocSet(proskomma, docSet, fetch) {
     // console.log('fetch %o pkf', docSet);
     const data = await fetchDocSet(docSet, fetch);
@@ -50,6 +62,11 @@ export async function loadDocSet(proskomma, docSet, fetch) {
     }
 }
 
+/**
+ * @param {import("proskomma-core").Proskomma} proskomma
+ * @param {string} docSet
+ * @param {(arg0: string) => any} fetch
+ */
 export async function loadDocSetIfNotLoaded(proskomma, docSet, fetch) {
     performance.mark('pk-query-docset-start');
     const docslist = await proskomma.gqlQuery('{docSets { id } }');

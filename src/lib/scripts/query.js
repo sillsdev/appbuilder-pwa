@@ -1,5 +1,5 @@
 /**queries the proskomma endpoint*/
-export const query = async (query, cb) => {
+export const query = async (/** @type {string} */ query, /** @type {(arg0: any) => void} */ cb) => {
     const res = await fetch('/data/proskomma', {
         method: 'POST',
         body: JSON.stringify({

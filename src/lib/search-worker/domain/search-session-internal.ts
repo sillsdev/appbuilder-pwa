@@ -1,11 +1,7 @@
 import type { SearchResult } from '$lib/search/domain/entities';
 import type { QueryGenerator, SearchQuery } from '$lib/search/domain/interfaces/data-interfaces';
-import type {
-    ErrorResponse,
-    MessageRequest,
-    MessageResponse
-} from '$lib/utils/worker-messenger/message';
-import type { Messenger, MessageIO, RequestHandler } from '$lib/utils/worker-messenger/messenger';
+import type { MessageRequest, MessageResponse } from '$lib/utils/worker-messenger/message';
+import type { RequestHandler } from '$lib/utils/worker-messenger/messenger';
 import {
     isNewQueryRequest,
     isResultsRequest,

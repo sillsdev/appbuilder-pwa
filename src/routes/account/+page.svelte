@@ -14,6 +14,6 @@
         </Navbar>
     </div>
     <div class="overflow-y-auto">
-        <p />
+        <p></p>
     </div>
 </div>

@@ -1,10 +1,10 @@
-import { referenceStore } from './reference';
-import { writable, get, derived } from 'svelte/store';
-import { setDefaultStorage } from './storage';
-import { loadDocSetIfNotLoaded } from '../scripture';
+import { derived, get, writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
-import { pk } from './pk';
 import config from '../config';
+import { loadDocSetIfNotLoaded } from '../scripture';
+import { pk } from './pk';
+import { referenceStore } from './reference';
+import { setDefaultStorage } from './storage';
 
 function createStack() {
     const external = writable([]);

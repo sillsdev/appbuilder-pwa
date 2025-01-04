@@ -3,14 +3,14 @@
 The navbar component.
 -->
 <script>
+    import config from '$lib/data/config';
+    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import { DropdownIcon } from '$lib/icons';
+    import { navigateToText } from '$lib/navigate';
+    import * as numerals from '$lib/scripts/numeralSystem';
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
-    import { refs, nextRef, s, t, convertStyle, userSettingsOrDefault } from '$lib/data/stores';
-    import { DropdownIcon } from '$lib/icons';
-    import config from '$lib/data/config';
-    import * as numerals from '$lib/scripts/numeralSystem';
-    import { navigateToText } from '$lib/navigate';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
     let chapterSelector;

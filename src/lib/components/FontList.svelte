@@ -5,9 +5,9 @@ Font list component.
 <svelte:options accessors />
 
 <script>
-    import { createEventDispatcher } from 'svelte';
     import config from '$lib/data/config';
     import { fontChoices, monoIconColor, themeColors } from '$lib/data/stores';
+    import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();
     export let selectedFont;
@@ -27,7 +27,7 @@ Font list component.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-interactive-supports-focus -->
             <a
-                on:click={() => handleClick(font)}
+                onclick={() => handleClick(font)}
                 style:background-color={font === selectedFont
                     ? $themeColors['ButtonSelectedColor']
                     : ''}

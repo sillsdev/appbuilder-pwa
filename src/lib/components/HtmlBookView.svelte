@@ -3,8 +3,8 @@
 Display an HTML Book.
 -->
 <script lang="ts">
-    import config from '$lib/data/config';
     import { base } from '$app/paths';
+    import config from '$lib/data/config';
 
     export let references: any;
     export let bodyLineHeight: any;

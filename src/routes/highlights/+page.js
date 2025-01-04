@@ -1,5 +1,5 @@
-import { getHighlights } from '$lib/data/highlights';
 import config from '$lib/data/config';
+import { getHighlights } from '$lib/data/highlights';
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ depends }) {

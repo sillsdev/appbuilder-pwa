@@ -1,7 +1,7 @@
-import { analytics } from '$lib/data/stores';
 import config from '$lib/data/config';
-import type { HistoryItem } from './history';
+import { analytics } from '$lib/data/stores';
 import type { AudioPlayer } from './audio';
+import type { HistoryItem } from './history';
 
 export function getBook(item: { collection?: string; book: string }) {
     return config.bookCollections

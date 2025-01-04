@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest';
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
-import { SearchQueryInternal } from '../search-query-internal';
+import { describe, expect, test } from 'vitest';
 import type {
     QueryVerseProvider,
-    SearchCandidate,
-    ScriptureRepository
+    ScriptureRepository,
+    SearchCandidate
 } from '../interfaces/data-interfaces';
+import { SearchQueryInternal } from '../search-query-internal';
 
 const verse1 = {
     reference: {

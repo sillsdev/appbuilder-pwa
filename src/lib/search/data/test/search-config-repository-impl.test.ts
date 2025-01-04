@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
-import { SearchConfigRepositoryImpl } from '../repositories/search-config-repository-impl';
+import { expect, test } from 'vitest';
 import { ConfigRepository, type BookCollection } from '../repositories/config-repository';
+import { SearchConfigRepositoryImpl } from '../repositories/search-config-repository-impl';
 
 class TestConfigRepository extends ConfigRepository {
     searchAccentsToRemove(): string {

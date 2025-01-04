@@ -1,7 +1,7 @@
-import { Promisable, Task, TaskOutput } from './Task';
+import { copyFile, existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from './convertConfig';
-import { copyFile, existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import { Promisable, Task, TaskOutput } from './Task';
 
 export async function convertBadges(
     badgesDir: string,

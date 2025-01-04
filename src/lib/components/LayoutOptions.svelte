@@ -3,13 +3,21 @@
 Displays the three different layout option menus.  
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import Dropdown from './Dropdown.svelte';
-    import CollectionList from './CollectionList.svelte';
-    import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
-    import { themeColors, s, t, convertStyle, selectedLayouts } from '$lib/data/stores';
-    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
+    import {
+        convertStyle,
+        LAYOUT_SINGLE,
+        LAYOUT_TWO,
+        LAYOUT_VERSE_BY_VERSE,
+        s,
+        selectedLayouts,
+        t,
+        themeColors
+    } from '$lib/data/stores';
+    import { DropdownIcon } from '$lib/icons';
+    import { createEventDispatcher } from 'svelte';
+    import CollectionList from './CollectionList.svelte';
+    import Dropdown from './Dropdown.svelte';
 
     const dispatch = createEventDispatcher();
 

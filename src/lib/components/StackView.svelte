@@ -4,11 +4,10 @@
 -->
 
 <script>
-    import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
-
     import config from '$lib/data/config';
-    import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
+    import { footnotes, refs, themeColors } from '$lib/data/stores';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
+    import { splitString } from '$lib/scripts/stringUtils';
     export let bodyFontSize;
     export let bodyLineHeight;
     export let font;
@@ -57,6 +56,7 @@
         return;
     }
     async function insideClick(event) {
+        event.stopProgation();
         if (event.target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(event.target.getAttribute('data-start-ref'));
             let end =
@@ -107,7 +107,7 @@
         <div
             id="container"
             class="footnote rounded h-40 drop-shadow-lg overflow-y-auto"
-            on:click|stopPropagation={insideClick}
+            onclick={insideClick}
         >
             <div
                 id="container"

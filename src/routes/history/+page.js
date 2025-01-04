@@ -1,5 +1,5 @@
-import { getHistory } from '$lib/data/history';
 import config from '$lib/data/config';
+import { getHistory } from '$lib/data/history';
 
 /** @type {import('./$types').PageLoad} */
 export async function load() {

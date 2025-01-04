@@ -1,9 +1,5 @@
 import { thaw } from '$lib/scripts/thaw';
-import type {
-    QueryGenerator,
-    SearchOptions,
-    SearchQuery
-} from '$lib/search/domain/interfaces/data-interfaces';
+import type { SearchOptions, SearchQuery } from '$lib/search/domain/interfaces/data-interfaces';
 import type { Message } from '$lib/utils/worker-messenger/message';
 import { Messenger, type MessageIO } from '$lib/utils/worker-messenger/messenger';
 import { ProskommaSearchRepositoryImpl } from './data/repositories/pk-search-repository-impl';

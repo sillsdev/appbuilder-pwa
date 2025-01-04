@@ -1,7 +1,7 @@
-import { openDB, type DBSchema } from 'idb';
-import config from '$lib/data/config';
-import { writable } from 'svelte/store';
 import { invalidate } from '$app/navigation';
+import config from '$lib/data/config';
+import { openDB, type DBSchema } from 'idb';
+import { writable } from 'svelte/store';
 
 export interface NoteItem {
     date: number;

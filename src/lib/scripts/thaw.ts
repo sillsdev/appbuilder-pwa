@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="../../../sab-proskomma-tools/proskomma.d.ts"/>
-import { strFromU8, decompressSync } from 'fflate';
+import { decompressSync, strFromU8 } from 'fflate';
 import type { Proskomma } from 'proskomma-core';
 
 const thaw = (pk: Proskomma, frozen: Uint8Array, selectorFunc: any = null, idFunc: any = null) => {

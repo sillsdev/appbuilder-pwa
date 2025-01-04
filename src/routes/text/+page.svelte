@@ -52,13 +52,13 @@
     import { getFeatureValueString, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import { pinch, swipe } from 'svelte-gestures';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { base } from '$app/paths';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { onDestroy, onMount, afterUpdate } from 'svelte';
     import { slide } from 'svelte/transition';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import { getRoute } from '$lib/navigate';
 
     let scrollingUp = true;
     let savedScrollPosition = 0;
@@ -332,7 +332,7 @@
         event.preventDefault();
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(`${base}/contents/${menuId}`);
+            goto(getRoute(`/contents/${menuId}`));
         }
     }
     $: showBackButton =
@@ -359,7 +359,7 @@
             <div
                 slot="right-buttons"
                 class="flex flex-nowrap"
-                on:click={showOverlowMenu ? handleMenuClick : () => ({})}
+                onclick={showOverlowMenu ? handleMenuClick : () => ({})}
             >
                 <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
                 <div class="flex">
@@ -367,7 +367,7 @@
                         <!-- Mute/Volume Button -->
                         <button
                             class="dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={() => {
+                            onclick={() => {
                                 $audioActive = !$audioActive;
                             }}
                         >
@@ -385,7 +385,7 @@
                     <!-- Search Button -->
                     {#if showSearch}
                         <a
-                            href="{base}/search/{$refs.collection}"
+                            href={getRoute(`/search/${$refs.collection}`)}
                             class="dy-btn dy-btn-ghost dy-btn-circle"
                         >
                             <SearchIcon color="white" />
@@ -397,7 +397,7 @@
                     <label
                         for="textAppearanceSelector"
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                        on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                        onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
                         ><TextAppearanceIcon color="white" /></label
                     >
 
@@ -407,7 +407,7 @@
                         <label
                             for="collectionSelector"
                             class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                            on:click={() => modal.open(MODAL_COLLECTION)}
+                            onclick={() => modal.open(MODAL_COLLECTION)}
                             ><BibleIcon color="white" /></label
                         >
                     {/if}
@@ -416,7 +416,7 @@
                     <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
                     <button
                         class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => {
+                        onclick={() => {
                             showOverlowMenu = !showOverlowMenu;
                             event.stopPropagation();
                         }}
@@ -440,7 +440,7 @@
             style:top={navBarHeight}
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
-            on:click={() => modal.open(MODAL_COLLECTION)}
+            onclick={() => modal.open(MODAL_COLLECTION)}
         >
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
@@ -449,13 +449,13 @@
         class:borderimg={showBorder}
         class="overflow-y-auto"
         bind:this={scrollingDiv}
-        on:scroll={saveScrollPosition}
+        onscroll={saveScrollPosition}
     >
         <!-- flex causes the imported html to display outside of the view port. Use md: -->
         <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
-                    on:click={prevChapter}
+                    onclick={prevChapter}
                     class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
                     navigateBetweenBooksPrev
                         ? 'visible'
@@ -470,13 +470,13 @@
                         <div
                             class="max-w-screen-md mx-auto"
                             use:pinch
-                            on:pinch={doPinch}
+                            onpinch={doPinch}
                             use:swipe={{
                                 timeframe: 300,
                                 minSwipeDistance: 60,
                                 touchAction: 'pan-y'
                             }}
-                            on:swipe={doSwipe}
+                            onswipe={doSwipe}
                         >
                             {#if format === 'html'}
                                 <HtmlBookView {...viewSettings} />
@@ -489,7 +489,7 @@
             </div>
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
-                    on:click={nextChapter}
+                    onclick={nextChapter}
                     class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
                     navigateBetweenBooksNext
                         ? 'visible'

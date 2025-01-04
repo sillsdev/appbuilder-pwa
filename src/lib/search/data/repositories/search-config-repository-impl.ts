@@ -1,11 +1,10 @@
 import { language } from '$lib/data/stores';
+import { extendStringProperty } from '$lib/search-worker/utils/object-helpers';
 import { get } from 'svelte/store';
-
 import type {
     SearchConfigRepository,
     SubstitutionMap
 } from '../../domain/interfaces/data-interfaces';
-import { extendStringProperty } from '$lib/search-worker/utils/object-helpers';
 import type { ConfigRepository } from './config-repository';
 
 /**

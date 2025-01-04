@@ -13,7 +13,6 @@ import type {
 } from '../interfaces/domain-interfaces';
 import type { SearchPresenter, UserSearchOptions } from '../interfaces/presentation-interfaces';
 import { SearchSession } from '../search-session';
-import { relative } from 'path';
 
 class TestPresenter implements SearchPresenter {
     phrase: string;

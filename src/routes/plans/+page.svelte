@@ -85,7 +85,7 @@
                     name="my_tabs_1"
                     role="tab"
                     class="dy-tab dy-tab-bordered {selectedTab === 'in-use' ? 'dy-tab-active' : ''}"
-                    on:click={() => (selectedTab = 'in-use')}
+                    onclick={() => (selectedTab = 'in-use')}
                     aria-label={$t['Plans_Tab_My_Plans']}
                     style={convertStyle($s['ui.plans.tabs.text'])}
                 />
@@ -95,7 +95,7 @@
                 name="my_tabs_1"
                 role="tab"
                 class="dy-tab {selectedTab === 'available' ? 'dy-tab-active' : ''}"
-                on:click={() => (selectedTab = 'available')}
+                onclick={() => (selectedTab = 'available')}
                 aria-label={$t['Plans_Tab_Choose_Plan']}
                 style={convertStyle($s['ui.plans.tabs.text'])}
             />
@@ -107,7 +107,7 @@
                     class="dy-tab dy-tab-bordered {selectedTab === 'completed'
                         ? 'dy-tab-active'
                         : ''}"
-                    on:click={() => (selectedTab = 'completed')}
+                    onclick={() => (selectedTab = 'completed')}
                     aria-label={$t['Plans_Tab_Completed_Plans']}
                     style={convertStyle($s['ui.plans.tabs.text'])}
                 />
@@ -124,7 +124,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                            onclick={() => goto(getRoute(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -156,7 +156,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                            onclick={() => goto(getRoute(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -188,7 +188,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                            onclick={() => goto(getRoute(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">

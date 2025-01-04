@@ -3,8 +3,8 @@
 A component to display menu options in a list.
 -->
 <script lang="ts">
+    import { convertStyle, s, theme, themeColors } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
-    import { s, convertStyle, themeColors, theme } from '$lib/data/stores';
     export let options: App.GridGroup[] = [];
 
     const dispatch = createEventDispatcher();
@@ -44,12 +44,12 @@ A component to display menu options in a list.
         </div>
     {/if}
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-    <div class="flex flex-wrap" on:mouseover={handleHover} on:mouseout={handleHoverEnd}>
+    <div class="flex flex-wrap" onmouseover={handleHover} onmouseout={handleHoverEnd}>
         {#each group.cells as cell}
             <!-- svelte-ignore a11y-interactive-supports-focus -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div
-                on:click={() => handleClick(cell)}
+                onclick={() => handleClick(cell)}
                 id={cell.id}
                 class="menu ps-2 cursor-pointer min-w-[16rem] flex-grow flex items-center"
                 style={rowStyle}

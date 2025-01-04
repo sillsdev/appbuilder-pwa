@@ -4,19 +4,18 @@
     import { language, t } from '$lib/data/stores';
     import { addPlanState } from '$lib/data/planStates';
     import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
-
+    import { getRoute } from '$lib/navigate';
     async function startPlan(id) {
         await addPlanState({
             id: id,
             state: 'started'
         });
-        goto(`${base}/plans/${id}`);
+        goto(getRoute(`/plans/${id}`));
     }
     function handleBackNavigation(event) {
         event.preventDefault();
         const id = $page.data.planConfig.id;
-        goto(`${base}/plans/${id}`);
+        goto(getRoute(`/plans/${id}`));
     }
 </script>
 
@@ -47,7 +46,7 @@
             <div
                 class="plan-button"
                 id="plan-continue"
-                on:click={async function () {
+                onclick={async function () {
                     await startPlan($page.data.planConfig.id);
                 }}
             >

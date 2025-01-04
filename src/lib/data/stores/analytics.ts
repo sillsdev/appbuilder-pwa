@@ -1,5 +1,5 @@
-import { derived, writable } from 'svelte/store';
 import config from '$lib/data/config';
+import { derived, writable } from 'svelte/store';
 
 interface AnalyticsStore {
     initialized: boolean;

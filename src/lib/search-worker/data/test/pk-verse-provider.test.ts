@@ -1,12 +1,12 @@
-import { describe, test, expect } from 'vitest';
 import type { Reference } from '$lib/search/domain/entities';
-import { ProskommaVerseProvider, chapterVerseFromScopes } from '../pk-verse-provider';
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
+import { describe, expect, test } from 'vitest';
 import type {
-    GQLBookId,
     GQLBlockToken,
+    GQLBookId,
     ProskommaSearchRepository
 } from '../interfaces/pk-search-repository';
+import { ProskommaVerseProvider, chapterVerseFromScopes } from '../pk-verse-provider';
 
 const testBooks: GQLBookId[] = [
     {
