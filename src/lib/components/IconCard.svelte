@@ -41,7 +41,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter, verse })}
+                onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
             </a>
@@ -55,7 +55,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter, verse })}
+                onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {text}
             </a>

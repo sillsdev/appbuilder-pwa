@@ -1,6 +1,6 @@
-import { writable, derived } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { derived, writable } from 'svelte/store';
 import config from '../config';
+import { setDefaultStorage } from './storage';
 
 //** themes */
 export const themes = config.themes

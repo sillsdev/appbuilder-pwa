@@ -29,7 +29,8 @@
 
     const dispatch = createEventDispatcher();
 
-    function submit() {
+    function submit(event: Event) {
+        event.preventDefault();
         if (!phrase) return;
         // Dismiss the search bar by disabling it.
         // Then re-enable the search bar to allow the user to modify the query.
@@ -61,7 +62,7 @@
                 bind:value={phrase}
             />
             <button
-                on:click|preventDefault={submit}
+                onclick={submit}
                 class="dy-btn mx-2 flex-none bg-gray-200"
                 style={convertStyle($s['ui.search.button'])}
                 style:border-color={$themeColors.DividerColor}
@@ -77,7 +78,7 @@
                     <button
                         class="m-0.5 rounded w-8 h-10"
                         style={convertStyle($s['ui.search.buttons'])}
-                        on:click={(e) => addSpecialCharacter(character, e)}
+                        onclick={(e) => addSpecialCharacter(character, e)}
                     >
                         {character}
                     </button>

@@ -1,10 +1,10 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-    import Modal from './Modal.svelte';
+    import { addNote, editNote } from '$lib/data/notes';
+    import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
-    import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
-    import { editNote, addNote } from '$lib/data/notes';
+    import Modal from './Modal.svelte';
 
     export let note = undefined;
     export let editing = false;
@@ -65,7 +65,7 @@
                 </div>
                 {#if !editing}
                     <button
-                        on:click={() => {
+                        onclick={() => {
                             editing = true;
                         }}
                     >
@@ -75,7 +75,7 @@
             </div>
             <div style:word-wrap="break-word">
                 {#if editing}
-                    <textarea bind:value={text} class="dy-textarea w-full" />
+                    <textarea bind:value={text} class="dy-textarea w-full"></textarea>
                 {:else if text !== undefined}
                     {#each text.split(/\r?\n/) as line}
                         {#if line}
@@ -91,7 +91,7 @@
             {#if editing}
                 <div class="w-full flex mt-4 justify-between">
                     <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                    <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
+                    <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
                         >{$t['Button_OK']}</button
                     >
                 </div>

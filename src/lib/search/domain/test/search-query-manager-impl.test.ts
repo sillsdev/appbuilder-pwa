@@ -1,13 +1,12 @@
-import { expect, test, describe } from 'vitest';
-import { SearchQueryManagerImpl } from '../search-query-manager-impl';
+import { ConfigRepository } from '$lib/search/data/repositories/config-repository';
+import { expect, test } from 'vitest';
 import type { SearchResult } from '../entities';
 import type {
     SearchQuery,
     SearchStorageData,
     SearchStorageRepository
 } from '../interfaces/data-interfaces';
-import type { SearchPresenter, UserSearchOptions } from '../interfaces/presentation-interfaces';
-import { ConfigRepository } from '$lib/search/data/repositories/config-repository';
+import { SearchQueryManagerImpl } from '../search-query-manager-impl';
 
 const docSet = 'eng_TEST';
 const collection = 'TEST';

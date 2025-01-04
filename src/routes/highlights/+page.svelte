@@ -8,15 +8,15 @@
     import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
     import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { page } from '$app/stores';
-    import { base } from '$app/paths';
     import { goto } from '$app/navigation';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
+    import { getRoute } from '$lib/navigate';
 
     async function handleMenuaction(event: CustomEvent, highlight: HighlightItem) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(highlight);
-                goto(`${base}/`);
+                goto(getRoute(`/`));
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(highlight);
@@ -64,7 +64,7 @@
             <div slot="right-buttons">
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
+                    onclick={async () =>
                         await shareAnnotations(toSorted($page.data.highlights, sortOrder))}
                 >
                     <ShareIcon color="white" />

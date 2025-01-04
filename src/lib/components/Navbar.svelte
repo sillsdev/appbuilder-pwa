@@ -3,20 +3,20 @@
 The navbar component.
 -->
 <script>
-    import { HamburgerIcon, ArrowBackIcon, ArrowForwardIcon } from '$lib/icons';
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
     import {
+        convertStyle,
+        direction,
         layout,
         LAYOUT_TWO,
-        convertStyle,
+        NAVBAR_HEIGHT,
         s,
-        showDesktopSidebar,
-        direction,
-        NAVBAR_HEIGHT
+        showDesktopSidebar
     } from '$lib/data/stores';
-    import { page } from '$app/stores';
-    import { base } from '$app/paths';
+    import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
+    import { getRoute } from '$lib/navigate';
     import { createEventDispatcher } from 'svelte';
-    import { goto } from '$app/navigation';
 
     export let showBackButton = true;
 
@@ -30,7 +30,7 @@ The navbar component.
             { cancelable: true }
         );
         if (shouldContinue) {
-            goto(`${base}/`);
+            goto(getRoute('/'));
         }
     }
 </script>
@@ -51,7 +51,7 @@ The navbar component.
         {:else}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div on:click={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
+            <div onclick={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
                 {#if $direction === 'ltr'}
                     <ArrowBackIcon color="white" />
                 {:else}

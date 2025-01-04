@@ -3,39 +3,41 @@
 The sidebar/drawer.
 -->
 <script>
-    import {
-        AccountIcon,
-        SearchIcon,
-        BibleIcon,
-        HistoryIcon,
-        BookmarkIcon,
-        NoteIcon,
-        HighlightIcon,
-        ShareIcon,
-        SettingsIcon,
-        TextAppearanceIcon,
-        AboutIcon,
-        HomeIcon,
-        CalendarMonthIcon
-    } from '$lib/icons';
+    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
+    import contents from '$lib/data/contents';
     import {
-        s,
-        t,
+        direction,
         language,
         languageDefault,
-        showDesktopSidebar,
-        direction,
-        refs,
         modal,
-        MODAL_TEXT_APPEARANCE,
         MODAL_COLLECTION,
+        MODAL_TEXT_APPEARANCE,
+        refs,
+        s,
+        showDesktopSidebar,
+        t,
         theme,
         themeColors,
         userPreferenceSettings
     } from '$lib/data/stores';
-    import contents from '$lib/data/contents';
+    import {
+        AboutIcon,
+        AccountIcon,
+        BibleIcon,
+        BookmarkIcon,
+        CalendarMonthIcon,
+        HighlightIcon,
+        HistoryIcon,
+        HomeIcon,
+        NoteIcon,
+        SearchIcon,
+        SettingsIcon,
+        ShareIcon,
+        TextAppearanceIcon
+    } from '$lib/icons';
+    import { getRoute } from '$lib/navigate';
 
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -84,13 +86,17 @@ The sidebar/drawer.
             .join(', ');
     }
 
+    function navigate(route) {
+        goto(getRoute(route));
+    }
+
     $: textColor = $s['ui.drawer.item.text']['color'];
     $: iconColor = $s['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor'];
     $: contentBackgroundColor = $s['ui.background']['background-color'];
     $: drawerBackgroundColor = $s['ui.drawer']['background-color'];
 </script>
 
-<svelte:window on:keydown={closeOnEscape} />
+<svelte:window onkeydown={closeOnEscape} />
 
 <div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
@@ -99,8 +105,8 @@ The sidebar/drawer.
         <slot />
     </div>
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer} role="navigation">
-        <div class="dy-drawer-overlay" />
+    <div class="dy-drawer-side" onclick={closeDrawer} onkeydown={closeDrawer} role="navigation">
+        <div class="dy-drawer-overlay"></div>
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
             style:background-color={drawerBackgroundColor}
@@ -119,23 +125,35 @@ The sidebar/drawer.
             </a>
             {#if showAccount}
                 <li>
-                    <a href="{base}/account" style:color={textColor}>
-                        <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
-                    </a>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate('/account')}
+                    >
+                        <AccountIcon color={iconColor} />{$t['Account_Page_Title']}</button
+                    >
                 </li>
             {/if}
             {#if showContents}
                 <li>
-                    <a href="{base}/contents/1" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate(`/contents/1`)}
+                    >
                         <HomeIcon color={iconColor} />{$t['Menu_Contents']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showSearch}
                 <li>
-                    <a href="{base}/search/{$refs.collection}" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate(`/search/${$refs.collection}`)}
+                    >
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showLayouts}
@@ -144,66 +162,82 @@ The sidebar/drawer.
                     <button
                         style:color={textColor}
                         class="btn"
-                        on:click={() => modal.open(MODAL_COLLECTION)}
+                        onclick={() => modal.open(MODAL_COLLECTION)}
                     >
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>
             {/if}
             {#if showAccount || showSearch || showLayouts}
-                <div class="dy-divider m-1" />
+                <div class="dy-divider m-1"></div>
             {/if}
             {#if showHistory}
                 <li>
-                    <a href="{base}/history" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate('/history')}
+                    >
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showBookmarks}
                 <li>
-                    <a href="{base}/bookmarks" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate('/bookmarks')}
+                    >
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showNotes}
                 <li>
-                    <a href="{base}/notes" style:color={textColor}>
+                    <button class="btn" style:color={textColor} onclick={() => navigate('/notes')}>
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showHighlights}
                 <li>
-                    <a href="{base}/highlights" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate('/highlights')}
+                    >
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showHistory || showBookmarks || showNotes || showHighlights}
-                <div class="dy-divider m-1" />
+                <div class="dy-divider m-1"></div>
             {/if}
             {#if showShare}
                 <li>
-                    <a href="{base}/share" style:color={textColor}>
+                    <button class="btn" style:color={textColor} onclick={() => navigate('/share')}>
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
-                    </a>
+                    </button>
                 </li>
-                <div class="dy-divider m-1" />
+                <div class="dy-divider m-1"></div>
             {/if}
             {#if showPlans}
                 <li>
-                    <a href="{base}/plans" style:color={textColor}>
+                    <button class="btn" style:color={textColor} onclick={() => navigate('/plans')}>
                         <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showSettings}
                 <li>
-                    <a href="{base}/settings" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => navigate('/settings')}
+                    >
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             <!-- svelte-ignore a11y-missing-attribute -->
@@ -211,12 +245,12 @@ The sidebar/drawer.
                 <button
                     style:color={textColor}
                     class="btn"
-                    on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                    onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
                 >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </button>
             </li>
-            <div class="dy-divider m-1" />
+            <div class="dy-divider m-1"></div>
             {#if menuItems}
                 {#each menuItems as item}
                     <li>
@@ -247,9 +281,9 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <a href="{base}/about" style:color={textColor}>
+                <button class="btn" style:color={textColor} onclick={() => navigate('/about')}>
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
-                </a>
+                </button>
             </li>
         </ul>
     </div>

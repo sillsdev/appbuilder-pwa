@@ -1,13 +1,16 @@
-import { writable, get, derived } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { get, writable } from 'svelte/store';
 import config from '../config';
+import { setDefaultStorage } from './storage';
 
 /**is audio active in the app*/
-setDefaultStorage('audioActive', config.mainFeatures['audio-turn-on-at-startup']);
+setDefaultStorage(
+    'audioActive',
+    config.mainFeatures['audio-turn-on-at-startup'] ? 'true' : 'false'
+);
 export const audioActive = writable(localStorage.audioActive === 'true');
 audioActive.subscribe((value) => (localStorage.audioActive = value));
 
-setDefaultStorage('quizAudioActive', true);
+setDefaultStorage('quizAudioActive', 'true');
 export const quizAudioActive = writable(localStorage.quizAudioActive);
 quizAudioActive.subscribe((value) => (localStorage.quizAudioActive = value));
 
@@ -52,7 +55,7 @@ function createPlayMode() {
     return {
         subscribe: external.subscribe,
         set: external.set,
-        next: (hasTiming) => {
+        next: (/** @type {any} */ hasTiming) => {
             const { mode, range } = get(external);
             let nextMode = mode;
             let nextRange = range;
@@ -75,7 +78,11 @@ function createPlayMode() {
                     nextMode = PLAYMODE_CONTINUE;
                     break;
             }
-            external.set({ mode: nextMode, range: nextRange });
+            external.set({
+                mode: nextMode,
+                range: nextRange,
+                continue: false
+            });
         },
         reset: () => {
             external.set(defaultPlayMode);

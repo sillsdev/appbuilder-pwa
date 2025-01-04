@@ -5,8 +5,9 @@
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { refs, s, language, languageDefault, theme } from '$lib/data/stores';
     import contents from '$lib/data/contents';
+    import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
+    import { getRoute } from '$lib/navigate';
 
     export let barType = undefined;
 
@@ -70,10 +71,10 @@
         switch (buttonType) {
             case 'contents':
                 let gotoLink = link && link !== '' ? link : '1';
-                goto(`${base}/contents/${gotoLink}`);
+                goto(getRoute(`/contents/${gotoLink}`));
                 break;
             case 'about':
-                goto(`${base}/about`);
+                goto(getRoute('/about'));
                 break;
             case 'book':
                 if (link && link !== '') {
@@ -93,16 +94,16 @@
                         verse: '1'
                     });
                 }
-                goto(`${base}/text`);
+                goto(getRoute('/text'));
                 break;
             case 'plans':
-                goto(`${base}/plans`);
+                goto(getRoute('/plans'));
                 break;
             case 'search':
-                goto(`${base}/search/${$refs.collection}`);
+                goto(getRoute(`/search/${$refs.collection}`));
                 break;
             case 'settings':
-                goto(`${base}/settings`);
+                goto(getRoute('/settings'));
                 break;
             default:
                 console.log(
@@ -123,7 +124,7 @@
                     {#if showButton(item.type)}
                         <button
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
-                            on:click={() => handleClick(item.type, item.link['default'])}
+                            onclick={() => handleClick(item.type, item.link['default'])}
                         >
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->

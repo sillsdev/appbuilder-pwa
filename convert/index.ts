@@ -1,19 +1,19 @@
-import { ConvertConfig } from './convertConfig';
-import { ConvertContents } from './convertContents';
-import { ConvertManifest } from './convertManifest';
-import { ConvertMedia } from './convertMedia';
-import { ConvertBooks } from './convertBooks';
-import { ConvertAbout } from './convertAbout';
-import { ConvertFirebase } from './convertFirebase';
-import { ConvertStyles } from './convertStyles';
-import { ConvertBadges } from './convertBadges';
-import { ConvertPlans } from './convertPlans';
-import { ConvertSQLite } from './convertSQLite';
-import { ConvertReverseIndex } from './convertReverseIndex';
 import { watch } from 'chokidar';
-import { Task, TaskOutput } from './Task';
 import { writeFile } from 'fs';
 import path from 'path';
+import { ConvertAbout } from './convertAbout';
+import { ConvertBadges } from './convertBadges';
+import { ConvertBooks } from './convertBooks';
+import { ConvertConfig } from './convertConfig';
+import { ConvertContents } from './convertContents';
+import { ConvertFirebase } from './convertFirebase';
+import { ConvertManifest } from './convertManifest';
+import { ConvertMedia } from './convertMedia';
+import { ConvertPlans } from './convertPlans';
+import { ConvertReverseIndex } from './convertReverseIndex';
+import { ConvertSQLite } from './convertSQLite';
+import { ConvertStyles } from './convertStyles';
+import { Task, TaskOutput } from './Task';
 
 // Possible arguments:
 // --data-dir=<path> (override data path)

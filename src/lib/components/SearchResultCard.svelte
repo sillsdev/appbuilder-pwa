@@ -4,9 +4,9 @@ A clickable verse card representing a single search result.
 -->
 <script lang="ts">
     import config from '$lib/data/config';
-    import type { Reference, SearchResult } from '$lib/search/domain/entities';
-    import * as numerals from '$lib/scripts/numeralSystem';
     import { navigateToText } from '$lib/navigate';
+    import * as numerals from '$lib/scripts/numeralSystem';
+    import type { Reference, SearchResult } from '$lib/search/domain/entities';
 
     export let docSet: string;
     export let collection: string;
@@ -56,7 +56,8 @@ A clickable verse card representing a single search result.
         return bookData.name;
     }
 
-    function onClick() {
+    function onClick(event: Event) {
+        event.preventDefault();
         navigateToText({
             docSet,
             collection,
@@ -70,7 +71,7 @@ A clickable verse card representing a single search result.
 <div
     class="search-result-block w-full transition-shadow duration-300 hover:shadow-lg cursor-pointer"
 >
-    <button class="text-start" on:click|preventDefault={onClick}>
+    <button class="text-start" onclick={onClick}>
         <div class="search-result-reference flex">
             <h1>
                 {referenceString(result)}

@@ -1,22 +1,22 @@
 <script>
+    import { beforeNavigate } from '$app/navigation';
+    import { base } from '$app/paths';
+    import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import { addQuiz } from '$lib/data/quiz';
     import {
-        refs,
-        t,
         bodyFontSize,
         bodyLineHeight,
         modal,
         MODAL_TEXT_APPEARANCE,
-        quizAudioActive
+        quizAudioActive,
+        refs,
+        t
     } from '$lib/data/stores';
-    import { compareVersions } from '$lib/scripts/stringUtils';
-    import { base } from '$app/paths';
-    import { onDestroy } from 'svelte';
-    import { beforeNavigate } from '$app/navigation';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import BookSelector from '$lib/components/BookSelector.svelte';
+    import { compareVersions } from '$lib/scripts/stringUtils';
+    import { onDestroy } from 'svelte';
     /** @type {import('./$types').PageData} */
     export let data;
 
@@ -308,7 +308,7 @@
                 <div class="flex">
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => {
+                        onclick={() => {
                             $quizAudioActive = !$quizAudioActive;
                         }}
                     >
@@ -324,7 +324,7 @@
                 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                 <label
                     class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                    on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                    onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
                 >
                     <TextAppearanceIcon color="white" />
                 </label>
@@ -364,7 +364,7 @@
             {/await}
         {/if}
     {:else}
-        <body class="quiz">
+        <div class="quiz">
             <div id="content">
                 <div class="quiz-question-number" style:line-height="{$bodyLineHeight}%">
                     {questionNum + 1}
@@ -390,7 +390,7 @@
                                     {#each shuffledAnswers as answer, currentIndex}
                                         <button
                                             class="w-5/6 md:w-64 lg:w-[20rem] mt-2"
-                                            on:click={() => {
+                                            onclick={() => {
                                                 onQuestionAnswered(answer);
                                             }}
                                         >
@@ -445,7 +445,7 @@
                                                 class="cursor-pointer"
                                                 src={getImageSource(answer.image)}
                                                 alt={answer.text}
-                                                on:click={() => {
+                                                onclick={() => {
                                                     onQuestionAnswered(answer);
                                                 }}
                                             />
@@ -468,7 +468,7 @@
                     >
                         <button
                             class="dy-btn dy-btn-active p-2 px-8 mt-4"
-                            on:click={() => {
+                            onclick={() => {
                                 onNextQuestion();
                             }}
                         >
@@ -477,7 +477,7 @@
                     </div>
                 {/if}
             </div>
-        </body>
+        </div>
     {/if}
 </div>
 

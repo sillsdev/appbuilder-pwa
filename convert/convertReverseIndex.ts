@@ -1,7 +1,7 @@
-import { readFileSync, mkdirSync, existsSync } from 'fs';
+import type { DictionaryConfig } from '$config';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import path from 'path';
 import { FileContent, Task, TaskOutput } from './Task';
-import type { DictionaryConfig } from '$config';
 
 interface ReversalEntry {
     index: number;

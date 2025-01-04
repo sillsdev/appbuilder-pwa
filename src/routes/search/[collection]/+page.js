@@ -1,5 +1,5 @@
-import { error } from '@sveltejs/kit';
 import config from '$lib/data/config';
+import { error } from '@sveltejs/kit';
 
 export async function load({ params }) {
     const collection = config.bookCollections.find((bc) => bc.id === params.collection);

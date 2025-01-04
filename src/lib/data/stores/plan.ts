@@ -1,8 +1,8 @@
-import { writable, get, derived } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { get, writable } from 'svelte/store';
 import config from '../config';
 import { getLastPlanState, planStatesLastUpdated } from '../planStates';
 import { getPlanData } from '../plansData';
+import { setDefaultStorage } from './storage';
 
 interface PlanStore {
     planId: string;

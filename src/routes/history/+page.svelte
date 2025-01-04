@@ -23,7 +23,7 @@
                 <div class="btn btn-ghost normal-case text-xl">{$t['Menu_History']}</div>
             </label>
             <div slot="right-buttons">
-                <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={onClearHistory}>
+                <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onClearHistory}>
                     <DeleteSweepIcon color="white" />
                 </button>
             </div>

@@ -1,6 +1,6 @@
-import { describe, expect, beforeEach, it, test } from 'vitest';
-import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync } from 'fs';
 import path from 'path';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 describe('verifyGlossaryEntries', () => {

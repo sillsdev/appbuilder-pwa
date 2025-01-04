@@ -12,34 +12,33 @@ TODO:
 - Add highlight colors
 -->
 <script lang="ts">
+    import { getBook, logShareContent } from '$lib/data/analytics';
+    import { play, seekToVerse } from '$lib/data/audio';
+    import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
+    import config from '$lib/data/config';
+    import { addHighlights, removeHighlights } from '$lib/data/highlights';
+    import { shareText } from '$lib/data/share';
+    import {
+        audioActive,
+        modal,
+        MODAL_NOTE,
+        refs,
+        s,
+        selectedVerses,
+        theme,
+        themeColors
+    } from '$lib/data/stores';
     import {
         AudioIcon,
+        BookmarkIcon,
+        BookmarkOutlineIcon,
         CopyContentIcon,
         HighlightIcon,
         NoteIcon,
-        BookmarkIcon,
-        BookmarkOutlineIcon,
         ShareIcon
     } from '$lib/icons';
-    import { createEventDispatcher } from 'svelte';
     import { ImageIcon } from '$lib/icons/image';
-    import config from '$lib/data/config';
-    import {
-        t,
-        s,
-        refs,
-        modal,
-        MODAL_NOTE,
-        selectedVerses,
-        theme,
-        themeColors,
-        audioActive
-    } from '$lib/data/stores';
-    import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
-    import { addHighlights, removeHighlights } from '$lib/data/highlights';
-    import { shareText } from '$lib/data/share';
-    import { play, seekToVerse } from '$lib/data/audio';
-    import { getBook, logShareContent } from '$lib/data/analytics';
+    import { createEventDispatcher } from 'svelte';
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
@@ -151,58 +150,58 @@ TODO:
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenYellow']}
                         style:border={buttonBorder}
-                        on:click={() => modifyHighlight(1)}
+                        onclick={() => modifyHighlight(1)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenGreen']}
                         style:border={buttonBorder}
-                        on:click={() => modifyHighlight(2)}
+                        onclick={() => modifyHighlight(2)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenBlue']}
                         style:border={buttonBorder}
-                        on:click={() => modifyHighlight(3)}
+                        onclick={() => modifyHighlight(3)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenOrange']}
                         style:border={buttonBorder}
-                        on:click={() => modifyHighlight(4)}
+                        onclick={() => modifyHighlight(4)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={$themeColors['HighlighterPenPink']}
                         style:border={buttonBorder}
-                        on:click={() => modifyHighlight(5)}
+                        onclick={() => modifyHighlight(5)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
                         style:background-color={'white'}
                         style:border={buttonBorder}
-                        on:click={() => modifyHighlight(6)}
+                        onclick={() => modifyHighlight(6)}
                         role="button"
-                    />
+                    ></div>
                 </div>
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => playVerseAudio()}>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playVerseAudio()}>
                         <AudioIcon.Play color={barIconColor} />
                     </button>
                 {/if}
@@ -219,20 +218,20 @@ TODO:
                 {#if isHighlightEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => (showHightlightPens = true)}
+                        onclick={() => (showHightlightPens = true)}
                     >
                         <HighlightIcon color={barIconColor} />
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modal.open(MODAL_NOTE)}>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => modal.open(MODAL_NOTE)}>
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}
                 {#if isBookmarkEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={async function () {
+                        onclick={async function () {
                             await modifyBookmark();
                         }}
                     >
@@ -244,12 +243,12 @@ TODO:
                     </button>
                 {/if}
                 {#if isCopyEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={copy}>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={copy}>
                         <CopyContentIcon color={barIconColor} />
                     </button>
                 {/if}
                 {#if isShareEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={shareSelectedText}>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={shareSelectedText}>
                         <ShareIcon color={barIconColor} />
                     </button>
                 {/if}

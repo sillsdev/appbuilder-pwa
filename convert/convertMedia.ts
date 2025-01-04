@@ -1,8 +1,8 @@
-import { ConfigTaskOutput } from './convertConfig';
-import { CopySyncOptions, cpSync, existsSync } from 'fs';
-import { rimraf } from 'rimraf';
+import { CopySyncOptions, cpSync } from 'fs';
 import path from 'path';
+import { rimraf } from 'rimraf';
 import { Task, TaskOutput } from './Task';
+import { ConfigTaskOutput } from './convertConfig';
 import { compareVersions } from './stringUtils';
 
 function cpSyncOptional(source: string, destination: string, opts?: CopySyncOptions): boolean {

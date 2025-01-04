@@ -1,8 +1,8 @@
 import type { DocsetUrlRequest } from '$lib/search-worker/data/interfaces/requests';
-import { describe, expect, test } from 'vitest';
-import { WorkerRequestRepository } from '../repositories/worker-request-repository';
 import { isDocsetUrlResponse } from '$lib/search-worker/data/interfaces/responses';
 import { isErrorResponse, type MessageRequest } from '$lib/utils/worker-messenger/message';
+import { describe, expect, test } from 'vitest';
+import { WorkerRequestRepository } from '../repositories/worker-request-repository';
 
 const testUrlRequest: DocsetUrlRequest = {
     type: 'docset-url-request',

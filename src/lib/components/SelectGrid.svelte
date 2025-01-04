@@ -3,10 +3,10 @@
 A component to display menu options in a grid.
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { s, refs, themeBookColors, themeColors, convertStyle } from '$lib/data/stores';
-    import { isNotBlank } from '$lib/scripts/stringUtils';
     import config from '$lib/data/config';
+    import { convertStyle, refs, s, themeBookColors, themeColors } from '$lib/data/stores';
+    import { isNotBlank } from '$lib/scripts/stringUtils';
+    import { createEventDispatcher } from 'svelte';
     export let options: App.GridGroup[] = [];
     export let cols = 6;
 
@@ -83,11 +83,11 @@ A component to display menu options in a grid.
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <!-- svelte-ignore a11y-interactive-supports-focus -->
     <div
-        on:touchstart={handleHover}
-        on:touchmove={handleTouchMove}
-        on:touchend={handleHoverEnd}
-        on:mouseover={handleHover}
-        on:mouseout={handleHoverEnd}
+        ontouchstart={handleHover}
+        ontouchmove={handleTouchMove}
+        ontouchend={handleHoverEnd}
+        onmouseover={handleHover}
+        onmouseout={handleHoverEnd}
         class="grid grid-cols-{cols} gap-1"
         class:grid-cols-5={cols == 5}
         class:grid-cols-6={cols == 6}
@@ -98,7 +98,7 @@ A component to display menu options in a grid.
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-interactive-supports-focus -->
                 <span
-                    on:click={() => handleClick(row)}
+                    onclick={() => handleClick(row)}
                     id={row.id}
                     class="dy-btn dy-btn-ghost normal-case truncate text-clip col-start-1"
                     class:col-span-5={cols == 5}
@@ -117,7 +117,7 @@ A component to display menu options in a grid.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <span
-                on:click={() => handleClick(cell)}
+                onclick={() => handleClick(cell)}
                 id={cell.id}
                 class="dy-btn dy-btn-square dy-btn-ghost normal-case truncate text-clip"
                 style={cellStyle}

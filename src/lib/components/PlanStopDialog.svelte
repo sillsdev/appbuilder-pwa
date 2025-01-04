@@ -5,12 +5,12 @@ Plan Stop Modal Dialog component.
 <svelte:options accessors={true} />
 
 <script>
-    import Modal from './Modal.svelte';
-    import { t } from '$lib/data/stores';
-    import { addPlanState } from '$lib/data/planStates';
-    import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
     import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
+    import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
+    import { addPlanState } from '$lib/data/planStates';
+    import { t } from '$lib/data/stores';
+    import { getRoute } from '$lib/navigate';
+    import Modal from './Modal.svelte';
 
     export let planId = undefined;
 
@@ -29,7 +29,7 @@ Plan Stop Modal Dialog component.
     }
     function handleYes() {
         stopPlan().then(() => {
-            goto(`${base}/plans`);
+            goto(getRoute('/plans'));
         });
     }
 
@@ -60,7 +60,7 @@ Plan Stop Modal Dialog component.
                     <button class="dy-btn message-button" id="no">
                         {$t['Button_No']}
                     </button>
-                    <button class="dy-btn message-button" id="yes" on:click={() => handleYes()}>
+                    <button class="dy-btn message-button" id="yes" onclick={() => handleYes()}>
                         {$t['Button_Yes']}
                     </button>
                 </div>

@@ -6,26 +6,26 @@ TODO:
 - display audio not found message in UI when audio is not found
 -->
 <script lang="ts">
-    import { AudioIcon } from '$lib/icons';
     import {
-        refs,
-        userSettings,
-        s,
-        playMode,
-        audioPlayer,
-        t,
-        convertStyle
-    } from '$lib/data/stores';
-    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
-    import config from '$lib/data/config';
-    import {
-        skip,
-        playPause,
         changeVerse,
         format,
+        playPause,
         seek,
+        skip,
         updatePlaybackSpeed
     } from '$lib/data/audio';
+    import config from '$lib/data/config';
+    import {
+        audioPlayer,
+        convertStyle,
+        playMode,
+        refs,
+        s,
+        t,
+        userSettings
+    } from '$lib/data/stores';
+    import { AudioIcon } from '$lib/icons';
+    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
 
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
@@ -122,23 +122,23 @@ TODO:
     {#if showRepeatMode}
         <button
             class="audio-control-buttons"
-            on:click={() => playMode.next($refs.hasAudio?.timingFile)}
+            onclick={() => playMode.next($refs.hasAudio?.timingFile)}
         >
             <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
         </button>
     {/if}
     <!-- Play Controls -->
     <div class="audio-controls" style:direction="ltr">
-        <button class="audio-control-buttons" on:click={() => skip(-1)}>
+        <button class="audio-control-buttons" onclick={() => skip(-1)}>
             <AudioIcon.Prev color={iconColor} />
         </button>
 
         {#if $refs.hasAudio?.timingFile}
-            <button class="audio-control-buttons" on:click={() => changeVerse(-1)}>
+            <button class="audio-control-buttons" onclick={() => changeVerse(-1)}>
                 <AudioIcon.RW color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" on:click={() => playPause()}>
+        <button class="audio-control-buttons" onclick={() => playPause()}>
             {#if !$audioPlayer.playing}
                 <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
             {:else}
@@ -146,11 +146,11 @@ TODO:
             {/if}
         </button>
         {#if $refs.hasAudio?.timingFile}
-            <button class="audio-control-buttons" on:click={() => changeVerse(1)}>
+            <button class="audio-control-buttons" onclick={() => changeVerse(1)}>
                 <AudioIcon.FF color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" on:click={() => skip(1)}>
+        <button class="audio-control-buttons" onclick={() => skip(1)}>
             <AudioIcon.Skip color={iconColor} />
         </button>
     </div>
@@ -172,10 +172,10 @@ TODO:
                 class="dy-progress audio-progress"
                 value={$audioPlayer.progress}
                 max={$audioPlayer.duration}
-                on:click={seekAudio}
-            />
+                onclick={seekAudio}
+            ></progress>
         {:else}
-            <progress class="dy-progress audio-progress" value="0" max="1" />
+            <progress class="dy-progress audio-progress" value="0" max="1"></progress>
         {/if}
         <div class="audio-progress-duration text-sm">
             {format($audioPlayer.duration)}

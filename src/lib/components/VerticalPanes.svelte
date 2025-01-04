@@ -47,10 +47,10 @@ moderately modified because touch was not working.
 
 <div
     class="wrapper"
-    on:pointermove={onPointermove}
-    on:pointerup={onPointerup}
-    on:pointerleave={onPointerup}
-    on:pointercancel={onPointerup}
+    onpointermove={onPointermove}
+    onpointerup={onPointerup}
+    onpointerleave={onPointerup}
+    onpointercancel={onPointerup}
     bind:this={container}
 >
     <div bind:this={top} class="pane" style="height: {topHeight}%">
@@ -59,9 +59,9 @@ moderately modified because touch was not working.
     <div
         bind:this={separator}
         class="separator"
-        on:pointerdown={onPointerdown}
+        onpointerdown={onPointerdown}
         style="top: {topEdge}%"
-    />
+    ></div>
     <div bind:this={down} class="pane" style="height: {downHeight}%">
         <slot name="down" />
     </div>

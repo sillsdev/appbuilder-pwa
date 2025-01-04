@@ -5,15 +5,15 @@ import PlayFillCircleIcon from './PlayFillCircleIcon.svelte';
 import PlayIcon from './PlayIcon.svelte';
 import PlayOutlineCircleIcon from './PlayOutlineCircleIcon.svelte';
 import PlayRepeatIcon from './PlayRepeatIcon.svelte';
-import RepeatOneIcon from './RepeatOneIcon.svelte';
 import RepeatIcon from './RepeatIcon.svelte';
 import RepeatOffIcon from './RepeatOffIcon.svelte';
 import RepeatOffStopIcon from './RepeatOffStopIcon.svelte';
+import RepeatOneIcon from './RepeatOneIcon.svelte';
 import RewindIcon from './RewindIcon.svelte';
 import SkipNextIcon from './SkipNextIcon.svelte';
 import SkipPreviousIcon from './SkipPreviousIcon.svelte';
-import VolumeIcon from './VolumeIcon.svelte';
 import SpeedIcon from './SpeedIcon.svelte';
+import VolumeIcon from './VolumeIcon.svelte';
 
 const AudioIcon = {
     Mute: MuteIcon,

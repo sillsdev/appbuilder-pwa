@@ -5,8 +5,8 @@ A component to display tabbed menus.
 <svelte:options accessors={true} />
 
 <script lang="ts">
+    import { convertStyle, s } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
-    import { s, convertStyle } from '$lib/data/stores';
 
     export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true } };
     export let active = Object.keys(options).filter((x) => options[x].visible)[0];
@@ -38,7 +38,7 @@ A component to display tabbed menus.
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-interactive-supports-focus -->
                 <a
-                    on:click|preventDefault={() => setActive(opt)}
+                    onclick={() => setActive(opt)}
                     style:border-color={active === opt ? '#FFFFFF' : ''}
                     class="dy-tab dy-tab-bordered text-white normal-case {active === opt
                         ? 'dy-tab-active'

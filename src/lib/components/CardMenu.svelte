@@ -4,8 +4,8 @@ A drop-down menu for use in ColorCard, HistoryCard, and IconCard.
 Dispatches a menuaction event when an option is selected from the menu.
 -->
 <script lang="ts">
-    import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
     import { monoIconColor } from '$lib/data/stores';
+    import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
     export let actions = [''];
@@ -32,7 +32,7 @@ Dispatches a menuaction event when an option is selected from the menu.
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-missing-attribute -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <li><a on:click={() => handleAction(a)}>{a}</a></li>
+            <li><a onclick={() => handleAction(a)}>{a}</a></li>
         {/each}
     </ul>
 </div>

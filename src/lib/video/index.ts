@@ -1,5 +1,5 @@
-import config from '$lib/data/config';
 import { base } from '$app/paths';
+import config from '$lib/data/config';
 enum VideoType {
     None = 'none',
     YouTube = 'youtube',
