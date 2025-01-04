@@ -14,6 +14,7 @@ export default [
             'static',
             'example_data',
             'test_data',
+            'coverage',
             'pnpm-lock.yaml',
             'package-lock.json',
             'yarn.lock'
