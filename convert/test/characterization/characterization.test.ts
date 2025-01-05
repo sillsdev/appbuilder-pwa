@@ -1,18 +1,26 @@
 import { existsSync, PathLike, Stats } from 'fs';
 import { ConversionParams, ConvertAll } from '../../convertAll';
 import path from 'path';
-import { Task, TaskOutDirs } from 'Task';
-import { test, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest';
-import { mkdir, readdir, readFile, rm, rmdir, stat, writeFile } from 'fs/promises';
-import { compare, CompareFileHandler, DiffSet, Options } from 'dir-compare';
+import { TaskOutDirs } from 'Task';
+import { test, expect, describe } from 'vitest';
+import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises';
+import { compare, CompareFileHandler, Options } from 'dir-compare';
 import { fileCompareHandlers } from 'dir-compare';
 import { isText } from 'istextorbinary';
 import { strFromU8 } from 'fflate';
 import { PkBookSpec, PkTestLogger } from '../../convertBooks';
-import { testApp1Books } from './bookSpecs/testApp1Books';
+
+interface TestAppPaths {
+    input: string;
+    convertExpected: string;
+    convertActual: string;
+    bookSpecs: string;
+    consoleLog: string;
+}
 
 interface TestAppOutput {
     bookSpecs: PkBookSpec[];
+    consoleLog: string[];
 }
 
 const testAppsDir = path.join('convert', 'test', 'characterization', 'test_apps');
@@ -21,16 +29,15 @@ async function createEmptyDir(path: PathLike) {
     if (existsSync(path)) {
         await rm(path, { recursive: true });
     }
-    await mkdir(path);
+    await mkdir(path, { recursive: true });
 }
 
-async function setupOutDirs(base: string): Promise<TaskOutDirs> {
+async function setupTaskOutDirs(base: string): Promise<TaskOutDirs> {
     const dirs = {
         static: path.join(base, 'static'),
         config: path.join(base, 'config'),
         firebase: path.join(base, 'config')
     };
-    await createEmptyDir(base);
     await createEmptyDir(dirs.static);
     await createEmptyDir(dirs.config);
     await createEmptyDir(dirs.firebase);
@@ -122,6 +129,7 @@ async function assertCatalogsEqual(actualConversion: PathLike, expectedConversio
 }
 
 async function assertConversionsEqual(actual: PathLike, expected: PathLike) {
+    if (actual == expected) return;
     const excludeFilter = '*.pkf,**/collections/catalog/*';
     await assertDirsEqual(actual, expected, excludeFilter);
     await assertCatalogsEqual(actual, expected);
@@ -134,46 +142,106 @@ function assertSetsEqual(actual: any[], expected: any[]) {
     }
 }
 
-async function runTestApp(params: ConversionParams, outDir: string): Promise<TestAppOutput> {
-    const outSubdirs = await setupOutDirs(outDir);
-
-    // Capture book input to Proskomma
-    const bookSpecs: PkBookSpec[] = [];
-    PkTestLogger.instance().setOnBookCreated((spec) => bookSpecs.push(spec));
-
-    const converter = new ConvertAll(params, outSubdirs);
-    await converter.run();
-
-    return { bookSpecs };
+function listenForOutput(): TestAppOutput {
+    const output: TestAppOutput = {
+        bookSpecs: [],
+        consoleLog: []
+    };
+    PkTestLogger.instance().setOnBookCreated((spec) => output.bookSpecs.push(spec));
+    console.log = (msg) => output.consoleLog.push(msg);
+    return output;
 }
 
-async function runAndVerifyTestApp(
+async function runTestApp(outPaths: TestAppPaths, params: ConversionParams) {
+    const outSubdirs = await setupTaskOutDirs(outPaths.convertActual);
+    const converter = new ConvertAll(params, outSubdirs);
+    await converter.run();
+}
+
+async function getTestAppOuput(
     params: ConversionParams,
-    dirActual: string,
-    dirExpected: string
-) {
-    const output = await runTestApp(params, dirActual);
-    await assertConversionsEqual(dirActual, dirExpected);
-    assertSetsEqual(output.bookSpecs, testApp1Books);
+    outPaths: TestAppPaths
+): Promise<TestAppOutput> {
+    const outputBuffer = listenForOutput();
+    await runTestApp(outPaths, params);
+    return outputBuffer;
+}
+
+async function checkConsoleLog(output: TestAppOutput, paths: TestAppPaths) {
+    if (existsSync(paths.consoleLog)) {
+        await assertConsoleLogsEqual(paths, output);
+    } else {
+        await writeConsoleLog(output, paths);
+    }
+}
+
+async function writeConsoleLog(output: TestAppOutput, paths: TestAppPaths) {
+    const logs = output.consoleLog.join(`\n`);
+    await writeFile(paths.consoleLog, logs);
+}
+
+async function assertConsoleLogsEqual(paths: TestAppPaths, output: TestAppOutput) {
+    const logs = output.consoleLog.join(`\n`);
+    const expected = await readFile(paths.consoleLog);
+    expect(logs).toBe(expected.toString());
+}
+
+async function checkBookSpecs(output: TestAppOutput, paths: TestAppPaths) {
+    if (existsSync(paths.bookSpecs)) {
+        await assertBookSpecsEqual(paths, output);
+    } else {
+        await writeBookSpecs(output, paths);
+    }
+}
+
+async function writeBookSpecs(output: TestAppOutput, paths: TestAppPaths) {
+    const jsonSpecs = JSON.stringify(output.bookSpecs);
+    await writeFile(paths.bookSpecs, jsonSpecs);
+}
+
+async function assertBookSpecsEqual(paths: TestAppPaths, output: TestAppOutput) {
+    const expected = await readJson(paths.bookSpecs);
+    assertSetsEqual(output.bookSpecs, expected);
+}
+
+async function runAndVerifyTestApp(params: ConversionParams, paths: TestAppPaths) {
+    const output = await getTestAppOuput(params, paths);
+    await assertConversionsEqual(paths.convertActual, paths.convertExpected);
+    await checkBookSpecs(output, paths);
+    await checkConsoleLog(output, paths);
+}
+
+function getTestPaths(appName: string): TestAppPaths {
+    const baseDir = path.join(testAppsDir, appName);
+    const outDir = path.join(baseDir, 'output');
+    const convertedFilesDir = path.join(outDir, 'convertedFiles');
+    return {
+        input: path.join(baseDir, 'input'),
+        convertExpected: path.join(convertedFilesDir, 'expected'),
+        convertActual: path.join(convertedFilesDir, 'actual'),
+        bookSpecs: path.join(outDir, 'bookSpecs.json'),
+        consoleLog: path.join(outDir, 'log.txt')
+    };
 }
 
 describe('Test apps', () => {
     test('Test app 1, no watch', async () => {
-        const baseDir = path.join(testAppsDir, 'test_app1');
-        const dirActual = path.join(baseDir, 'actual');
-        const dirExpected = path.join(baseDir, 'expected');
+        const outPaths = getTestPaths('test_app1');
+
+        if (noExpectedOutput(outPaths)) {
+            outPaths.convertActual = outPaths.convertExpected;
+        }
 
         const params: ConversionParams = {
-            dataDir: path.join(baseDir, 'input'),
+            dataDir: outPaths.input,
             watch: false,
             watchTimeout: 0,
             verbose: 0
         };
-
-        if (existsSync(dirExpected)) {
-            await runAndVerifyTestApp(params, dirActual, dirExpected);
-        } else {
-            await runTestApp(params, dirExpected);
-        }
+        await runAndVerifyTestApp(params, outPaths);
     });
 });
+
+function noExpectedOutput(outPaths: TestAppPaths) {
+    return !existsSync(outPaths.convertExpected);
+}

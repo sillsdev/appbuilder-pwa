@@ -23,7 +23,7 @@
         "test": "vitest --exclude \"**/characterization.test.ts\"",
         "test:ui": "vitest --ui --exclude \"**/characterization.test.ts\"",
         "test:snapshot": "vitest",
-        "test:new-snapshot": "rimraf --glob **/characterization/**/expected && vitest"
+        "test:new-snapshot": "rimraf --glob **/characterization/**/output && vitest"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

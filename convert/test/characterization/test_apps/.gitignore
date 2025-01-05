@@ -1,3 +1,2 @@
 !**/*.js
-*/actual
-*/expected
+output
