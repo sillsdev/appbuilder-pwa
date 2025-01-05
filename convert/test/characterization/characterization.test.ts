@@ -20,7 +20,7 @@ interface TestAppPaths {
 
 interface TestAppOutput {
     bookSpecs: PkBookSpec[];
-    consoleLog: string[];
+    consoleLog: string;
 }
 
 const testAppsDir = path.join('convert', 'test', 'characterization', 'test_apps');
@@ -145,10 +145,14 @@ function assertSetsEqual(actual: any[], expected: any[]) {
 function listenForOutput(): TestAppOutput {
     const output: TestAppOutput = {
         bookSpecs: [],
-        consoleLog: []
+        consoleLog: ''
     };
     PkTestLogger.instance().setOnBookCreated((spec) => output.bookSpecs.push(spec));
-    console.log = (msg) => output.consoleLog.push(msg);
+    console.log = (msg) => (output.consoleLog += msg + '\n');
+    process.stdout.write = (msg) => {
+        output.consoleLog += msg.toString();
+        return true;
+    };
     return output;
 }
 
@@ -171,19 +175,13 @@ async function checkConsoleLog(output: TestAppOutput, paths: TestAppPaths) {
     if (existsSync(paths.consoleLog)) {
         await assertConsoleLogsEqual(paths, output);
     } else {
-        await writeConsoleLog(output, paths);
+        await writeFile(paths.consoleLog, output.consoleLog);
     }
 }
 
-async function writeConsoleLog(output: TestAppOutput, paths: TestAppPaths) {
-    const logs = output.consoleLog.join(`\n`);
-    await writeFile(paths.consoleLog, logs);
-}
-
 async function assertConsoleLogsEqual(paths: TestAppPaths, output: TestAppOutput) {
-    const logs = output.consoleLog.join(`\n`);
     const expected = await readFile(paths.consoleLog);
-    expect(logs).toBe(expected.toString());
+    expect(output.consoleLog).toBe(expected.toString());
 }
 
 async function checkBookSpecs(output: TestAppOutput, paths: TestAppPaths) {
