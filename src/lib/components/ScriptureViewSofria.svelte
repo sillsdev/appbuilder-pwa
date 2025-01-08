@@ -977,6 +977,46 @@ LOGGING:
             gotoPlanReference();
         }
     }
+    function findBookmarkElementForVerse(verse, verseRangeSeparator) {
+        const elements = document.querySelectorAll('[id^="bookmarks"]');
+
+        for (const element of elements) {
+            const id = element.id.replace('bookmarks', '');
+            const separatorRegex = verseRangeSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex characters
+            const rangeMatch = id.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
+
+            if (rangeMatch) {
+                const start = parseInt(rangeMatch[1], 10);
+                const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : start;
+
+                if (verse >= start && verse <= end) {
+                    return element;
+                }
+            }
+        }
+
+        return null; // No matching element found
+    }
+    function findDataElementForVerse(verse, verseRangeSeparator) {
+        const elements = document.querySelectorAll('[data-verse][data-phrase="a"]');
+
+        for (const element of elements) {
+            const verseData = element.getAttribute('data-verse');
+            const separatorRegex = verseRangeSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex characters
+            const rangeMatch = verseData.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
+
+            if (rangeMatch) {
+                const start = parseInt(rangeMatch[1], 10);
+                const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : start;
+
+                if (verse >= start && verse <= end) {
+                    return element;
+                }
+            }
+        }
+
+        return null; // No matching element found
+    }
     function placeElement(
         document: Document,
         container: HTMLElement,
@@ -988,14 +1028,26 @@ LOGGING:
             console.log('Placing element:', element, 'at', pos, 'of verse', verse);
         }
         if (pos === 'after') {
-            const el = document.getElementById('bookmarks' + verse);
-            el.insertAdjacentElement('afterend', element);
-        } else if (pos === 'before') {
-            var el = container.querySelector(`div[data-verse="${verse}"][data-phrase="a"]`);
-            if (el.previousElementSibling?.classList.contains('c-drop')) {
-                el = el.previousElementSibling;
+            // Place after the bookmark element for the verse
+            const el = findBookmarkElementForVerse(verse, verseRangeSeparator);
+            if (el) {
+                if (scriptureLogs?.placement) {
+                    console.log(`Found bookmark element for verse ${verse} at ${el.id}`);
+                }
+                el.insertAdjacentElement('afterend', element);
+            } else {
+                console.log('Could not find bookmark element for verse', verse);
             }
-            el.insertAdjacentElement('beforebegin', element);
+        } else if (pos === 'before') {
+            var el = findDataElementForVerse(verse, verseRangeSeparator);
+            if (el) {
+                if (el.previousElementSibling?.classList.contains('c-drop')) {
+                    el = el.previousElementSibling;
+                }
+                el.insertAdjacentElement('beforebegin', element);
+            } else {
+                console.log('Could not find data element for verse', verse);
+            }
         } else if (pos === 'top') {
             const el = document.getElementsByClassName('m')[0];
             el.insertAdjacentElement('beforebegin', element);
