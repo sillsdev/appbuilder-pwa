@@ -4,11 +4,12 @@ import path from 'path';
 import { TaskOutDirs } from 'Task';
 import { test, expect, describe } from 'vitest';
 import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises';
-import { compare, CompareFileHandler, Options } from 'dir-compare';
+import { compare, CompareFileHandler, Difference, Options } from 'dir-compare';
 import { fileCompareHandlers } from 'dir-compare';
 import { isText } from 'istextorbinary';
 import { strFromU8 } from 'fflate';
 import { PkBookSpec, PkTestLogger } from '../../convertBooks';
+import { AssertionError } from 'assert';
 
 interface TestAppPaths {
     input: string;
@@ -84,12 +85,42 @@ async function assertDirsEqual(actual: PathLike, expected: PathLike, excludeFilt
         compareTimeStamp: false,
         excludeFilter
     };
-    await expect
-        .poll(async () => {
-            const result = await compare(actual.toString(), expected.toString(), cmpOptions);
-            return result.diffSet?.filter((diff) => diff.state != 'equal');
-        }, pollOptions)
-        .toEqual([]);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const comparrison = await compare(expected.toString(), actual.toString(), cmpOptions);
+    for (const diff of comparrison.diffSet ?? []) {
+        assertFileDiffEqual(diff);
+    }
+    // await expect
+    //     .poll(async () => {
+    //         const result = await compare(actual.toString(), expected.toString(), cmpOptions);
+    //         return result.diffSet?.filter((diff) => diff.state != 'equal');
+    //     }, pollOptions)
+    //     .toEqual([]);
+}
+
+function assertFileDiffEqual(diff: Difference) {
+    if (diff.state != 'equal') {
+        const message = fileDiffError(diff);
+        throw new AssertionError({ message });
+    }
+}
+
+function fileDiffError(diff: Difference): string {
+    const baseMessage = fileDiffErrorSummary(diff);
+    const details = JSON.stringify(diff, null, 2);
+    const message = baseMessage + '\nDetails:\n' + details;
+    return message;
+}
+
+function fileDiffErrorSummary(diff: Difference): string {
+    if (diff.state == 'left') {
+        return `${diff.type1} '${diff.name1}' is missing from output`;
+    } else if (diff.state == 'right') {
+        return `Unexpected ${diff.type2} '${diff.name2}' in output`;
+    } else if (diff.state == 'distinct') {
+        return `Contents of ${diff.type1} '${diff.name1}' does not match snapshot`;
+    }
+    return `Unexpected diff result: ${diff.state}`;
 }
 
 function maskDocIds(catalog: any) {
