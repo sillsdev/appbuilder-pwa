@@ -96,7 +96,8 @@ LOGGING:
               inlineGraft: 1,
               mark: 1,
               meta: 1,
-              row: 1
+              row: 1,
+              placement: 1
           }
         : $logs['scripture'];
 
@@ -524,10 +525,14 @@ LOGGING:
     }
     function addVerseNumber(workspace: any, element: any, showVerseNumbers: boolean) {
         if (showVerseNumbers === true) {
-            var spanV = document.createElement('span');
+            const spanV = document.createElement('span');
             spanV.classList.add('v');
-            spanV.innerText = numerals.formatNumber(numeralSystem, element.atts['number']);
-            var spanVsp = document.createElement('span');
+            // 'number' can be a range of verse numbers
+            const numbers = element.atts['number']
+                .split(verseRangeSeparator)
+                .map((x) => numerals.formatNumber(numeralSystem, x));
+            spanV.innerText = numbers.join(verseRangeSeparator);
+            const spanVsp = document.createElement('span');
             spanVsp.classList.add('vsp');
             spanVsp.innerText = '\u00A0'; // &nbsp
             workspace.phraseDiv.appendChild(spanV);
@@ -979,6 +984,9 @@ LOGGING:
         pos: string,
         verse: string
     ) {
+        if (scriptureLogs?.placement) {
+            console.log('Placing element:', element, 'at', pos, 'of verse', verse);
+        }
         if (pos === 'after') {
             const el = document.getElementById('bookmarks' + verse);
             el.insertAdjacentElement('afterend', element);
@@ -2397,7 +2405,8 @@ LOGGING:
     $: books = $refs.catalog.documents;
     $: direction = config.bookCollections.find((x) => x.id === references.collection).style
         .textDirection;
-
+    $: verseRangeSeparator = config.bookCollections.find((x) => x.id === references.collection)
+        .features['ref-verse-range-separator'];
     $: (() => {
         performance.mark('query-start');
         const bookHasIntroduction = books.find((x) => x.bookCode === currentBook)?.hasIntroduction;
