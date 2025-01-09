@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { TaskOutput, Task, TaskOutDirs } from './Task';
 
 export interface ManifestTaskOutput extends TaskOutput {
     taskName: 'ConvertManifest';
@@ -8,9 +8,9 @@ export interface ManifestTaskOutput extends TaskOutput {
 /**
  * Copies manifest.webmanifest to static folder
  */
-export function convertManifest(dataDir: string, verbose: number) {
+export function convertManifest(dataDir: string, staticDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'manifest.json');
-    const dstFile = path.join('static', 'manifest.json');
+    const dstFile = path.join(staticDir, 'manifest.json');
     if (existsSync(srcFile)) {
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
@@ -44,11 +44,12 @@ export function convertManifest(dataDir: string, verbose: number) {
 export class ConvertManifest extends Task {
     public triggerFiles: string[] = ['manifest.json'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
     }
+
     public async run(verbose: number, outputs: Map<string, TaskOutput>): Promise<TaskOutput> {
-        convertManifest(this.dataDir, verbose);
+        convertManifest(this.dataDir, this.outDirs.static, verbose);
         return {
             taskName: this.constructor.name,
             files: []

@@ -1,0 +1,23 @@
+{
+  "name": "WEB Gospels",
+  "short_name": "WEB Gospels",
+  "start_url": "./",
+  "scope": "",
+  "display": "standalone",
+  "description": "",
+  "dir": "ltr",
+  "lang": "en",
+  "background_color": "#AD4428",
+  "theme_color":"#AD4428",
+  "icons": [
+    {
+      "src": "./icons/icon-36.png",
+      "sizes": "36x36",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "related_applications": [
+
+  ]
+}

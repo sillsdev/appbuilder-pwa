@@ -1,7 +1,7 @@
 import { readFileSync, existsSync, PathLike, readdirSync } from 'fs';
 import jsdom from 'jsdom';
 import path from 'path';
-import { Task, TaskOutput } from './Task';
+import { Task, TaskOutDirs, TaskOutput } from './Task';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
 import type {
@@ -1328,6 +1328,11 @@ export interface ConfigTaskOutput extends TaskOutput {
  */
 export class ConvertConfig extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
+
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
+    }
+
     public run(verbose: number): ConfigTaskOutput {
         const data = convertConfig(this.dataDir, verbose);
         return {
@@ -1335,7 +1340,7 @@ export class ConvertConfig extends Task {
             data,
             files: [
                 {
-                    path: 'src/lib/data/config.js',
+                    path: path.join(this.outDirs.config, 'config.js'),
                     content: `export default ${JSON.stringify(data, null, 2)};`
                 }
             ]

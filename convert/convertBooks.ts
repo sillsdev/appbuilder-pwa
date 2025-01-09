@@ -3,7 +3,7 @@
 
 import type { ScriptureConfig, BookConfig } from '$config';
 import type { ConfigTaskOutput } from './convertConfig';
-import { TaskOutput, Task, Promisable } from './Task';
+import { TaskOutput, Task, Promisable, TaskOutDirs } from './Task';
 import * as fs from 'fs';
 import path, { basename, extname } from 'path';
 import { SABProskomma } from '../src/lib/sab-proskomma';
@@ -11,6 +11,37 @@ import { queries, postQueries, freeze } from '../sab-proskomma-tools';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
+
+export interface PkBookSpec {
+    lang: string;
+    abbr: string;
+    contentType: string;
+    content: string;
+    section: string;
+    testament: string;
+}
+
+/**
+ * Utility to log events for testing
+ */
+export class PkTestLogger {
+    private constructor() {}
+
+    private static _instance = new PkTestLogger();
+    private _onBookCreated = (spec: PkBookSpec) => {};
+
+    static instance() {
+        return this._instance;
+    }
+
+    onBookCreated(spec: PkBookSpec) {
+        this._onBookCreated(spec);
+    }
+
+    setOnBookCreated(callback: (spec: PkBookSpec) => void) {
+        this._onBookCreated = callback;
+    }
+}
 
 const base = process.env.BUILD_BASE_PATH || '';
 
@@ -242,6 +273,7 @@ type ConvertBookContext = {
 const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
+    staticDir: string,
     scriptureConfig: ScriptureConfig,
     verbose: number
 ): Promise<BooksTaskOutput> {
@@ -261,7 +293,7 @@ export async function convertBooks(
     // copy book-related folder resources
     ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('static', folder);
+        const folderDstDir = path.join(staticDir, folder);
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
@@ -322,7 +354,7 @@ export async function convertBooks(
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
-                            'static',
+                            staticDir,
                             'collections',
                             context.bcId,
                             'quizzes',
@@ -335,7 +367,7 @@ export async function convertBooks(
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
-                        convertHtmlBook(context, book, files);
+                        convertHtmlBook(context, book, staticDir, files);
                         displayBookId(context.bcId, book.id);
                         htmlBooks[context.docSet].push({ id: book.id, name: book.name });
                     } else {
@@ -364,14 +396,14 @@ export async function convertBooks(
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
 
         //check if folder exists for collection
-        const collPath = path.join('static', 'collections', context.bcId);
+        const collPath = path.join(staticDir, 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
             if (verbose) console.log('creating: ' + collPath);
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
-            const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
+            const qPath = path.join(staticDir, 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 fs.mkdirSync(qPath, { recursive: true });
@@ -380,7 +412,7 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-    const catalogPath = path.join('static', 'collections', 'catalog');
+    const catalogPath = path.join(staticDir, 'collections', 'catalog');
     if (!fs.existsSync(catalogPath)) {
         if (verbose) console.log('creating: ' + catalogPath);
         fs.mkdirSync(catalogPath, { recursive: true });
@@ -399,14 +431,14 @@ export async function convertBooks(
     //push files to be written to files array
     freezer.forEach((value, key) =>
         files.push({
-            path: path.join('static', 'collections', key + '.pkf'),
+            path: path.join(staticDir, 'collections', key + '.pkf'),
             content: value
         })
     );
 
     //write index file
     fs.writeFileSync(
-        path.join('static', 'collections', 'index.json'),
+        path.join(staticDir, 'collections', 'index.json'),
         `[${(() => {
             //export collection names as array
             let s = '';
@@ -467,9 +499,14 @@ export type Quiz = {
     passScore?: number; //\pm
 };
 
-function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
+function convertHtmlBook(
+    context: ConvertBookContext,
+    book: BookConfig,
+    staticDir: string,
+    files: any[]
+) {
     const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
-    const dstFile = path.join('static', 'collections', context.bcId, book.file);
+    const dstFile = path.join(staticDir, 'collections', context.bcId, book.file);
 
     let content = fs.readFileSync(srcFile, 'utf-8');
     content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id);
@@ -604,6 +641,46 @@ function updateExplanation(
     return explanation;
 }
 
+interface AddBookResult {
+    success: boolean;
+    error: string;
+}
+
+function createBook(pk: SABProskomma, spec: PkBookSpec): Promise<AddBookResult> {
+    PkTestLogger.instance().onBookCreated(spec);
+    //query Proskomma with a mutation to add a document
+    //more efficient than original pk.addDocument call
+    //as it can be run asynchronously
+    let resolveQuery: (result: AddBookResult) => void;
+    const promise = new Promise<AddBookResult>((resolve) => {
+        resolveQuery = resolve;
+    });
+    pk.gqlQuery(
+        `mutation {
+                addDocument(
+                    selectors: [
+                        {key: "lang", value: "${spec.lang}"},
+                        {key: "abbr", value: "${spec.abbr}"}
+                    ],
+                    contentType: "${spec.contentType}",
+                    content: """${spec.content}""",
+                    tags: [
+                        "sections:${spec.section}",
+                        "testament:${spec.testament}"
+                    ]
+                )
+            }`,
+        (r: any) => {
+            const success = r.data?.addDocument ? true : false;
+            resolveQuery({
+                success,
+                error: success ? '' : JSON.stringify(r)
+            });
+        }
+    );
+    return promise;
+}
+
 function convertScriptureBook(
     pk: SABProskomma,
     context: ConvertBookContext,
@@ -622,48 +699,32 @@ function convertScriptureBook(
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
             content = removeMissingVerses(content, context.bcId, book.id);
         }
-        //query Proskomma with a mutation to add a document
-        //more efficient than original pk.addDocument call
-        //as it can be run asynchronously
         //process.stdout.write(`Adding: ${book.file}\n${content}\n`);
-        pk.gqlQuery(
-            `mutation {
-                addDocument(
-                    selectors: [
-                        {key: "lang", value: "${context.lang}"}, 
-                        {key: "abbr", value: "${context.bcId}"}
-                    ], 
-                    contentType: "${book.file.split('.').pop()}", 
-                    content: """${content}""",
-                    tags: [
-                        "sections:${book.section}",
-                        "testament:${book.testament}"
-                    ]
-                )
-            }`,
-            (r: any) => {
-                //log if document added successfully
-                if (context.verbose)
-                    console.log(
-                        (r.data?.addDocument ? '' : 'failed: ') +
-                            context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
-                    );
-                //if the document is not added successfully, the response returned by Proskomma includes an error message
-                if (!r.data?.addDocument) {
-                    const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
-                    throw Error(
-                        `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(r)}`
-                    );
-                } else {
-                    displayBookId(context.bcId, book.id);
-                }
-                resolve();
+        createBook(pk, {
+            lang: context.lang,
+            abbr: context.bcId,
+            contentType: `${book.file.split('.').pop()}`,
+            content,
+            section: book.section,
+            testament: book.testament
+        }).then((result) => {
+            if (context.verbose)
+                console.log(
+                    (result.success ? '' : 'failed: ') +
+                        context.docSet +
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                );
+            if (result.success) {
+                displayBookId(context.bcId, book.id);
+            } else {
+                const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+                throw Error(`Adding document, likely not USFM? : ${bookPath}\n${result.error}`);
             }
-        );
+            resolve();
+        });
     }
     //push new Proskomma mutation to docs array
     docs.push(
@@ -725,9 +786,10 @@ export class ConvertBooks extends Task {
 
     public static lastBookCollections: ScriptureConfig['bookCollections'];
 
-    constructor(dataDir: string) {
-        super(dataDir);
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
     }
+
     public run(
         verbose: number,
         outputs: Map<string, TaskOutput>,
@@ -750,7 +812,7 @@ export class ConvertBooks extends Task {
             };
         }
 
-        const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
+        const ret = convertBooks(this.dataDir, this.outDirs.static, scriptureConfig, verbose);
         ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
         return ret;
     }

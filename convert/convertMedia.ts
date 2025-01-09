@@ -1,8 +1,8 @@
 import { ConfigTaskOutput } from './convertConfig';
-import { CopySyncOptions, cpSync, existsSync } from 'fs';
+import { CopySyncOptions, cpSync, existsSync, stat } from 'fs';
 import { rimraf } from 'rimraf';
 import path from 'path';
-import { Task, TaskOutput } from './Task';
+import { Task, TaskOutDirs, TaskOutput } from './Task';
 import { compareVersions } from './stringUtils';
 
 function cpSyncOptional(source: string, destination: string, opts?: CopySyncOptions): boolean {
@@ -31,16 +31,16 @@ function cloneDirectory(from: string, to: string, verbose: number, optional = fa
 /**
  * Copies extra media assets from supplied data folder to static/assets
  */
-function cloneToAssets(from: string[], verbose: number) {
+function cloneToAssets(from: string[], staticDir: string, verbose: number) {
     from.forEach((f) => {
         if (
-            cpSyncOptional(path.join('data', f), path.join('static', 'assets', f), {
+            cpSyncOptional(path.join('data', f), path.join(staticDir, 'assets', f), {
                 recursive: true
             })
         ) {
             if (verbose)
                 console.log(
-                    `copied ${path.join('data', f)} to ${path.join('static', 'assets', f)}`
+                    `copied ${path.join('data', f)} to ${path.join(staticDir, 'assets', f)}`
                 );
         } else if (verbose) console.log(`${path.join('data', f)} does not exist`);
     });
@@ -67,8 +67,8 @@ export class ConvertMedia extends Task {
         'icons'
     ];
 
-    constructor(dataDir: string) {
-        super(dataDir);
+    constructor(dataDir: string, outDirs: TaskOutDirs) {
+        super(dataDir, outDirs);
     }
 
     public async run(
@@ -88,7 +88,9 @@ export class ConvertMedia extends Task {
                 modifiedDirectories.add(subdir);
             }
         }
-        await this.convertMedia(this.dataDir, config, verbose, [...modifiedDirectories]);
+        await this.convertMedia(this.dataDir, this.outDirs.static, config, verbose, [
+            ...modifiedDirectories
+        ]);
         return {
             taskName: this.constructor.name,
             files: []
@@ -96,6 +98,7 @@ export class ConvertMedia extends Task {
     }
     async convertMedia(
         dataDir: string,
+        staticDir: string,
         configData: ConfigTaskOutput,
         verbose: number,
         modifiedDirectories: string[]
@@ -107,8 +110,8 @@ export class ConvertMedia extends Task {
         // error there will need to be a delay between the removal and the copy.
         await Promise.all(
             modifiedDirectories.map((p) =>
-                rimraf(path.join('static', p)).then(() => {
-                    if (verbose) console.log(`removed ${path.join('static', p)}`);
+                rimraf(path.join(staticDir, p)).then(() => {
+                    if (verbose) console.log(`removed ${path.join(staticDir, p)}`);
                     return p;
                 })
             )
@@ -117,7 +120,7 @@ export class ConvertMedia extends Task {
         for (const p of modifiedDirectories) {
             cloneDirectory(
                 path.join(dataDir, p),
-                path.join('static', p),
+                path.join(staticDir, p),
                 verbose,
                 !required.includes(p)
             );

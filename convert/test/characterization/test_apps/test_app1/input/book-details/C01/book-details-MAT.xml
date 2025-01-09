@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<book-details>
+    <f>70-MATeng-web.usfm</f>
+    <page num="0"></page>
+    <page num="1">
+        <audio>
+            <f src="d1" len="224496" size="1825367">B01___01_Matthew_____ENGWEBN2DA.mp3</f>
+            <y>C01-41-MAT-01-timing.txt</y>
+        </audio>
+    </page>
+    <features type="book">
+        <e name="wj-marked" value="true"/>
+    </features>
+</book-details>

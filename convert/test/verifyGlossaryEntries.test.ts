@@ -1,7 +1,7 @@
 import { describe, expect, beforeEach, it, test } from 'vitest';
 import { readFile, readFileSync, writeFile, writeFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
-import { verifyGlossaryEntries } from './verifyGlossaryEntries';
+import { verifyGlossaryEntries } from '../verifyGlossaryEntries';
 
 describe('verifyGlossaryEntries', () => {
     // Tests using Genesis 1: 1 & 2
