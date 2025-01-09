@@ -75,7 +75,7 @@
             </div>
             <div style:word-wrap="break-word">
                 {#if editing}
-                    <textarea bind:value={text} class="dy-textarea w-full" />
+                    <textarea bind:value={text} class="dy-textarea w-full"></textarea>
                 {:else if text !== undefined}
                     {#each text.split(/\r?\n/) as line}
                         {#if line}

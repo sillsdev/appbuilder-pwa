@@ -61,7 +61,7 @@ moderately modified because touch was not working.
         class="separator"
         on:pointerdown={onPointerdown}
         style="top: {topEdge}%"
-    />
+    ></div>
     <div bind:this={down} class="pane" style="height: {downHeight}%">
         <slot name="down" />
     </div>

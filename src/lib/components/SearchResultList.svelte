@@ -129,12 +129,12 @@
         <p style={convertStyle($s['ui.search.progress-label'])} style:text-align="center">
             <bdi>{$t['Search_Searching']}</bdi>
         </p>
-        <span class="spin" />
+        <span class="spin"></span>
     {:else}
         {#each resultsShown as result}
             <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
         {/each}
-        <div class="py-4" />
+        <div class="py-4"></div>
     {/if}
     <div id="sentinel" style="height: 1px;"></div>
 </div>

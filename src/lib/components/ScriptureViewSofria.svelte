@@ -2496,7 +2496,7 @@ LOGGING:
 
 <article class="container" bind:this={container}>
     {#if loading}
-        <span class="spin" />
+        <span class="spin"></span>
     {/if}
     <div
         id="content"

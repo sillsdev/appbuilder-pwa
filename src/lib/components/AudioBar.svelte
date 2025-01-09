@@ -173,9 +173,9 @@ TODO:
                 value={$audioPlayer.progress}
                 max={$audioPlayer.duration}
                 on:click={seekAudio}
-            />
+            ></progress>
         {:else}
-            <progress class="dy-progress audio-progress" value="0" max="1" />
+            <progress class="dy-progress audio-progress" value="0" max="1"></progress>
         {/if}
         <div class="audio-progress-duration text-sm">
             {format($audioPlayer.duration)}

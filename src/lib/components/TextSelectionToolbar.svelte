@@ -153,7 +153,7 @@ TODO:
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(1)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
@@ -162,7 +162,7 @@ TODO:
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(2)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
@@ -171,7 +171,7 @@ TODO:
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(3)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
@@ -180,7 +180,7 @@ TODO:
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(4)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
@@ -189,7 +189,7 @@ TODO:
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(5)}
                         role="button"
-                    />
+                    ></div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
@@ -198,7 +198,7 @@ TODO:
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(6)}
                         role="button"
-                    />
+                    ></div>
                 </div>
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}

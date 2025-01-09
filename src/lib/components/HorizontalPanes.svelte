@@ -77,7 +77,7 @@ heavily modified because it did not support more than 2 panes and touch was not 
                 bind:this={separators[i]}
                 style="left: {edges[i]}%"
                 on:pointerdown={(e) => onPointerdown(e, i)}
-            />
+            ></div>
         {/if}
     {/each}
 </div>
