@@ -152,8 +152,13 @@ function removeMissingFigures(text: string, _bcId: string, _bookId: string): str
             // Image is missing, return an empty string to strip the \fig marker
             return '';
         } else {
-            // Image is present, return the original \fig marker
-            return match;
+            if (parts.length < 2) {
+                // Image is present, but needs formatting that works with Proskomma
+                return `\\fig NO_CAPTION|src="${imageSource}"\\fig*`;
+            } else {
+                // Image is present, return the original \fig marker
+                return match;
+            }
         }
     });
 }
