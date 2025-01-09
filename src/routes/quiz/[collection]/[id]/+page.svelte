@@ -364,7 +364,7 @@
             {/await}
         {/if}
     {:else}
-        <body class="quiz">
+        <div class="quiz">
             <div id="content">
                 <div class="quiz-question-number" style:line-height="{$bodyLineHeight}%">
                     {questionNum + 1}
@@ -477,7 +477,7 @@
                     </div>
                 {/if}
             </div>
-        </body>
+        </div>
     {/if}
 </div>
 

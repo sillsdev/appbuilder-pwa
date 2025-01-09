@@ -385,7 +385,11 @@ test('loadDocSet loads correct data', () => {
 
     const encoder = new TextEncoder();
     const data = encoder.encode('abc');
-    repo.loadDocSet(data);
+    const buffer = data.buffer.slice(
+        data.byteOffset,
+        data.byteOffset + data.byteLength
+    ) as ArrayBuffer;
+    repo.loadDocSet(buffer);
 
     const decoder = new TextDecoder('utf-8');
     expect(decoder.decode(loadedData)).toBe(decoder.decode(data));

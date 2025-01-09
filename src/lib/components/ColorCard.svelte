@@ -21,7 +21,7 @@ TODO:
 
 <div class="annotation-item-block dy-card">
     <div class="color-card">
-        <div class="annotation-item-color {'hlp' + penColor.toString()} self-center" />
+        <div class="annotation-item-color {'hlp' + penColor.toString()} self-center"></div>
         <div class="annotation-item-reference justify-self-start self-center">
             <a
                 style="text-decoration:none;"

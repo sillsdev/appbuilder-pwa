@@ -17,7 +17,9 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 </script>
 
 {#if useLabel}
-    <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation" onclick="{id}.showModal()">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation" on:click={{ id }.showModal()}>
         <slot
             name="label"
         /><!--Anything passed into this slot will trigger the modal popup when clicked-->

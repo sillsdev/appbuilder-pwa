@@ -100,7 +100,7 @@ The sidebar/drawer.
     </div>
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer} role="navigation">
-        <div class="dy-drawer-overlay" />
+        <div class="dy-drawer-overlay"></div>
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
             style:background-color={drawerBackgroundColor}
@@ -151,7 +151,7 @@ The sidebar/drawer.
                 </li>
             {/if}
             {#if showAccount || showSearch || showLayouts}
-                <div class="dy-divider m-1" />
+                <div class="dy-divider m-1"></div>
             {/if}
             {#if showHistory}
                 <li>
@@ -182,7 +182,7 @@ The sidebar/drawer.
                 </li>
             {/if}
             {#if showHistory || showBookmarks || showNotes || showHighlights}
-                <div class="dy-divider m-1" />
+                <div class="dy-divider m-1"></div>
             {/if}
             {#if showShare}
                 <li>
@@ -190,7 +190,7 @@ The sidebar/drawer.
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </a>
                 </li>
-                <div class="dy-divider m-1" />
+                <div class="dy-divider m-1"></div>
             {/if}
             {#if showPlans}
                 <li>
@@ -216,7 +216,7 @@ The sidebar/drawer.
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </button>
             </li>
-            <div class="dy-divider m-1" />
+            <div class="dy-divider m-1"></div>
             {#if menuItems}
                 {#each menuItems as item}
                     <li>

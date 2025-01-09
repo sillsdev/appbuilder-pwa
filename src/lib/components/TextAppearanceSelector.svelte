@@ -104,6 +104,7 @@ The navbar component. We have sliders that update reactively to both font size a
 
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <Modal bind:this={modalThis} id={modalId} useLabel={false} addCSS={positioningCSS}
         ><!--addCSS is a prop for injecting CSS into the modal-->
         <svelte:fragment slot="content">
@@ -176,7 +177,7 @@ The navbar component. We have sliders that update reactively to both font size a
                                 style:background-color={buttonBackground('Normal')}
                                 style:border={buttonBorder('Normal', $theme)}
                                 on:click={() => ($theme = 'Normal')}
-                            />
+                            ></button>
                         {/if}
                         {#if themes.includes('Sepia')}
                             <button
@@ -184,7 +185,7 @@ The navbar component. We have sliders that update reactively to both font size a
                                 style:background-color={buttonBackground('Sepia')}
                                 style:border={buttonBorder('Sepia', $theme)}
                                 on:click={() => ($theme = 'Sepia')}
-                            />
+                            ></button>
                         {/if}
                         {#if themes.includes('Dark')}
                             <button
@@ -192,7 +193,7 @@ The navbar component. We have sliders that update reactively to both font size a
                                 style:background-color={buttonBackground('Dark')}
                                 style:border={buttonBorder('Dark', $theme)}
                                 on:click={() => ($theme = 'Dark')}
-                            />
+                            ></button>
                         {/if}
                     </div>
                 {/if}
