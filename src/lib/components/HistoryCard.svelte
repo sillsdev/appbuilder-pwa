@@ -8,9 +8,10 @@ TODO:
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
-    import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { goto } from '$app/navigation';
+    import { getRoute } from '$lib/navigate';
+
     export let history: HistoryItem;
 
     $: bc = config.bookCollections.find((x) => x.id === history.collection);
@@ -34,7 +35,7 @@ TODO:
                 chapter: history.chapter,
                 verse: history.verse
             });
-            goto(`${base}/`);
+            goto(getRoute(`/`));
         }
     }
 </script>

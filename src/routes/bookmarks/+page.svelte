@@ -9,15 +9,15 @@
     import { removeBookmark, type BookmarkItem } from '$lib/data/bookmarks';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { page } from '$app/stores';
-    import { base } from '$app/paths';
     import { goto } from '$app/navigation';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
+    import { getRoute } from '$lib/navigate';
 
     async function handleMenuAction(event: CustomEvent, bookmark: BookmarkItem) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(bookmark);
-                goto(`${base}/`);
+                goto(getRoute(`/`));
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(bookmark);

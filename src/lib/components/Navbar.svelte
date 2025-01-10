@@ -14,9 +14,9 @@ The navbar component.
         NAVBAR_HEIGHT
     } from '$lib/data/stores';
     import { page } from '$app/stores';
-    import { base } from '$app/paths';
     import { createEventDispatcher } from 'svelte';
     import { goto } from '$app/navigation';
+    import { getRoute } from '$lib/navigate';
 
     export let showBackButton = true;
 
@@ -30,7 +30,7 @@ The navbar component.
             { cancelable: true }
         );
         if (shouldContinue) {
-            goto(`${base}/`);
+            goto(getRoute(`/`));
         }
     }
 </script>

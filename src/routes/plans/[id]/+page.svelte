@@ -27,6 +27,8 @@
         CheckboxIcon,
         InfoIcon
     } from '$lib/icons';
+    import { getRoute } from '$lib/navigate';
+
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
 
@@ -136,7 +138,7 @@
                             chapter: toChapter.toString(),
                             verse: destinationVerse.toString()
                         });
-                        goto(`${base}/text`);
+                        goto(getRoute(`/text`));
                     }
                 );
             }
@@ -144,7 +146,7 @@
     }
     function handleBackNavigation(event) {
         event.preventDefault();
-        goto(`${base}/plans`);
+        goto(getRoute(`/plans`));
     }
 
     function buildStatusDateString() {
@@ -294,7 +296,7 @@
                                 class="plan-button"
                                 id="PLAN-start"
                                 on:click={() =>
-                                    goto(`${base}/plans/${$page.data.planData.id}/settings`)}
+                                    goto(getRoute(`/plans/${$page.data.planData.id}/settings`))}
                             >
                                 {$t['Plans_Button_Start_Plan']}
                             </div>

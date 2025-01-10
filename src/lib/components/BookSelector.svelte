@@ -7,12 +7,11 @@ The navbar component.
     import SelectGrid from './SelectGrid.svelte';
     import TabsMenu from './TabsMenu.svelte';
     import { refs, nextRef, s, t, convertStyle, userSettingsOrDefault } from '$lib/data/stores';
-    import { navigateToText, navigateToUrl } from '$lib/navigate';
+    import { getRoute, navigateToText, navigateToUrl } from '$lib/navigate';
     import { DropdownIcon } from '$lib/icons';
     import config from '$lib/data/config';
     import SelectList from './SelectList.svelte';
     import * as numerals from '$lib/scripts/numeralSystem';
-    import { base } from '$app/paths';
 
     export let displayLabel = undefined;
     $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
@@ -143,7 +142,7 @@ The navbar component.
     function getBookUrl(book) {
         let url;
         if (book.type === 'quiz') {
-            url = `${base}/quiz/${$refs.collection}/${book.id}`;
+            url = getRoute(`/quiz/${$refs.collection}/${book.id}`);
         }
         return url;
     }

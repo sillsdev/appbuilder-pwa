@@ -18,6 +18,7 @@
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { goto } from '$app/navigation';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import { getRoute } from '$lib/navigate';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
@@ -124,7 +125,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                            on:click={() => goto(getRoute(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -156,7 +157,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                            on:click={() => goto(getRoute(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -188,7 +189,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(`${base}/plans/${plan.id}`)}
+                            on:click={() => goto(getRoute(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">

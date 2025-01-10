@@ -10,7 +10,7 @@ Plan Stop Modal Dialog component.
     import { addPlanState } from '$lib/data/planStates';
     import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
     import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
+    import { getRoute } from '$lib/navigate';
 
     export let planId = undefined;
 
@@ -29,7 +29,7 @@ Plan Stop Modal Dialog component.
     }
     function handleYes() {
         stopPlan().then(() => {
-            goto(`${base}/plans`);
+            goto(getRoute(`/plans`));
         });
     }
 

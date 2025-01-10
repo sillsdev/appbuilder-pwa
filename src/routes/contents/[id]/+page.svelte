@@ -21,6 +21,7 @@
     import config from '$lib/data/config';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import { getRoute } from '$lib/navigate';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -62,14 +63,14 @@
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
-                await goto(`${base}/contents/${item.linkTarget}`);
+                await goto(getRoute(`/contents/${item.linkTarget}`));
                 break;
             case 'other':
                 //switch on item.linkLocation
                 switch (item.linkLocation) {
                     case 'about':
                     case 'settings':
-                        goto(`${base}/${item.linkLocation}`);
+                        goto(getRoute(`/${item.linkLocation}`));
                         break;
                     case 'layout':
                         modal.open(MODAL_COLLECTION);
@@ -85,7 +86,7 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                goto(`${base}/${item.linkLocation}`);
+                goto(getRoute(`/${item.linkLocation}`));
                 break;
         }
     }
@@ -164,7 +165,7 @@
         event.preventDefault();
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(`${base}/contents/${menuId}`);
+            goto(getRoute(`/contents/${menuId}`));
         }
     }
     $: showBackButton = $contentsStack.length > 0;
