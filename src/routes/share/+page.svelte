@@ -1,11 +1,11 @@
 <script lang="ts">
-    import Navbar from '$lib/components/Navbar.svelte';
-    import { t, language, languageDefault } from '$lib/data/stores';
-    import config from '$lib/data/config';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
-    import { shareText } from '$lib/data/share';
+    import Navbar from '$lib/components/Navbar.svelte';
     import { logShareApp } from '$lib/data/analytics';
+    import config from '$lib/data/config';
+    import { shareText } from '$lib/data/share';
+    import { language, languageDefault, t } from '$lib/data/stores';
 
     const googlePlayBadgesRoot = 'https://play.google.com/intl/en_us/badges/static/images/badges/';
     const googlePlayBadgeSuffix = '_badge_web_generic.png';

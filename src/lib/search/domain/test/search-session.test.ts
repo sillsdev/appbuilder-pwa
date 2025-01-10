@@ -1,3 +1,4 @@
+import { relative } from 'path';
 import { ConfigRepository } from '$lib/search/data/repositories/config-repository';
 import { describe, expect, test } from 'vitest';
 import type { SearchResult } from '../entities';
@@ -13,7 +14,6 @@ import type {
 } from '../interfaces/domain-interfaces';
 import type { SearchPresenter, UserSearchOptions } from '../interfaces/presentation-interfaces';
 import { SearchSession } from '../search-session';
-import { relative } from 'path';
 
 class TestPresenter implements SearchPresenter {
     phrase: string;

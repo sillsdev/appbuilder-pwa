@@ -9,6 +9,7 @@ TODO:
     import config from '$lib/data/config';
     import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
+
     export let docSet = '';
     export let collection = '';
     export let book = '';

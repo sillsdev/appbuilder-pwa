@@ -1,7 +1,7 @@
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
+import type { QueryVerseProvider, SearchCandidate } from '../domain/interfaces/data-interfaces';
 import { BufferedReader } from '../utils/buffered-reader';
 import { RegexHelpers } from '../utils/regex-helpers';
-import type { QueryVerseProvider, SearchCandidate } from '../domain/interfaces/data-interfaces';
 import type {
     GQLBlockToken,
     GQLBookId,

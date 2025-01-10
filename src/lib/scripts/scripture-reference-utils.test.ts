@@ -4,10 +4,10 @@
  * @Author Jake Colbert & David Moore
  */
 
-import { describe, expect, beforeEach, afterEach, it } from 'vitest';
-import { generateHTMLTest, isBibleBook, getDisplayStringMain } from './scripture-reference-utils';
-import config from '../../../test_data/data/config';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { catalog } from '../../../test_data/data/catalog';
+import config from '../../../test_data/data/config';
+import { generateHTMLTest, getDisplayStringMain, isBibleBook } from './scripture-reference-utils';
 
 describe('Scripture Reference Utilities', () => {
     describe('generateHTMLTest', () => {

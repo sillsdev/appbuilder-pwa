@@ -1,7 +1,6 @@
 import { expect, test, vi } from 'vitest';
-
-import * as num from './numeralSystem';
 import { getStyle } from './configUtils';
+import * as num from './numeralSystem';
 
 test('fromString returns Oriya correctly', () => {
     expect(num.systemFromString('Oriya')).toBe(num.NumeralSystemData.ORIYA);

@@ -1,7 +1,7 @@
+import config from '$lib/data/config';
 import { NavigationContext } from '$lib/data/navigation';
 import { derived, writable } from 'svelte/store';
 import type { CatalogData } from '../catalogData';
-import config from '$lib/data/config';
 
 interface ReferenceStore {
     docSet: string;

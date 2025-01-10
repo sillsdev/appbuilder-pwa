@@ -1,8 +1,8 @@
 <script lang="ts">
     import HistoryCard from '$lib/components/HistoryCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { bodyFontSize, t } from '$lib/data/stores';
     import { clearHistory } from '$lib/data/history';
+    import { bodyFontSize, t } from '$lib/data/stores';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
     // Use "export let data" instead of $page so that local data can

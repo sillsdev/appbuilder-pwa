@@ -1,6 +1,6 @@
 import { copyFile } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { Task, TaskOutput } from './Task';
 
 export interface AboutTaskOutput extends TaskOutput {
     taskName: 'ConvertAbout';

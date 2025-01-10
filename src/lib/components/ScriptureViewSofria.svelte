@@ -10,24 +10,38 @@ LOGGING:
     { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
 <script lang="ts">
-    import type { SABProskomma } from '$lib/sab-proskomma';
-    import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import config from '$lib/data/config';
+    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
+    import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
+    import config from '$lib/data/config';
+    import {
+        addPlanProgressItem,
+        deleteAllProgressItemsForPlan,
+        getFirstIncompleteDay,
+        getNextPlanReference
+    } from '$lib/data/planProgressItems';
+    import { addPlanState, getLastPlanState } from '$lib/data/planStates';
+    import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import {
         audioPlayer,
         currentPlanData,
         currentPlanState,
         footnotes,
-        refs,
         language,
         logs,
         modal,
-        plan,
         MODAL_NOTE,
+        plan,
+        refs,
         t,
         userSettings
     } from '$lib/data/stores';
+    import { getRoute } from '$lib/navigate';
+    import type { SABProskomma } from '$lib/sab-proskomma';
+    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
+    import * as numerals from '$lib/scripts/numeralSystem';
+    import { parsePhrase, prepareAudioPhraseEndChars } from '$lib/scripts/parsePhrase';
     import {
         generateHTML,
         getDisplayString,
@@ -35,29 +49,15 @@ LOGGING:
         isBibleBook
     } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
+    import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
     import {
-        onClickText,
         deselectAllElements,
+        onClickText,
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
-    import { prepareAudioPhraseEndChars, parsePhrase } from '$lib/scripts/parsePhrase';
-    import { createVideoBlock, addVideoLinks, createVideoBlockFromUrl } from '$lib/video';
-    import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { seekToVerse, hasAudioPlayed } from '$lib/data/audio';
-    import {
-        deleteAllProgressItemsForPlan,
-        getFirstIncompleteDay,
-        getNextPlanReference
-    } from '$lib/data/planProgressItems';
-    import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
-    import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
-    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-    import * as numerals from '$lib/scripts/numeralSystem';
+    import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
+    import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { afterUpdate, onDestroy, onMount } from 'svelte';
-    import { goto } from '$app/navigation';
-    import { addPlanProgressItem } from '$lib/data/planProgressItems';
-    import { addPlanState, getLastPlanState } from '$lib/data/planStates';
-    import { getRoute } from '$lib/navigate';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;

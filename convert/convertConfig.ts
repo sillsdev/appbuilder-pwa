@@ -1,20 +1,19 @@
-import { readFileSync, existsSync, PathLike, readdirSync } from 'fs';
+import { existsSync, PathLike, readdirSync, readFileSync } from 'fs';
+import path, { basename, extname } from 'path';
+import type {
+    AppConfig,
+    BookCollectionAudioConfig,
+    BookCollectionConfig,
+    DictionaryConfig,
+    DictionaryWritingSystemConfig,
+    ScriptureConfig,
+    StyleConfig,
+    WritingSystemConfig
+} from '$config';
 import jsdom from 'jsdom';
-import path from 'path';
-import { Task, TaskOutput } from './Task';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
-import type {
-    ScriptureConfig,
-    BookCollectionConfig,
-    BookCollectionAudioConfig,
-    StyleConfig,
-    DictionaryConfig,
-    AppConfig,
-    WritingSystemConfig,
-    DictionaryWritingSystemConfig
-} from '$config';
-import { basename, extname } from 'path';
+import { Task, TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
 

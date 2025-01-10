@@ -1,5 +1,5 @@
-import { get } from 'svelte/store';
 import { t } from '$lib/data/stores';
+import { get } from 'svelte/store';
 
 export function isSameDay(date1: Date, date2: Date): boolean {
     const day1 = date1.toISOString().split('T')[0];

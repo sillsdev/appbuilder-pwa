@@ -1,11 +1,11 @@
+import { ECDH } from 'crypto';
 import { SABProskomma } from '$lib/sab-proskomma';
+import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
 import { describe, expect, test } from 'vitest';
 import {
     GQLSearchHelpers,
     ProskommaSearchRepositoryImpl
 } from '../repositories/pk-search-repository-impl';
-import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
-import { ECDH } from 'crypto';
 
 const sampleUsfm1 = `
 \\id MAT 40-MAT-web.sfm World English Bible (WEB) 

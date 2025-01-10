@@ -1,4 +1,5 @@
 import config from '../../../../lib/data/config';
+
 export async function load({ params }) {
     const allPlans = config.plans.plans;
 

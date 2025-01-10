@@ -1,10 +1,10 @@
+import type { SearchResult } from '$lib/search/domain/entities';
 import type { MessageRequest, MessageResponse } from '$lib/utils/worker-messenger/message';
 import type { RequestHandler } from '$lib/utils/worker-messenger/messenger';
 import { expect, test } from 'vitest';
-import { SearchQueryExternal } from '../search-query-external';
-import type { SearchResult } from '$lib/search/domain/entities';
 import { isResultsRequest, type ResultsRequest } from '../interfaces/requests';
 import type { ResultsResponse } from '../interfaces/responses';
+import { SearchQueryExternal } from '../search-query-external';
 
 class TestMessenger {
     lastSentRequest: MessageRequest;

@@ -5,9 +5,9 @@ Font list component.
 <svelte:options accessors />
 
 <script>
-    import { createEventDispatcher } from 'svelte';
     import config from '$lib/data/config';
     import { fontChoices, monoIconColor, themeColors } from '$lib/data/stores';
+    import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();
     export let selectedFont;

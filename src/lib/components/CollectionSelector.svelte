@@ -3,13 +3,22 @@
 Book Collection Selector component.
 -->
 <script>
-    import Modal from './Modal.svelte';
-    import LayoutOptions from './LayoutOptions.svelte';
-    import TabsMenu from './TabsMenu.svelte';
     import config from '$lib/data/config';
-    import { convertStyle, refs, layout, selectedLayouts, s, t } from '$lib/data/stores';
-    import { SinglePaneIcon, SideBySideIcon, VerseByVerseIcon } from '$lib/icons';
-    import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from '$lib/data/stores';
+    import {
+        convertStyle,
+        layout,
+        LAYOUT_SINGLE,
+        LAYOUT_TWO,
+        LAYOUT_VERSE_BY_VERSE,
+        refs,
+        s,
+        selectedLayouts,
+        t
+    } from '$lib/data/stores';
+    import { SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
+    import LayoutOptions from './LayoutOptions.svelte';
+    import Modal from './Modal.svelte';
+    import TabsMenu from './TabsMenu.svelte';
 
     const modalId = 'collectionSelector';
     let modal;

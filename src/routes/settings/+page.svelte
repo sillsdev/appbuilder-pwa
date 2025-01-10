@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import ScrolledContent from '$lib/components/ScrolledContent.svelte';
-    import { t, userSettings, direction } from '$lib/data/stores';
+    import { direction, t, userSettings } from '$lib/data/stores';
     import * as s from '$lib/data/stores/setting';
 
     let categories = [];

@@ -8,6 +8,7 @@ TODO:
     import { base } from '$app/paths';
     import { refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
+
     export let docSet = '';
     export let book = '';
     export let chapter = '';

@@ -1,22 +1,23 @@
 <script>
+    import { beforeNavigate } from '$app/navigation';
+    import { base } from '$app/paths';
+    import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import { addQuiz } from '$lib/data/quiz';
     import {
-        refs,
-        t,
         bodyFontSize,
         bodyLineHeight,
         modal,
         MODAL_TEXT_APPEARANCE,
-        quizAudioActive
+        quizAudioActive,
+        refs,
+        t
     } from '$lib/data/stores';
-    import { compareVersions } from '$lib/scripts/stringUtils';
-    import { base } from '$app/paths';
-    import { onDestroy } from 'svelte';
-    import { beforeNavigate } from '$app/navigation';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import BookSelector from '$lib/components/BookSelector.svelte';
+    import { compareVersions } from '$lib/scripts/stringUtils';
+    import { onDestroy } from 'svelte';
+
     /** @type {import('./$types').PageData} */
     export let data;
 

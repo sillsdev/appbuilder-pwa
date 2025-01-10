@@ -1,6 +1,6 @@
 <script>
-    import { AudioIcon } from '$lib/icons';
     import { s, t, userSettings } from '$lib/data/stores';
+    import { AudioIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
     let modalId = 'playback';

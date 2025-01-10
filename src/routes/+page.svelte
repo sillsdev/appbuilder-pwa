@@ -1,11 +1,10 @@
 <script>
-    import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import contents from '$lib/data/contents';
-    import { isFirstLaunch, audioActive } from '$lib/data/stores';
-    import { navigateToTextReference } from '$lib/navigate';
-    import { getRoute } from '$lib/navigate';
+    import { audioActive, isFirstLaunch } from '$lib/data/stores';
+    import { getRoute, navigateToTextReference } from '$lib/navigate';
+    import { onMount } from 'svelte';
 
     onMount(() => {
         const launchAction = contents?.features?.['launch-action'];

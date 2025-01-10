@@ -1,24 +1,23 @@
 <script>
-    import { page } from '$app/stores';
-    import Navbar from '$lib/components/Navbar.svelte';
-
-    import {
-        language,
-        s,
-        t,
-        convertStyle,
-        themeColors,
-        modal,
-        MODAL_COLLECTION,
-        MODAL_TEXT_APPEARANCE
-    } from '$lib/data/stores';
+    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
+    import { page } from '$app/stores';
+    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import { getLastPlanState } from '$lib/data/planStates';
-    import { compareVersions } from '$lib/scripts/stringUtils';
-    import { goto } from '$app/navigation';
-    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import {
+        convertStyle,
+        language,
+        modal,
+        MODAL_COLLECTION,
+        MODAL_TEXT_APPEARANCE,
+        s,
+        t,
+        themeColors
+    } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
+    import { compareVersions } from '$lib/scripts/stringUtils';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';

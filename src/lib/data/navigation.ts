@@ -1,4 +1,4 @@
-import { type CatalogData, loadCatalog } from './catalogData';
+import { loadCatalog, type CatalogData } from './catalogData';
 import configuration from './config';
 
 /**

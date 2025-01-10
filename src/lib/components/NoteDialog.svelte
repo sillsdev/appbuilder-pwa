@@ -1,10 +1,10 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-    import Modal from './Modal.svelte';
+    import { addNote, editNote } from '$lib/data/notes';
+    import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
-    import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
-    import { editNote, addNote } from '$lib/data/notes';
+    import Modal from './Modal.svelte';
 
     export let note = undefined;
     export let editing = false;

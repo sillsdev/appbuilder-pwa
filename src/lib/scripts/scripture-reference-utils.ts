@@ -5,12 +5,17 @@
  **/
 
 import { get } from 'svelte/store';
-import config from '../data/config';
 import type { CatalogData } from '../data/catalogData';
+import config from '../data/config';
 import { getVerseText, refs } from '../data/stores';
+import * as numerals from './numeralSystem';
 import {
-    containsRomanScriptLetter,
+    convertDigitsInStringToDefaultNumeralSystem,
+    getIntFromNumberString
+} from './numeralUtils';
+import {
     ciEquals,
+    containsRomanScriptLetter,
     getFirstDigitsAsInt,
     getIntFromString,
     isBlank,
@@ -21,11 +26,7 @@ import {
     splitString,
     stripAllExceptDigitsAndHyphens
 } from './stringUtils';
-import {
-    convertDigitsInStringToDefaultNumeralSystem,
-    getIntFromNumberString
-} from './numeralUtils';
-import * as numerals from './numeralSystem';
+
 let ref: any;
 let bookCollections: any;
 let collection: any;

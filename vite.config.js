@@ -1,10 +1,11 @@
 // vite.config.js
-import { sveltekit } from '@sveltejs/kit/vite';
+
 // polyfill code sourced from: https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
 // yarn add --dev @esbuild-plugins/node-globals-polyfill
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 // yarn add --dev @esbuild-plugins/node-modules-polyfill
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+import { sveltekit } from '@sveltejs/kit/vite';
 // You don't need to add this to deps, it's included by @esbuild-plugins/node-modules-polyfill
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 

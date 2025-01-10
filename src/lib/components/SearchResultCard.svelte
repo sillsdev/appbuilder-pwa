@@ -4,9 +4,9 @@ A clickable verse card representing a single search result.
 -->
 <script lang="ts">
     import config from '$lib/data/config';
-    import type { Reference, SearchResult } from '$lib/search/domain/entities';
-    import * as numerals from '$lib/scripts/numeralSystem';
     import { navigateToText } from '$lib/navigate';
+    import * as numerals from '$lib/scripts/numeralSystem';
+    import type { Reference, SearchResult } from '$lib/search/domain/entities';
 
     export let docSet: string;
     export let collection: string;

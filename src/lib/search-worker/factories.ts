@@ -1,5 +1,4 @@
 import { getDocSetUrl } from '$lib/data/scripture';
-
 import { WorkerRequestRepository } from '$lib/search/data/repositories/worker-request-repository';
 import type { QueryGenerator } from '$lib/search/domain/interfaces/data-interfaces';
 import type { Message } from '$lib/utils/worker-messenger/message';

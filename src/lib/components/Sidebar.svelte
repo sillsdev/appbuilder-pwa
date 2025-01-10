@@ -3,41 +3,41 @@
 The sidebar/drawer.
 -->
 <script>
-    import {
-        AccountIcon,
-        SearchIcon,
-        BibleIcon,
-        HistoryIcon,
-        BookmarkIcon,
-        NoteIcon,
-        HighlightIcon,
-        ShareIcon,
-        SettingsIcon,
-        TextAppearanceIcon,
-        AboutIcon,
-        HomeIcon,
-        CalendarMonthIcon
-    } from '$lib/icons';
+    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
+    import contents from '$lib/data/contents';
     import {
-        s,
-        t,
+        direction,
         language,
         languageDefault,
-        showDesktopSidebar,
-        direction,
-        refs,
         modal,
-        MODAL_TEXT_APPEARANCE,
         MODAL_COLLECTION,
+        MODAL_TEXT_APPEARANCE,
+        refs,
+        s,
+        showDesktopSidebar,
+        t,
         theme,
         themeColors,
         userPreferenceSettings
     } from '$lib/data/stores';
-    import contents from '$lib/data/contents';
+    import {
+        AboutIcon,
+        AccountIcon,
+        BibleIcon,
+        BookmarkIcon,
+        CalendarMonthIcon,
+        HighlightIcon,
+        HistoryIcon,
+        HomeIcon,
+        NoteIcon,
+        SearchIcon,
+        SettingsIcon,
+        ShareIcon,
+        TextAppearanceIcon
+    } from '$lib/icons';
     import { getRoute } from '$lib/navigate';
-    import { goto } from '$app/navigation';
 
     const drawerId = 'sidebar';
     let menuToggle = false;

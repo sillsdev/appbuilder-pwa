@@ -4,9 +4,10 @@ A drop-down menu for use in ColorCard, HistoryCard, and IconCard.
 Dispatches a menuaction event when an option is selected from the menu.
 -->
 <script lang="ts">
-    import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
     import { monoIconColor } from '$lib/data/stores';
+    import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
     import { createEventDispatcher } from 'svelte';
+
     const dispatch = createEventDispatcher();
     export let actions = [''];
 

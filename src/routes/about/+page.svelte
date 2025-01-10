@@ -1,8 +1,9 @@
 <script lang="ts">
-    import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
+    import { t } from '$lib/data/stores';
+
     export let data;
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;

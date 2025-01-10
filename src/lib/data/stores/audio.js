@@ -1,6 +1,6 @@
-import { writable, get, derived } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { derived, get, writable } from 'svelte/store';
 import config from '../config';
+import { setDefaultStorage } from './storage';
 
 /**is audio active in the app*/
 setDefaultStorage('audioActive', config.mainFeatures['audio-turn-on-at-startup']);
