@@ -1,33 +1,32 @@
 <script>
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
-
+    import config from '$lib/data/config';
+    import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
+    import { getLastPlanState, getLastPlanStateRecord } from '$lib/data/planStates';
     import {
-        language,
-        s,
-        t,
         convertStyle,
+        language,
+        modal,
+        MODAL_STOP_PLAN,
         plan,
         refs,
-        modal,
-        MODAL_STOP_PLAN
+        s,
+        t
     } from '$lib/data/stores';
-    import { getLastPlanState, getLastPlanStateRecord } from '$lib/data/planStates';
-    import { getNextPlanReference, getFirstIncompleteDay } from '$lib/data/planProgressItems';
-    import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
-    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
-    import { base } from '$app/paths';
-    import { goto } from '$app/navigation';
-    import config from '$lib/data/config';
-    import { compareVersions } from '$lib/scripts/stringUtils';
     import {
         CalendarMonthIcon,
-        CheckboxOutlineIcon,
-        SettingsIcon,
         CheckboxIcon,
-        InfoIcon
+        CheckboxOutlineIcon,
+        InfoIcon,
+        SettingsIcon
     } from '$lib/icons';
     import { getRoute } from '$lib/navigate';
+    import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
+    import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
+    import { compareVersions } from '$lib/scripts/stringUtils';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';

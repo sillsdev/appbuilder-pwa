@@ -1,7 +1,7 @@
-import { derived } from 'svelte/store';
-import { userSettings } from './setting';
 import { getLanguages } from '$lib/data/language';
+import { derived } from 'svelte/store';
 import config from '../config';
+import { userSettings } from './setting';
 
 /** localization */
 

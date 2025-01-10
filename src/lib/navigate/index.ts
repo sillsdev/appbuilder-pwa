@@ -1,10 +1,10 @@
-import { refs } from '$lib/data/stores';
-import { addHistory, type HistoryItem } from '$lib/data/history';
 import { goto } from '$app/navigation';
 import { base } from '$app/paths';
-import { get } from 'svelte/store';
 import { logScreenView } from '$lib/data/analytics';
 import { playStop } from '$lib/data/audio';
+import { addHistory, type HistoryItem } from '$lib/data/history';
+import { refs } from '$lib/data/stores';
+import { get } from 'svelte/store';
 
 export function getRoute(route: string) {
     return `${base}/#${route}`;

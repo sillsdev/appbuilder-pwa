@@ -4,8 +4,9 @@
  * @Author Jake Colbert & David Moore
  */
 
-import { describe, expect, beforeEach, afterEach, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getReferenceFromString } from './scripture-reference-utils-common';
+
 describe('Scripture Reference Utilities', () => {
     describe('getReferenceFromString', () => {
         it('gets book from string', () => {

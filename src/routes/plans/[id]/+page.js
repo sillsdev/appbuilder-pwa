@@ -1,6 +1,6 @@
+import { getAllProgressItemsForPlan } from '$lib/data/planProgressItems';
 import config from '../../../lib/data/config';
 import { getPlanData } from '../../../lib/data/plansData';
-import { getAllProgressItemsForPlan } from '$lib/data/planProgressItems';
 
 export async function load({ params, fetch }) {
     const allPlans = config.plans.plans;

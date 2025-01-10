@@ -1,27 +1,26 @@
 <script>
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
     import { page } from '$app/stores';
+    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import config from '$lib/data/config';
     import {
+        contentsFontSize,
+        contentsStack,
+        convertStyle,
         language,
-        s,
-        t,
-        themeColors,
         modal,
         MODAL_COLLECTION,
-        convertStyle,
-        contentsStack,
         MODAL_TEXT_APPEARANCE,
-        contentsFontSize
+        refs,
+        s,
+        t,
+        themeColors
     } from '$lib/data/stores';
-    import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
-    import { base } from '$app/paths';
-    import { refs } from '$lib/data/stores';
-    import { navigateToText } from '$lib/navigate';
-    import { goto } from '$app/navigation';
-    import config from '$lib/data/config';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
-    import { getRoute } from '$lib/navigate';
+    import { getRoute, navigateToText } from '$lib/navigate';
+    import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';

@@ -3,9 +3,9 @@
 Font Selector component.
 -->
 <script>
-    import Modal from './Modal.svelte';
-    import FontList from './FontList.svelte';
     import { convertStyle, currentFont, currentFonts, refs, s, t } from '$lib/data/stores';
+    import FontList from './FontList.svelte';
+    import Modal from './Modal.svelte';
 
     const modalId = 'fontSelector';
     let modal;

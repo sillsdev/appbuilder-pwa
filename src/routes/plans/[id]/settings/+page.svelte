@@ -1,9 +1,9 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { language, t } from '$lib/data/stores';
     import { addPlanState } from '$lib/data/planStates';
-    import { goto } from '$app/navigation';
+    import { language, t } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
 
     async function startPlan(id) {

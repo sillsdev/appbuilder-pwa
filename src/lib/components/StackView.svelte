@@ -4,11 +4,11 @@
 -->
 
 <script>
-    import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
-
     import config from '$lib/data/config';
-    import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
+    import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
+    import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
+
     export let bodyFontSize;
     export let bodyLineHeight;
     export let font;

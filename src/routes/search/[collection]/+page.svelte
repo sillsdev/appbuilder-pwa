@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { t, themeColors } from '$lib/data/stores';
+    import { goto } from '$app/navigation';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
+    import SearchResultList from '$lib/components/SearchResultList.svelte';
+    import { t, themeColors } from '$lib/data/stores';
+    import { getRoute } from '$lib/navigate';
     import type { SearchResult } from '$lib/search/domain/entities';
     import type {
         SearchPresenter,
         UserSearchOptions
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
-    import SearchResultList from '$lib/components/SearchResultList.svelte';
     import { onMount, tick, type ComponentEvents } from 'svelte';
-    import { goto } from '$app/navigation';
-    import { getRoute } from '$lib/navigate';
 
     export let data;
 

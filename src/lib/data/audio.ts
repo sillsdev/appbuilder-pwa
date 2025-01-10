@@ -1,18 +1,21 @@
+import { base } from '$app/paths';
 import config from '$lib/data/config';
+import { MRUCache } from '$lib/data/mrucache';
 import {
     audioHighlightElements,
-    playMode,
+    audioPlayerDefault,
+    audioPlayer as audioPlayerStore,
     defaultPlayMode,
+    playMode,
     PLAYMODE_CONTINUE,
-    PLAYMODE_STOP,
     PLAYMODE_REPEAT_PAGE,
-    PLAYMODE_REPEAT_SELECTION
+    PLAYMODE_REPEAT_SELECTION,
+    PLAYMODE_STOP,
+    refs
 } from '$lib/data/stores';
-import { refs, audioPlayer as audioPlayerStore, audioPlayerDefault } from '$lib/data/stores';
-import { MRUCache } from '$lib/data/mrucache';
-import { base } from '$app/paths';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
+
 export interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;

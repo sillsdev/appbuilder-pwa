@@ -1,16 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
+import http from 'http';
+import path from 'path';
 import { ApolloServer } from '@apollo/server';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { json } from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import fse, { readFileSync } from 'fs-extra';
-import http from 'http';
-import path from 'path';
-import { typeDefs, resolvers } from 'proskomma-core';
-
+import { resolvers, typeDefs } from 'proskomma-core';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import { thaw } from '../src/lib/scripts/thaw';
 

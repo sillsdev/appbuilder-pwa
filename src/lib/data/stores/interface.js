@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
+import config from '../config';
 import { refs } from './scripture';
 import { userSettings } from './setting';
-import config from '../config';
 
 export const direction = derived([refs, userSettings], ([$refs, $userSettings]) => {
     var direction = config.mainFeatures['settings-app-layout-direction']

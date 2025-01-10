@@ -1,5 +1,5 @@
-import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 import type { AudioConfig } from '$config';
+import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 
 export function checkForMilestoneLinks(
     textType: string[],

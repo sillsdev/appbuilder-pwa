@@ -6,6 +6,7 @@ Dispatches a menuaction event when an option is selected from the menu.
 <script lang="ts">
     import { SortIcon } from '$lib/icons';
     import { createEventDispatcher } from 'svelte';
+
     const dispatch = createEventDispatcher();
     export let actions = [''];
 

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { mainScroll } from '$lib/data/stores';
     import { onMount } from 'svelte';
+
     let main: HTMLElement;
 
     export const updateScroll = (() => {

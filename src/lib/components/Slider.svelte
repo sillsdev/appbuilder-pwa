@@ -5,6 +5,7 @@ A simple slider component.
 
 <script>
     import { direction } from '$lib/data/stores';
+
     export let barColor;
     export let progressColor;
     export let value;

@@ -1,17 +1,17 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
     import IconCard from '$lib/components/IconCard.svelte';
+    import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
+    import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
+    import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { removeNote, type NoteItem } from '$lib/data/notes';
+    import { bodyFontSize, modal, MODAL_NOTE, monoIconColor, refs, t } from '$lib/data/stores';
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import Navbar from '$lib/components/Navbar.svelte';
-    import { t, monoIconColor, refs, modal, MODAL_NOTE, bodyFontSize } from '$lib/data/stores';
-    import { formatDate } from '$lib/scripts/dateUtils';
-    import { removeNote, type NoteItem } from '$lib/data/notes';
-    import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
-    import { page } from '$app/stores';
-    import { goto } from '$app/navigation';
-    import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { getRoute } from '$lib/navigate';
+    import { formatDate } from '$lib/scripts/dateUtils';
 
     async function handleMenuaction(event: CustomEvent, note: NoteItem) {
         switch (event.detail.text) {

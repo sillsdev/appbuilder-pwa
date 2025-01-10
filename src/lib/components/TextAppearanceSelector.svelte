@@ -6,9 +6,7 @@ The navbar component. We have sliders that update reactively to both font size a
 <svelte:options accessors={true} />
 
 <script>
-    import Modal from './Modal.svelte';
-    import Slider from './Slider.svelte';
-    import { TextAppearanceIcon, ImageIcon } from '$lib/icons';
+    import config from '$lib/data/config';
     import {
         bodyFontSize,
         bodyLineHeight,
@@ -18,13 +16,15 @@ The navbar component. We have sliders that update reactively to both font size a
         language,
         languages,
         modal,
+        MODAL_FONT,
         monoIconColor,
         theme,
         themeColors,
-        themes,
-        MODAL_FONT
+        themes
     } from '$lib/data/stores';
-    import config from '$lib/data/config';
+    import { ImageIcon, TextAppearanceIcon } from '$lib/icons';
+    import Modal from './Modal.svelte';
+    import Slider from './Slider.svelte';
 
     let modalId = 'textAppearanceSelector';
     let modalThis;

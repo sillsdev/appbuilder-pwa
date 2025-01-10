@@ -1,6 +1,6 @@
 import type { SABProskomma } from '$lib/sab-proskomma';
+import { makeRegexPattern, RegexHelpers } from '$lib/search-worker/utils/regex-helpers';
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
-import { RegexHelpers, makeRegexPattern } from '$lib/search-worker/utils/regex-helpers';
 import type {
     GQLBlockToken,
     GQLBookId,

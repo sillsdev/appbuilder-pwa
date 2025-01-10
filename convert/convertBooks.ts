@@ -1,16 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import type { ScriptureConfig, BookConfig } from '$config';
-import type { ConfigTaskOutput } from './convertConfig';
-import { TaskOutput, Task, Promisable } from './Task';
 import * as fs from 'fs';
 import path, { basename, extname } from 'path';
+import type { BookConfig, ScriptureConfig } from '$config';
+import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
-import { queries, postQueries, freeze } from '../sab-proskomma-tools';
+import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
-import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
+import { Promisable, Task, TaskOutput } from './Task';
+import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 const base = process.env.BUILD_BASE_PATH || '';
 

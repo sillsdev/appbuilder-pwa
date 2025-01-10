@@ -1,7 +1,7 @@
+import type { RequestHandler } from '@sveltejs/kit';
 import type { Reference } from '$lib/search/domain/entities';
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
 import type { MessageRequest } from '$lib/utils/worker-messenger/message';
-import type { RequestHandler } from '@sveltejs/kit';
 
 /**
  * Represents a verse that might match the search query.

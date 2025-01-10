@@ -3,10 +3,11 @@
 A component to display menu options in a grid.
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { s, refs, themeBookColors, themeColors, convertStyle } from '$lib/data/stores';
-    import { isNotBlank } from '$lib/scripts/stringUtils';
     import config from '$lib/data/config';
+    import { convertStyle, refs, s, themeBookColors, themeColors } from '$lib/data/stores';
+    import { isNotBlank } from '$lib/scripts/stringUtils';
+    import { createEventDispatcher } from 'svelte';
+
     export let options: App.GridGroup[] = [];
     export let cols = 6;
 

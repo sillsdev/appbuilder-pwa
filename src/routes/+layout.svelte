@@ -1,11 +1,11 @@
 <script lang="ts">
     import { base } from '$app/paths';
     import '$lib/app.css';
+    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
+    import NoteDialog from '$lib/components/NoteDialog.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
-    import NoteDialog from '$lib/components/NoteDialog.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import catalog from '$lib/data/catalogData';
     import config from '$lib/data/config';
     import {
@@ -15,8 +15,8 @@
         MODAL_COLLECTION,
         MODAL_FONT,
         MODAL_NOTE,
-        MODAL_TEXT_APPEARANCE,
         MODAL_STOP_PLAN,
+        MODAL_TEXT_APPEARANCE,
         NAVBAR_HEIGHT,
         refs,
         s,

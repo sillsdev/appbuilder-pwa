@@ -6,26 +6,26 @@ TODO:
 - display audio not found message in UI when audio is not found
 -->
 <script lang="ts">
-    import { AudioIcon } from '$lib/icons';
     import {
-        refs,
-        userSettings,
-        s,
-        playMode,
-        audioPlayer,
-        t,
-        convertStyle
-    } from '$lib/data/stores';
-    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
-    import config from '$lib/data/config';
-    import {
-        skip,
-        playPause,
         changeVerse,
         format,
+        playPause,
         seek,
+        skip,
         updatePlaybackSpeed
     } from '$lib/data/audio';
+    import config from '$lib/data/config';
+    import {
+        audioPlayer,
+        convertStyle,
+        playMode,
+        refs,
+        s,
+        t,
+        userSettings
+    } from '$lib/data/stores';
+    import { AudioIcon } from '$lib/icons';
+    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
 
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing

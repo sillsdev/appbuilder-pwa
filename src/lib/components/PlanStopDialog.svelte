@@ -5,12 +5,12 @@ Plan Stop Modal Dialog component.
 <svelte:options accessors={true} />
 
 <script>
-    import Modal from './Modal.svelte';
-    import { t } from '$lib/data/stores';
-    import { addPlanState } from '$lib/data/planStates';
-    import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
     import { goto } from '$app/navigation';
+    import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
+    import { addPlanState } from '$lib/data/planStates';
+    import { t } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
+    import Modal from './Modal.svelte';
 
     export let planId = undefined;
 

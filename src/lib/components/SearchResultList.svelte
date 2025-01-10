@@ -8,9 +8,9 @@
         t,
         themeColors
     } from '$lib/data/stores';
-    import SearchResultCard from './SearchResultCard.svelte';
     import type { SearchResult } from '$lib/search/domain/entities';
     import { onMount } from 'svelte';
+    import SearchResultCard from './SearchResultCard.svelte';
 
     export let collection: string;
     export let results: SearchResult[];

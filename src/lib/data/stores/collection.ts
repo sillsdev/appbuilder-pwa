@@ -1,6 +1,6 @@
-import { writable, get } from 'svelte/store';
-import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from './view.js';
+import { get, writable } from 'svelte/store';
 import config from '../config';
+import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from './view.js';
 
 function findCollection(id) {
     const ds = config.bookCollections.find((x) => x.id === id);

@@ -12,34 +12,35 @@ TODO:
 - Add highlight colors
 -->
 <script lang="ts">
+    import { getBook, logShareContent } from '$lib/data/analytics';
+    import { play, seekToVerse } from '$lib/data/audio';
+    import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
+    import config from '$lib/data/config';
+    import { addHighlights, removeHighlights } from '$lib/data/highlights';
+    import { shareText } from '$lib/data/share';
+    import {
+        audioActive,
+        modal,
+        MODAL_NOTE,
+        refs,
+        s,
+        selectedVerses,
+        t,
+        theme,
+        themeColors
+    } from '$lib/data/stores';
     import {
         AudioIcon,
+        BookmarkIcon,
+        BookmarkOutlineIcon,
         CopyContentIcon,
         HighlightIcon,
         NoteIcon,
-        BookmarkIcon,
-        BookmarkOutlineIcon,
         ShareIcon
     } from '$lib/icons';
-    import { createEventDispatcher } from 'svelte';
     import { ImageIcon } from '$lib/icons/image';
-    import config from '$lib/data/config';
-    import {
-        t,
-        s,
-        refs,
-        modal,
-        MODAL_NOTE,
-        selectedVerses,
-        theme,
-        themeColors,
-        audioActive
-    } from '$lib/data/stores';
-    import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
-    import { addHighlights, removeHighlights } from '$lib/data/highlights';
-    import { shareText } from '$lib/data/share';
-    import { play, seekToVerse } from '$lib/data/audio';
-    import { getBook, logShareContent } from '$lib/data/analytics';
+    import { createEventDispatcher } from 'svelte';
+
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
     const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];

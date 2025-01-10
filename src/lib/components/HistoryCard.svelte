@@ -5,12 +5,12 @@ TODO:
 - handle the book and collection specific styles
 -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import config from '$lib/data/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
-    import { formatDateAndTime } from '$lib/scripts/dateUtils';
-    import config from '$lib/data/config';
-    import { goto } from '$app/navigation';
     import { getRoute } from '$lib/navigate';
+    import { formatDateAndTime } from '$lib/scripts/dateUtils';
 
     export let history: HistoryItem;
 

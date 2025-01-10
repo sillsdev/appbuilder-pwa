@@ -3,8 +3,9 @@
 A simple dropdown menu from DaisyUI.
 -->
 <script lang="ts">
-    import { s, convertStyle } from '$lib/data/stores';
+    import { convertStyle, s } from '$lib/data/stores';
     import { createEventDispatcher, onDestroy } from 'svelte';
+
     export let cols = 6;
     const dispatch = createEventDispatcher();
 

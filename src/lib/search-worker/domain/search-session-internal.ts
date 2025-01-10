@@ -5,7 +5,7 @@ import type {
     MessageRequest,
     MessageResponse
 } from '$lib/utils/worker-messenger/message';
-import type { Messenger, MessageIO, RequestHandler } from '$lib/utils/worker-messenger/messenger';
+import type { MessageIO, Messenger, RequestHandler } from '$lib/utils/worker-messenger/messenger';
 import {
     isNewQueryRequest,
     isResultsRequest,

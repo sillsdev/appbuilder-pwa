@@ -1,21 +1,39 @@
 <script>
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
+    import { page } from '$app/stores';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
+    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
+    import HtmlBookView from '$lib/components/HtmlBookView.svelte';
+    import Navbar from '$lib/components/Navbar.svelte';
+    import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
+    import StackView from '$lib/components/StackView.svelte';
+    import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
+    import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
+    import config from '$lib/data/config';
+    import contents from '$lib/data/contents';
     import {
-        audioPlayer,
+        analytics,
         audioActive,
+        audioHighlightElements,
+        audioPlayer,
         bodyFontSize,
         bodyLineHeight,
         bookmarks,
+        contentsStack,
         convertStyle,
         currentFont,
         direction,
-        isFirstLaunch,
         glossary,
         highlights,
+        isFirstLaunch,
         mainScroll,
-        audioHighlightElements,
+        modal,
+        MODAL_COLLECTION,
+        MODAL_TEXT_APPEARANCE,
+        NAVBAR_HEIGHT,
         notes,
         refs,
         s,
@@ -25,41 +43,22 @@
         t,
         themeColors,
         userSettings,
-        contentsStack,
-        modal,
-        MODAL_TEXT_APPEARANCE,
-        MODAL_COLLECTION,
-        NAVBAR_HEIGHT,
-        userSettingsOrDefault,
-        analytics
+        userSettingsOrDefault
     } from '$lib/data/stores';
-    import { updateAudioPlayer, seekToVerse, playStop } from '$lib/data/audio';
     import {
         AudioIcon,
-        SearchIcon,
-        ChevronIcon,
-        TriangleLeftIcon,
-        TriangleRightIcon,
         BibleIcon,
-        TextAppearanceIcon
+        ChevronIcon,
+        SearchIcon,
+        TextAppearanceIcon,
+        TriangleLeftIcon,
+        TriangleRightIcon
     } from '$lib/icons';
-    import StackView from '$lib/components/StackView.svelte';
-    import Navbar from '$lib/components/Navbar.svelte';
-    import config from '$lib/data/config';
-    import contents from '$lib/data/contents';
-    import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
-    import HtmlBookView from '$lib/components/HtmlBookView.svelte';
-    import { getFeatureValueString, getFeatureValueBoolean } from '$lib/scripts/configUtils';
+    import { getRoute, navigateToTextChapterInDirection } from '$lib/navigate';
+    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import { afterUpdate, onDestroy, onMount } from 'svelte';
     import { pinch, swipe } from 'svelte-gestures';
-    import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { base } from '$app/paths';
-    import { page } from '$app/stores';
-    import { goto } from '$app/navigation';
-    import { onDestroy, onMount, afterUpdate } from 'svelte';
     import { slide } from 'svelte/transition';
-    import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
-    import { getRoute } from '$lib/navigate';
 
     let scrollingUp = true;
     let savedScrollPosition = 0;

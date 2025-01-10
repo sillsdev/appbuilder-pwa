@@ -1,3 +1,4 @@
+import { describe } from 'node:test';
 import type { SearchResult } from '$lib/search/domain/entities';
 import type {
     QueryGenerator,
@@ -6,13 +7,12 @@ import type {
 } from '$lib/search/domain/interfaces/data-interfaces';
 import { expect, test } from 'vitest';
 import type { NewQueryRequest, ResultsRequest } from '../interfaces/requests';
-import { SearchSessionInternal } from '../search-session-internal';
 import {
     isNewQueryResponse,
     isResultsResponse,
     type NewQueryResponse
 } from '../interfaces/responses';
-import { describe } from 'node:test';
+import { SearchSessionInternal } from '../search-session-internal';
 
 const testResult: SearchResult = {
     reference: {

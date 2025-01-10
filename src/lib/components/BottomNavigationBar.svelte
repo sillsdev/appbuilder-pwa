@@ -5,8 +5,8 @@
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { refs, s, language, languageDefault, theme } from '$lib/data/stores';
     import contents from '$lib/data/contents';
+    import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
 
     export let barType = undefined;

@@ -3,20 +3,20 @@
 The navbar component.
 -->
 <script>
-    import { HamburgerIcon, ArrowBackIcon, ArrowForwardIcon } from '$lib/icons';
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
     import {
+        convertStyle,
+        direction,
         layout,
         LAYOUT_TWO,
-        convertStyle,
+        NAVBAR_HEIGHT,
         s,
-        showDesktopSidebar,
-        direction,
-        NAVBAR_HEIGHT
+        showDesktopSidebar
     } from '$lib/data/stores';
-    import { page } from '$app/stores';
-    import { createEventDispatcher } from 'svelte';
-    import { goto } from '$app/navigation';
+    import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
     import { getRoute } from '$lib/navigate';
+    import { createEventDispatcher } from 'svelte';
 
     export let showBackButton = true;
 

@@ -3,9 +3,9 @@
 Custom list of collections for the LayoutOptions menu
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { themeColors, convertStyle, s } from '$lib/data/stores';
     import { base } from '$app/paths';
+    import { convertStyle, s, themeColors } from '$lib/data/stores';
+    import { createEventDispatcher } from 'svelte';
 
     // array of all selectable docsets
     export let docSets: App.CollectionEntry[] = [];

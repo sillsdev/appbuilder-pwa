@@ -1,9 +1,9 @@
-import { get } from 'svelte/store';
 import { base } from '$app/paths';
-import { SABProskomma } from '$lib/sab-proskomma';
-import { thaw } from '../scripts/thaw';
-import { pk } from '$lib/data/stores/pk';
 import config from '$lib/data/config';
+import { pk } from '$lib/data/stores/pk';
+import { SABProskomma } from '$lib/sab-proskomma';
+import { get } from 'svelte/store';
+import { thaw } from '../scripts/thaw';
 
 export async function initProskomma({ fetch }) {
     let proskomma = get(pk);

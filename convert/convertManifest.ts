@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { TaskOutput, Task } from './Task';
+import { Task, TaskOutput } from './Task';
 
 export interface ManifestTaskOutput extends TaskOutput {
     taskName: 'ConvertManifest';

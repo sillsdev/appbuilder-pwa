@@ -1,6 +1,6 @@
+import { invalidate } from '$app/navigation';
 import { openDB, type DBSchema } from 'idb';
 import { writable } from 'svelte/store';
-import { invalidate } from '$app/navigation';
 import type { PlanDataItem, PlansData } from './plansData';
 
 export interface PlanProgressItem {

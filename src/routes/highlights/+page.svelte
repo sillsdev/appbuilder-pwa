@@ -1,16 +1,16 @@
 <script lang="ts">
-    import ColorCard from '$lib/components/ColorCard.svelte';
-    import SortMenu from '$lib/components/SortMenu.svelte';
-    import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import Navbar from '$lib/components/Navbar.svelte';
-    import { bodyFontSize, refs, t } from '$lib/data/stores';
-    import { formatDate } from '$lib/scripts/dateUtils';
-    import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
-    import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
-    import { page } from '$app/stores';
     import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
+    import ColorCard from '$lib/components/ColorCard.svelte';
+    import Navbar from '$lib/components/Navbar.svelte';
+    import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
+    import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
+    import { bodyFontSize, refs, t } from '$lib/data/stores';
+    import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { getRoute } from '$lib/navigate';
+    import { formatDate } from '$lib/scripts/dateUtils';
 
     async function handleMenuaction(event: CustomEvent, highlight: HighlightItem) {
         switch (event.detail.text) {
