@@ -700,12 +700,20 @@ LOGGING:
         notesInChapter.then((notes) => {
             for (var k = 0; k < notes.length; k++) {
                 const note = notes[k];
-                let notesSpan = document.getElementById('bookmarks' + note.verse);
-                let noteSpan = document.createElement('span');
-                noteSpan.id = 'note' + k;
-                noteSpan.innerHTML = noteSvg();
-                noteSpan.onclick = (event) => editNote(note);
-                notesSpan.appendChild(noteSpan);
+                const bookmarksSpan = document.getElementById('bookmarks' + note.verse);
+                if (!bookmarksSpan) {
+                    console.warn('No bookmarks span for verse %s', note.verse);
+                    continue;
+                }   
+
+                const existingNoteSpan = document.getElementById('note' + k);
+                if (!existingNoteSpan) {
+                    let noteSpan = document.createElement('span');
+                    noteSpan.id = 'note' + k;
+                    noteSpan.innerHTML = noteSvg();
+                    noteSpan.onclick = (event) => editNote(note);
+                    bookmarksSpan.appendChild(noteSpan);
+                }
             }
         });
     }
@@ -729,11 +737,19 @@ LOGGING:
     function addBookmarkedVerses(bookmarksInChapter) {
         bookmarksInChapter.then((bookmarks) => {
             for (var j = 0; j < bookmarks.length; j++) {
-                let bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
-                let bookmarkSpan = document.createElement('span');
-                bookmarkSpan.id = 'bookmark' + j;
-                bookmarkSpan.innerHTML = bookmarkSvg();
-                bookmarksSpan.appendChild(bookmarkSpan);
+                const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
+                if (!bookmarksSpan) {
+                    console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
+                    continue;
+                }
+
+                const existingBookmarkSpan = document.getElementById('bookmark' + j);
+                if (!existingBookmarkSpan) {
+                    let bookmarkSpan = document.createElement('span');
+                    bookmarkSpan.id = 'bookmark' + j;
+                    bookmarkSpan.innerHTML = bookmarkSvg();
+                    bookmarksSpan.appendChild(bookmarkSpan);
+                }
             }
         });
     }
