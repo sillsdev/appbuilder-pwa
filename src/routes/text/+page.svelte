@@ -59,6 +59,7 @@
     import { slide } from 'svelte/transition';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import { getRoute } from '$lib/navigate';
 
     let scrollingUp = true;
     let savedScrollPosition = 0;
@@ -332,7 +333,7 @@
         event.preventDefault();
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(`${base}/contents/${menuId}`);
+            goto(getRoute(`/contents/${menuId}`));
         }
     }
     $: showBackButton =
@@ -384,39 +385,37 @@
 
                     <!-- Search Button -->
                     {#if showSearch}
-                        <a
-                            href="{base}/search/{$refs.collection}"
+                        <button
                             class="dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
                         >
                             <SearchIcon color="white" />
-                        </a>
+                        </button>
                     {/if}
 
                     <!-- Text Appearance Selector Button -->
-                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                    <label
-                        for="textAppearanceSelector"
-                        class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                    <button
+                        class="dy-btn dy-btn-ghost dy-btn-circle"
                         on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
-                        ><TextAppearanceIcon color="white" /></label
                     >
+                        <TextAppearanceIcon color="white" />
+                    </button>
 
                     <!-- Collection Selector Button -->
-                    {#if showCollectionNavbar && enoughCollections}
-                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                        <label
-                            for="collectionSelector"
-                            class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                    {#if true || (showCollectionNavbar && enoughCollections)}
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
                             on:click={() => modal.open(MODAL_COLLECTION)}
-                            ><BibleIcon color="white" /></label
                         >
+                            <BibleIcon color="white" />
+                        </button>
                     {/if}
                 </div>
                 {#if extraIconsExist}
                     <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
                     <button
                         class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => {
+                        on:click={(event) => {
                             showOverlowMenu = !showOverlowMenu;
                             event.stopPropagation();
                         }}

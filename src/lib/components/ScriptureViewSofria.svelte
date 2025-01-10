@@ -57,6 +57,7 @@ LOGGING:
     import { goto } from '$app/navigation';
     import { addPlanProgressItem } from '$lib/data/planProgressItems';
     import { addPlanState, getLastPlanState } from '$lib/data/planStates';
+    import { getRoute } from '$lib/navigate';
 
     export let audioPhraseEndChars: string;
     export let bodyFontSize: any;
@@ -704,7 +705,7 @@ LOGGING:
                 if (!bookmarksSpan) {
                     console.warn('No bookmarks span for verse %s', note.verse);
                     continue;
-                }   
+                }
 
                 const existingNoteSpan = document.getElementById('note' + k);
                 if (!existingNoteSpan) {
@@ -985,9 +986,9 @@ LOGGING:
     function planClicked() {
         if ($plan.planNextReference === '') {
             if ($currentPlanState === 'completed') {
-                goto(`${base}/plans`);
+                goto(getRoute(`/plans`));
             } else {
-                goto(`${base}/plans/${$plan.planId}`);
+                goto(getRoute(`/plans/${$plan.planId}`));
             }
         } else {
             gotoPlanReference();

@@ -6,6 +6,10 @@ import { get } from 'svelte/store';
 import { logScreenView } from '$lib/data/analytics';
 import { playStop } from '$lib/data/audio';
 
+export function getRoute(route: string) {
+    return `${base}/#${route}`;
+}
+
 function logHistoryItemAdded(itemAdded: HistoryItem) {
     logScreenView(itemAdded);
 }
@@ -33,14 +37,14 @@ export async function navigateToText(item: {
         { collection: item.collection, book: item.book, chapter: item.chapter, verse: item.verse },
         logHistoryItemAdded
     );
-    goto(`${base}/text`);
+    goto(getRoute(`/text`));
 }
 
 export async function navigateToTextReference(reference: string) {
     playStop();
     await refs.setReference(reference);
     const nowRef: any = get(refs);
-    goto(`${base}/text`);
+    goto(getRoute(`/text`));
     addHistory(
         {
             collection: nowRef.collection,

@@ -20,6 +20,9 @@ const config = {
         },
         alias: {
             $config: './config'
+        },
+        router: {
+            type: 'hash'
         }
     }
 };

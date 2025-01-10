@@ -9,15 +9,15 @@
     import { removeNote, type NoteItem } from '$lib/data/notes';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { page } from '$app/stores';
-    import { base } from '$app/paths';
     import { goto } from '$app/navigation';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
+    import { getRoute } from '$lib/navigate';
 
     async function handleMenuaction(event: CustomEvent, note: NoteItem) {
         switch (event.detail.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(note);
-                goto(`${base}/`);
+                goto(getRoute(`/`));
                 break;
             case $t['Annotation_Menu_Edit']:
                 modal.open(MODAL_NOTE, note);

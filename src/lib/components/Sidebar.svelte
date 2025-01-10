@@ -36,6 +36,8 @@ The sidebar/drawer.
         userPreferenceSettings
     } from '$lib/data/stores';
     import contents from '$lib/data/contents';
+    import { getRoute } from '$lib/navigate';
+    import { goto } from '$app/navigation';
 
     const drawerId = 'sidebar';
     let menuToggle = false;
@@ -119,23 +121,35 @@ The sidebar/drawer.
             </a>
             {#if showAccount}
                 <li>
-                    <a href="{base}/account" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/account'))}
+                    >
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showContents}
                 <li>
-                    <a href="{base}/contents/1" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/contents/1'))}
+                    >
                         <HomeIcon color={iconColor} />{$t['Menu_Contents']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showSearch}
                 <li>
-                    <a href="{base}/search/{$refs.collection}" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
+                    >
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showLayouts}
@@ -155,30 +169,46 @@ The sidebar/drawer.
             {/if}
             {#if showHistory}
                 <li>
-                    <a href="{base}/history" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/history'))}
+                    >
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showBookmarks}
                 <li>
-                    <a href="{base}/bookmarks" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/bookmarks'))}
+                    >
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showNotes}
                 <li>
-                    <a href="{base}/notes" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/notes'))}
+                    >
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showHighlights}
                 <li>
-                    <a href="{base}/highlights" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/highlights'))}
+                    >
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showHistory || showBookmarks || showNotes || showHighlights}
@@ -186,24 +216,36 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <a href="{base}/share" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/share'))}
+                    >
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
-                    </a>
+                    </button>
                 </li>
                 <div class="dy-divider m-1"></div>
             {/if}
             {#if showPlans}
                 <li>
-                    <a href="{base}/plans" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/plans'))}
+                    >
                         <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             {#if showSettings}
                 <li>
-                    <a href="{base}/settings" style:color={textColor}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        on:click={() => goto(getRoute('/settings'))}
+                    >
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
-                    </a>
+                    </button>
                 </li>
             {/if}
             <!-- svelte-ignore a11y-missing-attribute -->
@@ -247,9 +289,13 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <a href="{base}/about" style:color={textColor}>
+                <button
+                    class="btn"
+                    style:color={textColor}
+                    on:click={() => goto(getRoute('/about'))}
+                >
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
-                </a>
+                </button>
             </li>
         </ul>
     </div>
