@@ -11,6 +11,7 @@ TODO:
         format,
         playPause,
         seek,
+        seekOffset,
         skip,
         updatePlaybackSpeed
     } from '$lib/data/audio';
@@ -130,12 +131,16 @@ TODO:
     <!-- Play Controls -->
     <div class="audio-controls" style:direction="ltr">
         <button class="audio-control-buttons" on:click={() => skip(-1)}>
-            <AudioIcon.Prev color={iconColor} />
+            <AudioIcon.SkipPrevious color={iconColor} />
         </button>
 
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" on:click={() => changeVerse(-1)}>
-                <AudioIcon.RW color={iconColor} />
+                <AudioIcon.Rewind color={iconColor} />
+            </button>
+        {:else}
+            <button class="audio-control-buttons" on:click={() => seekOffset(-10)}>
+                <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
         <button class="audio-control-buttons" on:click={() => playPause()}>
@@ -147,11 +152,15 @@ TODO:
         </button>
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" on:click={() => changeVerse(1)}>
-                <AudioIcon.FF color={iconColor} />
+                <AudioIcon.FastForward color={iconColor} />
+            </button>
+        {:else}
+            <button class="audio-control-buttons" on:click={() => seekOffset(10)}>
+                <AudioIcon.Forward10 color={iconColor} />
             </button>
         {/if}
         <button class="audio-control-buttons" on:click={() => skip(1)}>
-            <AudioIcon.Skip color={iconColor} />
+            <AudioIcon.SkipNext color={iconColor} />
         </button>
     </div>
     <div class="audio-speed audio-control-buttons">
