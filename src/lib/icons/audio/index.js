@@ -1,4 +1,5 @@
 import FastForwardIcon from './FastForwardIcon.svelte';
+import Forward10Icon from './Forward10Icon.svelte';
 import MuteIcon from './MuteIcon.svelte';
 import PauseIcon from './PauseIcon.svelte';
 import PlayFillCircleIcon from './PlayFillCircleIcon.svelte';
@@ -9,6 +10,7 @@ import RepeatIcon from './RepeatIcon.svelte';
 import RepeatOffIcon from './RepeatOffIcon.svelte';
 import RepeatOffStopIcon from './RepeatOffStopIcon.svelte';
 import RepeatOneIcon from './RepeatOneIcon.svelte';
+import Replay10Icon from './Replay10Icon.svelte';
 import RewindIcon from './RewindIcon.svelte';
 import SkipNextIcon from './SkipNextIcon.svelte';
 import SkipPreviousIcon from './SkipPreviousIcon.svelte';
@@ -16,22 +18,24 @@ import SpeedIcon from './SpeedIcon.svelte';
 import VolumeIcon from './VolumeIcon.svelte';
 
 const AudioIcon = {
+    FastForward: FastForwardIcon,
+    Forward10: Forward10Icon,
     Mute: MuteIcon,
-    Volume: VolumeIcon,
     Pause: PauseIcon,
     PlayFillCircle: PlayFillCircleIcon,
     Play: PlayIcon,
     PlayOutlineCircle: PlayOutlineCircleIcon,
     PlayRepeat: PlayRepeatIcon,
-    FF: FastForwardIcon,
-    RW: RewindIcon,
-    Skip: SkipNextIcon,
-    Prev: SkipPreviousIcon,
-    RepeatOne: RepeatOneIcon,
     Repeat: RepeatIcon,
     RepeatOff: RepeatOffIcon,
     RepeatOffStop: RepeatOffStopIcon,
-    Speed: SpeedIcon
+    RepeatOne: RepeatOneIcon,
+    Replay10: Replay10Icon,
+    Rewind: RewindIcon,
+    SkipNext: SkipNextIcon,
+    SkipPrevious: SkipPreviousIcon,
+    Speed: SpeedIcon,
+    Volume: VolumeIcon
 };
 
 export { AudioIcon };

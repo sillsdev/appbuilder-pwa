@@ -177,6 +177,28 @@ export async function changeVerse(direction) {
         play();
     }
 }
+export async function seekOffset(offset) {
+    const playing = currentAudioPlayer.playing;
+    pause();
+    if (currentAudioPlayer.audio) {
+        let time = (currentAudioPlayer.audio.currentTime += offset);
+        if (time > currentAudioPlayer.duration) {
+            await skip(1);
+        } else {
+            if (time < 0) {
+                time = 0;
+            }
+
+            currentAudioPlayer.audio.currentTime = time;
+            updateTime();
+        }
+    } else {
+        console.log('audio seekOffset: current audio player audio missing ');
+    }
+    if (playing === true) {
+        play();
+    }
+}
 export function seek(position) {
     const playing = currentAudioPlayer.playing;
     pause();
