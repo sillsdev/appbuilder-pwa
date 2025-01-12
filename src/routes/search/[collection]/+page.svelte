@@ -109,9 +109,11 @@
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
-            </label>
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
+                </label>
+            {/snippet}
         </Navbar>
     </div>
 

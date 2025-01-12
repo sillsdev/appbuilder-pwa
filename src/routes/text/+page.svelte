@@ -328,8 +328,7 @@
         }, 3000);
     }
 
-    function handleBackNavigation(event) {
-        event.preventDefault();
+    function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
             goto(getRoute(`/contents/${menuId}`));
@@ -346,88 +345,89 @@
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation} {showBackButton}>
-            <div
-                slot="left-buttons"
-                class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}
-            >
-                <BookSelector />
-                <ChapterSelector />
-            </div>
+        <Navbar {backNavigation} {showBackButton}>
+            {#snippet start()}
+                <div class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}>
+                    <BookSelector />
+                    <ChapterSelector />
+                </div>
+            {/snippet}
+
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
-                slot="right-buttons"
-                class="flex flex-nowrap"
-                on:click={showOverlowMenu ? handleMenuClick : () => ({})}
-            >
-                <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
-                <div class="flex">
-                    {#if $refs.hasAudio && showAudio}
-                        <!-- Mute/Volume Button -->
+            {#snippet end()}
+                <div
+                    class="flex flex-nowrap"
+                    on:click={showOverlowMenu ? handleMenuClick : () => ({})}
+                >
+                    <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
+                    <div class="flex">
+                        {#if $refs.hasAudio && showAudio}
+                            <!-- Mute/Volume Button -->
+                            <button
+                                class="dy-btn dy-btn-ghost dy-btn-circle"
+                                on:click={() => {
+                                    $audioActive = !$audioActive;
+                                }}
+                            >
+                                {#if $audioActive}
+                                    <AudioIcon.Volume color="white" />
+                                {:else}
+                                    <AudioIcon.Mute color="white" />
+                                {/if}
+                            </button>
+                        {/if}
+                    </div>
+                    <div id="extraButtons" class={showOverlowMenu ? 'flex' : 'hidden md:flex'}>
+                        <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
+
+                        <!-- Search Button -->
+                        {#if showSearch}
+                            <button
+                                class="dy-btn dy-btn-ghost dy-btn-circle"
+                                on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
+                            >
+                                <SearchIcon color="white" />
+                            </button>
+                        {/if}
+
+                        <!-- Text Appearance Selector Button -->
                         <button
                             class="dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={() => {
-                                $audioActive = !$audioActive;
+                            on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                        >
+                            <TextAppearanceIcon color="white" />
+                        </button>
+
+                        <!-- Collection Selector Button -->
+                        {#if true || (showCollectionNavbar && enoughCollections)}
+                            <button
+                                class="dy-btn dy-btn-ghost dy-btn-circle"
+                                on:click={() => modal.open(MODAL_COLLECTION)}
+                            >
+                                <BibleIcon color="white" />
+                            </button>
+                        {/if}
+                    </div>
+                    {#if extraIconsExist}
+                        <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
+                        <button
+                            class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={(event) => {
+                                showOverlowMenu = !showOverlowMenu;
+                                event.stopPropagation();
                             }}
                         >
-                            {#if $audioActive}
-                                <AudioIcon.Volume color="white" />
+                            <!-- tricky logic: this causes the direction of the arrows to switch when rtl -->
+                            {#if showOverlowMenu === ($direction === 'ltr')}
+                                <TriangleRightIcon color="white" scale={1.25} />
                             {:else}
-                                <AudioIcon.Mute color="white" />
+                                <TriangleLeftIcon color="white" scale={1.25} />
                             {/if}
                         </button>
                     {/if}
                 </div>
-                <div id="extraButtons" class={showOverlowMenu ? 'flex' : 'hidden md:flex'}>
-                    <!-- An overflow menu containing the other right-buttons. On mobile it expands when overflowMenuButton is clicked and collpases when handleMenuClick() is called, on larger screens these buttons are always visible. -->
-
-                    <!-- Search Button -->
-                    {#if showSearch}
-                        <button
-                            class="dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
-                        >
-                            <SearchIcon color="white" />
-                        </button>
-                    {/if}
-
-                    <!-- Text Appearance Selector Button -->
-                    <button
-                        class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
-                    >
-                        <TextAppearanceIcon color="white" />
-                    </button>
-
-                    <!-- Collection Selector Button -->
-                    {#if true || (showCollectionNavbar && enoughCollections)}
-                        <button
-                            class="dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={() => modal.open(MODAL_COLLECTION)}
-                        >
-                            <BibleIcon color="white" />
-                        </button>
-                    {/if}
-                </div>
-                {#if extraIconsExist}
-                    <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
-                    <button
-                        class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={(event) => {
-                            showOverlowMenu = !showOverlowMenu;
-                            event.stopPropagation();
-                        }}
-                    >
-                        <!-- tricky logic: this causes the direction of the arrows to switch when rtl -->
-                        {#if showOverlowMenu === ($direction === 'ltr')}
-                            <TriangleRightIcon color="white" scale={1.25} />
-                        {:else}
-                            <TriangleLeftIcon color="white" scale={1.25} />
-                        {/if}
-                    </button>
-                {/if}
-            </div>
+            {/snippet}
         </Navbar>
     </div>
     {#if showCollectionViewer && enoughCollections}

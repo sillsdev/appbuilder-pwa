@@ -160,8 +160,7 @@
         return title;
     }
 
-    function handleBackNavigation(event) {
-        event.preventDefault();
+    function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
             goto(getRoute(`/contents/${menuId}`));
@@ -174,27 +173,32 @@
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation} {showBackButton}>
+        <Navbar {backNavigation} {showBackButton}>
             <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{title}</div>
-            </label>
-            <div slot="right-buttons" class="flex items-center">
-                <div class="flex">
-                    {#if $page.data.features['show-text-size-button'] === true}
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-label-has-associated-control -->
-                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                        <label
-                            class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                            on:click={() =>
-                                modal.open(MODAL_TEXT_APPEARANCE, { contentsMode: true })}
-                        >
-                            <TextAppearanceIcon color="white" />
-                        </label>
-                    {/if}
+            {#snippet center()}
+                <label for="sidebar" slot="center">
+                    <div class="btn btn-ghost normal-case text-xl">{title}</div>
+                </label>
+            {/snippet}
+
+            {#snippet end()}
+                <div class="flex items-center">
+                    <div class="flex">
+                        {#if $page.data.features['show-text-size-button'] === true}
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-label-has-associated-control -->
+                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                            <label
+                                class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                                on:click={() =>
+                                    modal.open(MODAL_TEXT_APPEARANCE, { contentsMode: true })}
+                            >
+                                <TextAppearanceIcon color="white" />
+                            </label>
+                        {/if}
+                    </div>
                 </div>
-            </div>
+            {/snippet}
         </Navbar>
     </div>
 

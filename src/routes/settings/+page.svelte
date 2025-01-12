@@ -26,11 +26,11 @@
 >
     <div class="navbar">
         <Navbar>
-            <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
-            </label>
-            <!-- <div slot="right-buttons" /> -->
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
+                </label>
+            {/snippet}
         </Navbar>
     </div>
     <div class="overflow-y-auto">

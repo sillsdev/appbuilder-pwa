@@ -2,9 +2,9 @@
 @component
 The navbar component.
 -->
-<script>
+<script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import {
         convertStyle,
         direction,
@@ -16,23 +16,26 @@ The navbar component.
     } from '$lib/data/stores';
     import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
     import { getRoute } from '$lib/navigate';
-    import { createEventDispatcher } from 'svelte';
 
-    export let showBackButton = true;
+    interface Props {
+        showBackButton?: boolean;
+        start?: () => any;
+        center?: () => any;
+        end?: () => any;
+        backNavigation?: (routeId: string) => void;
+    }
 
-    $: actionBarColor = $s['ui.bar.action']['background-color'];
+    let { showBackButton = true, start, center, end, backNavigation }: Props = $props();
 
-    const dispatch = createEventDispatcher();
     function handleBackNavigation() {
-        const shouldContinue = dispatch(
-            'backNavigation',
-            { detail: $page.route.id },
-            { cancelable: true }
-        );
-        if (shouldContinue) {
+        if (backNavigation) {
+            backNavigation(page.route.id);
+        } else {
             goto(getRoute(`/`));
         }
     }
+
+    let actionBarColor = $derived($s['ui.bar.action']['background-color']);
 </script>
 
 <!--
@@ -49,22 +52,21 @@ The navbar component.
                 <HamburgerIcon color="white" />
             </label>
         {:else}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div on:click={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <button onclick={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
                 {#if $direction === 'ltr'}
                     <ArrowBackIcon color="white" />
                 {:else}
                     <ArrowForwardIcon color="white" />
                 {/if}
-            </div>
+            </button>
         {/if}
-        <slot name="left-buttons" />
+        {@render start?.()}
     </div>
     <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
-        <slot name="center" />
+        {@render center?.()}
     </div>
     <div class="dy-navbar-end fill-base-content">
-        <slot name="right-buttons" />
+        {@render end?.()}
     </div>
 </div>
