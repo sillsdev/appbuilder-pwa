@@ -65,11 +65,11 @@
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
-            <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Plans']}</div>
-            </label>
-            <!-- <div slot="right-buttons" class="flex items-center"> -->
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Plans']}</div>
+                </label>
+            {/snippet}
         </Navbar>
     </div>
 

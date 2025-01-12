@@ -143,8 +143,7 @@
             }
         }
     }
-    function handleBackNavigation(event) {
-        event.preventDefault();
+    function backNavigation() {
         goto(getRoute(`/plans`));
     }
 
@@ -185,17 +184,17 @@
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation}>
-            <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">
-                    <!--back navigation isn't quite right-->
-                    {$page.data.planConfig.title[$language] ??
-                        $page.data.planConfig.title.default ??
-                        ''}
-                </div>
-            </label>
-            <!-- <div slot="right-buttons" class="flex items-center"> -->
+        <Navbar {backNavigation}>
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">
+                        <!--back navigation isn't quite right-->
+                        {$page.data.planConfig.title[$language] ??
+                            $page.data.planConfig.title.default ??
+                            ''}
+                    </div>
+                </label>
+            {/snippet}
         </Navbar>
     </div>
 

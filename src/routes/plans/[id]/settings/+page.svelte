@@ -13,8 +13,7 @@
         });
         goto(getRoute(`/plans/${id}`));
     }
-    function handleBackNavigation(event) {
-        event.preventDefault();
+    function backNavigation() {
         const id = $page.data.planConfig.id;
         goto(getRoute(`/plans/${id}`));
     }
@@ -22,16 +21,16 @@
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
-        <Navbar on:backNavigation={handleBackNavigation}>
-            <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">
-                    {$page.data.planConfig.title[$language] ??
-                        $page.data.planConfig.title.default ??
-                        ''}
-                </div>
-            </label>
-            <!-- <div slot="right-buttons" /> -->
+        <Navbar {backNavigation}>
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">
+                        {$page.data.planConfig.title[$language] ??
+                            $page.data.planConfig.title.default ??
+                            ''}
+                    </div>
+                </label>
+            {/snippet}
         </Navbar>
     </div>
     <div class="overflow-y-auto mx-auto max-w-screen-md">

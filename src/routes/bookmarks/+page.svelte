@@ -49,13 +49,15 @@
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
-            <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Bookmarks']}</div>
-            </label>
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">
+                        {$t['Annotation_Bookmarks']}
+                    </div>
+                </label>
+            {/snippet}
 
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <div slot="right-buttons">
+            {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     on:click={async () =>
@@ -64,8 +66,7 @@
                     <ShareIcon color="white" />
                 </button>
                 <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
-            </div>
-            <!-- <div slot="right-buttons" /> -->
+            {/snippet}
         </Navbar>
     </div>
 

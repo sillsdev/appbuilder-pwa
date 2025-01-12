@@ -302,34 +302,36 @@
 <div class="grid grid-rows-[auto,1fr] h-screen" style:font-size="{$bodyFontSize}px">
     <div class="navbar">
         <Navbar>
-            <div slot="left-buttons">
+            {#snippet start()}
                 <BookSelector {displayLabel} />
-            </div>
-            <div slot="right-buttons" class="flex items-center">
-                <div class="flex">
-                    <button
-                        class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => {
-                            $quizAudioActive = !$quizAudioActive;
-                        }}
+            {/snippet}
+            {#snippet end()}
+                <div class="flex items-center">
+                    <div class="flex">
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={() => {
+                                $quizAudioActive = !$quizAudioActive;
+                            }}
+                        >
+                            {#if $quizAudioActive}
+                                <AudioIcon.Volume color="white" />
+                            {:else}
+                                <AudioIcon.Mute color="white" />
+                            {/if}
+                        </button>
+                    </div>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <label
+                        class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
+                        on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
                     >
-                        {#if $quizAudioActive}
-                            <AudioIcon.Volume color="white" />
-                        {:else}
-                            <AudioIcon.Mute color="white" />
-                        {/if}
-                    </button>
+                        <TextAppearanceIcon color="white" />
+                    </label>
                 </div>
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                <label
-                    class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                    on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
-                >
-                    <TextAppearanceIcon color="white" />
-                </label>
-            </div>
+            {/snippet}
         </Navbar>
     </div>
 
