@@ -1,8 +1,8 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import Settings from '$lib/components/Settings.svelte';
-    import { direction, t, userSettings } from '$lib/data/stores';
-    import { userPreferenceSettings } from '$lib/data/stores/setting';
+    import { direction, t } from '$lib/data/stores';
+    import { devPreferenceSettings } from '$lib/data/stores/setting';
 </script>
 
 <div
@@ -20,6 +20,6 @@
         </Navbar>
     </div>
     <div class="overflow-y-auto">
-        <Settings settings={userPreferenceSettings}></Settings>
+        <Settings settings={devPreferenceSettings}></Settings>
     </div>
 </div>

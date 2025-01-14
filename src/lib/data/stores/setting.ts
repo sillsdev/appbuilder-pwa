@@ -49,6 +49,22 @@ export const defaultSettings =
         ? { ...commonDefaultSettings, ...sabDefaultSettings }
         : commonDefaultSettings;
 
+export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
+    const isSAB = config.programType === 'SAB';
+    const settings = new Array<App.UserPreferenceSetting>();
+
+    if (isSAB) {
+        settings.push({
+            type: 'checkbox',
+            category: SETTINGS_CATEGORY_INTERFACE,
+            title: 'Scripture Logs',
+            key: 'scripture-logs'
+        });
+    }
+
+    return settings;
+})();
+
 export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     const isSAB = config.programType === 'SAB';
     const hasVerses = config.traits?.['has-verse-numbers'] || false;
@@ -366,25 +382,6 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         });
     }
 
-    if (settings.length > 0) {
-        if (get(development)) {
-            settings.push({
-                type: 'checkbox',
-                category: SETTINGS_CATEGORY_INTERFACE,
-                title: 'Desktop Sidebar',
-                key: 'desktop-sidebar'
-            });
-        }
-
-        if (isSAB) {
-            settings.push({
-                type: 'checkbox',
-                category: SETTINGS_CATEGORY_INTERFACE,
-                title: 'Scripture Logs',
-                key: 'scripture-logs'
-            });
-        }
-    }
     return settings;
 })();
 
