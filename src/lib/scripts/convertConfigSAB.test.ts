@@ -216,7 +216,7 @@ if (programType === 'DAB') {
     });
 
     test('convertConfig: parse menu items', () => {
-        const result = parseMenuItems(document, 1);
+        const result = parseMenuItems(document, "", 1);
         expect(result).not.toBe(undefined);
 
         // none yet
