@@ -802,7 +802,12 @@ function lastVerseInChapter(book: string, chapter: string, docSet: string): stri
     }
     const books = runtimeCatalog.documents;
     const chapters = books.find((d) => d.bookCode === book).versesByChapters;
-    const verses = Object.keys(chapters[chapter]);
+    const chapterEntry = chapters[chapter];
+    if (!chapterEntry) {
+        // Requested Chapter not found in book
+        return '0';
+    }
+    const verses = Object.keys(chapterEntry);
     const lastVerse = verses[verses.length - 1];
     return lastVerse;
 }
