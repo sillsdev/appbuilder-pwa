@@ -39,6 +39,7 @@ describe('Scripture Reference Utilities', () => {
         const test11 = `${book1} 3${cvs}16${roc}5${cvs}13`; // John 3:16-5:13
         const test12 = `${book4} 20${cvs}13${cls} ${book5} 5${cvs}17${lov}20${rov}22`; // Exodus 20:13; Matthew 5:17,20-22
         const test13 = `Exo 3${cvs}13`; // Exo 3:13
+        const test14 = `${book1} 3${cvs}2b${rov}5`; // John 3:2b-5
         const ref: { docSet: string; book: string; collection: string } = {
             docSet: 'eng_C01',
             book: 'MAT',
@@ -589,6 +590,36 @@ describe('Scripture Reference Utilities', () => {
             });
             it('has verse', () => {
                 expect(result).toContain('verse&quot;:&quot;13&quot;');
+            });
+        });
+        describe('Verse with letter (John 3:2b-5)', () => {
+            let result: any;
+            beforeEach(() => {
+                result = generateHTMLTest(
+                    test14,
+                    '',
+                    'MAT',
+                    ref,
+                    config.bookCollections,
+                    catalog[0]
+                );
+            });
+            it('has two results', () => {
+                const linkCount = result.match(/<a/g).length;
+                expect(linkCount).toEqual(2);
+            });
+            it('has book ID', () => {
+                console.log(result);
+                expect(result).toContain('book&quot;:&quot;JHN&quot;');
+            });
+            it('has valid texts', () => {
+                expect(result).toContain('>John 3:2</a>b-<');
+                expect(result).toContain('>5</a>');
+            });
+            it('treats number after verse as whole chapter reference', () => {
+                // Not necessarily saying this is good, but it is consistent with
+                // the app behavior and is not crashing
+                expect(result).toContain('chapter&quot;:&quot;5&quot;');
             });
         });
     });
