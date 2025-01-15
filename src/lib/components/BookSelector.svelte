@@ -81,6 +81,7 @@ The navbar component.
                     if (count === 0) {
                         $nextRef.chapter = 'i';
                         await completeNavigation();
+                        break;
                     }
                     $nextRef.chapter = firstChapter($nextRef.book);
                     if (count === 1) {
