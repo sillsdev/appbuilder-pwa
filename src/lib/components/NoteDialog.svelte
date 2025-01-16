@@ -55,12 +55,9 @@
 
 <Modal bind:this={modal} {id} on:close={reset} useLabel={false}>
     <svelte:fragment slot="content">
-        <div id="container" class="flex flex-col justify-evenly">
+        <div class="flex flex-col justify-evenly">
             <div class="w-full flex justify-between">
-                <div
-                    class="annotation-item-title w-full pb-3"
-                    style:font-weight={editing ? 'normal' : 'bold'}
-                >
+                <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
                     {heading}
                 </div>
                 {#if !editing}
