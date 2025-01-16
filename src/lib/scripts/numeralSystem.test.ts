@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import * as num from './numeralSystem';
 
 test('fromString returns Oriya correctly', () => {
