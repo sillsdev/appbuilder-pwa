@@ -1,5 +1,4 @@
 import { expect, test, vi } from 'vitest';
-import { getStyle } from './configUtils';
 import * as num from './numeralSystem';
 
 test('fromString returns Oriya correctly', () => {
@@ -17,6 +16,16 @@ test('formatNumber to default', () => {
 test('formatNumber to khmer', () => {
     expect(num.formatNumber(num.NumeralSystemData.KHMER, '48390')).toBe(
         '\u17E4\u17E8\u17E3\u17E9\u17E0'
+    );
+});
+
+test('formatNumberRange with separator', () => {
+    expect(num.formatNumberRange(num.NumeralSystemData.DEFAULT, '4-7', 'ltr')).toBe('4-7');
+});
+
+test('formatNumberRange with separator and rtl', () => {
+    expect(num.formatNumberRange(num.NumeralSystemData.DEFAULT, '4-7', 'rtl')).toBe(
+        '\u200F4\u200F-7'
     );
 });
 
