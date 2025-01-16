@@ -42,6 +42,35 @@ export function systemForBook(config: any, collection: string, book: string): Nu
     return systemFromString(system);
 }
 
+export function formatNumberRange(system: NumeralSystem, value: string, direction: string) {
+    // Regular expression to match a single number or a range
+    const match = value.match(/^(\d+)(.*?)(\d+)?$/);
+
+    if (!match) {
+        throw new Error(
+            'Input value must be a single number or a range separated by valid characters.'
+        );
+    }
+
+    const [, firstNumber, separator, secondNumber] = match;
+
+    // Format the first number
+    const formattedFirst = formatNumber(system, firstNumber);
+
+    if (!secondNumber) {
+        // If there's no second number, return the single formatted number
+        return formattedFirst;
+    }
+
+    // Format the second number and join them with the captured separator
+    const formattedSecond = formatNumber(system, secondNumber);
+    // Proskomma is not including the RTL marker in the number range.
+    // For RTL, this matches the formatting that the native app does.
+    return direction.toLowerCase() === 'rtl'
+        ? `\u200F${formattedFirst}\u200F${separator}${formattedSecond}`
+        : `${formattedFirst}${separator}${formattedSecond}`;
+}
+
 export function formatNumber(system: NumeralSystem, value: string): any {
     let fmt = '';
     for (let i = 0; i < value.length; i++) {

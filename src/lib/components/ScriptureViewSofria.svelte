@@ -529,10 +529,12 @@ LOGGING:
             const spanV = document.createElement('span');
             spanV.classList.add('v');
             // 'number' can be a range of verse numbers
-            const numbers = element.atts['number']
-                .split(verseRangeSeparator)
-                .map((x) => numerals.formatNumber(numeralSystem, x));
-            spanV.innerText = numbers.join(verseRangeSeparator);
+            spanV.innerText = numerals.formatNumberRange(
+                numeralSystem,
+                element.atts['number'],
+                direction
+            );
+
             const spanVsp = document.createElement('span');
             spanVsp.classList.add('vsp');
             spanVsp.innerText = '\u00A0'; // &nbsp
