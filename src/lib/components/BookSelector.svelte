@@ -43,7 +43,10 @@ The navbar component.
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
-
+    function firstChapter(book) {
+        let first = Object.keys(books.find((x) => x.bookCode === book).versesByChapters)[0];
+        return first;
+    }
     function getVerseCount(chapter, chapters) {
         if (!chapter || chapter === 'i' || !chapters || Object.keys(chapters).length === 0) {
             return 0;
@@ -78,8 +81,9 @@ The navbar component.
                     if (count === 0) {
                         $nextRef.chapter = 'i';
                         await completeNavigation();
+                        break;
                     }
-                    $nextRef.chapter = '1';
+                    $nextRef.chapter = firstChapter($nextRef.book);
                     if (count === 1) {
                         await completeNavigation();
                     }
