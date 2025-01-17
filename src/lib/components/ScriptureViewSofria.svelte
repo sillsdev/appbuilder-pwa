@@ -2424,7 +2424,9 @@ LOGGING:
         if (chapterCount(currentBook) === 0) {
             cl.renderDocument({ docId, config: {}, output });
         } else {
-            cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+            if (chapterExists(chapter, chapters)) {
+                cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+            }
         }
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
@@ -2457,6 +2459,15 @@ LOGGING:
         );
         return illustrations;
     }
+    function chapterExists(chapter, chapters) {
+        var value = true;
+        if (chapter !== 'i') {
+            if (!chapter || !chapters[chapter]) {
+                value = false;
+            }
+        }
+        return value;
+    }
     $: fontSize = bodyFontSize + 'px';
 
     $: lineHeight = bodyLineHeight + '%';
@@ -2474,6 +2485,9 @@ LOGGING:
     $: versePerLine = verseLayout === 'one-per-line';
     /**list of books in current docSet*/
     $: books = $refs.catalog.documents;
+    /**list of chapters in current book*/
+    $: chapters = books.find((d) => d.bookCode === currentBook)?.versesByChapters ?? [];
+    $: chapterValid = chapterExists(currentChapter, chapters);
     $: direction = config.bookCollections.find((x) => x.id === references.collection).style
         .textDirection;
     $: verseRangeSeparator = config.bookCollections.find((x) => x.id === references.collection)

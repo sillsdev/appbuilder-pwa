@@ -4,6 +4,9 @@ import type { AudioPlayer } from './audio';
 import type { HistoryItem } from './history';
 
 export function getBook(item: { collection?: string; book: string }) {
+    if (!item.collection) {
+        return null;
+    }
     return config.bookCollections
         .find((x) => x.id === item.collection)
         .books.find((x) => x.id === item.book);
@@ -25,6 +28,9 @@ function getDamId(item: { book: any; chapter: string }) {
 
 export function logScreenView(item: HistoryItem) {
     const book = getBook({ ...item });
+    if (!book) {
+        return;
+    }
     const chapter = item.chapter;
     const bookAbbrev = book.abbreviation;
     const damId = getDamId({ book, chapter });

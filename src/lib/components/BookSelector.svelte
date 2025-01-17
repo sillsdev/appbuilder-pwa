@@ -48,7 +48,7 @@ The navbar component.
         return first;
     }
     function getVerseCount(chapter, chapters) {
-        if (!chapter || chapter === 'i' || !chapters || Object.keys(chapters).length === 0) {
+        if (!chapter || chapter === 'i' || !chapters || Object.keys(chapters).length === 0 || !chapters[chapter]) {
             return 0;
         }
         let count = Object.keys(chapters[chapter]).length;

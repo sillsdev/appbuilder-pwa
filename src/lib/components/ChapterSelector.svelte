@@ -105,7 +105,7 @@ The navbar component.
         }
         let books = $refs.catalog.documents;
         let chapters = books.find((d) => d.bookCode === book)?.versesByChapters;
-        if (!chapters || Object.keys(chapters).length === 0) {
+        if (!chapters || Object.keys(chapters).length === 0 || !chapters[chapter]) {
             return 0;
         }
         let count = Object.keys(chapters[chapter]).length;
