@@ -1,11 +1,9 @@
-import { parseFeatures, parseDictionaryWritingSystem } from '../../../convert/convertConfig';
-
-import type { DictionaryConfig, DictionaryWritingSystemConfig } from '$config';
-
-import path from 'path';
 import { readFileSync } from 'fs';
+import path from 'path';
+import type { DictionaryConfig, DictionaryWritingSystemConfig } from '$config';
 import jsdom from 'jsdom';
-import { test, expect } from 'vitest';
+import { expect, test } from 'vitest';
+import { parseDictionaryWritingSystem, parseFeatures } from '../../../convert/convertConfig';
 
 const dataDir = './data/';
 const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {

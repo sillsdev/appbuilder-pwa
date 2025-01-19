@@ -1,30 +1,28 @@
+import { readFileSync } from 'fs';
+import path from 'path';
+import type { ScriptureConfig } from '$config';
+import jsdom from 'jsdom';
+import { expect, test } from 'vitest';
 import {
-    parseInterfaceLanguages,
-    parseFonts,
+    parseAnalytics,
+    parseAudioSources,
+    parseBackgroundImages,
+    parseBookCollections,
     parseColorThemes,
-    parseTraits,
     parseFeatures,
     parseFirebase,
+    parseFonts,
     parseIllustrations,
+    parseInterfaceLanguages,
     parseKeys,
-    parseMenuItems,
-    parseVideos,
-    parseBookCollections,
-    parseAnalytics,
-    parseWatermarkImages,
-    parseBackgroundImages,
-    parsePlans,
-    parseMenuLocalizations,
     parseLayouts,
-    parseAudioSources
+    parseMenuItems,
+    parseMenuLocalizations,
+    parsePlans,
+    parseTraits,
+    parseVideos,
+    parseWatermarkImages
 } from '../../../convert/convertConfig';
-
-import type { ScriptureConfig } from '$config';
-
-import path from 'path';
-import { readFileSync } from 'fs';
-import jsdom from 'jsdom';
-import { test, expect } from 'vitest';
 
 const dataDir = './data/';
 const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
@@ -216,7 +214,7 @@ if (programType === 'DAB') {
     });
 
     test('convertConfig: parse menu items', () => {
-        const result = parseMenuItems(document, "", 1);
+        const result = parseMenuItems(document, '', 1);
         expect(result).not.toBe(undefined);
 
         // none yet
