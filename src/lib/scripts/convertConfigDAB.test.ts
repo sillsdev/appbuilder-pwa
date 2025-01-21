@@ -45,7 +45,7 @@ if (programType === 'SAB') {
 
     test('convertConfig: parse features', () => {
         const result = parseFeatures(document, 1);
-        expect(Object.keys(result)).toHaveLength(26);
+        expect(Object.keys(result)).toHaveLength(30);
     });
 } else {
     throw new Error(`Unsupported program type parsed: ${programType}`);
