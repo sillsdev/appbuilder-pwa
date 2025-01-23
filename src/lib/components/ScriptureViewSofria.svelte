@@ -1272,8 +1272,8 @@ LOGGING:
     }
     function preprocessAction(action: string, workspace: any) {
         // Table ends if row ended and anything other than start row follows it
-        if (!workspace.inRow && workspace.inTable && !(action === 'startRow')) {
-            workspace.inTable = false;
+        if (!workspace.inRow && workspace.insideTable && !(action === 'startRow')) {
+            workspace.insideTable = false;
             workspace.root.appendChild(workspace.tableElement);
         }
     }
@@ -1399,7 +1399,7 @@ LOGGING:
                             workspace.lastPhraseTerminated = false;
                             workspace.currentVideoIndex = 0;
                             workspace.chapterNumText = '';
-                            workspace.inTable = false;
+                            workspace.insideTable = false;
                             workspace.inRow = false;
                             workspace.tableElement = null;
                             workspace.tableRowElement = null;
@@ -2369,10 +2369,10 @@ LOGGING:
                                 console.log('Start Row %o', context.sequences[0].element);
                             }
                             preprocessAction('startRow', workspace);
-                            if (!workspace.inTable) {
+                            if (!workspace.insideTable) {
                                 workspace.tableElement = document.createElement('table');
                                 workspace.tableElement.setAttribute('cellpadding', '5');
-                                workspace.inTable = true;
+                                workspace.insideTable = true;
                             }
                             workspace.inRow = true;
                             workspace.tableRowElement = document.createElement('tr');
