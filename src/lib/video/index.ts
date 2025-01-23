@@ -63,7 +63,7 @@ function getYouTubeVideoId(url: string): string {
 export function getEmbeddedVideoUrl(
     videoUrl: string,
     autoplay: boolean,
-    features: { [key: string]: string }
+    features: { [key: string]: any }
 ) {
     let returnUrl = videoUrl;
     const type = getVideoType(videoUrl);
@@ -140,7 +140,7 @@ export function getEmbeddedVideoUrl(
 export function createVideoBlockFromUrl(
     document: Document,
     videoUrl: string,
-    features: { [key: string]: string }
+    features: { [key: string]: any }
 ): HTMLElement {
     const url = getEmbeddedVideoUrl(videoUrl, false, features);
 
