@@ -20,6 +20,7 @@
     } from '$lib/data/stores';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import { getRoute, navigateToText } from '$lib/navigate';
+    import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
 
     const imageFolder =
@@ -139,6 +140,16 @@
         };
     }
 
+    function getReferenceText(item) {
+        const reference = getReference(item);
+        let currentBookCollectionId = $refs.collection;
+        let collection = reference.collection ?? currentBookCollectionId;
+        const verse = reference.verse ? parseInt(reference.verse) : -1;
+        const referenceText = getDisplayString(collection, reference.book, reference.chapter, [
+            [verse, -1, '-']
+        ]);
+        return referenceText;
+    }
     //set the title for the current contents page
     function setTitle(page) {
         //checks title type and returns the appropriate title or lack of title
@@ -259,7 +270,7 @@
                         <!--check for reference -->
                         {#if $page.data.features['show-references'] === true}
                             {#if item.linkType === 'reference'}
-                                <div class="contents-ref">{item.linkTarget}</div>
+                                <div class="contents-ref">{getReferenceText(item)}</div>
                             {/if}
                         {/if}
                     </div>
