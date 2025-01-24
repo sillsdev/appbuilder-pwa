@@ -1,4 +1,3 @@
-
 <script>
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
@@ -6,14 +5,9 @@
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
-    import { t } from '$lib/data/stores';
     import { onMount } from 'svelte';
 
-    const { alphabet, initialReversalData } = $page.data;
-    let activeTab = 'main';
-    let selectedEntry = null;
-
-    let dictionaryEntries = [];
+    const { alphabet, initialReversalData, defaultKey } = $page.data;
 
     onMount(() => {
         if (config.programType !== 'DAB') {
@@ -25,24 +19,27 @@
         selectedEntry = entry;
     }
 
-    let selectedLanguage = 'English'; // Default language
-    let REVERSAL_LANG = 'Hanga';
+    let selectedLanguage = 'English';
+    let REVERSAL_LANG = defaultKey;
 
-    // Switch language function for managing language toggle
     function switchLanguage(language) {
         selectedLanguage = language;
     }
-
-    let selectedLetter = '';
 </script>
 
 <Navbar />
 
 <div class="flex flex-col">
-    <LexiconReversalView {alphabet} {initialReversalData} selectedLanguage={selectedLanguage} REVERSAL_LANG={REVERSAL_LANG} onSwitchLanguage={switchLanguage} />
+    <LexiconReversalView
+        {alphabet}
+        {initialReversalData}
+        {selectedLanguage}
+        {REVERSAL_LANG}
+        onSwitchLanguage={switchLanguage}
+    />
 </div>
 
-            <!--
+<!--
             <main class="bg-[#f0f0f0] rounded-md shadow-md p-4">
                 <AlphabetStrip {alphabet} activeLetter={selectedLetter} onLetterSelect={filterByLetter} />
                 {#if selectedEntry}
