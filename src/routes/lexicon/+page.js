@@ -1,40 +1,23 @@
 import { base } from '$app/paths';
+import config from '$lib/data/config';
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ fetch }) {
-    // Load the first letter of the alphabet's data by default
-    const alphabet = [
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f',
-        'g',
-        'h',
-        'i',
-        'j',
-        'k',
-        'l',
-        'm',
-        'n',
-        'o',
-        'p',
-        'q',
-        'r',
-        's',
-        't',
-        'u',
-        'v',
-        'w',
-        'x',
-        'y',
-        'z'
-    ];
+    if (!config.writingSystems) {
+        throw new Error('Writing systems configuration not found');
+    }
+
+    const [defaultKey, writingSystem] = Object.entries(config.writingSystems)[0];
+
+    if (!writingSystem?.alphabet) {
+        throw new Error('Writing system alphabet not found');
+    }
+
+    const alphabet = writingSystem.alphabet;
 
     let initialReversalData = {};
     try {
-        const response = await fetch(`${base}/reversal/language/english/${alphabet[0]}.json`);
+        const response = await fetch(`${base}/reversal/language/${defaultKey}/${alphabet[0]}.json`);
         if (response.ok) {
             initialReversalData = await response.json();
         }
@@ -44,6 +27,7 @@ export async function load({ fetch }) {
 
     return {
         alphabet,
-        initialReversalData
+        initialReversalData,
+        defaultKey
     };
 }
