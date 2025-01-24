@@ -630,7 +630,13 @@ function convertScriptureBook(
         //query Proskomma with a mutation to add a document
         //more efficient than original pk.addDocument call
         //as it can be run asynchronously
-        //process.stdout.write(`Adding: ${book.file}\n${content}\n`);
+        if (context.verbose > 10) {
+            const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
+            const bookPath = path.join(bookFullDir, book.file);
+            console.log(`Writing file: ${bookPath}`);
+            fs.mkdirSync(bookFullDir, { recursive: true });
+            fs.writeFileSync(bookPath, content);
+        }
         pk.gqlQuery(
             `mutation {
                 addDocument(
