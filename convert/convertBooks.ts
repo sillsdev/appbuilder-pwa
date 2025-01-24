@@ -190,6 +190,10 @@ function isImageMissing(imageSource: string): boolean {
     return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
 
+function addParagraphMarkersAroundTableRows(text: string): string {
+    return text.replace(/((?:\\tr [^\n]*\n)+)/g, '\n\\p\n$1\\p\n');
+}
+
 type FilterFunction = (text: string, bcId: string, bookId: string) => string;
 
 const usfmFilterFunctions: FilterFunction[] = [
@@ -199,7 +203,8 @@ const usfmFilterFunctions: FilterFunction[] = [
     convertMarkdownsToMilestones,
     handleNoCaptionFigures,
     removeMissingFigures,
-    trimTrailingWhitespace
+    trimTrailingWhitespace,
+    addParagraphMarkersAroundTableRows
 ];
 
 const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
