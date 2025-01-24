@@ -523,8 +523,10 @@ function parseBookCollections(document: Document, verbose: number) {
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
                 const fTag = audioTag.getElementsByTagName('f')[0];
-                if (verbose >= 2)
-                    console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag.outerHTML}`);
+                if (verbose >= 2) {
+                    console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag?.outerHTML}`);
+                }
+                if (!fTag) continue;
                 audio.push({
                     num: parseInt(page.attributes.getNamedItem('num')!.value),
                     filename: fTag.innerHTML,
