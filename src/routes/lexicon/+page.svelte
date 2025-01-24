@@ -5,9 +5,46 @@
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
+    import { t } from '$lib/data/stores';
     import { onMount } from 'svelte';
 
     const { alphabet, initialReversalData, defaultKey } = $page.data;
+    let activeTab = 'main';
+    let selectedEntry = null;
+    let dictionaryEntries = [];
+
+    // Hardcode both alphabets
+    const alphabets = {
+        english: [
+            'a',
+            'b',
+            'c',
+            'd',
+            'e',
+            'f',
+            'g',
+            'h',
+            'i',
+            'j',
+            'k',
+            'l',
+            'm',
+            'n',
+            'o',
+            'p',
+            'q',
+            'r',
+            's',
+            't',
+            'u',
+            'v',
+            'w',
+            'x',
+            'y',
+            'z'
+        ],
+        hanga: alphabet // Use the loaded Hanga alphabet
+    };
 
     onMount(() => {
         if (config.programType !== 'DAB') {
@@ -25,13 +62,18 @@
     function switchLanguage(language) {
         selectedLanguage = language;
     }
+
+    // Reactive to get the current alphabet based on selected language
+    $: currentAlphabet = selectedLanguage === 'English' ? alphabets.english : alphabets.hanga;
+
+    let selectedLetter = '';
 </script>
 
 <Navbar />
 
 <div class="flex flex-col">
     <LexiconReversalView
-        {alphabet}
+        alphabet={currentAlphabet}
         {initialReversalData}
         {selectedLanguage}
         {REVERSAL_LANG}
