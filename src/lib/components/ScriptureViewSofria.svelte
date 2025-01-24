@@ -277,21 +277,12 @@ LOGGING:
             if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
                 const references = text.split('; ');
                 for (let i = 0; i < references.length; i++) {
-                    const links = references[i].split('|');
-                    const displayText = links[0];
-                    const referenceText = links.length > 1 ? links[1] : links[0];
-                    const spanElement = document.createElement('span');
-                    spanElement.classList.add('reflink');
-
-                    // TODO: Figure out what really needs to be added to go to references
-                    // For now, just make it look consistent
-                    const aElement = document.createElement('a');
-                    aElement.setAttribute('href', referenceText);
-                    const refText = document.createTextNode(displayText);
-                    aElement.appendChild(refText);
-                    spanElement.appendChild(aElement);
-
-                    workspace.tableCellElement.appendChild(spanElement);
+                    var spanV = document.createElement('span');
+                    spanV.classList.add('reflink');
+                    const refText = generateHTML(text, 'header-ref');
+                    spanV.innerHTML = refText;
+                    spanV.addEventListener('click', onClick, false);
+                    workspace.tableCellElement.appendChild(spanV);
                     if (i < references.length - 1) {
                         const textNode = document.createTextNode('; ');
                         workspace.tableCellElement.appendChild(textNode);
