@@ -91,13 +91,12 @@
     }
 
     function getReference(item) {
-        let docSet;
-        let collection;
+        let docSet = $refs.docSet;
+        let collection = docSet.split('_')[1];
         let book;
         let chapter;
         let verse;
         const reference = item.linkTarget.split('.');
-
         if (item.layoutMode && item.layoutCollection?.length > 0) {
             /* 
             Note: have not handled layout modes
