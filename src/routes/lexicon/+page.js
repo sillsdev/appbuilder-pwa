@@ -3,7 +3,7 @@ import initSqlJs from 'sql.js';
 
 export async function load({ fetch }) {
     const SQL = await initSqlJs({
-        locateFile: (file) => `https://sql.js.org/dist/${file}`
+        locateFile: (file) => `${base}/sql-wasm.wasm`
     });
 
     // Fetch the database file
