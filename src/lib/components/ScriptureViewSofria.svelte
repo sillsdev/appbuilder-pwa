@@ -277,21 +277,12 @@ LOGGING:
             if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
                 const references = text.split('; ');
                 for (let i = 0; i < references.length; i++) {
-                    const links = references[i].split('|');
-                    const displayText = links[0];
-                    const referenceText = links.length > 1 ? links[1] : links[0];
-                    const spanElement = document.createElement('span');
-                    spanElement.classList.add('reflink');
-
-                    // TODO: Figure out what really needs to be added to go to references
-                    // For now, just make it look consistent
-                    const aElement = document.createElement('a');
-                    aElement.setAttribute('href', referenceText);
-                    const refText = document.createTextNode(displayText);
-                    aElement.appendChild(refText);
-                    spanElement.appendChild(aElement);
-
-                    workspace.tableCellElement.appendChild(spanElement);
+                    var spanV = document.createElement('span');
+                    spanV.classList.add('reflink');
+                    const refText = generateHTML(text, 'header-ref');
+                    spanV.innerHTML = refText;
+                    spanV.addEventListener('click', onClick, false);
+                    workspace.tableCellElement.appendChild(spanV);
                     if (i < references.length - 1) {
                         const textNode = document.createTextNode('; ');
                         workspace.tableCellElement.appendChild(textNode);
@@ -1272,8 +1263,8 @@ LOGGING:
     }
     function preprocessAction(action: string, workspace: any) {
         // Table ends if row ended and anything other than start row follows it
-        if (!workspace.inRow && workspace.inTable && !(action === 'startRow')) {
-            workspace.inTable = false;
+        if (!workspace.inRow && workspace.insideTable && !(action === 'startRow')) {
+            workspace.insideTable = false;
             workspace.root.appendChild(workspace.tableElement);
         }
     }
@@ -1399,7 +1390,7 @@ LOGGING:
                             workspace.lastPhraseTerminated = false;
                             workspace.currentVideoIndex = 0;
                             workspace.chapterNumText = '';
-                            workspace.inTable = false;
+                            workspace.insideTable = false;
                             workspace.inRow = false;
                             workspace.tableElement = null;
                             workspace.tableRowElement = null;
@@ -2369,10 +2360,10 @@ LOGGING:
                                 console.log('Start Row %o', context.sequences[0].element);
                             }
                             preprocessAction('startRow', workspace);
-                            if (!workspace.inTable) {
+                            if (!workspace.insideTable) {
                                 workspace.tableElement = document.createElement('table');
                                 workspace.tableElement.setAttribute('cellpadding', '5');
-                                workspace.inTable = true;
+                                workspace.insideTable = true;
                             }
                             workspace.inRow = true;
                             workspace.tableRowElement = document.createElement('tr');
