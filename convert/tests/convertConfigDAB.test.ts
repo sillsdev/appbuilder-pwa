@@ -3,7 +3,7 @@ import path from 'path';
 import type { DictionaryConfig, DictionaryWritingSystemConfig } from '$config';
 import jsdom from 'jsdom';
 import { expect, test } from 'vitest';
-import { parseDictionaryWritingSystem, parseFeatures } from '../../../convert/convertConfig';
+import { parseDictionaryWritingSystem, parseFeatures } from '../convertConfig';
 
 const dataDir = './data/';
 const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
