@@ -22,7 +22,7 @@ import {
     parseTraits,
     parseVideos,
     parseWatermarkImages
-} from '../convertConfig';
+} from '../../convertConfig';
 
 const dataDir = './data/';
 const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
