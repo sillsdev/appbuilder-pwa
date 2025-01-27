@@ -4,7 +4,7 @@
             {
                 "tests": [
                     "src/",
-                    "convert/sab/"
+                    "convert/tests/sab/"
                 ],
                 "path": "web_gospels.zip"
             },
@@ -21,7 +21,7 @@
             {
                 "tests": [
                     "src/",
-                    "convert/dab/"
+                    "convert/tests/dab/"
                 ],
                 "path": "hanga.zip"
             }
