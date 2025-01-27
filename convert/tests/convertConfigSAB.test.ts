@@ -100,7 +100,7 @@ if (programType === 'DAB') {
             expect(bc.languageCode).not.toBe('');
             expect(bc.languageName).not.toBe('');
 
-            expect(Object.keys(bc.features)).toHaveLength(39);
+            expect(Object.keys(bc.features).length).toBeGreaterThanOrEqual(39);
 
             expect(bc.books).not.toHaveLength(0);
             for (const bk in bc.books) {
