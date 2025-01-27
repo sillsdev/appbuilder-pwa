@@ -14,6 +14,8 @@ export async function load({ fetch }) {
     }
 
     const alphabet = writingSystem.alphabet;
+    const reversalLanguage = writingSystem.displayNames.default;
+    const dictionaryName = config.name;
 
     let initialReversalData = {};
     try {
@@ -28,6 +30,8 @@ export async function load({ fetch }) {
     return {
         alphabet,
         initialReversalData,
-        defaultKey
+        defaultKey,
+        reversalLanguage,
+        dictionaryName
     };
 }

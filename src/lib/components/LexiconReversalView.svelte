@@ -5,8 +5,9 @@
     export let alphabet = [];
     export let initialData = {};
     export let selectedLanguage;
-    export let REVERSAL_LANG;
+    export let reversalLang;
     export let onSwitchLanguage;
+    export let onLetterChange;
 
     let currentLetter = alphabet[0];
     let reversalData = initialData;
@@ -37,6 +38,7 @@
 
     async function handleLetterSelect(letter) {
         currentLetter = letter;
+        onLetterChange(letter);
         await loadReversalData(letter);
     }
 
@@ -48,13 +50,13 @@
 <div class="flex flex-col h-full">
     <div class="flex flex-wrap bg-[#e1bee8] p-2 mb-4">
         <button
-            on:click={() => onSwitchLanguage(REVERSAL_LANG)}
+            on:click={() => onSwitchLanguage(reversalLang)}
             class="px-4 py-2 text-base font-bold text-black uppercase border-b-4 border-transparent cursor-pointer mr-2 mb-2 rounded-md hover:bg-gray-200 {selectedLanguage ===
-            REVERSAL_LANG
+            reversalLang
                 ? 'bg-[#bb9ac2] border-black'
                 : ''}"
         >
-            {REVERSAL_LANG}
+            {reversalLang}
         </button>
         <button
             on:click={() => onSwitchLanguage('English')}
