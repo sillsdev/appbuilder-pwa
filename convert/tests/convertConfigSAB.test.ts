@@ -84,7 +84,7 @@ if (programType === 'DAB') {
 } else if (programType === 'SAB') {
     test('convertConfig: parse traits', () => {
         const result = parseTraits(document, 'dummy', 1);
-        expect(Object.keys(result)).toHaveLength(6);
+        expect(Object.keys(result)).toHaveLength(7);
     });
 
     test('convertConfig: parse book collections', () => {
@@ -100,7 +100,7 @@ if (programType === 'DAB') {
             expect(bc.languageCode).not.toBe('');
             expect(bc.languageName).not.toBe('');
 
-            expect(Object.keys(bc.features)).toHaveLength(39);
+            expect(Object.keys(bc.features)).toHaveLength(40);
 
             expect(bc.books).not.toHaveLength(0);
             for (const bk in bc.books) {
@@ -196,7 +196,7 @@ if (programType === 'DAB') {
 
     test('convertConfig: parse features', () => {
         const result = parseFeatures(document, 1);
-        expect(Object.keys(result)).toHaveLength(135);
+        expect(Object.keys(result)).toHaveLength(137);
     });
 
     test('convertConfig: parse background images', () => {
