@@ -28,6 +28,10 @@ jobs:
                   echo "export const catalog = [];" > src/lib/data/catalog.js
                   echo "export default {}" > src/lib/data/contents.js
 
+            - name: Run minimal build
+              run: |
+                  npx vite build
+
             - name: TypeScript/Svelte Check
               run: |
                   npm list --depth=0 typescript
