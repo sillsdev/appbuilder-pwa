@@ -145,6 +145,13 @@
         let currentBookCollectionId = $refs.collection;
         let collection = reference.collection ?? currentBookCollectionId;
         const verse = reference.verse ? parseInt(reference.verse) : -1;
+        // Get the reference text.  Contents references may contain a collection,
+        // will contain a book and maybe a chapter and maybe a verse.  The getDisplayString
+        // method is setup to handle multiple verse ranges in a single reference even though
+        // that is not needed in this case.  Here, the verse is either the verse number of the
+        // reference or -1 if there is no verse number. The -1 indicates that it is a single
+        // verse, not a range, and the '-' is a verse range separator which is not used in this
+        // case.
         const referenceText = getDisplayString(collection, reference.book, reference.chapter, [
             [verse, -1, '-']
         ]);
