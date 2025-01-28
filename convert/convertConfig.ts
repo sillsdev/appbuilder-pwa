@@ -1,4 +1,4 @@
-import { existsSync, PathLike, readdirSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, type PathLike } from 'fs';
 import path, { basename, extname } from 'path';
 import type {
     AppConfig,
@@ -13,7 +13,7 @@ import type {
 import jsdom from 'jsdom';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { splitVersion } from './stringUtils';
-import { Task, TaskOutput } from './Task';
+import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
 
@@ -26,13 +26,13 @@ function decodeFromXml(input: string): string {
         .replace('&amp;', '&');
 }
 
-function parseConfigValue(value: any) {
+export function parseConfigValue(value: any) {
     if (!value.includes(':') && !isNaN(parseInt(value))) value = parseInt(value);
     else if (['true', 'false'].includes(value)) value = value === 'true' ? true : false;
     // else {} // " " split array, string, enum or time
     return value;
 }
-function parseAdditionalNames(namesTag: Element, verbose: number) {
+export function parseAdditionalNames(namesTag: Element, verbose: number) {
     const additionalNames = [];
     const nameTags = namesTag?.getElementsByTagName('name');
     for (const tag of nameTags) {
@@ -46,7 +46,7 @@ function parseAdditionalNames(namesTag: Element, verbose: number) {
     }
     return additionalNames;
 }
-function parseStyles(stylesTag: Element, verbose: number) {
+export function parseStyles(stylesTag: Element, verbose: number) {
     const styles = [];
     const styleTags = stylesTag?.getElementsByTagName('style');
     if (!styleTags) throw new Error('Styles tag not found in xml');
@@ -77,7 +77,7 @@ function parseStyles(stylesTag: Element, verbose: number) {
 
     return styles;
 }
-function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleConfig {
+export function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleConfig {
     return {
         font: stylesInfoTag.getElementsByTagName('text-font')[0].attributes.getNamedItem('family')!
             .value,
@@ -101,7 +101,7 @@ function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleConfig {
     };
 }
 
-function parseTrait(tag: Element, name: string): string {
+export function parseTrait(tag: Element, name: string): string {
     const traitTags = tag.getElementsByTagName('trait');
     for (const tag of traitTags) {
         if (tag.attributes.getNamedItem('name')!.value === name) {
@@ -161,7 +161,7 @@ function changeAndroidToRem(propValue: string) {
     }
 }
 
-function convertFooter(markdown: string | undefined, appdef: Document): string | undefined {
+export function convertFooter(markdown: string | undefined, appdef: Document): string | undefined {
     const footer = markdown?.length ? convertMarkdownsToHTML(removeCData(markdown)) : undefined;
     const appName = appdef.getElementsByTagName('app-name')[0].innerHTML;
     const versionName = appdef.getElementsByTagName('version')[0].getAttribute('name');
@@ -176,7 +176,7 @@ function convertFooter(markdown: string | undefined, appdef: Document): string |
         ?.replace(/%program-version%/g, programVersion ?? '');
 }
 
-function convertCollectionFooter(collectionTag: Element, document: Document) {
+export function convertCollectionFooter(collectionTag: Element, document: Document) {
     const footerTags = Array.from(collectionTag.children).filter(
         (child) => child.tagName === 'footer'
     );
@@ -360,7 +360,7 @@ function convertConfig(dataDir: string, verbose: number) {
     return filterFeaturesNotReady(data);
 }
 
-function parseFeatures(document: Document, verbose: number) {
+export function parseFeatures(document: Document, verbose: number) {
     const mainFeatureTags = document
         .querySelector('features[type=main]')
         ?.getElementsByTagName('e');
@@ -384,7 +384,7 @@ function parseFeatures(document: Document, verbose: number) {
     return mainFeatures;
 }
 
-function parseFonts(document: Document, verbose: number) {
+export function parseFonts(document: Document, verbose: number) {
     const fontTags = document.getElementsByTagName('fonts')[0].getElementsByTagName('font');
     const fonts = [];
 
@@ -407,7 +407,7 @@ function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
-function parseColorThemes(document: Document, verbose: number) {
+export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
@@ -468,7 +468,7 @@ function parseColorThemes(document: Document, verbose: number) {
     return { themes, defaultTheme };
 }
 
-function parseTraits(document: Document, dataDir: string, verbose: number) {
+export function parseTraits(document: Document, dataDir: string, verbose: number) {
     const traitTags = document.getElementsByTagName('traits')[0]?.getElementsByTagName('trait');
     const traits: { [key: string]: any } = {};
 
@@ -488,7 +488,7 @@ function parseTraits(document: Document, dataDir: string, verbose: number) {
     return traits;
 }
 
-function parseBookCollections(document: Document, verbose: number) {
+export function parseBookCollections(document: Document, verbose: number) {
     const booksTags = document.getElementsByTagName('books');
     const bookCollections = [];
 
@@ -701,7 +701,7 @@ function parseBookCollections(document: Document, verbose: number) {
     return bookCollections;
 }
 
-function parseInterfaceLanguages(document: Document, data: AppConfig, verbose: number) {
+export function parseInterfaceLanguages(document: Document, data: AppConfig, verbose: number) {
     const interfaceLanguagesTag = document.getElementsByTagName('interface-languages')[0];
     const useSystemLanguage = parseTrait(interfaceLanguagesTag, 'use-system-language') === 'true';
     const interfaceLanguages: {
@@ -729,7 +729,7 @@ function parseInterfaceLanguages(document: Document, data: AppConfig, verbose: n
     return interfaceLanguages;
 }
 
-function parseWritingSystem(element: Element, verbose: number): WritingSystemConfig {
+export function parseWritingSystem(element: Element, verbose: number): WritingSystemConfig {
     const type = element.attributes.getNamedItem('type')!.value;
     const fontFamily = element.getElementsByTagName('font-family')[0].innerHTML;
     const textDirection = parseTrait(element, 'text-direction');
@@ -747,7 +747,7 @@ function parseWritingSystem(element: Element, verbose: number): WritingSystemCon
 
     return writingSystem;
 }
-function parseDictionaryWritingSystem(
+export function parseDictionaryWritingSystem(
     element: Element,
     verbose: number
 ): DictionaryWritingSystemConfig {
@@ -799,7 +799,7 @@ function parseDictionaryWritingSystem(
     };
 }
 
-function parseMenuLocalizations(document: Document, verbose: number) {
+export function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
     let translationMappings: {
         defaultLang: string;
@@ -832,7 +832,7 @@ function parseMenuLocalizations(document: Document, verbose: number) {
     return translationMappings;
 }
 
-function parseKeys(document: Document, verbose: number) {
+export function parseKeys(document: Document, verbose: number) {
     if (document.getElementsByTagName('keys').length > 0) {
         const keys = Array.from(
             document.getElementsByTagName('keys')[0].getElementsByTagName('key')
@@ -844,7 +844,7 @@ function parseKeys(document: Document, verbose: number) {
     return [];
 }
 
-function parseAnalytics(document: Document, verbose: number) {
+export function parseAnalytics(document: Document, verbose: number) {
     const analyticsElements = document.getElementsByTagName('analytics');
 
     const analytics: { enabled: boolean; providers: any[] } = {
@@ -893,7 +893,7 @@ function parseAnalytics(document: Document, verbose: number) {
     return analytics;
 }
 
-function parseFirebase(document: Document, verbose: number) {
+export function parseFirebase(document: Document, verbose: number) {
     const firebaseElements = document.getElementsByTagName('firebase');
     let firebase: { features: { [key: string]: any } } = { features: {} };
 
@@ -920,7 +920,7 @@ function parseFirebase(document: Document, verbose: number) {
     return firebase;
 }
 
-function parseAudioSources(document: Document, verbose: number) {
+export function parseAudioSources(document: Document, verbose: number) {
     const audioSources = document
         .getElementsByTagName('audio-sources')[0]
         ?.getElementsByTagName('audio-source');
@@ -987,7 +987,7 @@ function parseAudioSources(document: Document, verbose: number) {
     return { sources, files };
 }
 
-function parseVideos(document: Document, verbose: number) {
+export function parseVideos(document: Document, verbose: number) {
     const videoTags = document.getElementsByTagName('videos')[0]?.getElementsByTagName('video');
     const videos: any[] = [];
     if (videoTags?.length > 0) {
@@ -1030,7 +1030,7 @@ function parseVideos(document: Document, verbose: number) {
     return videos;
 }
 
-function parseIllustrations(document: Document, verbose: number) {
+export function parseIllustrations(document: Document, verbose: number) {
     const imagesTags = document.getElementsByTagName('images');
     const illustrations: any[] = [];
     if (imagesTags?.length > 0) {
@@ -1067,7 +1067,7 @@ function parseIllustrations(document: Document, verbose: number) {
     return illustrations;
 }
 
-function parseLayouts(document: Document, bookCollections: any, verbose: number) {
+export function parseLayouts(document: Document, bookCollections: any, verbose: number) {
     const layoutRoot = document.getElementsByTagName('layouts')[0];
     let defaultLayout = layoutRoot?.getAttribute('default');
     const layouts = [];
@@ -1109,7 +1109,7 @@ function parseLayouts(document: Document, bookCollections: any, verbose: number)
     return { layouts, defaultLayout };
 }
 
-function parseBackgroundImages(document: Document, verbose: number) {
+export function parseBackgroundImages(document: Document, verbose: number) {
     const backgroundImageTags = document
         .querySelector('images[type=background]')
         ?.getElementsByTagName('image');
@@ -1127,7 +1127,7 @@ function parseBackgroundImages(document: Document, verbose: number) {
     return backgroundImages;
 }
 
-function parseWatermarkImages(document: Document, verbose: number) {
+export function parseWatermarkImages(document: Document, verbose: number) {
     const watermarkImageTags = document
         .querySelector('images[type=watermark]')
         ?.getElementsByTagName('image');
@@ -1145,7 +1145,7 @@ function parseWatermarkImages(document: Document, verbose: number) {
     return watermarkImages;
 }
 
-function parseMenuItems(document: Document, type: string, verbose: number) {
+export function parseMenuItems(document: Document, type: string, verbose: number) {
     const firstMenuItemsByType = document.querySelector(`menu-items[type="${type}"]`);
     const menuItemTags = firstMenuItemsByType?.getElementsByTagName('menu-item');
     const menuItems = [];
@@ -1208,7 +1208,7 @@ function parseMenuItems(document: Document, type: string, verbose: number) {
     return menuItems;
 }
 
-function parsePlans(document: Document, verbose: number) {
+export function parsePlans(document: Document, verbose: number) {
     const features: { [key: string]: string } = {};
     const plans: {
         id: string;

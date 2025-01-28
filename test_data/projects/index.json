@@ -1,13 +1,30 @@
 {
-    "sab" : {
-        "projects" : [
-            "web_gospels.zip",
-            "sab_pwa_test.zip"
+    "sab": {
+        "projects": [
+            {
+                "tests": [
+                    "src/",
+                    "convert/tests/sab/"
+                ],
+                "path": "web_gospels.zip"
+            },
+            {
+                "tests": [
+                    "src/"
+                ],
+                "path": "sab_pwa_test.zip"
+            }
         ]
     },
     "dab": {
-        "projects" : [
-            "hanga.zip"
+        "projects": [
+            {
+                "tests": [
+                    "src/",
+                    "convert/tests/dab/"
+                ],
+                "path": "hanga.zip"
+            }
         ]
     }
 }

@@ -21,13 +21,16 @@ jobs:
                   npm --version
                   npm i
 
-            - name: Add config
+            - name: Add minimal config
               run: |
                   echo "export default {};" > src/lib/data/config.js
                   echo "export const firebaseConfig = null;" > src/lib/data/firebase-config.js
+                  echo "export const catalog = [];" > src/lib/data/catalog.js
+                  echo "export default {}" > src/lib/data/contents.js
 
-            - name: Add catalog
-              run: echo "export const catalog = [];" > src/lib/data/catalog.js
+            - name: Run minimal build
+              run: |
+                  npx vite build
 
             - name: TypeScript/Svelte Check
               run: |

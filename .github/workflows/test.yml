@@ -46,8 +46,19 @@ jobs:
                   for PROGRAM in sab dab; do
                     echo "Processing projects for $PROGRAM"
                     mkdir -p "$HOME/projects/$PROGRAM"
-                    PROJECTS=$(jq -r ".${PROGRAM}.projects[]" "test_data/projects/index.json")
-                    for PROJECT_ZIP in $PROJECTS; do
+                    
+                    # Get all projects as JSON array
+                    PROJECTS_JSON=$(jq -r ".${PROGRAM}.projects" "test_data/projects/index.json")
+                    
+                    # Get number of projects
+                    NUM_PROJECTS=$(echo "$PROJECTS_JSON" | jq '. | length')
+                    
+                    # Iterate through projects using index
+                    for ((i=0; i<$NUM_PROJECTS; i++)); do
+                        # Get project path and test directories
+                        PROJECT_ZIP=$(echo "$PROJECTS_JSON" | jq -r ".[$i].path")
+                        TEST_DIRS=$(echo "$PROJECTS_JSON" | jq -r ".[$i].tests[]")
+                        
                         PROJECT_NAME=$(basename "$PROJECT_ZIP" .zip)
                         echo "Project: $PROJECT_NAME"
                         PROJECT_DIR="$HOME/projects/${PROGRAM}/$PROJECT_NAME"
@@ -60,6 +71,11 @@ jobs:
                         popd > /dev/null
                         npm run build
                         npm run convert
-                        npm run test
+                        
+                        # Run tests for each specified directory
+                        for TEST_DIR in $TEST_DIRS; do
+                            echo "Running tests in directory: $TEST_DIR"
+                            npm run test "$TEST_DIR"
+                        done
                     done
                   done
