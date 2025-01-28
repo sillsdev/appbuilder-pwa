@@ -31,7 +31,8 @@ A component to display tabbed menus.
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs mb-1" style={convertStyle($s['ui.selector.tabs'])}>
+    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s['ui.selector.tabs'])}>
+        {(console.log(`active: ${active}`), '')}
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y-missing-attribute -->
@@ -40,8 +41,8 @@ A component to display tabbed menus.
                 <a
                     on:click|preventDefault={() => setActive(opt)}
                     style:border-color={active === opt ? '#FFFFFF' : ''}
-                    class="dy-tab dy-tab-bordered text-white normal-case {active === opt
-                        ? 'dy-tab-active'
+                    class="dy-tab text-white normal-case {active === opt
+                        ? 'dy-tab-active font-bold'
                         : ''}"
                     style:background="none"
                     role="button"
