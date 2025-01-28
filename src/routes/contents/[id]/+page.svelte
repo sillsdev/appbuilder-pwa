@@ -4,6 +4,7 @@
     import { page } from '$app/stores';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import { loadCatalog } from '$lib/data/catalogData';
     import config from '$lib/data/config';
     import {
         contentsFontSize,
@@ -57,7 +58,8 @@
             //reference linkType
             case 'reference':
                 contentsStack.pushItem($page.data.menu.id);
-                await navigateToText(getReference(item));
+                const contentsRef = await getReference(item);
+                await navigateToText(contentsRef);
                 break;
             case 'screen':
                 //goes to another contents page
@@ -90,7 +92,7 @@
         }
     }
 
-    function getReference(item) {
+    async function getReference(item) {
         let docSet = $refs.docSet;
         let collection = docSet.split('_')[1];
         let book;
@@ -111,11 +113,10 @@
                 '_' +
                 collection;
         }
-
         switch (reference.length) {
             case 1:
                 book = reference[0];
-                chapter = '1';
+                chapter = await firstChapter(book, docSet);
                 break;
             case 2:
                 book = reference[0];
@@ -165,6 +166,19 @@
             goto(getRoute(`/contents/${menuId}`));
         }
     }
+    async function firstChapter(book, docset) {
+        let first = '1';
+        if (docset === currentDocSet) {
+            first = Object.keys(books.find((x) => x.bookCode === book).versesByChapters)[0];
+        } else {
+            let docSetCatalog = await loadCatalog(docset);
+            let docSetBooks = docSetCatalog.documents;
+            first = Object.keys(docSetBooks.find((x) => x.bookCode === book).versesByChapters)[0];
+        }
+        return first;
+    }
+    $: books = $refs.catalog.documents;
+    $: currentDocSet = $refs.docSet;
     $: showBackButton = $contentsStack.length > 0;
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'contents';
