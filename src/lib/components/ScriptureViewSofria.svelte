@@ -2395,6 +2395,9 @@ LOGGING:
     };
 
     function convertJmp(text: string): string {
+        if (!text.includes('/jmp')) {
+            return text;
+        }
         return text.replace(
             /\/jmp ([^|]+)\| href="([^"]+)"\/jmp\*/g,
             (_match, url, encodedHref) => {
