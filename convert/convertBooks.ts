@@ -194,6 +194,48 @@ function addParagraphMarkersAroundTableRows(text: string): string {
     return text.replace(/((?:\\tr [^\n]*\n)+)/g, '\n\\p\n$1\\p\n');
 }
 
+function moveFigureToNextNonVerseMarker(text: string): string {
+    // Regular expression to match lines starting with \v and containing \fig ... \fig*
+    const verseWithFigureRegex = /(^\\v [^\n]*?\\fig [^\n]*?\\fig\*[^\n]*$)/gm;
+
+    // Split the text into lines
+    const lines = text.split('\n');
+
+    // Iterate over the lines and process the figures
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (verseWithFigureRegex.test(line)) {
+            // Extract the figure content
+            const figureContentMatch = line.match(/\\fig [^\n]*?\\fig\*/);
+            if (figureContentMatch) {
+                const figureContent = figureContentMatch[0];
+
+                // Remove the figure content from the current line
+                lines[i] = line.replace(figureContent, '');
+
+                // Find the next non-verse marker
+                let inserted = false;
+                for (let j = i + 1; j < lines.length; j++) {
+                    if (!lines[j].startsWith('\\v ')) {
+                        // Insert the figure content before the next non-verse marker
+                        lines[j] = figureContent + '\n' + lines[j];
+                        inserted = true;
+                        break;
+                    }
+                }
+
+                // If no non-verse marker is found, add the figure content to the end of the document
+                if (!inserted) {
+                    lines.push(figureContent);
+                }
+            }
+        }
+    }
+
+    // Join the lines back together
+    return lines.join('\n');
+}
+
 type FilterFunction = (text: string, bcId: string, bookId: string) => string;
 
 const usfmFilterFunctions: FilterFunction[] = [
@@ -204,7 +246,8 @@ const usfmFilterFunctions: FilterFunction[] = [
     handleNoCaptionFigures,
     removeMissingFigures,
     trimTrailingWhitespace,
-    addParagraphMarkersAroundTableRows
+    addParagraphMarkersAroundTableRows,
+    moveFigureToNextNonVerseMarker
 ];
 
 const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
