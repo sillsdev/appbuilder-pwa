@@ -284,8 +284,7 @@ LOGGING:
                     spanV.addEventListener('click', onClick, false);
                     workspace.tableCellElement.appendChild(spanV);
                     if (i < references.length - 1) {
-                        const textNode = document.createTextNode('; ');
-                        workspace.tableCellElement.appendChild(textNode);
+                        appendTextToElement(workspace.tableCellElement, '; ');
                     }
                 }
             } else {
@@ -357,6 +356,9 @@ LOGGING:
         }
 
         return callerSymbol;
+    };
+    const appendTextToElement = (element: HTMLElement, text: string) => {
+        element.innerHTML = element.innerHTML + text;
     };
     const addGraftText = (workspace, text, textType, usfmType) => {
         if (workspace.textType.includes(textType)) {
@@ -452,15 +454,13 @@ LOGGING:
                 }
                 aElement.setAttribute('match', matchWord.trim());
                 aElement.setAttribute('href', ' ');
-                const refText = document.createTextNode(phrase);
                 aElement.classList.add('glossary');
-                aElement.appendChild(refText);
+                appendTextToElement(aElement, phrase);
                 spanElement.appendChild(aElement);
                 break;
             }
             default: {
-                child = document.createTextNode(phrase);
-                spanElement.appendChild(child);
+                appendTextToElement(spanElement, phrase);
                 break;
             }
         }
@@ -475,8 +475,7 @@ LOGGING:
                     if (workspace.showWordsOfJesus) {
                         div = usfmSpan(div, usfmWrapperType, phrase);
                     } else {
-                        const textNode = document.createTextNode(phrase);
-                        div.appendChild(textNode);
+                        appendTextToElement(div, phrase);
                     }
                     break;
                 }
@@ -495,8 +494,7 @@ LOGGING:
                 }
             }
         } else {
-            const textNode = document.createTextNode(phrase);
-            div.appendChild(textNode);
+            appendTextToElement(div, phrase);
         }
         return div;
     };
@@ -641,8 +639,7 @@ LOGGING:
                             glossarySpan.append(block.key);
                             glossaryDiv.append(glossarySpan);
                             const blockText = block.text.slice(glossaryLink.length);
-                            const glossaryText = document.createTextNode(blockText);
-                            glossaryDiv.append(glossaryText);
+                            appendTextToElement(glossaryDiv, blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
                             footnotes.push(glossaryHTML);
                         }
@@ -924,8 +921,7 @@ LOGGING:
             textDiv.onclick = (event) => planClicked();
         }
         textDiv.classList.add(divClass);
-        const textNode = document.createTextNode(stringId);
-        textDiv.append(textNode);
+        appendTextToElement(textDiv, stringId);
         progressDiv.append(textDiv);
     }
     function getPlanReferenceString(ref) {
@@ -1164,8 +1160,7 @@ LOGGING:
         divFigureText.classList.add('caption');
         const spanFigureText = document.createElement('span');
         spanFigureText.classList.add('caption');
-        const spanFigureTextNode = document.createTextNode(caption);
-        spanFigureText.append(spanFigureTextNode);
+        appendTextToElement(spanFigureText, caption);
         divFigureText.append(spanFigureText);
         return divFigureText;
     }
@@ -1735,11 +1730,10 @@ LOGGING:
                                     workspace.titleGraft
                                 )
                             ) {
-                                const text = context.sequences[0].element.text;
+                                const text = convertJmp(context.sequences[0].element.text);
                                 switch (currentTextType(workspace)) {
                                     case 'title': {
-                                        const child = document.createTextNode(text);
-                                        workspace.titleSpan.append(child);
+                                        appendTextToElement(workspace.titleSpan, text);
                                         break;
                                     }
                                     case 'heading': {
@@ -1750,8 +1744,7 @@ LOGGING:
                                             // which contain references inline
                                             workspace.headerInnerDiv.innerHTML = refText;
                                         } else {
-                                            const child = document.createTextNode(text);
-                                            workspace.headerInnerDiv.appendChild(child);
+                                            appendTextToElement(workspace.headerInnerDiv, text);
                                         }
                                         break;
                                     }
@@ -1766,10 +1759,7 @@ LOGGING:
                                         break;
                                     }
                                     case 'audioc':
-                                    case 'reflink':
-                                    case 'tellink':
-                                    case 'elink':
-                                    case 'weblink': {
+                                    case 'reflink': {
                                         workspace.milestoneText = text;
                                         break;
                                     }
@@ -2297,27 +2287,6 @@ LOGGING:
                                     );
                                     break;
                                 }
-                                case 'usfm:zweblink': {
-                                    workspace.textType.push('weblink');
-                                    workspace.milestoneLink = decodeURIComponent(
-                                        element.atts['link'][0]
-                                    );
-                                    break;
-                                }
-                                case 'usfm:ztellink': {
-                                    workspace.textType.push('tellink');
-                                    workspace.milestoneLink = decodeURIComponent(
-                                        element.atts['link'][0]
-                                    );
-                                    break;
-                                }
-                                case 'usfm:zelink': {
-                                    workspace.textType.push('elink');
-                                    workspace.milestoneLink = decodeURIComponent(
-                                        element.atts['link'][0]
-                                    );
-                                    break;
-                                }
                                 default: {
                                     break;
                                 }
@@ -2424,6 +2393,24 @@ LOGGING:
             console.log('DONE %o', bookRoot);
         }
     };
+
+    function convertJmp(text: string): string {
+        return text.replace(
+            /\/jmp ([^|]+)\| href="([^"]+)"\/jmp\*/g,
+            (_match, url, encodedHref) => {
+                const decodedHref = decodeURIComponent(encodedHref);
+
+                const className = decodedHref.startsWith('mailto')
+                    ? 'email-link'
+                    : decodedHref.startsWith('tel')
+                      ? 'tel-link'
+                      : 'web-link';
+                const attributes =
+                    className === 'web-link' ? 'target="_blank" rel="noreferrer"' : '';
+                return `<a ${attributes} class="${className}" href="${decodedHref}">${url}</a>`;
+            }
+        );
+    }
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];

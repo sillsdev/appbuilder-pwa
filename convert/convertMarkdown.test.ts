@@ -15,21 +15,17 @@ describe('convertMarkdownsToMilestones', () => {
     });
     it('converts a telephone markdown to a milestone', () => {
         // Gen 3:14 translates this [TEL](tel:6145551212)
-        expect(modifiedContent).toContain(
-            '\\ztellink-s | link="tel%3A6145551212"\\*TEL \\ztellink-e\\*'
-        );
+        expect(modifiedContent).toContain('/jmp TEL|href="tel%3A6145551212"/jmp*');
     });
     it('converts an email markdown to a milestone', () => {
         // Gen 3:14 translates this [EMAIL DAVID](mailto:david_moore1@sil.org)
         expect(modifiedContent).toContain(
-            '\\zelink-s | link="mailto%3Adavid_moore1%40sil.org"\\*EMAIL DAVID \\zelink-e\\*'
+            '/jmp EMAIL DAVID|href="mailto%3Adavid_moore1%40sil.org"/jmp*'
         );
     });
     it('converts a web link markdown to a milestone', () => {
         // Gen 3:13 translates this [Web Link](https://www.sil.org/)
-        expect(modifiedContent).toContain(
-            '\\zweblink-s | link="https%3A%2F%2Fwww.sil.org%2F"\\*Web Link \\zweblink-e\\*'
-        );
+        expect(modifiedContent).toContain('/jmp Web Link|href="https%3A%2F%2Fwww.sil.org%2F"/jmp*');
     });
     it('adds an empty markdown as text ', () => {
         // Gen 3:13 adds [Empty Markdown to text]
@@ -38,31 +34,31 @@ describe('convertMarkdownsToMilestones', () => {
     it('converts an audio clip markdown to a milestone', () => {
         // Gen 3:12 translates this [Audio](audioclip.mp3)
         expect(modifiedContent).toContain(
-            '\\zaudioc-s | link="audioclip.mp3" \\*Audio \\zaudioc-e\\*'
+            '\\zaudioc-s |link="audioclip.mp3" \\*Audio\\zaudioc-e\\*'
         );
     });
     it('converts a full reference markdown to a milestone', () => {
         // Gen 3:11 translates [Beatitudes](C01.MAT.5.1)
         expect(modifiedContent).toContain(
-            '\\zreflink-s | link="C01.MAT.5.1"\\*Beatitudes \\zreflink-e\\*'
+            '\\zreflink-s |link="C01.MAT.5.1"\\*Beatitudes\\zreflink-e\\*'
         );
     });
     it('converts a markdown reference without a book collection', () => {
         // Gen 3:10 translates [No BC Link](MAT.5.1)
         expect(modifiedContent).toContain(
-            '\\zreflink-s | link="C01.MAT.5.1"\\*No BC Link \\zreflink-e\\*'
+            '\\zreflink-s |link="C01.MAT.5.1"\\*No BC Link\\zreflink-e\\*'
         );
     });
     it('converts a markdown reference without book collection or verse', () => {
         // Gen 3:9 translates [No BC No Verse Link](MAT.5)
         expect(modifiedContent).toContain(
-            '\\zreflink-s | link="C01.MAT.5.1"\\*No BC No Verse Link \\zreflink-e\\*'
+            '\\zreflink-s |link="C01.MAT.5.1"\\*No BC No Verse Link\\zreflink-e\\*'
         );
     });
     it('converts a markdown reference with just chapter verse', () => {
         // Gen 3:8 translates [Just chapter verse](7.1)
         expect(modifiedContent).toContain(
-            '\\zreflink-s | link="C01.GEN.7.1"\\*Just chapter verse \\zreflink-e\\*'
+            '\\zreflink-s |link="C01.GEN.7.1"\\*Just chapter verse\\zreflink-e\\*'
         );
     });
 });

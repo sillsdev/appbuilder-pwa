@@ -143,17 +143,13 @@ function isImageLink(ref: string, excl: string): boolean {
     return result;
 }
 function audioUSFM(link: string, text: string): string {
-    // \zaudioc-s | link="audioclip.mp3"\*audioclip.mp3\zaudioc-e\*
+    // \zaudioc-s |link="audioclip.mp3"\*audioclip.mp3\zaudioc-e\*
     let result = '';
     const refLower = link.toLowerCase();
     const ext = getFilenameExt(refLower);
     if (ext === 'mp3' || ext === 'wav') {
         result =
-            ' \\zaudioc-s | link="' +
-            encodeURIComponent(link) +
-            '" \\*' +
-            text +
-            ' \\zaudioc-e\\* ';
+            ' \\zaudioc-s |link="' + encodeURIComponent(link) + '" \\*' + text + '\\zaudioc-e\\* ';
     }
     return result;
 }
@@ -163,21 +159,18 @@ function imageUSFM(link: string, text: string): string {
     return result;
 }
 function weblinkUSFM(link: string, text: string): string {
-    // \zweblink-s | link="https://www.sil.org/"\*Web Link \zweblink-e\*
-    const result =
-        ' \\zweblink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\zweblink-e\\* ';
+    // HACK: USFM supports web links through \jmp, Proskomma doesn't support \jmp. Pass them through as /jmp in text and process in ScriptureViewSofria.
+    const result = `/jmp ${text}|href="${encodeURIComponent(link)}"/jmp* `;
     return result;
 }
 function emailUSFM(link: string, text: string): string {
-    // \zelink-s | link="mailto:david_moore1@sil.org"\*EMAIL DAVID \zelink-e\*
-    const result =
-        ' \\zelink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\zelink-e\\* ';
+    // HACK: USFM supports web links through \jmp, Proskomma doesn't support \jmp. Pass them through as /jmp in text and process in ScriptureViewSofria.
+    const result = `/jmp ${text}|href="${encodeURIComponent(link)}"/jmp* `;
     return result;
 }
 function telUSFM(link: string, text: string): string {
-    // \ztellink-s | link="tel:6144323864"\*CAMB \ztellink-e\*
-    const result =
-        ' \\ztellink-s | link="' + encodeURIComponent(link) + '"\\*' + text + ' \\ztellink-e\\* ';
+    // HACK: USFM supports web links through \jmp, Proskomma doesn't support \jmp. Pass them through as /jmp in text and process in ScriptureViewSofria.
+    const result = `/jmp ${text}|href="${encodeURIComponent(link)}"/jmp* `;
     return result;
 }
 function referenceUSFM(link: string, text: string, bcId: string, bookid: string): string {
@@ -208,11 +201,11 @@ function referenceUSFM(link: string, text: string, bcId: string, bookid: string)
         const reference =
             refCollection + '.' + refBook + '.' + refChapter.toString() + '.' + refVerse.toString();
         result =
-            ' \\zreflink-s | link="' +
+            ' \\zreflink-s |link="' +
             encodeURIComponent(reference) +
             '"\\*' +
             text +
-            ' \\zreflink-e\\* ';
+            '\\zreflink-e\\* ';
     }
     return result;
 }
