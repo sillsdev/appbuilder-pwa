@@ -195,45 +195,42 @@ function addParagraphMarkersAroundTableRows(text: string): string {
 }
 
 function moveFigureToNextNonVerseMarker(text: string): string {
-    // Regular expression to match lines starting with \v and containing \fig ... \fig*
-    const verseWithFigureRegex = /(^\\v [^\n]*?\\fig [^\n]*?\\fig\*[^\n]*$)/gm;
+    const result = [];
+    let carryOverFigures: string[] = [];
 
-    // Split the text into lines
     const lines = text.split('\n');
-
-    // Iterate over the lines and process the figures
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (verseWithFigureRegex.test(line)) {
-            // Extract the figure content
-            const figureContentMatch = line.match(/\\fig [^\n]*?\\fig\*/);
-            if (figureContentMatch) {
-                const figureContent = figureContentMatch[0];
-
-                // Remove the figure content from the current line
-                lines[i] = line.replace(figureContent, '');
-
-                // Find the next non-verse marker
-                let inserted = false;
-                for (let j = i + 1; j < lines.length; j++) {
-                    if (!lines[j].startsWith('\\v ')) {
-                        // Insert the figure content before the next non-verse marker
-                        lines[j] = figureContent + '\n' + lines[j];
-                        inserted = true;
-                        break;
-                    }
-                }
-
-                // If no non-verse marker is found, add the figure content to the end of the document
-                if (!inserted) {
-                    lines.push(figureContent);
-                }
+    for (let line of lines) {
+        // Add any figures that were carried over from the previous lines
+        if (carryOverFigures.length > 0) {
+            if (!line.startsWith('\\v ') && !line.startsWith('\\fig')) {
+                result.push(...carryOverFigures);
+                carryOverFigures = [];
             }
+        }
+
+        const figureMatches = line.match(/(\\fig.*?\\fig\*)/g);
+        if (figureMatches) {
+            // Remove the figure content from the current line and add it to the carry over list
+            let modifiedLine = line;
+            figureMatches.forEach((figure) => {
+                modifiedLine = modifiedLine.replace(figure, '');
+                carryOverFigures.push(figure);
+            });
+            if (modifiedLine.trim()) {
+                result.push(modifiedLine);
+            }
+        } else {
+            result.push(line);
         }
     }
 
+    // If there are any figures left to carry over, add them to the end of the document
+    if (carryOverFigures.length > 0) {
+        result.push(...carryOverFigures);
+    }
+
     // Join the lines back together
-    return lines.join('\n');
+    return result.join('\n');
 }
 
 type FilterFunction = (text: string, bcId: string, bookId: string) => string;
