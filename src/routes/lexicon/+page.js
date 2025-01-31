@@ -18,16 +18,9 @@ export async function load({ fetch }) {
     const dictionaryName = config.name;
 
     let initialReversalData = {};
-    try {
-        const response = await fetch(`${base}/reversal/language/${defaultKey}/${alphabet[0]}.json`);
-        if (response.ok) {
-            initialReversalData = await response.json();
-        }
-    } catch (error) {
-        console.error('Error loading initial reversal data:', error);
-    }
 
     return {
+        fetch,
         alphabet,
         initialReversalData,
         defaultKey,

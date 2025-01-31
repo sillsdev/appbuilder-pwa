@@ -20,20 +20,6 @@
         }
 
         loading = true;
-        try {
-            const response = await fetch(
-                `${base}/reversal/language/${selectedLanguage.toLowerCase()}/${letter.toLowerCase()}.json`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to load reversal data');
-            }
-            reversalData = await response.json();
-        } catch (error) {
-            console.error('Error loading reversal data:', error);
-            reversalData = {};
-        } finally {
-            loading = false;
-        }
     }
 
     async function handleLetterSelect(letter) {
