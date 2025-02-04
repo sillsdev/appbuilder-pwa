@@ -90,6 +90,14 @@ function createAudio(audioSource: string): HTMLAudioElement {
         // Add additional source elements to the audio element
         audio.appendChild(sourceCaf);
         audio.appendChild(sourceMp3);
+    } else if (/\.3gp$/i.test(audioSource)) {
+        // Create additional source elements
+        var sourceMp3 = document.createElement('source');
+        sourceMp3.src = audioSource.replace(/\.3gp$/i, '.mp3');
+        sourceMp3.type = 'audio/mpeg';
+
+        // Add additional source elements to the audio element
+        audio.appendChild(sourceMp3);
     }
     return audio;
 }
