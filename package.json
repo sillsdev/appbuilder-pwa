@@ -69,5 +69,8 @@
     },
     "volta": {
         "node": "20.9.0"
+    },
+    "dependencies": {
+        "sql.js": "^1.12.0"
     }
 }
