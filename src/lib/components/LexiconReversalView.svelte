@@ -6,6 +6,7 @@
     export let initialData = {};
     export let selectedLanguage;
     export let reversalLang;
+    export let selectedLetter;
     export let onSwitchLanguage;
     export let onLetterChange;
 
@@ -30,6 +31,9 @@
 
     $: if (alphabet && alphabet.length > 0) {
         currentLetter = alphabet[0];
+    }
+    $: if (selectedLetter !== currentLetter) {
+        currentLetter = selectedLetter;
     }
 </script>
 
