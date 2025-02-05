@@ -1,4 +1,4 @@
-import { copyFile } from 'fs';
+import { copyFile, mkdirSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
@@ -7,14 +7,23 @@ export interface SQLiteTaskOutput extends TaskOutput {
 }
 
 /**
- * Copies data.sqlite to the static folder.
+ * Copies sqlite-wasm.wasm and data.sqlite to the static folder.
  */
 export function convertSQLite(dataDir: string, verbose: number) {
-    const srcFile = path.join(dataDir, 'data.sqlite');
-    const dstFile = path.join('static', 'data.sqlite');
-    copyFile(srcFile, dstFile, function (err: any) {
+    const srcFileWasm = path.join('node_modules/sql.js/dist', 'sql-wasm.wasm');
+    const dstDirWasm = path.join('static', 'wasm');
+    const dstFileWasm = path.join(dstDirWasm, 'sql-wasm.wasm');
+    mkdirSync(dstDirWasm, { recursive: true });
+    copyFile(srcFileWasm, dstFileWasm, function (err: any) {
         if (err) throw err;
-        if (verbose) console.log(`Copied ${srcFile} to ${dstFile}`);
+        if (verbose) console.log(`Copied ${srcFileWasm} to ${dstFileWasm}`);
+    });
+
+    const srcFileData = path.join(dataDir, 'data.sqlite');
+    const dstFileData = path.join('static', 'data.sqlite');
+    copyFile(srcFileData, dstFileData, function (err: any) {
+        if (err) throw err;
+        if (verbose) console.log(`Copied ${srcFileData} to ${dstFileData}`);
     });
 }
 
