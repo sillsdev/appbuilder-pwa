@@ -3,7 +3,7 @@ import initSqlJs from 'sql.js';
 
 export async function load({ fetch }) {
     const SQL = await initSqlJs({
-        locateFile: (file) => `${base}/sql-wasm.wasm`
+        locateFile: (file: string) => `${base}/wasm/${file}`
     });
 
     // Fetch the database file
@@ -12,24 +12,21 @@ export async function load({ fetch }) {
 
     // Load the database into sql.js
     const db = new SQL.Database(new Uint8Array(buffer));
-    console.log('Database loaded:', db);
 
     // Example: Running a simple query
     const results = db.exec(
         'SELECT id, name, homonym_index, type, num_senses, summary FROM entries'
     );
     const result = results[0];
-    console.log(result);
 
     const entries = [];
     for (let value of result.values) {
-        const entry = {};
+        const entry = {} as { [key: string]: any };
         for (let i = 0; i < result.columns.length; ++i) {
             entry[result.columns[i]] = value[i];
         }
         entries.push(entry);
     }
-    console.log(entries);
 
     return {
         entries
