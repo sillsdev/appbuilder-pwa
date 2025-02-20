@@ -4,12 +4,15 @@
     export let onLetterSelect: (letter: string) => void;
 </script>
 
-<div class="alphabet-scroll flex gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-4">
+<div
+    class="alphabet-scroll flex gap-1 md:gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-2 snap-x"
+>
     {#each alphabet as letter}
         <button
-            class="px-3 py-2 text-sm font-bold border rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer 
+            class="px-2 py-1 text-xs font-bold border rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer snap-start
             {activeLetter === letter ? 'bg-[#bb9ac2] border-black' : ''}
-            sm:text-base sm:px-4 sm:py-3 md:text-lg md:px-5 md:py-4"
+            sm:text-sm sm:px-3 sm:py-2
+            md:text-base md:px-4 md:py-2"
             on:click={() => onLetterSelect(letter)}
         >
             {letter}
