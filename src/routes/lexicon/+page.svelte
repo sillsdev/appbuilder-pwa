@@ -6,6 +6,7 @@
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
+    import initSqlJs from 'sql.js';
     import { onMount } from 'svelte';
 
     const {
@@ -23,58 +24,91 @@
     };
 
     let selectedLetter = 'a';
-    let wordsList = [];
     let selectedWord = null;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let loadedLetters = new Set();
     let reversalLanguage = Object.values(reversalLanguages[0])[0];
     let selectedLanguage = reversalLanguage;
+    let wordsList = [];
+    let vernacularWordsList = [];
+
+    async function queryVernacularWords() {
+        if (selectedLanguage === vernacularLanguage && !loadedLetters.has(selectedLetter)) {
+            const SQL = await initSqlJs({
+                locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
+            });
+
+            const response = await fetch(`${base}/data.sqlite`);
+            const buffer = await response.arrayBuffer();
+            const db = new SQL.Database(new Uint8Array(buffer));
+
+            const letterIndex = alphabets.vernacular.indexOf(selectedLetter);
+            for (let i = 0; i <= letterIndex; i++) {
+                if (!loadedLetters.has(alphabets.vernacular[i])) {
+                    const results = db.exec(
+                        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries WHERE REPLACE(name, '-', '') LIKE "${alphabets.vernacular[i]}%"`
+                    );
+
+                    if (results[0]) {
+                        const entries = results[0].values.map((value) => {
+                            const entry = {};
+                            for (let i = 0; i < results[0].columns.length; ++i) {
+                                entry[results[0].columns[i]] = value[i];
+                            }
+                            return entry;
+                        });
+
+                        vernacularWordsList = [...vernacularWordsList, ...entries];
+                        loadedLetters.add(alphabets.vernacular[i]);
+                    }
+                }
+            }
+            scrollToLetter(selectedLetter);
+        }
+    }
 
     async function fetchReversalWords() {
-        if (selectedLanguage === reversalLanguage) {
+        if (selectedLanguage === reversalLanguage && !loadedLetters.has(selectedLetter)) {
             let fileIndex = 1;
             let moreFiles = true;
+            let newWords = [];
 
-            if (!loadedLetters.has(selectedLetter)) {
-                let newWords = [];
-
-                const letterIndex = alphabets.reversal.indexOf(selectedLetter);
-                for (let i = 0; i < letterIndex; i++) {
-                    if (!loadedLetters.has(alphabets.reversal[i])) {
-                        await loadLetterData(alphabets.reversal[i]);
-                    }
+            const letterIndex = alphabets.reversal.indexOf(selectedLetter);
+            for (let i = 0; i < letterIndex; i++) {
+                if (!loadedLetters.has(alphabets.reversal[i])) {
+                    await loadLetterData(alphabets.reversal[i]);
                 }
-
-                while (moreFiles) {
-                    try {
-                        const response = await fetch(
-                            `${base}/reversal/${defaultReversalKey}/${selectedLetter}-${String(fileIndex).padStart(3, '0')}.json`
-                        );
-                        if (response.ok) {
-                            const data = await response.json();
-                            const currentFileWords = Object.entries(data)
-                                .map(([word, entries]) => {
-                                    return entries.map((entry) => ({
-                                        word: word,
-                                        index: entry.index,
-                                        letter: selectedLetter
-                                    }));
-                                })
-                                .flat();
-                            newWords = [...newWords, ...currentFileWords];
-                            fileIndex++;
-                        } else {
-                            moreFiles = false;
-                        }
-                    } catch (error) {
-                        console.error('Error loading word data:', error);
-                    }
-                }
-
-                wordsList = [...wordsList, ...newWords];
-
-                loadedLetters.add(selectedLetter);
             }
+
+            while (moreFiles) {
+                try {
+                    const response = await fetch(
+                        `${base}/reversal/${defaultReversalKey}/${selectedLetter}-${String(fileIndex).padStart(3, '0')}.json`
+                    );
+                    if (response.ok) {
+                        const data = await response.json();
+                        const currentFileWords = Object.entries(data)
+                            .map(([word, entries]) => {
+                                return entries.map((entry) => ({
+                                    word: word,
+                                    index: entry.index,
+                                    letter: selectedLetter
+                                }));
+                            })
+                            .flat();
+                        newWords = [...newWords, ...currentFileWords];
+                        fileIndex++;
+                    } else {
+                        moreFiles = false;
+                    }
+                } catch (error) {
+                    console.error('Error loading word data:', error);
+                    moreFiles = false;
+                }
+            }
+
+            wordsList = [...wordsList, ...newWords];
+            loadedLetters.add(selectedLetter);
             scrollToLetter(selectedLetter);
         }
     }
@@ -94,7 +128,8 @@
                         .map(([word, entries]) => {
                             return entries.map((entry) => ({
                                 word: word,
-                                index: entry.index
+                                index: entry.index,
+                                letter
                             }));
                         })
                         .flat();
@@ -105,6 +140,7 @@
                 }
             } catch (error) {
                 console.error('Error loading word data:', error);
+                moreFiles = false;
             }
         }
 
@@ -130,35 +166,48 @@
 
     function handleLetterChange(letter) {
         selectedLetter = letter;
-        fetchReversalWords();
+        if (selectedLanguage === reversalLanguage) {
+            fetchReversalWords();
+        } else {
+            queryVernacularWords();
+        }
     }
 
     function switchLanguage(language) {
         wordsList = [];
+        vernacularWordsList = [];
         selectedLanguage = language;
         loadedLetters = new Set();
+        selectedLetter = currentAlphabet[0];
         if (selectedLanguage === reversalLanguage) {
-            selectedLetter = currentAlphabet[0];
             fetchReversalWords();
+        } else {
+            queryVernacularWords();
         }
     }
 
     function checkIfScrolledToBottom(event) {
         const div = event.target;
-        if (div.scrollHeight - div.scrollTop === div.clientHeight) {
-            if (selectedLetter !== 'z') {
-                selectedLetter = String.fromCharCode(selectedLetter.charCodeAt(0) + 1);
-                fetchReversalWords();
+        const threshold = 50;
+
+        if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
+            const currentIndex = currentAlphabet.indexOf(selectedLetter);
+            if (currentIndex < currentAlphabet.length - 1) {
+                selectedLetter = currentAlphabet[currentIndex + 1];
+                if (selectedLanguage === reversalLanguage) {
+                    fetchReversalWords();
+                } else {
+                    queryVernacularWords();
+                }
             }
         }
 
         if (loadedLetters.has(selectedLetter)) {
             const allLetters = div.querySelectorAll('[id^="letter-"]');
-
             let visibleLetter = null;
+
             allLetters.forEach((letterDiv) => {
                 const rect = letterDiv.getBoundingClientRect();
-
                 if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
                     visibleLetter = letterDiv.id.split('-')[1];
                 }
@@ -181,8 +230,7 @@
     });
 </script>
 
-<!-- This is now set to full height of viewport instead of a set one -->
-<div class="flex flex-col h-screen">
+<div class="flex flex-col min-h-screen max-h-screen bg-base-100">
     <Navbar>
         {#snippet center()}
             <label for="sidebar" class="navbar">
@@ -209,8 +257,7 @@
         {/if}
     </div>
 
-    <!-- This will now flex-grow and fill whatever remaining space exists-->
-    <div class="flex-grow overflow-y-auto p-4" on:scroll={checkIfScrolledToBottom}>
+    <div class="flex-1 overflow-y-auto p-4 bg-base-100" on:scroll={checkIfScrolledToBottom}>
         {#if selectedWord}
             <div>
                 <p class="text-xl font-bold break-words">{selectedWord.word}</p>
@@ -218,14 +265,24 @@
             </div>
         {:else}
             <ul class="space-y-2">
-                {#each wordsList as { word, index, letter }}
-                    <li class="cursor-pointer text-lg" id="letter-{word[0].toLowerCase()}">
-                        <div on:click={() => selectWord({ word, index })}>
-                            <p class="font-bold break-words">{word}</p>
-                            <p class="text-md ml-4">{index}</p>
-                        </div>
-                    </li>
-                {/each}
+                {#if selectedLanguage === vernacularLanguage}
+                    {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary }}
+                        <li class="cursor-pointer text-lg" id="letter-{name[0].toLowerCase()}">
+                            <div on:click={() => selectWord({ word: name, index: id })}>
+                                <p class="font-bold break-words">{name}</p>
+                            </div>
+                        </li>
+                    {/each}
+                {:else}
+                    {#each wordsList as { word, index, letter }}
+                        <li class="cursor-pointer text-lg" id="letter-{word[0].toLowerCase()}">
+                            <div on:click={() => selectWord({ word, index })}>
+                                <p class="font-bold break-words">{word}</p>
+                                <p class="text-md ml-4">{index}</p>
+                            </div>
+                        </li>
+                    {/each}
+                {/if}
             </ul>
         {/if}
     </div>
