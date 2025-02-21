@@ -23,17 +23,21 @@
         vernacular: vernacularAlphabet
     };
 
-    let selectedLetter = 'a';
+    let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
-    let loadedLetters = new Set();
-    let reversalLanguage = Object.values(reversalLanguages[0])[0];
-    let selectedLanguage = reversalLanguage;
-    let wordsList = [];
+    let loadedVernacularLetters = new Set();
+    let loadedReversalLetters = new Set();
+    let reversalWordsList = [];
     let vernacularWordsList = [];
+    let selectedLanguage = vernacularLanguage;
+    const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function queryVernacularWords() {
-        if (selectedLanguage === vernacularLanguage && !loadedLetters.has(selectedLetter)) {
+        if (
+            selectedLanguage === vernacularLanguage &&
+            !loadedVernacularLetters.has(selectedLetter)
+        ) {
             const SQL = await initSqlJs({
                 locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
             });
@@ -44,7 +48,7 @@
 
             const letterIndex = alphabets.vernacular.indexOf(selectedLetter);
             for (let i = 0; i <= letterIndex; i++) {
-                if (!loadedLetters.has(alphabets.vernacular[i])) {
+                if (!loadedVernacularLetters.has(alphabets.vernacular[i])) {
                     const results = db.exec(
                         `SELECT id, name, homonym_index, type, num_senses, summary FROM entries WHERE REPLACE(name, '-', '') LIKE "${alphabets.vernacular[i]}%"`
                     );
@@ -59,7 +63,7 @@
                         });
 
                         vernacularWordsList = [...vernacularWordsList, ...entries];
-                        loadedLetters.add(alphabets.vernacular[i]);
+                        loadedVernacularLetters.add(alphabets.vernacular[i]);
                     }
                 }
             }
@@ -68,14 +72,14 @@
     }
 
     async function fetchReversalWords() {
-        if (selectedLanguage === reversalLanguage && !loadedLetters.has(selectedLetter)) {
+        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(selectedLetter)) {
             let fileIndex = 1;
             let moreFiles = true;
             let newWords = [];
 
             const letterIndex = alphabets.reversal.indexOf(selectedLetter);
             for (let i = 0; i < letterIndex; i++) {
-                if (!loadedLetters.has(alphabets.reversal[i])) {
+                if (!loadedReversalLetters.has(alphabets.reversal[i])) {
                     await loadLetterData(alphabets.reversal[i]);
                 }
             }
@@ -107,8 +111,8 @@
                 }
             }
 
-            wordsList = [...wordsList, ...newWords];
-            loadedLetters.add(selectedLetter);
+            reversalWordsList = [...reversalWordsList, ...newWords];
+            loadedReversalLetters.add(selectedLetter);
             scrollToLetter(selectedLetter);
         }
     }
@@ -133,7 +137,7 @@
                             }));
                         })
                         .flat();
-                    wordsList = [...wordsList, ...currentFileWords];
+                    reversalWordsList = [...reversalWordsList, ...currentFileWords];
                     fileIndex++;
                 } else {
                     moreFiles = false;
@@ -144,7 +148,7 @@
             }
         }
 
-        loadedLetters.add(letter);
+        loadedReversalLetters.add(letter);
     }
 
     function selectWord(word) {
@@ -174,10 +178,11 @@
     }
 
     function switchLanguage(language) {
-        wordsList = [];
+        reversalWordsList = [];
         vernacularWordsList = [];
         selectedLanguage = language;
-        loadedLetters = new Set();
+        loadedReversalLetters = new Set();
+        loadedVernacularLetters = new Set();
         selectedLetter = currentAlphabet[0];
         if (selectedLanguage === reversalLanguage) {
             fetchReversalWords();
@@ -202,7 +207,10 @@
             }
         }
 
-        if (loadedLetters.has(selectedLetter)) {
+        if (
+            loadedReversalLetters.has(selectedLetter) ||
+            loadedVernacularLetters.has(selectedLetter)
+        ) {
             const allLetters = div.querySelectorAll('[id^="letter-"]');
             let visibleLetter = null;
 
@@ -220,7 +228,6 @@
     }
 
     function handleLetter(name, selectedLetter, alphabets) {
-        // Needs more funcitonality to handle non-english alphabetic characters
         if (!alphabets.reversal.includes(name[0].toLowerCase())) {
             return selectedLetter;
         }
@@ -231,7 +238,7 @@
         selectedLanguage === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
 
     onMount(() => {
-        fetchReversalWords();
+        queryVernacularWords();
         if (config.programType !== 'DAB') {
             goto(`${base}/text`);
         }
@@ -275,14 +282,17 @@
             <ul class="space-y-2">
                 {#if selectedLanguage === vernacularLanguage}
                     {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary }}
-                        <li class="cursor-pointer text-lg" id="letter-{handleLetter(name, selectedLetter, alphabets)}">
+                        <li
+                            class="cursor-pointer text-lg"
+                            id="letter-{handleLetter(name, selectedLetter, alphabets)}"
+                        >
                             <div on:click={() => selectWord({ word: name, index: id })}>
                                 <p class="font-bold break-words">{name}</p>
                             </div>
                         </li>
                     {/each}
                 {:else}
-                    {#each wordsList as { word, index, letter }}
+                    {#each reversalWordsList as { word, index, letter }}
                         <li class="cursor-pointer text-lg" id="letter-{word[0].toLowerCase()}">
                             <div on:click={() => selectWord({ word, index })}>
                                 <p class="font-bold break-words">{word}</p>
