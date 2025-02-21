@@ -219,6 +219,13 @@
         }
     }
 
+    function handleLetter(name, selectedLetter, alphabets) {
+        if (!alphabets.reversal.includes(name[0].toLowerCase())) {
+            return selectedLetter;
+        }
+        return name[0].toLowerCase();
+    }
+
     $: currentAlphabet =
         selectedLanguage === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
 
@@ -267,7 +274,7 @@
             <ul class="space-y-2">
                 {#if selectedLanguage === vernacularLanguage}
                     {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary }}
-                        <li class="cursor-pointer text-lg" id="letter-{name[0].toLowerCase()}">
+                        <li class="cursor-pointer text-lg" id="letter-${handleLetter(name, selectedLetter, alphabets)}">
                             <div on:click={() => selectWord({ word: name, index: id })}>
                                 <p class="font-bold break-words">{name}</p>
                             </div>
