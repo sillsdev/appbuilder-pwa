@@ -59,6 +59,8 @@
                             for (let i = 0; i < results[0].columns.length; ++i) {
                                 entry[results[0].columns[i]] = value[i];
                             }
+
+                            entry.letter = alphabets.vernacular[i];
                             return entry;
                         });
 
@@ -227,13 +229,6 @@
         }
     }
 
-    function handleLetter(name, selectedLetter, alphabets) {
-        if (!alphabets.reversal.includes(name[0].toLowerCase())) {
-            return selectedLetter;
-        }
-        return name[0].toLowerCase();
-    }
-
     $: currentAlphabet =
         selectedLanguage === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
 
@@ -281,11 +276,8 @@
         {:else}
             <ul class="space-y-2">
                 {#if selectedLanguage === vernacularLanguage}
-                    {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary }}
-                        <li
-                            class="cursor-pointer text-lg"
-                            id="letter-{handleLetter(name, selectedLetter, alphabets)}"
-                        >
+                    {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary, letter }}
+                        <li class="cursor-pointer text-lg" id="letter-{letter}">
                             <div on:click={() => selectWord({ word: name, index: id })}>
                                 <p class="font-bold break-words">{name}</p>
                             </div>
@@ -293,7 +285,7 @@
                     {/each}
                 {:else}
                     {#each reversalWordsList as { word, index, letter }}
-                        <li class="cursor-pointer text-lg" id="letter-{word[0].toLowerCase()}">
+                        <li class="cursor-pointer text-lg" id="letter-{letter}">
                             <div on:click={() => selectWord({ word, index })}>
                                 <p class="font-bold break-words">{word}</p>
                                 <p class="text-md ml-4">{index}</p>
