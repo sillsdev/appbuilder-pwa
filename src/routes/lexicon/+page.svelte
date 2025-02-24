@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/state';
+    import LexiconReversalListView from '$lib/components/LexiconReversalListView.svelte';
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -262,38 +263,22 @@
                 onSwitchLanguage={switchLanguage}
                 onLetterChange={handleLetterChange}
             />
-        {:else}
-            <LexiconXmlView />
         {/if}
     </div>
 
     <div class="flex-1 overflow-y-auto p-4 bg-base-100" on:scroll={checkIfScrolledToBottom}>
         {#if selectedWord}
-            <div>
-                <p class="text-xl font-bold break-words">{selectedWord.word}</p>
-                <p class="text-md mt-2">{selectedWord.index}</p>
-            </div>
+            <LexiconXmlView 
+                {selectedWord}
+             />
         {:else}
-            <ul class="space-y-2">
-                {#if selectedLanguage === vernacularLanguage}
-                    {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary, letter }}
-                        <li class="cursor-pointer text-lg" id="letter-{letter}">
-                            <div on:click={() => selectWord({ word: name, index: id })}>
-                                <p class="font-bold break-words">{name}</p>
-                            </div>
-                        </li>
-                    {/each}
-                {:else}
-                    {#each reversalWordsList as { word, index, letter }}
-                        <li class="cursor-pointer text-lg" id="letter-{letter}">
-                            <div on:click={() => selectWord({ word, index })}>
-                                <p class="font-bold break-words">{word}</p>
-                                <p class="text-md ml-4">{index}</p>
-                            </div>
-                        </li>
-                    {/each}
-                {/if}
-            </ul>
+            <LexiconReversalListView
+                {selectedLanguage}
+                {vernacularLanguage}
+                {vernacularWordsList}
+                {reversalWordsList}
+                {selectWord}
+            />
         {/if}
     </div>
 </div>
