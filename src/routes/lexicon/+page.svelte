@@ -195,37 +195,42 @@
     }
 
     function checkIfScrolledToBottom(event) {
-        const div = event.target;
-        const threshold = 50;
+        if (
+            (selectedLanguage === reversalLanguage && reversalWordsList.length > 0) ||
+            (selectedLanguage === vernacularLanguage && vernacularWordsList.length > 0)
+        ) {
+            const div = event.target;
+            const threshold = 50;
 
-        if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
-            const currentIndex = currentAlphabet.indexOf(selectedLetter);
-            if (currentIndex < currentAlphabet.length - 1) {
-                selectedLetter = currentAlphabet[currentIndex + 1];
-                if (selectedLanguage === reversalLanguage) {
-                    fetchReversalWords();
-                } else {
-                    queryVernacularWords();
+            if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
+                const currentIndex = currentAlphabet.indexOf(selectedLetter);
+                if (currentIndex < currentAlphabet.length - 1) {
+                    selectedLetter = currentAlphabet[currentIndex + 1];
+                    if (selectedLanguage === reversalLanguage) {
+                        fetchReversalWords();
+                    } else {
+                        queryVernacularWords();
+                    }
                 }
             }
-        }
 
-        if (
-            loadedReversalLetters.has(selectedLetter) ||
-            loadedVernacularLetters.has(selectedLetter)
-        ) {
-            const allLetters = div.querySelectorAll('[id^="letter-"]');
-            let visibleLetter = null;
+            if (
+                loadedReversalLetters.has(selectedLetter) ||
+                loadedVernacularLetters.has(selectedLetter)
+            ) {
+                const allLetters = div.querySelectorAll('[id^="letter-"]');
+                let visibleLetter = null;
 
-            allLetters.forEach((letterDiv) => {
-                const rect = letterDiv.getBoundingClientRect();
-                if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-                    visibleLetter = letterDiv.id.split('-')[1];
+                allLetters.forEach((letterDiv) => {
+                    const rect = letterDiv.getBoundingClientRect();
+                    if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+                        visibleLetter = letterDiv.id.split('-')[1];
+                    }
+                });
+
+                if (visibleLetter) {
+                    selectedLetter = visibleLetter;
                 }
-            });
-
-            if (visibleLetter) {
-                selectedLetter = visibleLetter;
             }
         }
     }
@@ -268,9 +273,7 @@
 
     <div class="flex-1 overflow-y-auto p-4 bg-base-100" on:scroll={checkIfScrolledToBottom}>
         {#if selectedWord}
-            <LexiconXmlView 
-                {selectedWord}
-             />
+            <LexiconXmlView {selectedWord} />
         {:else}
             <LexiconReversalListView
                 {selectedLanguage}
