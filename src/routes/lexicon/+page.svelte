@@ -70,7 +70,7 @@
                     }
                 }
             }
-            scrollToLetter(selectedLetter);
+            //scrollToLetter(selectedLetter);
         }
     }
 
@@ -116,7 +116,7 @@
 
             reversalWordsList = [...reversalWordsList, ...newWords];
             loadedReversalLetters.add(selectedLetter);
-            scrollToLetter(selectedLetter);
+            //scrollToLetter(selectedLetter);
         }
     }
 
@@ -171,13 +171,14 @@
         }, 100);
     }
 
-    function handleLetterChange(letter) {
+    async function handleLetterChange(letter) {
         selectedLetter = letter;
         if (selectedLanguage === reversalLanguage) {
-            fetchReversalWords();
+            await fetchReversalWords();
         } else {
-            queryVernacularWords();
+            await queryVernacularWords();
         }
+        scrollToLetter(letter);
     }
 
     function switchLanguage(language) {
