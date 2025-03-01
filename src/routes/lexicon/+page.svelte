@@ -31,7 +31,7 @@
     let loadedReversalLetters = new Set();
     let reversalWordsList = [];
     let vernacularWordsList = [];
-    let selectedLanguage = vernacularLanguage;
+    let selectedLanguage = sessionStorage.getItem('selectedLanguage') || vernacularLanguage;
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function queryVernacularWords() {
@@ -70,7 +70,6 @@
                     }
                 }
             }
-            //scrollToLetter(selectedLetter);
         }
     }
 
@@ -116,7 +115,6 @@
 
             reversalWordsList = [...reversalWordsList, ...newWords];
             loadedReversalLetters.add(selectedLetter);
-            //scrollToLetter(selectedLetter);
         }
     }
 
@@ -182,6 +180,7 @@
     }
 
     function switchLanguage(language) {
+        sessionStorage.setItem('selectedLanguage', language);
         reversalWordsList = [];
         vernacularWordsList = [];
         selectedLanguage = language;
@@ -239,8 +238,18 @@
     $: currentAlphabet =
         selectedLanguage === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
 
+    window.addEventListener('beforeunload', () => {
+        sessionStorage.removeItem('selectedLanguage');
+    });
+
     onMount(() => {
-        queryVernacularWords();
+        if (selectedLetter) {
+            if (selectedLanguage === reversalLanguage) {
+                fetchReversalWords();
+            } else {
+                queryVernacularWords();
+            }
+        }
         if (config.programType !== 'DAB') {
             goto(`${base}/text`);
         }
