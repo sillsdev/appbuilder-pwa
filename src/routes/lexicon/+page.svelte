@@ -35,10 +35,14 @@
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function queryVernacularWords() {
-        if (
-            selectedLanguage === vernacularLanguage &&
-            !loadedVernacularLetters.has(selectedLetter)
-        ) {
+        if (!loadedVernacularLetters.has('*')) {
+            const storedWords = sessionStorage.getItem('vernacularWordsList');
+            if (storedWords) {
+                vernacularWordsList = JSON.parse(storedWords);
+                loadedVernacularLetters.add('*');
+                return;
+            }
+
             const SQL = await initSqlJs({
                 locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
             });
@@ -47,28 +51,46 @@
             const buffer = await response.arrayBuffer();
             const db = new SQL.Database(new Uint8Array(buffer));
 
-            const letterIndex = alphabets.vernacular.indexOf(selectedLetter);
-            for (let i = 0; i <= letterIndex; i++) {
-                if (!loadedVernacularLetters.has(alphabets.vernacular[i])) {
-                    const results = db.exec(
-                        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries WHERE REPLACE(name, '-', '') LIKE "${alphabets.vernacular[i]}%"`
-                    );
+            const results = db.exec(
+                `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
+            );
 
-                    if (results[0]) {
-                        const entries = results[0].values.map((value) => {
-                            const entry = {};
-                            for (let i = 0; i < results[0].columns.length; ++i) {
-                                entry[results[0].columns[i]] = value[i];
-                            }
-
-                            entry.letter = alphabets.vernacular[i];
-                            return entry;
-                        });
-
-                        vernacularWordsList = [...vernacularWordsList, ...entries];
-                        loadedVernacularLetters.add(alphabets.vernacular[i]);
+            if (results[0]) {
+                vernacularWordsList = results[0].values.map((value) => {
+                    const entry = {};
+                    for (let i = 0; i < results[0].columns.length; ++i) {
+                        entry[results[0].columns[i]] = value[i];
                     }
-                }
+
+                    let firstLetter = entry.name.charAt(0).toLowerCase();
+
+                    let firstTwoChars;
+                    let startingPosition = 0;
+
+                    if (firstLetter === '*' || firstLetter === '-') {
+                        startingPosition = 1;
+                    }
+                    firstTwoChars = entry.name
+                        .substring(startingPosition, 2 + startingPosition)
+                        .toLowerCase();
+
+                    if (vernacularAlphabet.includes(firstTwoChars)) {
+                        firstLetter = firstTwoChars;
+                    } else {
+                        firstLetter = entry.name.charAt(startingPosition).toLowerCase();
+                    }
+
+                    if (!vernacularAlphabet.includes(firstLetter)) {
+                        firstLetter = '*';
+                    }
+
+                    entry.letter = firstLetter;
+                    return entry;
+                });
+
+                sessionStorage.setItem('vernacularWordsList', JSON.stringify(vernacularWordsList));
+
+                loadedVernacularLetters.add('*');
             }
         }
     }
@@ -93,16 +115,25 @@
                     );
                     if (response.ok) {
                         const data = await response.json();
-                        const currentFileWords = Object.entries(data)
-                            .map(([word, entries]) => {
-                                return entries.map((entry) => ({
-                                    word: word,
-                                    index: entry.index,
-                                    letter: selectedLetter
-                                }));
-                            })
-                            .flat();
-                        newWords = [...newWords, ...currentFileWords];
+                        const currentFileWords = Object.entries(data).map(([word, entries]) => {
+                            return {
+                                word: word,
+                                indexes: entries.map((entry) => entry.index),
+                                letter: selectedLetter
+                            };
+                        });
+
+                        currentFileWords.forEach((newWord) => {
+                            const existingWord = newWords.find((w) => w.word === newWord.word);
+                            if (existingWord) {
+                                existingWord.indexes = [
+                                    ...new Set([...existingWord.indexes, ...newWord.indexes])
+                                ];
+                            } else {
+                                newWords.push(newWord);
+                            }
+                        });
+
                         fileIndex++;
                     } else {
                         moreFiles = false;
@@ -121,6 +152,7 @@
     async function loadLetterData(letter) {
         let fileIndex = 1;
         let moreFiles = true;
+        let newWords = [];
 
         while (moreFiles) {
             try {
@@ -129,16 +161,25 @@
                 );
                 if (response.ok) {
                     const data = await response.json();
-                    const currentFileWords = Object.entries(data)
-                        .map(([word, entries]) => {
-                            return entries.map((entry) => ({
-                                word: word,
-                                index: entry.index,
-                                letter
-                            }));
-                        })
-                        .flat();
-                    reversalWordsList = [...reversalWordsList, ...currentFileWords];
+                    const currentFileWords = Object.entries(data).map(([word, entries]) => {
+                        return {
+                            word: word,
+                            indexes: entries.map((entry) => entry.index),
+                            letter: letter
+                        };
+                    });
+
+                    currentFileWords.forEach((newWord) => {
+                        const existingWord = newWords.find((w) => w.word === newWord.word);
+                        if (existingWord) {
+                            existingWord.indexes = [
+                                ...new Set([...existingWord.indexes, ...newWord.indexes])
+                            ];
+                        } else {
+                            newWords.push(newWord);
+                        }
+                    });
+
                     fileIndex++;
                 } else {
                     moreFiles = false;
@@ -149,6 +190,7 @@
             }
         }
 
+        reversalWordsList = [...reversalWordsList, ...newWords];
         loadedReversalLetters.add(letter);
     }
 
@@ -173,8 +215,6 @@
         selectedLetter = letter;
         if (selectedLanguage === reversalLanguage) {
             await fetchReversalWords();
-        } else {
-            await queryVernacularWords();
         }
         scrollToLetter(letter);
     }
@@ -182,7 +222,6 @@
     function switchLanguage(language) {
         sessionStorage.setItem('selectedLanguage', language);
         reversalWordsList = [];
-        vernacularWordsList = [];
         selectedLanguage = language;
         loadedReversalLetters = new Set();
         loadedVernacularLetters = new Set();
@@ -240,6 +279,7 @@
 
     window.addEventListener('beforeunload', () => {
         sessionStorage.removeItem('selectedLanguage');
+        sessionStorage.removeItem('vernacularWordsList');
     });
 
     onMount(() => {
