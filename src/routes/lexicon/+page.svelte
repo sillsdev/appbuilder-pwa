@@ -6,6 +6,7 @@
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
     import initSqlJs from 'sql.js';
     import { onMount } from 'svelte';
@@ -321,17 +322,30 @@
         {/if}
     </div>
 
-    <div class="flex-1 overflow-y-auto p-4 bg-base-100" on:scroll={checkIfScrolledToBottom}>
+    <div class="flex-1 overflow-y-auto bg-base-100" on:scroll={checkIfScrolledToBottom}>
         {#if selectedWord}
-            <LexiconXmlView {selectedWord} />
+            <div class="sticky top-0 z-10">
+                <WordNavigationStrip
+                    currentWord={selectedWord}
+                    wordsList={selectedLanguage === vernacularLanguage
+                        ? vernacularWordsList
+                        : reversalWordsList}
+                    onSelectWord={selectWord}
+                />
+            </div>
+            <div class="p-4">
+                <LexiconXmlView {selectedWord} />
+            </div>
         {:else}
-            <LexiconReversalListView
-                {selectedLanguage}
-                {vernacularLanguage}
-                {vernacularWordsList}
-                {reversalWordsList}
-                {selectWord}
-            />
+            <div class="p-4">
+                <LexiconReversalListView
+                    {selectedLanguage}
+                    {vernacularLanguage}
+                    {vernacularWordsList}
+                    {reversalWordsList}
+                    {selectWord}
+                />
+            </div>
         {/if}
     </div>
 </div>
