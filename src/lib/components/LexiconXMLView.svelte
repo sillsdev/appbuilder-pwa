@@ -1,10 +1,10 @@
 <script>
     import { base } from '$app/paths';
-    import { onMount } from "svelte";
     import initSqlJs from 'sql.js';
+    import { afterUpdate, onMount } from 'svelte';
 
     export let selectedWord;
-    let xmlData = "";
+    let xmlData = '';
 
     async function queryXmlByWordId(wordId) {
         const SQL = await initSqlJs({
@@ -33,6 +33,15 @@
 
     onMount(async () => {
         xmlData = await queryXmlByWordId(selectedWord.index);
+    });
+
+    afterUpdate(async () => {
+        if (selectedWord && selectedWord.index) {
+            xmlData = await queryXmlByWordId(selectedWord.index);
+        } else if (selectedWord && selectedWord.indexes && selectedWord.indexes.length > 0) {
+            // If we have multiple indexes (for reversal entries), use the first one
+            xmlData = await queryXmlByWordId(selectedWord.indexes[0]);
+        }
     });
 </script>
 
