@@ -31,18 +31,67 @@
         return result;
     }
 
+    function formatXmlByClass(xmlString) {
+        if (!xmlString) return '';
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+
+        function processNode(node) {
+            let output = '';
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.nodeValue.trim() ? node.nodeValue + ' ' : '';
+            }
+
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                let className = node.getAttribute('class') || '';
+
+                // Define elements that should be on a new line
+                const blockClasses = ['sensenumber', 'minimallexreferences', 'sharedgrammaticalinfo', 'definitionorgloss'];
+
+                if (blockClasses.some(cls => className.includes(cls))) {
+                    output += '\n';
+                }
+
+                output += '<' + node.tagName;
+                for (let attr of node.attributes) {
+                    output += ` ${attr.name}="${attr.value}"`;
+                }
+                output += '>';
+
+                for (let child of node.childNodes) {
+                    output += processNode(child);
+                }
+
+                output += `</${node.tagName}>`;
+            }
+
+            return output;
+        }
+
+        let formatted = processNode(xmlDoc.documentElement);
+
+        return formatted;
+    }
+
+    async function updateXmlData(wordId) {
+        if (!wordId) return;
+        let rawXml = await queryXmlByWordId(wordId);
+        xmlData = formatXmlByClass(rawXml);
+    }
+
     onMount(async () => {
-        xmlData = await queryXmlByWordId(selectedWord.index);
+        await updateXmlData(selectedWord.index);
     });
 
     afterUpdate(async () => {
         if (selectedWord && selectedWord.index) {
-            xmlData = await queryXmlByWordId(selectedWord.index);
+            await updateXmlData(selectedWord.index);
         } else if (selectedWord && selectedWord.indexes && selectedWord.indexes.length > 0) {
-            // If we have multiple indexes (for reversal entries), use the first one
-            xmlData = await queryXmlByWordId(selectedWord.indexes[0]);
+            await updateXmlData(selectedWord.indexes[0]);
         }
     });
 </script>
 
-<div>{@html xmlData}</div>
+<pre>{@html xmlData}</pre>
