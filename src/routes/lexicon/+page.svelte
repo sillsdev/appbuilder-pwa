@@ -90,7 +90,6 @@
                 });
 
                 sessionStorage.setItem('vernacularWordsList', JSON.stringify(vernacularWordsList));
-
                 loadedVernacularLetters.add('*');
             }
         }
@@ -98,6 +97,8 @@
 
     async function fetchReversalWords() {
         if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(selectedLetter)) {
+            queryVernacularWords(); // Reloading from store
+
             let fileIndex = 1;
             let moreFiles = true;
             let newWords = [];
