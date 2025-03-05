@@ -37,7 +37,7 @@
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
 
-        function processNode(node) {
+        function processNode(node, parentHasSenseNumber = false) {
             let output = '';
 
             if (node.nodeType === Node.TEXT_NODE) {
@@ -46,11 +46,28 @@
 
             if (node.nodeType === Node.ELEMENT_NODE) {
                 let className = node.getAttribute('class') || '';
+                let isSenseNumber = className.includes('sensenumber');
+                let isDefinitionOrGloss = className.includes('definitionorgloss');
 
-                // Define elements that should be on a new line
-                const blockClasses = ['sensenumber', 'minimallexreferences', 'sharedgrammaticalinfo', 'definitionorgloss'];
+                let parentContainsSenseNumber =
+                    parentHasSenseNumber ||
+                    [...node.parentNode.children].some(
+                        (child) =>
+                            child.getAttribute &&
+                            (child.getAttribute('class') || '').includes('sensenumber')
+                    );
 
-                if (blockClasses.some(cls => className.includes(cls))) {
+                const blockClasses = [
+                    'sensenumber',
+                    'minimallexreferences',
+                    'sharedgrammaticalinfo'
+                ];
+
+                if (blockClasses.some((cls) => className.includes(cls))) {
+                    output += '\n';
+                }
+
+                if (isDefinitionOrGloss && !parentContainsSenseNumber) {
                     output += '\n';
                 }
 
@@ -61,7 +78,7 @@
                 output += '>';
 
                 for (let child of node.childNodes) {
-                    output += processNode(child);
+                    output += processNode(child, parentContainsSenseNumber || isSenseNumber);
                 }
 
                 output += `</${node.tagName}>`;
@@ -70,28 +87,27 @@
             return output;
         }
 
-        let formatted = processNode(xmlDoc.documentElement);
-
-        return formatted;
+        return processNode(xmlDoc.documentElement);
     }
 
-    async function updateXmlData(wordId) {
-        if (!wordId) return;
-        let rawXml = await queryXmlByWordId(wordId);
-        xmlData = formatXmlByClass(rawXml);
-    }
-
-    onMount(async () => {
-        await updateXmlData(selectedWord.index);
-    });
-
-    afterUpdate(async () => {
-        if (selectedWord && selectedWord.index) {
-            await updateXmlData(selectedWord.index);
-        } else if (selectedWord && selectedWord.indexes && selectedWord.indexes.length > 0) {
-            await updateXmlData(selectedWord.indexes[0]);
+    async function updateXmlData() {
+        if (!selectedWord || (!selectedWord.index && (!selectedWord.indexes || selectedWord.indexes.length === 0))) {
+            xmlData = '';
+            return;
         }
-    });
+
+        let wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
+        let xmlResults = await Promise.all(wordIds.map(queryXmlByWordId));
+
+        // Insert an `<hr>` tag or a visible separator between entries
+        xmlData = xmlResults
+            .filter(xml => xml)  // Ensure no null values are included
+            .map(formatXmlByClass)
+            .join('\n<hr>\n') + '\n<hr>\n';  // `<hr>` adds a visible line between entries
+    }
+
+    onMount(updateXmlData);
+    afterUpdate(updateXmlData);
 </script>
 
-<pre>{@html xmlData}</pre>
+<pre class="whitespace-pre-wrap break-words">{@html xmlData}</pre>
