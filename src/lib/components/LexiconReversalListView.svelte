@@ -17,7 +17,11 @@
                         {name}{#if homonym_index > 0}<sub>{homonym_index}</sub>{/if}
                     </p>
                     {#if summary}
-                        <p class="ml-4 italic">{summary.replace(/[{}]/g, '')}</p>
+                        <p class="ml-4 italic">
+                            {#each summary.match(/{(.*?)}/g) as match}
+                                {match.replace(/[{}]/g, '')}
+                            {/each}
+                        </p>
                     {/if}
                 </div>
             </li>
