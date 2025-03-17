@@ -184,8 +184,9 @@
             (selectedLanguage === vernacularLanguage && vernacularWordsList.length > 0)
         ) {
             let div = event.target;
+            const threshold = 50;
 
-            if (div.scrollHeight - div.scrollTop === div.clientHeight) {
+            if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
                 const currentIndex = currentAlphabet.indexOf(selectedLetter);
                 if (currentIndex < currentAlphabet.length - 1) {
                     selectedLetter = currentAlphabet[currentIndex + 1];
