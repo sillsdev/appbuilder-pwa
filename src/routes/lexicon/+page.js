@@ -36,30 +36,53 @@ export async function load({ fetch }) {
         locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
     });
 
-    // Fetch the database file
     const response = await fetch(`${base}/data.sqlite`);
     const buffer = await response.arrayBuffer();
 
-    // Load the database into sql.js
     const db = new SQL.Database(new Uint8Array(buffer));
     console.log('Database loaded:', db);
 
-    // Example: Running a simple query for words of the first letter of the alphabet
     const results = db.exec(
-        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries WHERE REPLACE(name, '-', '') LIKE "${vernacularAlphabet[0]}%"`
+        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
     );
     const result = results[0];
     console.log(result);
 
-    const entries = [];
-    for (let value of result.values) {
-        const entry = {};
-        for (let i = 0; i < result.columns.length; ++i) {
-            entry[result.columns[i]] = value[i];
-        }
-        entries.push(entry);
+    let vernacularWordsList = [];
+    if (results[0]) {
+        vernacularWordsList = results[0].values.map((value) => {
+            const entry = {};
+            for (let i = 0; i < results[0].columns.length; ++i) {
+                entry[results[0].columns[i]] = value[i];
+            }
+
+            let firstLetter = entry.name.charAt(0).toLowerCase();
+
+            let firstTwoChars;
+            let startingPosition = 0;
+
+            if (firstLetter === '*' || firstLetter === '-') {
+                startingPosition = 1;
+            }
+            firstTwoChars = entry.name
+                .substring(startingPosition, 2 + startingPosition)
+                .toLowerCase();
+
+            if (vernacularAlphabet.includes(firstTwoChars)) {
+                firstLetter = firstTwoChars;
+            } else {
+                firstLetter = entry.name.charAt(startingPosition).toLowerCase();
+            }
+
+            if (!vernacularAlphabet.includes(firstLetter)) {
+                firstLetter = '*';
+            }
+
+            entry.letter = firstLetter;
+            return entry;
+        });
+        sessionStorage.setItem('vernacularWordsList', JSON.stringify(vernacularWordsList));
     }
-    console.log(entries);
 
     return {
         fetch,
