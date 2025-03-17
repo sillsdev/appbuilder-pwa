@@ -8,7 +8,6 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
-    import initSqlJs from 'sql.js';
     import { onMount } from 'svelte';
 
     const {
@@ -34,68 +33,18 @@
     let selectedLanguage = sessionStorage.getItem('selectedLanguage') || vernacularLanguage;
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
-    async function fetchVernacularWords() {
+    async function fetchWords() {
         if (vernacularWordsList.length === 0) {
             const storedWords = sessionStorage.getItem('vernacularWordsList');
             if (storedWords) {
                 vernacularWordsList = JSON.parse(storedWords);
-                return;
             }
-
-            const SQL = await initSqlJs({
-                locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
-            });
-
-            const response = await fetch(`${base}/data.sqlite`);
-            const buffer = await response.arrayBuffer();
-            const db = new SQL.Database(new Uint8Array(buffer));
-
-            const results = db.exec(
-                `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
-            );
-
-            if (results[0]) {
-                vernacularWordsList = results[0].values.map((value) => {
-                    const entry = {};
-                    for (let i = 0; i < results[0].columns.length; ++i) {
-                        entry[results[0].columns[i]] = value[i];
-                    }
-
-                    let firstLetter = entry.name.charAt(0).toLowerCase();
-
-                    let firstTwoChars;
-                    let startingPosition = 0;
-
-                    if (firstLetter === '*' || firstLetter === '-') {
-                        startingPosition = 1;
-                    }
-                    firstTwoChars = entry.name
-                        .substring(startingPosition, 2 + startingPosition)
-                        .toLowerCase();
-
-                    if (vernacularAlphabet.includes(firstTwoChars)) {
-                        firstLetter = firstTwoChars;
-                    } else {
-                        firstLetter = entry.name.charAt(startingPosition).toLowerCase();
-                    }
-
-                    if (!vernacularAlphabet.includes(firstLetter)) {
-                        firstLetter = '*';
-                    }
-
-                    entry.letter = firstLetter;
-                    return entry;
-                });
-
-                sessionStorage.setItem('vernacularWordsList', JSON.stringify(vernacularWordsList));
+            else {
+                console.error('Error loading vernacular data:', error);
             }
         }
-    }
-
-    async function fetchReversalWords() {
         if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(selectedLetter)) {
             console.log('Loading letter data:', selectedLetter);
-            fetchVernacularWords(); // Reloading from store
 
             let fileIndex = 1;
             let moreFiles = true;
@@ -211,7 +160,7 @@
     async function handleLetterChange(letter) {
         selectedLetter = letter;
         if (selectedLanguage === reversalLanguage) {
-            await fetchReversalWords();
+            await fetchWords();
         }
         scrollToLetter(letter);
     }
@@ -222,14 +171,10 @@
         selectedLanguage = language;
         loadedReversalLetters = new Set();
         selectedLetter = currentAlphabet[0];
-        if (selectedLanguage === reversalLanguage) {
-            fetchReversalWords();
-        } else {
-            fetchVernacularWords();
-            const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
-            if (scrollableDiv) {
-                scrollableDiv.scrollTop = 0;
-            }
+        fetchWords();
+        const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
+        if (scrollableDiv) {
+            scrollableDiv.scrollTop = 0;
         }
     }
 
@@ -244,11 +189,7 @@
                 const currentIndex = currentAlphabet.indexOf(selectedLetter);
                 if (currentIndex < currentAlphabet.length - 1) {
                     selectedLetter = currentAlphabet[currentIndex + 1];
-                    if (selectedLanguage === reversalLanguage) {
-                        fetchReversalWords();
-                    } else {
-                        fetchVernacularWords();
-                    }
+                    fetchWords();
                 }
             }
             else if (
@@ -282,11 +223,7 @@
 
     onMount(() => {
         if (selectedLetter) {
-            if (selectedLanguage === reversalLanguage) {
-                fetchReversalWords();
-            } else {
-                fetchVernacularWords();
-            }
+            fetchWords();
         }
         if (config.programType !== 'DAB') {
             goto(`${base}/text`);
