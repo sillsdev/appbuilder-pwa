@@ -28,19 +28,17 @@
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
-    let loadedVernacularLetters = new Set();
     let loadedReversalLetters = new Set();
     let reversalWordsList = [];
     let vernacularWordsList = [];
     let selectedLanguage = sessionStorage.getItem('selectedLanguage') || vernacularLanguage;
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
-    async function queryVernacularWords() {
-        if (!loadedVernacularLetters.has('*')) {
+    async function fetchVernacularWords() {
+        if (vernacularWordsList.length === 0) {
             const storedWords = sessionStorage.getItem('vernacularWordsList');
             if (storedWords) {
                 vernacularWordsList = JSON.parse(storedWords);
-                loadedVernacularLetters.add('*');
                 return;
             }
 
@@ -90,14 +88,14 @@
                 });
 
                 sessionStorage.setItem('vernacularWordsList', JSON.stringify(vernacularWordsList));
-                loadedVernacularLetters.add('*');
             }
         }
     }
 
     async function fetchReversalWords() {
         if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(selectedLetter)) {
-            queryVernacularWords(); // Reloading from store
+            console.log('Loading letter data:', selectedLetter);
+            fetchVernacularWords(); // Reloading from store
 
             let fileIndex = 1;
             let moreFiles = true;
@@ -106,6 +104,7 @@
             const letterIndex = alphabets.reversal.indexOf(selectedLetter);
             for (let i = 0; i < letterIndex; i++) {
                 if (!loadedReversalLetters.has(alphabets.reversal[i])) {
+                    console.log('Loading letter data first for loop:', alphabets.reversal[i]);
                     await loadLetterData(alphabets.reversal[i]);
                 }
             }
@@ -197,11 +196,7 @@
     }
 
     function selectWord(word) {
-        if (selectedWord && selectedWord.word === word) {
-            selectedWord = null;
-        } else {
-            selectedWord = word;
-        }
+        selectedWord = selectedWord && selectedWord.word === word ? null : word;
     }
 
     function scrollToLetter(letter) {
@@ -226,12 +221,15 @@
         reversalWordsList = [];
         selectedLanguage = language;
         loadedReversalLetters = new Set();
-        loadedVernacularLetters = new Set();
         selectedLetter = currentAlphabet[0];
         if (selectedLanguage === reversalLanguage) {
             fetchReversalWords();
         } else {
-            queryVernacularWords();
+            fetchVernacularWords();
+            const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
+            if (scrollableDiv) {
+                scrollableDiv.scrollTop = 0;
+            }
         }
     }
 
@@ -240,24 +238,22 @@
             (selectedLanguage === reversalLanguage && reversalWordsList.length > 0) ||
             (selectedLanguage === vernacularLanguage && vernacularWordsList.length > 0)
         ) {
-            const div = event.target;
-            const threshold = 50;
+            let div = event.target;
 
-            if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
+            if (div.scrollHeight - div.scrollTop === div.clientHeight) {
                 const currentIndex = currentAlphabet.indexOf(selectedLetter);
                 if (currentIndex < currentAlphabet.length - 1) {
                     selectedLetter = currentAlphabet[currentIndex + 1];
                     if (selectedLanguage === reversalLanguage) {
                         fetchReversalWords();
                     } else {
-                        queryVernacularWords();
+                        fetchVernacularWords();
                     }
                 }
             }
-
-            if (
-                loadedReversalLetters.has(selectedLetter) ||
-                loadedVernacularLetters.has(selectedLetter)
+            else if (
+                (selectedLanguage === reversalLanguage && loadedReversalLetters.has(selectedLetter)) ||
+                (selectedLanguage === vernacularLanguage) 
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
                 let visibleLetter = null;
@@ -289,7 +285,7 @@
             if (selectedLanguage === reversalLanguage) {
                 fetchReversalWords();
             } else {
-                queryVernacularWords();
+                fetchVernacularWords();
             }
         }
         if (config.programType !== 'DAB') {
