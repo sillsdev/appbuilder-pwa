@@ -14,19 +14,15 @@
         currentReversalWordsStore,
         reversalLettersStore,
         reversalWordsStore,
-        selectedReversalLanguageStore,
+        selectedLanguageStore,
+        vernacularLanguageStore,
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
+    import { SearchIcon } from '$lib/icons';
+    import { getRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
-    const {
-        vernacularAlphabet,
-        vernacularLanguage,
-        reversalAlphabets,
-        reversalLanguages,
-        reversalIndexes,
-        dictionaryName
-    } = page.data;
+    const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = page.data;
 
     const alphabets = {
         reversal: Object.values(reversalAlphabets[0])[0],
@@ -35,20 +31,27 @@
 
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
+    $: showBackButton = selectedWord ? true : false;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let loadedReversalLetters = new Set();
     let reversalWordsList;
     let vernacularWordsList;
-    let selectedLanguage = vernacularLanguage;
+    let vernacularLanguage;
     let scrollContainer;
+    let wordIds;
+    let selectedLanguage;
 
     // Subscribe to stores
     currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
     currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
+    vernacularLanguageStore.subscribe((value) => (vernacularLanguage = value));
     vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
-    selectedReversalLanguageStore.subscribe((value) => {
-        selectedLanguage = value || vernacularLanguage;
+
+    selectedLanguageStore.subscribe((value) => {
+        selectedLanguage = value;
     });
+    selectedLanguageStore.set(vernacularLanguage);
+
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function fetchWords(letter = selectedLetter) {
@@ -153,6 +156,7 @@
 
     function selectWord(word) {
         selectedWord = selectedWord && selectedWord.word === word ? null : word;
+        wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
     }
 
     async function scrollToLetter(letter) {
@@ -179,8 +183,7 @@
     }
 
     function switchLanguage(language) {
-        selectedReversalLanguageStore.set(language);
-        selectedLanguage = language;
+        selectedLanguageStore.set(language);
         selectedLetter = currentAlphabet[0];
         if (selectedLanguage != vernacularLanguage) {
             fetchWords();
@@ -247,15 +250,34 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr] bg-base-100" style="height:100vh;height:100dvh;">
-    <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
-    <Navbar>
-        {#snippet center()}
+<div
+    class="grid fixed bg-base-100"
+    class:grid-rows-[auto,auto,1fr]={selectedWord}
+    class:grid-rows-[auto,1fr]={!selectedWord}
+    style="height:100vh;height:100dvh;width:100vw;"
+>
+    <Navbar {showBackButton}>
+        {#snippet start()}
             <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold">
-                    {dictionaryName}
+                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                    {config.name}
                 </div>
             </label>
+        {/snippet}
+        {#snippet end()}
+            <div class="flex flex-nowrap">
+                <div id="extraButtons" class:pr-4={!selectedWord}>
+                    <button
+                        class="dy-btn dy-btn-ghost dy-btn-circle"
+                        on:click={() => {
+                            wordIds = null;
+                            goto(getRoute(`/lexicon/search`));
+                        }}
+                    >
+                        <SearchIcon color="white" />
+                    </button>
+                </div>
+            </div>
         {/snippet}
     </Navbar>
 
@@ -277,6 +299,9 @@
         on:scroll={checkIfScrolledToBottom}
     >
         {#if selectedWord}
+            {#if !showBackButton}
+                {(showBackButton = true)}
+            {/if}
             <WordNavigationStrip
                 currentWord={selectedWord}
                 wordsList={selectedLanguage === vernacularLanguage
@@ -292,9 +317,30 @@
                 onSelectWord={selectWord}
             />
         {:else if selectedLanguage === vernacularLanguage}
-            <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
+            <div
+                class="flex-1 overflow-y-auto bg-base-100 width-full"
+                bind:this={scrollContainer}
+                on:scroll={checkIfScrolledToBottom}
+            >
+                <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
+            </div>
         {:else}
-            <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
+            <div
+                class="flex-1 overflow-y-auto bg-base-100 width-full"
+                bind:this={scrollContainer}
+                on:scroll={checkIfScrolledToBottom}
+            >
+                <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
+            </div>
         {/if}
+
+        <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+        <div
+            class="flex-1 overflow-y-auto bg-base-100 width-full"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
+            <LexiconXmlView {wordIds} onSelectWord={selectWord} />
+        </div>
     </div>
 </div>

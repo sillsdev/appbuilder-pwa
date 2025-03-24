@@ -10,8 +10,18 @@
 
     let searchbar;
 
-    const specialCharacters =
-        config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+    // const specialCharacters =
+    //     config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+
+    let specialCharacters = [];
+    if (config.programType == 'SAB') {
+        specialCharacters =
+            config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+    } else if (config.programType === 'DAB') {
+        specialCharacters = Object.values(config.writingSystems)
+            .filter((ws: any) => ws.type && ws.type.includes('main'))
+            .flatMap((ws: any) => ws.inputButtons || []);
+    }
 
     function addSpecialCharacter(char: string, event: MouseEvent) {
         event.preventDefault();
@@ -70,7 +80,7 @@
             </button>
         </label>
     </div>
-    {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
+    {#if (config.mainFeatures['search-input-buttons'] || config.programType == 'DAB') && specialCharacters.length > 0}
         <div class="dy-form-control m-2">
             <div class="special-characters">
                 {#each specialCharacters as character}
@@ -85,7 +95,7 @@
             </div>
         </div>
     {/if}
-    {#if config.mainFeatures['search-whole-words-show']}
+    {#if config.mainFeatures['search-whole-words-show'] || config.programType == 'DAB'}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
                 <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
@@ -95,7 +105,7 @@
             </label>
         </div>
     {/if}
-    {#if config.mainFeatures['search-accents-show']}
+    {#if config.mainFeatures['search-accents-show'] || config.programType == 'DAB'}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
                 <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}

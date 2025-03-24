@@ -1,52 +1,33 @@
 <script>
-    import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { convertStyle } from '$lib/data/stores';
-    import initSqlJs from 'sql.js';
+    import { initializeDatabase } from '$lib/data/stores/lexicon';
+    import {
+        selectedLanguageStore,
+        vernacularLanguageStore,
+        vernacularWordsStore
+    } from '$lib/data/stores/lexicon.ts';
     import { afterUpdate, onMount } from 'svelte';
+    import { get } from 'svelte/store';
 
-    export let selectedWord;
-    export let vernacularWordsList;
-    export let vernacularLanguage;
+    export let wordIds;
     export let onSelectWord;
-    export let onSwitchLanguage;
 
     let xmlData = '';
 
-    let singleEntryStyles = config.singleEntryStyles;
-
-    async function queryXmlByWordId(wordId) {
+    async function queryXmlByWordId(wordIds) {
         try {
-            const SQL = await initSqlJs({
-                locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
-            });
+            let db = await initializeDatabase({ fetch });
 
-            const response = await fetch(`${base}/data.sqlite`);
-            if (!response.ok) {
-                throw new Error(
-                    `Failed to fetch database: ${response.status} ${response.statusText}`
-                );
-            }
-            const buffer = await response.arrayBuffer();
-            const db = new SQL.Database(new Uint8Array(buffer));
-            if (!db) {
-                console.error('Database not initialized');
-                return null;
-            }
+            let results;
+            const dynamicQuery = wordIds.map(() => `id = ?`).join(' OR ');
+            const dynamicParams = wordIds.map((id) => id);
+            results = db.exec(`SELECT xml FROM entries WHERE ${dynamicQuery}`, dynamicParams);
+            console.log('results:', results[0].values);
 
-            const stmt = db.prepare('SELECT xml FROM entries WHERE id = ?');
-            stmt.bind([wordId]);
-
-            let result = null;
-            if (stmt.step()) {
-                result = stmt.getAsObject().xml;
-            }
-            stmt.free();
-            db.close();
-
-            return result;
+            return results[0].values;
         } catch (error) {
-            console.error(`Error querying XML for word ID ${wordId}:`, error);
+            console.error(`Error querying XML for word IDs ${wordIds}:`, error);
             return null;
         }
     }
@@ -88,7 +69,9 @@
                     const match = href.match(/E-(\d+)/); // Extract index number
                     if (match) {
                         const index = parseInt(match[1], 10); // Extracted number as integer
-                        const wordObject = vernacularWordsList.find((item) => item.id === index);
+                        const wordObject = get(vernacularWordsStore).find(
+                            (item) => item.id === index
+                        );
                         const word = wordObject ? wordObject.name : 'Unknown'; // Fallback if not found
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1; // Default to 1 if not found
 
@@ -124,16 +107,12 @@
     }
 
     async function updateXmlData() {
-        if (
-            !selectedWord ||
-            (!selectedWord.index && (!selectedWord.indexes || selectedWord.indexes.length === 0))
-        ) {
+        if (!wordIds) {
             xmlData = '';
             return;
         }
 
-        let wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
-        let xmlResults = await Promise.all(wordIds.map(queryXmlByWordId));
+        let xmlResults = await queryXmlByWordId(wordIds);
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
@@ -154,7 +133,7 @@
         const freshSpans = document.querySelectorAll('.clickable');
         freshSpans.forEach((span) => {
             span.addEventListener('click', () => {
-                onSwitchLanguage(vernacularLanguage);
+                selectedLanguageStore.set(get(vernacularLanguageStore));
                 const word = span.getAttribute('data-word');
                 const index = parseInt(span.getAttribute('data-index'), 10);
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
@@ -169,7 +148,7 @@
     }
 
     function applyStyles() {
-        for (let stl of singleEntryStyles) {
+        for (let stl of config.singleEntryStyles) {
             for (let elm of document.querySelectorAll(stl.name)) {
                 elm.style = convertStyle(stl.properties);
             }
@@ -185,4 +164,4 @@
     });
 </script>
 
-<pre class="p-4 whitespace-pre-wrap break-words min-w-[100vw]">{@html xmlData}</pre>
+<pre class="p-4 whitespace-pre-wrap break-words">{@html xmlData}</pre>

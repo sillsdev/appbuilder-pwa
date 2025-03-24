@@ -1,12 +1,25 @@
 <script>
+    import {
+        currentReversalWordsStore,
+        selectedLanguageStore,
+        vernacularLanguageStore,
+        vernacularWordsStore
+    } from '$lib/data/stores/lexicon.ts';
+    import { get } from 'svelte/store';
+
     // Current word being displayed
     export let currentWord;
 
-    // List of all words (should come from either vernacularWordsList or reversalWordsList)
-    export let wordsList = [];
-
     // Function to handle word selection from parent component
     export let onSelectWord;
+
+    // List of all words (should come from either vernacularWordsList or reversalWordsList)
+    let wordsList;
+    if (get(selectedLanguageStore) === get(vernacularLanguageStore)) {
+        wordsList = get(vernacularWordsStore);
+    } else {
+        wordsList = get(currentReversalWordsStore);
+    }
 
     // Compute the index of the current word in the list
     $: currentIndex = wordsList.findIndex((word) => {
