@@ -1,10 +1,10 @@
 <script>
     import { base } from '$app/paths';
-    import { onMount } from "svelte";
     import initSqlJs from 'sql.js';
+    import { afterUpdate, onMount } from 'svelte';
 
     export let selectedWord;
-    let xmlData = "";
+    let xmlData = '';
 
     async function queryXmlByWordId(wordId) {
         const SQL = await initSqlJs({
@@ -31,9 +31,83 @@
         return result;
     }
 
-    onMount(async () => {
-        xmlData = await queryXmlByWordId(selectedWord.index);
-    });
+    function formatXmlByClass(xmlString) {
+        if (!xmlString) return '';
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+
+        function processNode(node, parentHasSenseNumber = false) {
+            let output = '';
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.nodeValue.trim() ? node.nodeValue + ' ' : '';
+            }
+
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                let className = node.getAttribute('class') || '';
+                let isSenseNumber = className.includes('sensenumber');
+                let isDefinitionOrGloss = className.includes('definitionorgloss');
+
+                let parentContainsSenseNumber =
+                    parentHasSenseNumber ||
+                    [...node.parentNode.children].some(
+                        (child) =>
+                            child.getAttribute &&
+                            (child.getAttribute('class') || '').includes('sensenumber')
+                    );
+
+                const blockClasses = [
+                    'sensenumber',
+                    'minimallexreferences',
+                    'sharedgrammaticalinfo'
+                ];
+
+                if (blockClasses.some((cls) => className.includes(cls))) {
+                    output += '\n';
+                }
+
+                if (isDefinitionOrGloss && !parentContainsSenseNumber) {
+                    output += '\n';
+                }
+
+                output += '<' + node.tagName;
+                for (let attr of node.attributes) {
+                    output += ` ${attr.name}="${attr.value}"`;
+                }
+                output += '>';
+
+                for (let child of node.childNodes) {
+                    output += processNode(child, parentContainsSenseNumber || isSenseNumber);
+                }
+
+                output += `</${node.tagName}>`;
+            }
+
+            return output;
+        }
+
+        return processNode(xmlDoc.documentElement);
+    }
+
+    async function updateXmlData() {
+        if (!selectedWord || (!selectedWord.index && (!selectedWord.indexes || selectedWord.indexes.length === 0))) {
+            xmlData = '';
+            return;
+        }
+
+        let wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
+        let xmlResults = await Promise.all(wordIds.map(queryXmlByWordId));
+
+        // Insert an `<hr>` tag or a visible separator between entries
+        xmlData = xmlResults
+            .filter(xml => xml)  // Ensure no null values are included
+            .map(formatXmlByClass)
+            .join('\n<hr>\n') + '\n<hr>\n';  // `<hr>` adds a visible line between entries
+    }
+
+    onMount(updateXmlData);
+    afterUpdate(updateXmlData);
 </script>
 
-<div>{@html xmlData}</div>
+<pre class="whitespace-pre-wrap break-words">{@html xmlData}</pre>

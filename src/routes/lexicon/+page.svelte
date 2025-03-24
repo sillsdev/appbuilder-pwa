@@ -6,8 +6,8 @@
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
-    import initSqlJs from 'sql.js';
     import { onMount } from 'svelte';
 
     const {
@@ -27,83 +27,33 @@
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
-    let loadedVernacularLetters = new Set();
     let loadedReversalLetters = new Set();
     let reversalWordsList = [];
     let vernacularWordsList = [];
     let selectedLanguage = sessionStorage.getItem('selectedLanguage') || vernacularLanguage;
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
-    async function queryVernacularWords() {
-        if (!loadedVernacularLetters.has('*')) {
+    async function fetchWords(letter = selectedLetter) {
+        if (vernacularWordsList.length === 0) {
             const storedWords = sessionStorage.getItem('vernacularWordsList');
             if (storedWords) {
                 vernacularWordsList = JSON.parse(storedWords);
-                loadedVernacularLetters.add('*');
-                return;
             }
-
-            const SQL = await initSqlJs({
-                locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
-            });
-
-            const response = await fetch(`${base}/data.sqlite`);
-            const buffer = await response.arrayBuffer();
-            const db = new SQL.Database(new Uint8Array(buffer));
-
-            const results = db.exec(
-                `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
-            );
-
-            if (results[0]) {
-                vernacularWordsList = results[0].values.map((value) => {
-                    const entry = {};
-                    for (let i = 0; i < results[0].columns.length; ++i) {
-                        entry[results[0].columns[i]] = value[i];
-                    }
-
-                    let firstLetter = entry.name.charAt(0).toLowerCase();
-
-                    let firstTwoChars;
-                    let startingPosition = 0;
-
-                    if (firstLetter === '*' || firstLetter === '-') {
-                        startingPosition = 1;
-                    }
-                    firstTwoChars = entry.name
-                        .substring(startingPosition, 2 + startingPosition)
-                        .toLowerCase();
-
-                    if (vernacularAlphabet.includes(firstTwoChars)) {
-                        firstLetter = firstTwoChars;
-                    } else {
-                        firstLetter = entry.name.charAt(startingPosition).toLowerCase();
-                    }
-
-                    if (!vernacularAlphabet.includes(firstLetter)) {
-                        firstLetter = '*';
-                    }
-
-                    entry.letter = firstLetter;
-                    return entry;
-                });
-
-                sessionStorage.setItem('vernacularWordsList', JSON.stringify(vernacularWordsList));
-
-                loadedVernacularLetters.add('*');
+            else {
+                console.error('Error loading vernacular data:', error);
             }
         }
-    }
+        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
+            console.log('Loading letter data:', letter);
 
-    async function fetchReversalWords() {
-        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(selectedLetter)) {
             let fileIndex = 1;
             let moreFiles = true;
             let newWords = [];
 
-            const letterIndex = alphabets.reversal.indexOf(selectedLetter);
+            const letterIndex = alphabets.reversal.indexOf(letter);
             for (let i = 0; i < letterIndex; i++) {
                 if (!loadedReversalLetters.has(alphabets.reversal[i])) {
+                    console.log('Loading letter data first for loop:', alphabets.reversal[i]);
                     await loadLetterData(alphabets.reversal[i]);
                 }
             }
@@ -111,7 +61,7 @@
             while (moreFiles) {
                 try {
                     const response = await fetch(
-                        `${base}/reversal/${defaultReversalKey}/${selectedLetter}-${String(fileIndex).padStart(3, '0')}.json`
+                        `${base}/reversal/${defaultReversalKey}/${letter}-${String(fileIndex).padStart(3, '0')}.json`
                     );
                     if (response.ok) {
                         const data = await response.json();
@@ -119,7 +69,7 @@
                             return {
                                 word: word,
                                 indexes: entries.map((entry) => entry.index),
-                                letter: selectedLetter
+                                letter: letter
                             };
                         });
 
@@ -145,7 +95,7 @@
             }
 
             reversalWordsList = [...reversalWordsList, ...newWords];
-            loadedReversalLetters.add(selectedLetter);
+            loadedReversalLetters.add(letter);
         }
     }
 
@@ -195,11 +145,7 @@
     }
 
     function selectWord(word) {
-        if (selectedWord && selectedWord.word === word) {
-            selectedWord = null;
-        } else {
-            selectedWord = word;
-        }
+        selectedWord = selectedWord && selectedWord.word === word ? null : word;
     }
 
     function scrollToLetter(letter) {
@@ -214,7 +160,7 @@
     async function handleLetterChange(letter) {
         selectedLetter = letter;
         if (selectedLanguage === reversalLanguage) {
-            await fetchReversalWords();
+            await fetchWords();
         }
         scrollToLetter(letter);
     }
@@ -224,38 +170,38 @@
         reversalWordsList = [];
         selectedLanguage = language;
         loadedReversalLetters = new Set();
-        loadedVernacularLetters = new Set();
         selectedLetter = currentAlphabet[0];
-        if (selectedLanguage === reversalLanguage) {
-            fetchReversalWords();
-        } else {
-            queryVernacularWords();
+        fetchWords();
+        const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
+        if (scrollableDiv) {
+            scrollableDiv.scrollTop = 0;
         }
     }
 
-    function checkIfScrolledToBottom(event) {
+    let isFetching = false;
+
+    async function checkIfScrolledToBottom(event) {
+        if (isFetching) return;
+
         if (
             (selectedLanguage === reversalLanguage && reversalWordsList.length > 0) ||
             (selectedLanguage === vernacularLanguage && vernacularWordsList.length > 0)
         ) {
-            const div = event.target;
-            const threshold = 50;
+            let div = event.target;
+            const threshold = 100;
 
             if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
                 const currentIndex = currentAlphabet.indexOf(selectedLetter);
-                if (currentIndex < currentAlphabet.length - 1) {
-                    selectedLetter = currentAlphabet[currentIndex + 1];
-                    if (selectedLanguage === reversalLanguage) {
-                        fetchReversalWords();
-                    } else {
-                        queryVernacularWords();
+                if (!loadedReversalLetters.has(currentAlphabet[currentIndex + 1])) {
+                    if (currentIndex < currentAlphabet.length - 1) {
+                        isFetching = true;
+                        await fetchWords(currentAlphabet[currentIndex + 1]);
+                        isFetching = false;
                     }
                 }
-            }
-
-            if (
-                loadedReversalLetters.has(selectedLetter) ||
-                loadedVernacularLetters.has(selectedLetter)
+            } else if (
+                (selectedLanguage === reversalLanguage && loadedReversalLetters.has(selectedLetter)) ||
+                (selectedLanguage === vernacularLanguage)
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
                 let visibleLetter = null;
@@ -284,11 +230,7 @@
 
     onMount(() => {
         if (selectedLetter) {
-            if (selectedLanguage === reversalLanguage) {
-                fetchReversalWords();
-            } else {
-                queryVernacularWords();
-            }
+            fetchWords();
         }
         if (config.programType !== 'DAB') {
             goto(`${base}/text`);
@@ -321,17 +263,30 @@
         {/if}
     </div>
 
-    <div class="flex-1 overflow-y-auto p-4 bg-base-100" on:scroll={checkIfScrolledToBottom}>
+    <div class="flex-1 overflow-y-auto bg-base-100" on:scroll={checkIfScrolledToBottom}>
         {#if selectedWord}
-            <LexiconXmlView {selectedWord} />
+            <div class="sticky top-0 z-10">
+                <WordNavigationStrip
+                    currentWord={selectedWord}
+                    wordsList={selectedLanguage === vernacularLanguage
+                        ? vernacularWordsList
+                        : reversalWordsList}
+                    onSelectWord={selectWord}
+                />
+            </div>
+            <div class="p-4">
+                <LexiconXmlView {selectedWord} />
+            </div>
         {:else}
-            <LexiconReversalListView
-                {selectedLanguage}
-                {vernacularLanguage}
-                {vernacularWordsList}
-                {reversalWordsList}
-                {selectWord}
-            />
+            <div class="p-4">
+                <LexiconReversalListView
+                    {selectedLanguage}
+                    {vernacularLanguage}
+                    {vernacularWordsList}
+                    {reversalWordsList}
+                    {selectWord}
+                />
+            </div>
         {/if}
     </div>
 </div>
