@@ -98,6 +98,6 @@ export async function addPlanState(item: { id: string; state: string }) {
 
 function notifyUpdatedPlanStates() {
     planStatesLastUpdated.set(Date.now());
-    invalidate('planstates');
+    invalidate('idb:planstates');
 }
 export const planStatesLastUpdated = writable(Date.now());

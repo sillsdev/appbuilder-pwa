@@ -120,7 +120,7 @@ export async function getNextPlanReference(
 }
 function notifyUpdatedPlanStates() {
     planProgressItemsLastUpdated.set(Date.now());
-    invalidate('planprogressitems');
+    invalidate('idb:planprogressitems');
 }
 
 export const planProgressItemsLastUpdated = writable(Date.now());
