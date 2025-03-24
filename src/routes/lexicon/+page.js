@@ -2,7 +2,10 @@ import { base } from '$app/paths';
 import config from '$lib/data/config';
 import initSqlJs from 'sql.js';
 
-/** @type {import('./$types').PageLoad} */
+const SQL = await initSqlJs({
+    locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
+});
+
 export async function load({ fetch }) {
     if (!config.writingSystems) {
         throw new Error('Writing systems configuration not found');
@@ -31,10 +34,6 @@ export async function load({ fetch }) {
     const reversalLanguages = reversalWritingSystems.map(([key, ws]) => ({ [key]: ws.displayNames.default }));
     
     const dictionaryName = config.name;
-
-    const SQL = await initSqlJs({
-        locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
-    });
 
     const response = await fetch(`${base}/data.sqlite`);
     const buffer = await response.arrayBuffer();
