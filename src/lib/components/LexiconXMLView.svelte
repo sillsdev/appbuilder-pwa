@@ -10,7 +10,6 @@
     export let onSwitchLanguage;
 
     let xmlData = '';
-    let firstLinkReplaced = true;
 
     async function queryXmlByWordId(wordId) {
         const SQL = await initSqlJs({
@@ -77,7 +76,6 @@
                     output += '\n';
                 }
 
-                // Handle <a href="E-0"> links
                 if (node.tagName === 'a' && node.hasAttribute('href')) {
                     const href = node.getAttribute('href');
                     const match = href.match(/E-(\d+)/);  // Extract index number
@@ -94,9 +92,8 @@
                             linkText = homonymIndex.toString();
                         }
 
-                        // Replace <a> with JS function call, using the correct word and homonym index
                         output += `<span class="clickable" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
-                        return output;  // Exit early to avoid adding closing <a> tag
+                        return output;
                     }
                 }
                 else
