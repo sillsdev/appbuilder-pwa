@@ -275,7 +275,12 @@
                 />
             </div>
             <div class="p-4">
-                <LexiconXmlView {selectedWord} />
+                <LexiconXmlView 
+                {selectedWord}
+                {vernacularWordsList}
+                {vernacularLanguage}
+                onSwitchLanguage={switchLanguage}
+                onSelectWord={selectWord} />
             </div>
         {:else}
             <div class="p-4">
