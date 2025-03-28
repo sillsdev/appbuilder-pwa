@@ -4,7 +4,13 @@
     import { afterUpdate, onMount } from 'svelte';
 
     export let selectedWord;
+    export let vernacularWordsList;
+    export let vernacularLanguage;
+    export let onSelectWord;
+    export let onSwitchLanguage;
+
     let xmlData = '';
+    let firstLinkReplaced = true;
 
     async function queryXmlByWordId(wordId) {
         const SQL = await initSqlJs({
@@ -71,17 +77,42 @@
                     output += '\n';
                 }
 
-                output += '<' + node.tagName;
-                for (let attr of node.attributes) {
-                    output += ` ${attr.name}="${attr.value}"`;
-                }
-                output += '>';
+                // Handle <a href="E-0"> links
+                if (node.tagName === 'a' && node.hasAttribute('href')) {
+                    const href = node.getAttribute('href');
+                    const match = href.match(/E-(\d+)/);  // Extract index number
+                    if (match) {
+                        const index = parseInt(match[1], 10);  // Extracted number as integer
+                        const wordObject = vernacularWordsList.find(item => item.id === index);
+                        const word = wordObject ? wordObject.name : 'Unknown';  // Fallback if not found
+                        const homonymIndex = wordObject ? wordObject.homonym_index : 1;  // Default to 1 if not found
 
-                for (let child of node.childNodes) {
-                    output += processNode(child, parentContainsSenseNumber || isSenseNumber);
-                }
+                        let linkText = node.textContent.trim();
 
-                output += `</${node.tagName}>`;
+                        // If the text inside the link matches the homonym index, use the homonym index as the text
+                        if (linkText === String(homonymIndex)) {
+                            linkText = homonymIndex.toString();
+                        }
+
+                        // Replace <a> with JS function call, using the correct word and homonym index
+                        output += `<span class="clickable" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        return output;  // Exit early to avoid adding closing <a> tag
+                    }
+                }
+                else
+                {
+                    output += '<' + node.tagName;
+                    for (let attr of node.attributes) {
+                        output += ` ${attr.name}="${attr.value}"`;
+                    }
+                    output += '>';
+
+                    for (let child of node.childNodes) {
+                        output += processNode(child, parentContainsSenseNumber || isSenseNumber);
+                    }
+
+                    output += `</${node.tagName}>`;
+                }
             }
 
             return output;
@@ -91,7 +122,10 @@
     }
 
     async function updateXmlData() {
-        if (!selectedWord || (!selectedWord.index && (!selectedWord.indexes || selectedWord.indexes.length === 0))) {
+        if (
+            !selectedWord ||
+            (!selectedWord.index && (!selectedWord.indexes || selectedWord.indexes.length === 0))
+        ) {
             xmlData = '';
             return;
         }
@@ -100,14 +134,38 @@
         let xmlResults = await Promise.all(wordIds.map(queryXmlByWordId));
 
         // Insert an `<hr>` tag or a visible separator between entries
-        xmlData = xmlResults
-            .filter(xml => xml)  // Ensure no null values are included
-            .map(formatXmlByClass)
-            .join('\n<hr>\n') + '\n<hr>\n';  // `<hr>` adds a visible line between entries
+        xmlData =
+            xmlResults
+                .filter((xml) => xml) // Ensure no null values are included
+                .map(formatXmlByClass)
+                .join('\n<hr>\n') + '\n<hr>\n'; // `<hr>` adds a visible line between entries
+    }
+
+    function attachEventListeners() {
+        const spans = document.querySelectorAll('.clickable');
+
+        spans.forEach((span) => {
+            span.addEventListener('click', () => {
+                onSwitchLanguage(vernacularLanguage);
+                const word = span.getAttribute('data-word');
+                const index = parseInt(span.getAttribute('data-index'), 10);
+                const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
+
+                onSelectWord({
+                    word,
+                    index,
+                    homonym_index
+                });
+            });
+        });
     }
 
     onMount(updateXmlData);
-    afterUpdate(updateXmlData);
+
+    afterUpdate(() => {
+        updateXmlData();
+        attachEventListeners();
+    });
 </script>
 
 <pre class="whitespace-pre-wrap break-words">{@html xmlData}</pre>
