@@ -1,5 +1,7 @@
 <script>
     import { base } from '$app/paths';
+    import config from '$lib/data/config';
+    import { convertStyle } from '$lib/data/stores';
     import initSqlJs from 'sql.js';
     import { afterUpdate, onMount } from 'svelte';
 
@@ -10,6 +12,8 @@
     export let onSwitchLanguage;
 
     let xmlData = '';
+
+    let singleEntryStyles = config.singleEntryStyles;
 
     async function queryXmlByWordId(wordId) {
         const SQL = await initSqlJs({
@@ -52,7 +56,6 @@
             if (node.nodeType === Node.ELEMENT_NODE) {
                 let className = node.getAttribute('class') || '';
                 let isSenseNumber = className.includes('sensenumber');
-                let isDefinitionOrGloss = className.includes('definitionorgloss');
 
                 let parentContainsSenseNumber =
                     parentHasSenseNumber ||
@@ -62,28 +65,14 @@
                             (child.getAttribute('class') || '').includes('sensenumber')
                     );
 
-                const blockClasses = [
-                    'sensenumber',
-                    'minimallexreferences',
-                    'sharedgrammaticalinfo'
-                ];
-
-                if (blockClasses.some((cls) => className.includes(cls))) {
-                    output += '\n';
-                }
-
-                if (isDefinitionOrGloss && !parentContainsSenseNumber) {
-                    output += '\n';
-                }
-
                 if (node.tagName === 'a' && node.hasAttribute('href')) {
                     const href = node.getAttribute('href');
-                    const match = href.match(/E-(\d+)/);  // Extract index number
+                    const match = href.match(/E-(\d+)/); // Extract index number
                     if (match) {
-                        const index = parseInt(match[1], 10);  // Extracted number as integer
-                        const wordObject = vernacularWordsList.find(item => item.id === index);
-                        const word = wordObject ? wordObject.name : 'Unknown';  // Fallback if not found
-                        const homonymIndex = wordObject ? wordObject.homonym_index : 1;  // Default to 1 if not found
+                        const index = parseInt(match[1], 10); // Extracted number as integer
+                        const wordObject = vernacularWordsList.find((item) => item.id === index);
+                        const word = wordObject ? wordObject.name : 'Unknown'; // Fallback if not found
+                        const homonymIndex = wordObject ? wordObject.homonym_index : 1; // Default to 1 if not found
 
                         let linkText = node.textContent.trim();
 
@@ -95,9 +84,7 @@
                         output += `<span class="clickable" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                         return output;
                     }
-                }
-                else
-                {
+                } else {
                     output += '<' + node.tagName;
                     for (let attr of node.attributes) {
                         output += ` ${attr.name}="${attr.value}"`;
@@ -125,6 +112,12 @@
         ) {
             xmlData = '';
             return;
+        }
+
+        for (let stl of singleEntryStyles) {
+            for (let elm of document.querySelectorAll(stl.name)) {
+                elm.style = convertStyle(stl.properties);
+            }
         }
 
         let wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
