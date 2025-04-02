@@ -27,24 +27,14 @@
             </li>
         {/each}
     {:else}
-        {#each reversalWordsList as { word, indexes, letter }}
+        {#each reversalWordsList as { word, indexes, vernacularWords, letter }}
             <li class="cursor-pointer text-lg mb-6" id="letter-{letter}">
                 <div on:click={() => selectWord({ word, indexes })}>
                     <p class="font-bold break-words">{word}</p>
                     <p class="text-md ml-4">
-                        {#each indexes as index, i}
-                            {#if i > 0},
-                            {/if}
-                            {#await Promise.resolve(vernacularWordsList.find((vw) => vw.id === index)) then foundWord}
-                                {#if foundWord}
-                                    {foundWord.name}{#if foundWord.homonym_index > 0}<sub
-                                            >{foundWord.homonym_index}</sub
-                                        >{/if}
-                                {:else}
-                                    {console.log(`Index ${index} not found in vernacularWordsList`)}
-                                    {index}
-                                {/if}
-                            {/await}
+                        {#each vernacularWords as { name, homonymIndex }, i}
+                            {#if i > 0}, {/if}
+                            {name}{#if homonymIndex > 0}<sub>{homonymIndex}</sub>{/if}
                         {/each}
                     </p>
                 </div>
