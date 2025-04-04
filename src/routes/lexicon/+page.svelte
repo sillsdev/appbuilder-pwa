@@ -7,8 +7,15 @@
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
-    import { vernacularWordsStore, selectedReversalLanguageStore, currentReversalWordsStore, currentReversalLettersStore, reversalWordsStore, reversalLettersStore } from '$lib/data/stores/lexicon.ts';
     import config from '$lib/data/config';
+    import {
+        currentReversalLettersStore,
+        currentReversalWordsStore,
+        reversalLettersStore,
+        reversalWordsStore,
+        selectedReversalLanguageStore,
+        vernacularWordsStore
+    } from '$lib/data/stores/lexicon.ts';
     import { onMount } from 'svelte';
 
     const {
@@ -31,7 +38,7 @@
     let reversalWordsList;
     let vernacularWordsList;
     let selectedLanguage = vernacularLanguage;
-    
+
     // Subscribe to stores
     currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
     currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
@@ -46,21 +53,28 @@
             console.log('Loading letter data:', letter);
 
             const letterIndex = alphabets.reversal.indexOf(letter);
-            const lettersToLoad = alphabets.reversal.slice(0, letterIndex).filter(l => !loadedReversalLetters.has(l));
+            const lettersToLoad = alphabets.reversal
+                .slice(0, letterIndex)
+                .filter((l) => !loadedReversalLetters.has(l));
 
             // Load all required letters in parallel
             await Promise.all(lettersToLoad.map(loadLetterData));
 
             // Load the current letter
             await loadLetterData(letter);
-            
+
             // Sort the results based on the selectedLanguage's alphabet
             reversalWordsStore.update((words) => {
                 const updatedWords = { ...words };
-                updatedWords[selectedLanguage] = (updatedWords[selectedLanguage] || []).sort((a, b) => {
-                    const alphabet = currentAlphabet;
-                    return alphabet.indexOf(a.word[0].toLowerCase()) - alphabet.indexOf(b.word[0].toLowerCase());
-                });
+                updatedWords[selectedLanguage] = (updatedWords[selectedLanguage] || []).sort(
+                    (a, b) => {
+                        const alphabet = currentAlphabet;
+                        return (
+                            alphabet.indexOf(a.word[0].toLowerCase()) -
+                            alphabet.indexOf(b.word[0].toLowerCase())
+                        );
+                    }
+                );
                 return updatedWords;
             });
         }
@@ -84,14 +98,18 @@
                             indexes: entries.map((entry) => entry.index),
                             vernacularWords: entries
                                 .map((entry) => {
-                                    const foundWord = vernacularWordsList.find((vw) => vw.id === entry.index);
+                                    const foundWord = vernacularWordsList.find(
+                                        (vw) => vw.id === entry.index
+                                    );
                                     if (foundWord) {
                                         return {
                                             name: foundWord.name,
-                                            homonymIndex: foundWord.homonym_index || 0,
+                                            homonymIndex: foundWord.homonym_index || 0
                                         };
                                     } else {
-                                        console.log(`Index ${entry.index} not found in vernacularWordsList`);
+                                        console.log(
+                                            `Index ${entry.index} not found in vernacularWordsList`
+                                        );
                                         return null; // Return null for missing indexes
                                     }
                                 })
@@ -122,13 +140,13 @@
         }
 
         reversalWordsStore.update((words) => {
-                const updatedWords = { ...words };
-                updatedWords[selectedLanguage] = [
-                    ...(updatedWords[selectedLanguage] || []),
-                    ...newWords
-                ];
-                return updatedWords;
-            });
+            const updatedWords = { ...words };
+            updatedWords[selectedLanguage] = [
+                ...(updatedWords[selectedLanguage] || []),
+                ...newWords
+            ];
+            return updatedWords;
+        });
         reversalLettersStore.update((letters) => {
             const updatedLetters = { ...letters };
             updatedLetters[selectedLanguage] = [
@@ -195,8 +213,9 @@
                     }
                 }
             } else if (
-                (selectedLanguage === reversalLanguage && loadedReversalLetters.has(selectedLetter)) ||
-                (selectedLanguage === vernacularLanguage)
+                (selectedLanguage === reversalLanguage &&
+                    loadedReversalLetters.has(selectedLetter)) ||
+                selectedLanguage === vernacularLanguage
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
                 let visibleLetter = null;
@@ -265,12 +284,13 @@
                 />
             </div>
             <div class="p-4">
-                <LexiconXmlView 
-                {selectedWord}
-                {vernacularWordsList}
-                {vernacularLanguage}
-                onSwitchLanguage={switchLanguage}
-                onSelectWord={selectWord} />
+                <LexiconXmlView
+                    {selectedWord}
+                    {vernacularWordsList}
+                    {vernacularLanguage}
+                    onSwitchLanguage={switchLanguage}
+                    onSelectWord={selectWord}
+                />
             </div>
         {:else}
             <div class="p-4">

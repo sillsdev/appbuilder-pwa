@@ -1,7 +1,6 @@
-import { writable, derived } from 'svelte/store';
 import { base } from '$app/paths';
-import initSqlJs from 'sql.js';
-import { Database } from 'sql.js';
+import initSqlJs, { Database } from 'sql.js';
+import { derived, writable } from 'svelte/store';
 
 // Store for vernacularWordsList
 export const vernacularWordsStore = writable();
@@ -18,20 +17,20 @@ export const reversalLettersStore = writable<Record<string, any[]>>({});
 // Derived store to get the current language's reversalWordsList
 export const currentReversalWordsStore = derived(
     [selectedReversalLanguageStore, reversalWordsStore],
-    ([selectedLanguage, wordsStore]) => selectedLanguage ? wordsStore[selectedLanguage] || [] : []
+    ([selectedLanguage, wordsStore]) => (selectedLanguage ? wordsStore[selectedLanguage] || [] : [])
 );
 
 // Derived store to get the current language's reversalLetters
 export const currentReversalLettersStore = derived(
     [selectedReversalLanguageStore, reversalLettersStore],
-    ([selectedLanguage, lettersStore]) => selectedLanguage ? lettersStore[selectedLanguage] || [] : []
+    ([selectedLanguage, lettersStore]) =>
+        selectedLanguage ? lettersStore[selectedLanguage] || [] : []
 );
 
 // Store for database instance
 export const db = writable<Database>();
 
 export async function initializeDatabase({ fetch }) {
-
     const wasmResponse = await fetch(`${base}/wasm/sql-wasm.wasm`);
     const wasmBinary = await wasmResponse.arrayBuffer();
 
