@@ -1,6 +1,6 @@
 import { base } from '$app/paths';
 import initSqlJs, { Database } from 'sql.js';
-import { derived, writable } from 'svelte/store';
+import { get, derived, writable, type Writable } from 'svelte/store';
 
 // Store for vernacularWordsList
 export const vernacularWordsStore = writable();
@@ -28,20 +28,28 @@ export const currentReversalLettersStore = derived(
 );
 
 // Store for database instance
-export const db = writable<Database>();
+export const sqlJs: Writable<any> = writable(null);
+export const sqlDb: Writable<any> = writable(null);
 
 export async function initializeDatabase({ fetch }) {
-    const wasmResponse = await fetch(`${base}/wasm/sql-wasm.wasm`);
-    const wasmBinary = await wasmResponse.arrayBuffer();
+    let db = get(sqlDb);
+    let sql = get(sqlJs);
+    if (!sql || !db) {
+        // Fetch the WebAssembly binary manually using SvelteKit's fetch
+        const wasmResponse = await fetch(`${base}/wasm/sql-wasm.wasm`);
+        const wasmBinary = await wasmResponse.arrayBuffer();
 
-    const sqlInstance = await initSqlJs({
-        wasmBinary: wasmBinary
-    });
+        // Initialize sql.js with the manually loaded wasm binary
+        sql = await initSqlJs({ wasmBinary });
+        sqlJs.set(sql);
 
-    const response = await fetch(`${base}/data.sqlite`);
-    const buffer = await response.arrayBuffer();
+        // Fetch the database file
+        const response = await fetch(`${base}/data.sqlite`);
+        const buffer = await response.arrayBuffer();
 
-    const database = new sqlInstance.Database(new Uint8Array(buffer));
-    db.set(database);
-    return database;
+        // Load the database into sql.js
+        db = new sql.Database(new Uint8Array(buffer));
+        sqlDb.set(db);
+    }
+    return db;
 }
