@@ -16,28 +16,39 @@
     let singleEntryStyles = config.singleEntryStyles;
 
     async function queryXmlByWordId(wordId) {
-        const SQL = await initSqlJs({
-            locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
-        });
+        try {
+            const SQL = await initSqlJs({
+                locateFile: (file) => `${base}/wasm/sql-wasm.wasm`
+            });
 
-        const response = await fetch(`${base}/data.sqlite`);
-        const buffer = await response.arrayBuffer();
-        const db = new SQL.Database(new Uint8Array(buffer));
-        if (!db) {
-            console.error('Database not initialized');
+            const response = await fetch(`${base}/data.sqlite`);
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to fetch database: ${response.status} ${response.statusText}`
+                );
+            }
+            const buffer = await response.arrayBuffer();
+            const db = new SQL.Database(new Uint8Array(buffer));
+            if (!db) {
+                console.error('Database not initialized');
+                return null;
+            }
+
+            const stmt = db.prepare('SELECT xml FROM entries WHERE id = ?');
+            stmt.bind([wordId]);
+
+            let result = null;
+            if (stmt.step()) {
+                result = stmt.getAsObject().xml;
+            }
+            stmt.free();
+            db.close();
+
+            return result;
+        } catch (error) {
+            console.error(`Error querying XML for word ID ${wordId}:`, error);
             return null;
         }
-
-        const stmt = db.prepare('SELECT xml FROM entries WHERE id = ?');
-        stmt.bind([wordId]);
-
-        let result = null;
-        if (stmt.step()) {
-            result = stmt.getAsObject().xml;
-        }
-        stmt.free();
-
-        return result;
     }
 
     function formatXmlByClass(xmlString) {

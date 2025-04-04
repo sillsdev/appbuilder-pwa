@@ -21,8 +21,6 @@
             await navigateToTextReference($page.data.ref);
         } else if (launchAction === 'contents' || ($isFirstLaunch && launchAction)) {
             goto(getRoute(`/contents/1`));
-        } else if (config.programType === 'DAB') {
-            goto(getRoute(`/lexicon`));
         } else {
             goto(getRoute(`/text`));
         }
