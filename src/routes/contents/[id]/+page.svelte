@@ -142,9 +142,9 @@
     let referenceTexts = new Map();
     async function loadReferenceText(item) {
         if (!referenceTexts.has(item)) {
-            const referenceText = await getReferenceText(item);
-            referenceTexts.set(item, referenceText);
+            referenceTexts.set(item, await getReferenceText(item));
         }
+        return referenceTexts.get(item);
     }
     async function getReferenceText(item) {
         const reference = await getReference(item);
@@ -297,11 +297,11 @@
                         {#if $page.data.features['show-references'] === true}
                             {#if item.linkType === 'reference'}
                                 {#await loadReferenceText(item)}
-                                    <div class="contents-ref">
-                                        <span class="contents-ref"></span>
-                                    </div>
-                                {:then}
-                                    <div class="contents-ref">{referenceTexts.get(item)}</div>
+                                    <div class="contents-ref"></div>
+                                {:then referenceText}
+                                    <div class="contents-ref">{referenceText}</div>
+                                {:catch error}
+                                    <div class="contents-ref"></div>
                                 {/await}
                             {/if}
                         {/if}
