@@ -34,7 +34,6 @@ export async function initializeDatabase({ fetch }) {
     const wasmResponse = await fetch(`${base}/wasm/sql-wasm.wasm`);
     const wasmBinary = await wasmResponse.arrayBuffer();
 
-    //if !db then...
     const sqlInstance = await initSqlJs({
         wasmBinary: wasmBinary
     });
