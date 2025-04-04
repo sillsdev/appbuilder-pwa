@@ -249,8 +249,12 @@ function convertConfig(dataDir: string, verbose: number) {
     data.styles = parseStyles(mainStyles, verbose);
 
     if (isDictionaryConfig(data)) {
-        const singleEntryStyles = document.querySelector('styles[type=single-entry]')!;
-        data.singleEntryStyles = parseStyles(singleEntryStyles, verbose);
+        const singleEntryStyles = document.querySelector('styles[type=single-entry]');
+        if (singleEntryStyles) {
+            data.singleEntryStyles = parseStyles(singleEntryStyles, verbose);
+        } else if (verbose) {
+            console.log('No single-entry styles found in the XML document');
+        }
     }
 
     if (isScriptureConfig(data)) {
