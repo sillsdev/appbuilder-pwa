@@ -1,6 +1,4 @@
 <script>
-    import { base } from '$app/paths';
-
     export let selectedLanguage;
     export let vernacularLanguage;
     export let vernacularWordsList;
