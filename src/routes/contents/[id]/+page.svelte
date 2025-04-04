@@ -300,10 +300,9 @@
                                     <div class="contents-ref">
                                         <span class="contents-ref"></span>
                                     </div>
-                                {:then}  
+                                {:then}
                                     <div class="contents-ref">{referenceTexts.get(item)}</div>
                                 {/await}
-                                
                             {/if}
                         {/if}
                     </div>
