@@ -125,12 +125,6 @@
             return;
         }
 
-        for (let stl of singleEntryStyles) {
-            for (let elm of document.querySelectorAll(stl.name)) {
-                elm.style = convertStyle(stl.properties);
-            }
-        }
-
         let wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
         let xmlResults = await Promise.all(wordIds.map(queryXmlByWordId));
 
@@ -161,10 +155,19 @@
         });
     }
 
+    function applyStyles() {
+        for (let stl of singleEntryStyles) {
+            for (let elm of document.querySelectorAll(stl.name)) {
+                elm.style = convertStyle(stl.properties);
+            }
+        }
+    }
+
     onMount(updateXmlData);
 
     afterUpdate(() => {
         updateXmlData();
+        applyStyles();
         attachEventListeners();
     });
 </script>
