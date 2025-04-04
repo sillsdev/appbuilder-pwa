@@ -574,8 +574,8 @@ export function parseBookCollections(document: Document, verbose: number) {
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
                 ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                    .filter((x) => fontFamilies.includes(x.innerHTML))
-                    .map((x) => x.innerHTML)
+                      .filter((x) => fontFamilies.includes(x.innerHTML))
+                      .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -637,8 +637,8 @@ export function parseBookCollections(document: Document, verbose: number) {
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                .filter((x) => fontFamilies.includes(x.innerHTML))
-                .map((x) => x.innerHTML)
+                  .filter((x) => fontFamilies.includes(x.innerHTML))
+                  .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -1000,10 +1000,10 @@ export function parseVideos(document: Document, verbose: number) {
             const placementTag = tag.getElementsByTagName('placement')[0];
             const placement = placementTag
                 ? {
-                    pos: placementTag.attributes.getNamedItem('pos')!.value,
-                    ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                    collection: placementTag.attributes.getNamedItem('ref')!.value.split('|')[0]
-                }
+                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                      ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                      collection: placementTag.attributes.getNamedItem('ref')!.value.split('|')[0]
+                  }
                 : undefined;
 
             const width = tag.getAttribute('width') ? parseInt(tag.getAttribute('width')!) : 0;
@@ -1056,11 +1056,11 @@ export function parseIllustrations(document: Document, verbose: number) {
                     const placementTag = image.getElementsByTagName('placement')[0];
                     const placement = placementTag
                         ? {
-                            pos: placementTag.getAttribute('pos')! || '',
-                            ref: placementTag.getAttribute('ref')?.split('|')[1] || '',
-                            caption: placementTag.getAttribute('caption') || '',
-                            collection: placementTag.getAttribute('ref')?.split('|')[0] || ''
-                        }
+                              pos: placementTag.getAttribute('pos')! || '',
+                              ref: placementTag.getAttribute('ref')?.split('|')[1] || '',
+                              caption: placementTag.getAttribute('caption') || '',
+                              collection: placementTag.getAttribute('ref')?.split('|')[0] || ''
+                          }
                         : undefined;
 
                     illustrations.push({ filename, width, height, placement });
@@ -1097,8 +1097,8 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
             const layoutCollections =
                 layoutCollectionElements.length > 0
                     ? Array.from(layoutCollectionElements).map((element) => {
-                        return element.attributes.getNamedItem('id')!.value;
-                    })
+                          return element.attributes.getNamedItem('id')!.value;
+                      })
                     : [bookCollections[0].id];
 
             layouts.push({
