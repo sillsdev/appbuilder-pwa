@@ -7,8 +7,8 @@ export async function load({ fetch }) {
         throw new Error('Writing systems configuration not found');
     }
 
-    const vernacularWritingSystem = Object.values(config.writingSystems).find(
-        (ws) => ws.type.includes('main')
+    const vernacularWritingSystem = Object.values(config.writingSystems).find((ws) =>
+        ws.type.includes('main')
     );
 
     if (!vernacularWritingSystem) {
@@ -17,7 +17,7 @@ export async function load({ fetch }) {
 
     const vernacularAlphabet = vernacularWritingSystem.alphabet;
     const vernacularLanguage = vernacularWritingSystem.displayNames.default;
-    
+
     const reversalWritingSystems = Object.entries(config.writingSystems).filter(
         ([key, ws]) => !ws.type.includes('main')
     );
@@ -27,14 +27,14 @@ export async function load({ fetch }) {
     }
 
     const reversalAlphabets = reversalWritingSystems.map(([key, ws]) => ({ [key]: ws.alphabet }));
-    const reversalLanguages = reversalWritingSystems.map(([key, ws]) => ({ [key]: ws.displayNames.default }));
-    
+    const reversalLanguages = reversalWritingSystems.map(([key, ws]) => ({
+        [key]: ws.displayNames.default
+    }));
+
     const dictionaryName = config.name;
 
     let db = await initializeDatabase({ fetch });
-    let results = db.exec(
-        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
-    );
+    let results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
 
     if (!results || results.length === 0) {
         throw new Error('Vernacular query error');
