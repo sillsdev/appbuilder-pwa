@@ -139,9 +139,15 @@
             verse
         };
     }
-
-    function getReferenceText(item) {
-        const reference = getReference(item);
+    let referenceTexts = new Map();
+    async function loadReferenceText(item) {
+        if (!referenceTexts.has(item)) {
+            const referenceText = await getReferenceText(item);
+            referenceTexts.set(item, referenceText);
+        }
+    }
+    async function getReferenceText(item) {
+        const reference = await getReference(item);
         let currentBookCollectionId = $refs.collection;
         let collection = reference.collection ?? currentBookCollectionId;
         const verse = reference.verse ? parseInt(reference.verse) : -1;
@@ -290,7 +296,14 @@
                         <!--check for reference -->
                         {#if $page.data.features['show-references'] === true}
                             {#if item.linkType === 'reference'}
-                                <div class="contents-ref">{getReferenceText(item)}</div>
+                                {#await loadReferenceText(item)}
+                                    <div class="contents-ref">
+                                        <span class="contents-ref"></span>
+                                    </div>
+                                {:then}  
+                                    <div class="contents-ref">{referenceTexts.get(item)}</div>
+                                {/await}
+                                
                             {/if}
                         {/if}
                     </div>
