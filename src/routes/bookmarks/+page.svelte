@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
     import { page } from '$app/stores';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -45,6 +46,10 @@
 
     let sortOrder = SORT_DATE;
 </script>
+
+<svelte:head>
+    <link rel="stylesheet" href="{base}/styles/sab-annotations.css" />
+</svelte:head>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
