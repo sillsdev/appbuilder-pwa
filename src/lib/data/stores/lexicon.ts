@@ -1,6 +1,6 @@
 import { base } from '$app/paths';
 import initSqlJs, { Database } from 'sql.js';
-import { get, derived, writable, type Writable } from 'svelte/store';
+import { derived, get, writable, type Writable } from 'svelte/store';
 
 // Store for vernacularWordsList
 export const vernacularWordsStore = writable();
