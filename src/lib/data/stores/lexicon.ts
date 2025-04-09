@@ -3,7 +3,7 @@ import initSqlJs, { Database } from 'sql.js';
 import { derived, get, writable, type Writable } from 'svelte/store';
 
 // Store for vernacularWordsList
-export const vernacularWordsStore = writable();
+export const vernacularWordsStore = writable<string[]>();
 
 // Store for selectedReversalLanguageStore
 export const selectedReversalLanguageStore = writable<string | null>(null);
