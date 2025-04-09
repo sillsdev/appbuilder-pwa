@@ -38,7 +38,7 @@
     }
 </script>
 
-<div id="container" class="flex flex-col h-full">
+<div class="flex flex-col h-full">
     <LexiconLanguageTabs
         {reversalLanguage}
         {selectedLanguage}
