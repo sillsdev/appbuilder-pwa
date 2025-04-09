@@ -196,7 +196,7 @@ if (programType === 'DAB') {
 
     test('convertConfig: parse features', () => {
         const result = parseFeatures(document, 1);
-        expect(Object.keys(result)).toHaveLength(137);
+        expect(Object.keys(result)).toHaveLength(140);
     });
 
     test('convertConfig: parse background images', () => {
