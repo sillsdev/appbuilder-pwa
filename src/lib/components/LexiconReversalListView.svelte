@@ -27,7 +27,7 @@
                     </p>
                     {#if summary}
                         <p class="ml-4 italic">
-                            {#each summary.match(/{(.*?)}/g) as match}
+                            {#each summary.match(/{(.*?)}/g) || [] as match}
                                 {match.replace(/[{}]/g, '')}
                             {/each}
                         </p>
