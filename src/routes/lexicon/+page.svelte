@@ -19,7 +19,7 @@
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
     import { onMount, tick } from 'svelte';
-    import { getRoute } from '$lib/navigate'; // Adjust the path based on your project structure
+    import { getRoute } from '$lib/navigate';
 
     const {
         vernacularAlphabet,
@@ -37,6 +37,7 @@
 
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
+    $: showBackButton = selectedWord ? true : false;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let loadedReversalLetters = new Set();
     let reversalWordsList;
@@ -251,10 +252,10 @@
 
 <div class="grid grid-rows-[auto,1fr] fixed bg-base-100" style="height:100vh;height:100dvh;">
     <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
-    <Navbar>
-        {#snippet center()}
+    <Navbar {showBackButton}>
+        {#snippet start()}
             <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold">
+                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
                     {dictionaryName}
                 </div>
             </label>
@@ -292,6 +293,11 @@
         on:scroll={checkIfScrolledToBottom}
     >
         {#if selectedWord}
+            {#if selectedWord}
+                {#if !showBackButton}
+                    {showBackButton = true}
+                {/if}
+            {/if}
             <WordNavigationStrip
                 currentWord={selectedWord}
                 wordsList={selectedLanguage === vernacularLanguage

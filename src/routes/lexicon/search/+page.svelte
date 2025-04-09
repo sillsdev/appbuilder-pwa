@@ -1,47 +1,45 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
     import config from '$lib/data/config';
+    import Navbar from '$lib/components/Navbar.svelte';
+    import { SearchIcon } from '$lib/icons';
+    import { goto } from '$app/navigation';
+    import { getRoute } from '$lib/navigate';
+    import SearchForm from '$lib/components/SearchForm.svelte';
+    import SearchResultList from '$lib/components/SearchResultList.svelte';
+    import type { SearchResult } from '$lib/search/domain/entities';
+    import type {
+        SearchPresenter,
+        UserSearchOptions
+    } from '$lib/search/domain/interfaces/presentation-interfaces';
+    import { makeSearchSession } from '$lib/search/factories';
+    import { t, themeColors } from '$lib/data/stores';
 
-    let searchPhrase = '';
-    let wholeWords = false;
-    let accentsAndTones = false;
-    let results: { id: number, weight: number }[] = [];
+    export let data;
 
+    let results: SearchResult[] = [];
+    let queryId = 0;
+    let queryDone = true;
+    let restoreResults = false; // Whether saved results are currently being loaded
 
-    function getRoute(path: string): string {
-        return path;
-    }
-
-    async function goToSearch() {
-        if (config.programType === 'DAB') {
-            await (getRoute('/search/lexicon'));
-        } else {
-            await (getRoute(`/search/${searchPhrase}`));
-        }
-    }
-
-    // On mount
-    onMount(async () => {
-        if (config.programType === 'DAB') {
-            await (getRoute('/lexicon'));
-            return;
-        }
-    });
+    let phrase: string;
+    let wholeWords: boolean;
+    let matchAccents: boolean;
+    //let results: { id: number, weight: number }[] = [];
+    
+    let scrollDiv;
 
     // Function to handle search in the service worker
     async function search(event: Event) {
         event.preventDefault();
-        await goToSearch();
 
         const options = {
             wholeWords,
-            accentsAndTones,
+            matchAccents,
         };
 
         const message = {
             type: 'search',
-            phrase: searchPhrase,
+            phrase: phrase,
             options
         };
 
@@ -60,6 +58,29 @@
         };
     }
 </script>
+
+<!-- <div class="flex flex-col min-h-screen max-h-screen bg-base-100">
+    <Navbar>
+        {#snippet start()}
+            <label for="sidebar" class="navbar">
+                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                    Search
+                </div>
+            </label>
+        {/snippet}
+        {#snippet end()}
+                <div class="flex flex-nowrap">
+                    <div id="extraButtons">
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={() => goto(getRoute(`/lexicon/search/`))}
+                        >
+                            <SearchIcon color="white" />
+                        </button>
+                    </div>
+                </div>
+            {/snippet}
+    </Navbar>
 
 <div class="search-container">
     <h1>Search Lexicon</h1>
@@ -91,4 +112,51 @@
     {:else}
         <p>No results found.</p>
     {/if}
+</div>
+</div> -->
+
+<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
+    <div class="navbar">
+        <Navbar>
+            {#snippet start()}
+            <label for="sidebar" class="navbar">
+                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                    Search
+                </div>
+            </label>
+        {/snippet}
+        {#snippet end()}
+                <div class="flex flex-nowrap">
+                    <div id="extraButtons">
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={() => goto(getRoute(`/lexicon/search/`))}
+                        >
+                            <SearchIcon color="white" />
+                        </button>
+                    </div>
+                </div>
+            {/snippet}
+        </Navbar>
+    </div>
+
+    <div class="overflow-auto" bind:this={scrollDiv}>
+        <div class="flex justify-center">
+            <SearchForm bind:phrase bind:wholeWords bind:matchAccents />
+        </div>
+
+        <div class="flex justify-center px-4">
+            <hr class="max-w-screen-md w-full" style:border-color={$themeColors.DividerColor} />
+        </div>
+
+        <div class="flex justify-center">
+            <SearchResultList
+                collection={'test'}
+                {results}
+                {queryId}
+                {queryDone}
+                restore={restoreResults}
+            />
+        </div>
+    </div>
 </div>
