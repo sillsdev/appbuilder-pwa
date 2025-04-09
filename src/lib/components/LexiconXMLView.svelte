@@ -140,6 +140,12 @@
         const spans = document.querySelectorAll('.clickable');
 
         spans.forEach((span) => {
+        const oldSpan = span.cloneNode(true);
+        span.parentNode.replaceChild(oldSpan, span);
+        });
+
+        const freshSpans = document.querySelectorAll('.clickable');
+        freshSpans.forEach((span) => {
             span.addEventListener('click', () => {
                 onSwitchLanguage(vernacularLanguage);
                 const word = span.getAttribute('data-word');
