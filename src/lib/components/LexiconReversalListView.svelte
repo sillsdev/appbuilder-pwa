@@ -10,7 +10,18 @@
     {#if selectedLanguage === vernacularLanguage}
         {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary, letter }}
             <li class="cursor-pointer text-lg" id="letter-{letter}">
-                <div on:click={() => selectWord({ word: name, index: id })}>
+                <button
+                    type="button"
+                    class="w-full text-left"
+                    aria-label={`Select word ${name}`}
+                    on:click={() => selectWord({ word: name, index: id })}
+                    on:keydown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            selectWord({ word: name, index: id });
+                            event.preventDefault();
+                        }
+                    }}
+                >
                     <p class="font-bold break-words">
                         {name}{#if homonym_index > 0}<sub>{homonym_index}</sub>{/if}
                     </p>
@@ -21,20 +32,31 @@
                             {/each}
                         </p>
                     {/if}
-                </div>
+                </button>
             </li>
         {/each}
     {:else}
         {#each reversalWordsList as { word, indexes, vernacularWords, letter }}
             <li class="cursor-pointer text-lg mb-6" id="letter-{letter}">
-                <div on:click={() => selectWord({ word, indexes })}>
+                <button
+                    type="button"
+                    class="w-full text-left"
+                    aria-label={`Select word ${word}`}
+                    on:click={() => selectWord({ word, indexes })}
+                    on:keydown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            selectWord({ word, indexes });
+                            event.preventDefault();
+                        }
+                    }}
+                >
                     <p class="font-bold break-words">{word}</p>
                     <p class="text-md ml-4">
                         {#each vernacularWords as { name, homonymIndex }, i}
                             {name}{#if homonymIndex > 0}<sub>{homonymIndex}</sub>{/if}
                         {/each}
                     </p>
-                </div>
+                </button>
             </li>
         {/each}
     {/if}
