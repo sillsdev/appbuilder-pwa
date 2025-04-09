@@ -85,6 +85,14 @@ The sidebar/drawer.
             })
             .join(', ');
     }
+    async function goToSearch(){
+        if (config.programType === 'DAB') {
+            await goto(getRoute(`/lexicon/search`));
+        }
+        else{
+            await goto(getRoute(`/search/${$refs.collection}`))
+        }
+    }
 
     $: textColor = $s['ui.drawer.item.text']['color'];
     $: iconColor = $s['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor'];
@@ -146,7 +154,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
+                        on:click={goToSearch}
                     >
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </button>
