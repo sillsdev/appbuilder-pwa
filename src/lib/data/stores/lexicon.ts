@@ -9,10 +9,21 @@ export const vernacularWordsStore = writable<string[]>();
 export const selectedReversalLanguageStore = writable<string | null>(null);
 
 // Store for reversalWordsList, keyed by language
-export const reversalWordsStore = writable<Record<string, any[]>>({});
+interface VernacularWordReference {
+    name: string;
+    homonymIndex: number;
+}
+
+interface ReversalWord {
+    word: string;
+    indexes: string[];
+    vernacularWords: VernacularWordReference[];
+    letter: string;
+}
+export const reversalWordsStore = writable<Record<string, ReversalWord[]>>({});
 
 // Store for the loaded reversalLetters, keyed by language
-export const reversalLettersStore = writable<Record<string, any[]>>({});
+export const reversalLettersStore = writable<Record<string, string[]>>({});
 
 // Derived store to get the current language's reversalWordsList
 export const currentReversalWordsStore = derived(
@@ -28,8 +39,8 @@ export const currentReversalLettersStore = derived(
 );
 
 // Store for database instance
-export const sqlJs: Writable<any> = writable(null);
-export const sqlDb: Writable<any> = writable(null);
+export const sqlJs = writable<ReturnType<typeof initSqlJs> | null>(null);
+export const sqlDb = writable<Database | null>(null);
 
 export async function initializeDatabase({ fetch }) {
     let db = get(sqlDb);
