@@ -158,7 +158,7 @@
     }
 
     function selectWord(word) {
-        selectedWord = selectedWord && selectedWord.word === word ? null : word;
+        selectedWord = selectedWord && selectedWord.word === word.word ? null : word;
     }
 
     function scrollToLetter(letter) {
@@ -185,7 +185,7 @@
         if (selectedLanguage != vernacularLanguage) {
             fetchWords();
         }
-        const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
+        const scrollableDiv = document.querySelector('#content');
         if (scrollableDiv) {
             scrollableDiv.scrollTop = 0;
         }
@@ -244,10 +244,18 @@
         if (config.programType !== 'DAB') {
             goto(`${base}/text`);
         }
+
+        // Remove any existing popup/dialog elements that might be present
+        setTimeout(() => {
+            const popupElements = document.querySelectorAll('.popup, .modal, .dialog');
+            popupElements.forEach((elem) => {
+                if (elem) elem.remove();
+            });
+        }, 500);
     });
 </script>
 
-<div class="flex flex-col min-h-screen max-h-screen bg-base-100">
+<div id="container">
     <Navbar>
         {#snippet center()}
             <label for="sidebar" class="navbar">
@@ -272,8 +280,18 @@
         {/if}
     </div>
 
-    <div class="flex-1 overflow-y-auto bg-base-100" on:scroll={checkIfScrolledToBottom}>
-        {#if selectedWord}
+    <div id="content" on:scroll={checkIfScrolledToBottom}>
+        {#if !selectedWord}
+            <div>
+                <LexiconReversalListView
+                    {selectedLanguage}
+                    {vernacularLanguage}
+                    {vernacularWordsList}
+                    {reversalWordsList}
+                    {selectWord}
+                />
+            </div>
+        {:else}
             <div class="sticky top-0 z-10">
                 <WordNavigationStrip
                     currentWord={selectedWord}
@@ -292,16 +310,16 @@
                     onSelectWord={selectWord}
                 />
             </div>
-        {:else}
-            <div class="p-4">
-                <LexiconReversalListView
-                    {selectedLanguage}
-                    {vernacularLanguage}
-                    {vernacularWordsList}
-                    {reversalWordsList}
-                    {selectWord}
-                />
-            </div>
         {/if}
     </div>
 </div>
+
+<style>
+    /* This will make it so only styles that don't conflict with the converted CSS are kept */
+    /* Without this, the navigation also breaks for some reason. */
+    :global(.popup),
+    :global(.modal),
+    :global(.dialog) {
+        display: none !important;
+    }
+</style>

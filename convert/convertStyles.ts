@@ -26,6 +26,7 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
         if (verbose) console.log('Converting: ', srcFile);
 
         let swapped = false;
+        const isDAB = file.startsWith('dab-');
 
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
@@ -35,6 +36,7 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
             tempStyles +
             lines
                 .map((line) => {
+                    // Check if RTL is applied for SAB content
                     if (line.indexOf('body {') === 0 && srcFile.includes('-app.css')) {
                         const m = line.match(/direction: (LTR|RTL);/);
                         if (m) {
@@ -45,6 +47,8 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                             swapped = m[1] === 'RTL';
                         }
                     }
+
+                    // Convert all RTL/LTR properties to logical properties for better layout support
                     if (swapped) {
                         line = line.replace('padding-right', 'padding-inline-start');
                         line = line.replace('padding-left', 'padding-inline-end');
@@ -64,6 +68,8 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                         line = line.replace('text-align: left', 'text-align: start');
                         line = line.replace('text-align: right', 'text-align: end');
                     }
+
+                    // Convert body to #container and handle margins for #content
                     if (line.indexOf('body {') === 0 && line.indexOf('margin-top') > 0) {
                         const parts = line.split('margin-top');
                         line = parts[0].replace('body', '#container') + '}\n';
@@ -71,8 +77,20 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                             '#content { padding-top' +
                             parts[1].replace('margin-bottom', 'padding-bottom');
                     }
+
+                    // All other body selectors become #container
                     if (line.indexOf('body') === 0) {
                         line = line.replace('body', '#container');
+                    }
+                    // For DAB files, ensure entry styling is applied correctly
+                    if (isDAB) {
+                        if (line.match(/\.body\.(about|settings|settings-list|message)/)) {
+                            line = line.replace(/\.body\.([a-zA-Z0-9_-]+)/, '.#container.$1');
+                        }
+
+                        if (line.includes('@font-face') && line.includes('url')) {
+                            line = line.replace(/url\(['"]?\/fonts\//, "url('/fonts/");
+                        }
                     }
                     if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
                         line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
