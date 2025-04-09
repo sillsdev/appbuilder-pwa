@@ -9,6 +9,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
+    import { SearchIcon } from '$lib/icons';
     import {
         currentReversalLettersStore,
         currentReversalWordsStore,
@@ -18,6 +19,7 @@
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
     import { onMount, tick } from 'svelte';
+    import { getRoute } from '$lib/navigate'; // Adjust the path based on your project structure
 
     const {
         vernacularAlphabet,
@@ -257,6 +259,19 @@
                 </div>
             </label>
         {/snippet}
+        {#snippet end()}
+                <div class="flex flex-nowrap">
+                    <div id="extraButtons">
+                        <!-- Search Button -->
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                            on:click={() => goto(getRoute(`/lexicon/search/`))}
+                        >
+                            <SearchIcon color="white" />
+                        </button>
+                    </div>
+                </div>
+            {/snippet}
     </Navbar>
 
     {#if !selectedWord}
