@@ -140,8 +140,8 @@
         const spans = document.querySelectorAll('.clickable');
 
         spans.forEach((span) => {
-        const oldSpan = span.cloneNode(true);
-        span.parentNode.replaceChild(oldSpan, span);
+            const oldSpan = span.cloneNode(true);
+            span.parentNode.replaceChild(oldSpan, span);
         });
 
         const freshSpans = document.querySelectorAll('.clickable');
