@@ -53,9 +53,10 @@
                     <p class="font-bold break-words">{word}</p>
                     <p class="text-md ml-4">
                         {#each vernacularWords as { name, homonymIndex }, i}
-                        {#if i > 0}, {/if}
-                        {name}{#if homonymIndex > 0}<sub>{homonymIndex}</sub>{/if}
-                    {/each}
+                            {#if i > 0},
+                            {/if}
+                            {name}{#if homonymIndex > 0}<sub>{homonymIndex}</sub>{/if}
+                        {/each}
                     </p>
                 </button>
             </li>
