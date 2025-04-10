@@ -5,23 +5,30 @@
     export let vernacularLanguage;
 </script>
 
-<div class="flex flex-wrap bg-[#e1bee8] p-2 mb-4">
+<div class="flex bg-[#e1bee8] w-full">
     <button
         on:click={() => onSwitchLanguage(vernacularLanguage)}
-        class="px-4 py-2 text-base font-bold text-black uppercase border-b-4 border-transparent cursor-pointer mr-2 mb-2 rounded-md hover:bg-gray-200 {selectedLanguage ===
+        class="py-2 px-6 font-bold text-black uppercase text-center relative {selectedLanguage ===
         vernacularLanguage
-            ? 'bg-[#bb9ac2] border-black'
+            ? 'bg-[#bb9ac2]'
             : ''}"
     >
         {vernacularLanguage}
+        {#if selectedLanguage === vernacularLanguage}
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
+        {/if}
     </button>
     <button
         on:click={() => onSwitchLanguage(reversalLanguage)}
-        class="px-4 py-2 text-base font-bold text-black uppercase border-b-4 border-transparent cursor-pointer mr-2 mb-2 rounded-md hover:bg-gray-200 {selectedLanguage ===
+        class="py-2 px-6 font-bold text-black uppercase text-center relative {selectedLanguage ===
         reversalLanguage
-            ? 'bg-[#bb9ac2] border-black'
+            ? 'bg-[#bb9ac2]'
             : ''}"
     >
         {reversalLanguage}
+        {#if selectedLanguage === reversalLanguage}
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
+        {/if}
     </button>
+    <div class="flex-1"></div>
 </div>
