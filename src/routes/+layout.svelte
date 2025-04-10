@@ -110,7 +110,7 @@
         <div
             id="container"
             data-color-theme={$theme}
-            style="height:100vh;height:100dvh;"
+            style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
         >
             <slot />
