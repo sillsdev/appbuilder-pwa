@@ -1,6 +1,6 @@
 <script>
     import { expoInOut } from 'svelte/easing';
-    import { slide, fly } from 'svelte/transition';
+    import { fly, slide } from 'svelte/transition';
 
     export let reversalLanguage;
     export let selectedLanguage;
@@ -20,7 +20,7 @@
         {vernacularLanguage}
         {#if selectedLanguage === vernacularLanguage}
             <div
-                transition:fly="{{ axis: 'x', easing: expoInOut, x: 70 }}"
+                transition:fly={{ axis: 'x', easing: expoInOut, x: 70 }}
                 class="absolute bottom-0 left-0 w-full h-1 bg-black"
             ></div>
         {/if}
@@ -36,7 +36,7 @@
         {reversalLanguage}
         {#if selectedLanguage === reversalLanguage}
             <div
-                transition:fly="{{ axis: 'x', easing: expoInOut, x: -70 }}"
+                transition:fly={{ axis: 'x', easing: expoInOut, x: -70 }}
                 class="absolute bottom-0 left-0 w-full h-1 bg-black"
             ></div>
         {/if}
