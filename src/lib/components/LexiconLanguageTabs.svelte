@@ -3,25 +3,29 @@
     export let selectedLanguage;
     export let onSwitchLanguage;
     export let vernacularLanguage;
+    
 </script>
 
-<div class="flex flex-wrap bg-[#e1bee8] p-2 mb-4">
+<div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
     <button
         on:click={() => onSwitchLanguage(vernacularLanguage)}
-        class="px-4 py-2 text-base font-bold text-black uppercase border-b-4 border-transparent cursor-pointer mr-2 mb-2 rounded-md hover:bg-gray-200 {selectedLanguage ===
-        vernacularLanguage
-            ? 'bg-[#bb9ac2] border-black'
-            : ''}"
+        class="py-2 px-6 font-bold text-black uppercase text-center relative"
+        style="{selectedLanguage === vernacularLanguage ? 'background-color: var(--TitleBackgroundColor);' : ''}"
     >
         {vernacularLanguage}
+        {#if selectedLanguage === vernacularLanguage}
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
+        {/if}
     </button>
     <button
         on:click={() => onSwitchLanguage(reversalLanguage)}
-        class="px-4 py-2 text-base font-bold text-black uppercase border-b-4 border-transparent cursor-pointer mr-2 mb-2 rounded-md hover:bg-gray-200 {selectedLanguage ===
-        reversalLanguage
-            ? 'bg-[#bb9ac2] border-black'
-            : ''}"
+        class="py-2 px-6 font-bold text-black uppercase text-center relative"
+        style="{selectedLanguage === reversalLanguage ? 'background-color: var(--TitleBackgroundColor);' : ''}"
     >
         {reversalLanguage}
+        {#if selectedLanguage === reversalLanguage}
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
+        {/if}
     </button>
+    <div class="flex-1"></div>
 </div>
