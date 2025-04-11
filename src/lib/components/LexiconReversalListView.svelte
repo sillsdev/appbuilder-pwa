@@ -6,13 +6,13 @@
     export let selectWord;
 </script>
 
-<ul class="space-y-2">
+<ul class="space-y-3">
     {#if selectedLanguage === vernacularLanguage}
         {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary, letter }}
-            <li class="cursor-pointer text-lg" id="letter-{letter}">
+            <li class="cursor-pointer text-lg mb-3" id="letter-{letter}">
                 <button
                     type="button"
-                    class="w-full text-left"
+                    class="w-full text-left py-1"
                     aria-label={`Select word ${name}`}
                     on:click={() => selectWord({ word: name, index: id })}
                     on:keydown={(event) => {
@@ -37,10 +37,10 @@
         {/each}
     {:else}
         {#each reversalWordsList as { word, indexes, vernacularWords, letter }}
-            <li class="cursor-pointer text-lg mb-6" id="letter-{letter}">
+            <li class="cursor-pointer text-lg mb-3" id="letter-{letter}">
                 <button
                     type="button"
-                    class="w-full text-left"
+                    class="w-full text-left py-1"
                     aria-label={`Select word ${word}`}
                     on:click={() => selectWord({ word, indexes })}
                     on:keydown={(event) => {
