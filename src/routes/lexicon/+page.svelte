@@ -293,7 +293,7 @@
                 />
             </div>
         {:else}
-            <div class="p-4">
+            <div class="px-4 pt-1">
                 <LexiconReversalListView
                     {selectedLanguage}
                     {vernacularLanguage}
