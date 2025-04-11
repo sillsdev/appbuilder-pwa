@@ -116,29 +116,35 @@
 </div> -->
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
-    <div class="navbar">
-        <Navbar>
-            {#snippet start()}
-            <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
-                    Search
+    <Navbar>
+        {#snippet start()}
+        <label for="sidebar" class="navbar">
+            <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                Search
+            </div>
+        </label>
+    {/snippet}
+    {#snippet end()}
+            <div class="flex flex-nowrap">
+                <div id="extraButtons">
+                    <button
+                        class="dy-btn dy-btn-ghost dy-btn-circle"
+                        on:click={() => goto(getRoute(`/lexicon/search/`))}
+                    >
+                        <SearchIcon color="white" />
+                    </button>
                 </div>
-            </label>
+            </div>
         {/snippet}
-        {#snippet end()}
-                <div class="flex flex-nowrap">
-                    <div id="extraButtons">
-                        <button
-                            class="dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={() => goto(getRoute(`/lexicon/search/`))}
-                        >
-                            <SearchIcon color="white" />
-                        </button>
-                    </div>
-                </div>
-            {/snippet}
-        </Navbar>
+    </Navbar>
+    <div class="h-full">
+
+    <div class="flex bg-[#e1bee8] w-full">
+        <div class="py-2 px-6 font-bold text-black text-center relative text-sm flex items-center justify-center w-full h-full">
+            Search
+        </div>
     </div>
+
 
     <div class="overflow-auto" bind:this={scrollDiv}>
         <div class="flex justify-center">
@@ -159,4 +165,5 @@
             />
         </div>
     </div>
+</div>
 </div>
