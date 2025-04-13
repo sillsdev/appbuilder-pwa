@@ -178,4 +178,4 @@
     });
 </script>
 
-<pre class="whitespace-pre-wrap break-words">{@html xmlData}</pre>
+<pre class="p-4 whitespace-pre-wrap break-words">{@html xmlData}</pre>
