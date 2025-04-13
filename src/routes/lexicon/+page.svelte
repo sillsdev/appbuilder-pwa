@@ -177,7 +177,6 @@
         }
     }
 
-
     async function handleLetterChange(letter) {
         selectedLetter = letter;
         if (selectedLanguage === reversalLanguage) {
@@ -266,19 +265,17 @@
         {/snippet}
     </Navbar>
 
-    <div class="flex-none">
-        {#if !selectedWord}
-            <LexiconReversalView
-                alphabet={currentAlphabet}
-                {selectedLanguage}
-                {vernacularLanguage}
-                {reversalLanguage}
-                {selectedLetter}
-                onSwitchLanguage={switchLanguage}
-                onLetterChange={handleLetterChange}
-            />
-        {/if}
-    </div>
+    {#if !selectedWord}
+        <LexiconReversalView
+            alphabet={currentAlphabet}
+            {selectedLanguage}
+            {vernacularLanguage}
+            {reversalLanguage}
+            {selectedLetter}
+            onSwitchLanguage={switchLanguage}
+            onLetterChange={handleLetterChange}
+        />
+    {/if}
 
     <div
         class="flex-1 overflow-y-auto bg-base-100"
