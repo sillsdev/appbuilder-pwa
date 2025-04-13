@@ -84,7 +84,7 @@
     }
 </script>
 
-<div class="flex items-center justify-between bg-[#e1bee8] p-2">
+<div class="flex items-center justify-between bg-[#e1bee8] p-2 sticky top-0 z-10">
     <button
         class="flex items-center justify-center w-10 h-10 text-gray-700 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
         on:click={goToPrevious}

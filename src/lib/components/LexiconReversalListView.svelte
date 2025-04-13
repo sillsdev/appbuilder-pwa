@@ -6,10 +6,10 @@
     export let selectWord;
 </script>
 
-<ul class="space-y-3">
+    <ul class="space-y-3 px-4 pb-4">
     {#if selectedLanguage === vernacularLanguage}
         {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary, letter }}
-            <li class="cursor-pointer text-lg mb-3" id="letter-{letter}">
+            <li class="cursor-pointer text-lg mb-3 scroll-mt-16" id="letter-{letter}">
                 <button
                     type="button"
                     class="w-full text-left py-1"
