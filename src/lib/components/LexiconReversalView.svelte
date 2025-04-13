@@ -45,6 +45,6 @@
         {onSwitchLanguage}
         {vernacularLanguage}
     />
-
+    
     <AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
 </div>
