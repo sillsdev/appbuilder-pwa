@@ -16,7 +16,7 @@
         selectedReversalLanguageStore,
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
     const {
         vernacularAlphabet,
@@ -38,6 +38,7 @@
     let reversalWordsList;
     let vernacularWordsList;
     let selectedLanguage = vernacularLanguage;
+    let scrollContainer;
 
     // Subscribe to stores
     currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
@@ -161,14 +162,21 @@
         selectedWord = selectedWord && selectedWord.word === word ? null : word;
     }
 
-    function scrollToLetter(letter) {
-        setTimeout(() => {
-            const letterElement = document.getElementById(`letter-${letter}`);
-            if (letterElement) {
-                letterElement.scrollIntoView({ behavior: 'smooth' });
-            }
-        }, 100);
+    async function scrollToLetter(letter) {
+        await tick();
+        const target = document.getElementById(`letter-${letter}`);
+        if (target && scrollContainer) {
+            const containerTop = scrollContainer.getBoundingClientRect().top;
+            const targetTop = target.getBoundingClientRect().top;
+            const offset = targetTop - containerTop + scrollContainer.scrollTop;
+
+            scrollContainer.scrollTo({
+                top: offset,
+                behavior: 'smooth'
+            });
+        }
     }
+
 
     async function handleLetterChange(letter) {
         selectedLetter = letter;
@@ -272,36 +280,34 @@
         {/if}
     </div>
 
-    <div class="flex-1 overflow-y-auto bg-base-100" on:scroll={checkIfScrolledToBottom}>
+    <div
+        class="flex-1 overflow-y-auto bg-base-100"
+        bind:this={scrollContainer}
+        on:scroll={checkIfScrolledToBottom}
+    >
         {#if selectedWord}
-            <div class="sticky top-0 z-10">
-                <WordNavigationStrip
-                    currentWord={selectedWord}
-                    wordsList={selectedLanguage === vernacularLanguage
-                        ? vernacularWordsList
-                        : reversalWordsList}
-                    onSelectWord={selectWord}
-                />
-            </div>
-            <div class="p-4">
-                <LexiconXmlView
-                    {selectedWord}
-                    {vernacularWordsList}
-                    {vernacularLanguage}
-                    onSwitchLanguage={switchLanguage}
-                    onSelectWord={selectWord}
-                />
-            </div>
+            <WordNavigationStrip
+                currentWord={selectedWord}
+                wordsList={selectedLanguage === vernacularLanguage
+                    ? vernacularWordsList
+                    : reversalWordsList}
+                onSelectWord={selectWord}
+            />
+            <LexiconXmlView
+                {selectedWord}
+                {vernacularWordsList}
+                {vernacularLanguage}
+                onSwitchLanguage={switchLanguage}
+                onSelectWord={selectWord}
+            />
         {:else}
-            <div class="px-4 pt-1">
-                <LexiconReversalListView
-                    {selectedLanguage}
-                    {vernacularLanguage}
-                    {vernacularWordsList}
-                    {reversalWordsList}
-                    {selectWord}
-                />
-            </div>
+            <LexiconReversalListView
+                {selectedLanguage}
+                {vernacularLanguage}
+                {vernacularWordsList}
+                {reversalWordsList}
+                {selectWord}
+            />
         {/if}
     </div>
 </div>
