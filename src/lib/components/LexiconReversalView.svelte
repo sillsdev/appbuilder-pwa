@@ -47,4 +47,9 @@
     />
 
     <AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
+    {#if loading}
+        <div class="flex justify-center p-4">
+            <div class="loading loading-spinner"></div>
+        </div>
+    {/if}
 </div>

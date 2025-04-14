@@ -57,6 +57,13 @@
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
 
+        // Check if parsing failed
+        const parseError = xmlDoc.querySelector('parsererror');
+        if (parseError) {
+            console.error('XML parsing error:', parseError.textContent);
+            return `<span class="text-error">Error parsing XML: Invalid format</span>`;
+        }
+
         function processNode(node, parentHasSenseNumber = false) {
             let output = '';
 
