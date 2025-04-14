@@ -22,6 +22,20 @@
         }
 
         loading = true;
+
+        try {
+            const response = await fetch(`/api/reversal-data?letter=${letter}`);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch reversal data');
+            }
+
+            reversalData = await response.json();
+        } catch (error) {
+            console.error('Error loading reversal data:', error);
+        } finally {
+            loading = false;
+        }
     }
 
     async function handleLetterSelect(letter) {
