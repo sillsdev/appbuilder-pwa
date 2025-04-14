@@ -24,7 +24,7 @@
         loading = true;
 
         try {
-            const response = await fetch(`/api/reversal-data?letter=${letter}`);
+            const response = await fetch(`/api/reversal-data?letter=${encodeURIComponent(letter)}`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch reversal data');
