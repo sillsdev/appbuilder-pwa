@@ -139,7 +139,7 @@
     </Navbar>
     <div class="h-full">
 
-    <div class="flex bg-[#e1bee8] w-full">
+    <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
         <div class="py-2 px-6 font-bold text-black text-center relative text-sm flex items-center justify-center w-full h-full">
             Search
         </div>
