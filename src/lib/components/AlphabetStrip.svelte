@@ -10,10 +10,12 @@
     {#each alphabet as letter}
         <button
             class="px-3 py-2 text-sm font-bold border rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer snap-start
-            {activeLetter === letter ? 'bg-[#bb9ac2] border-black' : ''}
             sm:px-4 sm:py-3 sm:text-base
             md:px-5 md:py-4 md:text-base
             lg:px-6 lg:py-4 lg:text-lg"
+            style={activeLetter === letter
+                ? 'background-color: var(--TitleBackgroundColor); border-color: black;'
+                : ''}
             on:click={() => onLetterSelect(letter)}
         >
             {letter}
