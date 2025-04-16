@@ -49,6 +49,7 @@ export function convertReverseIndex(
         .filter(([gloss]) => gloss?.length > 0);
 
     const entriesByLetter: { [letter: string]: [string, string][] } = {};
+    const fileIndexByLetter: { [letter: string]: string[] } = {}; // New index for files by letter
 
     let latestLetter = makeEntryLetter(alphabet[0]);
     indexEntries.forEach((entry) => {
@@ -57,14 +58,17 @@ export function convertReverseIndex(
 
         const firstLetter = getBaseLetter(gloss, alphabet);
         const entryLetter = firstLetter ?? latestLetter;
+        const fileEntryLetter = entryLetter.toLowerCase();
         if (!entriesByLetter[entryLetter]) {
             entriesByLetter[entryLetter] = [];
+            fileIndexByLetter[fileEntryLetter] = []; // Initialize file index for the letter
         }
         entriesByLetter[entryLetter].push([entry[0], entry[1]]);
         latestLetter = entryLetter;
     });
 
     Object.entries(entriesByLetter).forEach(([letter, entries]) => {
+        const fileLetter = letter.toLowerCase();
         entries.sort(([a], [b]) => a.localeCompare(b, language));
 
         let currentChunk: { [key: string]: ReversalEntry[] } = {};
@@ -99,7 +103,7 @@ export function convertReverseIndex(
                 currentCount++;
 
                 if (currentCount >= ENTRIES_PER_CHUNK || i === entries.length - 1) {
-                    const chunkFileName = `${letter.toLowerCase()}-${String(chunkIndex + 1).padStart(3, '0')}.json`;
+                    const chunkFileName = `${fileLetter}-${String(chunkIndex + 1).padStart(3, '0')}.json`;
                     const chunkPath = path.join(outputDir, chunkFileName);
 
                     files.push({
@@ -107,12 +111,19 @@ export function convertReverseIndex(
                         content: JSON.stringify(currentChunk, null, 2)
                     });
 
+                    fileIndexByLetter[fileLetter].push(chunkFileName); // Add file to index
+
                     currentChunk = {};
                     currentCount = 0;
                     chunkIndex++;
                 }
             }
         }
+    });
+
+    files.push({
+        path: path.join(outputDir, 'index.json'),
+        content: JSON.stringify(fileIndexByLetter, null, 2) // Write the file index to index.json
     });
 
     return files;
