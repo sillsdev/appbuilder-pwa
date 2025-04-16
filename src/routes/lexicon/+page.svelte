@@ -41,11 +41,6 @@
     let selectedLanguage = vernacularLanguage;
     let scrollContainer;
 
-    // Track which letters have had all file numbers checked
-    let fullyCheckedLetters = new Set();
-    // Track which file numbers exist for each letter (e.g., {a: [1], b: [1,2]})
-    let availableFileNumbers = {};
-
     // Subscribe to stores
     currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
     currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
@@ -55,78 +50,14 @@
     });
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
-    // Pre-check which files exist for a given letter
-    async function checkAvailableFiles(letter) {
-        // If we've already checked all files for this letter, no need to check again
-        if (fullyCheckedLetters.has(letter)) {
-            return;
-        }
-
-        // Initialize if needed
-        if (!availableFileNumbers[letter]) {
-            availableFileNumbers[letter] = [];
-        }
-
-        // First file always worth checking
-        const file1Url = `${base}/reversal/${defaultReversalKey}/${letter}-001.json`;
-
-        try {
-            const response = await fetch(file1Url);
-
-            if (response.ok && !availableFileNumbers[letter].includes(1)) {
-                availableFileNumbers[letter].push(1);
-            }
-
-            if (response.ok) {
-                const file2Url = `${base}/reversal/${defaultReversalKey}/${letter}-002.json`;
-
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 1000);
-
-                    const response2 = await fetch(file2Url, {
-                        method: 'HEAD',
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeoutId);
-
-                    if (response2.ok && !availableFileNumbers[letter].includes(2)) {
-                        availableFileNumbers[letter].push(2);
-                    }
-                } catch (error) {
-                    // If the request was aborted or failed, file 2 doesn't exist
-                    console.log(`File ${file2Url} not available, will not attempt to load it`);
-                }
-            }
-
-            // Mark this letter as fully checked
-            fullyCheckedLetters.add(letter);
-        } catch (error) {
-            console.error(`Error checking files for letter ${letter}:`, error);
-
-            // Mark as checked anyway to prevent repeated attempts
-            fullyCheckedLetters.add(letter);
-        }
-
-        console.log(`Available files for letter ${letter}:`, availableFileNumbers[letter]);
-    }
-
     async function fetchWords(letter = selectedLetter) {
         if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
             console.log('Loading letter data:', letter);
 
-            // Check which files exist for this letter first
-            await checkAvailableFiles(letter);
-
-            // Load any previous letters that haven't been loaded yet
             const letterIndex = alphabets.reversal.indexOf(letter);
             const lettersToLoad = alphabets.reversal
                 .slice(0, letterIndex)
                 .filter((l) => !loadedReversalLetters.has(l));
-
-            // Check which files exist for each letter we need to load
-            await Promise.all(lettersToLoad.map(checkAvailableFiles));
 
             // Load all required letters in parallel
             await Promise.all(lettersToLoad.map(loadLetterData));
