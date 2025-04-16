@@ -326,8 +326,8 @@
     });
 </script>
 
-<!-- Rest of the component remains the same -->
-<div class="flex flex-col min-h-screen max-h-screen bg-base-100">
+<div class="grid grid-rows-[auto,1fr] fixed bg-base-100" style="height:100vh;height:100dvh;">
+    <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
     <Navbar>
         {#snippet center()}
             <label for="sidebar" class="navbar">
