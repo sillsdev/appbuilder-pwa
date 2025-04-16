@@ -71,18 +71,16 @@
         const file1Url = `${base}/reversal/${defaultReversalKey}/${letter}-001.json`;
 
         try {
-            const response = await fetch(file1Url, { method: 'HEAD' });
+            const response = await fetch(file1Url);
 
             if (response.ok && !availableFileNumbers[letter].includes(1)) {
                 availableFileNumbers[letter].push(1);
             }
 
-            // Only check for file 2 if file 1 exists (saves unnecessary requests)
             if (response.ok) {
                 const file2Url = `${base}/reversal/${defaultReversalKey}/${letter}-002.json`;
 
                 try {
-                    // Use a timeout to avoid hanging if the server is slow
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 1000);
 
