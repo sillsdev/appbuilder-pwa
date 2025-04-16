@@ -89,11 +89,15 @@
 
         while (moreFiles) {
             try {
-                const response = await fetch(
-                    `${base}/reversal/${defaultReversalKey}/${letter}-${String(fileIndex).padStart(3, '0')}.json`
-                );
-                if (response.ok) {
-                    const data = await response.json();
+                const fileUrl = `${base}/reversal/${defaultReversalKey}/${letter}-${String(fileIndex).padStart(3, '0')}.json`;
+                const response = await fetch(fileUrl, { method: 'HEAD' });
+                if (!response.ok) {
+                    moreFiles = false;
+                    break;
+                }
+                const dataResponse = await fetch(fileUrl);
+                if (dataResponse.ok) {
+                    const data = await dataResponse.json();
                     const currentFileWords = Object.entries(data).map(([word, entries]) => {
                         return {
                             word: word,
