@@ -3,7 +3,6 @@
     import LexiconLanguageTabs from './LexiconLanguageTabs.svelte';
 
     export let alphabet = [];
-    export let initialData = {};
     export let selectedLanguage;
     export let vernacularLanguage;
     export let reversalLanguage;
@@ -12,36 +11,10 @@
     export let onLetterChange;
 
     let currentLetter = alphabet[0];
-    let reversalData = initialData;
-    let loading = false;
-
-    async function loadReversalData(letter) {
-        if (letter === alphabet[0] && Object.keys(initialData).length > 0) {
-            reversalData = initialData;
-            return;
-        }
-
-        loading = true;
-
-        try {
-            const response = await fetch(`/api/reversal-data?letter=${encodeURIComponent(letter)}`);
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch reversal data');
-            }
-
-            reversalData = await response.json();
-        } catch (error) {
-            console.error('Error loading reversal data:', error);
-        } finally {
-            loading = false;
-        }
-    }
 
     async function handleLetterSelect(letter) {
         currentLetter = letter;
         onLetterChange(letter);
-        await loadReversalData(letter);
     }
 
     $: if (alphabet && alphabet.length > 0) {
@@ -61,9 +34,4 @@
     />
 
     <AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
-    {#if loading}
-        <div class="flex justify-center p-4">
-            <div class="loading loading-spinner"></div>
-        </div>
-    {/if}
 </div>
