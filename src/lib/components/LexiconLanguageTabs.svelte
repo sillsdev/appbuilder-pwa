@@ -8,7 +8,7 @@
     export let vernacularLanguage;
 </script>
 
-<div class="flex bg-[#e1bee8] w-full">
+<div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
     <div
         role="button"
         tabindex="0"
