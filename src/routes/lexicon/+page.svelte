@@ -24,6 +24,7 @@
         vernacularLanguage,
         reversalAlphabets,
         reversalLanguages,
+        reversalIndexes,
         dictionaryName
     } = page.data;
 
@@ -83,62 +84,51 @@
     }
 
     async function loadLetterData(letter) {
-        let fileIndex = 1;
-        let moreFiles = true;
         let newWords = [];
 
-        while (moreFiles) {
-            try {
-                const fileUrl = `${base}/reversal/${defaultReversalKey}/${letter}-${String(fileIndex).padStart(3, '0')}.json`;
-
-                // Direct fetch without HEAD request
-                const dataResponse = await fetch(fileUrl);
-                if (dataResponse.ok) {
-                    const data = await dataResponse.json();
-                    const currentFileWords = Object.entries(data).map(([word, entries]) => {
-                        return {
-                            word: word,
-                            indexes: entries.map((entry) => entry.index),
-                            vernacularWords: entries
-                                .map((entry) => {
-                                    const foundWord = vernacularWordsList.find(
-                                        (vw) => vw.id === entry.index
+        const index = reversalIndexes[defaultReversalKey];
+        const files = index[letter] || [];
+        for (const file of files) {
+            const reversalFile = `${base}/reversal/${defaultReversalKey}/${file}`;
+            const response = await fetch(reversalFile);
+            if (response.ok) {
+                const data = await response.json();
+                const currentFileWords = Object.entries(data).map(([word, entries]) => {
+                    return {
+                        word: word,
+                        indexes: entries.map((entry) => entry.index),
+                        vernacularWords: entries
+                            .map((entry) => {
+                                const foundWord = vernacularWordsList.find(
+                                    (vw) => vw.id === entry.index
+                                );
+                                if (foundWord) {
+                                    return {
+                                        name: foundWord.name,
+                                        homonymIndex: foundWord.homonym_index || 0
+                                    };
+                                } else {
+                                    console.log(
+                                        `Index ${entry.index} not found in vernacularWordsList`
                                     );
-                                    if (foundWord) {
-                                        return {
-                                            name: foundWord.name,
-                                            homonymIndex: foundWord.homonym_index || 0
-                                        };
-                                    } else {
-                                        console.log(
-                                            `Index ${entry.index} not found in vernacularWordsList`
-                                        );
-                                        return null; // Return null for missing indexes
-                                    }
-                                })
-                                .filter((index) => index !== null), // Filter out null values
-                            letter: letter
-                        };
-                    });
+                                    return null; // Return null for missing indexes
+                                }
+                            })
+                            .filter((index) => index !== null), // Filter out null values
+                        letter: letter
+                    };
+                });
 
-                    currentFileWords.forEach((newWord) => {
-                        const existingWord = newWords.find((w) => w.word === newWord.word);
-                        if (existingWord) {
-                            existingWord.indexes = [
-                                ...new Set([...existingWord.indexes, ...newWord.indexes])
-                            ];
-                        } else {
-                            newWords.push(newWord);
-                        }
-                    });
-
-                    fileIndex++;
-                } else {
-                    moreFiles = false;
-                }
-            } catch (error) {
-                console.error('Error loading word data:', error);
-                moreFiles = false;
+                currentFileWords.forEach((newWord) => {
+                    const existingWord = newWords.find((w) => w.word === newWord.word);
+                    if (existingWord) {
+                        existingWord.indexes = [
+                            ...new Set([...existingWord.indexes, ...newWord.indexes])
+                        ];
+                    } else {
+                        newWords.push(newWord);
+                    }
+                });
             }
         }
 
