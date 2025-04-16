@@ -25,13 +25,11 @@
     }
 </script>
 
-<div class="flex flex-col flex-none">
-    <LexiconLanguageTabs
-        {reversalLanguage}
-        {selectedLanguage}
-        {onSwitchLanguage}
-        {vernacularLanguage}
-    />
+<LexiconLanguageTabs
+    {reversalLanguage}
+    {selectedLanguage}
+    {onSwitchLanguage}
+    {vernacularLanguage}
+/>
 
-    <AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
-</div>
+<AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
