@@ -92,6 +92,9 @@
                 const fileUrl = `${base}/reversal/${defaultReversalKey}/${letter}-${String(fileIndex).padStart(3, '0')}.json`;
                 const response = await fetch(fileUrl, { method: 'HEAD' });
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        console.log(`File not found: ${fileUrl}`);
+                    }
                     moreFiles = false;
                     break;
                 }
@@ -259,7 +262,8 @@
     });
 </script>
 
-<div class="flex flex-col min-h-screen max-h-screen bg-base-100">
+<div class="grid grid-rows-[auto,1fr] fixed bg-base-100" style="height:100vh;height:100dvh;">
+    <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
     <Navbar>
         {#snippet center()}
             <label for="sidebar" class="navbar">
