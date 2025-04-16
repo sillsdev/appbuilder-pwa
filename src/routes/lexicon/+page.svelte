@@ -4,6 +4,7 @@
     import { page } from '$app/state';
     import LexiconReversalListView from '$lib/components/LexiconReversalListView.svelte';
     import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
+    import LexiconVernacularListView from '$lib/components/LexiconVernacularListView.svelte';
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
@@ -297,14 +298,10 @@
                 onSwitchLanguage={switchLanguage}
                 onSelectWord={selectWord}
             />
+        {:else if selectedLanguage === vernacularLanguage}
+            <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
         {:else}
-            <LexiconReversalListView
-                {selectedLanguage}
-                {vernacularLanguage}
-                {vernacularWordsList}
-                {reversalWordsList}
-                {selectWord}
-            />
+            <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
         {/if}
     </div>
 </div>
