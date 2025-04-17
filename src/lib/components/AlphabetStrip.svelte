@@ -5,7 +5,7 @@
 </script>
 
 <div
-    class="flex m-2 gap-1 md:gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-2 snap-x"
+    class="flex m-2 gap-1 md:gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-2 snap-x min-w-[100vw]"
 >
     {#each alphabet as letter}
         <button
