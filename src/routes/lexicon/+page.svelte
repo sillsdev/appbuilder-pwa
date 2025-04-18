@@ -247,7 +247,7 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr] fixed bg-base-100" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto,1fr] bg-base-100" style="height:100vh;height:100dvh;">
     <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
     <Navbar>
         {#snippet center()}
