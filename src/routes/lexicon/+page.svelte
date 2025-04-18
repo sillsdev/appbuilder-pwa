@@ -2,8 +2,8 @@
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/state';
+    import LexiconListViewHeader from '$lib/components/LexiconListViewHeader.svelte';
     import LexiconReversalListView from '$lib/components/LexiconReversalListView.svelte';
-    import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import LexiconVernacularListView from '$lib/components/LexiconVernacularListView.svelte';
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -260,7 +260,7 @@
     </Navbar>
 
     {#if !selectedWord}
-        <LexiconReversalView
+        <LexiconListViewHeader
             alphabet={currentAlphabet}
             {selectedLanguage}
             {vernacularLanguage}
