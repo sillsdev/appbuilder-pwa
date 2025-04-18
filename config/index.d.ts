@@ -285,4 +285,11 @@ export type DictionaryConfig = AppConfig & {
             displayed: boolean;
         };
     };
+    singleEntryStyles?: {
+        name: string;
+        category?: string;
+        properties: {
+            [key: string]: string;
+        };
+    }[];
 };
