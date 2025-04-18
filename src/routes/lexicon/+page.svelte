@@ -1,12 +1,13 @@
 <script>
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
+    import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
+    import LexiconListViewHeader from '$lib/components/LexiconListViewHeader.svelte';
     import LexiconReversalListView from '$lib/components/LexiconReversalListView.svelte';
-    import LexiconReversalView from '$lib/components/LexiconReversalView.svelte';
     import LexiconVernacularListView from '$lib/components/LexiconVernacularListView.svelte';
-    import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
     import {
@@ -14,16 +15,19 @@
         currentReversalWordsStore,
         reversalLettersStore,
         reversalWordsStore,
-        selectedLanguageStore,
-        vernacularLanguageStore,
+        selectedReversalLanguageStore,
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
-    import { SearchIcon } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
-    const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } =
-        $page.data;
+    const {
+        vernacularAlphabet,
+        vernacularLanguage,
+        reversalAlphabets,
+        reversalLanguages,
+        reversalIndexes,
+        dictionaryName
+    } = page.data;
 
     const alphabets = {
         reversal: Object.values(reversalAlphabets[0])[0],
@@ -32,27 +36,20 @@
 
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
-    $: showBackButton = selectedWord ? true : false;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let loadedReversalLetters = new Set();
     let reversalWordsList;
     let vernacularWordsList;
-    let vernacularLanguage;
+    let selectedLanguage = vernacularLanguage;
     let scrollContainer;
-    let wordIds;
-    let selectedLanguage;
 
     // Subscribe to stores
     currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
     currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
-    vernacularLanguageStore.subscribe((value) => (vernacularLanguage = value));
     vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
-
-    selectedLanguageStore.subscribe((value) => {
-        selectedLanguage = value;
+    selectedReversalLanguageStore.subscribe((value) => {
+        selectedLanguage = value || vernacularLanguage;
     });
-    selectedLanguageStore.set(vernacularLanguage);
-
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function fetchWords(letter = selectedLetter) {
@@ -157,7 +154,6 @@
 
     function selectWord(word) {
         selectedWord = selectedWord && selectedWord.word === word ? null : word;
-        wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
     }
 
     async function scrollToLetter(letter) {
@@ -184,7 +180,8 @@
     }
 
     function switchLanguage(language) {
-        selectedLanguageStore.set(language);
+        selectedReversalLanguageStore.set(language);
+        selectedLanguage = language;
         selectedLetter = currentAlphabet[0];
         if (selectedLanguage != vernacularLanguage) {
             fetchWords();
@@ -251,39 +248,20 @@
     });
 </script>
 
-<div
-    class="grid fixed bg-base-100"
-    class:grid-rows-[auto,auto,1fr]={selectedWord}
-    class:grid-rows-[auto,1fr]={!selectedWord}
-    style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
->
-    <Navbar {showBackButton}>
-        {#snippet start()}
+<div class="grid grid-rows-[auto,1fr] bg-base-100" style="height:100vh;height:100dvh;">
+    <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
+    <Navbar>
+        {#snippet center()}
             <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
-                    {config.name}
+                <div class="btn btn-ghost normal-case text-xl text-white font-bold">
+                    {dictionaryName}
                 </div>
             </label>
-        {/snippet}
-        {#snippet end()}
-            <div class="flex flex-nowrap">
-                <div id="extraButtons" class:pr-4={!selectedWord}>
-                    <button
-                        class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => {
-                            wordIds = null;
-                            goto(getRoute(`/lexicon/search`));
-                        }}
-                    >
-                        <SearchIcon color="white" />
-                    </button>
-                </div>
-            </div>
         {/snippet}
     </Navbar>
 
     {#if !selectedWord}
-        <LexiconReversalView
+        <LexiconListViewHeader
             alphabet={currentAlphabet}
             {selectedLanguage}
             {vernacularLanguage}
@@ -294,37 +272,30 @@
         />
     {/if}
 
-    {#if selectedWord}
-        {#if !showBackButton}
-            {(showBackButton = true)}
-        {/if}
-        <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
-        <div
-            id="container"
-            class="flex-1 overflow-y-auto bg-base-100 width-full"
-            style="background-color: var(--BackgroundColor);"
-            bind:this={scrollContainer}
-            on:scroll={checkIfScrolledToBottom}
-        >
-            <LexiconXmlView {wordIds} onSelectWord={selectWord} />
-        </div>
-    {:else if selectedLanguage === vernacularLanguage}
-        <div
-            id="container"
-            class="flex-1 overflow-y-auto bg-base-100 width-full"
-            bind:this={scrollContainer}
-            on:scroll={checkIfScrolledToBottom}
-        >
+    <div
+        class="flex-1 overflow-y-auto bg-base-100"
+        bind:this={scrollContainer}
+        on:scroll={checkIfScrolledToBottom}
+    >
+        {#if selectedWord}
+            <WordNavigationStrip
+                currentWord={selectedWord}
+                wordsList={selectedLanguage === vernacularLanguage
+                    ? vernacularWordsList
+                    : reversalWordsList}
+                onSelectWord={selectWord}
+            />
+            <LexiconEntryView
+                {selectedWord}
+                {vernacularWordsList}
+                {vernacularLanguage}
+                onSwitchLanguage={switchLanguage}
+                onSelectWord={selectWord}
+            />
+        {:else if selectedLanguage === vernacularLanguage}
             <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
-        </div>
-    {:else}
-        <div
-            id="container"
-            class="flex-1 overflow-y-auto bg-base-100 width-full"
-            bind:this={scrollContainer}
-            on:scroll={checkIfScrolledToBottom}
-        >
+        {:else}
             <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
-        </div>
-    {/if}
+        {/if}
+    </div>
 </div>

@@ -1,4 +1,5 @@
 <script>
+<<<<<<< HEAD
     import {
         currentReversalWordsStore,
         selectedLanguageStore,
@@ -21,6 +22,17 @@
         wordsList = get(currentReversalWordsStore);
     }
 
+=======
+    // Current word being displayed
+    export let currentWord;
+
+    // List of all words (should come from either vernacularWordsList or reversalWordsList)
+    export let wordsList = [];
+
+    // Function to handle word selection from parent component
+    export let onSelectWord;
+
+>>>>>>> 0868371 (Display Lexicon Views)
     // Compute the index of the current word in the list
     $: currentIndex = wordsList.findIndex((word) => {
         // Handle both vernacular and reversal word structures

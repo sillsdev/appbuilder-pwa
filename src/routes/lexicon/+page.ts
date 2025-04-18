@@ -1,11 +1,7 @@
 import { base } from '$app/paths';
 import type { DictionaryConfig } from '$config';
 import config from '$lib/data/config';
-import {
-    initializeDatabase,
-    vernacularLanguageStore,
-    vernacularWordsStore
-} from '$lib/data/stores/lexicon';
+import { initializeDatabase, vernacularWordsStore } from '$lib/data/stores/lexicon';
 import type { ReversalIndex } from '$lib/lexicon';
 
 export async function load({ fetch }) {
@@ -51,12 +47,17 @@ export async function load({ fetch }) {
         }
     }
 
+    const dictionaryName = config.name;
+
     let db = await initializeDatabase({ fetch });
     let results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
 
     if (!results || results.length === 0) {
         throw new Error('Vernacular query error');
     }
+
+    const result = results[0];
+    console.log(result);
 
     let vernacularWordsList = [];
     if (results[0]) {
@@ -91,14 +92,15 @@ export async function load({ fetch }) {
             entry.letter = firstLetter;
             return entry;
         });
-        vernacularLanguageStore.set(vernacularLanguage);
         vernacularWordsStore.set(vernacularWordsList);
     }
 
     return {
         vernacularAlphabet,
+        vernacularLanguage,
         reversalAlphabets,
         reversalLanguages,
-        reversalIndexes
+        reversalIndexes,
+        dictionaryName
     };
 }
