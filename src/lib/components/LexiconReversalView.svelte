@@ -1,5 +1,5 @@
 <script>
-    import AlphabetStrip from './AlphabetStrip.svelte';
+    import LexiconAlphabetStrip from './LexiconAlphabetStrip.svelte';
     import LexiconLanguageTabs from './LexiconLanguageTabs.svelte';
 
     export let alphabet = [];
@@ -32,4 +32,4 @@
     {vernacularLanguage}
 />
 
-<AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
+<LexiconAlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
