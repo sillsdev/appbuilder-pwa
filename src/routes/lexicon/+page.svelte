@@ -2,10 +2,10 @@
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/state';
+    import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
     import LexiconListViewHeader from '$lib/components/LexiconListViewHeader.svelte';
     import LexiconReversalListView from '$lib/components/LexiconReversalListView.svelte';
     import LexiconVernacularListView from '$lib/components/LexiconVernacularListView.svelte';
-    import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
@@ -284,7 +284,7 @@
                     : reversalWordsList}
                 onSelectWord={selectWord}
             />
-            <LexiconXmlView
+            <LexiconEntryView
                 {selectedWord}
                 {vernacularWordsList}
                 {vernacularLanguage}
