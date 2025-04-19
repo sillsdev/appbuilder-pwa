@@ -13,7 +13,7 @@
     import SearchResultCard from './SearchResultCard.svelte';
 
     export let collection: string;
-    export let results: SearchResult[];
+    export let results: SearchResult[] | any[]; // Allow for dictionary-specific result format
     export let queryDone: boolean;
     export let restore: boolean;
 
@@ -23,7 +23,7 @@
     $: showSpinner = !queryDone && results.length === 0;
 
     let displayQueryId = queryId;
-    let resultsShown: SearchResult[] = [];
+    let resultsShown: any[] = [];
 
     $: clearResults(queryId);
     $: results, onResults();
@@ -132,7 +132,11 @@
         <span class="spin"></span>
     {:else}
         {#each resultsShown as result}
-            <SearchResultCard {result} {collection} docSet={result.reference.docSet} />
+            <SearchResultCard
+                {result}
+                {collection}
+                docSet={result.reference ? result.reference.docSet : null}
+            />
         {/each}
         <div class="py-4"></div>
     {/if}
@@ -146,7 +150,7 @@
         style:background-color={$themeColors.BackgroundColor}
     >
         <span class="mx-4">
-            {#if !queryDone}
+            {#if !queryDone}a
                 <bdi>{$t['Search_Searching']}</bdi>
             {/if}
         </span>
