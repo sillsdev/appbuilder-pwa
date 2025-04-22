@@ -1,45 +1,36 @@
 <script>
-    import { expoInOut } from 'svelte/easing';
-    import { fly } from 'svelte/transition';
-
-    export let reversalLanguages = [];
+    export let reversalLanguages = []; //array
     export let selectedLanguage;
     export let onSwitchLanguage;
     export let vernacularLanguage;
 </script>
 
-<div class="flex bg-[#e1bee8] w-full">
+<div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
     <button
         on:click={() => onSwitchLanguage(vernacularLanguage)}
-        class="py-2 px-6 font-bold text-black uppercase text-center relative {selectedLanguage ===
-        vernacularLanguage
-            ? 'bg-[#bb9ac2]'
-            : ''}"
+        class="py-2 px-6 font-bold text-black uppercase text-center relative"
+        style="{selectedLanguage === vernacularLanguage ? 'background-color: var(--TitleBackgroundColor);' : ''}"
     >
         {vernacularLanguage}
         {#if selectedLanguage === vernacularLanguage}
             <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
         {/if}
-</button>
-    
-    {#each reversalLanguages as lang (lang)}
-        <div
-            role="button"
-            tabindex="0"
-            aria-pressed={selectedLanguage === lang}
+    </button>
+
+    {#each reversalLanguages as lang}
+        <button
             on:click={() => onSwitchLanguage(lang)}
-            on:keydown={(e) => e.key === 'Enter' && onSwitchLanguage(lang)}
-            class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
+            class="py-2 px-6 font-bold text-black uppercase text-center relative"
+            style="{selectedLanguage === lang ? 'background-color: var(--TitleBackgroundColor);' : ''}"
         >
             {lang}
             {#if selectedLanguage === lang}
-                <div
-                    transition:fly={{ axis: 'x', easing: expoInOut, x: -70 }}
-                    class="absolute -bottom-1 left-0 w-full h-1 bg-black"
-                ></div>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
             {/if}
-        </div>
+        </button>
     {/each}
 
     <div class="flex-1"></div>
 </div>
+
+

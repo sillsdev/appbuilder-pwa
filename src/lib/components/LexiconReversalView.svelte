@@ -6,7 +6,7 @@
     export let initialData = {};
     export let selectedLanguage;
     export let vernacularLanguage;
-    export let reversalLanguages = ['a','b'];
+    export let reversalLanguages = [];
     export let selectedLetter;
     export let onSwitchLanguage;
     export let onLetterChange;
@@ -16,11 +16,14 @@
     let loading = false;
 
     async function loadReversalData(letter) {
-        if (letter === alphabet[0] && Object.keys(initialData).length > 0) {
+        if (
+            letter === alphabet[0] &&
+            Object.keys(initialData).length > 0 &&
+            selectedLanguage === vernacularLanguage
+        ) {
             reversalData = initialData;
             return;
         }
-
         loading = true;
     }
 
@@ -33,6 +36,7 @@
     $: if (alphabet && alphabet.length > 0) {
         currentLetter = alphabet[0];
     }
+
     $: if (selectedLetter !== currentLetter) {
         currentLetter = selectedLetter;
     }
@@ -46,5 +50,9 @@
         {vernacularLanguage}
     />
 
-    <AlphabetStrip {alphabet} activeLetter={currentLetter} onLetterSelect={handleLetterSelect} />
+    <AlphabetStrip
+        {alphabet}
+        activeLetter={currentLetter}
+        onLetterSelect={handleLetterSelect}
+    />
 </div>
