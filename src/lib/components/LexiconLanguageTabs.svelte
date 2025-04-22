@@ -1,5 +1,8 @@
 <script>
-    export let reversalLanguage;
+    import { expoInOut } from 'svelte/easing';
+    import { fly } from 'svelte/transition';
+
+    export let reversalLanguages = [];
     export let selectedLanguage;
     export let onSwitchLanguage;
     export let vernacularLanguage;
@@ -17,18 +20,26 @@
         {#if selectedLanguage === vernacularLanguage}
             <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
         {/if}
-    </button>
-    <button
-        on:click={() => onSwitchLanguage(reversalLanguage)}
-        class="py-2 px-6 font-bold text-black uppercase text-center relative {selectedLanguage ===
-        reversalLanguage
-            ? 'bg-[#bb9ac2]'
-            : ''}"
-    >
-        {reversalLanguage}
-        {#if selectedLanguage === reversalLanguage}
-            <div class="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
-        {/if}
-    </button>
+</button>
+    
+    {#each reversalLanguages as lang (lang)}
+        <div
+            role="button"
+            tabindex="0"
+            aria-pressed={selectedLanguage === lang}
+            on:click={() => onSwitchLanguage(lang)}
+            on:keydown={(e) => e.key === 'Enter' && onSwitchLanguage(lang)}
+            class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
+        >
+            {lang}
+            {#if selectedLanguage === lang}
+                <div
+                    transition:fly={{ axis: 'x', easing: expoInOut, x: -70 }}
+                    class="absolute -bottom-1 left-0 w-full h-1 bg-black"
+                ></div>
+            {/if}
+        </div>
+    {/each}
+
     <div class="flex-1"></div>
 </div>

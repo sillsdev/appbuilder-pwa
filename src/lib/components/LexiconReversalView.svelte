@@ -6,7 +6,7 @@
     export let initialData = {};
     export let selectedLanguage;
     export let vernacularLanguage;
-    export let reversalLanguage;
+    export let reversalLanguages = ['a','b'];
     export let selectedLetter;
     export let onSwitchLanguage;
     export let onLetterChange;
@@ -40,7 +40,7 @@
 
 <div class="flex flex-col h-full">
     <LexiconLanguageTabs
-        {reversalLanguage}
+        {reversalLanguages}
         {selectedLanguage}
         {onSwitchLanguage}
         {vernacularLanguage}
