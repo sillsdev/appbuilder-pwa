@@ -8,6 +8,7 @@
     import LexiconXmlView from '$lib/components/LexiconXMLView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
+    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
     import {
         currentReversalLettersStore,
