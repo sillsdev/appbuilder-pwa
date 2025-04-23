@@ -185,4 +185,4 @@
     });
 </script>
 
-<pre class="p-4 whitespace-pre-wrap break-words min-w-[100vw]">{@html xmlData}</pre>
+<pre id="container" class="p-4 whitespace-pre-wrap break-words min-w-[100vw]">{@html xmlData}</pre>
