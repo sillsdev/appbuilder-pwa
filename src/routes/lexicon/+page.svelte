@@ -46,7 +46,7 @@
     selectedReversalLanguageStore.subscribe((value) => {
         selectedLanguage = value || vernacularLanguage;
     });
-    const reversalLanguage = Object.values(reversalLanguages[0])[0];
+    const reversalLanguage = Object.values(reversalLanguages[0]);
 
     async function fetchWords(letter = selectedLetter) {
         if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
@@ -264,7 +264,7 @@
                 alphabet={currentAlphabet}
                 {selectedLanguage}
                 {vernacularLanguage}
-                {reversalLanguage}
+                reversalLanguages={reversalLanguage}
                 {selectedLetter}
                 onSwitchLanguage={switchLanguage}
                 onLetterChange={handleLetterChange}
