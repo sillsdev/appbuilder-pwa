@@ -157,11 +157,13 @@
 
     onMount(updateXmlData);
 
-    afterUpdate(() => {
-        updateXmlData();
-        applyStyles();
-        attachEventListeners();
-    });
+    $: if (wordIds) {
+        (async () => {
+            await updateXmlData();
+            applyStyles();
+            attachEventListeners();
+        })();
+    }
 </script>
 
 <pre class="p-4 whitespace-pre-wrap break-words">{@html xmlData}</pre>
