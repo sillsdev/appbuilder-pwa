@@ -254,7 +254,7 @@
     class="grid fixed bg-base-100"
     class:grid-rows-[auto,auto,1fr]={selectedWord}
     class:grid-rows-[auto,1fr]={!selectedWord}
-    style="height:100vh;height:100dvh;width:100vw;"
+    style="height:100vh;height:100dvh;width:100vw;background-color:rgb(240,240,240);"
 >
     <Navbar {showBackButton}>
         {#snippet start()}
@@ -318,6 +318,7 @@
             />
         {:else if selectedLanguage === vernacularLanguage}
             <div
+                id="container"
                 class="flex-1 overflow-y-auto bg-base-100 width-full"
                 bind:this={scrollContainer}
                 on:scroll={checkIfScrolledToBottom}
@@ -326,6 +327,7 @@
             </div>
         {:else}
             <div
+                id="container"
                 class="flex-1 overflow-y-auto bg-base-100 width-full"
                 bind:this={scrollContainer}
                 on:scroll={checkIfScrolledToBottom}
@@ -336,6 +338,7 @@
 
         <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
         <div
+            id="container"
             class="flex-1 overflow-y-auto bg-base-100 width-full"
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
