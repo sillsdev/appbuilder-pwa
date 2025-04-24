@@ -247,10 +247,14 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr] bg-base-100" style="height:100vh;height:100dvh;">
-    <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
-    <Navbar>
-        {#snippet center()}
+<div
+    class="grid fixed bg-base-100"
+    class:grid-rows-[auto,auto,1fr]={selectedWord}
+    class:grid-rows-[auto,1fr]={!selectedWord}
+    style="height:100vh;height:100dvh;width:100vw;background-color:rgb(240,240,240);"
+>
+    <Navbar {showBackButton}>
+        {#snippet start()}
             <label for="sidebar" class="navbar">
                 <div class="btn btn-ghost normal-case text-xl text-white font-bold">
                     {dictionaryName}
@@ -271,29 +275,35 @@
         />
     {/if}
 
-    <div
-        class="flex-1 overflow-y-auto bg-base-100"
-        bind:this={scrollContainer}
-        on:scroll={checkIfScrolledToBottom}
-    >
-        {#if selectedWord}
-            <WordNavigationStrip
-                currentWord={selectedWord}
-                wordsList={selectedLanguage === vernacularLanguage
-                    ? vernacularWordsList
-                    : reversalWordsList}
-                onSelectWord={selectWord}
-            />
-            <LexiconEntryView
-                {selectedWord}
-                {vernacularWordsList}
-                {vernacularLanguage}
-                onSwitchLanguage={switchLanguage}
-                onSelectWord={selectWord}
-            />
-        {:else if selectedLanguage === vernacularLanguage}
+    {#if selectedWord}
+        {#if !showBackButton}
+            {(showBackButton = true)}
+        {/if}
+        <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+        <div
+            id="container"
+            class="flex-1 overflow-y-auto bg-base-100 width-full"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
+            <LexiconXmlView {wordIds} onSelectWord={selectWord} />
+        </div>
+    {:else if selectedLanguage === vernacularLanguage}
+        <div
+            id="container" 
+            class="flex-1 overflow-y-auto bg-base-100 width-full"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
             <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
-        {:else}
+        </div>
+    {:else}
+        <div
+            id="container"
+            class="flex-1 overflow-y-auto bg-base-100 width-full"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
             <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
         {/if}
     </div>

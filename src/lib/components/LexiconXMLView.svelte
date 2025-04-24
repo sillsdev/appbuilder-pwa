@@ -33,6 +33,8 @@
     }
 
     function formatXmlByClass(xmlString) {
+        const backgroundColor = 'rgb(240,240,240)'; // ✅ Change this value to set the highlight color
+
         if (!xmlString) return '';
 
         const parser = new DOMParser();
@@ -41,7 +43,7 @@
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error" style="background-color: var(--BackgroundColor);">Error parsing XML: Invalid format</span>`;
+            return `<span class="text-error" style="background-color:${backgroundColor};">Error parsing XML: Invalid format</span>`;
         }
 
         function processNode(node, parentHasSenseNumber = false) {
@@ -68,14 +70,23 @@
                     className === 'clickable cursor-pointer' ||
                     (node.tagName === 'div' && className === 'entry');
 
+                const addStyle =
+                    node.tagName === 'span' ||
+                    className === 'clickable cursor-pointer' ||
+                    (node.tagName === 'div' && className === 'entry');
+
                 if (node.tagName === 'a' && node.hasAttribute('href')) {
                     const href = node.getAttribute('href');
                     const match = href.match(/E-(\d+)/);
+                    const match = href.match(/E-(\d+)/);
                     if (match) {
+                        const index = parseInt(match[1], 10);
                         const index = parseInt(match[1], 10);
                         const wordObject = get(vernacularWordsStore).find(
                             (item) => item.id === index
                         );
+                        const word = wordObject ? wordObject.name : 'Unknown';
+                        const homonymIndex = wordObject ? wordObject.homonym_index : 1;
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
@@ -84,10 +95,12 @@
                             linkText = homonymIndex.toString();
                         }
 
-                        output += `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        output += `<span class="clickable cursor-pointer" style="background-color:${backgroundColor};" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                         return output;
                     }
                 } else {
+                    output += `<${node.tagName}`;
+
                     output += `<${node.tagName}`;
 
                     for (let attr of node.attributes) {
@@ -95,7 +108,7 @@
                     }
 
                     if (addStyle) {
-                        output += ` style="background-color: var(--BackgroundColor); color: var(--TextColor);"`;
+                        output += ` style="background-color:${backgroundColor};"`;
                     }
 
                     output += '>';
