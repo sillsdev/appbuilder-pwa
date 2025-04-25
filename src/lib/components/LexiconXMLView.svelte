@@ -33,7 +33,7 @@
     }
 
     function formatXmlByClass(xmlString) {
-        const backgroundColor = 'rgb(240,240,240)'; // ✅ Change this value to set the highlight color
+        //const backgroundColor = 'rgb(240,240,240)'; // ✅ Change this value to set the highlight color
 
         if (!xmlString) return '';
 
@@ -43,7 +43,7 @@
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error" style="background-color:${backgroundColor};">Error parsing XML: Invalid format</span>`;
+            return `<span class="text-error" style="background-color: var(--TitleBackgroundColor);">Error parsing XML: Invalid format</span>`;
         }
 
         function processNode(node, parentHasSenseNumber = false) {
@@ -97,7 +97,7 @@
                     }
 
                     if (addStyle) {
-                        output += ` style="background-color:${backgroundColor};"`;
+                        output += ` style="background-color: var(--TitleBackgroundColor);"`;
                     }
 
                     output += '>';
