@@ -254,7 +254,7 @@
     class="grid fixed bg-base-100"
     class:grid-rows-[auto,auto,1fr]={selectedWord}
     class:grid-rows-[auto,1fr]={!selectedWord}
-    style="height:100vh;height:100dvh;width:100vw;background-color:rgb(240,240,240);"
+    style="height:100vh;height:100dvh;width:100vw;background-color: var(--TitleBackgroundColor);"
 >
     <Navbar {showBackButton}>
         {#snippet start()}
