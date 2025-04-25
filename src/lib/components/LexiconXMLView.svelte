@@ -178,4 +178,4 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--TitleBackgroundColor);">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor);">{@html xmlData}</pre>

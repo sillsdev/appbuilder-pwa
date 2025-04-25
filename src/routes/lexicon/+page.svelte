@@ -255,7 +255,7 @@
     class="grid fixed bg-base-100"
     class:grid-rows-[auto,auto,1fr]={selectedWord}
     class:grid-rows-[auto,1fr]={!selectedWord}
-    style="height:100vh;height:100dvh;width:100vw;background-color: var(--TitleBackgroundColor);"
+    style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
 >
     <Navbar {showBackButton}>
         {#snippet start()}
@@ -302,7 +302,7 @@
         <div
             id="container"
             class="flex-1 overflow-y-auto bg-base-100 width-full"
-            style="background-color: var(--TitleBackgroundColor);"
+            style="background-color: var(--PrimaryColor);"
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
