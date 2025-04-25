@@ -340,6 +340,7 @@
         <div
             id="container"
             class="flex-1 overflow-y-auto bg-base-100 width-full"
+            style="background-color: var(--TitleBackgroundColor);"
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
