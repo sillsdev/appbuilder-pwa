@@ -43,7 +43,7 @@
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error" style="background-color: var(--TitleBackgroundColor);">Error parsing XML: Invalid format</span>`;
+            return `<span class="text-error" style="background-color: var(--BackgroundColor);">Error parsing XML: Invalid format</span>`;
         }
 
         function processNode(node, parentHasSenseNumber = false) {
@@ -87,8 +87,7 @@
                             linkText = homonymIndex.toString();
                         }
 
-                        output += `<span class="clickable cursor-pointer" style="background-color:${backgroundColor};" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
-                        return output;
+                        output += `<span class="clickable cursor-pointer" style="background-color: var(--backgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                     }
                 } else {
                     output += `<${node.tagName}`;
@@ -96,8 +95,19 @@
                         output += ` ${attr.name}="${attr.value}"`;
                     }
 
+                    // I've added appropriate styling based on class name
+                    if (className.includes('sensenumber')) {
+                        output += ` style="color: var(--TextColor1); font-weight: bold;"`;
+                    } else if (className.includes('vernacular')) {
+                        output += ` style="color: var(--TextColor2);"`;
+                    } else if (className.includes('example')) {
+                        output += ` style="color: var(--TextColor3); font-style: italic;"`;
+                    } else if (className.includes('definition')) {
+                        output += ` style="color: var(--TextColor); font-weight: normal;"`;
+                    }
+
                     if (addStyle) {
-                        output += ` style="background-color: var(--TitleBackgroundColor);"`;
+                        output += ` style="background-color: var(--BackgroundColor); color: var(--TextColor);"`;
                     }
 
                     output += '>';
@@ -129,7 +139,8 @@
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
                 .map(formatXmlByClass)
-                .join('\n<hr>\n') + '\n<hr>\n'; // `<hr>` adds a visible line between entries
+                .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
+            '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
     }
 
     function attachEventListeners() {
@@ -178,4 +189,4 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor);">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor); color: var(--TextColor);">{@html xmlData}</pre>

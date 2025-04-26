@@ -10,6 +10,7 @@
                 type="button"
                 class="w-full text-left py-1"
                 aria-label={`Select word ${name}`}
+                style="color: var(--TextColor); border-bottom: 1px solid var(--SettingsSeparatorColor);"
                 on:click={() => onSelectWord({ word: name, index: id })}
                 on:keydown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -18,11 +19,11 @@
                     }
                 }}
             >
-                <p class="font-bold break-words">
+                <p class="font-bold break-words" style="color: var(--TextColor);">
                     {name}{#if homonym_index > 0}<sub>{homonym_index}</sub>{/if}
                 </p>
                 {#if summary}
-                    <p class="ml-4 italic">
+                    <p class="ml-4 italic" style="color: var(--TextColor2);">
                         {#each summary.match(/{(.*?)}/g) || [] as match}
                             {match.replace(/[{}]/g, '')}
                         {/each}
