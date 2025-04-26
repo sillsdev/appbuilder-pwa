@@ -59,12 +59,15 @@
 
 <div
     class="grid grid-rows-[auto,auto,1fr] fixed bg-base-100"
-    style="height:100vh;height:100dvh;width:100vw;"
+    style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
 >
     <Navbar>
         {#snippet start()}
             <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                <div
+                    class="btn btn-ghost normal-case text-xl text-white font-bold pl-1"
+                    style="color: var(--ShareButtonTextColor);"
+                >
                     {searchWord ? `${config.name}` : 'Search'}
                 </div>
             </label>
@@ -74,6 +77,7 @@
                 <div id="extraButtons">
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
+                        style="color: var(--ShareButtonTextColor);"
                         on:click={() => {
                             wordIds = null;
                             searchWord = '';
@@ -91,15 +95,18 @@
         {#if !selectedWord}
             <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
                 <div
-                    class="py-2 px-6 font-bold text-black text-center relative text-sm flex items-center justify-center w-full"
-                    style="height: 36px;"
+                    class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
+                    style="height: 36px; color: var(--TextColor);"
                 >
                     {searchWord ? `Search: ${searchWord}` : 'Search'}
                 </div>
             </div>
         {/if}
     </div>
-    <div class="flex-1 overflow-y-auto bg-base-100 width-full">
+    <div
+        class="flex-1 overflow-y-auto width-full"
+        style="background-color: var(--BackgroundColor);"
+    >
         <div class="overflow-auto" bind:this={scrollDiv}>
             <div class="flex justify-center">
                 {#if !wordIds || wordIds.length == 0}
@@ -113,7 +120,10 @@
             </div>
 
             <div class="flex justify-center px-4">
-                <hr class="max-w-screen-md w-full" style:border-color={$themeColors.DividerColor} />
+                <hr
+                    class="max-w-screen-md w-full"
+                    style="border-color: var(--SettingsSeparatorColor);"
+                />
             </div>
 
             {#if selectedWord}
@@ -125,7 +135,9 @@
                     {#if wordIds && wordIds.length > 0}
                         <LexiconXmlView {wordIds} onSelectWord={selectWord} />
                     {:else if wordIds && wordIds.length == 0}
-                        <div class="text-center text-gray-500">No results found.</div>
+                        <div class="text-center" style="color: var(--SettingsSummaryColor);">
+                            No results found.
+                        </div>
                     {/if}
                 </div>
             </div>

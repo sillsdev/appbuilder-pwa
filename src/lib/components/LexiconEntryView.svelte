@@ -61,7 +61,7 @@
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error">Error parsing XML: Invalid format</span>`;
+            return `<span class="text-error" style="color: var(--TextColor6);">Error parsing XML: Invalid format</span>`;
         }
 
         function processNode(node, parentHasSenseNumber = false) {
@@ -99,7 +99,7 @@
                             linkText = homonymIndex.toString();
                         }
 
-                        output += `<span class="clickable cursor-pointer" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        output += `<span class="clickable cursor-pointer" style="color: var(--LinkColor); text-decoration: underline;" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                         return output;
                     }
                 } else {
@@ -107,6 +107,18 @@
                     for (let attr of node.attributes) {
                         output += ` ${attr.name}="${attr.value}"`;
                     }
+
+                    // I've added appropriate styling based on class name
+                    if (className.includes('sensenumber')) {
+                        output += ` style="color: var(--TextColor1); font-weight: bold;"`;
+                    } else if (className.includes('vernacular')) {
+                        output += ` style="color: var(--TextColor2);"`;
+                    } else if (className.includes('example')) {
+                        output += ` style="color: var(--TextColor3); font-style: italic;"`;
+                    } else if (className.includes('definition')) {
+                        output += ` style="color: var(--TextColor); font-weight: normal;"`;
+                    }
+
                     output += '>';
 
                     for (let child of node.childNodes) {
@@ -140,7 +152,8 @@
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
                 .map(formatXmlByClass)
-                .join('\n<hr>\n') + '\n<hr>\n'; // `<hr>` adds a visible line between entries
+                .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
+            '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
     }
 
     function attachEventListeners() {
@@ -185,4 +198,6 @@
     });
 </script>
 
-<pre class="p-4 whitespace-pre-wrap break-words min-w-[100vw]">{@html xmlData}</pre>
+<pre
+    class="p-4 whitespace-pre-wrap break-words min-w-[100vw]"
+    style="background-color: var(--BackgroundColor); color: var(--TextColor);">{@html xmlData}</pre>
