@@ -42,20 +42,24 @@
     let selectedLanguage;
 
     // Subscribe to stores
-    currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
-    currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
-    vernacularLanguageStore.subscribe((value) => (vernacularLanguage = value));
-    vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
+    //currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
+    //currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
+    //vernacularLanguageStore.subscribe((value) => (vernacularLanguage = value));
+    //vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
+    //selectedLanguageStore.subscribe((value) => (selectedLanguage = value));
+    //selectedLanguageStore.set(vernacularLanguage);
 
-    selectedLanguageStore.subscribe((value) => {
-        selectedLanguage = value;
-    });
-    selectedLanguageStore.set(vernacularLanguage);
+    $: loadedReversalLetters = new Set($currentReversalLettersStore);
+    $: reversalWordsList = $currentReversalWordsStore;
+    $: vernacularLanguage = $vernacularLanguageStore;
+    $: vernacularWordsList = $vernacularWordsStore;
+    //$: selectedLanguage = $selectedLanguageStore;
+    $: selectedLanguageStore.set(vernacularLanguage);
 
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function fetchWords(letter = selectedLetter) {
-        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
+        if ($selectedLanguageStore === reversalLanguage && !loadedReversalLetters.has(letter)) {
             console.log('Loading letter data:', letter);
 
             const letterIndex = alphabets.reversal.indexOf(letter);
@@ -72,15 +76,15 @@
             // Sort the results based on the selectedLanguage's alphabet
             reversalWordsStore.update((words) => {
                 const updatedWords = { ...words };
-                updatedWords[selectedLanguage] = (updatedWords[selectedLanguage] || []).sort(
-                    (a, b) => {
-                        const alphabet = currentAlphabet;
-                        return (
-                            alphabet.indexOf(a.word[0].toLowerCase()) -
-                            alphabet.indexOf(b.word[0].toLowerCase())
-                        );
-                    }
-                );
+                updatedWords[$selectedLanguageStore] = (
+                    updatedWords[$selectedLanguageStore] || []
+                ).sort((a, b) => {
+                    const alphabet = currentAlphabet;
+                    return (
+                        alphabet.indexOf(a.word[0].toLowerCase()) -
+                        alphabet.indexOf(b.word[0].toLowerCase())
+                    );
+                });
                 return updatedWords;
             });
         }
@@ -137,8 +141,8 @@
 
         reversalWordsStore.update((words) => {
             const updatedWords = { ...words };
-            updatedWords[selectedLanguage] = [
-                ...(updatedWords[selectedLanguage] || []),
+            updatedWords[$selectedLanguageStore] = [
+                ...(updatedWords[$selectedLanguageStore] || []),
                 ...newWords
             ];
             return updatedWords;
@@ -146,8 +150,8 @@
 
         reversalLettersStore.update((letters) => {
             const updatedLetters = { ...letters };
-            updatedLetters[selectedLanguage] = [
-                ...(updatedLetters[selectedLanguage] || []),
+            updatedLetters[$selectedLanguageStore] = [
+                ...(updatedLetters[$selectedLanguageStore] || []),
                 letter
             ];
             return updatedLetters;
@@ -176,7 +180,7 @@
 
     async function handleLetterChange(letter) {
         selectedLetter = letter;
-        if (selectedLanguage === reversalLanguage) {
+        if ($selectedLanguageStore === reversalLanguage) {
             await fetchWords();
         }
         scrollToLetter(letter);
@@ -185,7 +189,7 @@
     function switchLanguage(language) {
         selectedLanguageStore.set(language);
         selectedLetter = currentAlphabet[0];
-        if (selectedLanguage != vernacularLanguage) {
+        if ($selectedLanguageStore != vernacularLanguage) {
             fetchWords();
         }
         const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
@@ -200,8 +204,8 @@
         if (isFetching) return;
 
         if (
-            (selectedLanguage === reversalLanguage && reversalWordsList.length > 0) ||
-            (selectedLanguage === vernacularLanguage && vernacularWordsList.length > 0)
+            ($selectedLanguageStore === reversalLanguage && reversalWordsList.length > 0) ||
+            ($selectedLanguageStore === vernacularLanguage && vernacularWordsList.length > 0)
         ) {
             let div = event.target;
             const threshold = 100;
@@ -216,9 +220,9 @@
                     }
                 }
             } else if (
-                (selectedLanguage === reversalLanguage &&
+                ($selectedLanguageStore === reversalLanguage &&
                     loadedReversalLetters.has(selectedLetter)) ||
-                selectedLanguage === vernacularLanguage
+                $selectedLanguageStore === vernacularLanguage
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
                 let visibleLetter = null;
@@ -238,10 +242,10 @@
     }
 
     $: currentAlphabet =
-        selectedLanguage === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
+        $selectedLanguageStore === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
 
     onMount(() => {
-        if (selectedLetter && selectedLanguage != vernacularLanguage) {
+        if (selectedLetter && $selectedLanguageStore != vernacularLanguage) {
             fetchWords();
         }
         if (config.programType !== 'DAB') {
@@ -284,7 +288,7 @@
     {#if !selectedWord}
         <LexiconListViewHeader
             alphabet={currentAlphabet}
-            {selectedLanguage}
+            {$selectedLanguageStore}
             {vernacularLanguage}
             {reversalLanguage}
             {selectedLetter}
@@ -304,7 +308,7 @@
             {/if}
             <WordNavigationStrip
                 currentWord={selectedWord}
-                wordsList={selectedLanguage === vernacularLanguage
+                wordsList={$selectedLanguageStore === vernacularLanguage
                     ? vernacularWordsList
                     : reversalWordsList}
                 onSelectWord={selectWord}
@@ -316,7 +320,7 @@
                 onSwitchLanguage={switchLanguage}
                 onSelectWord={selectWord}
             />
-        {:else if selectedLanguage === vernacularLanguage}
+        {:else if $selectedLanguageStore === vernacularLanguage}
             <div
                 id="container"
                 class="flex-1 overflow-y-auto bg-base-100 width-full"
@@ -335,8 +339,9 @@
                 <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
             </div>
         {/if}
-
-        <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+        {#if selectedWord}
+            <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+        {/if}
         <div
             id="container"
             class="flex-1 overflow-y-auto bg-base-100 width-full"
@@ -344,7 +349,7 @@
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
-            <LexiconXmlView {wordIds} onSelectWord={selectWord} />
+            <LexiconEntryView {wordIds} onSelectWord={selectWord} />
         </div>
     </div>
 </div>
