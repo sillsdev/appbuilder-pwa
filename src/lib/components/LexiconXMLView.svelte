@@ -84,7 +84,7 @@
                             linkText = homonymIndex.toString();
                         }
 
-                        output += `<span class="clickable cursor-pointer" style="background-color: var(--backgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        output += `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                         return output;
                     }
                 } else {
