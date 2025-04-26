@@ -288,7 +288,7 @@
     {#if !selectedWord}
         <LexiconListViewHeader
             alphabet={currentAlphabet}
-            {$selectedLanguageStore}
+            selectedLanguage={$selectedLanguageStore}
             {vernacularLanguage}
             {reversalLanguage}
             {selectedLetter}
