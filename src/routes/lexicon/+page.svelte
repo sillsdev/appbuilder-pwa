@@ -39,15 +39,6 @@
     let vernacularLanguage;
     let scrollContainer;
     let wordIds;
-    let selectedLanguage;
-
-    // Subscribe to stores
-    //currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
-    //currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
-    //vernacularLanguageStore.subscribe((value) => (vernacularLanguage = value));
-    //vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
-    //selectedLanguageStore.subscribe((value) => (selectedLanguage = value));
-    //selectedLanguageStore.set(vernacularLanguage);
 
     $: loadedReversalLetters = new Set($currentReversalLettersStore);
     $: reversalWordsList = $currentReversalWordsStore;
@@ -321,14 +312,7 @@
                 onSelectWord={selectWord}
             />
         {:else if $selectedLanguageStore === vernacularLanguage}
-            <div
-                id="container"
-                class="flex-1 overflow-y-auto bg-base-100 width-full"
-                bind:this={scrollContainer}
-                on:scroll={checkIfScrolledToBottom}
-            >
-                <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
-            </div>
+            <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
         {:else}
             <div
                 id="container"
