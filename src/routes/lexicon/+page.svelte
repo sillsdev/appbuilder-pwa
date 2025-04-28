@@ -290,6 +290,7 @@
 
     <div
         class="flex-1 overflow-y-auto bg-base-100"
+        style="background-color: var(--BackgroundColor);"
         bind:this={scrollContainer}
         on:scroll={checkIfScrolledToBottom}
     >
@@ -304,19 +305,20 @@
                     : reversalWordsList}
                 onSelectWord={selectWord}
             />
-            <LexiconEntryView
+            <!--LexiconEntryView
                 {selectedWord}
                 {vernacularWordsList}
                 {vernacularLanguage}
                 onSwitchLanguage={switchLanguage}
                 onSelectWord={selectWord}
-            />
+            /-->
         {:else if $selectedLanguageStore === vernacularLanguage}
             <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
         {:else}
             <div
                 id="container"
                 class="flex-1 overflow-y-auto bg-base-100 width-full"
+                style="background-color: var(--BackgroundColor);"
                 bind:this={scrollContainer}
                 on:scroll={checkIfScrolledToBottom}
             >
