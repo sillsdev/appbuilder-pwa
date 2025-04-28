@@ -323,9 +323,9 @@
                 <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
             </div>
         {/if}
-        {#if selectedWord}
+        <!--{#if selectedWord}
             <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
-        {/if}
+        {/if}-->
         <div
             id="container"
             class="flex-1 overflow-y-auto bg-base-100 width-full"

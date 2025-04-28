@@ -3,7 +3,7 @@ import type { SearchOptions } from '$lib/search/domain/interfaces/data-interface
 
 // Search the dictionary based on the phrase and options
 export async function searchDictionary(phrase: string, options: SearchOptions) {
-    const searchWords = phrase.split(' ');
+    const searchWords = phrase.trim().split(/\s+/).filter(Boolean);
 
     const column = options.accentsAndTones ? 'word' : 'word_no_accents';
 
