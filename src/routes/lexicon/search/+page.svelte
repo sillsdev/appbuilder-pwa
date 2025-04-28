@@ -21,10 +21,10 @@
     let searchWord;
     let vernacularLanguage;
     let selectedWord;
-    vernacularLanguageStore.subscribe((value) => (vernacularLanguage = value));
+    $: vernacularLanguage = $vernacularLanguageStore;
 
     let vernacularWordsList;
-    vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
+    $: vernacularWordsList = $vernacularWordsStore;
 
     let scrollDiv;
 
