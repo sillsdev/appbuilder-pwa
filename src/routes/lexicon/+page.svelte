@@ -172,7 +172,7 @@
 
     async function handleLetterChange(letter) {
         selectedLetter = letter;
-        if (selectedLanguage === reversalLanguage) {
+        if (reversalLanguage.includes(selectedLanguage)) {
             await fetchWords();
         }
         scrollToLetter(letter);
