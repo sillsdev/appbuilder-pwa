@@ -49,7 +49,7 @@
     const reversalLanguage = Object.values(reversalLanguages[0]);
 
     async function fetchWords(letter = selectedLetter) {
-        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
+        if (selectedLanguage !== vernacularLanguage && !loadedReversalLetters.has(letter)) {
             console.log('Loading letter data:', letter);
 
             const letterIndex = alphabets.reversal.indexOf(letter);
@@ -264,7 +264,7 @@
                 alphabet={currentAlphabet}
                 {selectedLanguage}
                 {vernacularLanguage}
-                reversalLanguages={reversalLanguage}
+                reversalLanguages={reversalLanguages.flatMap((lang) => Object.values(lang))}
                 {selectedLetter}
                 onSwitchLanguage={switchLanguage}
                 onLetterChange={handleLetterChange}

@@ -25,6 +25,7 @@
             return;
         }
         loading = true;
+        // Logic to load data for the selected letter
     }
 
     async function handleLetterSelect(letter) {
@@ -33,12 +34,12 @@
         await loadReversalData(letter);
     }
 
-    $: if (alphabet && alphabet.length > 0) {
-        currentLetter = alphabet[0];
+    $: if (alphabet.length > 0 && !currentLetter) {
+        currentLetter = alphabet[0]; // Set the first letter if currentLetter is undefined
     }
 
-    $: if (selectedLetter !== currentLetter) {
-        currentLetter = selectedLetter;
+    $: if (selectedLetter && selectedLetter !== currentLetter) {
+        currentLetter = selectedLetter; // Sync with selectedLetter prop
     }
 </script>
 
