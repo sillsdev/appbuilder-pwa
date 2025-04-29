@@ -6,7 +6,6 @@
 
 <div
     class="flex m-2 gap-1 md:gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-2 snap-x"
-    style="background-color: var(--TabBackgroundColor);"
 >
     {#each alphabet as letter}
         <button
@@ -15,7 +14,7 @@
             md:px-5 md:py-4 md:text-base
             lg:px-6 lg:py-4 lg:text-lg"
             style={activeLetter === letter
-                ? 'background-color: var(--TitleBackgroundColor); border-color: var(--PrimaryColor); color: var(--TextColor1);'
+                ? 'background-color: var(--TitleBackgroundColor); border-color: var(--PrimaryColor);'
                 : 'background-color: var(--BackgroundColor); color: var(--TabTextColor); border-color: var(--SettingsSeparatorColor); hover:background-color: var(--TextHighlightColor);'}
             on:click={() => onLetterSelect(letter)}
         >
