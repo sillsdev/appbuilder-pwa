@@ -47,7 +47,12 @@
         phrase = newPhrase;
         wholeWords = newWholeWords;
         matchAccents = newMatchAccents;
-        wordIds = await searchDictionary(phrase, options);
+        try {
+            wordIds = await searchDictionary(phrase, options);
+        } catch (err) {
+            console.error('Search failed', err);
+            wordIds = [];
+        }
         console.log(wordIds);
     }
 
