@@ -5,7 +5,7 @@
     export let alphabet = [];
     export let selectedLanguage;
     export let vernacularLanguage;
-    export let reversalLanguage;
+    export let reversalLanguages = [];
     export let selectedLetter;
     export let onSwitchLanguage;
     export let onLetterChange;
@@ -26,7 +26,7 @@
 </script>
 
 <LexiconLanguageTabs
-    {reversalLanguage}
+    {reversalLanguages}
     {selectedLanguage}
     {onSwitchLanguage}
     {vernacularLanguage}

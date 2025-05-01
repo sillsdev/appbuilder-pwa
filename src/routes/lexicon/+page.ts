@@ -22,7 +22,7 @@ export async function load({ fetch }) {
     const vernacularLanguage = vernacularWritingSystem.displayNames.default;
 
     const reversalWritingSystems = Object.entries(dictionaryConfig.writingSystems).filter(
-        ([key, ws]) => !ws.type.includes('main')
+        ([key, ws]) => 'reversalFilename' in ws
     );
 
     if (!reversalWritingSystems) {
