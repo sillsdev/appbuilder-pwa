@@ -51,8 +51,6 @@
 
     async function fetchWords(letter = selectedLetter) {
         if ($selectedLanguageStore === reversalLanguage && !loadedReversalLetters.has(letter)) {
-            console.log('Loading letter data:', letter);
-
             const letterIndex = alphabets.reversal.indexOf(letter);
             const lettersToLoad = alphabets.reversal
                 .slice(0, letterIndex)
@@ -157,9 +155,7 @@
     async function scrollToLetter(letter) {
         await tick();
         const target = document.getElementById(`letter-${letter}`);
-        console.log('target:', target);
         if (target && scrollContainer) {
-            console.log('scrollContainer:', scrollContainer);
             const containerTop = scrollContainer.getBoundingClientRect().top;
             const targetTop = target.getBoundingClientRect().top;
             const offset = targetTop - containerTop + scrollContainer.scrollTop;
@@ -291,9 +287,6 @@
     {/if}
 
     {#if selectedWord}
-        {#if !showBackButton}
-            {(showBackButton = true)}
-        {/if}
         <WordNavigationStrip
             currentWord={selectedWord}
             wordsList={$selectedLanguageStore === vernacularLanguage
