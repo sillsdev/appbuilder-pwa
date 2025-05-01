@@ -37,9 +37,10 @@
     let selectedWord = null;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let loadedReversalLetters = new Set();
-    let reversalWordsList;
-    let vernacularWordsList;
+    let reversalWordsList = [];
+    let vernacularWordsList  = [];
     let selectedLanguage = vernacularLanguage;
+    const reversalLanguageList = Object.values(reversalLanguages[0]);
     let scrollContainer;
 
     // Subscribe to stores
@@ -52,21 +53,15 @@
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function fetchWords(letter = selectedLetter) {
-        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
-            console.log('Loading letter data:', letter);
-
+        if (selectedLanguage !== vernacularLanguage && !loadedReversalLetters.has(letter)) {
             const letterIndex = alphabets.reversal.indexOf(letter);
             const lettersToLoad = alphabets.reversal
                 .slice(0, letterIndex)
                 .filter((l) => !loadedReversalLetters.has(l));
 
-            // Load all required letters in parallel
             await Promise.all(lettersToLoad.map(loadLetterData));
-
-            // Load the current letter
             await loadLetterData(letter);
 
-            // Sort the results based on the selectedLanguage's alphabet
             reversalWordsStore.update((words) => {
                 const updatedWords = { ...words };
                 updatedWords[selectedLanguage] = (updatedWords[selectedLanguage] || []).sort(
@@ -82,53 +77,57 @@
             });
         }
     }
-
-    async function loadLetterData(letter) {
+        async function loadLetterData(letter) {
+        let fileIndex = 1;
+        let moreFiles = true;
         let newWords = [];
 
-        const index = reversalIndexes[defaultReversalKey];
-        const files = index[letter] || [];
-        for (const file of files) {
-            const reversalFile = `${base}/reversal/${defaultReversalKey}/${file}`;
-            const response = await fetch(reversalFile);
-            if (response.ok) {
-                const data = await response.json();
-                const currentFileWords = Object.entries(data).map(([word, entries]) => {
-                    return {
-                        word: word,
-                        indexes: entries.map((entry) => entry.index),
-                        vernacularWords: entries
-                            .map((entry) => {
-                                const foundWord = vernacularWordsList.find(
-                                    (vw) => vw.id === entry.index
-                                );
-                                if (foundWord) {
-                                    return {
-                                        name: foundWord.name,
-                                        homonymIndex: foundWord.homonym_index || 0
-                                    };
-                                } else {
-                                    console.log(
-                                        `Index ${entry.index} not found in vernacularWordsList`
+        while (moreFiles) {
+            try {
+                const response = await fetch(
+                    `${base}/reversal/${defaultReversalKey}/${letter}-${String(fileIndex).padStart(3, '0')}.json`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    const currentFileWords = Object.entries(data).map(([word, entries]) => {
+                        return {
+                            word,
+                            indexes: entries.map((entry) => entry.index),
+                            vernacularWords: entries
+                                .map((entry) => {
+                                    const foundWord = vernacularWordsList.find(
+                                        (vw) => vw.id === entry.index
                                     );
-                                    return null; // Return null for missing indexes
-                                }
-                            })
-                            .filter((index) => index !== null), // Filter out null values
-                        letter: letter
-                    };
-                });
+                                    return foundWord
+                                        ? {
+                                              name: foundWord.name,
+                                              homonymIndex: foundWord.homonym_index || 0
+                                          }
+                                        : null;
+                                })
+                                .filter(Boolean),
+                            letter
+                        };
+                    });
 
-                currentFileWords.forEach((newWord) => {
-                    const existingWord = newWords.find((w) => w.word === newWord.word);
-                    if (existingWord) {
-                        existingWord.indexes = [
-                            ...new Set([...existingWord.indexes, ...newWord.indexes])
-                        ];
-                    } else {
-                        newWords.push(newWord);
+                    for (const newWord of currentFileWords) {
+                        const existingWord = newWords.find((w) => w.word === newWord.word);
+                        if (existingWord) {
+                            existingWord.indexes = [
+                                ...new Set([...existingWord.indexes, ...newWord.indexes])
+                            ];
+                        } else {
+                            newWords.push(newWord);
+                        }
                     }
-                });
+
+                    fileIndex++;
+                } else {
+                    moreFiles = false;
+                }
+            } catch (error) {
+                console.error('Error loading word data:', error);
+                moreFiles = false;
             }
         }
 
@@ -170,10 +169,12 @@
         }
     }
 
+
     async function handleLetterChange(letter) {
         selectedLetter = letter;
-        if (selectedLanguage === reversalLanguage) {
-            await fetchWords();
+        if (reversalLanguageList.includes(selectedLanguage)) {
+            await fetchWords(letter);
+            await tick();
         }
         scrollToLetter(letter);
     }
@@ -182,7 +183,7 @@
         selectedReversalLanguageStore.set(language);
         selectedLanguage = language;
         selectedLetter = currentAlphabet[0];
-        if (selectedLanguage != vernacularLanguage) {
+        if (selectedLanguage !== vernacularLanguage) {
             fetchWords();
         }
         const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
@@ -192,6 +193,7 @@
     }
 
     let isFetching = false;
+
 
     async function checkIfScrolledToBottom(event) {
         if (isFetching) return;
@@ -264,7 +266,7 @@
             alphabet={currentAlphabet}
             {selectedLanguage}
             {vernacularLanguage}
-            {reversalLanguage}
+            reversalLanguages={reversalLanguages.flatMap((lang) => Object.values(lang))}
             {selectedLetter}
             onSwitchLanguage={switchLanguage}
             onLetterChange={handleLetterChange}
