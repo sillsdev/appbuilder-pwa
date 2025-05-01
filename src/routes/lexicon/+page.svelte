@@ -157,7 +157,9 @@
     async function scrollToLetter(letter) {
         await tick();
         const target = document.getElementById(`letter-${letter}`);
+        console.log('target:', target);
         if (target && scrollContainer) {
+            console.log('scrollContainer:', scrollContainer);
             const containerTop = scrollContainer.getBoundingClientRect().top;
             const targetTop = target.getBoundingClientRect().top;
             const offset = targetTop - containerTop + scrollContainer.scrollTop;
@@ -288,46 +290,35 @@
         />
     {/if}
 
-    <div
-        class="flex-1 overflow-y-auto bg-base-100"
-        style="background-color: var(--BackgroundColor);"
-        bind:this={scrollContainer}
-        on:scroll={checkIfScrolledToBottom}
-    >
-        {#if selectedWord}
-            {#if !showBackButton}
-                {(showBackButton = true)}
-            {/if}
-            <WordNavigationStrip
-                currentWord={selectedWord}
-                wordsList={$selectedLanguageStore === vernacularLanguage
-                    ? vernacularWordsList
-                    : reversalWordsList}
-                onSelectWord={selectWord}
-            />
-            <!--LexiconEntryView
-                {selectedWord}
-                {vernacularWordsList}
-                {vernacularLanguage}
-                onSwitchLanguage={switchLanguage}
-                onSelectWord={selectWord}
-            /-->
-        {:else if $selectedLanguageStore === vernacularLanguage}
-            <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
-        {:else}
-            <div
-                id="container"
-                class="flex-1 overflow-y-auto bg-base-100 width-full"
-                style="background-color: var(--BackgroundColor);"
-                bind:this={scrollContainer}
-                on:scroll={checkIfScrolledToBottom}
-            >
-                <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
-            </div>
+    {#if selectedWord}
+        {#if !showBackButton}
+            {(showBackButton = true)}
         {/if}
-        <!--{#if selectedWord}
-            <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
-        {/if}-->
+        <WordNavigationStrip
+            currentWord={selectedWord}
+            wordsList={$selectedLanguageStore === vernacularLanguage
+                ? vernacularWordsList
+                : reversalWordsList}
+            onSelectWord={selectWord}
+        />
+        <div
+            class="flex-1 overflow-y-auto bg-base-100"
+            style="background-color: var(--BackgroundColor);"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
+            <LexiconEntryView {wordIds} onSelectWord={selectWord} />
+        </div>
+    {:else if $selectedLanguageStore === vernacularLanguage}
+        <div
+            class="flex-1 overflow-y-auto bg-base-100"
+            style="background-color: var(--BackgroundColor);"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
+            <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
+        </div>
+    {:else}
         <div
             id="container"
             class="flex-1 overflow-y-auto bg-base-100 width-full"
@@ -335,7 +326,7 @@
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
-            <LexiconEntryView {wordIds} onSelectWord={selectWord} />
+            <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
         </div>
-    </div>
+    {/if}
 </div>
