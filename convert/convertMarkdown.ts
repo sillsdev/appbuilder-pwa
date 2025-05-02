@@ -159,18 +159,15 @@ function imageUSFM(link: string, text: string): string {
     return result;
 }
 function weblinkUSFM(link: string, text: string): string {
-    // HACK: USFM supports web links through \jmp, Proskomma doesn't support \jmp. Pass them through as /jmp in text and process in ScriptureViewSofria.
-    const result = `/jmp ${text}|href="${encodeURIComponent(link)}"/jmp* `;
+    const result = `\\jmp ${text}|href="${link}"\\jmp* `;
     return result;
 }
 function emailUSFM(link: string, text: string): string {
-    // HACK: USFM supports web links through \jmp, Proskomma doesn't support \jmp. Pass them through as /jmp in text and process in ScriptureViewSofria.
-    const result = `/jmp ${text}|href="${encodeURIComponent(link)}"/jmp* `;
+    const result = `\\jmp ${text}|href="${link}"\\jmp* `;
     return result;
 }
 function telUSFM(link: string, text: string): string {
-    // HACK: USFM supports web links through \jmp, Proskomma doesn't support \jmp. Pass them through as /jmp in text and process in ScriptureViewSofria.
-    const result = `/jmp ${text}|href="${encodeURIComponent(link)}"/jmp* `;
+    const result = `\\jmp ${text}|href="${link}"\\jmp* `;
     return result;
 }
 function referenceUSFM(link: string, text: string, bcId: string, bookid: string): string {

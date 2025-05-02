@@ -15,17 +15,17 @@ describe('convertMarkdownsToMilestones', () => {
     });
     it('converts a telephone markdown to a milestone', () => {
         // Gen 3:14 translates this [TEL](tel:6145551212)
-        expect(modifiedContent).toContain('/jmp TEL|href="tel%3A6145551212"/jmp*');
+        expect(modifiedContent).toContain('\\jmp TEL|href="tel:6145551212"\\jmp*');
     });
     it('converts an email markdown to a milestone', () => {
         // Gen 3:14 translates this [EMAIL DAVID](mailto:david_moore1@sil.org)
         expect(modifiedContent).toContain(
-            '/jmp EMAIL DAVID|href="mailto%3Adavid_moore1%40sil.org"/jmp*'
+            '\\jmp EMAIL DAVID|href="mailto:david_moore1@sil.org"\\jmp*'
         );
     });
     it('converts a web link markdown to a milestone', () => {
         // Gen 3:13 translates this [Web Link](https://www.sil.org/)
-        expect(modifiedContent).toContain('/jmp Web Link|href="https%3A%2F%2Fwww.sil.org%2F"/jmp*');
+        expect(modifiedContent).toContain('\\jmp Web Link|href="https://www.sil.org/"\\jmp*');
     });
     it('adds an empty markdown as text ', () => {
         // Gen 3:13 adds [Empty Markdown to text]
