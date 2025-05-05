@@ -29,16 +29,20 @@ function convertMarkdown(
         assert(bcId && bookId, 'Book and Collection IDs must be specified for USFM conversion');
     }
     const sb = [];
-    const patternString = /(!?)\[([^[]*?)\]\((.*?)\)/;
+    const patternString = /(!?)\[([^[]*?)\]\((.*?)(?:\s+"(.*?)")?\)/;
     let match;
     while ((match = patternString.exec(content)) !== null) {
         // Append text segment with 1st part of string
         sb.push(content.substring(0, match.index));
         // Handle markdown
+        const excl = match[1]; // Exclamation mark for images
+        const alt = match[2]; // Alt text
+        const ref = match[3]; // URL
+        const tooltip = match[4] || ''; // Tooltip text (optional)
         if (conversion === ConversionFormat.HTML) {
-            sb.push(htmlLink(match[1], match[2], match[3]));
+            sb.push(htmlLink(excl, alt, ref, tooltip));
         } else if (conversion === ConversionFormat.USFM) {
-            sb.push(usfmLink(match[1], match[2], match[3], bcId as string, bookId as string));
+            sb.push(usfmLink(excl, alt, ref, tooltip, bcId as string, bookId as string));
         }
         content = content.substring(match.index + match[0].length);
     }
@@ -52,11 +56,19 @@ function convertMarkdown(
  * the link is an embedded image.
  * @param alt The link's alt text.
  * @param ref The link's target.
+ * @param tooltip The link's tooltip text.
  * @param bcId The ID of the current book selection
  * @param bookId The ID of the current book
  * @returns A USFM tag equivalent to the given markdown link.
  */
-function usfmLink(excl: string, alt: string, ref: string, bcId: string, bookId: string): string {
+function usfmLink(
+    excl: string,
+    alt: string,
+    ref: string,
+    tooltip: string,
+    bcId: string,
+    bookId: string
+): string {
     if (isBlank(ref)) {
         // Empty link reference, e.g. [alt]()
         // Output simple text without a link
@@ -66,12 +78,8 @@ function usfmLink(excl: string, alt: string, ref: string, bcId: string, bookId: 
     } else if (isImageLink(ref, excl)) {
         // Image ![alt text](image.png)
         return imageUSFM(ref, alt);
-    } else if (isWebLink(ref)) {
-        return weblinkUSFM(ref, alt);
-    } else if (isEmailLink(ref)) {
-        return emailUSFM(ref, alt);
-    } else if (isTelephoneNumberLink(ref)) {
-        return telUSFM(ref, alt);
+    } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
+        return linkUSFM(ref, alt, tooltip);
     } else {
         return referenceUSFM(ref, alt, bcId, bookId);
     }
@@ -83,21 +91,23 @@ function usfmLink(excl: string, alt: string, ref: string, bcId: string, bookId: 
  * the link is an embedded image.
  * @param alt The link's alt text.
  * @param ref The link's target.
+ * @param tooltip The link's tooltip text.
  * @returns
  */
-function htmlLink(excl: string, alt: string, ref: string): string {
+function htmlLink(excl: string, alt: string, ref: string, tooltip: string): string {
+    const tooltipAttr = tooltip ? ` class="dy-tooltip" data-tip="${tooltip}"` : '';
     if (isBlank(ref)) {
         // Empty link reference, e.g. [text]()
         // Output simple text without a link
         return alt;
     } else if (isImageLink(ref, excl)) {
         // Image ![alt text](image.png)
-        return `<img src="${ref}" alt="${alt}">`;
+        return `<img src="${ref}" alt="${alt}"${tooltipAttr}>`;
     } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
-        return `<a href="${ref}">${alt}</a>`;
+        return `<a href="${ref}"${tooltipAttr}>${alt}</a>`;
     } else {
         // Not a known link type. Return the makrdown element as is.
-        return `${excl}[${alt}](${ref})`;
+        return `${excl}[${alt}](${ref}${tooltip ? ` "${tooltip}"` : ''})`;
     }
 }
 
@@ -158,18 +168,12 @@ function imageUSFM(link: string, text: string): string {
     const result = '\\fig ' + text + '|src="' + link + '" size="span"\\fig*';
     return result;
 }
-function weblinkUSFM(link: string, text: string): string {
-    const result = `\\jmp ${text}|href="${link}"\\jmp* `;
+function linkUSFM(link: string, text: string, tooltip: string): string {
+    const title = tooltip ? ` title="${tooltip}"` : '';
+    const result = `\\jmp ${text}|href="${link}"${title}\\jmp* `;
     return result;
 }
-function emailUSFM(link: string, text: string): string {
-    const result = `\\jmp ${text}|href="${link}"\\jmp* `;
-    return result;
-}
-function telUSFM(link: string, text: string): string {
-    const result = `\\jmp ${text}|href="${link}"\\jmp* `;
-    return result;
-}
+
 function referenceUSFM(link: string, text: string, bcId: string, bookid: string): string {
     // \zreflink-s |link="ENGWEB.MAT.5.1"\*Beatitudes\zreflink-e\* \
     let result: string = '';

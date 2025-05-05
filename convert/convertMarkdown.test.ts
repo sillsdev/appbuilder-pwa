@@ -23,9 +23,15 @@ describe('convertMarkdownsToMilestones', () => {
             '\\jmp EMAIL DAVID|href="mailto:david_moore1@sil.org"\\jmp*'
         );
     });
-    it('converts a web link markdown to a milestone', () => {
-        // Gen 3:13 translates this [Web Link](https://www.sil.org/)
-        expect(modifiedContent).toContain('\\jmp Web Link|href="https://www.sil.org/"\\jmp*');
+    it('converts a web link markdown with tooltip to a milestone', () => {
+        // Gen 3:13 translates this [Web Link](https://www.sil.org/ "SIL Global")
+        expect(modifiedContent).toContain(
+            '\\jmp Web Link|href="https://www.sil.org/" title="SIL Global"\\jmp*'
+        );
+    });
+    it('converts a web link markdown without tooltip to a milestone', () => {
+        // Gen 3:14 translates this [Software](https://software.sil.org)
+        expect(modifiedContent).toContain('\\jmp Software|href="https://software.sil.org"\\jmp*');
     });
     it('adds an empty markdown as text ', () => {
         // Gen 3:13 adds [Empty Markdown to text]
@@ -59,6 +65,19 @@ describe('convertMarkdownsToMilestones', () => {
         // Gen 3:8 translates [Just chapter verse](7.1)
         expect(modifiedContent).toContain(
             '\\zreflink-s |link="C01.GEN.7.1"\\*Just chapter verse\\zreflink-e\\*'
+        );
+    });
+    it('converts an image markdown to a figure', () => {
+        const input = '![The serpent](Serpent.png "A Tooltip")';
+        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN');
+        // Figures do not support tooltips
+        expect(output).toContain('\\fig The serpent|src="Serpent.png" size="span"\\fig*');
+    });
+    it('converts a web link markdown to a milestone with tooltip', () => {
+        const input = '[Web Link](https://www.sil.org/ "SIL Global")';
+        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN');
+        expect(output).toContain(
+            '\\jmp Web Link|href="https://www.sil.org/" title="SIL Global"\\jmp*'
         );
     });
 });
@@ -155,5 +174,19 @@ describe('convertMarkdownsToHTML', () => {
         const input = 'This [link](anisondfsao) is bogus';
         const out = convertMarkdownsToHTML(input);
         expect(out).toBe(input);
+    });
+    it('converts an image markdown to HTML with tooltip', () => {
+        const input = '![The serpent](Serpent.png "A Tooltip")';
+        const output = convertMarkdownsToHTML(input);
+        expect(output).toBe(
+            '<img src="Serpent.png" alt="The serpent" class="dy-tooltip" data-tip="A Tooltip">'
+        );
+    });
+    it('converts a web link markdown to HTML with tooltip', () => {
+        const input = '[Web Link](https://www.sil.org/ "SIL Global")';
+        const output = convertMarkdownsToHTML(input);
+        expect(output).toBe(
+            '<a href="https://www.sil.org/" class="dy-tooltip" data-tip="SIL Global">Web Link</a>'
+        );
     });
 });
