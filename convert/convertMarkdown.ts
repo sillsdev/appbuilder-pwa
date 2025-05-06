@@ -81,7 +81,7 @@ function usfmLink(
     } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
         return linkUSFM(ref, alt, tooltip);
     } else {
-        return referenceUSFM(ref, alt, bcId, bookId);
+        return referenceUSFM(ref, alt, tooltip, bcId, bookId);
     }
 }
 
@@ -95,20 +95,26 @@ function usfmLink(
  * @returns
  */
 function htmlLink(excl: string, alt: string, ref: string, tooltip: string): string {
-    const tooltipAttr = tooltip ? ` class="dy-tooltip" data-tip="${tooltip}"` : '';
     if (isBlank(ref)) {
         // Empty link reference, e.g. [text]()
         // Output simple text without a link
         return alt;
     } else if (isImageLink(ref, excl)) {
         // Image ![alt text](image.png)
-        return `<img src="${ref}" alt="${alt}"${tooltipAttr}>`;
+        return wrapWithTooltip(`<img src="${ref}" alt="${alt}">`, tooltip);
     } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
-        return `<a href="${ref}"${tooltipAttr}>${alt}</a>`;
+        return wrapWithTooltip(`<a href="${ref}">${alt}</a>`, tooltip);
     } else {
         // Not a known link type. Return the makrdown element as is.
         return `${excl}[${alt}](${ref}${tooltip ? ` "${tooltip}"` : ''})`;
     }
+}
+
+function wrapWithTooltip(html: string, tooltip: string): string {
+    if (tooltip) {
+        return `<span class="dy-tooltip" data-tip="${tooltip}" style="display: inline;">${html}</span>`;
+    }
+    return html;
 }
 
 function isEmailLink(ref: string): boolean {
@@ -174,8 +180,14 @@ function linkUSFM(link: string, text: string, tooltip: string): string {
     return result;
 }
 
-function referenceUSFM(link: string, text: string, bcId: string, bookid: string): string {
-    // \zreflink-s |link="ENGWEB.MAT.5.1"\*Beatitudes\zreflink-e\* \
+function referenceUSFM(
+    link: string,
+    text: string,
+    tooltip: string,
+    bcId: string,
+    bookid: string
+): string {
+    // \zreflink-s |link="ENGWEB.MAT.5.1" title="Matthew 5:1"\*Beatitudes\zreflink-e\* \
     let result: string = '';
     const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(link);
     const [fromVerse, toVerse, separator] = verseRanges[0];
@@ -201,10 +213,13 @@ function referenceUSFM(link: string, text: string, bcId: string, bookid: string)
         }
         const reference =
             refCollection + '.' + refBook + '.' + refChapter.toString() + '.' + refVerse.toString();
+        const title = tooltip ? ` title="${encodeURIComponent(tooltip)}"` : '';
         result =
             ' \\zreflink-s |link="' +
             encodeURIComponent(reference) +
-            '"\\*' +
+            '"' +
+            title +
+            '\\*' +
             text +
             '\\zreflink-e\\* ';
     }

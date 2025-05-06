@@ -7,6 +7,7 @@ export function checkForMilestoneLinks(
     parentDiv: HTMLElement,
     milestoneText: string,
     milestoneLink: string,
+    milestoneTitle: string,
     numberOfClips: number,
     subType: string,
     audioConfig: AudioConfig,
@@ -26,7 +27,7 @@ export function checkForMilestoneLinks(
             break;
         }
         case 'usfm:zreflink': {
-            const reflink = getReferenceLinkHtml(milestoneLink, milestoneText);
+            const reflink = getReferenceLinkHtml(milestoneLink, milestoneText, milestoneTitle);
             appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
@@ -144,12 +145,20 @@ function getAudioLinkHtml(
 
     return [audio, a];
 }
-function getReferenceLinkHtml(link: string, text: string): HTMLElement {
+function getReferenceLinkHtml(link: string, text: string, title: string): HTMLElement {
     const a = document.createElement('a');
     a.classList.add('web-link');
     a.classList.add('ref-link');
     a.setAttribute('ref', link);
     a.innerHTML = text;
+    if (title) {
+        const span = document.createElement('span');
+        span.classList.add('dy-tooltip');
+        span.setAttribute('data-tip', title);
+        span.style.display = 'inline';
+        span.appendChild(a);
+        return span;
+    }
     return a;
 }
 

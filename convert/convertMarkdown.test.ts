@@ -179,14 +179,14 @@ describe('convertMarkdownsToHTML', () => {
         const input = '![The serpent](Serpent.png "A Tooltip")';
         const output = convertMarkdownsToHTML(input);
         expect(output).toBe(
-            '<img src="Serpent.png" alt="The serpent" class="dy-tooltip" data-tip="A Tooltip">'
+            '<span class="dy-tooltip" data-tip="A Tooltip" style="display: inline;"><img src="Serpent.png" alt="The serpent"></span>'
         );
     });
     it('converts a web link markdown to HTML with tooltip', () => {
         const input = '[Web Link](https://www.sil.org/ "SIL Global")';
         const output = convertMarkdownsToHTML(input);
         expect(output).toBe(
-            '<a href="https://www.sil.org/" class="dy-tooltip" data-tip="SIL Global">Web Link</a>'
+            '<span class="dy-tooltip" data-tip="SIL Global" style="display: inline;"><a href="https://www.sil.org/">Web Link</a></span>'
         );
     });
 });

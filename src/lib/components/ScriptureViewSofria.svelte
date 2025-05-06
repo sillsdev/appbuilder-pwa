@@ -1364,6 +1364,7 @@ LOGGING:
                             workspace.currentPhraseIndex = 0;
                             workspace.milestoneLink = '';
                             workspace.milestoneText = '';
+                            workspace.milestoneTitle = '';
                             workspace.lastPhrase = 'a';
                             workspace.introductionGraft = false;
                             workspace.titleGraft = false;
@@ -2248,15 +2249,19 @@ LOGGING:
                                             jmpLink.setAttribute('href', workspace.jmpLink);
                                             jmpLink.setAttribute('target', '_blank');
                                             jmpLink.innerHTML = workspace.phraseDiv.innerHTML;
+
                                             if (workspace.jmpTitle) {
-                                                jmpLink.classList.add('dy-tooltip');
-                                                jmpLink.setAttribute(
-                                                    'data-tip',
-                                                    workspace.jmpTitle
-                                                );
+                                                // must use inline style
+                                                const tip = document.createElement('span');
+                                                tip.style.display = 'inline';
+                                                tip.classList.add('dy-tooltip');
+                                                tip.setAttribute('data-tip', workspace.jmpTitle);
+                                                tip.appendChild(jmpLink);
+                                                workspace.paragraphDiv.appendChild(tip);
+                                            } else {
+                                                workspace.paragraphDiv.appendChild(jmpLink);
                                             }
                                             workspace.phraseDiv = null;
-                                            workspace.paragraphDiv.appendChild(jmpLink);
                                             workspace.jmpLink = '';
                                             workspace.jmpTitle = '';
                                         }
@@ -2324,6 +2329,11 @@ LOGGING:
                                     workspace.milestoneLink = decodeURIComponent(
                                         element.atts['link'][0]
                                     );
+                                    if (isDefined(element.atts['title'])) {
+                                        workspace.milestoneTitle = decodeURIComponent(
+                                            element.atts['title'][0]
+                                        );
+                                    }
                                     break;
                                 }
                                 default: {
@@ -2349,6 +2359,7 @@ LOGGING:
                                 workspace.phraseDiv ?? workspace.paragraphDiv,
                                 workspace.milestoneText,
                                 workspace.milestoneLink,
+                                workspace.milestoneTitle,
                                 workspace.audioClips.length,
                                 element.subType,
                                 config.audio,
