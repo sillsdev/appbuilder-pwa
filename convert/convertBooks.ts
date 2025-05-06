@@ -119,8 +119,17 @@ export function encodeJmpLinks(text: string, _bcId: string, _bookId: string): st
         // Encode the link
         const encodedLink = encodeURIComponent(link);
 
+        // Extract the title from the attributes
+        const titleMatch = attributes.match(/title="([^"]+)"/);
+        const title = titleMatch ? titleMatch[1] : '';
+
+        // Encode the title
+        const encodedTitle = encodeURIComponent(title);
+
         // replace the original link with the encoded link
-        const newAttributes = attributes.replace(/href="[^"]+"/, `href="${encodedLink}"`);
+        const newAttributes = attributes
+            .replace(/href="[^"]+"/, `href="${encodedLink}"`)
+            .replace(/title="[^"]+"/, `title="${encodedTitle}"`);
 
         // Return the modified \jmp tag
         return `\\jmp ${label}|${newAttributes}\\jmp*`;
