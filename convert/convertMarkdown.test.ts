@@ -15,17 +15,23 @@ describe('convertMarkdownsToMilestones', () => {
     });
     it('converts a telephone markdown to a milestone', () => {
         // Gen 3:14 translates this [TEL](tel:6145551212)
-        expect(modifiedContent).toContain('/jmp TEL|href="tel%3A6145551212"/jmp*');
+        expect(modifiedContent).toContain('\\jmp TEL|href="tel:6145551212"\\jmp*');
     });
     it('converts an email markdown to a milestone', () => {
         // Gen 3:14 translates this [EMAIL DAVID](mailto:david_moore1@sil.org)
         expect(modifiedContent).toContain(
-            '/jmp EMAIL DAVID|href="mailto%3Adavid_moore1%40sil.org"/jmp*'
+            '\\jmp EMAIL DAVID|href="mailto:david_moore1@sil.org"\\jmp*'
         );
     });
-    it('converts a web link markdown to a milestone', () => {
-        // Gen 3:13 translates this [Web Link](https://www.sil.org/)
-        expect(modifiedContent).toContain('/jmp Web Link|href="https%3A%2F%2Fwww.sil.org%2F"/jmp*');
+    it('converts a web link markdown with tooltip to a milestone', () => {
+        // Gen 3:13 translates this [Web Link](https://www.sil.org/ "SIL Global")
+        expect(modifiedContent).toContain(
+            '\\jmp Web Link|href="https://www.sil.org/" title="SIL Global"\\jmp*'
+        );
+    });
+    it('converts a web link markdown without tooltip to a milestone', () => {
+        // Gen 3:14 translates this [Software](https://software.sil.org)
+        expect(modifiedContent).toContain('\\jmp Software|href="https://software.sil.org"\\jmp*');
     });
     it('adds an empty markdown as text ', () => {
         // Gen 3:13 adds [Empty Markdown to text]
@@ -59,6 +65,19 @@ describe('convertMarkdownsToMilestones', () => {
         // Gen 3:8 translates [Just chapter verse](7.1)
         expect(modifiedContent).toContain(
             '\\zreflink-s |link="C01.GEN.7.1"\\*Just chapter verse\\zreflink-e\\*'
+        );
+    });
+    it('converts an image markdown to a figure', () => {
+        const input = '![The serpent](Serpent.png "A Tooltip")';
+        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN');
+        // Figures do not support tooltips
+        expect(output).toContain('\\fig The serpent|src="Serpent.png" size="span"\\fig*');
+    });
+    it('converts a web link markdown to a milestone with tooltip', () => {
+        const input = '[Web Link](https://www.sil.org/ "SIL Global")';
+        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN');
+        expect(output).toContain(
+            '\\jmp Web Link|href="https://www.sil.org/" title="SIL Global"\\jmp*'
         );
     });
 });
@@ -155,5 +174,19 @@ describe('convertMarkdownsToHTML', () => {
         const input = 'This [link](anisondfsao) is bogus';
         const out = convertMarkdownsToHTML(input);
         expect(out).toBe(input);
+    });
+    it('converts an image markdown to HTML with tooltip', () => {
+        const input = '![The serpent](Serpent.png "A Tooltip")';
+        const output = convertMarkdownsToHTML(input);
+        expect(output).toBe(
+            '<span class="dy-tooltip" data-tip="A Tooltip" style="display: inline;"><img src="Serpent.png" alt="The serpent"></span>'
+        );
+    });
+    it('converts a web link markdown to HTML with tooltip', () => {
+        const input = '[Web Link](https://www.sil.org/ "SIL Global")';
+        const output = convertMarkdownsToHTML(input);
+        expect(output).toBe(
+            '<span class="dy-tooltip" data-tip="SIL Global" style="display: inline;"><a href="https://www.sil.org/">Web Link</a></span>'
+        );
     });
 });

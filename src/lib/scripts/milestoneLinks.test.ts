@@ -28,6 +28,7 @@ describe('milestoneLinks', () => {
                     phraseDiv,
                     'SIL Link',
                     'https://sil.org/',
+                    '',
                     0,
                     'usfm:zweblink',
                     emptyAudio,
@@ -76,6 +77,7 @@ describe('milestoneLinks', () => {
                     phraseDiv,
                     'SIL Link',
                     'https://sil.org/',
+                    '',
                     0,
                     'usfm:zweblink',
                     emptyAudio,
@@ -125,6 +127,7 @@ describe('milestoneLinks', () => {
                     phraseDiv,
                     'Ref Link',
                     'C01.MAT.5.1',
+                    '',
                     0,
                     'usfm:zreflink',
                     emptyAudio,
@@ -161,6 +164,76 @@ describe('milestoneLinks', () => {
                 });
             });
         });
+        describe('usfm:zreflink milestone received', () => {
+            describe('outside footnote with tooltip', () => {
+                let phraseTooltip;
+                let phraseWebLinks;
+                let footnoteWebLinks;
+                beforeEach(() => {
+                    textType.push('reflink');
+                    checkForMilestoneLinks(
+                        textType,
+                        footnoteDiv,
+                        phraseDiv,
+                        'Ref Link',
+                        'C01.MAT.5.1',
+                        'Matthew 5:1',
+                        0,
+                        'usfm:zreflink',
+                        emptyAudio,
+                        onClick
+                    );
+                    phraseTooltip = phraseDiv.getElementsByTagName('span');
+                    phraseWebLinks = phraseDiv.getElementsByTagName('a');
+                    footnoteWebLinks = footnoteDiv.getElementsByTagName('a');
+                });
+                it('does not create a footnote link', () => {
+                    expect(footnoteWebLinks.length).toEqual(0);
+                });
+                it('creates a single tooltip element in the phrase div', () => {
+                    expect(phraseTooltip.length).toEqual(1);
+                });
+                describe('which', () => {
+                    let tooltip;
+                    beforeEach(() => {
+                        tooltip = phraseTooltip[0];
+                    });
+                    it('has a class of tooltip', () => {
+                        expect(tooltip.classList.contains('dy-tooltip')).toBe(true);
+                    });
+                    it('displays inline', () => {
+                        expect(tooltip.style.display).toEqual('inline');
+                    });
+                    it('sets the data-tip attribute', () => {
+                        expect(tooltip.getAttribute('data-tip')).toEqual('Matthew 5:1');
+                    });
+                });
+                it('creates a single link element in the phrase div', () => {
+                    expect(phraseWebLinks.length).toEqual(1);
+                });
+                describe('which', () => {
+                    let webLink;
+                    beforeEach(() => {
+                        webLink = phraseWebLinks[0];
+                    });
+                    it('has a class of web-link', () => {
+                        expect(webLink.classList.contains('web-link')).toBe(true);
+                    });
+                    it('has a class of ref-link', () => {
+                        expect(webLink.classList.contains('ref-link')).toBe(true);
+                    });
+                    it('sets reference attribute to the link', () => {
+                        expect(webLink.getAttribute('ref')).toEqual('C01.MAT.5.1');
+                    });
+                    it('sets the link text', () => {
+                        expect(webLink.innerHTML).toEqual('Ref Link');
+                    });
+                    it('pops one entry off of text type array', () => {
+                        expect(textType.length).toEqual(1);
+                    });
+                });
+            });
+        });
         describe('inside footnote', () => {
             let phraseWebLinks;
             let footnoteWebLinks;
@@ -173,6 +246,7 @@ describe('milestoneLinks', () => {
                     phraseDiv,
                     'Ref Link',
                     'C01.MAT.5.1',
+                    '',
                     0,
                     'usfm:zreflink',
                     emptyAudio,
@@ -210,6 +284,7 @@ describe('milestoneLinks', () => {
             });
         });
     });
+
     describe('usfm:zelink milestone received outside footnote', () => {
         let phraseWebLinks;
         let footnoteWebLinks;
@@ -221,6 +296,7 @@ describe('milestoneLinks', () => {
                 phraseDiv,
                 'Email Link',
                 'mailto:david_moore1@sil.org',
+                '',
                 0,
                 'usfm:zelink',
                 emptyAudio,
@@ -268,6 +344,7 @@ describe('milestoneLinks', () => {
                 phraseDiv,
                 'Telephone Link',
                 'tel:9995551212',
+                '',
                 0,
                 'usfm:ztellink',
                 emptyAudio,
@@ -330,6 +407,7 @@ describe('milestoneLinks', () => {
                 phraseDiv,
                 'Audio Clip Link',
                 'audioclip.mp3',
+                '',
                 5,
                 'usfm:zaudioc',
                 audioConfig,
@@ -413,6 +491,7 @@ describe('milestoneLinks', () => {
                 phraseDiv,
                 'Audio Clip Link',
                 'B02___02_San_Marcos__CUKNVSN2DA.mp3',
+                '',
                 6,
                 'usfm:zaudioc',
                 audioConfig,

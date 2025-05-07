@@ -1364,6 +1364,7 @@ LOGGING:
                             workspace.currentPhraseIndex = 0;
                             workspace.milestoneLink = '';
                             workspace.milestoneText = '';
+                            workspace.milestoneTitle = '';
                             workspace.lastPhrase = 'a';
                             workspace.introductionGraft = false;
                             workspace.titleGraft = false;
@@ -1392,6 +1393,8 @@ LOGGING:
                             workspace.tableCellElement = null;
                             workspace.rowCellNumber = 0;
                             workspace.lemma = '';
+                            workspace.jmpLink = '';
+                            workspace.jmpTitle = '';
                             deselectAllElements(selectedVerses);
 
                             const div = document.createElement('div');
@@ -1730,7 +1733,7 @@ LOGGING:
                                     workspace.titleGraft
                                 )
                             ) {
-                                const text = convertJmp(context.sequences[0].element.text);
+                                const text = context.sequences[0].element.text;
                                 switch (currentTextType(workspace)) {
                                     case 'title': {
                                         appendTextToElement(workspace.titleSpan, text);
@@ -2159,6 +2162,18 @@ LOGGING:
                                         if (source) {
                                             addFigureDiv(source, workspace);
                                         }
+                                    } else if (usfmType === 'jmp') {
+                                        if (isDefined(element.atts['href'])) {
+                                            workspace.jmpLink = decodeURIComponent(
+                                                element.atts['href'][0]
+                                            );
+                                        }
+
+                                        if (isDefined(element.atts['title'])) {
+                                            workspace.jmpTitle = decodeURIComponent(
+                                                element.atts['title'][0]
+                                            );
+                                        }
                                     } else {
                                         workspace.textType.push('usfm');
                                         if (usfmType === 'w') {
@@ -2220,6 +2235,35 @@ LOGGING:
                                     if (usfmType === 'fig') {
                                         if (showImage()) {
                                             workspace.paragraphDiv.appendChild(workspace.figureDiv);
+                                        }
+                                    } else if (usfmType === 'jmp') {
+                                        if (workspace.jmpLink) {
+                                            const jmpLink = document.createElement('a');
+
+                                            const className = workspace.jmpLink.startsWith('mailto')
+                                                ? 'email-link'
+                                                : workspace.jmpLink.startsWith('tel')
+                                                  ? 'tel-link'
+                                                  : 'web-link';
+                                            jmpLink.classList.add(className);
+                                            jmpLink.setAttribute('href', workspace.jmpLink);
+                                            jmpLink.setAttribute('target', '_blank');
+                                            jmpLink.innerHTML = workspace.phraseDiv.innerHTML;
+
+                                            if (workspace.jmpTitle) {
+                                                // must use inline style
+                                                const tip = document.createElement('span');
+                                                tip.style.display = 'inline';
+                                                tip.classList.add('dy-tooltip');
+                                                tip.setAttribute('data-tip', workspace.jmpTitle);
+                                                tip.appendChild(jmpLink);
+                                                workspace.paragraphDiv.appendChild(tip);
+                                            } else {
+                                                workspace.paragraphDiv.appendChild(jmpLink);
+                                            }
+                                            workspace.phraseDiv = null;
+                                            workspace.jmpLink = '';
+                                            workspace.jmpTitle = '';
                                         }
                                     }
                                     workspace.usfmWrapperType = '';
@@ -2285,6 +2329,11 @@ LOGGING:
                                     workspace.milestoneLink = decodeURIComponent(
                                         element.atts['link'][0]
                                     );
+                                    if (isDefined(element.atts['title'])) {
+                                        workspace.milestoneTitle = decodeURIComponent(
+                                            element.atts['title'][0]
+                                        );
+                                    }
                                     break;
                                 }
                                 default: {
@@ -2310,6 +2359,7 @@ LOGGING:
                                 workspace.phraseDiv ?? workspace.paragraphDiv,
                                 workspace.milestoneText,
                                 workspace.milestoneLink,
+                                workspace.milestoneTitle,
                                 workspace.audioClips.length,
                                 element.subType,
                                 config.audio,
@@ -2393,27 +2443,6 @@ LOGGING:
             console.log('DONE %o', bookRoot);
         }
     };
-
-    function convertJmp(text: string): string {
-        if (!text.includes('/jmp')) {
-            return text;
-        }
-        return text.replace(
-            /\/jmp ([^|]+)\| href="([^"]+)"\/jmp\*/g,
-            (_match, url, encodedHref) => {
-                const decodedHref = decodeURIComponent(encodedHref);
-
-                const className = decodedHref.startsWith('mailto')
-                    ? 'email-link'
-                    : decodedHref.startsWith('tel')
-                      ? 'tel-link'
-                      : 'web-link';
-                const attributes =
-                    className === 'web-link' ? 'target="_blank" rel="noreferrer"' : '';
-                return `<a ${attributes} class="${className}" href="${decodedHref}">${url}</a>`;
-            }
-        );
-    }
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];

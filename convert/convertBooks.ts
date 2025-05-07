@@ -99,6 +99,43 @@ function removeMissingVerses(text: string, _bcId: string, _bookId: string): stri
     });
 }
 
+export function encodeJmpLinks(text: string, _bcId: string, _bookId: string): string {
+    // Regular expression to match \jmp tags
+    const jmpRegex = /\\jmp\s([^\\]+)\\jmp\*/g;
+
+    // Replace the href in each \jmp tag with an encoded version (otherwise Proskomma will mess with it)
+    return text.replace(jmpRegex, (_, jmpContent) => {
+        // Split the content of the \jmp tag by pipe (|)
+        const parts = jmpContent.split('|');
+
+        // Extract the label and attributes
+        const label = parts[0];
+        const attributes = parts[1] || '';
+
+        // Extract the link from the attributes
+        const linkMatch = attributes.match(/href="([^"]+)"/);
+        const link = linkMatch ? linkMatch[1] : '';
+
+        // Encode the link
+        const encodedLink = encodeURIComponent(link);
+
+        // Extract the title from the attributes
+        const titleMatch = attributes.match(/title="([^"]+)"/);
+        const title = titleMatch ? titleMatch[1] : '';
+
+        // Encode the title
+        const encodedTitle = encodeURIComponent(title);
+
+        // replace the original link with the encoded link
+        const newAttributes = attributes
+            .replace(/href="[^"]+"/, `href="${encodedLink}"`)
+            .replace(/title="[^"]+"/, `title="${encodedTitle}"`);
+
+        // Return the modified \jmp tag
+        return `\\jmp ${label}|${newAttributes}\\jmp*`;
+    });
+}
+
 // This is a HACK!!!
 // See https://github.com/Proskomma/proskomma-json-tools/issues/63
 //
@@ -240,6 +277,7 @@ const usfmFilterFunctions: FilterFunction[] = [
     replaceVideoTags,
     replacePageTags,
     convertMarkdownsToMilestones,
+    encodeJmpLinks,
     handleNoCaptionFigures,
     removeMissingFigures,
     trimTrailingWhitespace,
