@@ -9,6 +9,7 @@ export interface SearchOptions {
     substitute?: { [char: string]: string };
     caseInsensitive?: boolean;
     locale?: string;
+    accentsAndTones?: boolean;
 }
 
 export interface SearchQuery {
