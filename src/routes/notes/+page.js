@@ -12,7 +12,6 @@ export async function load({ depends }) {
     const notes = allNotes.filter((item) => {
         return config.bookCollections.some((collection) => collection.id === item.collection);
     });
-    depends('notes');
-    console.log('Notes', notes);
+    depends('idb:notes');
     return { notes };
 }
