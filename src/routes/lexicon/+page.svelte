@@ -14,19 +14,15 @@
         currentReversalWordsStore,
         reversalLettersStore,
         reversalWordsStore,
-        selectedReversalLanguageStore,
+        selectedLanguageStore,
+        vernacularLanguageStore,
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
+    import { SearchIcon } from '$lib/icons';
+    import { getRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
-    const {
-        vernacularAlphabet,
-        vernacularLanguage,
-        reversalAlphabets,
-        reversalLanguages,
-        reversalIndexes,
-        dictionaryName
-    } = page.data;
+    const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = page.data;
 
     const alphabets = {
         reversal: Object.values(reversalAlphabets[0])[0],
@@ -35,26 +31,26 @@
 
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = null;
+    $: showBackButton = selectedWord ? true : false;
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let loadedReversalLetters = new Set();
     let reversalWordsList;
     let vernacularWordsList;
-    let selectedLanguage = vernacularLanguage;
+    let vernacularLanguage;
     let scrollContainer;
+    let wordIds;
 
-    // Subscribe to stores
-    currentReversalLettersStore.subscribe((value) => (loadedReversalLetters = new Set(value)));
-    currentReversalWordsStore.subscribe((value) => (reversalWordsList = value));
-    vernacularWordsStore.subscribe((value) => (vernacularWordsList = value));
-    selectedReversalLanguageStore.subscribe((value) => {
-        selectedLanguage = value || vernacularLanguage;
-    });
+    $: loadedReversalLetters = new Set($currentReversalLettersStore);
+    $: reversalWordsList = $currentReversalWordsStore;
+    $: vernacularLanguage = $vernacularLanguageStore;
+    $: vernacularWordsList = $vernacularWordsStore;
+    //$: selectedLanguage = $selectedLanguageStore;
+    $: selectedLanguageStore.set(vernacularLanguage);
+
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
     async function fetchWords(letter = selectedLetter) {
-        if (selectedLanguage === reversalLanguage && !loadedReversalLetters.has(letter)) {
-            console.log('Loading letter data:', letter);
-
+        if ($selectedLanguageStore === reversalLanguage && !loadedReversalLetters.has(letter)) {
             const letterIndex = alphabets.reversal.indexOf(letter);
             const lettersToLoad = alphabets.reversal
                 .slice(0, letterIndex)
@@ -69,15 +65,15 @@
             // Sort the results based on the selectedLanguage's alphabet
             reversalWordsStore.update((words) => {
                 const updatedWords = { ...words };
-                updatedWords[selectedLanguage] = (updatedWords[selectedLanguage] || []).sort(
-                    (a, b) => {
-                        const alphabet = currentAlphabet;
-                        return (
-                            alphabet.indexOf(a.word[0].toLowerCase()) -
-                            alphabet.indexOf(b.word[0].toLowerCase())
-                        );
-                    }
-                );
+                updatedWords[$selectedLanguageStore] = (
+                    updatedWords[$selectedLanguageStore] || []
+                ).sort((a, b) => {
+                    const alphabet = currentAlphabet;
+                    return (
+                        alphabet.indexOf(a.word[0].toLowerCase()) -
+                        alphabet.indexOf(b.word[0].toLowerCase())
+                    );
+                });
                 return updatedWords;
             });
         }
@@ -134,8 +130,8 @@
 
         reversalWordsStore.update((words) => {
             const updatedWords = { ...words };
-            updatedWords[selectedLanguage] = [
-                ...(updatedWords[selectedLanguage] || []),
+            updatedWords[$selectedLanguageStore] = [
+                ...(updatedWords[$selectedLanguageStore] || []),
                 ...newWords
             ];
             return updatedWords;
@@ -143,8 +139,8 @@
 
         reversalLettersStore.update((letters) => {
             const updatedLetters = { ...letters };
-            updatedLetters[selectedLanguage] = [
-                ...(updatedLetters[selectedLanguage] || []),
+            updatedLetters[$selectedLanguageStore] = [
+                ...(updatedLetters[$selectedLanguageStore] || []),
                 letter
             ];
             return updatedLetters;
@@ -153,6 +149,7 @@
 
     function selectWord(word) {
         selectedWord = selectedWord && selectedWord.word === word ? null : word;
+        wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
     }
 
     async function scrollToLetter(letter) {
@@ -172,17 +169,16 @@
 
     async function handleLetterChange(letter) {
         selectedLetter = letter;
-        if (selectedLanguage === reversalLanguage) {
+        if ($selectedLanguageStore === reversalLanguage) {
             await fetchWords();
         }
         scrollToLetter(letter);
     }
 
     function switchLanguage(language) {
-        selectedReversalLanguageStore.set(language);
-        selectedLanguage = language;
+        selectedLanguageStore.set(language);
         selectedLetter = currentAlphabet[0];
-        if (selectedLanguage != vernacularLanguage) {
+        if ($selectedLanguageStore != vernacularLanguage) {
             fetchWords();
         }
         const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
@@ -197,8 +193,8 @@
         if (isFetching) return;
 
         if (
-            (selectedLanguage === reversalLanguage && reversalWordsList.length > 0) ||
-            (selectedLanguage === vernacularLanguage && vernacularWordsList.length > 0)
+            ($selectedLanguageStore === reversalLanguage && reversalWordsList.length > 0) ||
+            ($selectedLanguageStore === vernacularLanguage && vernacularWordsList.length > 0)
         ) {
             let div = event.target;
             const threshold = 100;
@@ -213,9 +209,9 @@
                     }
                 }
             } else if (
-                (selectedLanguage === reversalLanguage &&
+                ($selectedLanguageStore === reversalLanguage &&
                     loadedReversalLetters.has(selectedLetter)) ||
-                selectedLanguage === vernacularLanguage
+                $selectedLanguageStore === vernacularLanguage
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
                 let visibleLetter = null;
@@ -235,10 +231,10 @@
     }
 
     $: currentAlphabet =
-        selectedLanguage === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
+        $selectedLanguageStore === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
 
     onMount(() => {
-        if (selectedLetter && selectedLanguage != vernacularLanguage) {
+        if (selectedLetter && $selectedLanguageStore != vernacularLanguage) {
             fetchWords();
         }
         if (config.programType !== 'DAB') {
@@ -247,22 +243,41 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr] bg-base-100" style="height:100vh;height:100dvh;">
-    <!--<div class="flex flex-col min-h-screen max-h-screen bg-base-100">-->
-    <Navbar>
-        {#snippet center()}
+<div
+    class="grid fixed bg-base-100"
+    class:grid-rows-[auto,auto,1fr]={selectedWord}
+    class:grid-rows-[auto,1fr]={!selectedWord}
+    style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
+>
+    <Navbar {showBackButton}>
+        {#snippet start()}
             <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold">
-                    {dictionaryName}
+                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                    {config.name}
                 </div>
             </label>
+        {/snippet}
+        {#snippet end()}
+            <div class="flex flex-nowrap">
+                <div id="extraButtons" class:pr-4={!selectedWord}>
+                    <button
+                        class="dy-btn dy-btn-ghost dy-btn-circle"
+                        on:click={() => {
+                            wordIds = null;
+                            goto(getRoute(`/lexicon/search`));
+                        }}
+                    >
+                        <SearchIcon color="white" />
+                    </button>
+                </div>
+            </div>
         {/snippet}
     </Navbar>
 
     {#if !selectedWord}
         <LexiconListViewHeader
             alphabet={currentAlphabet}
-            {selectedLanguage}
+            selectedLanguage={$selectedLanguageStore}
             {vernacularLanguage}
             {reversalLanguage}
             {selectedLetter}
@@ -271,30 +286,40 @@
         />
     {/if}
 
-    <div
-        class="flex-1 overflow-y-auto bg-base-100"
-        bind:this={scrollContainer}
-        on:scroll={checkIfScrolledToBottom}
-    >
-        {#if selectedWord}
-            <WordNavigationStrip
-                currentWord={selectedWord}
-                wordsList={selectedLanguage === vernacularLanguage
-                    ? vernacularWordsList
-                    : reversalWordsList}
-                onSelectWord={selectWord}
-            />
-            <LexiconEntryView
-                {selectedWord}
-                {vernacularWordsList}
-                {vernacularLanguage}
-                onSwitchLanguage={switchLanguage}
-                onSelectWord={selectWord}
-            />
-        {:else if selectedLanguage === vernacularLanguage}
+    {#if selectedWord}
+        <WordNavigationStrip
+            currentWord={selectedWord}
+            wordsList={$selectedLanguageStore === vernacularLanguage
+                ? vernacularWordsList
+                : reversalWordsList}
+            onSelectWord={selectWord}
+        />
+        <div
+            class="flex-1 overflow-y-auto bg-base-100"
+            style="background-color: var(--BackgroundColor);"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
+            <LexiconEntryView {wordIds} onSelectWord={selectWord} />
+        </div>
+    {:else if $selectedLanguageStore === vernacularLanguage}
+        <div
+            class="flex-1 overflow-y-auto bg-base-100"
+            style="background-color: var(--BackgroundColor);"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
             <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
-        {:else}
+        </div>
+    {:else}
+        <div
+            id="container"
+            class="flex-1 overflow-y-auto bg-base-100 width-full"
+            style="background-color: var(--BackgroundColor);"
+            bind:this={scrollContainer}
+            on:scroll={checkIfScrolledToBottom}
+        >
             <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
-        {/if}
-    </div>
+        </div>
+    {/if}
 </div>

@@ -2,11 +2,14 @@ import { base } from '$app/paths';
 import initSqlJs, { Database } from 'sql.js';
 import { derived, get, writable, type Writable } from 'svelte/store';
 
+// Store for vernacularLanguage
+export const vernacularLanguageStore = writable<string>('');
+
 // Store for vernacularWordsList
 export const vernacularWordsStore = writable<string[]>();
 
-// Store for selectedReversalLanguageStore
-export const selectedReversalLanguageStore = writable<string | null>(null);
+// Store for selectedLanguageStore
+export const selectedLanguageStore = writable<string | null>(null);
 
 // Store for reversalWordsList, keyed by language
 interface VernacularWordReference {
@@ -27,13 +30,13 @@ export const reversalLettersStore = writable<Record<string, string[]>>({});
 
 // Derived store to get the current language's reversalWordsList
 export const currentReversalWordsStore = derived(
-    [selectedReversalLanguageStore, reversalWordsStore],
+    [selectedLanguageStore, reversalWordsStore],
     ([selectedLanguage, wordsStore]) => (selectedLanguage ? wordsStore[selectedLanguage] || [] : [])
 );
 
 // Derived store to get the current language's reversalLetters
 export const currentReversalLettersStore = derived(
-    [selectedReversalLanguageStore, reversalLettersStore],
+    [selectedLanguageStore, reversalLettersStore],
     ([selectedLanguage, lettersStore]) =>
         selectedLanguage ? lettersStore[selectedLanguage] || [] : []
 );

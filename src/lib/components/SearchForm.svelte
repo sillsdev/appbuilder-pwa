@@ -10,8 +10,18 @@
 
     let searchbar;
 
-    const specialCharacters =
-        config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+    // const specialCharacters =
+    //     config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+
+    let specialCharacters = [];
+    if (config.programType == 'SAB') {
+        specialCharacters =
+            config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+    } else if (config.programType === 'DAB') {
+        specialCharacters = Object.values(config.writingSystems)
+            .filter((ws: any) => ws.type && ws.type.includes('main'))
+            .flatMap((ws: any) => ws.inputButtons || []);
+    }
 
     function addSpecialCharacter(char: string, event: MouseEvent) {
         event.preventDefault();
@@ -41,7 +51,7 @@
     }
 </script>
 
-<form class="w-full max-w-screen-md p-4">
+<form class="w-full max-w-screen-md p-4" style="background-color: var(--BackgroundColor);">
     <div class="dy-form-control mb-4">
         <label class="dy-input-group w-full flex">
             <input
@@ -53,8 +63,9 @@
                 class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
                 style:min-width="0"
                 style={convertStyle($s['ui.search.entry-text'])}
-                style:background-color={$themeColors.BackgroundColor}
-                style:border-color={$themeColors.DividerColor}
+                style:background-color="var(--PopupBackgroundColor)"
+                style:color="var(--SearchTextColor)"
+                style:border-color="var(--SettingsSeparatorColor)"
                 size="1"
                 inputmode="search"
                 enterkeyhint="search"
@@ -62,21 +73,25 @@
             />
             <button
                 on:click|preventDefault={submit}
-                class="dy-btn mx-2 flex-none bg-gray-200"
+                class="dy-btn mx-2 flex-none"
                 style={convertStyle($s['ui.search.button'])}
-                style:border-color={$themeColors.DividerColor}
+                style:background-color="var(--SearchButtonColor)"
+                style:color="var(--SearchButtonTextColor)"
+                style:border-color="var(--SettingsSeparatorColor)"
             >
-                <SearchIcon color={$themeColors.SearchButtonTextColor} />
+                <SearchIcon color="var(--SearchButtonTextColor)" />
             </button>
         </label>
     </div>
-    {#if config.mainFeatures['search-input-buttons'] && specialCharacters.length > 0}
+    {#if (config.mainFeatures['search-input-buttons'] || config.programType == 'DAB') && specialCharacters.length > 0}
         <div class="dy-form-control m-2">
-            <div class="special-characters">
+            <div class="special-characters flex flex-wrap">
                 {#each specialCharacters as character}
                     <button
                         class="m-0.5 rounded w-8 h-10"
                         style={convertStyle($s['ui.search.buttons'])}
+                        style:background-color="var(--TabBackgroundColor)"
+                        style:color="var(--TextColor)"
                         on:click={(e) => addSpecialCharacter(character, e)}
                     >
                         {character}
@@ -85,23 +100,43 @@
             </div>
         </div>
     {/if}
-    {#if config.mainFeatures['search-whole-words-show']}
+    {#if config.mainFeatures['search-whole-words-show'] || config.programType == 'DAB'}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
-                <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
-                    ><bdi>{$t['Search_Match_Whole_Words']}</bdi></span
+                <span
+                    class="dy-label-text"
+                    style={convertStyle($s['ui.search.checkbox'])}
+                    style:color="var(--SettingsSummaryColor)"
                 >
-                <input type="checkbox" class="dy-toggle" bind:checked={wholeWords} />
+                    <bdi>{$t['Search_Match_Whole_Words']}</bdi>
+                </span>
+                <input
+                    type="checkbox"
+                    class="dy-toggle"
+                    bind:checked={wholeWords}
+                    style:background-color="var(--TextHighlightColor)"
+                    style:border-color="var(--SettingsSeparatorColor)"
+                />
             </label>
         </div>
     {/if}
-    {#if config.mainFeatures['search-accents-show']}
+    {#if config.mainFeatures['search-accents-show'] || config.programType == 'DAB'}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
-                <span class="dy-label-text" style={convertStyle($s['ui.search.checkbox'])}
-                    ><bdi>{$t['Search_Match_Accents']}</bdi></span
+                <span
+                    class="dy-label-text"
+                    style={convertStyle($s['ui.search.checkbox'])}
+                    style:color="var(--SettingsSummaryColor)"
                 >
-                <input type="checkbox" class="dy-toggle" bind:checked={matchAccents} />
+                    <bdi>{$t['Search_Match_Accents']}</bdi>
+                </span>
+                <input
+                    type="checkbox"
+                    class="dy-toggle"
+                    bind:checked={matchAccents}
+                    style:background-color="var(--TextHighlightColor)"
+                    style:border-color="var(--SettingsSeparatorColor)"
+                />
             </label>
         </div>
     {/if}
