@@ -12,6 +12,7 @@
 
     export let wordIds;
     export let onSelectWord;
+    export let removeNewLines = false;
 
     let xmlData = '';
 
@@ -33,8 +34,6 @@
     }
 
     function formatXmlByClass(xmlString) {
-        //const backgroundColor = 'rgb(240,240,240)'; // ✅ Change this value to set the highlight color
-
         if (!xmlString) return '';
 
         const parser = new DOMParser();
@@ -95,7 +94,7 @@
                         output += ` ${attr.name}="${attr.value}"`;
                     }
 
-                    // I've added appropriate styling based on class name
+                    // Add appropriate styling based on class name
                     if (className.includes('sensenumber')) {
                         output += ` style="color: var(--TextColor); font-weight: bold;"`;
                     } else if (className.includes('vernacular')) {
@@ -169,11 +168,45 @@
     }
 
     function applyStyles() {
+        // Apply styles from config
         for (let stl of config.singleEntryStyles) {
             for (let elm of document.querySelectorAll(stl.name)) {
-                elm.style = convertStyle(stl.properties);
+                let styleString = convertStyle(stl.properties);
+
+                if (removeNewLines) {
+                    styleString = styleString.replace(/display:\s*block/g, 'display: inline');
+                }
+
+                elm.style = styleString;
             }
         }
+
+        // Fix legacy sensecontent indentation
+        const senseEls = document.querySelectorAll('.sensecontent');
+        senseEls.forEach((el) => {
+            let style = el.getAttribute('style') || '';
+
+            const hasLegacyIndent =
+                style.includes('text-indent: -2em') && style.includes('margin-left: 4em');
+
+            if (hasLegacyIndent) {
+                let cleaned = style
+                    .replace(/text-indent:\s*-2em;?/g, '')
+                    .replace(/margin-left:\s*4em;?/g, '')
+                    .trim();
+
+                if (cleaned && !cleaned.endsWith(';')) cleaned += ';';
+                cleaned += ' margin-left: -1.1em;';
+
+                style = cleaned;
+            }
+
+            if (removeNewLines) {
+                style = style.replace(/display:\s*block/g, 'display: inline');
+            }
+
+            el.setAttribute('style', style.trim());
+        });
     }
 
     onMount(updateXmlData);
