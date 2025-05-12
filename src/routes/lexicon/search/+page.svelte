@@ -129,7 +129,7 @@
             <div class="flex justify-center">
                 <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
                     {#if wordIds && wordIds.length > 0}
-                        <LexiconEntryView {wordIds} onSelectWord={selectWord} removeNewLines/>
+                        <LexiconEntryView {wordIds} onSelectWord={selectWord} removeNewLines />
                     {:else if wordIds && wordIds.length == 0}
                         <div class="text-center" style="color: var(--SettingsSummaryColor);">
                             No results found.
