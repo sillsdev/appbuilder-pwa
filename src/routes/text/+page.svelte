@@ -400,7 +400,7 @@
                         </button>
 
                         <!-- Collection Selector Button -->
-                        {#if true || (showCollectionNavbar && enoughCollections)}
+                        {#if showCollectionNavbar && enoughCollections}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 on:click={() => modal.open(MODAL_COLLECTION)}
