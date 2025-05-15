@@ -1,8 +1,23 @@
 <script>
-    import { t, userSettings } from '$lib/data/stores';
+    import { monoIconColor, t, userSettings } from '$lib/data/stores';
     import Modal from './Modal.svelte';
 
     let modalId = 'playback';
+
+    // Array of speed options
+    const speeds = [
+        { value: '0.4', label: '0.4x' },
+        { value: '0.6', label: '0.6x' },
+        { value: '0.7', label: '0.7x' },
+        { value: '0.8', label: '0.8x' },
+        { value: '0.9', label: '0.9x' },
+        { value: '1.0', label: $t['Settings_Audio_Speed_Normal'] },
+        { value: '1.1', label: '1.1x' },
+        { value: '1.2', label: '1.2x' },
+        { value: '1.3', label: '1.3x' },
+        { value: '1.4', label: '1.4x' },
+        { value: '1.6', label: '1.6x' }
+    ];
 
     function setPlaySpeed(event) {
         $userSettings['audio-speed'] = event.target.value;
@@ -16,92 +31,26 @@
 
 <Modal bind:this={modalThis} id={modalId} useLabel={false}>
     <svelte:fragment slot="content">
-        <h1>
-            <b style="">{$t['Settings_Audio_Speed']}</b>
-        </h1>
-        <div class="speed-controls">
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="0.4"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '0.4'}
-                />
-                0.4x
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="0.6"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '0.6'}
-                />
-                0.6x
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="0.7"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '0.7'}
-                />
-                0.7x
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="0.8"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '0.8'}
-                />
-                0.8x
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="1"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '1.0'}
-                />
-                {$t['Settings_Audio_Speed_Normal']}
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="1.2"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '1.2'}
-                />
-                1.2x
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="1.4"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '1.4'}
-                />
-                1.4x
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="speed"
-                    value="1.6"
-                    on:click={setPlaySpeed}
-                    checked={$userSettings['audio-speed'] === '1.6'}
-                />
-                1.6x
-            </label>
-            <div class="dy-modal-action close-btn">
-                <button class="dy-btn dy-btn-ghost">{$t['Button_Close']}</button>
+        <div style="color: {$monoIconColor}">
+            <h1>
+                <b>{$t['Settings_Audio_Speed']}</b>
+            </h1>
+            <div class="speed-controls">
+                {#each speeds as speed}
+                    <label>
+                        <input
+                            type="radio"
+                            name="speed"
+                            value={speed.value}
+                            on:click={setPlaySpeed}
+                            checked={$userSettings['audio-speed'] === speed.value}
+                        />
+                        {speed.label}
+                    </label>
+                {/each}
+                <div class="dy-modal-action close-btn">
+                    <button class="dy-btn dy-btn-ghost">{$t['Button_Close']}</button>
+                </div>
             </div>
         </div>
     </svelte:fragment>
