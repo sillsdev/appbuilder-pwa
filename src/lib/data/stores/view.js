@@ -30,6 +30,7 @@ export const MODAL_NOTE = 'note';
 export const MODAL_TEXT_APPEARANCE = 'text-appearance';
 export const MODAL_FONT = 'font';
 export const MODAL_STOP_PLAN = 'stop-plan';
+export const MODAL_PLAYBACK_SPEED = 'playback-speed';
 
 function createModal() {
     const { subscribe, set } = writable([]);

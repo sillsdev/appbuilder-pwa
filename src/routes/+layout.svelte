@@ -15,6 +15,7 @@
         MODAL_COLLECTION,
         MODAL_FONT,
         MODAL_NOTE,
+        MODAL_PLAYBACK_SPEED,
         MODAL_STOP_PLAN,
         MODAL_TEXT_APPEARANCE,
         NAVBAR_HEIGHT,
@@ -23,6 +24,7 @@
         theme
     } from '$lib/data/stores';
     import '$lib/app.css';
+    import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
 
     const isSAB = config.programType == 'SAB';
@@ -62,6 +64,9 @@
                         planStopDialog.planId = data;
                         planStopDialog.showModal();
                         break;
+                    case MODAL_PLAYBACK_SPEED:
+                        audioPlaybackSpeed.showModal();
+                        break;
                 }
             });
             modal.clear();
@@ -73,6 +78,7 @@
     let fontSelector;
     let noteDialog;
     let planStopDialog;
+    let audioPlaybackSpeed;
 </script>
 
 <svelte:head>
@@ -104,6 +110,8 @@
         <FontSelector bind:this={fontSelector} />
 
         <PlanStopDialog bind:this={planStopDialog} vertOffset={NAVBAR_HEIGHT} />
+
+        <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
     </div>
 
     <Sidebar on:showModal={showModal}>
