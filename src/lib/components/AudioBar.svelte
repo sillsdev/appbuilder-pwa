@@ -19,6 +19,8 @@ TODO:
     import {
         audioPlayer,
         convertStyle,
+        modal,
+        MODAL_PLAYBACK_SPEED,
         playMode,
         refs,
         s,
@@ -163,11 +165,14 @@ TODO:
             <AudioIcon.SkipNext color={iconColor} />
         </button>
     </div>
-    <div class="audio-speed audio-control-buttons">
-        {#if showSpeed}
-            <AudioPlaybackSpeed />
-        {/if}
-    </div>
+    {#if showSpeed}
+        <button
+            class="audio-speed audio-control-buttons"
+            on:click={() => modal.open(MODAL_PLAYBACK_SPEED)}
+        >
+            <AudioIcon.Speed color={iconColor} />
+        </button>
+    {/if}
     {#if !$refs.hasAudio.timingFile}
         <!-- Progress Bar -->
         <div class="audio-progress-value text-sm">
