@@ -26,6 +26,7 @@
         convertStyle,
         currentFont,
         direction,
+        fontChoices,
         glossary,
         highlights,
         isFirstLaunch,
@@ -42,6 +43,7 @@
         showDesktopSidebar,
         t,
         themeColors,
+        themes,
         userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
@@ -148,6 +150,12 @@
     const showCollectionsOnFirstLaunch = config.mainFeatures['layout-config-first-launch'];
     const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
+    const showThemes = themes.length > 1;
+    const showFontSize = config.mainFeatures['text-font-size-slider'];
+    let showLineHeight = config.mainFeatures['text-line-height-slider'];
+    $: showFonts = $fontChoices.length > 1;
+    $: showTextAppearance = showFontSize || showLineHeight || showThemes || showFonts;
+
     $: showBorderSetting = getFeatureValueBoolean('show-border', $refs.collection, $refs.book);
     $: showBorder =
         config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting);
@@ -392,12 +400,14 @@
                         {/if}
 
                         <!-- Text Appearance Selector Button -->
-                        <button
-                            class="dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
-                        >
-                            <TextAppearanceIcon color="white" />
-                        </button>
+                        {#if showTextAppearance}
+                            <button
+                                class="dy-btn dy-btn-ghost dy-btn-circle"
+                                on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                            >
+                                <TextAppearanceIcon color="white" />
+                            </button>
+                        {/if}
 
                         <!-- Collection Selector Button -->
                         {#if showCollectionNavbar && enoughCollections}

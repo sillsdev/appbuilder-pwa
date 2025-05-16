@@ -26,6 +26,7 @@ The navbar component.
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
     $: listView = $userSettingsOrDefault['book-selection'] === 'list';
     $: showVerseSelector = $userSettingsOrDefault['verse-selection'];
+    $: showSelectors = config.mainFeatures['book-select'] !== 'none';
 
     // Translated book, chapter, and verse tab labels
     $: b = $t.Selector_Book;
@@ -249,48 +250,52 @@ The navbar component.
         }
         return value;
     };
+    $: options = {
+        [b]: {
+            component: listView ? SelectList : SelectGrid,
+            props: {
+                options: bookGridGroup({
+                    colId: $refs.collection,
+                    bookLabel: listView ? 'name' : 'abbreviation'
+                })
+            },
+            visible: true
+        },
+        [c]: {
+            component: SelectGrid,
+            props: {
+                options: chapterGridGroup(chapters)
+            },
+            visible: showChapterSelector
+        },
+        [v]: {
+            component: SelectGrid,
+            props: {
+                options: verseGridGroup(chapter)
+            },
+            visible: showChapterSelector && showVerseSelector
+        }
+    };
 </script>
 
-<!-- Book Selector -->
-<Dropdown bind:this={dropdown} on:nav-end={resetNavigation}>
-    <svelte:fragment slot="label">
-        <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
-            {label}
-        </div>
-        <DropdownIcon color="white" />
-    </svelte:fragment>
-    <svelte:fragment slot="content">
-        <div>
-            <TabsMenu
-                bind:this={bookSelector}
-                options={{
-                    [b]: {
-                        component: listView ? SelectList : SelectGrid,
-                        props: {
-                            options: bookGridGroup({
-                                colId: $refs.collection,
-                                bookLabel: listView ? 'name' : 'abbreviation'
-                            })
-                        },
-                        visible: true
-                    },
-                    [c]: {
-                        component: SelectGrid,
-                        props: {
-                            options: chapterGridGroup(chapters)
-                        },
-                        visible: showChapterSelector
-                    },
-                    [v]: {
-                        component: SelectGrid,
-                        props: {
-                            options: verseGridGroup(chapter)
-                        },
-                        visible: showChapterSelector && showVerseSelector
-                    }
-                }}
-                on:menuaction={navigateReference}
-            />
-        </div>
-    </svelte:fragment>
-</Dropdown>
+{#if showSelectors}
+    <!-- Book Selector -->
+    <Dropdown bind:this={dropdown} on:nav-end={resetNavigation}>
+        <svelte:fragment slot="label">
+            <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
+                {label}
+            </div>
+            <DropdownIcon color="white" />
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+            <div>
+                <TabsMenu bind:this={bookSelector} {options} on:menuaction={navigateReference} />
+            </div>
+        </svelte:fragment>
+    </Dropdown>
+{:else}
+    <!-- Book Label -->
+    <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
+        {label}
+    </div>
+{/if}
