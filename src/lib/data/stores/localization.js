@@ -18,7 +18,8 @@ export const t = derived(language, ($language) => {
     return Object.keys(config.translationMappings.mappings).reduce((mappings, key) => {
         mappings[key] =
             config.translationMappings.mappings[key][$language] ||
-            config.translationMappings.mappings[key][config.translationMappings.defaultLang];
+            config.translationMappings.mappings[key][config.translationMappings.defaultLang] ||
+            config.translationMappings.mappings[key]['en'];
         return mappings;
     }, {});
 });
