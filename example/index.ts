@@ -70,9 +70,8 @@ async function ensureTempDir(): Promise<void> {
 // Load `index.json` and find the project ZIP file
 async function getProjectProps(projectName: string): Promise<[string, string]> {
     try {
-
         for (const [key, value] of Object.entries(IndexData)) {
-            if (value.projects.map(p => p.path).includes(`${projectName}.zip`)) {
+            if (value.projects.map((p) => p.path).includes(`${projectName}.zip`)) {
                 return [key, path.resolve(`test_data/projects/${key}/${projectName}.zip`)];
             }
         }
