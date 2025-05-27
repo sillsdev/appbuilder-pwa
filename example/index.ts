@@ -24,7 +24,11 @@ const getExecutionCommand = (program: string): string => {
                 throw new Error('Environment variable "ProgramFiles(x86)" is not set on Windows');
             }
             const jarPath = path.join(programFilesX86, 'SIL', appName, 'bin', jarName);
-            return `java -jar "${jarPath}"`;
+            let javaPath = 'java';
+            if (process.env['JAVA_HOME']) {
+                javaPath = '"' + path.join(process.env['JAVA_HOME'], 'bin', 'java.exe') + '"';
+            }
+            return `${javaPath} -jar "${jarPath}"`;
         }
         case 'linux': {
             const flatpakExists = checkCommandExists('flatpak', '--version');
