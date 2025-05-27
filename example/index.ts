@@ -4,15 +4,9 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import unzipper from 'unzipper';
-
-type IndexData = {
-    [key: string]: {
-        projects: string[];
-    };
-};
+import IndexData from '../test_data/projects/index.json';
 
 // Constants
-const INDEX_FILE = path.resolve('test_data/projects/index.json');
 const TEMP_DIR = path.join(os.tmpdir(), 'pwa_temp');
 const APP_DEF_EXT = '.appDef';
 
@@ -72,11 +66,9 @@ async function ensureTempDir(): Promise<void> {
 // Load `index.json` and find the project ZIP file
 async function getProjectProps(projectName: string): Promise<[string, string]> {
     try {
-        const data = await fs.readFile(INDEX_FILE, 'utf8');
-        const indexData: IndexData = JSON.parse(data);
 
-        for (const [key, value] of Object.entries(indexData)) {
-            if (value.projects.includes(`${projectName}.zip`)) {
+        for (const [key, value] of Object.entries(IndexData)) {
+            if (value.projects.map(p => p.path).includes(`${projectName}.zip`)) {
                 return [key, path.resolve(`test_data/projects/${key}/${projectName}.zip`)];
             }
         }
