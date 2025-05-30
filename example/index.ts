@@ -4,9 +4,10 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import unzipper from 'unzipper';
-import IndexData from '../test_data/projects/index.json';
+import type IndexData from '../test_data/projects/index.json';
 
 // Constants
+const INDEX_FILE = path.resolve('test_data/projects/index.json');
 const TEMP_DIR = path.join(os.tmpdir(), 'pwa_temp');
 const APP_DEF_EXT = '.appDef';
 
@@ -15,18 +16,21 @@ const getExecutionCommand = (program: string): string => {
     const appName = program === 'sab' ? 'Scripture App Builder' : 'Dictionary App Builder';
     const jarName = program === 'sab' ? 'scripture-app-builder.jar' : 'dictionary-app-builder.jar';
     const exeName = program === 'sab' ? 'scripture-app-builder' : 'dictionary-app-builder';
+    let javaPath = 'java';
+    if (process.env['JAVA_HOME']) {
+        javaPath = path.join(process.env['JAVA_HOME'], 'bin', 'java');
+    }
     switch (os.platform()) {
         case 'darwin':
-            return `java -jar "/Applications/${appName}.app/Contents/Resources/Java/bin/${jarName}"`;
+            return `${javaPath} -jar "/Applications/${appName}.app/Contents/Resources/Java/bin/${jarName}"`;
         case 'win32': {
             const programFilesX86 = process.env['ProgramFiles(x86)'];
             if (!programFilesX86) {
                 throw new Error('Environment variable "ProgramFiles(x86)" is not set on Windows');
             }
             const jarPath = path.join(programFilesX86, 'SIL', appName, 'bin', jarName);
-            let javaPath = 'java';
-            if (process.env['JAVA_HOME']) {
-                javaPath = '"' + path.join(process.env['JAVA_HOME'], 'bin', 'java.exe') + '"';
+            if (javaPath != 'java') {
+                javaPath = `"${javaPath}.exe"`;
             }
             return `${javaPath} -jar "${jarPath}"`;
         }
@@ -40,7 +44,7 @@ const getExecutionCommand = (program: string): string => {
                 return appName;
             } else {
                 const jarPath = `/usr/share/scripture-app-builder/bin/${jarName}`;
-                return `java -jar "${jarPath}"`;
+                return `${javaPath} -jar "${jarPath}"`;
             }
         }
         default:
@@ -70,7 +74,9 @@ async function ensureTempDir(): Promise<void> {
 // Load `index.json` and find the project ZIP file
 async function getProjectProps(projectName: string): Promise<[string, string]> {
     try {
-        for (const [key, value] of Object.entries(IndexData)) {
+        const data = await fs.readFile(INDEX_FILE, 'utf8');
+        const indexData: typeof IndexData = JSON.parse(data);
+        for (const [key, value] of Object.entries(indexData)) {
             if (value.projects.map((p) => p.path).includes(`${projectName}.zip`)) {
                 return [key, path.resolve(`test_data/projects/${key}/${projectName}.zip`)];
             }
