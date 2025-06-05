@@ -7,11 +7,12 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 @prop { Function } content - Snippet containing the content of the modal.
 @prop { Function } label   - Snippet containing the label of the model
 @prop { String }   addCSS  - CSS to inject into the model contents div/form.
+@prop { Function } onclose - Function to run when Modal closes.
 -->
 <script>
     import { convertStyle, direction, s } from '$lib/data/stores';
 
-    let { id, addCSS = '', content, label } = $props();
+    let { id, addCSS = '', content, label, onclose } = $props();
 
     let dialog;
 
@@ -27,7 +28,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 {#if label}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation" on:click={{ id }.showModal()}>
+    <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation" onclick={{ id }.showModal()}>
         <!--Anything in this snippet will trigger the modal popup when clicked-->
         <!--{@render label()}-->
     </label>
@@ -36,7 +37,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 <dialog
     bind:this={dialog}
     {id}
-    on:close
+    {onclose}
     class="dy-modal cursor-pointer"
     style:direction={$direction}
 >

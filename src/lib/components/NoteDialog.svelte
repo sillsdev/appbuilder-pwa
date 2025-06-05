@@ -53,7 +53,7 @@
     }
 </script>
 
-<Modal bind:this={modal} {id} on:close={reset}>
+<Modal bind:this={modal} {id} onclose={reset}>
     {#snippet content()}
         <div class="flex flex-col justify-evenly">
             <div class="w-full flex justify-between">
