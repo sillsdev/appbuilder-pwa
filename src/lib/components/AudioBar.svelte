@@ -125,27 +125,27 @@ TODO:
     {#if showRepeatMode}
         <button
             class="audio-control-buttons"
-            on:click={() => playMode.next($refs.hasAudio?.timingFile)}
+            onclick={() => playMode.next($refs.hasAudio?.timingFile)}
         >
             <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
         </button>
     {/if}
     <!-- Play Controls -->
     <div class="audio-controls" style:direction="ltr">
-        <button class="audio-control-buttons" on:click={() => skip(-1)}>
+        <button class="audio-control-buttons" onclick={() => skip(-1)}>
             <AudioIcon.SkipPrevious color={iconColor} />
         </button>
 
         {#if $refs.hasAudio?.timingFile}
-            <button class="audio-control-buttons" on:click={() => changeVerse(-1)}>
+            <button class="audio-control-buttons" onclick={() => changeVerse(-1)}>
                 <AudioIcon.Rewind color={iconColor} />
             </button>
         {:else}
-            <button class="audio-control-buttons" on:click={() => seekOffset(-10)}>
+            <button class="audio-control-buttons" onclick={() => seekOffset(-10)}>
                 <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" on:click={() => playPause()}>
+        <button class="audio-control-buttons" onclick={() => playPause()}>
             {#if !$audioPlayer.playing}
                 <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
             {:else}
@@ -153,22 +153,22 @@ TODO:
             {/if}
         </button>
         {#if $refs.hasAudio?.timingFile}
-            <button class="audio-control-buttons" on:click={() => changeVerse(1)}>
+            <button class="audio-control-buttons" onclick={() => changeVerse(1)}>
                 <AudioIcon.FastForward color={iconColor} />
             </button>
         {:else}
-            <button class="audio-control-buttons" on:click={() => seekOffset(10)}>
+            <button class="audio-control-buttons" onclick={() => seekOffset(10)}>
                 <AudioIcon.Forward10 color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" on:click={() => skip(1)}>
+        <button class="audio-control-buttons" onclick={() => skip(1)}>
             <AudioIcon.SkipNext color={iconColor} />
         </button>
     </div>
     {#if showSpeed}
         <button
             class="audio-speed audio-control-buttons"
-            on:click={() => modal.open(MODAL_PLAYBACK_SPEED)}
+            onclick={() => modal.open(MODAL_PLAYBACK_SPEED)}
         >
             <AudioIcon.Speed color={iconColor} />
         </button>
@@ -186,7 +186,7 @@ TODO:
                 class="dy-progress audio-progress"
                 value={$audioPlayer.progress}
                 max={$audioPlayer.duration}
-                on:click={seekAudio}
+                onclick={seekAudio}
             ></progress>
         {:else}
             <progress class="dy-progress audio-progress" value="0" max="1"></progress>
