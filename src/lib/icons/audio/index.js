@@ -3,10 +3,7 @@ import Forward10Icon from './Forward10Icon.svelte';
 import MuteIcon from './MuteIcon.svelte';
 import PlayIcon from './PlayIcon.svelte';
 import PlayRepeatIcon from './PlayRepeatIcon.svelte';
-import RepeatIcon from './RepeatIcon.svelte';
-import RepeatOffIcon from './RepeatOffIcon.svelte';
-import RepeatOffStopIcon from './RepeatOffStopIcon.svelte';
-import RepeatOneIcon from './RepeatOneIcon.svelte';
+import PlayModeIcon from './PlayModeIcon.svelte';
 import Replay10Icon from './Replay10Icon.svelte';
 import RewindIcon from './RewindIcon.svelte';
 import SkipNextIcon from './SkipNextIcon.svelte';
@@ -20,10 +17,7 @@ const AudioIcon = {
     Mute: MuteIcon,
     Play: PlayIcon,
     PlayRepeat: PlayRepeatIcon,
-    Repeat: RepeatIcon,
-    RepeatOff: RepeatOffIcon,
-    RepeatOffStop: RepeatOffStopIcon,
-    RepeatOne: RepeatOneIcon,
+    PlayMode: PlayModeIcon,
     Replay10: Replay10Icon,
     Rewind: RewindIcon,
     SkipNext: SkipNextIcon,
