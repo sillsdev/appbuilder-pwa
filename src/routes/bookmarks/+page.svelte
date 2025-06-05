@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -61,7 +61,7 @@
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     onclick={async () =>
-                        await shareAnnotations(toSorted($page.data.bookmarks, sortOrder))}
+                        await shareAnnotations(toSorted(page.data.bookmarks, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
@@ -75,11 +75,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if $page.data.bookmarks.length === 0}
+        {#if page.data.bookmarks.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Bookmarks_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Bookmarks_None_Info']}</div>
         {:else}
-            {#each toSorted($page.data.bookmarks, sortOrder) as b}
+            {#each toSorted(page.data.bookmarks, sortOrder) as b}
                 {@const iconCard = {
                     docSet: b.docSet,
                     collection: b.collection,
