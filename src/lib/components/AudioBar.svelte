@@ -46,12 +46,6 @@ TODO:
         seek($audioPlayer.duration * percent);
     }
 
-    const playIconOptons = {
-        arrow: AudioIcon.Play,
-        'filled-circle': AudioIcon.PlayFillCircle,
-        'outline-circle': AudioIcon.PlayOutlineCircle
-    };
-
     const playModeIconOptions = {
         continue: AudioIcon.RepeatOff,
         stop: AudioIcon.RepeatOffStop,
@@ -102,7 +96,6 @@ TODO:
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
-    const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
     const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
     //const durationDisplay = $derived(format($audioPlayer.duration));
     const iconColor = $derived($s['ui.bar.audio.icon']['color']);
@@ -146,11 +139,12 @@ TODO:
             </button>
         {/if}
         <button class="audio-control-buttons" onclick={() => playPause()}>
-            {#if !$audioPlayer.playing}
-                <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
-            {:else}
-                <AudioIcon.Pause color={iconColor} size={playIconSize} />
-            {/if}
+            <AudioIcon.Play
+                state={$audioPlayer.playing}
+                size={playIconSize}
+                color={iconPlayColor}
+                style={config.mainFeatures['audio-play-button-style']}
+            />
         </button>
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" onclick={() => changeVerse(1)}>
@@ -179,8 +173,8 @@ TODO:
             {format($audioPlayer.progress)}
         </div>
         {#if $audioPlayer.loaded}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <progress
                 id="progress-bar"
                 class="dy-progress audio-progress"
