@@ -24,8 +24,8 @@ Font Selector component.
     }
 </script>
 
-<Modal bind:this={modal} id={modalId} useLabel={false}>
-    <svelte:fragment slot="content">
+<Modal bind:this={modal} id={modalId}>
+    {#snippet content()}
         <FontList bind:this={fontList} selectedFont={$currentFont} />
         <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -40,5 +40,5 @@ Font Selector component.
                 on:click={() => handleOk()}>{$t['Button_OK']}</button
             >
         </div>
-    </svelte:fragment>
+    {/snippet}
 </Modal>

@@ -29,8 +29,8 @@
     }
 </script>
 
-<Modal bind:this={modalThis} id={modalId} useLabel={false}>
-    <svelte:fragment slot="content">
+<Modal bind:this={modalThis} id={modalId}>
+    {#snippet content()}
         <div style="color: {$monoIconColor}">
             <h1>
                 <b>{$t['Settings_Audio_Speed']}</b>
@@ -53,7 +53,7 @@
                 </div>
             </div>
         </div>
-    </svelte:fragment>
+    {/snippet}
 </Modal>
 
 <style>

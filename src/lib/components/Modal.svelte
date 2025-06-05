@@ -3,34 +3,31 @@
 A simple modal component from DaisyUI. Closes when clicked outside of.
 
 See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
+@prop { String }   id      - ID for the modal.
+@prop { Function } content - Snippet containing the content of the modal.
+@prop { String }   addCSS  - CSS to inject into the model contents div/form.
+@prop { Function } onclose - Function to run when Modal closes.
 -->
 <script>
     import { convertStyle, direction, s } from '$lib/data/stores';
 
-    export let id;
+    let { id, addCSS = '', content, onclose = null } = $props();
+
     let dialog;
-    export let useLabel = true; //If this is set to false, there will be no button/label with this modal to open it, and the modal may be initialized without filling the label slot.
+
+    /**
+     * This exported function allows buttons/labels
+     * in other divs to trigger the modal popup
+     */
     export function showModal() {
-        //This exported function allows buttons/labels in other divs to trigger the modal popup (see handleTextAppearanceSelector() and handleCollectionSelector() in +page.svelte).
         dialog.showModal();
     }
-    export let addCSS = ''; //Here addCSS is a prop for injecting CSS into the modal contents div/form below.
 </script>
-
-{#if useLabel}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation" on:click={{ id }.showModal()}>
-        <slot
-            name="label"
-        /><!--Anything passed into this slot will trigger the modal popup when clicked-->
-    </label>
-{/if}
 
 <dialog
     bind:this={dialog}
     {id}
-    on:close
+    {onclose}
     class="dy-modal cursor-pointer"
     style:direction={$direction}
 >
@@ -39,7 +36,8 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
         style={convertStyle($s['ui.dialog']) + addCSS}
         class="dy-modal-box overflow-y-visible relative"
     >
-        <slot name="content" /><!--This is the slot for the popup's actual contents-->
+        {@render content?.()}
+        <!--This is the snippet for the popup's actual contents-->
     </form>
     <form method="dialog" class="dy-modal-backdrop">
         <!--This allows the modal to be closed when the user taps outside of the contents div/form-->

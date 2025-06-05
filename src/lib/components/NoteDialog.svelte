@@ -53,8 +53,8 @@
     }
 </script>
 
-<Modal bind:this={modal} {id} on:close={reset} useLabel={false}>
-    <svelte:fragment slot="content">
+<Modal bind:this={modal} {id} onclose={reset}>
+    {#snippet content()}
         <div class="flex flex-col justify-evenly">
             <div class="w-full flex justify-between">
                 <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
@@ -94,5 +94,5 @@
                 </div>
             {/if}
         </div>
-    </svelte:fragment>
+    {/snippet}
 </Modal>

@@ -41,9 +41,8 @@ Plan Stop Modal Dialog component.
         'rem; inset-inline-end:1rem;';
 </script>
 
-<!--addCSS is a prop for injecting CSS into the modal-->
-<Modal bind:this={modal} id={modalId} useLabel={false}>
-    <svelte:fragment slot="content">
+<Modal bind:this={modal} id={modalId}>
+    {#snippet content()}
         <div id="container" class="message">
             <div class="message-body" id="message-body">
                 <div class="message-header"></div>
@@ -66,5 +65,5 @@ Plan Stop Modal Dialog component.
                 </div>
             </div>
         </div>
-    </svelte:fragment>
+    {/snippet}
 </Modal>
