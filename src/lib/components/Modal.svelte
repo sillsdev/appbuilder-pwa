@@ -12,7 +12,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 <script>
     import { convertStyle, direction, s } from '$lib/data/stores';
 
-    let { id, addCSS = '', content, label, onclose } = $props();
+    let { id, addCSS = '', content, label = null, onclose = null } = $props();
 
     let dialog;
 
