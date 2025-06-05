@@ -30,7 +30,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <label for={id} class="dy-btn dy-btn-ghost p-0.5 dy-no-animation" onclick={{ id }.showModal()}>
         <!--Anything in this snippet will trigger the modal popup when clicked-->
-        <!--{@render label()}-->
+        {@render label()}
     </label>
 {/if}
 
