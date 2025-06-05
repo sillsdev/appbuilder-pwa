@@ -63,9 +63,8 @@ Book Collection Selector component.
     }
 </script>
 
-<!--addCSS is a prop for injecting CSS into the modal-->
-<Modal bind:this={modal} id={modalId} useLabel={false}>
-    <svelte:fragment slot="content">
+<Modal bind:this={modal} id={modalId}>
+    {#snippet content()}
         <TabsMenu
             bind:this={tabMenu}
             options={{
@@ -104,5 +103,5 @@ Book Collection Selector component.
                 on:click={() => handleOk()}>{$t['Button_OK']}</button
             >
         </div>
-    </svelte:fragment>
+    {/snippet}
 </Modal>

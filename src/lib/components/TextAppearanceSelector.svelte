@@ -105,9 +105,8 @@ The navbar component. We have sliders that update reactively to both font size a
 <!-- TextAppearanceSelector -->
 {#if showTextAppearence}
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <Modal bind:this={modalThis} id={modalId} useLabel={false} addCSS={positioningCSS}
-        ><!--addCSS is a prop for injecting CSS into the modal-->
-        <svelte:fragment slot="content">
+    <Modal bind:this={modalThis} id={modalId} addCSS={positioningCSS}>
+        {#snippet content()}
             <div class="grid gap-4">
                 <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
                 {#if showFontSize}
@@ -198,7 +197,7 @@ The navbar component. We have sliders that update reactively to both font size a
                     </div>
                 {/if}
             </div>
-        </svelte:fragment>
+        {/snippet}
     </Modal>
 {/if}
 
