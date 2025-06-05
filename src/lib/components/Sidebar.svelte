@@ -39,8 +39,10 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { getRoute } from '$lib/navigate';
 
+    let { children } = $props();
+
     const drawerId = 'sidebar';
-    let menuToggle = false;
+    let menuToggle = $state(false);
 
     function closeDrawer() {
         menuToggle = false;
@@ -93,10 +95,12 @@ The sidebar/drawer.
         }
     }
 
-    $: textColor = $s['ui.drawer.item.text']['color'];
-    $: iconColor = $s['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor'];
-    $: contentBackgroundColor = $s['ui.background']['background-color'];
-    $: drawerBackgroundColor = $s['ui.drawer']['background-color'];
+    const textColor = $derived($s['ui.drawer.item.text']['color']);
+    const iconColor = $derived(
+        $s['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor']
+    );
+    const contentBackgroundColor = $derived($s['ui.background']['background-color']);
+    const drawerBackgroundColor = $derived($s['ui.drawer']['background-color']);
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />
@@ -105,10 +109,10 @@ The sidebar/drawer.
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div class="dy-drawer-content flex flex-col" style:background-color={contentBackgroundColor}>
         <!-- Page content here -->
-        <slot />
+        {@render children()}
     </div>
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <div class="dy-drawer-side" on:click={closeDrawer} on:keydown={closeDrawer} role="navigation">
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <div class="dy-drawer-side" onclick={closeDrawer} onkeydown={closeDrawer} role="navigation">
         <div class="dy-drawer-overlay"></div>
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
@@ -131,7 +135,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/account'))}
+                        onclick={() => goto(getRoute('/account'))}
                     >
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </button>
@@ -142,7 +146,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/contents/1'))}
+                        onclick={() => goto(getRoute('/contents/1'))}
                     >
                         <HomeIcon color={iconColor} />{$t['Menu_Contents']}
                     </button>
@@ -150,18 +154,18 @@ The sidebar/drawer.
             {/if}
             {#if showSearch}
                 <li>
-                    <button class="btn" style:color={textColor} on:click={goToSearch}>
+                    <button class="btn" style:color={textColor} onclick={goToSearch}>
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </button>
                 </li>
             {/if}
             {#if showLayouts}
                 <li>
-                    <!-- svelte-ignore a11y-missing-attribute -->
+                    <!-- svelte-ignore a11y_missing_attribute -->
                     <button
                         style:color={textColor}
                         class="btn"
-                        on:click={() => modal.open(MODAL_COLLECTION)}
+                        onclick={() => modal.open(MODAL_COLLECTION)}
                     >
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
@@ -175,7 +179,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/history'))}
+                        onclick={() => goto(getRoute('/history'))}
                     >
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </button>
@@ -186,7 +190,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/bookmarks'))}
+                        onclick={() => goto(getRoute('/bookmarks'))}
                     >
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </button>
@@ -197,7 +201,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/notes'))}
+                        onclick={() => goto(getRoute('/notes'))}
                     >
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </button>
@@ -208,7 +212,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/highlights'))}
+                        onclick={() => goto(getRoute('/highlights'))}
                     >
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </button>
@@ -222,7 +226,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/share'))}
+                        onclick={() => goto(getRoute('/share'))}
                     >
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </button>
@@ -234,7 +238,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/plans'))}
+                        onclick={() => goto(getRoute('/plans'))}
                     >
                         <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
                     </button>
@@ -245,18 +249,18 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        on:click={() => goto(getRoute('/settings'))}
+                        onclick={() => goto(getRoute('/settings'))}
                     >
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                     </button>
                 </li>
             {/if}
-            <!-- svelte-ignore a11y-missing-attribute -->
+            <!-- svelte-ignore a11y_missing_attribute -->
             <li>
                 <button
                     style:color={textColor}
                     class="btn"
-                    on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                    onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
                 >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </button>
@@ -295,7 +299,7 @@ The sidebar/drawer.
                 <button
                     class="btn"
                     style:color={textColor}
-                    on:click={() => goto(getRoute('/about'))}
+                    onclick={() => goto(getRoute('/about'))}
                 >
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </button>
