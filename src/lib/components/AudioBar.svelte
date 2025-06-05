@@ -82,10 +82,10 @@ TODO:
         }
         lastPlayMode = value.mode;
     }
-    $: playModeChanged($playMode);
+    $effect(() => playModeChanged($playMode));
 
-    let hintText = '';
-    let showHint = false;
+    let hintText = $state('');
+    let showHint = $state(false);
     let hintTimeoutId = null;
     function startShowHint(text) {
         showHint = true;
@@ -104,13 +104,13 @@ TODO:
     const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
     const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
     const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
-    //$: durationDisplay = format($audioPlayer.duration);
-    $: iconColor = $s['ui.bar.audio.icon']['color'];
-    $: iconPlayColor = $s['ui.bar.audio.play.icon']['color'];
-    $: backgroundColor = $s['ui.bar.audio']['background-color'];
-    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
-    $: mayResetPlayMode($refs.hasAudio?.timing);
-    $: updatePlaybackSpeed($userSettings['audio-speed']);
+    //const durationDisplay = $derived(format($audioPlayer.duration));
+    const iconColor = $derived($s['ui.bar.audio.icon']['color']);
+    const iconPlayColor = $derived($s['ui.bar.audio.play.icon']['color']);
+    const backgroundColor = $derived($s['ui.bar.audio']['background-color']);
+    const audioBarClass = $derived($refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress');
+    $effect(() => mayResetPlayMode($refs.hasAudio?.timing));
+    $effect(() => updatePlaybackSpeed($userSettings['audio-speed']));
 </script>
 
 <div class="relative {audioBarClass}" style:background-color={backgroundColor}>
