@@ -67,12 +67,12 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
+                    onclick={async () =>
                         await shareAnnotations(toSorted($page.data.highlights, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
+                <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
         </Navbar>
     </div>
@@ -101,7 +101,7 @@
                     ],
                     penColor: h.penColor
                 }}
-                <ColorCard on:menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
+                <ColorCard menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
             {/each}
         {/if}
     </div>

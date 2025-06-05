@@ -10,20 +10,25 @@ TODO:
     import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 
-    export let docSet = '';
-    export let collection = '';
-    export let book = '';
-    export let chapter = '';
-    export let verse = '';
-    export let reference = '';
-    export let text = '';
-    export let date = '';
-    export let actions = [''];
-    export let src = '';
-    export let alt = '';
+    let {
+        docSet = '',
+        collection = '',
+        book = '',
+        chapter = '',
+        verse = '',
+        reference = '',
+        text = '',
+        date = '',
+        actions = [''],
+        src = '',
+        alt = '',
+        icon,
+        menuaction
+    } = $props();
+
     const bc = config.bookCollections.find((x) => x.id === collection);
     const textDirection = bc.style.textDirection;
-    $: justifyEnd = textDirection.toLowerCase() === 'rtl' && $direction === 'ltr';
+    const justifyEnd = $derived(textDirection.toLowerCase() === 'rtl' && $direction === 'ltr');
 </script>
 
 <div class="annotation-item-block dy-card">
@@ -32,7 +37,7 @@ TODO:
             {#if src !== '' && alt !== ''}
                 <span><img {src} {alt} /></span>
             {:else}
-                <slot name="icon" />
+                {@render icon()}
             {/if}
         </div>
         <div
@@ -42,12 +47,12 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter, verse })}
+                onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
             </a>
         </div>
-        <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
+        <div class="self-center justify-self-end"><CardMenu menuaction {actions} /></div>
 
         <div
             class="annotation-item-text col-start-2 col-end-3 justify-self-start"
@@ -56,7 +61,7 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter, verse })}
+                onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {text}
             </a>

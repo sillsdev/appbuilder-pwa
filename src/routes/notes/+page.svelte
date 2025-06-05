@@ -61,12 +61,12 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
+                    onclick={async () =>
                         await shareAnnotations(toSorted($page.data.notes, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
+                <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
         </Navbar>
     </div>
@@ -96,8 +96,10 @@
                         $t['Annotation_Menu_Delete']
                     ]
                 }}
-                <IconCard on:menuaction={(e) => handleMenuaction(e, n)} {...iconCard}>
-                    <NoteIcon slot="icon" color={$monoIconColor} />
+                <IconCard menuaction={(e) => handleMenuaction(e, n)} {...iconCard}>
+                    {#snippet icon()}
+                        <NoteIcon color={$monoIconColor} />
+                    {/snippet}
                 </IconCard>
             {/each}
         {/if}

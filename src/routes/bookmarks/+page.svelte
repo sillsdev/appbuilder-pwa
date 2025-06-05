@@ -60,12 +60,12 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
+                    onclick={async () =>
                         await shareAnnotations(toSorted($page.data.bookmarks, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
+                <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
         </Navbar>
     </div>
@@ -95,8 +95,10 @@
                         $t['Annotation_Menu_Delete']
                     ]
                 }}
-                <IconCard on:menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
-                    <BookmarkIcon slot="icon" color="#b10000" />
+                <IconCard menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
+                    {#snippet icon()}
+                        <BookmarkIcon color="#b10000" />
+                    {/snippet}
                 </IconCard>
             {/each}
         {/if}
