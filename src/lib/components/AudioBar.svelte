@@ -46,12 +46,6 @@ TODO:
         seek($audioPlayer.duration * percent);
     }
 
-    const playModeIconOptions = {
-        continue: AudioIcon.RepeatOff,
-        stop: AudioIcon.RepeatOffStop,
-        repeatPage: AudioIcon.Repeat,
-        repeatSelection: AudioIcon.RepeatOne
-    };
     let lastPlayMode = '';
     function playModeChanged(value) {
         let key = '';
@@ -120,7 +114,7 @@ TODO:
             class="audio-control-buttons"
             onclick={() => playMode.next($refs.hasAudio?.timingFile)}
         >
-            <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
+            <AudioIcon.PlayMode state={$playMode.mode} color={iconColor} />
         </button>
     {/if}
     <!-- Play Controls -->
