@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -67,12 +67,12 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
-                        await shareAnnotations(toSorted($page.data.highlights, sortOrder))}
+                    onclick={async () =>
+                        await shareAnnotations(toSorted(page.data.highlights, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
+                <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
         </Navbar>
     </div>
@@ -81,11 +81,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if $page.data.highlights.length === 0}
+        {#if page.data.highlights.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Highlights_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Highlights_None_Info']}</div>
         {:else}
-            {#each toSorted($page.data.highlights, sortOrder) as h}
+            {#each toSorted(page.data.highlights, sortOrder) as h}
                 {@const colorCard = {
                     docSet: h.docSet,
                     book: h.book,
@@ -101,7 +101,7 @@
                     ],
                     penColor: h.penColor
                 }}
-                <ColorCard on:menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
+                <ColorCard menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
             {/each}
         {/if}
     </div>
