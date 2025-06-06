@@ -4,4 +4,3 @@ export function preventDefault(fn: (event: Event) => void): (event: Event) => vo
         fn.call(this, event);
     };
 }
-
