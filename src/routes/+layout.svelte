@@ -1,5 +1,6 @@
 <script lang="ts">
     import { base } from '$app/paths';
+    import { fromStore } from 'svelte/store';
     import '$lib/app.css';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -27,6 +28,8 @@
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
 
+    let { children } = $props();
+
     const isSAB = config.programType == 'SAB';
 
     if (isSAB && !$refs.initialized) {
@@ -39,8 +42,13 @@
         analytics.init();
     }
 
-    $: showPage = !isSAB || $refs.initialized;
-    $: $modal, showModal();
+    const showPage = $derived(!isSAB || $refs.initialized);
+    const stateModal = fromStore(modal);
+    $effect(() => {
+        if (stateModal.current.length > 0) {
+            showModal();
+        }
+    });
 
     function showModal() {
         if ($modal.length > 0) {
@@ -114,14 +122,14 @@
         <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
     </div>
 
-    <Sidebar on:showModal={showModal}>
+    <Sidebar>
         <div
             id="container"
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
         >
-            <slot />
+            {@render children()}
         </div>
     </Sidebar>
 {/if}
