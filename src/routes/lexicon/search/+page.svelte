@@ -2,39 +2,35 @@
     import { goto } from '$app/navigation';
     import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import SearchForm from '$lib/components/SearchForm.svelte';
+    import SearchForm, { type SearchFormSubmitEvent } from '$lib/components/SearchForm.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
-    import { themeColors } from '$lib/data/stores';
     import { vernacularLanguageStore, vernacularWordsStore } from '$lib/data/stores/lexicon';
     import { SearchIcon } from '$lib/icons';
     import { getRoute } from '$lib/navigate';
     import { searchDictionary } from '$lib/search-worker/dab-search-worker';
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
 
-    export let data;
+    let { data } = $props();
 
-    let phrase: string = '';
-    let wholeWords: boolean = false;
-    let matchAccents: boolean = false;
-    let wordIds;
-    let searchWord;
-    let vernacularLanguage;
-    let selectedWord;
-    $: vernacularLanguage = $vernacularLanguageStore;
+    let phrase: string = $state('');
+    let wholeWords: boolean = $state(false);
+    let matchAccents: boolean = $state(false);
+    let wordIds: number[] | undefined = $state();
+    let searchWord: string | undefined = $state();
+    let selectedWord: any = $state();
+    const vernacularLanguage = $derived($vernacularLanguageStore);
+    const vernacularWordsList = $derived($vernacularWordsStore);
 
-    let vernacularWordsList;
-    $: vernacularWordsList = $vernacularWordsStore;
-
-    let scrollDiv;
+    let scrollDiv: HTMLDivElement | undefined = $state(undefined);
 
     // Handle form submission from SearchForm component
-    async function handleSearchSubmit(event) {
+    async function handleSearchSubmit(event: SearchFormSubmitEvent) {
         const {
             phrase: newPhrase,
             wholeWords: newWholeWords,
             matchAccents: newMatchAccents
-        } = event.detail;
+        } = event;
 
         let options: SearchOptions = {
             docSet: '',
@@ -83,7 +79,7 @@
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
                         style="color: var(--ShareButtonTextColor);"
-                        on:click={() => {
+                        onclick={() => {
                             wordIds = null;
                             searchWord = '';
                             selectedWord = null;
@@ -115,12 +111,7 @@
         <div class="overflow-auto" bind:this={scrollDiv}>
             <div class="flex justify-center">
                 {#if !wordIds || wordIds.length == 0}
-                    <SearchForm
-                        bind:phrase
-                        bind:wholeWords
-                        bind:matchAccents
-                        on:submit={handleSearchSubmit}
-                    />
+                    <SearchForm {phrase} {wholeWords} {matchAccents} submit={handleSearchSubmit} />
                 {/if}
             </div>
 

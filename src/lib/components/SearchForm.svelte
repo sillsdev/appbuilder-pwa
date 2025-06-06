@@ -2,18 +2,27 @@
     import config from '$lib/data/config';
     import { convertStyle, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
-    import { createEventDispatcher } from 'svelte';
 
-    export let phrase: string;
-    export let wholeWords: boolean;
-    export let matchAccents: boolean;
+    export interface SearchFormSubmitEvent {
+        phrase: string;
+        wholeWords: boolean;
+        matchAccents: boolean;
+    }
+    interface SearchFormProps {
+        phrase: string;
+        wholeWords: boolean;
+        matchAccents: boolean;
+        submit: (event: SearchFormSubmitEvent) => void;
+    }
 
-    let searchbar;
+    let { phrase, wholeWords, matchAccents, submit }: SearchFormProps = $props();
+
+    let searchbar: HTMLInputElement | undefined = $state(undefined);
 
     // const specialCharacters =
     //     config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
 
-    let specialCharacters = [];
+    let specialCharacters: string[] = $state([]);
     if (config.programType == 'SAB') {
         specialCharacters =
             config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
@@ -35,11 +44,10 @@
         );
     }
 
-    let dismissSearchBar = false;
+    let dismissSearchBar: boolean = $state(false);
 
-    const dispatch = createEventDispatcher();
-
-    function submit() {
+    function doSubmit(event: Event) {
+        event.preventDefault();
         if (!phrase) return;
         // Dismiss the search bar by disabling it.
         // Then re-enable the search bar to allow the user to modify the query.
@@ -47,7 +55,7 @@
         setTimeout(() => {
             dismissSearchBar = false;
         }, 50);
-        dispatch('submit', { phrase, wholeWords, matchAccents });
+        submit({ phrase, wholeWords, matchAccents });
     }
 </script>
 
@@ -72,7 +80,7 @@
                 bind:value={phrase}
             />
             <button
-                on:click|preventDefault={submit}
+                onclick={doSubmit}
                 class="dy-btn mx-2 flex-none"
                 style={convertStyle($s['ui.search.button'])}
                 style:background-color="var(--SearchButtonColor)"
@@ -92,7 +100,7 @@
                         style={convertStyle($s['ui.search.buttons'])}
                         style:background-color="var(--TabBackgroundColor)"
                         style:color="var(--TextColor)"
-                        on:click={(e) => addSpecialCharacter(character, e)}
+                        onclick={(e) => addSpecialCharacter(character, e)}
                     >
                         {character}
                     </button>
