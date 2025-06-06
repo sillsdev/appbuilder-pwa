@@ -7,9 +7,6 @@ Dispatches a menuaction event when an option is selected from the menu.
     import { monoIconColor } from '$lib/data/stores';
     import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
 
-    //import { createEventDispatcher } from 'svelte';
-
-    //const dispatch = createEventDispatcher();
     let { menuaction, actions = [''] } = $props();
 
     function handleAction(action: string) {
