@@ -103,7 +103,7 @@ The sidebar/drawer.
     const drawerBackgroundColor = $derived($s['ui.drawer']['background-color']);
 </script>
 
-<svelte:window on:keydown={closeOnEscape} />
+<svelte:window onkeydown={closeOnEscape} />
 
 <div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
