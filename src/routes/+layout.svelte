@@ -26,6 +26,7 @@
     import '$lib/app.css';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
+    import { fromStore } from 'svelte/store';
 
     let { children } = $props();
 
@@ -42,9 +43,11 @@
     }
 
     const showPage = $derived(!isSAB || $refs.initialized);
+    const stateModal = fromStore(modal);
     $effect(() => {
-        $modal;
-        showModal();
+        if ((stateModal.current as any[]).length > 0) {
+            showModal();
+        }
     });
 
     function showModal() {
