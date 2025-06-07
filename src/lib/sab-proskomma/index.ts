@@ -101,4 +101,15 @@ export class SABProskomma extends Proskomma {
     loadSuccinctDocSet(succinctOb: any) {
         return super.loadSuccinctDocSet(succinctOb);
     }
+
+    importDoc(selectors: any, contentType: string, content: string, tags: string[]) {
+        return super.importDocument(
+            selectors,
+            contentType,
+            content,
+            this.customTags,
+            this.emptyBlocks,
+            tags
+        );
+    }
 }

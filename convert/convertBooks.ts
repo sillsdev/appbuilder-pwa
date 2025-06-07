@@ -687,6 +687,10 @@ function updateExplanation(
     return explanation;
 }
 
+function firstFiveLines(text: string): string {
+    return text.split('\n').slice(0, 5).join('\n');
+}
+
 function convertScriptureBook(
     pk: SABProskomma,
     context: ConvertBookContext,
@@ -705,9 +709,8 @@ function convertScriptureBook(
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
             content = removeMissingVerses(content, context.bcId, book.id);
         }
-        //query Proskomma with a mutation to add a document
-        //more efficient than original pk.addDocument call
-        //as it can be run asynchronously
+        // Cannot use GraphQL mutation asynchronously since content with triple double quotes
+        // in the contents (see Scriptoria project 3949 for an example) will fail to load.
         if (context.verbose > 10) {
             const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
             const bookPath = path.join(bookFullDir, book.file);
@@ -715,50 +718,35 @@ function convertScriptureBook(
             fs.mkdirSync(bookFullDir, { recursive: true });
             fs.writeFileSync(bookPath, content);
         }
-        pk.gqlQuery(
-            `mutation {
-                addDocument(
-                    selectors: [
-                        {key: "lang", value: "${context.lang}"}, 
-                        {key: "abbr", value: "${context.bcId}"}
-                    ], 
-                    contentType: "${book.file.split('.').pop()}", 
-                    content: """${content}""",
-                    tags: [
-                        "sections:${book.section}",
-                        "testament:${book.testament}"
-                    ]
-                )
-            }`,
-            (r: any) => {
-                //log if document added successfully
-                if (context.verbose)
+        const selectors = { lang: context.lang, abbr: context.bcId };
+        const contentType = book.file.split('.').pop();
+        const tags = [`sections:${book.section}`, `testament:${book.testament}`];
+        try {
+            const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
+            if (pkDoc) {
+                if (context.verbose) {
                     console.log(
-                        (r.data?.addDocument ? '' : 'failed: ') +
-                            context.docSet +
+                        context.docSet +
                             ' <- ' +
                             book.name +
                             ': ' +
                             path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
-                //if the document is not added successfully, the response returned by Proskomma includes an error message
-                if (!r.data?.addDocument) {
-                    const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
-                    throw Error(
-                        `Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(r)}`
-                    );
-                } else {
-                    displayBookId(context.bcId, book.id);
                 }
-                resolve();
+                displayBookId(context.bcId, book.id);
             }
-        );
+            resolve();
+        } catch (err) {
+            console.log(err);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+            throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
+        }
     }
-    //push new Proskomma mutation to docs array
+    //push new Proskomma import to docs array
     docs.push(
         new Promise<void>((resolve) => {
             const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
-            //(`Checking for book: ${bookPath}\n`);
+            //process.stdout.write(`Checking for book: ${bookPath}\n`);
             if (fs.existsSync(bookPath)) {
                 //read the single usfm file (pre-12.0)
                 fs.readFile(bookPath, 'utf8', (err, content) =>
