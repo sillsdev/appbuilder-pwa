@@ -6,5 +6,14 @@ declare module 'proskomma-core' {
         loadSuccinctDocSet(succinctOb: any): any;
         docSets: [];
         serializeSuccinct(document: any): any;
+        importDocument(
+            selectors: any,
+            contentType: string,
+            contentString: string,
+            filterOptions?: any,
+            customTags?: any,
+            emptyBlocks?: any,
+            tags?: any
+        ): any;
     }
 }
