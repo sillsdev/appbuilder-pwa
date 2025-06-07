@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import Navbar from '$lib/components/Navbar.svelte';
-    import SearchForm from '$lib/components/SearchForm.svelte';
+    import SearchForm, { type SearchFormSubmitEvent } from '$lib/components/SearchForm.svelte';
     import SearchResultList from '$lib/components/SearchResultList.svelte';
     import { t, themeColors } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
@@ -11,7 +11,7 @@
         UserSearchOptions
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
-    import { onMount, tick, type ComponentEvents } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
     export let data;
 
@@ -49,15 +49,15 @@
 
     const session = makeSearchSession(presenter);
 
-    function handleSubmit(event: ComponentEvents<SearchForm>['submit']) {
+    function handleSubmit(event: SearchFormSubmitEvent) {
         goto(getRoute(`/search/${data.collection}?savedResults=true`));
         queryId++;
         const options = {
             collection: data.collection,
-            wholeWords: event.detail.wholeWords,
-            matchAccents: event.detail.matchAccents
+            wholeWords: event.wholeWords,
+            matchAccents: event.matchAccents
         };
-        session.submit(event.detail.phrase, options);
+        session.submit(event.phrase, options);
     }
 
     /**
@@ -119,7 +119,7 @@
 
     <div class="overflow-auto" bind:this={scrollDiv} on:scroll={onScroll}>
         <div class="flex justify-center">
-            <SearchForm on:submit={handleSubmit} bind:phrase bind:wholeWords bind:matchAccents />
+            <SearchForm submit={handleSubmit} {phrase} {wholeWords} {matchAccents} />
         </div>
 
         <div class="flex justify-center px-4">
