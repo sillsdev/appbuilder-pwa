@@ -6,10 +6,12 @@ TODO:
 -->
 <script lang="ts">
     import { base } from '$app/paths';
-    import { refs } from '$lib/data/stores';
+    import config from '$lib/data/config';
+    import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 
     export let docSet = '';
+    export let collection = '';
     export let book = '';
     export let chapter = '';
     export let reference = '';
@@ -18,12 +20,33 @@ TODO:
     export let verse = '';
     export let actions = [''];
     export let penColor = 1;
+    const bc = config.bookCollections.find((x) => x.id === collection);
+    const textDirection = bc.style.textDirection.toLowerCase();
+    $: justifyStart =
+        ($direction === 'ltr' && textDirection === 'ltr') ||
+        ($direction === 'rtl' && textDirection === 'rtl');
+    $: justifyEnd = $direction === 'rtl' && textDirection === 'ltr';
+
+    function annotationStyles(style: string) {
+        let styles = style;
+        if (collection) {
+            styles = styles + ` ${style}-bc${collection}`;
+            if (book) {
+                styles = styles + ` ${style}-bc${collection}-bk${book}`;
+            }
+        }
+        return styles;
+    }
 </script>
 
 <div class="annotation-item-block dy-card">
     <div class="color-card">
         <div class="annotation-item-color {'hlp' + penColor.toString()} self-center"></div>
-        <div class="annotation-item-reference justify-self-start self-center">
+        <div
+            class="{annotationStyles('annotation-item-reference')} self-center"
+            class:justify-self-end={justifyEnd}
+            class:justify-self-start={justifyStart}
+        >
             <a
                 style="text-decoration:none;"
                 href="{base}/"
@@ -33,7 +56,11 @@ TODO:
             </a>
         </div>
         <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
-        <div class="annotation-item-text col-start-2 col-end-3">
+        <div
+            class="{annotationStyles('annotation-item-text')} col-start-2 col-end-3"
+            class:justify-self-end={justifyEnd}
+            class:justify-self-start={justifyStart}
+        >
             <a
                 style="text-decoration:none;"
                 href="{base}/"

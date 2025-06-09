@@ -12,6 +12,6 @@ export async function load({ depends }) {
     const highlights = allHighlights.filter((item) => {
         return config.bookCollections.some((collection) => collection.id === item.collection);
     });
-    depends('highlights');
+    depends('idb:highlights');
     return { highlights };
 }
