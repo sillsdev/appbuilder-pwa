@@ -29,5 +29,5 @@
 </script>
 
 <button class="audio-control-buttons" onclick={() => playPause()}>
-    <Icon {color} {size}/>
+    <Icon {color} {size} />
 </button>

@@ -7,10 +7,6 @@
         size: number;
     }
     let { size = 24, color = 'black' }: Props = $props();
-
-
-
-
 </script>
 
 <svg
