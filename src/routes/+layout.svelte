@@ -43,9 +43,9 @@
     }
 
     const showPage = $derived(!isSAB || $refs.initialized);
-    const stateModal = fromStore(modal);
+    const stateModal = fromStore<any[]>(modal);
     $effect(() => {
-        if ((stateModal.current as any[]).length > 0) {
+        if (stateModal.current.length > 0) {
             showModal();
         }
     });
