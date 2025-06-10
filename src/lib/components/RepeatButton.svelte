@@ -5,7 +5,7 @@
 
     interface Props {
         color: string;
-        size: number;
+        size?: number;
     }
     let { color = 'black', size = 24 }: Props = $props();
 
