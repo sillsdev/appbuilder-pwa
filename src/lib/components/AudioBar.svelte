@@ -29,6 +29,7 @@ TODO:
     } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
+    import RepeatButton from './RepeatButton.svelte';
 
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
@@ -110,12 +111,7 @@ TODO:
         </div>
     {/if}
     {#if showRepeatMode}
-        <button
-            class="audio-control-buttons"
-            onclick={() => playMode.next($refs.hasAudio?.timingFile)}
-        >
-            <AudioIcon.PlayMode state={$playMode.mode} color={iconColor} />
-        </button>
+        <RepeatButton color={iconColor} />
     {/if}
     <!-- Play Controls -->
     <div class="audio-controls" style:direction="ltr">
