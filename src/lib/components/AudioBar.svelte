@@ -9,7 +9,6 @@ TODO:
     import {
         changeVerse,
         format,
-        playPause,
         seek,
         seekOffset,
         skip,
@@ -29,6 +28,7 @@ TODO:
     } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
+    import PlayButton from './PlayButton.svelte';
     import RepeatButton from './RepeatButton.svelte';
 
     function mayResetPlayMode(hasTiming) {
@@ -128,14 +128,8 @@ TODO:
                 <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" onclick={() => playPause()}>
-            <AudioIcon.Play
-                state={$audioPlayer.playing}
-                size={playIconSize}
-                color={iconPlayColor}
-                style={config.mainFeatures['audio-play-button-style']}
-            />
-        </button>
+        <PlayButton size={playIconSize} color={iconPlayColor} />
+
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" onclick={() => changeVerse(1)}>
                 <AudioIcon.FastForward color={iconColor} />
