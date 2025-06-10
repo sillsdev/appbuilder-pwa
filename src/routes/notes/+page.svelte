@@ -12,9 +12,10 @@
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { getRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
+    import type { MenuActionEvent } from '$lib/types';
 
-    async function handleMenuaction(event: CustomEvent, note: NoteItem) {
-        switch (event.detail.text) {
+    async function handleMenuaction(event: MenuActionEvent, note: NoteItem) {
+        switch (event.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(note);
                 goto(getRoute(`/`));
@@ -31,8 +32,8 @@
         }
     }
 
-    function handleSortAction(event: CustomEvent) {
-        switch (event.detail.text) {
+    function handleSortAction(event: MenuActionEvent) {
+        switch (event.text) {
             case $t['Annotation_Sort_Order_Reference']:
                 sortOrder = SORT_REFERENCE;
                 break;
