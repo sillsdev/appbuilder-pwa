@@ -13,32 +13,34 @@ The navbar component.
     import SelectList from './SelectList.svelte';
     import TabsMenu from './TabsMenu.svelte';
 
-    export let displayLabel = undefined;
-    $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
-    $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-    $: verseCount = getVerseCount(chapter, chapters);
-    $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
-    $: chaptersLabels =
+    let { displayLabel = undefined } = $props();
+    const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
+    const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
+    const verseCount = $derived(getVerseCount(chapter, chapters));
+    const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
+    const chaptersLabels = $derived(
         config.bookCollections
             .find((x) => $refs.collection === x.id)
-            .books.find((x) => book === x.id).chaptersLabels ?? {};
+            .books.find((x) => book === x.id).chaptersLabels ?? {}
+    );
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
-    $: listView = $userSettingsOrDefault['book-selection'] === 'list';
-    $: showVerseSelector = $userSettingsOrDefault['verse-selection'];
-    $: showSelectors = config.mainFeatures['book-select'] !== 'none';
+    const listView = $derived($userSettingsOrDefault['book-selection'] === 'list');
+    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']);
+    const showSelectors = $derived(config.mainFeatures['book-select'] !== 'none');
 
     // Translated book, chapter, and verse tab labels
-    $: b = $t.Selector_Book;
-    $: c = $t.Selector_Chapter;
-    $: v = $t.Selector_Verse;
+    const b = $derived($t.Selector_Book);
+    const c = $derived($t.Selector_Chapter);
+    const v = $derived($t.Selector_Verse);
 
-    let bookSelector;
-    $: label =
+    let bookSelector = $state();
+    const labelDisplayed = $derived(
         displayLabel ??
-        config.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === book)?.name;
+            config.bookCollections
+                .find((x) => x.id === $refs.collection)
+                .books.find((x) => x.id === book)?.name
+    );
 
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
@@ -59,25 +61,25 @@ The navbar component.
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
 
-    async function navigateReference(e) {
+    async function navigateReference({ text, url, tab }) {
         // Handle special book navigation first
-        if (e.detail.tab === b && e.detail?.url) {
+        if (tab === b && url) {
             navigateToUrl({
                 collection: $refs.collection,
-                book: e.detail.text,
-                url: e.detail.url
+                book: text,
+                url: url
             });
             return;
         }
         if (!showChapterSelector) {
-            $nextRef.book = e.detail.text;
+            $nextRef.book = text;
             await refs.set({ book: $nextRef.book, chapter: 1 });
             close();
         } else {
-            switch (e.detail.tab) {
+            switch (tab) {
                 case b: {
                     bookSelector.setActive(c);
-                    $nextRef.book = e.detail.text;
+                    $nextRef.book = text;
                     const count = chapterCount($nextRef.book);
                     if (count === 0) {
                         $nextRef.chapter = 'i';
@@ -91,7 +93,7 @@ The navbar component.
                     break;
                 }
                 case c:
-                    $nextRef.chapter = e.detail.text;
+                    $nextRef.chapter = text;
                     if (!showVerseSelector || $nextRef.chapter === 'i' || verseCount === 0) {
                         await completeNavigation();
                     } else {
@@ -99,13 +101,13 @@ The navbar component.
                     }
                     break;
                 case v:
-                    if (e.detail.text === 'i') {
+                    if (text === 'i') {
                         // Chapter getting set because if you just select verse
                         // from introduction, both blank goes to chapter 1
                         $nextRef.chapter = 'i';
                         $nextRef.verse = '';
                     } else {
-                        $nextRef.verse = e.detail.text;
+                        $nextRef.verse = text;
                     }
                     await completeNavigation();
                     break;
@@ -116,7 +118,7 @@ The navbar component.
         }
     }
 
-    let dropdown;
+    let dropdown = $state();
     function close() {
         dropdown.close();
         //resetNavigation();
@@ -140,9 +142,9 @@ The navbar component.
     }
 
     /**list of books, quizzes, and quiz groups in current docSet*/
-    $: books = $refs.catalog.documents;
+    const books = $derived($refs.catalog.documents);
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === book)?.versesByChapters ?? [];
+    const chapters = $derived(books.find((d) => d.bookCode === book)?.versesByChapters ?? []);
 
     function getBookUrl(book) {
         let url;
@@ -250,7 +252,7 @@ The navbar component.
         }
         return value;
     };
-    $: options = {
+    const options = $derived({
         [b]: {
             component: listView ? SelectList : SelectGrid,
             props: {
@@ -275,27 +277,27 @@ The navbar component.
             },
             visible: showChapterSelector && showVerseSelector
         }
-    };
+    });
 </script>
 
 {#if showSelectors}
     <!-- Book Selector -->
-    <Dropdown bind:this={dropdown} on:nav-end={resetNavigation}>
-        <svelte:fragment slot="label">
+    <Dropdown bind:this={dropdown} navEnd={resetNavigation}>
+        {#snippet label()}
             <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
-                {label}
+                {labelDisplayed}
             </div>
             <DropdownIcon color="white" />
-        </svelte:fragment>
-        <svelte:fragment slot="content">
+        {/snippet}
+        {#snippet content()}
             <div>
-                <TabsMenu bind:this={bookSelector} {options} on:menuaction={navigateReference} />
+                <TabsMenu bind:this={bookSelector} {options} menuaction={navigateReference} />
             </div>
-        </svelte:fragment>
+        {/snippet}
     </Dropdown>
 {:else}
     <!-- Book Label -->
     <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
-        {label}
+        {labelDisplayed}
     </div>
 {/if}
