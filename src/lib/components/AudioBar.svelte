@@ -90,7 +90,7 @@ TODO:
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
-    const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
+    const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? 24 : 48;
     const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
     //const durationDisplay = $derived(format($audioPlayer.duration));
     const iconColor = $derived($s['ui.bar.audio.icon']['color']);
