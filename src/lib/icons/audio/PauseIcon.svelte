@@ -1,5 +1,5 @@
 <script lang="ts">
-    // Play from https://fonts.google.com/icons
+    // Pause from https://fonts.google.com/icons
     // Filled = 1
     // Weight = 400
     // Grade = 0
@@ -9,5 +9,5 @@
 </script>
 
 <svg fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height={size} width={size}
-    ><path d="M8 19V5l11 7Z" /></svg
+    ><path d="M13 19V5h6v14Zm-8 0V5h6v14Z" /></svg
 >
