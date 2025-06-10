@@ -6,17 +6,22 @@ Display an HTML Book.
     import { base } from '$app/paths';
     import config from '$lib/data/config';
 
-    export let references: any;
-    export let bodyLineHeight: any;
-    export let bodyFontSize: any;
-    export let fetch: any;
+    interface Props {
+        references: any;
+        bodyLineHeight: any;
+        bodyFontSize: any;
+        fetch: any;
+    }
 
-    $: fontSize = bodyFontSize + 'px';
-    $: lineHeight = bodyLineHeight + '%';
+    let { references, bodyLineHeight, bodyFontSize, fetch }: Props = $props();
 
-    let htmlBody: string;
+    let htmlBody: string = $state();
+    let fontSize = $derived(bodyFontSize + 'px');
+    let lineHeight = $derived(bodyLineHeight + '%');
 
-    $: loadHtml(references.collection, references.book);
+    $effect(() => {
+        loadHtml(references.collection, references.book);
+    });
 
     async function loadHtml(collectionId: string, bookId: string) {
         const book = config.bookCollections

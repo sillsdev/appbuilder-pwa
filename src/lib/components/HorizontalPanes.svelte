@@ -4,16 +4,17 @@ based on `HSplitPane` from [svelte-split-pane](https://github.com/Readiz/svelte-
 heavily modified because it did not support more than 2 panes and touch was not working.
 -->
 <script>
-    export /** @type {any[]} */ let panes = [];
-    /** @type {HTMLDivElement[]} */ let separators = [];
-    /** @type {HTMLDivElement[]} */ let paneElems = [];
-    /** @type {HTMLDivElement} */ let container;
+    /** @type {{panes?: any}} */
+    let { panes = [] } = $props();
+    /** @type {HTMLDivElement[]} */ let separators = $state([]);
+    /** @type {HTMLDivElement[]} */ let paneElems = $state([]);
+    /** @type {HTMLDivElement} */ let container = $state();
 
-    /**% between neighboring panes*/ $: sliders = Array(panes.length - 1).fill(50);
-    /**% width of pane*/ $: widths = Array(panes.length).fill(100 / panes.length);
-    /**% left edge of separator*/ $: edges = Array(separators.length)
+    /**% between neighboring panes*/ let sliders = $derived(Array(panes.length - 1).fill(50));
+    /**% width of pane*/ let widths = $derived(Array(panes.length).fill(100 / panes.length));
+    /**% left edge of separator*/ let edges = $derived(Array(separators.length)
         .fill(100 / panes.length)
-        .map((n, i) => n * (i + 1));
+        .map((n, i) => n * (i + 1)));
     /**
      * inital values of current separator
      * @type {any | null}
@@ -62,21 +63,21 @@ heavily modified because it did not support more than 2 panes and touch was not 
 <div
     class="wrapper"
     bind:this={container}
-    on:pointermove={onPointermove}
-    on:pointerup={onPointerup}
-    on:pointerleave={onPointerup}
-    on:pointercancel={onPointerup}
+    onpointermove={onPointermove}
+    onpointerup={onPointerup}
+    onpointerleave={onPointerup}
+    onpointercancel={onPointerup}
 >
     {#each panes as p, i}
         <div class="pane" style="width: {widths[i]}%" bind:this={paneElems[i]}>
-            <svelte:component this={p.component} {...p.props} />
+            <p.component {...p.props} />
         </div>
         {#if i !== panes.length - 1}
             <div
                 class="separator"
                 bind:this={separators[i]}
                 style="left: {edges[i]}%"
-                on:pointerdown={(e) => onPointerdown(e, i)}
+                onpointerdown={(e) => onPointerdown(e, i)}
             ></div>
         {/if}
     {/each}
