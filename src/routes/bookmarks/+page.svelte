@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -12,9 +12,10 @@
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { getRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
+    import type { MenuActionEvent } from '$lib/types';
 
-    async function handleMenuAction(event: CustomEvent, bookmark: BookmarkItem) {
-        switch (event.detail.text) {
+    async function handleMenuAction(event: MenuActionEvent, bookmark: BookmarkItem) {
+        switch (event.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(bookmark);
                 goto(getRoute(`/`));
@@ -28,8 +29,8 @@
         }
     }
 
-    function handleSortAction(event: CustomEvent) {
-        switch (event.detail.text) {
+    function handleSortAction(event: MenuActionEvent) {
+        switch (event.text) {
             case $t['Annotation_Sort_Order_Reference']:
                 sortOrder = SORT_REFERENCE;
                 break;
@@ -60,12 +61,12 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
-                        await shareAnnotations(toSorted($page.data.bookmarks, sortOrder))}
+                    onclick={async () =>
+                        await shareAnnotations(toSorted(page.data.bookmarks, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
+                <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
         </Navbar>
     </div>
@@ -75,11 +76,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if $page.data.bookmarks.length === 0}
+        {#if page.data.bookmarks.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Bookmarks_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Bookmarks_None_Info']}</div>
         {:else}
-            {#each toSorted($page.data.bookmarks, sortOrder) as b}
+            {#each toSorted(page.data.bookmarks, sortOrder) as b}
                 {@const iconCard = {
                     docSet: b.docSet,
                     collection: b.collection,
@@ -95,8 +96,10 @@
                         $t['Annotation_Menu_Delete']
                     ]
                 }}
-                <IconCard on:menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
-                    <BookmarkIcon slot="icon" color="#b10000" />
+                <IconCard menuaction={(e) => handleMenuAction(e, b)} {...iconCard}>
+                    {#snippet icon()}
+                        <BookmarkIcon color="#b10000" />
+                    {/snippet}
                 </IconCard>
             {/each}
         {/if}

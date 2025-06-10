@@ -9,15 +9,18 @@ TODO:
     import { refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 
-    export let docSet = '';
-    export let book = '';
-    export let chapter = '';
-    export let reference = '';
-    export let text = '';
-    export let date = '';
-    export let verse = '';
-    export let actions = [''];
-    export let penColor = 1;
+    let {
+        docSet = '',
+        book = '',
+        chapter = '',
+        reference = '',
+        text = '',
+        date = '',
+        verse = '',
+        actions = [''],
+        penColor = 1,
+        menuaction
+    } = $props();
 </script>
 
 <div class="annotation-item-block dy-card">
@@ -27,17 +30,17 @@ TODO:
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter, verse })}
+                onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
             </a>
         </div>
-        <div class="self-center justify-self-end"><CardMenu on:menuaction {actions} /></div>
+        <div class="self-center justify-self-end"><CardMenu menuaction {actions} /></div>
         <div class="annotation-item-text col-start-2 col-end-3">
             <a
                 style="text-decoration:none;"
                 href="{base}/"
-                on:click={() => refs.set({ docSet, book, chapter, verse })}
+                onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {text}
             </a>

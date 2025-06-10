@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -11,9 +11,10 @@
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { getRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
+    import type { MenuActionEvent } from '$lib/types';
 
-    async function handleMenuaction(event: CustomEvent, highlight: HighlightItem) {
-        switch (event.detail.text) {
+    async function handleMenuaction(event: MenuActionEvent, highlight: HighlightItem) {
+        switch (event.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(highlight);
                 goto(getRoute(`/`));
@@ -27,8 +28,8 @@
         }
     }
 
-    function handleSortAction(event: CustomEvent) {
-        switch (event.detail.text) {
+    function handleSortAction(event: MenuActionEvent) {
+        switch (event.text) {
             case $t['Annotation_Sort_Order_Reference']:
                 sortOrder = SORT_REFERENCE;
                 break;
@@ -67,12 +68,12 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    on:click={async () =>
-                        await shareAnnotations(toSorted($page.data.highlights, sortOrder))}
+                    onclick={async () =>
+                        await shareAnnotations(toSorted(page.data.highlights, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
-                <SortMenu on:menuaction={(e) => handleSortAction(e)} {...sortMenu} />
+                <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
         </Navbar>
     </div>
@@ -81,11 +82,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if $page.data.highlights.length === 0}
+        {#if page.data.highlights.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Highlights_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Highlights_None_Info']}</div>
         {:else}
-            {#each toSorted($page.data.highlights, sortOrder) as h}
+            {#each toSorted(page.data.highlights, sortOrder) as h}
                 {@const colorCard = {
                     docSet: h.docSet,
                     book: h.book,
@@ -101,7 +102,7 @@
                     ],
                     penColor: h.penColor
                 }}
-                <ColorCard on:menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
+                <ColorCard menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
             {/each}
         {/if}
     </div>
