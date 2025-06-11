@@ -7,9 +7,12 @@ Display an HTML Book.
     import config from '$lib/data/config';
 
     interface Props {
-        references: any;
-        bodyLineHeight: any;
-        bodyFontSize: any;
+        references: {
+            collection: string;
+            book: string;
+        };
+        bodyLineHeight: number;
+        bodyFontSize: number;
         fetch: any;
     }
 
