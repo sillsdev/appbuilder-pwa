@@ -8,13 +8,13 @@ A clickable verse card representing a single search result.
     import * as numerals from '$lib/scripts/numeralSystem';
     import type { Reference, SearchResult } from '$lib/search/domain/entities';
 
-    interface SearchResultCardProps {
+    interface Props {
         docSet: string;
         collection: string;
         result: SearchResult;
     }
 
-    let { docSet, collection, result }: SearchResultCardProps = $props();
+    let { docSet, collection, result }: Props = $props();
 
     interface ReferenceDisplay {
         book: string;

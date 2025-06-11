@@ -12,19 +12,21 @@
     import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
 
-    interface SearchResultListProps {
+    interface Props {
         collection: string;
         results: SearchResult[];
         queryDone: boolean;
         restore: boolean;
         queryId: number;
     }
-    let { collection, results, queryDone, restore, queryId } = $props();
+    let { collection, results, queryDone, restore, queryId }: Props = $props();
 
     // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
     let displayQueryId = queryId;
+
+    const resultCountText = $derived(formatResultCount(results.length));
 
     $effect(() => {
         clearResults(queryId);
@@ -34,14 +36,13 @@
         onResults();
     });
 
-    const resultCountText = $derived(formatResultCount(results.length));
-
     function onResults() {
         if (restore) {
             restore = false;
             const resultsLength = localStorage.getItem('search-result-display-length');
             loadMore(parseInt(resultsLength, 10));
         }
+        console.log('onResults called', queryId, results.length, resultsShown.length);
         ensureScreenFilled();
     }
 

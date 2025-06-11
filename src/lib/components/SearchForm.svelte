@@ -2,12 +2,8 @@
     import config from '$lib/data/config';
     import { convertStyle, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
+    import type { SearchFormSubmitEvent } from '$lib/types';
 
-    export interface SearchFormSubmitEvent {
-        phrase: string;
-        wholeWords: boolean;
-        matchAccents: boolean;
-    }
     interface SearchFormProps {
         phrase: string;
         wholeWords: boolean;
