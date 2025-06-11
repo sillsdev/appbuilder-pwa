@@ -12,9 +12,11 @@ heavily modified because it did not support more than 2 panes and touch was not 
 
     /**% between neighboring panes*/ let sliders = $derived(Array(panes.length - 1).fill(50));
     /**% width of pane*/ let widths = $derived(Array(panes.length).fill(100 / panes.length));
-    /**% left edge of separator*/ let edges = $derived(Array(separators.length)
-        .fill(100 / panes.length)
-        .map((n, i) => n * (i + 1)));
+    /**% left edge of separator*/ let edges = $derived(
+        Array(separators.length)
+            .fill(100 / panes.length)
+            .map((n, i) => n * (i + 1))
+    );
     /**
      * inital values of current separator
      * @type {any | null}
