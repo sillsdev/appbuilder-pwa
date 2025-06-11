@@ -6,5 +6,5 @@ export async function load({ params }) {
 
     if (!collection) throw error(404);
 
-    return { collection: collection.id };
+    return { collection: collection.id, savedResults: params.savedResults };
 }
