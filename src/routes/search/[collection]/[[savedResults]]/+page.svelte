@@ -50,7 +50,7 @@
     const session = makeSearchSession(presenter);
 
     function handleSubmit(event: SearchFormSubmitEvent) {
-        goto(getRoute(`/search/${data.collection}?savedResults=true`));
+        goto(getRoute(`/search/${data.collection}/saved`));
         queryId++;
         const options = {
             collection: data.collection,
@@ -81,7 +81,7 @@
     }
 
     async function init() {
-        const useSavedResults = new URLSearchParams(window.location.search).get('savedResults');
+        const useSavedResults = data.savedResults === 'saved';
         if (useSavedResults) {
             // Load saved results
             restoreResults = true;
