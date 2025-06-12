@@ -111,7 +111,9 @@ TODO:
         </div>
     {/if}
     {#if showRepeatMode}
-        <RepeatButton color={iconColor} />
+        <div class="audio-control-buttons">
+            <RepeatButton color={iconColor} />
+        </div>
     {/if}
     <!-- Play Controls -->
     <div class="audio-controls" style:direction="ltr">

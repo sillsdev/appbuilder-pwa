@@ -20,6 +20,6 @@
     const onclick = () => playMode.next($refs.hasAudio?.timingFile);
 </script>
 
-<button class="audio-control-buttons" {onclick}>
+<button {onclick}>
     <Icon {color} {size} />
 </button>
