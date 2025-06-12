@@ -2,7 +2,6 @@
 @component
 Plan Stop Modal Dialog component.
 -->
-<svelte:options />
 
 <script>
     import { goto } from '$app/navigation';
@@ -13,6 +12,7 @@ Plan Stop Modal Dialog component.
     import Modal from './Modal.svelte';
 
     let { planId = undefined, vertOffset = '1rem' } = $props();
+    export { planId };
 
     const modalId = 'planStopDialog';
     let modal = $state(undefined);
