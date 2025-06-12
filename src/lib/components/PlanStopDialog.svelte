@@ -2,7 +2,7 @@
 @component
 Plan Stop Modal Dialog component.
 -->
-<svelte:options accessors={true} />
+<svelte:options />
 
 <script>
     import { goto } from '$app/navigation';
@@ -12,10 +12,10 @@ Plan Stop Modal Dialog component.
     import { getRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
-    export let planId = undefined;
+    let { planId = undefined, vertOffset = '1rem' } = $props();
 
     const modalId = 'planStopDialog';
-    let modal;
+    let modal = $state(undefined);
 
     export function showModal() {
         modal.showModal();
@@ -33,12 +33,12 @@ Plan Stop Modal Dialog component.
         });
     }
 
-    export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
     //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    $: positioningCSS =
+    const positioningCSS = $derived(
         'position:absolute; top:' +
-        (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; inset-inline-end:1rem;';
+            (Number(vertOffset.replace('rem', '')) + 1) +
+            'rem; inset-inline-end:1rem;'
+    );
 </script>
 
 <Modal bind:this={modal} id={modalId}>
@@ -59,7 +59,7 @@ Plan Stop Modal Dialog component.
                     <button class="dy-btn message-button" id="no">
                         {$t['Button_No']}
                     </button>
-                    <button class="dy-btn message-button" id="yes" on:click={() => handleYes()}>
+                    <button class="dy-btn message-button" id="yes" onclick={() => handleYes()}>
                         {$t['Button_Yes']}
                     </button>
                 </div>
