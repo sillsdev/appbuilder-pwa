@@ -9,13 +9,13 @@
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
 
-    export let barType = undefined;
+    let { barType = undefined } = $props();
 
     const bottomNavBarItems = config?.bottomNavBarItems;
 
-    $: barBackgroundColor = $s['ui.bottom-navigation.']['background-color'];
-    $: barTextColor = $s['ui.bottom-navigation.item.text']['color'];
-    $: barTextSelectedColor = $s['ui.bottom-navigation.item.text.selected']['color'];
+    const barBackgroundColor = $derived($s['ui.bottom-navigation.']['background-color']);
+    const barTextColor = $derived($s['ui.bottom-navigation.item.text']['color']);
+    const barTextSelectedColor = $derived($s['ui.bottom-navigation.item.text.selected']['color']);
 
     const showContents = contents.screens?.length > 0;
     const showSearch = config.mainFeatures['search'];
@@ -124,7 +124,7 @@
                     {#if showButton(item.type)}
                         <button
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
-                            on:click={() => handleClick(item.type, item.link['default'])}
+                            onclick={() => handleClick(item.type, item.link['default'])}
                         >
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
