@@ -1,20 +1,18 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
     import { addNote, editNote } from '$lib/data/notes';
     import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
-    export let note = undefined;
-    export let editing = false;
+    let { note = undefined, editing = false } = $props();
+    export { note };
 
-    let id = 'note';
-    let modal;
-    let title: string;
-    let text: string;
+    let id = $state('note');
+    let modal: Modal = $state();
+    let title: string = $state();
+    let text: string = $state();
 
-    $: heading = editing ? ($t[title] ?? '') : (note?.reference ?? '');
+    const heading = $derived(editing ? ($t[title] ?? '') : (note?.reference ?? ''));
 
     export function showModal() {
         if (note !== undefined) {
@@ -62,7 +60,7 @@
                 </div>
                 {#if !editing}
                     <button
-                        on:click={() => {
+                        onclick={() => {
                             editing = true;
                         }}
                     >
@@ -88,7 +86,7 @@
             {#if editing}
                 <div class="w-full flex mt-4 justify-between">
                     <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                    <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
+                    <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
                         >{$t['Button_OK']}</button
                     >
                 </div>
