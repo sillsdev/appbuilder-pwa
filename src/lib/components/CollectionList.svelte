@@ -5,17 +5,20 @@ Custom list of collections for the LayoutOptions menu
 <script lang="ts">
     import { base } from '$app/paths';
     import { convertStyle, s, themeColors } from '$lib/data/stores';
-    import { createEventDispatcher } from 'svelte';
 
-    // array of all selectable docsets
-    export let docSets: App.CollectionEntry[] = [];
-    // selected docset to highlight
-    export let selectedLayouts: App.CollectionEntry;
-
-    const dispatch = createEventDispatcher();
+    //docSets is the array of all selectable docsets. selectedLayouts is the selected docset to highlight
+    let {
+        docSets = [],
+        selectedLayouts,
+        menuaction
+    }: {
+        docSets: App.CollectionEntry[];
+        selectedLayouts: App.CollectionEntry;
+        menuaction;
+    } = $props();
 
     function handleClick(opt: App.CollectionEntry) {
-        dispatch('menuaction', {
+        menuaction({
             collection: opt
         });
     }
@@ -23,12 +26,12 @@ Custom list of collections for the LayoutOptions menu
 
 <ul class="dy-menu dy-menu-compact">
     {#each docSets as d}
-        <!-- svelte-ignore a11y-missing-attribute -->
+        <!-- svelte-ignore a11y_missing_attribute -->
         <li>
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-interactive-supports-focus -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_interactive_supports_focus -->
             <a
-                on:click={() => handleClick(d)}
+                onclick={() => handleClick(d)}
                 style:background-color={selectedLayouts.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}

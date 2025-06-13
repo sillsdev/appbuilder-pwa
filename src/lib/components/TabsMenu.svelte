@@ -2,23 +2,24 @@
 @component
 A component to display tabbed menus.
 -->
-<svelte:options accessors={true} />
 
 <script lang="ts">
     import { convertStyle, s } from '$lib/data/stores';
-    import { createEventDispatcher } from 'svelte';
+    import { preventDefault } from '$lib/scripts/event-wrappers';
 
-    export let options: App.TabMenuOptions = { '': { component: '', props: {}, visible: true } };
-    export let active = Object.keys(options).filter((x) => options[x].visible)[0];
-    export let scroll = true;
-    export let height = '50vh';
+    let {
+        options = { '': { component: '', props: {}, visible: true } },
+        active = Object.keys(options).filter((x) => options[x].visible)[0],
+        scroll = true,
+        height = '50vh',
+        menuaction
+    }: { options: App.TabMenuOptions; active; scroll; height; menuaction } = $props();
 
-    const dispatch = createEventDispatcher();
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
-    function handleMenuaction({ detail }: CustomEvent) {
-        dispatch('menuaction', {
-            text: detail.text,
-            url: detail?.url,
+    function handleMenuaction({ text, url }) {
+        menuaction({
+            text: text,
+            url: url,
             tab: active
         });
     }
@@ -28,6 +29,7 @@ A component to display tabbed menus.
         if (!Object.hasOwn(options, tab)) return;
         active = tab;
     };
+    const ActiveComponent = $derived(options[active].component);
 </script>
 
 {#if hasTabs}
@@ -35,11 +37,11 @@ A component to display tabbed menus.
         {(console.log(`active: ${active}`), '')}
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-interactive-supports-focus -->
+                <!-- svelte-ignore a11y_missing_attribute -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_interactive_supports_focus -->
                 <a
-                    on:click|preventDefault={() => setActive(opt)}
+                    onclick={preventDefault(() => setActive(opt))}
                     style:border-color={active === opt ? '#FFFFFF' : ''}
                     class="dy-tab text-white normal-case {active === opt
                         ? 'dy-tab-active font-bold'
@@ -48,10 +50,8 @@ A component to display tabbed menus.
                     role="button"
                 >
                     {#if options[opt].tab}
-                        <svelte:component
-                            this={options[opt].tab?.component}
-                            {...options[opt].tab?.props}
-                        />
+                        {@const TabComponent = options[opt].tab?.component}
+                        <TabComponent {...options[opt].tab?.props} />
                     {:else}
                         {opt}
                     {/if}
@@ -67,9 +67,5 @@ A component to display tabbed menus.
     style:max-height={height}
 >
     {console.log('active', active)}
-    <svelte:component
-        this={options[active].component}
-        on:menuaction={handleMenuaction}
-        {...options[active].props}
-    />
+    <ActiveComponent menuaction={handleMenuaction} {...options[active].props} />
 </div>

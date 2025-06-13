@@ -15,13 +15,10 @@ Displays the three different layout option menus.
         themeColors
     } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
-    import { createEventDispatcher } from 'svelte';
     import CollectionList from './CollectionList.svelte';
     import Dropdown from './Dropdown.svelte';
 
-    const dispatch = createEventDispatcher();
-
-    export let layoutOption;
+    let { layoutOption, menuaction } = $props();
 
     const blank = {
         id: '',
@@ -74,7 +71,7 @@ Displays the three different layout option menus.
                 }
                 break;
         }
-        dispatch('menuaction', {
+        menuaction({
             collection: opt
         });
         (document.activeElement as HTMLElement).blur();
@@ -91,7 +88,7 @@ Displays the three different layout option menus.
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
             selectedLayouts={$selectedLayouts.singlePane}
-            on:menuaction={(event) => handleClick(event, 0)}
+            menuaction={(event) => handleClick(event, 0)}
         />
         <!-- Two Pane -->
     {:else if layoutOption === LAYOUT_TWO}
@@ -102,7 +99,7 @@ Displays the three different layout option menus.
             {#each $selectedLayouts.sideBySide as collection, i}
                 <div>
                     <Dropdown>
-                        <svelte:fragment slot="label">
+                        {#snippet label()}
                             <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
                                 {i + 1}.
                             </div>
@@ -122,16 +119,16 @@ Displays the three different layout option menus.
                             <div class="px-3">
                                 <DropdownIcon color={$s['ui.layouts.selector'].color} />
                             </div>
-                        </svelte:fragment>
-                        <svelte:fragment slot="content">
+                        {/snippet}
+                        {#snippet content()}
                             <CollectionList
                                 docSets={allDocSets}
                                 selectedLayouts={collection}
-                                on:menuaction={(event) => {
+                                menuaction={(event) => {
                                     handleClick(event, i);
                                 }}
                             />
-                        </svelte:fragment>
+                        {/snippet}
                     </Dropdown>
                 </div>
             {/each}
@@ -144,7 +141,7 @@ Displays the three different layout option menus.
         {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
                 <Dropdown>
-                    <svelte:fragment slot="label">
+                    {#snippet label()}
                         <div class="px-3" style={convertStyle($s['ui.layouts.number'])}>
                             {i + 1}.
                         </div>
@@ -164,14 +161,14 @@ Displays the three different layout option menus.
                         <div class="px-3">
                             <DropdownIcon color={$s['ui.layouts.selector'].color} />
                         </div>
-                    </svelte:fragment>
-                    <svelte:fragment slot="content">
+                    {/snippet}
+                    {#snippet content()}
                         <CollectionList
                             docSets={i === 2 ? [blank, ...allDocSets] : allDocSets}
                             selectedLayouts={collection}
-                            on:menuaction={(event) => handleClick(event, i)}
+                            menuaction={(event) => handleClick(event, i)}
                         />
-                    </svelte:fragment>
+                    {/snippet}
                 </Dropdown>
             </div>
         {/each}
