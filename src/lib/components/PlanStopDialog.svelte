@@ -41,28 +41,26 @@ Plan Stop Modal Dialog component.
 </script>
 
 <Modal bind:this={modal} id={modalId}>
-    {#snippet content()}
-        <div id="container" class="message">
-            <div class="message-body" id="message-body">
-                <div class="message-header"></div>
-                <div class="message-title">
-                    {$t['Plans_Stop_Plan_Confirm_Title']}
-                </div>
-                <div class="message-text">
-                    {$t['Plans_Stop_Plan_Confirm_Message']}
-                </div>
+    <div id="container" class="message">
+        <div class="message-body" id="message-body">
+            <div class="message-header"></div>
+            <div class="message-title">
+                {$t['Plans_Stop_Plan_Confirm_Title']}
             </div>
-
-            <div class="flex w-full justify-between dy-modal-action">
-                <div class="message-buttons">
-                    <button class="dy-btn message-button" id="no">
-                        {$t['Button_No']}
-                    </button>
-                    <button class="dy-btn message-button" id="yes" onclick={() => handleYes()}>
-                        {$t['Button_Yes']}
-                    </button>
-                </div>
+            <div class="message-text">
+                {$t['Plans_Stop_Plan_Confirm_Message']}
             </div>
         </div>
-    {/snippet}
+
+        <div class="flex w-full justify-between dy-modal-action">
+            <div class="message-buttons">
+                <button class="dy-btn message-button" id="no">
+                    {$t['Button_No']}
+                </button>
+                <button class="dy-btn message-button" id="yes" onclick={() => handleYes()}>
+                    {$t['Button_Yes']}
+                </button>
+            </div>
+        </div>
+    </div>
 </Modal>
