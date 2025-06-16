@@ -41,7 +41,7 @@ A simple dropdown menu from DaisyUI.
 <details bind:this={details} class="dy-dropdown max-sm:[position:unset]" ontoggle={onToggle}>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <summary class="dy-btn dy-btn-ghost p-0.5 no-animation flex-nowrap">
-        {@render label()}
+        {@render label?.()}
     </summary>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
@@ -52,6 +52,6 @@ A simple dropdown menu from DaisyUI.
         style={convertStyle($s['ui.background'])}
         onblur={() => navEnd()}
     >
-        {@render content()}
+        {@render content?.()}
     </div>
 </details>
