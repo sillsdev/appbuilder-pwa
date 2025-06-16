@@ -24,7 +24,7 @@
     // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
-    let displayQueryId = queryId;
+    let displayQueryId = $state(queryId);
 
     const resultCountText = $derived(formatResultCount(results.length));
 
@@ -33,6 +33,7 @@
     });
 
     $effect(() => {
+        results;
         onResults();
     });
 
@@ -42,7 +43,6 @@
             const resultsLength = localStorage.getItem('search-result-display-length');
             loadMore(parseInt(resultsLength, 10));
         }
-        console.log('onResults called', queryId, results.length, resultsShown.length);
         ensureScreenFilled();
     }
 

@@ -22,7 +22,7 @@ A clickable verse card representing a single search result.
         verses: string;
     }
 
-    const direction = $derived(() =>
+    const direction = $derived(
         config.bookCollections.find((x) => x.id === collection).style.textDirection.toLowerCase()
     );
 
