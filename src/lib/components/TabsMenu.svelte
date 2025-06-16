@@ -9,7 +9,7 @@ A component to display tabbed menus.
 
     let {
         options = { '': { component: '', props: {}, visible: true } },
-        active = Object.keys(options).filter((x) => options[x].visible)[0],
+        active = $bindable(Object.keys(options).filter((x) => options[x].visible)[0]),
         scroll = true,
         height = '50vh',
         menuaction

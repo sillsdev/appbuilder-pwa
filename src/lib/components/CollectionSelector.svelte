@@ -23,6 +23,7 @@ Book Collection Selector component.
     const modalId = 'collectionSelector';
     let modal;
     let tabMenu;
+    let tabMenuActive = LAYOUT_SINGLE;
 
     // values of selectedLayouts before user makes changes
     const restoreDocSets = JSON.stringify($selectedLayouts);
@@ -37,9 +38,9 @@ Book Collection Selector component.
     }
 
     function getSelectedLayout() {
-        const collections = selectedLayouts.collections(tabMenu.active);
+        const collections = selectedLayouts.collections(tabMenuActive);
         return {
-            mode: tabMenu.active,
+            mode: tabMenuActive,
             primaryDocSet: collections[0].id,
             auxDocSets: collections.slice(1).map((x) => x.id)
         };
@@ -67,6 +68,7 @@ Book Collection Selector component.
     {#snippet content()}
         <TabsMenu
             bind:this={tabMenu}
+            bind:active={tabMenuActive}
             options={{
                 [LAYOUT_SINGLE]: {
                     tab: { component: SinglePaneIcon },
