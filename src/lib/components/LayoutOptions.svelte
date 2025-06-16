@@ -37,7 +37,7 @@ Displays the three different layout option menus.
     }));
 
     function handleClick(opt: any, index: number) {
-        const docSet = opt.detail.collection;
+        const docSet = opt.collection;
         switch (layoutOption) {
             case LAYOUT_SINGLE:
                 $selectedLayouts.singlePane = docSet;
