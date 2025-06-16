@@ -17,7 +17,7 @@ A component to display tabbed menus.
 
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
     function handleMenuaction({ text, url }) {
-        menuaction({
+        menuaction?.({
             text: text,
             url: url,
             tab: active
