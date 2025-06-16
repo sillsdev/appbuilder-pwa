@@ -19,7 +19,6 @@
     let phrase: string = $state();
     let wholeWords: boolean = $state();
     let matchAccents: boolean = $state();
-
     let results: SearchResult[] = $state([]);
     let queryId = $state(0);
     let queryDone = $state(true);
@@ -28,6 +27,9 @@
     let scrollDiv: HTMLDivElement | null = $state();
     let scrollPosition = 0;
     let scrollSaved = false;
+    if (scrollDiv) {
+        scrollPosition = scrollDiv.scrollTop;
+    }
 
     const presenter: SearchPresenter = {
         setOptions: function (newPhrase: string, options: UserSearchOptions): void {
