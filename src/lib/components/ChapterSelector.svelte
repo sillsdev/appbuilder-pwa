@@ -157,7 +157,7 @@ The navbar component.
     /**list of books in current docSet*/
     const books = $derived($refs.catalog.documents);
     /**list of chapters in current book*/
-    const chapters = $derived(books.find((d) => d.bookCode === book)?.versesByChapters);
+    const chapters = $derived(books.find((d) => d.bookCode === book)?.versesByChapters || {});
     const showSelector = $derived(
         config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0
     );
@@ -188,7 +188,7 @@ The navbar component.
                                     options: [
                                         {
                                             rows: books.find((x) => x.bookCode === book)
-                                                .hasIntroduction
+                                                ?.hasIntroduction
                                                 ? [
                                                       {
                                                           label: $t['Chapter_Introduction_Title'],

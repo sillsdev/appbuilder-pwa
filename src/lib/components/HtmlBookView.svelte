@@ -14,13 +14,11 @@ Display an HTML Book.
     $: fontSize = bodyFontSize + 'px';
     $: lineHeight = bodyLineHeight + '%';
 
-    let htmlHead: string;
     let htmlBody: string;
 
     $: loadHtml(references.collection, references.book);
 
     async function loadHtml(collectionId: string, bookId: string) {
-        console.log(`loadHtml: ${collectionId}, ${bookId}`);
         const book = config.bookCollections
             .find((x) => x.id === collectionId)
             ?.books.find((x) => x.id === bookId);
@@ -29,20 +27,12 @@ Display an HTML Book.
             const result = await fetch(`${base}/collections/${references.collection}/${book.file}`);
 
             if (result.ok) {
-                const fullHtml = await result.text();
-
-                // Extract content within <head> and <body>
-                htmlHead = fullHtml.match(/<head[^>]*>([\s\S]*?)<\/head>/i)?.[1] || '';
-                htmlBody = fullHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] || '';
+                htmlBody = await result.text();
             }
         }
     }
 </script>
 
-<svelte:head>
-    {@html htmlHead}
-</svelte:head>
-
-<div style="line-height: {lineHeight}; font-size: {fontSize};">
+<div class="prose" style="line-height: {lineHeight}; font-size: {fontSize};">
     {@html htmlBody}
 </div>
