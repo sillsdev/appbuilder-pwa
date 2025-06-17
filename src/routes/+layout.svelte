@@ -69,7 +69,7 @@
                         fontSelector.showModal();
                         break;
                     case MODAL_STOP_PLAN:
-                        planStopDialog.planId = data;
+                        planStopId = data;
                         planStopDialog.showModal();
                         break;
                     case MODAL_PLAYBACK_SPEED:
@@ -86,6 +86,7 @@
     let fontSelector: FontSelector = $state();
     let noteDialog: NoteDialog = $state();
     let planStopDialog: PlanStopDialog = $state();
+    let planStopId: string;
     let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
 </script>
 
@@ -117,7 +118,11 @@
 
         <FontSelector bind:this={fontSelector} />
 
-        <PlanStopDialog bind:this={planStopDialog} vertOffset={NAVBAR_HEIGHT} />
+        <PlanStopDialog
+            bind:this={planStopDialog}
+            bind:planId={planStopId}
+            vertOffset={NAVBAR_HEIGHT}
+        />
 
         <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
     </div>

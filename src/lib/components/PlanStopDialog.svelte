@@ -11,8 +11,7 @@ Plan Stop Modal Dialog component.
     import { getRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
-    let { planId = undefined, vertOffset = '1rem' } = $props();
-    export { planId };
+    let { planId = $bindable(undefined), vertOffset = '1rem' } = $props();
 
     const modalId = 'planStopDialog';
     let modal = $state(undefined);
