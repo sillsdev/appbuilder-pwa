@@ -34,7 +34,6 @@ A component to display tabbed menus.
 
 {#if hasTabs}
     <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s['ui.selector.tabs'])}>
-        {(console.log(`active: ${active}`), '')}
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y_missing_attribute -->
@@ -66,6 +65,5 @@ A component to display tabbed menus.
     style:overflow-y={scroll ? 'auto' : ''}
     style:max-height={height}
 >
-    {console.log('active', active)}
     <ActiveComponent menuaction={handleMenuaction} {...options[active].props} />
 </div>
