@@ -60,6 +60,7 @@
             case 'reference':
                 contentsStack.pushItem($page.data.menu.id);
                 const contentsRef = await getReference(item);
+                console.log('contentsRef', contentsRef);
                 await navigateToText(contentsRef);
                 break;
             case 'screen':
@@ -193,11 +194,19 @@
     async function firstChapter(book, docset) {
         let first = '1';
         if (docset === currentDocSet) {
-            first = Object.keys(books.find((x) => x.bookCode === book).versesByChapters)[0];
+            const currBook = books.find((x) => x.bookCode === book);
+            if (currBook?.versesByChapters) {
+                // If the book has versesByChapters, we can get the first chapter directly
+                first = Object.keys(currBook.versesByChapters)[0];
+            }
         } else {
-            let docSetCatalog = await loadCatalog(docset);
-            let docSetBooks = docSetCatalog.documents;
-            first = Object.keys(docSetBooks.find((x) => x.bookCode === book).versesByChapters)[0];
+            const docSetCatalog = await loadCatalog(docset);
+            const docSetBooks = docSetCatalog.documents;
+            const docSetBook = docSetBooks.find((x) => x.bookCode === book);
+            if (docSetBook?.versesByChapters) {
+                // If the book has versesByChapters, we can get the first chapter directly
+                first = Object.keys(docSetBook.versesByChapters)[0];
+            }
         }
         return first;
     }

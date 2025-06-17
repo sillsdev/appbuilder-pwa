@@ -42,12 +42,24 @@ The navbar component.
                 .books.find((x) => x.id === book)?.name
     );
 
+    function isHtmlBook(bookId) {
+        const book = config.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books.find((x) => x.id === bookId);
+
+        return book && book.format === 'html';
+    }
     function chapterCount(book) {
         let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
     function firstChapter(book) {
-        let first = Object.keys(books.find((x) => x.bookCode === book).versesByChapters)[0];
+        let first = '1';
+        const currBook = books.find((x) => x.bookCode === book);
+        if (currBook?.versesByChapters) {
+            // If the book has versesByChapters, we can get the first chapter directly
+            first = Object.keys(currBook.versesByChapters)[0];
+        }
         return first;
     }
     function getVerseCount(chapter, chapters) {
@@ -71,10 +83,10 @@ The navbar component.
             });
             return;
         }
-        if (!showChapterSelector) {
+        if (!showChapterSelector || isHtmlBook(text)) {
             $nextRef.book = text;
-            await refs.set({ book: $nextRef.book, chapter: 1 });
-            close();
+            $nextRef.chapter = firstChapter(text);
+            await completeNavigation();
         } else {
             switch (tab) {
                 case b: {
