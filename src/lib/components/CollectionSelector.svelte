@@ -30,12 +30,9 @@ Book Collection Selector component.
     const restoreDocSets = JSON.stringify($selectedLayouts);
 
     // ToDo: If showSinglePane false, provide first availible visible option instead
-    const showSinglePane = $derived(config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled);
-    const showSideBySide = $derived(config.layouts.find((x) => x.mode === LAYOUT_TWO).enabled);
-    const showVerseByVerse = $derived(
-        config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled
-    );
-
+    const showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
+    const showSideBySide = config.layouts.find((x) => x.mode === LAYOUT_TWO).enabled;
+    const showVerseByVerse = config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled;
     export function showModal() {
         modal.showModal();
     }
