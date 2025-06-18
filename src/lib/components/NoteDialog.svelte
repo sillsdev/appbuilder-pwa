@@ -4,8 +4,7 @@
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
-    let { note = undefined, editing = false } = $props();
-    export { note };
+    let { note = $bindable(undefined), editing = false } = $props();
 
     let id = $state('note');
     let modal: Modal = $state();
