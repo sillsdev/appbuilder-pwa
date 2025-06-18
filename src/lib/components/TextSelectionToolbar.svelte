@@ -204,7 +204,7 @@ TODO:
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
                     <button class="dy-btn-sm dy-btn-ghost" on:click={() => playVerseAudio()}>
-                        <AudioIcon.Play color={barIconColor} />
+                        <AudioIcon.Play state={false} color={barIconColor} />
                     </button>
                 {/if}
                 {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
