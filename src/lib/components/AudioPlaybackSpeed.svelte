@@ -30,30 +30,28 @@
 </script>
 
 <Modal bind:this={modalThis} id={modalId}>
-    {#snippet content()}
-        <div style="color: {$monoIconColor}">
-            <h1>
-                <b>{$t['Settings_Audio_Speed']}</b>
-            </h1>
-            <div class="speed-controls">
-                {#each speeds as speed}
-                    <label>
-                        <input
-                            type="radio"
-                            name="speed"
-                            value={speed.value}
-                            on:click={setPlaySpeed}
-                            checked={$userSettings['audio-speed'] === speed.value}
-                        />
-                        {speed.label}
-                    </label>
-                {/each}
-                <div class="dy-modal-action close-btn">
-                    <button class="dy-btn dy-btn-ghost">{$t['Button_Close']}</button>
-                </div>
+    <div style="color: {$monoIconColor}">
+        <h1>
+            <b>{$t['Settings_Audio_Speed']}</b>
+        </h1>
+        <div class="speed-controls">
+            {#each speeds as { value, label }}
+                <label>
+                    <input
+                        type="radio"
+                        name="speed"
+                        {value}
+                        on:click={setPlaySpeed}
+                        checked={$userSettings['audio-speed'] === value}
+                    />
+                    {label}
+                </label>
+            {/each}
+            <div class="dy-modal-action close-btn">
+                <button class="dy-btn dy-btn-ghost">{$t['Button_Close']}</button>
             </div>
         </div>
-    {/snippet}
+    </div>
 </Modal>
 
 <style>

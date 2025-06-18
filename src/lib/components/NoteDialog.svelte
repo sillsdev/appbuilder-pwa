@@ -54,45 +54,43 @@
 </script>
 
 <Modal bind:this={modal} {id} onclose={reset}>
-    {#snippet content()}
-        <div class="flex flex-col justify-evenly">
-            <div class="w-full flex justify-between">
-                <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
-                    {heading}
-                </div>
-                {#if !editing}
-                    <button
-                        on:click={() => {
-                            editing = true;
-                        }}
-                    >
-                        <EditIcon />
-                    </button>
-                {/if}
+    <div class="flex flex-col justify-evenly">
+        <div class="w-full flex justify-between">
+            <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
+                {heading}
             </div>
-            <div style:word-wrap="break-word">
-                {#if editing}
-                    <textarea bind:value={text} class="dy-textarea w-full"></textarea>
-                {:else if text !== undefined}
-                    {#each text.split(/\r?\n/) as line}
-                        {#if line}
-                            <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                                {line}
-                            </p>
-                        {:else}
-                            <br />
-                        {/if}
-                    {/each}
-                {/if}
-            </div>
-            {#if editing}
-                <div class="w-full flex mt-4 justify-between">
-                    <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                    <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
-                        >{$t['Button_OK']}</button
-                    >
-                </div>
+            {#if !editing}
+                <button
+                    onclick={() => {
+                        editing = true;
+                    }}
+                >
+                    <EditIcon />
+                </button>
             {/if}
         </div>
-    {/snippet}
+        <div style:word-wrap="break-word">
+            {#if editing}
+                <textarea bind:value={text} class="dy-textarea w-full"></textarea>
+            {:else if text !== undefined}
+                {#each text.split(/\r?\n/) as line}
+                    {#if line}
+                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                            {line}
+                        </p>
+                    {:else}
+                        <br />
+                    {/if}
+                {/each}
+            {/if}
+        </div>
+        {#if editing}
+            <div class="w-full flex mt-4 justify-between">
+                <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
+                <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
+                    >{$t['Button_OK']}</button
+                >
+            </div>
+        {/if}
+    </div>
 </Modal>

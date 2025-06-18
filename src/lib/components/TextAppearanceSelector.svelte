@@ -106,98 +106,96 @@ The navbar component. We have sliders that update reactively to both font size a
 {#if showTextAppearence}
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <Modal bind:this={modalThis} id={modalId} addCSS={positioningCSS}>
-        {#snippet content()}
-            <div class="grid gap-4">
-                <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
-                {#if showFontSize}
-                    <div class="grid gap-4 items-center range-row m-2">
-                        <TextAppearanceIcon color={$monoIconColor} />
-                        {#if contentsMode}
-                            <Slider
-                                bind:value={$contentsFontSize}
-                                {barColor}
-                                {progressColor}
-                                min={config.mainFeatures['text-size-min']}
-                                max={config.mainFeatures['text-size-max']}
-                            />
-                        {:else}
-                            <Slider
-                                bind:value={$bodyFontSize}
-                                {barColor}
-                                {progressColor}
-                                min={config.mainFeatures['text-size-min']}
-                                max={config.mainFeatures['text-size-max']}
-                            />
-                        {/if}
-                        <div class="text-md text-{$monoIconColor} place-self-end">
-                            {contentsMode ? $contentsFontSize : $bodyFontSize}
-                        </div>
-                    </div>
-                {/if}
-                {#if showLineHeight}
-                    <div class="grid gap-4 items-center range-row m-2">
-                        <ImageIcon.FormatLineSpacing color={$monoIconColor} />
+        <div class="grid gap-4">
+            <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
+            {#if showFontSize}
+                <div class="grid gap-4 items-center range-row m-2">
+                    <TextAppearanceIcon color={$monoIconColor} />
+                    {#if contentsMode}
                         <Slider
-                            bind:value={$bodyLineHeight}
+                            bind:value={$contentsFontSize}
                             {barColor}
                             {progressColor}
-                            min="100"
-                            max="250"
+                            min={config.mainFeatures['text-size-min']}
+                            max={config.mainFeatures['text-size-max']}
                         />
-                        <div class="text-md text-{$monoIconColor} place-self-end">
-                            {formatLineHeight($bodyLineHeight)}
-                        </div>
+                    {:else}
+                        <Slider
+                            bind:value={$bodyFontSize}
+                            {barColor}
+                            {progressColor}
+                            min={config.mainFeatures['text-size-min']}
+                            max={config.mainFeatures['text-size-max']}
+                        />
+                    {/if}
+                    <div class="text-md text-{$monoIconColor} place-self-end">
+                        {contentsMode ? $contentsFontSize : $bodyFontSize}
                     </div>
-                {/if}
-                {#if showFonts}
-                    <div class="grid gap-4 items-center range-row m-2">
-                        <ImageIcon.FontChoice color={$monoIconColor} />
-                        <button
-                            class="dy-btn-sm col-span-2 rounded"
-                            style:border="1px dotted"
-                            style:font-family={$currentFont}
-                            style:font-size="large"
-                            style:color={$monoIconColor}
-                            on:click={() => modal.open(MODAL_FONT)}
-                            >{config.fonts.find((x) => x.family === $currentFont).name}</button
-                        >
+                </div>
+            {/if}
+            {#if showLineHeight}
+                <div class="grid gap-4 items-center range-row m-2">
+                    <ImageIcon.FormatLineSpacing color={$monoIconColor} />
+                    <Slider
+                        bind:value={$bodyLineHeight}
+                        {barColor}
+                        {progressColor}
+                        min="100"
+                        max="250"
+                    />
+                    <div class="text-md text-{$monoIconColor} place-self-end">
+                        {formatLineHeight($bodyLineHeight)}
                     </div>
-                {/if}
-                <!-- Theme Selction buttons-->
-                {#if showThemes}
-                    <div
-                        class="grid gap-2 m-2"
-                        class:grid-cols-2={themes.length === 2}
-                        class:grid-cols-3={themes.length === 3}
+                </div>
+            {/if}
+            {#if showFonts}
+                <div class="grid gap-4 items-center range-row m-2">
+                    <ImageIcon.FontChoice color={$monoIconColor} />
+                    <button
+                        class="dy-btn-sm col-span-2 rounded"
+                        style:border="1px dotted"
+                        style:font-family={$currentFont}
+                        style:font-size="large"
+                        style:color={$monoIconColor}
+                        on:click={() => modal.open(MODAL_FONT)}
+                        >{config.fonts.find((x) => x.family === $currentFont).name}</button
                     >
-                        {#if themes.includes('Normal')}
-                            <button
-                                class="dy-btn-sm"
-                                style:background-color={buttonBackground('Normal')}
-                                style:border={buttonBorder('Normal', $theme)}
-                                on:click={() => ($theme = 'Normal')}
-                            ></button>
-                        {/if}
-                        {#if themes.includes('Sepia')}
-                            <button
-                                class="dy-btn-sm"
-                                style:background-color={buttonBackground('Sepia')}
-                                style:border={buttonBorder('Sepia', $theme)}
-                                on:click={() => ($theme = 'Sepia')}
-                            ></button>
-                        {/if}
-                        {#if themes.includes('Dark')}
-                            <button
-                                class="dy-btn-sm"
-                                style:background-color={buttonBackground('Dark')}
-                                style:border={buttonBorder('Dark', $theme)}
-                                on:click={() => ($theme = 'Dark')}
-                            ></button>
-                        {/if}
-                    </div>
-                {/if}
-            </div>
-        {/snippet}
+                </div>
+            {/if}
+            <!-- Theme Selction buttons-->
+            {#if showThemes}
+                <div
+                    class="grid gap-2 m-2"
+                    class:grid-cols-2={themes.length === 2}
+                    class:grid-cols-3={themes.length === 3}
+                >
+                    {#if themes.includes('Normal')}
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={buttonBackground('Normal')}
+                            style:border={buttonBorder('Normal', $theme)}
+                            on:click={() => ($theme = 'Normal')}
+                        ></button>
+                    {/if}
+                    {#if themes.includes('Sepia')}
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={buttonBackground('Sepia')}
+                            style:border={buttonBorder('Sepia', $theme)}
+                            on:click={() => ($theme = 'Sepia')}
+                        ></button>
+                    {/if}
+                    {#if themes.includes('Dark')}
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={buttonBackground('Dark')}
+                            style:border={buttonBorder('Dark', $theme)}
+                            on:click={() => ($theme = 'Dark')}
+                        ></button>
+                    {/if}
+                </div>
+            {/if}
+        </div>
     </Modal>
 {/if}
 

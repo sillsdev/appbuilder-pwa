@@ -66,45 +66,43 @@ Book Collection Selector component.
 </script>
 
 <Modal bind:this={modal} id={modalId}>
-    {#snippet content()}
-        <TabsMenu
-            bind:this={tabMenu}
-            bind:active={tabMenuActive}
-            options={{
-                [LAYOUT_SINGLE]: {
-                    tab: { component: SinglePaneIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: LAYOUT_SINGLE },
-                    visible: showSinglePane
-                },
-                [LAYOUT_TWO]: {
-                    tab: { component: SideBySideIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: LAYOUT_TWO },
-                    visible: showSideBySide
-                },
-                [LAYOUT_VERSE_BY_VERSE]: {
-                    tab: { component: VerseByVerseIcon },
-                    component: LayoutOptions,
-                    props: { layoutOption: LAYOUT_VERSE_BY_VERSE },
-                    visible: showVerseByVerse
-                }
-            }}
-            scroll={true}
-        />
-        <div class="flex w-full justify-between dy-modal-action">
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <button
-                style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                onclick={() => handleCancel()}>{$t['Button_Cancel']}</button
-            >
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <button
-                style={convertStyle($s['ui.dialog.button'])}
-                class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-                onclick={() => handleOk()}>{$t['Button_OK']}</button
-            >
-        </div>
-    {/snippet}
+    <TabsMenu
+        bind:this={tabMenu}
+        bind:active={tabMenuActive}
+        options={{
+            [LAYOUT_SINGLE]: {
+                tab: { component: SinglePaneIcon },
+                component: LayoutOptions,
+                props: { layoutOption: LAYOUT_SINGLE },
+                visible: showSinglePane
+            },
+            [LAYOUT_TWO]: {
+                tab: { component: SideBySideIcon },
+                component: LayoutOptions,
+                props: { layoutOption: LAYOUT_TWO },
+                visible: showSideBySide
+            },
+            [LAYOUT_VERSE_BY_VERSE]: {
+                tab: { component: VerseByVerseIcon },
+                component: LayoutOptions,
+                props: { layoutOption: LAYOUT_VERSE_BY_VERSE },
+                visible: showVerseByVerse
+            }
+        }}
+        scroll={true}
+    />
+    <div class="flex w-full justify-between dy-modal-action">
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <button
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
+            onclick={() => handleCancel()}>{$t['Button_Cancel']}</button
+        >
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <button
+            style={convertStyle($s['ui.dialog.button'])}
+            class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
+            onclick={() => handleOk()}>{$t['Button_OK']}</button
+        >
+    </div>
 </Modal>
