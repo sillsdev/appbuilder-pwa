@@ -8,9 +8,13 @@ A clickable verse card representing a single search result.
     import * as numerals from '$lib/scripts/numeralSystem';
     import type { Reference, SearchResult } from '$lib/search/domain/entities';
 
-    export let docSet: string;
-    export let collection: string;
-    export let result: SearchResult;
+    interface Props {
+        docSet: string;
+        collection: string;
+        result: SearchResult;
+    }
+
+    let { docSet, collection, result }: Props = $props();
 
     interface ReferenceDisplay {
         book: string;
@@ -18,9 +22,9 @@ A clickable verse card representing a single search result.
         verses: string;
     }
 
-    const direction = config.bookCollections
-        .find((x) => x.id === collection)
-        .style.textDirection.toLowerCase();
+    const direction = $derived(
+        config.bookCollections.find((x) => x.id === collection).style.textDirection.toLowerCase()
+    );
 
     function referenceString(result: SearchResult): string {
         const parts = formatReferenceParts(result.reference);
@@ -70,7 +74,7 @@ A clickable verse card representing a single search result.
 <div
     class="search-result-block w-full transition-shadow duration-300 hover:shadow-lg cursor-pointer"
 >
-    <button class="text-start" on:click|preventDefault={onClick}>
+    <button class="text-start" onclick={onClick}>
         <div class="search-result-reference flex">
             <h1>
                 {referenceString(result)}
