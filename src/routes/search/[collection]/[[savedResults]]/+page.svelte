@@ -12,24 +12,22 @@
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
     import type { SearchFormSubmitEvent } from '$lib/types';
-    import { onMount, tick } from 'svelte';
+    import { onMount } from 'svelte';
 
     let { data } = $props();
 
     let phrase: string = $state();
     let wholeWords: boolean = $state();
     let matchAccents: boolean = $state();
+
     let results: SearchResult[] = $state([]);
     let queryId = $state(0);
     let queryDone = $state(true);
     let restoreResults = $state(false); // Whether saved results are currently being loaded
 
-    let scrollDiv: HTMLDivElement | null = $state();
+    let scrollDiv: HTMLDivElement;
     let scrollPosition = 0;
     let scrollSaved = false;
-    if (scrollDiv) {
-        scrollPosition = scrollDiv.scrollTop;
-    }
 
     const presenter: SearchPresenter = {
         setOptions: function (newPhrase: string, options: UserSearchOptions): void {
