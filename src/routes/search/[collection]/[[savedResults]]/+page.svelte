@@ -13,18 +13,18 @@
     import { makeSearchSession } from '$lib/search/factories';
     import { onMount, tick } from 'svelte';
 
-    export let data;
+    let { data } = $props();
 
-    let phrase: string;
-    let wholeWords: boolean;
-    let matchAccents: boolean;
+    let phrase: string = $state();
+    let wholeWords: boolean = $state();
+    let matchAccents: boolean = $state();
 
-    let results: SearchResult[] = [];
-    let queryId = 0;
-    let queryDone = true;
-    let restoreResults = false; // Whether saved results are currently being loaded
+    let results: SearchResult[] = $state([]);
+    let queryId = $state(0);
+    let queryDone = $state(true);
+    let restoreResults = $state(false); // Whether saved results are currently being loaded
 
-    let scrollDiv;
+    let scrollDiv = $state(undefined);
     let scrollPosition = 0;
     let scrollSaved = false;
 
@@ -117,7 +117,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-auto" bind:this={scrollDiv} on:scroll={onScroll}>
+    <div class="overflow-auto" bind:this={scrollDiv} onscroll={onScroll}>
         <div class="flex justify-center">
             <SearchForm submit={handleSubmit} {phrase} {wholeWords} {matchAccents} />
         </div>
