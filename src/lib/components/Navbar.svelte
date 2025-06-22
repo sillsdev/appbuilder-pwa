@@ -3,7 +3,6 @@
 The navbar component.
 -->
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import {
         convertStyle,
@@ -15,7 +14,7 @@ The navbar component.
         showDesktopSidebar
     } from '$lib/data/stores';
     import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
 
     interface Props {
         showBackButton?: boolean;
@@ -31,7 +30,7 @@ The navbar component.
         if (backNavigation) {
             backNavigation(page.route.id);
         } else {
-            goto(getRoute(`/`));
+            gotoRoute(`/`);
         }
     }
 

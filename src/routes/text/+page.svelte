@@ -1,5 +1,4 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
     import AudioBar from '$lib/components/AudioBar.svelte';
@@ -56,7 +55,7 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { getRoute, navigateToTextChapterInDirection } from '$lib/navigate';
+    import { gotoRoute, navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { afterUpdate, onDestroy, onMount } from 'svelte';
     import { pinch, swipe } from 'svelte-gestures';
@@ -339,7 +338,7 @@
     function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(getRoute(`/contents/${menuId}`));
+            gotoRoute(`/contents/${menuId}`);
         }
     }
     $: showBackButton =
@@ -393,7 +392,7 @@
                         {#if showSearch}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
+                                on:click={() => gotoRoute(`/search/${$refs.collection}`)}
                             >
                                 <SearchIcon color="white" />
                             </button>

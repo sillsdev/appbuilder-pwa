@@ -3,7 +3,6 @@
 The sidebar/drawer.
 -->
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
@@ -37,7 +36,7 @@ The sidebar/drawer.
         ShareIcon,
         TextAppearanceIcon
     } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
 
     let { children } = $props();
 
@@ -89,9 +88,9 @@ The sidebar/drawer.
     }
     async function goToSearch() {
         if (config.programType === 'DAB') {
-            await goto(getRoute(`/lexicon/search`));
+            await gotoRoute(`/lexicon/search`);
         } else {
-            await goto(getRoute(`/search/${$refs.collection}`));
+            await gotoRoute(`/search/${$refs.collection}`);
         }
     }
 
@@ -135,7 +134,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        onclick={() => goto(getRoute('/account'))}
+                        onclick={() => gotoRoute('/account')}
                     >
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </button>
@@ -146,7 +145,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        onclick={() => goto(getRoute('/contents/1'))}
+                        onclick={() => gotoRoute('/contents/1')}
                     >
                         <HomeIcon color={iconColor} />{$t['Menu_Contents']}
                     </button>
@@ -179,7 +178,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        onclick={() => goto(getRoute('/history'))}
+                        onclick={() => gotoRoute('/history')}
                     >
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </button>
@@ -190,7 +189,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        onclick={() => goto(getRoute('/bookmarks'))}
+                        onclick={() => gotoRoute('/bookmarks')}
                     >
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </button>
@@ -198,11 +197,7 @@ The sidebar/drawer.
             {/if}
             {#if showNotes}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => goto(getRoute('/notes'))}
-                    >
+                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/notes')}>
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </button>
                 </li>
@@ -212,7 +207,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        onclick={() => goto(getRoute('/highlights'))}
+                        onclick={() => gotoRoute('/highlights')}
                     >
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </button>
@@ -223,11 +218,7 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => goto(getRoute('/share'))}
-                    >
+                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/share')}>
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </button>
                 </li>
@@ -235,11 +226,7 @@ The sidebar/drawer.
             {/if}
             {#if showPlans}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => goto(getRoute('/plans'))}
-                    >
+                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/plans')}>
                         <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
                     </button>
                 </li>
@@ -249,7 +236,7 @@ The sidebar/drawer.
                     <button
                         class="btn"
                         style:color={textColor}
-                        onclick={() => goto(getRoute('/settings'))}
+                        onclick={() => gotoRoute('/settings')}
                     >
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                     </button>
@@ -296,11 +283,7 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <button
-                    class="btn"
-                    style:color={textColor}
-                    onclick={() => goto(getRoute('/about'))}
-                >
+                <button class="btn" style:color={textColor} onclick={() => gotoRoute('/about')}>
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </button>
             </li>

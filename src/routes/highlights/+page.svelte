@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import ColorCard from '$lib/components/ColorCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -9,7 +8,7 @@
     import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
     import { bodyFontSize, refs, t } from '$lib/data/stores';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
 
@@ -17,7 +16,7 @@
         switch (event.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(highlight);
-                goto(getRoute(`/`));
+                gotoRoute(`/`);
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(highlight);

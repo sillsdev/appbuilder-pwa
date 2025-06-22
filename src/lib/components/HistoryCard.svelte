@@ -9,7 +9,7 @@ TODO:
     import config from '$lib/data/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
 
     export let history: HistoryItem;
@@ -35,7 +35,7 @@ TODO:
                 chapter: history.chapter,
                 verse: history.verse
             });
-            goto(getRoute(`/`));
+            gotoRoute(`/`);
         }
     }
 </script>
