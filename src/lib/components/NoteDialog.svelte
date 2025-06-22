@@ -6,6 +6,7 @@
     import Modal from './Modal.svelte';
     import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
     import { goto } from '$app/navigation';
+    import { getRoute } from '$lib/navigate';
     import { base } from '$app/paths';
 
     export let note = undefined;
@@ -33,7 +34,7 @@
     }
 
     function onEditNote() {
-        if (note !== undefined) goto(`${base}/notes/edit/${note.date}`);
+        if (note !== undefined) goto(getRoute(`/notes/edit/${note.date}`));
     }
 </script>
 
