@@ -238,7 +238,7 @@
             fetchWords();
         }
         if (config.programType !== 'DAB') {
-            goto(`${base}/text`);
+            goto(getRoute(`/text`));
         }
     });
 </script>
