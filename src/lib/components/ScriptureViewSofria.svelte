@@ -2439,6 +2439,8 @@ LOGGING:
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
         loading = false;
+        let loadingBarNode = document.getElementById('loading-bar');
+        loadingBarNode.remove();
         if (scriptureLogs?.root) {
             console.log('DONE %o', bookRoot);
         }
