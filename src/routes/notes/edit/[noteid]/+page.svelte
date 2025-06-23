@@ -62,10 +62,8 @@
     </Navbar>
 
     <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
-        <textarea
-            bind:value={text}
-            class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md"
-        />
+        <textarea bind:value={text} class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md">
+        </textarea>
     </div>
 </div>
 

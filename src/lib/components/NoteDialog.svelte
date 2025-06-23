@@ -10,7 +10,6 @@
     import Modal from './Modal.svelte';
 
     export let note = undefined;
-    export let editing = false;
 
     let id = 'note';
     let modal;
