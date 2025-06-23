@@ -1,3 +1,4 @@
+import { error } from '@sveltejs/kit';
 import { getNotes } from '$lib/data/notes';
 
 export async function load({ params }) {
@@ -6,20 +7,18 @@ export async function load({ params }) {
 
     if (isNaN(date)) {
         console.error(`Invalid noteid: ${noteid}`);
-        return {
-            status: 400,
-            error: new Error('Invalid note ID')
-        };
+        error(400, {
+            message: 'Invalid note ID'
+        });
     }
 
     const allNotes = await getNotes();
     const note = allNotes.find((item) => item.date === date);
 
     if (!note) {
-        return {
-            status: 400,
-            error: new Error('Note not found')
-        };
+        error(404, {
+            message: 'Note not found'
+        });
     }
 
     return { note };
