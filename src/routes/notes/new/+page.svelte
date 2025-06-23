@@ -5,7 +5,7 @@
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
 
-    let ref = $selectedVerses[0].reference;
+    let reference = $selectedVerses[0]?.reference || '';
     let text = '';
     const title = 'Annotation_Note_Add';
 
@@ -26,7 +26,7 @@
             chapter: $selectedVerses[0].chapter,
             verse: $selectedVerses[0].verse,
             text,
-            reference: $selectedVerses[0].reference
+            reference
         });
         goBack();
     }
@@ -50,7 +50,7 @@
                     <div
                         class="dy-divider dy-divider-horizontal after:bg-white before:bg-white"
                     ></div>
-                    <div class="grid h-10 grow place-items-center">{ref}</div>
+                    <div class="grid h-10 grow place-items-center">{reference}</div>
                 </div>
             </label>
         {/snippet}
