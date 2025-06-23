@@ -72,7 +72,8 @@
             bind:value={text}
             bind:this={textarea}
             class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md"
-        />
+        >
+        </textarea>
     </div>
 </div>
 

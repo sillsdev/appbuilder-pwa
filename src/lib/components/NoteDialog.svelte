@@ -10,7 +10,6 @@
     import { base } from '$app/paths';
 
     export let note = undefined;
-    export let editing = false;
 
 
     let id = 'note';
