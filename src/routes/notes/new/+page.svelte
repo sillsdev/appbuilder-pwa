@@ -1,8 +1,8 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, selectedVerses } from '$lib/data/stores';
-    import { DeleteIcon, CheckIcon } from '$lib/icons';
     import { addNote } from '$lib/data/notes';
+    import { selectedVerses, t } from '$lib/data/stores';
+    import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
 
     let text = '';
@@ -42,18 +42,22 @@
 
 <div class="fullscreen-editor">
     <Navbar on:backNavigation={onBackNavigate}>
-        <label for="sidebar" slot="center">
-            <div class="btn btn-ghost normal-case text-xl">{$t[title]}</div>
-        </label>
+        {#snippet center()}
+            <label for="sidebar">
+                <div class="btn btn-ghost normal-case text-xl">{$t[title]}</div>
+            </label>
+        {/snippet}
 
-        <div slot="right-buttons">
-            <button on:click={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"
-                ><DeleteIcon color="white" /></button
-            >
-            <button on:click={createNote} class="dy-btn dy-btn-ghost p-1"
-                ><CheckIcon color="white" /></button
-            >
-        </div>
+        {#snippet end()}
+            <div>
+                <button on:click={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"
+                    ><DeleteIcon color="white" /></button
+                >
+                <button on:click={createNote} class="dy-btn dy-btn-ghost p-1"
+                    ><CheckIcon color="white" /></button
+                >
+            </div>
+        {/snippet}
     </Navbar>
 
     <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
