@@ -5,6 +5,7 @@
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
 
+    let ref = $selectedVerses[0].reference;
     let text = '';
     const title = 'Annotation_Note_Add';
 
@@ -44,7 +45,13 @@
     <Navbar on:backNavigation={onBackNavigate}>
         {#snippet center()}
             <label for="sidebar">
-                <div class="btn btn-ghost normal-case text-xl">{$t[title]}</div>
+                <div class="flex w-full">
+                    <div class="grid h-10 grow place-items-center">{$t[title]}</div>
+                    <div
+                        class="dy-divider dy-divider-horizontal after:bg-white before:bg-white"
+                    ></div>
+                    <div class="grid h-10 grow place-items-center">{ref}</div>
+                </div>
             </label>
         {/snippet}
 
