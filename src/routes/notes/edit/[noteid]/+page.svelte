@@ -7,6 +7,7 @@
     export let data;
     let note = data.note;
     let text = note.text;
+    let ref = note?.reference ?? '';
     const title = 'Annotation_Note_Edit';
 
     function goBack() {
@@ -38,7 +39,13 @@
     <Navbar on:backNavigation={onBackNavigate}>
         {#snippet center()}
             <label for="sidebar">
-                <div class="btn btn-ghost normal-case text-xl">{$t[title]}</div>
+                <div class="flex w-full">
+                    <div class="grid h-10 grow place-items-center">{$t[title]}</div>
+                    <div
+                        class="dy-divider dy-divider-horizontal after:bg-white before:bg-white"
+                    ></div>
+                    <div class="grid h-10 grow place-items-center">{ref}</div>
+                </div>
             </label>
         {/snippet}
 
