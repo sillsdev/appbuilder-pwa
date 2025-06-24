@@ -8,7 +8,8 @@ import type IndexData from '../test_data/projects/index.json';
 
 // Constants
 const INDEX_FILE = path.resolve('test_data/projects/index.json');
-const TEMP_DIR = path.join(os.tmpdir(), 'pwa_temp');
+// Flatpak doesn't have access to system tmp, so use home instead
+const TEMP_DIR = path.join(os.platform() === 'linux' ? os.homedir() : os.tmpdir(), 'pwa_temp');
 const APP_DEF_EXT = '.appDef';
 
 // Determine the appropriate execution command for `scripture-app-builder`
@@ -36,12 +37,12 @@ const getExecutionCommand = (program: string): string => {
         }
         case 'linux': {
             const flatpakExists = checkCommandExists('flatpak', '--version');
-            const sabSystemPackageExists = checkCommandExists(appName, '-?');
+            const sabSystemPackageExists = checkCommandExists(exeName, '-?');
 
             if (flatpakExists) {
-                return `flatpak run org.sil.${appName}`;
+                return `flatpak run org.sil.${exeName}`;
             } else if (sabSystemPackageExists) {
-                return appName;
+                return exeName;
             } else {
                 const jarPath = `/usr/share/scripture-app-builder/bin/${jarName}`;
                 return `${javaPath} -jar "${jarPath}"`;
