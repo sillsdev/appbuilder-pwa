@@ -26,6 +26,7 @@
     import '$lib/app.css';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
+    import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
 
     let { children } = $props();
@@ -80,6 +81,16 @@
             modal.clear();
         }
     }
+
+    onMount(() => {
+        const spinner = document.getElementById('loading-spinner');
+        if (spinner) {
+            spinner.classList.add('fade-out');
+            setTimeout(() => {
+                spinner.remove();
+            }, 500);
+        }
+    });
 
     let textAppearanceSelector: TextAppearanceSelector = $state();
     let collectionSelector: CollectionSelector = $state();
