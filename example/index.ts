@@ -23,14 +23,18 @@ const getExecutionCommand = (program: string): string => {
     }
     switch (os.platform()) {
         case 'darwin':
-            return `${javaPath} -jar "/Applications/${appName}.app/Contents/Resources/Java/bin/${jarName}"`;
+            const appPath = `/Applications/${appName}.app/Contents`;
+            javaPath = `"${appPath}/Plugins/zulu-17.jdk/Contents/Home/jre/bin/java"`;
+            return `${javaPath} -jar "${appPath}/Resources/Java/bin/${jarName}"`;
         case 'win32': {
             const programFilesX86 = process.env['ProgramFiles(x86)'];
             if (!programFilesX86) {
                 throw new Error('Environment variable "ProgramFiles(x86)" is not set on Windows');
             }
-            const jarPath = path.join(programFilesX86, 'SIL', appName, 'bin', jarName);
-            if (javaPath != 'java') {
+            const appPath = path.join(programFilesX86, 'SIL', appName);
+            javaPath = path.join(appPath, 'runtime', 'bin', 'java');
+            const jarPath = path.join(appPath, 'bin', jarName);
+            if (javaPath.endsWith('java')) {
                 javaPath = `"${javaPath}.exe"`;
             }
             return `${javaPath} -jar "${jarPath}"`;
