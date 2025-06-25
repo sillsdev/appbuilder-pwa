@@ -44,7 +44,9 @@
     <div class="flex flex-col justify-evenly">
         <div class="w-full flex justify-between items-center">
             <div class="w-full pb-3" style:font-weight="bold">
-                {heading}
+                <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                    {heading}
+                </p>
             </div>
             <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onDeleteNote}>
                 <DeleteIcon />
