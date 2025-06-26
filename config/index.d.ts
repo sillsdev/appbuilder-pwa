@@ -18,6 +18,34 @@ export type StyleConfig = {
     verseNumbers: string;
 };
 
+export type BookTabConfig = {
+    //Other properties that it might need:
+    //Possibly format
+    //Possibly quizFeatures, but I doubt it
+    type: string;
+    file: string;
+    features: any;
+    chapters?: number;
+    chaptersN?: string;
+    style?: StyleConfig;
+    styles?: {
+        name: string;
+        category?: string;
+        properties: {
+            [key: string]: string;
+        };
+    }[];
+    fonts?: string[];
+    audio: BookCollectionAudioConfig[];
+    footer?: HTML;
+};
+
+export type BookTabsConfig = {
+    mainType: string;
+    tabs: BookTabConfig[];
+
+};
+
 export type BookConfig = {
     id: string;
     type?: string;
@@ -47,6 +75,7 @@ export type BookConfig = {
             [key: string]: string;
         };
     }[];
+    bookTabs?: BookTabsConfig;
 };
 
 export type BookCollectionConfig = {
