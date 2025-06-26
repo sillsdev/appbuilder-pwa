@@ -59,23 +59,25 @@
 <div class="fullscreen-editor">
     <Navbar on:backNavigation={onBackNavigate}>
         {#snippet center()}
-            <label for="sidebar">
-                <div class="flex w-full">
-                    <div class="grid h-10 grow place-items-center">{$t[title]}</div>
-                    <div
-                        class="dy-divider dy-divider-horizontal after:bg-white before:bg-white"
-                    ></div>
-                    <div class="grid h-10 grow place-items-center">{reference}</div>
+            <div class="flex dy-join">
+                <div class="grid h-10 place-items-center dy-join-item">
+                    {$t[title]}
                 </div>
-            </label>
+                <div
+                    class="hidden grid sm:flex dy-divider dy-divider-horizontal after:bg-white before:bg-white dy-join-item"
+                ></div>
+                <div class="hidden grid sm:flex h-10 place-items-center dy-join-item">
+                    {reference}
+                </div>
+            </div>
         {/snippet}
 
         {#snippet end()}
-            <div>
-                <button on:click={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"
+            <div class="dy-join">
+                <button on:click={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
                     ><DeleteIcon color="white" /></button
                 >
-                <button on:click={action} class="dy-btn dy-btn-ghost p-1"
+                <button on:click={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
                     ><CheckIcon color="white" /></button
                 >
             </div>
