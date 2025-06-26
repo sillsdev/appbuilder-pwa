@@ -2,7 +2,14 @@
 
 <script lang="ts">
     import { addNote, editNote } from '$lib/data/notes';
-    import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
+    import {
+        bodyFontSize,
+        currentFont,
+        monoIconColor,
+        selectedVerses,
+        t,
+        themeColors
+    } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
@@ -56,7 +63,11 @@
 <Modal bind:this={modal} {id} onclose={reset}>
     <div class="flex flex-col justify-evenly">
         <div class="w-full flex justify-between">
-            <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
+            <div
+                style:color={$themeColors['TitlesColor']}
+                class="w-full pb-3"
+                style:font-weight={editing ? 'normal' : 'bold'}
+            >
                 {heading}
             </div>
             {#if !editing}
@@ -65,17 +76,26 @@
                         editing = true;
                     }}
                 >
-                    <EditIcon />
+                    <EditIcon color={$monoIconColor} />
                 </button>
             {/if}
         </div>
         <div style:word-wrap="break-word">
             {#if editing}
-                <textarea bind:value={text} class="dy-textarea w-full"></textarea>
+                <textarea
+                    style:color={$themeColors['TextColor']}
+                    style:background={$themeColors['PopupBackgroundColor']}
+                    bind:value={text}
+                    class="dy-textarea w-full"
+                ></textarea>
             {:else if text !== undefined}
                 {#each text.split(/\r?\n/) as line}
                     {#if line}
-                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                        <p
+                            style:color={$themeColors['TextColor']}
+                            style:font-family={$currentFont}
+                            style:font-size="{$bodyFontSize}px"
+                        >
                             {line}
                         </p>
                     {:else}
@@ -86,9 +106,13 @@
         </div>
         {#if editing}
             <div class="w-full flex mt-4 justify-between">
-                <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
-                    >{$t['Button_OK']}</button
+                <button style:color={$monoIconColor} class="dy-btn dy-btn-sm dy-btn-ghost"
+                    >{$t['Button_Cancel']}</button
+                >
+                <button
+                    onclick={modifyNote}
+                    style:color={$monoIconColor}
+                    class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_OK']}</button
                 >
             </div>
         {/if}
