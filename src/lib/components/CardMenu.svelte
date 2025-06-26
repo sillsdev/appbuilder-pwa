@@ -36,7 +36,7 @@ Dispatches a menuaction event when an option is selected from the menu.
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_missing_attribute -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <li><a onclick={() => handleAction(a)}>{a}</a></li>
+            <li><a color={$monoIconColor} onclick={() => handleAction(a)}>{a}</a></li>
         {/each}
     </ul>
 </div>
