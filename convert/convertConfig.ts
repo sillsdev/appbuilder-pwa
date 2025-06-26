@@ -4,8 +4,8 @@ import type {
     AppConfig,
     BookCollectionAudioConfig,
     BookCollectionConfig,
-    BookTabsConfig,
     BookTabConfig,
+    BookTabsConfig,
     DictionaryConfig,
     DictionaryWritingSystemConfig,
     ScriptureConfig,
@@ -578,8 +578,8 @@ export function parseBookCollections(document: Document, verbose: number) {
             const fontChoiceTag = book.querySelector('font-choice');
             const fonts = fontChoiceTag
                 ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                    .filter((x) => fontFamilies.includes(x.innerHTML))
-                    .map((x) => x.innerHTML)
+                      .filter((x) => fontFamilies.includes(x.innerHTML))
+                      .map((x) => x.innerHTML)
                 : [];
             const bkAdditionalNames = book.querySelector('additional-names');
             const additionalNames = bkAdditionalNames
@@ -613,13 +613,16 @@ export function parseBookCollections(document: Document, verbose: number) {
                     tabs: []
                 };
                 for (const bookTab of bookTabsTag.getElementsByTagName('book-tab')) {
-                    const tabFeaturesTag = bookTab.querySelector('features[type=book]')
+                    const tabFeaturesTag = bookTab
+                        .querySelector('features[type=book]')
                         ?.getElementsByTagName('e');
                     const tabFeatures: any = {};
                     if (tabFeaturesTag) {
                         for (const tabFeature of tabFeaturesTag) {
                             tabFeatures[tabFeature.attributes.getNamedItem('name')!.value] =
-                                parseConfigValue(tabFeature.attributes.getNamedItem('value')!.value);
+                                parseConfigValue(
+                                    tabFeature.attributes.getNamedItem('value')!.value
+                                );
                         }
                     }
                     let tabChapters;
@@ -642,8 +645,8 @@ export function parseBookCollections(document: Document, verbose: number) {
                     const fontChoiceTag = bookTab.querySelector('font-choice');
                     const fonts = fontChoiceTag
                         ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                            .filter((x) => fontFamilies.includes(x.innerHTML))
-                            .map((x) => x.innerHTML)
+                              .filter((x) => fontFamilies.includes(x.innerHTML))
+                              .map((x) => x.innerHTML)
                         : [];
 
                     const audio: BookCollectionAudioConfig[] = [];
@@ -671,7 +674,7 @@ export function parseBookCollections(document: Document, verbose: number) {
 
                     bookTabs.tabs.push({
                         type: bookTab.attributes.getNamedItem('type')!.value,
-                        file: bookTab.getElementsByTagName('f')[0]?.innerHTML,//If format ends up needing to be part of BookTabs, this will need to change a little bit (See below in books.push).
+                        file: bookTab.getElementsByTagName('f')[0]?.innerHTML, //If format ends up needing to be part of BookTabs, this will need to change a little bit (See below in books.push).
                         features: tabFeatures,
                         chapters: tabChapters,
                         chaptersN: tabChaptersN,
@@ -683,7 +686,6 @@ export function parseBookCollections(document: Document, verbose: number) {
                     });
                 }
             }
-
 
             books.push({
                 portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
@@ -722,8 +724,8 @@ export function parseBookCollections(document: Document, verbose: number) {
         if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
-                .filter((x) => fontFamilies.includes(x.innerHTML))
-                .map((x) => x.innerHTML)
+                  .filter((x) => fontFamilies.includes(x.innerHTML))
+                  .map((x) => x.innerHTML)
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
@@ -1085,10 +1087,10 @@ export function parseVideos(document: Document, verbose: number) {
             const placementTag = tag.getElementsByTagName('placement')[0];
             const placement = placementTag
                 ? {
-                    pos: placementTag.attributes.getNamedItem('pos')!.value,
-                    ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
-                    collection: placementTag.attributes.getNamedItem('ref')!.value.split('|')[0]
-                }
+                      pos: placementTag.attributes.getNamedItem('pos')!.value,
+                      ref: placementTag.attributes.getNamedItem('ref')!.value.split('|')[1],
+                      collection: placementTag.attributes.getNamedItem('ref')!.value.split('|')[0]
+                  }
                 : undefined;
 
             const width = tag.getAttribute('width') ? parseInt(tag.getAttribute('width')!) : 0;
@@ -1141,11 +1143,11 @@ export function parseIllustrations(document: Document, verbose: number) {
                     const placementTag = image.getElementsByTagName('placement')[0];
                     const placement = placementTag
                         ? {
-                            pos: placementTag.getAttribute('pos')! || '',
-                            ref: placementTag.getAttribute('ref')?.split('|')[1] || '',
-                            caption: placementTag.getAttribute('caption') || '',
-                            collection: placementTag.getAttribute('ref')?.split('|')[0] || ''
-                        }
+                              pos: placementTag.getAttribute('pos')! || '',
+                              ref: placementTag.getAttribute('ref')?.split('|')[1] || '',
+                              caption: placementTag.getAttribute('caption') || '',
+                              collection: placementTag.getAttribute('ref')?.split('|')[0] || ''
+                          }
                         : undefined;
 
                     illustrations.push({ filename, width, height, placement });
@@ -1182,8 +1184,8 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
             const layoutCollections =
                 layoutCollectionElements.length > 0
                     ? Array.from(layoutCollectionElements).map((element) => {
-                        return element.attributes.getNamedItem('id')!.value;
-                    })
+                          return element.attributes.getNamedItem('id')!.value;
+                      })
                     : [bookCollections[0].id];
 
             layouts.push({

@@ -43,7 +43,6 @@ export type BookTabConfig = {
 export type BookTabsConfig = {
     mainType: string;
     tabs: BookTabConfig[];
-
 };
 
 export type BookConfig = {
