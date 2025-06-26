@@ -8,14 +8,10 @@ Font list component.
     import config from '$lib/data/config';
     import { fontChoices, monoIconColor, themeColors } from '$lib/data/stores';
 
-    const dispatch = $dispatch();
     let { selectedFont = $bindable() } = $props();
 
     function handleClick(font) {
         selectedFont = font;
-        dispatch('menuaction', {
-            font: font
-        });
     }
 </script>
 
@@ -31,7 +27,7 @@ Font list component.
                     ? $themeColors['ButtonSelectedColor']
                     : ''}
                 style:color={$monoIconColor}
-                style:font-famly={font}
+                style:font-family={font}
                 role="button"
             >
                 {config.fonts.find((x) => x.family === font).name}
