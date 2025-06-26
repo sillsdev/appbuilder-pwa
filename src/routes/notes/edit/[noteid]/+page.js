@@ -3,8 +3,11 @@ import { getNotes } from '$lib/data/notes';
 
 export async function load({ params }) {
     const { noteid } = params;
-    const date = parseInt(noteid, 10);
+    if (noteid === 'new') {
+        return { note: undefined };
+    }
 
+    const date = parseInt(noteid, 10);
     if (isNaN(date)) {
         console.error(`Invalid noteid: ${noteid}`);
         error(400, {
@@ -20,6 +23,5 @@ export async function load({ params }) {
             message: 'Note not found'
         });
     }
-
     return { note };
 }

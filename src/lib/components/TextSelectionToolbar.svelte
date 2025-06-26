@@ -231,7 +231,7 @@ TODO:
                 {#if isNotesEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => goto(getRoute(`/notes/new`))}
+                        on:click={() => goto(getRoute(`/notes/edit/new`))}
                     >
                         <NoteIcon color={barIconColor} />
                     </button>

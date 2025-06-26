@@ -1,14 +1,16 @@
 <script>
     import Navbar from '$lib/components/Navbar.svelte';
-    import { editNote, removeNote } from '$lib/data/notes';
-    import { t } from '$lib/data/stores';
+    import { addNote, editNote, removeNote } from '$lib/data/notes';
+    import { selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
 
     export let data;
+
     let note = data.note;
-    let text = note.text;
-    let ref = note?.reference ?? '';
-    const title = 'Annotation_Note_Edit';
+    let isNew = note ? false : true;
+    let text = note?.text ?? '';
+    let reference = note?.reference ?? $selectedVerses[0]?.reference;
+    const title = isNew ? 'Annotation_Note_Add' : 'Annotation_Note_Edit';
 
     function goBack() {
         history.back();
@@ -20,7 +22,9 @@
     }
 
     async function deleteNote() {
-        await removeNote(note.date);
+        if (!isNew) {
+            await removeNote(note.date);
+        }
         goBack();
     }
 
@@ -30,9 +34,26 @@
                 note: note,
                 newText: text
             });
+        } else {
+            await createNote();
         }
         goBack();
     }
+
+    async function createNote() {
+        await addNote({
+            docSet: $selectedVerses[0].docSet,
+            collection: $selectedVerses[0].collection,
+            book: $selectedVerses[0].book,
+            chapter: $selectedVerses[0].chapter,
+            verse: $selectedVerses[0].verse,
+            text,
+            reference
+        });
+        goBack();
+    }
+
+    let action = isNew ? createNote : modifyNote;
 </script>
 
 <div class="fullscreen-editor">
@@ -44,7 +65,7 @@
                     <div
                         class="dy-divider dy-divider-horizontal after:bg-white before:bg-white"
                     ></div>
-                    <div class="grid h-10 grow place-items-center">{ref}</div>
+                    <div class="grid h-10 grow place-items-center">{reference}</div>
                 </div>
             </label>
         {/snippet}
@@ -54,7 +75,7 @@
                 <button on:click={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"
                     ><DeleteIcon color="white" /></button
                 >
-                <button on:click={modifyNote} class="dy-btn dy-btn-ghost p-1"
+                <button on:click={action} class="dy-btn dy-btn-ghost p-1"
                     ><CheckIcon color="white" /></button
                 >
             </div>
