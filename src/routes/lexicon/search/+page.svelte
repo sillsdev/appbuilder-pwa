@@ -2,7 +2,7 @@
     import { goto } from '$app/navigation';
     import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import SearchForm from '$lib/components/SearchForm.svelte';
+    import SearchForm, { type SearchFormSubmitEvent } from '$lib/components/SearchForm.svelte';
     import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
     import { vernacularLanguageStore, vernacularWordsStore } from '$lib/data/stores/lexicon';
@@ -10,7 +10,6 @@
     import { getRoute } from '$lib/navigate';
     import { searchDictionary } from '$lib/search-worker/dab-search-worker';
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
-    import { type SearchFormSubmitEvent } from '$lib/types.js';
 
     let { data } = $props();
 
