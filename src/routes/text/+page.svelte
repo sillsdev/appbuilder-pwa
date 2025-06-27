@@ -3,6 +3,7 @@
     import { page } from '$app/state';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
+    import BookTabs from '$lib/components/BookTabs.svelte';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import HtmlBookView from '$lib/components/HtmlBookView.svelte';
@@ -101,6 +102,10 @@
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
+
+    $: bookTabs = config?.bookCollections
+        .find((x) => x.id === $refs.collection)
+        .books.find((x) => x.id === $refs.book)?.bookTabs; //This should hopefully be reactive and find the book tabs if the current book has them.
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
@@ -451,6 +456,10 @@
             {/snippet}
         </Navbar>
     </div>
+    {#if bookTabs}
+        <BookTabs></BookTabs>
+    {/if}
+
     {#if showCollectionViewer && enoughCollections}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
