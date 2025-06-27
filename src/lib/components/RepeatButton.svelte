@@ -1,9 +1,15 @@
 <script lang="ts">
-    import { playMode, refs } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import type { Component } from 'svelte';
 
-    let { color = 'black', size = 24 } = $props();
+    interface Props {
+        color?: string;
+        size?: number;
+        onclick: () => any;
+        state: 'repeatPage' | 'repeatSelection' | 'continue' | 'stop';
+    }
+
+    let { color = 'black', size = 24, onclick, state = 'stop' }: Props = $props();
 
     const state_map: Record<string, Component<{ color: string; size: number }>> = {
         repeatPage: AudioIcon.Repeat,
@@ -12,8 +18,7 @@
         stop: AudioIcon.RepeatOffStop
     };
 
-    const Icon = $derived(state_map[$playMode.mode]);
-    const onclick = () => playMode.next($refs.hasAudio?.timingFile);
+    const Icon = $derived(state_map[state]);
 </script>
 
 <button {onclick}>

@@ -111,7 +111,11 @@ TODO:
     {/if}
     {#if showRepeatMode}
         <div class="audio-control-buttons">
-            <RepeatButton color={iconColor} />
+            <RepeatButton
+                color="{iconColor},"
+                onclick={() => playMode.next($refs.hasAudio?.timingFile)}
+                state={$playMode.mode}
+            />
         </div>
     {/if}
     <!-- Play Controls -->
