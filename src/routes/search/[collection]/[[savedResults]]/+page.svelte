@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import Navbar from '$lib/components/Navbar.svelte';
-    import SearchForm, { type SearchFormSubmitEvent } from '$lib/components/SearchForm.svelte';
+    import SearchForm from '$lib/components/SearchForm.svelte';
     import SearchResultList from '$lib/components/SearchResultList.svelte';
     import { t, themeColors } from '$lib/data/stores';
     import { getRoute } from '$lib/navigate';
@@ -11,20 +11,21 @@
         UserSearchOptions
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
-    import { onMount, tick } from 'svelte';
+    import type { SearchFormSubmitEvent } from '$lib/types';
+    import { onMount } from 'svelte';
 
-    export let data;
+    let { data } = $props();
 
-    let phrase: string;
-    let wholeWords: boolean;
-    let matchAccents: boolean;
+    let phrase: string = $state();
+    let wholeWords: boolean = $state();
+    let matchAccents: boolean = $state();
 
-    let results: SearchResult[] = [];
-    let queryId = 0;
-    let queryDone = true;
-    let restoreResults = false; // Whether saved results are currently being loaded
+    let results: SearchResult[] = $state([]);
+    let queryId = $state(0);
+    let queryDone = $state(true);
+    let restoreResults = $state(false); // Whether saved results are currently being loaded
 
-    let scrollDiv;
+    let scrollDiv: HTMLDivElement;
     let scrollPosition = 0;
     let scrollSaved = false;
 
@@ -117,7 +118,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-auto" bind:this={scrollDiv} on:scroll={onScroll}>
+    <div class="overflow-auto" bind:this={scrollDiv} onscroll={onScroll}>
         <div class="flex justify-center">
             <SearchForm submit={handleSubmit} {phrase} {wholeWords} {matchAccents} />
         </div>
