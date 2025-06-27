@@ -1,5 +1,4 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -20,7 +19,7 @@
         themeColors
     } from '$lib/data/stores';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import { getRoute, navigateToText } from '$lib/navigate';
+    import { gotoRoute, navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
 
@@ -66,14 +65,14 @@
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
-                await goto(getRoute(`/contents/${item.linkTarget}`));
+                await gotoRoute(`/contents/${item.linkTarget}`);
                 break;
             case 'other':
                 //switch on item.linkLocation
                 switch (item.linkLocation) {
                     case 'about':
                     case 'settings':
-                        goto(getRoute(`/${item.linkLocation}`));
+                        gotoRoute(`/${item.linkLocation}`);
                         break;
                     case 'layout':
                         modal.open(MODAL_COLLECTION);
@@ -89,7 +88,7 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                goto(getRoute(`/${item.linkLocation}`));
+                gotoRoute(`/${item.linkLocation}`);
                 break;
         }
     }
@@ -188,7 +187,7 @@
     function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(getRoute(`/contents/${menuId}`));
+            gotoRoute(`/contents/${menuId}`);
         }
     }
     async function firstChapter(book, docset) {

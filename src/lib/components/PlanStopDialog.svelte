@@ -4,11 +4,10 @@ Plan Stop Modal Dialog component.
 -->
 
 <script>
-    import { goto } from '$app/navigation';
     import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
     import { addPlanState } from '$lib/data/planStates';
     import { t } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
     let { planId = $bindable(undefined), vertOffset = '1rem' } = $props();
@@ -28,7 +27,7 @@ Plan Stop Modal Dialog component.
     }
     function handleYes() {
         stopPlan().then(() => {
-            goto(getRoute(`/plans`));
+            gotoRoute(`/plans`);
         });
     }
 

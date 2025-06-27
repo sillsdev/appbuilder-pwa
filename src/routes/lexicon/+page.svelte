@@ -1,5 +1,4 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/state';
     import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
@@ -19,7 +18,7 @@
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
     import { SearchIcon } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
     const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = page.data;
@@ -238,7 +237,7 @@
             fetchWords();
         }
         if (config.programType !== 'DAB') {
-            goto(`${base}/text`);
+            gotoRoute(`/text`);
         }
     });
 </script>
@@ -264,7 +263,7 @@
                         class="dy-btn dy-btn-ghost dy-btn-circle"
                         on:click={() => {
                             wordIds = null;
-                            goto(getRoute(`/lexicon/search`));
+                            gotoRoute(`/lexicon/search`);
                         }}
                     >
                         <SearchIcon color="white" />

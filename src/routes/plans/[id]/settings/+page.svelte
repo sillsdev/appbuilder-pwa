@@ -1,21 +1,20 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addPlanState } from '$lib/data/planStates';
     import { language, t } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
 
     async function startPlan(id) {
         await addPlanState({
             id: id,
             state: 'started'
         });
-        goto(getRoute(`/plans/${id}`));
+        gotoRoute(`/plans/${id}`);
     }
     function backNavigation() {
         const id = $page.data.planConfig.id;
-        goto(getRoute(`/plans/${id}`));
+        gotoRoute(`/plans/${id}`);
     }
 </script>
 

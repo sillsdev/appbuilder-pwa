@@ -1,5 +1,4 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -16,7 +15,7 @@
         t,
         themeColors
     } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { compareVersions } from '$lib/scripts/stringUtils';
 
     const imageFolder =
@@ -124,7 +123,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(getRoute(`/plans/${plan.id}`))}
+                            on:click={() => gotoRoute(`/plans/${plan.id}`)}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -156,7 +155,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(getRoute(`/plans/${plan.id}`))}
+                            on:click={() => gotoRoute(`/plans/${plan.id}`)}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -188,7 +187,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            on:click={() => goto(getRoute(`/plans/${plan.id}`))}
+                            on:click={() => gotoRoute(`/plans/${plan.id}`)}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">

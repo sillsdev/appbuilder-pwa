@@ -2,12 +2,11 @@
 @component
 -->
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
 
     let { barType = undefined } = $props();
 
@@ -71,10 +70,10 @@
         switch (buttonType) {
             case 'contents':
                 let gotoLink = link && link !== '' ? link : '1';
-                goto(getRoute(`/contents/${gotoLink}`));
+                gotoRoute(`/contents/${gotoLink}`);
                 break;
             case 'about':
-                goto(getRoute(`/about`));
+                gotoRoute(`/about`);
                 break;
             case 'book':
                 if (link && link !== '') {
@@ -94,16 +93,16 @@
                         verse: '1'
                     });
                 }
-                goto(getRoute(`/text`));
+                gotoRoute(`/text`);
                 break;
             case 'plans':
-                goto(getRoute(`/plans`));
+                gotoRoute(`/plans`);
                 break;
             case 'search':
-                goto(getRoute(`/search/${$refs.collection}`));
+                gotoRoute(`/search/${$refs.collection}`);
                 break;
             case 'settings':
-                goto(getRoute(`/settings`));
+                gotoRoute(`/settings`);
                 break;
             default:
                 console.log(

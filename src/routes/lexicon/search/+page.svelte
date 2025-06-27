@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
@@ -7,7 +6,7 @@
     import config from '$lib/data/config';
     import { vernacularLanguageStore, vernacularWordsStore } from '$lib/data/stores/lexicon';
     import { SearchIcon } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { searchDictionary } from '$lib/search-worker/dab-search-worker';
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
     import { type SearchFormSubmitEvent } from '$lib/types.js';
@@ -84,7 +83,7 @@
                             wordIds = null;
                             searchWord = '';
                             selectedWord = null;
-                            goto(getRoute(`/lexicon/search`));
+                            gotoRoute(`/lexicon/search`);
                         }}
                     >
                         <SearchIcon color="white" />
