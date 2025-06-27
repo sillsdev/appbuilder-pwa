@@ -16,7 +16,7 @@
     };
 
     interface Props {
-        color: string;
+        color?: string;
         state: 'play' | 'pause';
     }
     let { color = 'black', state }: Props = $props();
