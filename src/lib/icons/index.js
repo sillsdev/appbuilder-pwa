@@ -11,8 +11,10 @@ import CalendarMonthIcon from './CalendarMonthIcon.svelte';
 import VerseByVerseIcon from './CalendarMonthIcon.svelte';
 import CheckboxIcon from './CheckboxIcon.svelte';
 import CheckboxOutlineIcon from './CheckboxOutlineIcon.svelte';
+import CheckIcon from './CheckIcon.svelte';
 import ChevronIcon from './ChevronIcon.svelte';
 import CopyContentIcon from './CopyContentIcon.svelte';
+import DeleteIcon from './DeleteIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
 import EditIcon from './EditIcon.svelte';
@@ -47,8 +49,10 @@ export {
     CalendarMonthIcon,
     CheckboxIcon,
     CheckboxOutlineIcon,
+    CheckIcon,
     ChevronIcon,
     CopyContentIcon,
+    DeleteIcon,
     DeleteSweepIcon,
     DropdownIcon,
     EditIcon,

@@ -25,7 +25,7 @@ Book Collection Selector component.
     const modalId = 'collectionSelector';
     let modal;
     let tabMenu;
-    let tabMenuActive = LAYOUT_SINGLE;
+    let tabMenuActive = $state(LAYOUT_SINGLE);
 
     // values of selectedLayouts before user makes changes
     const restoreDocSets = JSON.stringify($selectedLayouts);
