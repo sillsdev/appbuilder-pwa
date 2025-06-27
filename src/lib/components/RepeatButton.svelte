@@ -3,11 +3,7 @@
     import { AudioIcon } from '$lib/icons';
     import type { Component } from 'svelte';
 
-    interface Props {
-        color: string;
-        size?: number;
-    }
-    let { color = 'black', size = 24 }: Props = $props();
+    let { color = 'black', size = 24 } = $props();
 
     const state_map: Record<string, Component<{ color: string; size: number }>> = {
         repeatPage: AudioIcon.Repeat,

@@ -2,12 +2,7 @@
     // From app-builders/source/scripture/app-android-scripture/src/main/res/drawable-xxxhdpi/ic_repeat_black_24.png
     // Converted with https://vectorizer.ai/
 
-    interface Props {
-        color: string;
-        size: number;
-    }
-
-    let { size = 24, color = 'black' }: Props = $props();
+    let { size = 24, color = 'black' } = $props();
 </script>
 
 <svg
