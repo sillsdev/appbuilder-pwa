@@ -27,7 +27,6 @@ TODO:
         userSettings
     } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
-    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
     import PlayButton from './PlayButton.svelte';
     import RepeatButton from './RepeatButton.svelte';
 
@@ -90,9 +89,9 @@ TODO:
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
-    const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? 24 : 48;
     const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
     //const durationDisplay = $derived(format($audioPlayer.duration));
+    const playButtonState = $derived($audioPlayer.playing ? 'pause' : 'play');
     const iconColor = $derived($s['ui.bar.audio.icon']['color']);
     const iconPlayColor = $derived($s['ui.bar.audio.play.icon']['color']);
     const backgroundColor = $derived($s['ui.bar.audio']['background-color']);
@@ -130,7 +129,7 @@ TODO:
                 <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
-        <PlayButton size={playIconSize} color={iconPlayColor} />
+        <PlayButton state={playButtonState} color={iconPlayColor} />
 
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" onclick={() => changeVerse(1)}>
