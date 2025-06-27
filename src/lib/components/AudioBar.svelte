@@ -28,7 +28,8 @@ TODO:
         userSettings
     } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
-    import AudioPlaybackSpeed from './AudioPlaybackSpeed.svelte';
+    import PlayButton from './PlayButton.svelte';
+    import RepeatButton from './RepeatButton.svelte';
 
     function mayResetPlayMode(hasTiming) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
@@ -46,18 +47,6 @@ TODO:
         seek($audioPlayer.duration * percent);
     }
 
-    const playIconOptons = {
-        arrow: AudioIcon.Play,
-        'filled-circle': AudioIcon.PlayFillCircle,
-        'outline-circle': AudioIcon.PlayOutlineCircle
-    };
-
-    const playModeIconOptions = {
-        continue: AudioIcon.RepeatOff,
-        stop: AudioIcon.RepeatOffStop,
-        repeatPage: AudioIcon.Repeat,
-        repeatSelection: AudioIcon.RepeatOne
-    };
     let lastPlayMode = '';
     function playModeChanged(value) {
         let key = '';
@@ -82,10 +71,10 @@ TODO:
         }
         lastPlayMode = value.mode;
     }
-    $: playModeChanged($playMode);
+    $effect(() => playModeChanged($playMode));
 
-    let hintText = '';
-    let showHint = false;
+    let hintText = $state('');
+    let showHint = $state(false);
     let hintTimeoutId = null;
     function startShowHint(text) {
         showHint = true;
@@ -101,16 +90,14 @@ TODO:
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
-    const playIconSize = config.mainFeatures['audio-play-button-size'] === 'normal' ? '24' : '48';
-    const playIcon = playIconOptons[config.mainFeatures['audio-play-button-style']];
     const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
-    //$: durationDisplay = format($audioPlayer.duration);
-    $: iconColor = $s['ui.bar.audio.icon']['color'];
-    $: iconPlayColor = $s['ui.bar.audio.play.icon']['color'];
-    $: backgroundColor = $s['ui.bar.audio']['background-color'];
-    $: audioBarClass = $refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress';
-    $: mayResetPlayMode($refs.hasAudio?.timing);
-    $: updatePlaybackSpeed($userSettings['audio-speed']);
+    const playButtonState = $derived($audioPlayer.playing ? 'pause' : 'play');
+    const iconColor = $derived($s['ui.bar.audio.icon']['color']);
+    const iconPlayColor = $derived($s['ui.bar.audio.play.icon']['color']);
+    const backgroundColor = $derived($s['ui.bar.audio']['background-color']);
+    const audioBarClass = $derived($refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress');
+    $effect(() => mayResetPlayMode($refs.hasAudio?.timing));
+    $effect(() => updatePlaybackSpeed($userSettings['audio-speed']));
 </script>
 
 <div class="relative {audioBarClass}" style:background-color={backgroundColor}>
@@ -123,52 +110,48 @@ TODO:
         </div>
     {/if}
     {#if showRepeatMode}
-        <button
-            class="audio-control-buttons"
-            on:click={() => playMode.next($refs.hasAudio?.timingFile)}
-        >
-            <svelte:component this={playModeIconOptions[$playMode.mode]} color={iconColor} />
-        </button>
+        <div class="audio-control-buttons">
+            <RepeatButton
+                color="{iconColor},"
+                onclick={() => playMode.next($refs.hasAudio?.timingFile)}
+                state={$playMode.mode}
+            />
+        </div>
     {/if}
     <!-- Play Controls -->
     <div class="audio-controls" style:direction="ltr">
-        <button class="audio-control-buttons" on:click={() => skip(-1)}>
+        <button class="audio-control-buttons" onclick={() => skip(-1)}>
             <AudioIcon.SkipPrevious color={iconColor} />
         </button>
 
         {#if $refs.hasAudio?.timingFile}
-            <button class="audio-control-buttons" on:click={() => changeVerse(-1)}>
+            <button class="audio-control-buttons" onclick={() => changeVerse(-1)}>
                 <AudioIcon.Rewind color={iconColor} />
             </button>
         {:else}
-            <button class="audio-control-buttons" on:click={() => seekOffset(-10)}>
+            <button class="audio-control-buttons" onclick={() => seekOffset(-10)}>
                 <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" on:click={() => playPause()}>
-            {#if !$audioPlayer.playing}
-                <svelte:component this={playIcon} color={iconPlayColor} size={playIconSize} />
-            {:else}
-                <AudioIcon.Pause color={iconColor} size={playIconSize} />
-            {/if}
-        </button>
+        <PlayButton state={playButtonState} color={iconPlayColor} onclick={playPause} />
+
         {#if $refs.hasAudio?.timingFile}
-            <button class="audio-control-buttons" on:click={() => changeVerse(1)}>
+            <button class="audio-control-buttons" onclick={() => changeVerse(1)}>
                 <AudioIcon.FastForward color={iconColor} />
             </button>
         {:else}
-            <button class="audio-control-buttons" on:click={() => seekOffset(10)}>
+            <button class="audio-control-buttons" onclick={() => seekOffset(10)}>
                 <AudioIcon.Forward10 color={iconColor} />
             </button>
         {/if}
-        <button class="audio-control-buttons" on:click={() => skip(1)}>
+        <button class="audio-control-buttons" onclick={() => skip(1)}>
             <AudioIcon.SkipNext color={iconColor} />
         </button>
     </div>
     {#if showSpeed}
         <button
             class="audio-speed audio-control-buttons"
-            on:click={() => modal.open(MODAL_PLAYBACK_SPEED)}
+            onclick={() => modal.open(MODAL_PLAYBACK_SPEED)}
         >
             <AudioIcon.Speed color={iconColor} />
         </button>
@@ -179,14 +162,14 @@ TODO:
             {format($audioPlayer.progress)}
         </div>
         {#if $audioPlayer.loaded}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <progress
                 id="progress-bar"
                 class="dy-progress audio-progress"
                 value={$audioPlayer.progress}
                 max={$audioPlayer.duration}
-                on:click={seekAudio}
+                onclick={seekAudio}
             ></progress>
         {:else}
             <progress class="dy-progress audio-progress" value="0" max="1"></progress>
