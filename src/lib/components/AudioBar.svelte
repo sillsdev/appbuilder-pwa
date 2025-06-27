@@ -9,6 +9,7 @@ TODO:
     import {
         changeVerse,
         format,
+        playPause,
         seek,
         seekOffset,
         skip,
@@ -128,7 +129,7 @@ TODO:
                 <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
-        <PlayButton state={playButtonState} color={iconPlayColor} />
+        <PlayButton state={playButtonState} color={iconPlayColor} onclick={playPause} />
 
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" onclick={() => changeVerse(1)}>

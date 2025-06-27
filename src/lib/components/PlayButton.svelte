@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { playPause } from '$lib/data/audio';
     import config from '$lib/data/config';
     import { AudioIcon } from '$lib/icons';
 
@@ -18,8 +17,9 @@
     interface Props {
         color?: string;
         state: 'play' | 'pause';
+        onclick: () => any;
     }
-    let { color = 'black', state }: Props = $props();
+    let { color = 'black', state, onclick }: Props = $props();
 
     const size = config.mainFeatures['audio-play-button-size'] === 'normal' ? 24 : 48;
     const style = config.mainFeatures['audio-play-button-style'];
@@ -27,6 +27,6 @@
     const Icon = $derived(icon_style[state]);
 </script>
 
-<button class="audio-control-buttons" onclick={() => playPause()}>
+<button class="audio-control-buttons" {onclick}>
     <Icon {color} {size} />
 </button>
