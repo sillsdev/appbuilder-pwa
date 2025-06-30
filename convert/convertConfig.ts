@@ -632,7 +632,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     }
 
                     let tabChaptersN;
-                    const tabCnTag = book.getElementsByTagName('cn')[0];
+                    const tabCnTag = bookTab.getElementsByTagName('cn')[0];
                     if (tabCnTag) {
                         tabChaptersN = tabCnTag.attributes.getNamedItem('value')!.value;
                     }
