@@ -2,11 +2,17 @@
 @component
 A component that displays the book tabs and allows the user to switch between them.
 TODO:
-- Everything
+- Determine which tab is selected and visually demonstrate that it is selected
+- Switch tabs
 -->
 <script>
     import config from '$lib/data/config';
-    import { refs } from '$lib/data/stores';
+    import { refs, themeColors } from '$lib/data/stores';
+    import MusicIcon from '$lib/icons/MusicIcon.svelte';
+    import NotesIcon from '$lib/icons/NotesIcon.svelte';
+    import QuestionsIcon from '$lib/icons/QuestionsIcon.svelte';
+    import TextIcon from '$lib/icons/TextIcon.svelte';
+    import VideoIcon from '$lib/icons/VideoIcon.svelte';
 
     let curTab = 0; //Just for testing
     const bookTabs = $derived(
@@ -14,16 +20,29 @@ TODO:
             .find((x) => x.id === $refs.collection)
             .books.find((x) => x.id === $refs.book)?.bookTabs
     );
-    console.log(bookTabs.tabs);
+    const primaryColor = $state($themeColors.PrimaryColor);
+    const icons = {
+        T: TextIcon,
+        Q: QuestionsIcon,
+        N: NotesIcon,
+        M: MusicIcon,
+        V: VideoIcon
+    };
+    const MainIcon = $derived(icons[bookTabs.mainType]);
 </script>
 
-<p>We've got BOOK TABS!</p>
 <div class="dy-tabs dy-tabs-border w-full">
+    <div
+        class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
+    >
+        <MainIcon color={primaryColor}></MainIcon>
+    </div>
     {#each bookTabs.tabs as bookTab}
+        {@const Icon = icons[bookTab.type]}
         <div
             class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
         >
-            Tab n
+            <Icon color={primaryColor}></Icon>
         </div>
     {/each}
     <!--
