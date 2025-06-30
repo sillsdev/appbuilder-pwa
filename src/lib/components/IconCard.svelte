@@ -7,7 +7,7 @@ TODO:
 <script lang="ts">
     import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { direction, refs } from '$lib/data/stores';
+    import { direction, refs, themeColors } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 
     let {
@@ -67,7 +67,12 @@ TODO:
             </a>
         </div>
 
-        <div class="annotation-item-date col-span-3 justify-self-end">{date}</div>
+        <div
+            style:color={$themeColors['TextColor']}
+            class="annotation-item-date col-span-3 justify-self-end"
+        >
+            {date}
+        </div>
     </div>
 </div>
 
