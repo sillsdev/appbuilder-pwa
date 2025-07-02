@@ -19,9 +19,6 @@ export type StyleConfig = {
 };
 
 export type BookTabConfig = {
-    //Other properties that it might need:
-    //Possibly format
-    //Possibly quizFeatures, but I doubt it
     type: string;
     file: string;
     features: any;
