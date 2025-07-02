@@ -457,7 +457,7 @@
         </Navbar>
     </div>
     {#if bookTabs}
-        <BookTabs></BookTabs>
+        <BookTabs curTab={0}></BookTabs>
     {/if}
 
     {#if showCollectionViewer && enoughCollections}
