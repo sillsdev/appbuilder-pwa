@@ -14,7 +14,7 @@ TODO:
     import TextIcon from '$lib/icons/TextIcon.svelte';
     import VideoIcon from '$lib/icons/VideoIcon.svelte';
 
-    let curTab = 0; //Just for testing
+    let { curTab = 0 } = $props();
     const bookTabs = $derived(
         config?.bookCollections
             .find((x) => x.id === $refs.collection)
@@ -32,18 +32,30 @@ TODO:
 </script>
 
 <div class="dy-tabs dy-tabs-border w-full">
-    <div
-        class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
-    >
-        <MainIcon color={primaryColor}></MainIcon>
-    </div>
-    {#each bookTabs.tabs as bookTab}
-        {@const Icon = icons[bookTab.type]}
+    {#if curTab === 0}
         <div
             class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
         >
-            <Icon color={primaryColor}></Icon>
+            <MainIcon color={primaryColor}></MainIcon>
         </div>
+    {:else}
+        <div class="dy-tab text-center dy-btn rounded-none">
+            <MainIcon color={primaryColor}></MainIcon>
+        </div>
+    {/if}
+    {#each bookTabs.tabs as bookTab, i}
+        {@const Icon = icons[bookTab.type]}
+        {#if curTab === i + 1}
+            <div
+                class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
+            >
+                <Icon color={primaryColor}></Icon>
+            </div>
+        {:else}
+            <div class="dy-tab text-center dy-btn rounded-none">
+                <Icon color={primaryColor}></Icon>
+            </div>
+        {/if}
     {/each}
     <!--
     <div class="dy-tab text-center dy-btn rounded-none">Tab 2</div>
