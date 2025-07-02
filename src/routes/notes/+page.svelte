@@ -20,7 +20,7 @@
                 gotoRoute(`/`);
                 break;
             case $t['Annotation_Menu_Edit']:
-                goto(getRoute(`/notes/edit/${note.date}`));
+                gotoRoute(`/notes/edit/${note.date}`);
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(note);
