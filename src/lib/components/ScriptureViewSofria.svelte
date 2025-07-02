@@ -182,12 +182,6 @@ LOGGING:
         }
     });
 
-    $effect(() => {
-        if (references) {
-            observeVisibility();
-        }
-    });
-
     onDestroy(() => {
         if (planDivObserver) {
             planDivObserver.disconnect();
@@ -1459,6 +1453,9 @@ LOGGING:
                                 addPlanDiv(workspace, '-1');
                             }
                             addFooter(document, workspace.root, docSet);
+                            if (references) {
+                                observeVisibility();
+                            }
                         }
                     }
                 ],
