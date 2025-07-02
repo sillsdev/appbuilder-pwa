@@ -126,6 +126,35 @@ if (programType === 'DAB') {
                         (r) => r === '' || r === undefined
                     );
                 }
+                if (bkk.bookTabs) {
+                    expect(bkk.bookTabs.mainType).not.toSatisfy((r) => r === '' || r === undefined);
+                    expect(bkk.bookTabs.tabs).not.toHaveLength(0);
+                    for (const bookTab in bkk.bookTabs.tabs) {
+                        const bt = bkk.bookTabs.tabs[bookTab];
+                        expect(bt.type).not.toSatisfy((r) => r === '' || r === undefined);
+                        expect(bt.file).not.toSatisfy((r) => r === '' || r === undefined);
+                        for (const audio in bt.audio) {
+                            expect(bt.audio[audio].num).not.toSatisfy(
+                                (r) => r === '' || r === undefined
+                            );
+                            expect(bt.audio[audio].filename).not.toSatisfy(
+                                (r) => r === '' || r === undefined
+                            );
+                            expect(bt.audio[audio].len).not.toSatisfy(
+                                (r) => r === '' || r === undefined
+                            );
+                            expect(bt.audio[audio].size).not.toSatisfy(
+                                (r) => r === '' || r === undefined
+                            );
+                            expect(bt.audio[audio].src).not.toSatisfy(
+                                (r) => r === '' || r === undefined
+                            );
+                            expect(bt.audio[audio].timingFile).not.toSatisfy(
+                                (r) => r === '' || r === undefined
+                            );
+                        }
+                    }
+                }
             }
 
             expect(Object.keys(bc.style)).toHaveLength(6);
