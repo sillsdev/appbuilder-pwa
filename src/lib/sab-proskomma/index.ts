@@ -103,13 +103,6 @@ export class SABProskomma extends Proskomma {
     }
 
     importDoc(selectors: any, contentType: string, content: string, tags: string[]) {
-        return super.importDocument(
-            selectors,
-            contentType,
-            content,
-            this.customTags,
-            this.emptyBlocks,
-            tags
-        );
+        return super.importDocument(selectors, contentType, content, null, null, null, tags);
     }
 }
