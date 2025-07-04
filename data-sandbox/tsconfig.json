@@ -8,5 +8,5 @@
         "strict": true,
         "skipLibCheck": true
     },
-    "files": ["proskomma.d.ts"]
+    "files": ["../src/lib/sab-proskomma/proskomma.d.ts"]
 }
