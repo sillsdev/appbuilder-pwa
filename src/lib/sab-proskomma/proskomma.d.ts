@@ -16,4 +16,8 @@ declare module 'proskomma-core' {
             tags?: any
         ): any;
     }
+
+    export const typeDefs: string;
+
+    export const resolvers: object;
 }

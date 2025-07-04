@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
-///<reference path="./proskomma.d.ts"/>
+///<reference path="../src/lib/sab-proskomma/proskomma.d.ts"/>
 import http from 'http';
 import path from 'path';
 import { ApolloServer } from '@apollo/server';
