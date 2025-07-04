@@ -161,8 +161,7 @@
             const offset = targetTop - containerTop + scrollContainer.scrollTop;
 
             scrollContainer.scrollTo({
-                top: offset,
-                behavior: 'smooth'
+                top: offset
             });
         }
     }
