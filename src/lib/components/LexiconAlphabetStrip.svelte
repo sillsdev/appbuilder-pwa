@@ -13,9 +13,7 @@
             sm:px-4 sm:py-3 sm:text-base
             md:px-5 md:py-4 md:text-base
             lg:px-6 lg:py-4 lg:text-lg"
-            style={activeLetter === letter
-                ? 'background-color: var(--TitleBackgroundColor); border-color: var(--PrimaryColor);'
-                : 'background-color: var(--BackgroundColor); color: var(--TabTextColor); border-color: var(--SettingsSeparatorColor); hover:background-color: var(--TextHighlightColor);'}
+            style="background-color: var(--BackgroundColor); color: var(--TabTextColor); border-color: var(--SettingsSeparatorColor);"
             on:click={() => onLetterSelect(letter)}
         >
             {letter}
