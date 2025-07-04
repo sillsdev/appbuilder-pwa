@@ -1,6 +1,5 @@
 <script lang="ts">
     export let alphabet: string[];
-    export let activeLetter: string;
     export let onLetterSelect: (letter: string) => void;
 </script>
 

@@ -278,7 +278,6 @@
             selectedLanguage={$selectedLanguageStore}
             {vernacularLanguage}
             {reversalLanguage}
-            {selectedLetter}
             onSwitchLanguage={switchLanguage}
             onLetterChange={handleLetterChange}
         />
