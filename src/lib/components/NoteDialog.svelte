@@ -1,16 +1,15 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-    import { addNote, editNote } from '$lib/data/notes';
-    import { EditIcon } from '$lib/icons';
-    import Modal from './Modal.svelte';
-    import { t, selectedVerses, bodyFontSize, currentFont } from '$lib/data/stores';
     import { goto } from '$app/navigation';
-    import { getRoute } from '$lib/navigate';
     import { base } from '$app/paths';
+    import { addNote, editNote } from '$lib/data/notes';
+    import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
+    import { EditIcon } from '$lib/icons';
+    import { getRoute } from '$lib/navigate';
+    import Modal from './Modal.svelte';
 
     export let note = undefined;
-
 
     let id = 'note';
     let modal;
@@ -38,32 +37,35 @@
 </script>
 
 <Modal bind:this={modal} {id} onclose={reset}>
-        <div class="flex flex-col justify-evenly">
-            <div class="w-full flex justify-between items-center">
-                <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
+    <div class="flex flex-col justify-evenly">
+        <div class="w-full flex justify-between items-center">
+            <div class="w-full pb-3" style:font-weight="bold">
+                <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
                     {heading}
-                </div>
-                    <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onEditNote}>
-                        <EditIcon />
-                    </button>
+                </p>
             </div>
 
-            <div style:word-wrap="break-word" class="mt-2">
+            <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onEditNote}>
+                <EditIcon />
+            </button>
+        </div>
+
+        <div style:word-wrap="break-word" class="mt-2">
             <!-- TODO Check if this first if-statement is still necessary -->
-                {#if text !== undefined}
-                    {#each text.split(/\r?\n/) as line}
-                        {#if line}
-                            <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                                {line}
-                            </p>
-                        {:else}
-                            <br />
-                        {/if}
-                    {/each}
-                {/if}
+            {#if text !== undefined}
+                {#each text.split(/\r?\n/) as line}
+                    {#if line}
+                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                            {line}
+                        </p>
+                    {:else}
+                        <br />
+                    {/if}
+                {/each}
+            {/if}
 
             <!--  </div> -->
-<!--            {#if editing}
+            <!--            {#if editing}
                 <div class="w-full flex mt-4 justify-between">
                     <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
                     <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
@@ -72,4 +74,5 @@
                 </div>
             {/if}-->
         </div>
+    </div>
 </Modal>
