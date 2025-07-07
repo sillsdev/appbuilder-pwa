@@ -3,7 +3,7 @@
 
 import * as fs from 'fs';
 import path, { basename, extname } from 'path';
-import type { BookConfig, ScriptureConfig } from '$config';
+import type { BookConfig, BookTabConfig, ScriptureConfig } from '$config';
 import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
@@ -424,6 +424,12 @@ export async function convertBooks(
                     } else {
                         convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
                     }
+                    if (book.bookTabs) {
+                        for (const bookTab of book.bookTabs?.tabs) {
+                            convertBookTab(pk, context, book, bookTab, bcGlossary, docs, inputFiles);
+                        }
+                    }
+                    //Go through and check the quizes and run convertScriptureBook on them.
                     break;
             }
             if (!bookConverted) {
@@ -727,10 +733,10 @@ function convertScriptureBook(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 }
                 displayBookId(context.bcId, book.id);
@@ -782,6 +788,105 @@ function convertScriptureBook(
                 });
 
                 processBookContent(resolve, null, fileContents.join(''));
+            }
+        })
+    );
+}
+
+
+/*convertScriptureBook, except for book tabs instead. It requires the book as a parameter because BookTabConfig doesn't have id, name, section, or testament*/
+function convertBookTab(
+    pk: SABProskomma,
+    context: ConvertBookContext,
+    book: BookConfig,
+    bookTab: BookTabConfig,
+    bcGlossary: string[],
+    docs: Promise<void>[],
+    files: string[]
+) {
+    function processBookTabContent(resolve: () => void, err: any, content: string) {
+        //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
+        if (err) throw err;
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
+        if (context.scriptureConfig.traits['has-glossary']) {
+            content = verifyGlossaryEntries(content, bcGlossary);
+        }
+        if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
+            content = removeMissingVerses(content, context.bcId, book.id);
+        }
+        // Cannot use GraphQL mutation asynchronously since content with triple double quotes
+        // in the contents (see Scriptoria project 3949 for an example) will fail to load.
+        if (context.verbose > 10) {
+            const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
+            const bookPath = path.join(bookFullDir, bookTab.file);
+            console.log(`Writing file: ${bookPath}`);
+            fs.mkdirSync(bookFullDir, { recursive: true });
+            fs.writeFileSync(bookPath, content);
+        }
+        const selectors = { lang: context.lang, abbr: context.bcId };
+        const contentType = bookTab.file.split('.').pop();
+        const tags = [`sections:${book.section}`, `testament:${book.testament}`];
+        try {
+            const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
+            if (pkDoc) {
+                if (context.verbose) {
+                    console.log(
+                        context.docSet +
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, bookTab.file)
+                    );
+                }
+                displayBookId(context.bcId, book.id);
+            }
+            resolve();
+        } catch (err) {
+            console.log(err);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, bookTab.file);
+            throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
+        }
+    }
+    //push new Proskomma import to docs array
+    docs.push(
+        new Promise<void>((resolve) => {
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, bookTab.file);
+            //process.stdout.write(`Checking for book: ${bookPath}\n`);
+            if (fs.existsSync(bookPath)) {
+                //read the single usfm file (pre-12.0)
+                fs.readFile(bookPath, 'utf8', (err, content) =>
+                    processBookTabContent(resolve, err, content)
+                );
+            } else {
+                //read multiple files that have been split up (so that portions parameter is processed)
+                const extension = extname(bookPath);
+                const baseFilename = basename(bookPath, extension).normalize('NFC');
+
+                //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
+                const matchingFiles = files.filter((file) => {
+                    const ext = extname(file);
+                    const filenameWithoutExt = basename(file, ext).normalize('NFC');
+
+                    // Check if the filename starts with baseFilename
+                    if (!filenameWithoutExt.startsWith(baseFilename)) return false;
+
+                    // Get the part after baseFilename
+                    const suffix = filenameWithoutExt.slice(baseFilename.length);
+
+                    // Check if it matches `-###` pattern
+                    return suffix.startsWith('-') && /^\d{3}$/.test(suffix.slice(1));
+                });
+
+                matchingFiles.sort();
+                //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
+
+                const fileContents: string[] = [];
+                matchingFiles.map((file) => {
+                    const filePath = path.join(context.dataDir, 'books', context.bcId, file);
+                    fileContents.push(fs.readFileSync(filePath, 'utf-8'));
+                });
+
+                processBookTabContent(resolve, null, fileContents.join(''));
             }
         })
     );
