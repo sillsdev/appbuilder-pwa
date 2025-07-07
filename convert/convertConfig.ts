@@ -617,6 +617,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     mainType: bookTabsTag.attributes.getNamedItem('main-type')!.value,
                     tabs: []
                 };
+                let i = 0;
                 for (const bookTab of bookTabsTag.getElementsByTagName('book-tab')) {
                     const tabFeaturesTag = bookTab
                         .querySelector('features[type=book]')
@@ -678,6 +679,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     const footer = convertFooter(footerTags[0]?.innerHTML, document);
 
                     bookTabs.tabs.push({
+                        bookTabID: i.toString(),
                         type: bookTab.attributes.getNamedItem('type')!.value,
                         file: bookTab.getElementsByTagName('f')[0]?.innerHTML, //If format ends up needing to be part of BookTabs, this will need to change a little bit (See below in books.push).
                         features: tabFeatures,
@@ -689,6 +691,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                         audio: audio,
                         footer: footer
                     });
+                    i++;
                 }
             }
 

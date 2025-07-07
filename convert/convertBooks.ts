@@ -827,6 +827,8 @@ function convertBookTab(
         const contentType = bookTab.file.split('.').pop();
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
+            content = content.slice(0, content.indexOf("\n")) + bookTab.bookTabID + content.slice(content.indexOf("\n"));
+            //Add the book tab id (Which is just its index in the bookTabs.tabs array) to the \id tag in content so its book code is different than the actual scripture book
             const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
             if (pkDoc) {
                 if (context.verbose) {
