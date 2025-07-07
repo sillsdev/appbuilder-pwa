@@ -1,12 +1,9 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { base } from '$app/paths';
-    import { addNote, editNote } from '$lib/data/notes';
     import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
     export let note = undefined;
@@ -32,7 +29,7 @@
     }
 
     function onEditNote() {
-        if (note !== undefined) goto(getRoute(`/notes/edit/${note.date}`));
+        if (note !== undefined) gotoRoute(`/notes/edit/${note.date}`);
     }
 </script>
 
