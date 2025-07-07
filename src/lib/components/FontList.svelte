@@ -12,6 +12,7 @@ Font list component.
 
     function handleClick(font) {
         selectedFont = font;
+        console.log(`Selected font: ${selectedFont}`);
     }
 </script>
 

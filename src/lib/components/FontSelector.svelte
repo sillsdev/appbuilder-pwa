@@ -1,3 +1,4 @@
+<!-- svelte-ignore non_reactive_update -->
 <!--
 @component
 Font Selector component.
@@ -9,24 +10,26 @@ Font Selector component.
 
     const modalId = 'fontSelector';
     let modal = $state();
-    let fontList = $state();
+    let selectedFont = $state(currentFont);
 
     export function showModal() {
-        fontList.selectedFont = $currentFont;
+        selectedFont = currentFont;
         modal.showModal();
     }
 
     function handleOk() {
         currentFonts.update((fonts) => {
-            fonts[$refs.collection] = fontList.selectedFont;
+            fonts[$refs.collection] = selectedFont;
+            console.log(`${selectedFont}`);
             return fonts;
         });
+        //currentFont.set(selectedFont);
     }
 </script>
 
 <Modal bind:this={modal} id={modalId}>
     {#snippet content()}
-        <FontList bind:this={fontList} selectedFont={$currentFont} />
+        <FontList bind:selectedFont />
         <div class="flex w-full justify-between dy-modal-action">
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <button
