@@ -20,7 +20,6 @@ Font Selector component.
     function handleOk() {
         currentFonts.update((fonts) => {
             fonts[$refs.collection] = selectedFont;
-            console.log(`${selectedFont}`);
             return fonts;
         });
         //currentFont.set(selectedFont);
