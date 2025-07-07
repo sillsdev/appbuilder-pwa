@@ -48,7 +48,6 @@
         </div>
 
         <div style:word-wrap="break-word" class="mt-2">
-            <!-- TODO Check if this first if-statement is still necessary -->
             {#if text !== undefined}
                 {#each text.split(/\r?\n/) as line}
                     {#if line}
