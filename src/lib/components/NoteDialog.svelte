@@ -63,16 +63,6 @@
                     {/if}
                 {/each}
             {/if}
-
-            <!--  </div> -->
-            <!--            {#if editing}
-                <div class="w-full flex mt-4 justify-between">
-                    <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                    <button onclick={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
-                        >{$t['Button_OK']}</button
-                    >
-                </div>
-            {/if}-->
         </div>
     </div>
 </Modal>
