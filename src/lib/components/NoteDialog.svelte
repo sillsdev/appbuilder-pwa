@@ -29,7 +29,9 @@
     }
 
     function onEditNote() {
-        if (note !== undefined) gotoRoute(`/notes/edit/${note.date}`);
+        if (note !== undefined) {
+            gotoRoute(`/notes/edit/${note.date}`);
+        }
     }
 </script>
 
