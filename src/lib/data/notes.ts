@@ -68,6 +68,7 @@ export async function addNote(item: {
     const nextItem = { ...item, date: date, bookIndex: bookIndex };
     await notes.add('notes', nextItem);
     notifyUpdated();
+    return nextItem;
 }
 
 export async function findNote(item: {
