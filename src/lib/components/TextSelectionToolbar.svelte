@@ -80,7 +80,16 @@ TODO:
         selectedVerses.reset();
     }
 
-    async function modifyHighlight(numColor) {
+    const highlight_colors = [
+        { color: $themeColors['HighlighterPenPink'], number: 5 },
+        { color: $themeColors['HighlighterPenOrange'], number: 4 },
+        { color: $themeColors['HighlighterPenBlue'], number: 3 },
+        { color: $themeColors['HighlighterPenGreen'], number: 2 },
+        { color: $themeColors['HighlighterPenYellow'], number: 1 },
+        { color: 'white', number: 6 }
+    ];
+
+    async function modifyHighlight(numColor: number) {
         if (numColor == 6) {
             await removeHighlights($selectedVerses);
         } else {
@@ -133,51 +142,16 @@ TODO:
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">
             {#if showHighlightPens}
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_interactive_supports_focus -->
                 <div class="pen-grid grid grid-rows-1 gap-2 my-2">
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenYellow']}
-                        style:border={buttonBorder}
-                        onclick={() => modifyHighlight(1)}
-                        role="button"
-                    ></div>
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenGreen']}
-                        style:border={buttonBorder}
-                        onclick={() => modifyHighlight(2)}
-                        role="button"
-                    ></div>
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenBlue']}
-                        style:border={buttonBorder}
-                        onclick={() => modifyHighlight(3)}
-                        role="button"
-                    ></div>
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenOrange']}
-                        style:border={buttonBorder}
-                        onclick={() => modifyHighlight(4)}
-                        role="button"
-                    ></div>
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenPink']}
-                        style:border={buttonBorder}
-                        onclick={() => modifyHighlight(5)}
-                        role="button"
-                    ></div>
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={'white'}
-                        style:border={buttonBorder}
-                        onclick={() => modifyHighlight(6)}
-                        role="button"
-                    ></div>
+                    {#each highlight_colors as { color, number }}
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={color}
+                            style:border={buttonBorder}
+                            onclick={() => modifyHighlight(number)}
+                            aria-label="Highlight {color}"
+                        ></button>
+                    {/each}
                 </div>
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
