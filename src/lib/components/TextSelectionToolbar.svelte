@@ -19,17 +19,10 @@ TODO:
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import { audioActive, refs, s, selectedVerses, theme, themeColors } from '$lib/data/stores';
-    import {
-        AudioIcon,
-        BookmarkIcon,
-        BookmarkOutlineIcon,
-        CopyContentIcon,
-        HighlightIcon,
-        NoteIcon,
-        ShareIcon
-    } from '$lib/icons';
+    import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import { gotoRoute } from '$lib/navigate';
+    import BookmarkButton from './BookmarkButton.svelte';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
@@ -219,18 +212,14 @@ TODO:
                     </button>
                 {/if}
                 {#if isBookmarkEnabled}
-                    <button
-                        class="dy-btn-sm dy-btn-ghost"
+                    <BookmarkButton
                         onclick={async function () {
                             await modifyBookmark();
                         }}
-                    >
-                        {#if selectedVerseBookmarks >= 0}
-                            <BookmarkIcon color="#b10000" />
-                        {:else}
-                            <BookmarkOutlineIcon color={iconColor} />
-                        {/if}
-                    </button>
+                        fillColor="#b10000"
+                        emptyColor={iconColor}
+                        filled={selectedVerseBookmarks >= 0}
+                    />
                 {/if}
                 {#if isCopyEnabled}
                     <button class="dy-btn-sm dy-btn-ghost" onclick={copy}>
