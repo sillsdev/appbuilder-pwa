@@ -530,7 +530,7 @@
         </div>
     {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
-            <TextSelectionToolbar oncopied={onTextCopy} />
+            <TextSelectionToolbar oncopy={onTextCopy} />
         </div>
     {:else if $refs.hasAudio && $audioActive}
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
