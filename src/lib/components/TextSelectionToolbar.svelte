@@ -180,7 +180,7 @@ TODO:
                 {#if isNotesEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => gotoRoute(`/notes/edit/new`)}
+                        onclick={() => gotoRoute(`/notes/edit/new`)}
                     >
                         <NoteIcon color={iconColor} />
                     </button>
