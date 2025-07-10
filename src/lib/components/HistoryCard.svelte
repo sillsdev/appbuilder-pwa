@@ -12,11 +12,11 @@ TODO:
     import { getRoute } from '$lib/navigate';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
 
-    interface Props {
+    interface Prop {
         history: HistoryItem;
     }
 
-    let { history }: Props = $props();
+    let { history }: Prop = $props();
 
     let bc = $derived(config.bookCollections.find((x) => x.id === history.collection));
     let docSet = $derived(bc.languageCode + '_' + bc.id);
