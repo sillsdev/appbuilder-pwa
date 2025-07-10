@@ -26,7 +26,7 @@
     let scrollDiv: HTMLDivElement | null = $state(null);
     let scrollPosition = 0;
     let scrollSaved = false;
-  
+
     // The following block should be inside a function or reactive statement, not at top-level
     // if (scrollDiv) {
     //     scrollPosition = scrollDiv.scrollTop;
