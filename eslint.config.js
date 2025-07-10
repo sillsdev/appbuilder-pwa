@@ -75,5 +75,15 @@ export default ts.config(
       'package-lock.json',
       'yarn.lock'
     ]
+  },
+
+  // Ignore certain rules for typescript config
+  {
+    files: ['tailwind.config.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    }
   }
+
+
 );
