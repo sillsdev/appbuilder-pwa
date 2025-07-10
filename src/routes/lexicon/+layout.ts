@@ -73,7 +73,9 @@ export const load: LayoutLoad = async ({ fetch }) => {
     toFetch.sort((a, b) => a[1].localeCompare(b[1], 'en-US'));
 
     const db = await initializeDatabase({ fetch });
-    let results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
+    const results = db.exec(
+        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
+    );
 
     if (!results || results.length === 0) {
         throw new Error('Vernacular query error');

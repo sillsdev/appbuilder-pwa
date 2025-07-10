@@ -23,7 +23,6 @@ const getExecutionCommand = (program: string): string => {
     }
     switch (os.platform()) {
         case 'darwin': {
-
             const appPath = `/Applications/${appName}.app/Contents`;
             javaPath = `"${appPath}/Plugins/zulu-17.jdk/Contents/Home/jre/bin/java"`;
             return `${javaPath} -jar "${appPath}/Resources/Java/bin/${jarName}"`;
