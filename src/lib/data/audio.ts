@@ -72,14 +72,14 @@ function createAudio(audioSource: string): HTMLAudioElement {
     const audio: HTMLAudioElement = new Audio();
 
     // If you do 'new Audio(audioSource)', it won't look at additional sources
-    var source = document.createElement('source');
+    const source = document.createElement('source');
     source.src = audioSource;
     audio.appendChild(source);
 
     // webm isn't supported by MobileSafari, so add fallback for caf and mp3 (like static PWA)
     if (/\.webm$/i.test(audioSource)) {
         // Create additional source elements
-        var sourceCaf = document.createElement('source');
+        const sourceCaf = document.createElement('source');
         sourceCaf.src = audioSource.replace(/\.webm$/i, '.caf');
         sourceCaf.type = 'audio/x-caf';
 
@@ -360,7 +360,6 @@ export function play() {
 // selects the tag to highlight
 function updateHighlights() {
     const highlights = [];
-    let tag = '';
     for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
         const timing = currentAudioPlayer.timing[i];
         if (
@@ -477,7 +476,7 @@ export function seekToVerse(verseClicked) {
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
         // Handle timing tags that are just the verse number
-        let containsAlpha = /[a-z]/.test(tag);
+        const containsAlpha = /[a-z]/.test(tag);
         const adjustedTag = containsAlpha ? tag : tag + 'a';
         if (verseClicked === adjustedTag) {
             const newtime = currentAudioPlayer.timing[i].starttime;

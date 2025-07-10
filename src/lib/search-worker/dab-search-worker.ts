@@ -7,7 +7,7 @@ export async function searchDictionary(phrase: string, options: SearchOptions) {
 
     const column = options.accentsAndTones ? 'word' : 'word_no_accents';
 
-    let db = await initializeDatabase({ fetch });
+    const db = await initializeDatabase({ fetch });
     let results;
     const dynamicQuery = searchWords.map(() => `${column} LIKE ?`).join(' OR ');
     const dynamicParams = searchWords.map((word) => (options.wholeWords ? word : `%${word}%`));

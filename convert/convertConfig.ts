@@ -893,7 +893,7 @@ export function parseDictionaryWritingSystem(
 
 export function parseMenuLocalizations(document: Document, verbose: number) {
     const translationMappingsTags = document.getElementsByTagName('translation-mappings');
-    let translationMappings: {
+    const translationMappings: {
         defaultLang: string;
         mappings: Record<string, Record<string, string>>;
     } = {
@@ -987,7 +987,7 @@ export function parseAnalytics(document: Document, verbose: number) {
 
 export function parseFirebase(document: Document, verbose: number) {
     const firebaseElements = document.getElementsByTagName('firebase');
-    let firebase: { features: { [key: string]: any } } = { features: {} };
+    const firebase: { features: { [key: string]: any } } = { features: {} };
 
     // Iterate over firebaseElements and update data.firebase.features
     for (const firebaseElement of firebaseElements) {
@@ -1161,7 +1161,7 @@ export function parseIllustrations(document: Document, verbose: number) {
 
 export function parseLayouts(document: Document, bookCollections: any, verbose: number) {
     const layoutRoot = document.getElementsByTagName('layouts')[0];
-    let defaultLayout = layoutRoot?.getAttribute('default');
+    const defaultLayout = layoutRoot?.getAttribute('default');
     const layouts = [];
 
     const layoutTags = layoutRoot?.getElementsByTagName('layout');

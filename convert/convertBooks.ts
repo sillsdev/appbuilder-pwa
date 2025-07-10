@@ -149,7 +149,7 @@ function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): s
         const parts = figContent.split('|');
 
         // Extract the image caption
-        let imageCaption = parts[0];
+        const imageCaption = parts[0];
 
         // Check if the image caption is missing
         if (!imageCaption) {
@@ -236,7 +236,7 @@ function moveFigureToNextNonVerseMarker(text: string): string {
     let carryOverFigures: string[] = [];
 
     const lines = text.split('\n');
-    for (let line of lines) {
+    for (const line of lines) {
         // Add any figures that were carried over from the previous lines
         if (carryOverFigures.length > 0) {
             if (!line.startsWith('\\v ') && !line.startsWith('\\fig')) {

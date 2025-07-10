@@ -146,7 +146,7 @@ export class ConvertReverseIndex extends Task {
             throw new Error('No writing systems found in config data');
         }
 
-        let files: FileContent[] = [];
+        const files: FileContent[] = [];
         for (const lang in configOutput.data.writingSystems) {
             const writingSystem = configOutput.data.writingSystems[lang];
 

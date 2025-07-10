@@ -17,12 +17,12 @@ function title() {
 }
 
 export async function shareAnnotation(annotation: any) {
-    let text = annotation.reference + '\n' + annotation.text;
+    const text = annotation.reference + '\n' + annotation.text;
     await shareText(title(), text, SHARE_FILE_NAME);
 }
 
 export async function shareAnnotations(annotations: any) {
-    let text =
+    const text =
         config.name +
         '\n\n' +
         annotations.map((item) => `${item.reference}\n${item.text}`).join('\n\n');
