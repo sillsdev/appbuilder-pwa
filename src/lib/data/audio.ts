@@ -83,7 +83,7 @@ function createAudio(audioSource: string): HTMLAudioElement {
         sourceCaf.src = audioSource.replace(/\.webm$/i, '.caf');
         sourceCaf.type = 'audio/x-caf';
 
-        var sourceMp3 = document.createElement('source');
+        const sourceMp3 = document.createElement('source');
         sourceMp3.src = audioSource.replace(/\.webm$/i, '.mp3');
         sourceMp3.type = 'audio/mpeg';
 
@@ -92,7 +92,7 @@ function createAudio(audioSource: string): HTMLAudioElement {
         audio.appendChild(sourceMp3);
     } else if (/\.3gp$/i.test(audioSource)) {
         // Create additional source elements
-        var sourceMp3 = document.createElement('source');
+        const sourceMp3 = document.createElement('source');
         sourceMp3.src = audioSource.replace(/\.3gp$/i, '.mp3');
         sourceMp3.type = 'audio/mpeg';
 
