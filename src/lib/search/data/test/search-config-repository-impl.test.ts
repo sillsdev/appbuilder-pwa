@@ -30,7 +30,7 @@ test('substitute characters', () => {
         e: 'èé'
     };
     for (const k of Object.keys(expected)) {
-        expect(substitute[k]).toBeDefined;
+        expect(substitute[k]).toBeDefined();
         for (const c of expected[k]) {
             expect(substitute[k]).toContain(c);
         }
