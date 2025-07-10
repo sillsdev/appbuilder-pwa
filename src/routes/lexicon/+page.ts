@@ -68,13 +68,12 @@ export async function load({ fetch }) {
 
             let firstLetter = entry.name.charAt(0).toLowerCase();
 
-            let firstTwoChars;
             let startingPosition = 0;
 
             if (firstLetter === '*' || firstLetter === '-') {
                 startingPosition = 1;
             }
-            firstTwoChars = entry.name
+            const firstTwoChars = entry.name
                 .substring(startingPosition, 2 + startingPosition)
                 .toLowerCase();
 
