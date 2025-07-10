@@ -51,6 +51,7 @@ export default ts.config(
       'svelte/no-navigation-without-base': 'error', // Necessary since hash-based navigation.
       'svelte/no-dupe-style-properties': 'off', // Height is duplicated with dvh and vh for compatibility.
       'svelte/require-each-key': 'off', // Most each-blocks in this app do not have keys, and do not seem to need them.
+      'svelte/no-unused-svelte-ignore': 'off', // Svelte ignores that are unused by eslint may be used by LSP.
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       'no-tabs': 'error',
