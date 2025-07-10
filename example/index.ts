@@ -22,10 +22,12 @@ const getExecutionCommand = (program: string): string => {
         javaPath = path.join(process.env['JAVA_HOME'], 'bin', 'java');
     }
     switch (os.platform()) {
-        case 'darwin':
+        case 'darwin': {
+
             const appPath = `/Applications/${appName}.app/Contents`;
             javaPath = `"${appPath}/Plugins/zulu-17.jdk/Contents/Home/jre/bin/java"`;
             return `${javaPath} -jar "${appPath}/Resources/Java/bin/${jarName}"`;
+        }
         case 'win32': {
             const programFilesX86 = process.env['ProgramFiles(x86)'];
             if (!programFilesX86) {
