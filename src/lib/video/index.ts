@@ -70,7 +70,6 @@ export function getEmbeddedVideoUrl(
 
     switch (type) {
         case VideoType.YouTube: {
-
             // YouTube video
             // Transform https://www.youtube.com/watch?v=abcdefghijk to https://www.youtube.com/embed/abcdefghijk
             const videoId = getYouTubeVideoId(videoUrl);
@@ -123,7 +122,6 @@ export function getEmbeddedVideoUrl(
         }
 
         case VideoType.Jesus: {
-            
             // Jesus Film Media
             // Get the embed code from https://www.jesusfilm.org/watch, select video and click Share > Embed Code
             // Example:

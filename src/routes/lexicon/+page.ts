@@ -52,7 +52,9 @@ export async function load({ fetch }) {
     }
 
     const db = await initializeDatabase({ fetch });
-    const results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
+    const results = db.exec(
+        `SELECT id, name, homonym_index, type, num_senses, summary FROM entries`
+    );
 
     if (!results || results.length === 0) {
         throw new Error('Vernacular query error');
