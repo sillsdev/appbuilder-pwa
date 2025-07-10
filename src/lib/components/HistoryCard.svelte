@@ -27,6 +27,7 @@ TODO:
 
     function onHistoryClick() {
         if (history.url) {
+            // eslint-disable-next-line svelte/no-navigation-without-base
             goto(history.url);
         } else {
             refs.set({
