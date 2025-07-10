@@ -18,17 +18,7 @@ TODO:
     import config from '$lib/data/config';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
-    import {
-        audioActive,
-        modal,
-        MODAL_NOTE,
-        refs,
-        s,
-        selectedVerses,
-        t,
-        theme,
-        themeColors
-    } from '$lib/data/stores';
+    import { audioActive, refs, s, selectedVerses, theme, themeColors } from '$lib/data/stores';
     import {
         AudioIcon,
         BookmarkIcon,
@@ -39,6 +29,7 @@ TODO:
         ShareIcon
     } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
+    import { gotoRoute } from '$lib/navigate';
     import { createEventDispatcher } from 'svelte';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
@@ -226,7 +217,10 @@ TODO:
                     </button>
                 {/if}
                 {#if isNotesEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => modal.open(MODAL_NOTE)}>
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        on:click={() => gotoRoute(`/notes/edit/new`)}
+                    >
                         <NoteIcon color={barIconColor} />
                     </button>
                 {/if}

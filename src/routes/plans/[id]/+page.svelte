@@ -1,5 +1,4 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -23,7 +22,7 @@
         InfoIcon,
         SettingsIcon
     } from '$lib/icons';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { compareVersions } from '$lib/scripts/stringUtils';
@@ -137,14 +136,14 @@
                             chapter: toChapter.toString(),
                             verse: destinationVerse.toString()
                         });
-                        goto(getRoute(`/text`));
+                        gotoRoute(`/text`);
                     }
                 );
             }
         }
     }
     function backNavigation() {
-        goto(getRoute(`/plans`));
+        gotoRoute(`/plans`);
     }
 
     function buildStatusDateString() {
@@ -294,7 +293,7 @@
                                 class="plan-button"
                                 id="PLAN-start"
                                 on:click={() =>
-                                    goto(getRoute(`/plans/${$page.data.planData.id}/settings`))}
+                                    gotoRoute(`/plans/${$page.data.planData.id}/settings`)}
                             >
                                 {$t['Plans_Button_Start_Plan']}
                             </div>

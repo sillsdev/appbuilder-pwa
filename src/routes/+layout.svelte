@@ -26,6 +26,7 @@
     import '$lib/app.css';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
+    import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
 
     let { children } = $props();
@@ -69,7 +70,7 @@
                         fontSelector.showModal();
                         break;
                     case MODAL_STOP_PLAN:
-                        planStopDialog.planId = data;
+                        planStopId = data;
                         planStopDialog.showModal();
                         break;
                     case MODAL_PLAYBACK_SPEED:
@@ -81,11 +82,22 @@
         }
     }
 
+    onMount(() => {
+        const spinner = document.getElementById('loading-spinner');
+        if (spinner) {
+            spinner.classList.add('fade-out');
+            setTimeout(() => {
+                spinner.remove();
+            }, 500);
+        }
+    });
+
     let textAppearanceSelector: TextAppearanceSelector = $state();
     let collectionSelector: CollectionSelector = $state();
     let fontSelector: FontSelector = $state();
     let noteDialog: NoteDialog = $state();
-    let planStopDialog: PlanStopDialog = $state();
+    let planStopDialog: PlanStopDialog;
+    let planStopId: string;
     let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
 </script>
 
@@ -117,7 +129,11 @@
 
         <FontSelector bind:this={fontSelector} />
 
-        <PlanStopDialog bind:this={planStopDialog} vertOffset={NAVBAR_HEIGHT} />
+        <PlanStopDialog
+            bind:this={planStopDialog}
+            bind:planId={planStopId}
+            vertOffset={NAVBAR_HEIGHT}
+        />
 
         <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
     </div>

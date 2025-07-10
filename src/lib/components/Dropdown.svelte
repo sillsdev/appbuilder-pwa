@@ -4,13 +4,12 @@ A simple dropdown menu from DaisyUI.
 -->
 <script lang="ts">
     import { convertStyle, s } from '$lib/data/stores';
-    import { createEventDispatcher, onDestroy } from 'svelte';
+    import { onDestroy } from 'svelte';
 
-    export let cols = 6;
-    const dispatch = createEventDispatcher();
+    let { cols = 6, navEnd = function () {}, label, content } = $props();
 
-    let details: HTMLDetailsElement;
-    let container: HTMLDivElement;
+    let details: HTMLDetailsElement = $state();
+    let container: HTMLDivElement = $state();
     export function close() {
         details.removeAttribute('open');
     }
@@ -28,7 +27,7 @@ A simple dropdown menu from DaisyUI.
             document.addEventListener('click', clickOutside);
         } else {
             document.removeEventListener('click', clickOutside);
-            dispatch('nav-end');
+            navEnd();
         }
     }
 
@@ -39,20 +38,20 @@ A simple dropdown menu from DaisyUI.
 
 <!-- https://github.com/saadeghi/daisyui/discussions/2469 
      how to make dropdown align with screen instead of label -->
-<details bind:this={details} class="dy-dropdown max-sm:[position:unset]" on:toggle={onToggle}>
-    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+<details bind:this={details} class="dy-dropdown max-sm:[position:unset]" ontoggle={onToggle}>
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <summary class="dy-btn dy-btn-ghost p-0.5 no-animation flex-nowrap">
-        <slot name="label" />
+        {@render label?.()}
     </summary>
-    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
         bind:this={container}
         class="dy-dropdown-content dy-menu drop-shadow-lg mt-2.5 bg-base-100 z-10 max-sm:absolute max-sm:start-1.5"
         class:min-w-[22rem]={cols == 6}
         class:min-w-[18rem]={cols == 5}
         style={convertStyle($s['ui.background'])}
-        on:blur={() => dispatch('nav-end')}
+        onblur={() => navEnd()}
     >
-        <slot name="content" />
+        {@render content?.()}
     </div>
 </details>

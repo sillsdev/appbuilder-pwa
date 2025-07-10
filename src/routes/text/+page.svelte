@@ -1,7 +1,6 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -56,13 +55,13 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { getRoute, navigateToTextChapterInDirection } from '$lib/navigate';
+    import { gotoRoute, navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-    import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { pinch, swipe } from 'svelte-gestures';
     import { slide } from 'svelte/transition';
 
-    let scrollingUp = true;
+    let scrollingUp = $state(true);
     let savedScrollPosition = 0;
     let lastChangeTime = 0;
     function saveScrollPosition() {
@@ -81,7 +80,7 @@
             }
         }
     }
-    afterUpdate(() => {
+    $effect(() => {
         if (scrollingDiv) {
             scrollingDiv.scrollTop = savedScrollPosition;
         }
@@ -113,13 +112,14 @@
         await navigateToTextChapterInDirection(1);
     }
 
-    $: navigateBetweenBooksPrev = swipeBetweenBooks || $refs.prev.book === $refs.book;
-    $: navigateBetweenBooksNext = swipeBetweenBooks || $refs.next.book === $refs.book;
-    $: hasPrev = $refs.prev.chapter !== null;
-    $: hasNext = $refs.next.chapter !== null;
-    $: viewShowVerses =
+    const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
+    const navigateBetweenBooksNext = $derived(swipeBetweenBooks || $refs.next.book === $refs.book);
+    const hasPrev = $derived($refs.prev.chapter !== null);
+    const hasNext = $derived($refs.next.chapter !== null);
+    const viewShowVerses = $derived(
         $userSettings['verse-numbers'] ??
-        getFeatureValueBoolean('show-verse-numbers', $refs.collection, $refs.book);
+            getFeatureValueBoolean('show-verse-numbers', $refs.collection, $refs.book)
+    );
 
     const minFontSize = config.mainFeatures['text-size-min'];
     const maxFontSize = config.mainFeatures['text-size-max'];
@@ -138,10 +138,8 @@
         });
     }
 
-    $: audioPhraseEndChars = getFeatureValueString(
-        'audio-phrase-end-chars',
-        $refs.collection,
-        $refs.book
+    const audioPhraseEndChars = $derived(
+        getFeatureValueString('audio-phrase-end-chars', $refs.collection, $refs.book)
     );
 
     const showSearch = config.mainFeatures['search'];
@@ -152,21 +150,24 @@
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
     const showThemes = themes.length > 1;
     const showFontSize = config.mainFeatures['text-font-size-slider'];
-    let showLineHeight = config.mainFeatures['text-line-height-slider'];
-    $: showFonts = $fontChoices.length > 1;
-    $: showTextAppearance = showFontSize || showLineHeight || showThemes || showFonts;
+    let showLineHeight = $state(config.mainFeatures['text-line-height-slider']);
+    const showFonts = $derived($fontChoices.length > 1);
+    const showTextAppearance = $derived(showFontSize || showLineHeight || showThemes || showFonts);
 
-    $: showBorderSetting = getFeatureValueBoolean('show-border', $refs.collection, $refs.book);
-    $: showBorder =
-        config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting);
-    $: format = getFormat($refs.collection, $refs.book);
-    $: viewSettings =
+    const showBorderSetting = $derived(
+        getFeatureValueBoolean('show-border', $refs.collection, $refs.book)
+    );
+    const showBorder = $derived(
+        config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting)
+    );
+    const format = $derived(getFormat($refs.collection, $refs.book));
+    const viewSettings = $derived(
         format === 'html'
             ? {
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
-                  fetch: $page.data.fetch
+                  fetch: page.data.fetch
               }
             : {
                   audioPhraseEndChars: audioPhraseEndChars,
@@ -188,24 +189,25 @@
                   viewShowVerses,
                   viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'],
                   font: $currentFont,
-                  proskomma: $page.data?.proskomma
-              };
+                  proskomma: page.data?.proskomma
+              }
+    );
 
     function getFormat(bcId, bookId) {
         return config.bookCollections.find((x) => x.id === bcId)?.books.find((x) => x.id === bookId)
             ?.format;
     }
 
-    $: stackSettings = {
+    const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
         bodyLineHeight: $bodyLineHeight,
         font: $currentFont
-    };
+    });
 
-    $: extraIconsExist = showSearch || showCollectionNavbar; //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
-    let scrollingDiv;
+    const extraIconsExist = $derived(showSearch || showCollectionNavbar); //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    let scrollingDiv = $state();
 
-    let showOverlowMenu = false; //Controls the visibility of the extraButtons div on mobile
+    let showOverlowMenu = $state(false); //Controls the visibility of the extraButtons div on mobile
     function handleMenuClick(event) {
         showOverlowMenu = false;
     }
@@ -231,7 +233,9 @@
         );
         makeElementVisible(el);
     };
-    $: scrollTo(scrollId);
+    $effect(() => {
+        scrollTo(scrollId);
+    });
 
     function delayedSeek(id) {
         let updateTimer;
@@ -282,7 +286,7 @@
             }
         }
     }
-    $: highlightColor = $themeColors['TextHighlightColor'];
+    const highlightColor = $derived($themeColors['TextHighlightColor']);
     let currentVerse = '';
     /**updates highlight*/
     const updateHighlight = (elementIds, color) => {
@@ -315,9 +319,15 @@
         }
     };
 
-    $: updateHighlight($audioHighlightElements, highlightColor);
-    $: updateAudioPlayer($refs);
-    $: newRefScroll($refs);
+    $effect(() => {
+        updateHighlight($audioHighlightElements, highlightColor);
+    });
+    $effect(() => {
+        updateAudioPlayer($refs);
+    });
+    $effect(() => {
+        newRefScroll($refs);
+    });
     const navBarHeight = NAVBAR_HEIGHT;
     onMount(() => {
         if ($isFirstLaunch) {
@@ -328,7 +338,7 @@
         }
     });
 
-    let textCopied = false;
+    let textCopied = $state(false);
     function onTextCopy() {
         textCopied = true;
         setTimeout(() => {
@@ -339,11 +349,12 @@
     function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(getRoute(`/contents/${menuId}`));
+            gotoRoute(`/contents/${menuId}`);
         }
     }
-    $: showBackButton =
-        contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0;
+    const showBackButton = $derived(
+        contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0
+    );
 
     onDestroy(() => {
         // stop audio when changing routes
@@ -361,12 +372,12 @@
                 </div>
             {/snippet}
 
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             {#snippet end()}
                 <div
                     class="flex flex-nowrap"
-                    on:click={showOverlowMenu ? handleMenuClick : () => ({})}
+                    onclick={showOverlowMenu ? handleMenuClick : () => ({})}
                 >
                     <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
                     <div class="flex">
@@ -374,7 +385,7 @@
                             <!-- Mute/Volume Button -->
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                on:click={() => {
+                                onclick={() => {
                                     $audioActive = !$audioActive;
                                 }}
                             >
@@ -393,7 +404,7 @@
                         {#if showSearch}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                on:click={() => goto(getRoute(`/search/${$refs.collection}`))}
+                                onclick={() => gotoRoute(`/search/${$refs.collection}`)}
                             >
                                 <SearchIcon color="white" />
                             </button>
@@ -403,7 +414,7 @@
                         {#if showTextAppearance}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                on:click={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                                onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
                             >
                                 <TextAppearanceIcon color="white" />
                             </button>
@@ -413,7 +424,7 @@
                         {#if showCollectionNavbar && enoughCollections}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                on:click={() => modal.open(MODAL_COLLECTION)}
+                                onclick={() => modal.open(MODAL_COLLECTION)}
                             >
                                 <BibleIcon color="white" />
                             </button>
@@ -423,7 +434,7 @@
                         <!-- overflowMenuButton (on mobile this toggles the visibility of the extraButtons div) -->
                         <button
                             class="md:hidden dy-btn dy-btn-ghost dy-btn-circle"
-                            on:click={(event) => {
+                            onclick={(event) => {
                                 showOverlowMenu = !showOverlowMenu;
                                 event.stopPropagation();
                             }}
@@ -441,14 +452,14 @@
         </Navbar>
     </div>
     {#if showCollectionViewer && enoughCollections}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
             style:top={navBarHeight}
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
-            on:click={() => modal.open(MODAL_COLLECTION)}
+            onclick={() => modal.open(MODAL_COLLECTION)}
         >
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
@@ -457,13 +468,13 @@
         class:borderimg={showBorder}
         class="overflow-y-auto"
         bind:this={scrollingDiv}
-        on:scroll={saveScrollPosition}
+        onscroll={saveScrollPosition}
     >
         <!-- flex causes the imported html to display outside of the view port. Use md: -->
         <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
             <div class="hidden md:flex basis-1/12 justify-center">
                 <button
-                    on:click={prevChapter}
+                    onclick={prevChapter}
                     class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
                     navigateBetweenBooksPrev
                         ? 'visible'
@@ -478,13 +489,13 @@
                         <div
                             class="max-w-screen-md mx-auto"
                             use:pinch
-                            on:pinch={doPinch}
+                            onpinch={doPinch}
                             use:swipe={{
                                 timeframe: 300,
                                 minSwipeDistance: 60,
                                 touchAction: 'pan-y'
                             }}
-                            on:swipe={doSwipe}
+                            onswipe={doSwipe}
                         >
                             {#if format === 'html'}
                                 <HtmlBookView {...viewSettings} />
@@ -497,7 +508,7 @@
             </div>
             <div class="hidden basis-1/12 md:flex justify-center">
                 <button
-                    on:click={nextChapter}
+                    onclick={nextChapter}
                     class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
                     navigateBetweenBooksNext
                         ? 'visible'
@@ -519,7 +530,7 @@
         </div>
     {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
         <div class="text-selection">
-            <TextSelectionToolbar on:copied={onTextCopy} />
+            <TextSelectionToolbar oncopied={onTextCopy} />
         </div>
     {:else if $refs.hasAudio && $audioActive}
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->

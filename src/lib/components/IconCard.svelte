@@ -52,7 +52,7 @@ TODO:
                 {reference}
             </a>
         </div>
-        <div class="self-center justify-self-end"><CardMenu menuaction {actions} /></div>
+        <div class="self-center justify-self-end"><CardMenu {menuaction} {actions} /></div>
 
         <div
             class="annotation-item-text col-start-2 col-end-3 justify-self-start"

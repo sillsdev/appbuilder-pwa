@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import SearchResultList from '$lib/components/SearchResultList.svelte';
     import { t, themeColors } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import type { SearchResult } from '$lib/search/domain/entities';
     import type {
         SearchPresenter,
@@ -27,6 +26,7 @@
     let scrollDiv: HTMLDivElement | null = $state(null);
     let scrollPosition = 0;
     let scrollSaved = false;
+  
     // The following block should be inside a function or reactive statement, not at top-level
     // if (scrollDiv) {
     //     scrollPosition = scrollDiv.scrollTop;
@@ -54,7 +54,7 @@
     const session = makeSearchSession(presenter);
 
     function handleSubmit(event: SearchFormSubmitEvent) {
-        goto(getRoute(`/search/${data.collection}/saved`));
+        gotoRoute(`/search/${data.collection}/saved`);
         queryId++;
         const options = {
             collection: data.collection,

@@ -11,7 +11,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 <script>
     import { convertStyle, direction, s } from '$lib/data/stores';
 
-    let { id, addCSS = '', content, onclose = null } = $props();
+    let { id, children, addCSS = '', onclose = null } = $props();
 
     let dialog;
 
@@ -36,7 +36,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
         style={convertStyle($s['ui.dialog']) + addCSS}
         class="dy-modal-box overflow-y-visible relative"
     >
-        {@render content?.()}
+        {@render children?.()}
         <!--This is the snippet for the popup's actual contents-->
     </form>
     <form method="dialog" class="dy-modal-backdrop">

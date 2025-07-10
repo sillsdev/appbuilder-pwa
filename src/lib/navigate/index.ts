@@ -6,6 +6,10 @@ import { addHistory, type HistoryItem } from '$lib/data/history';
 import { refs } from '$lib/data/stores';
 import { get } from 'svelte/store';
 
+export function gotoRoute(route: string) {
+    return goto(getRoute(route));
+}
+
 export function getRoute(route: string) {
     return `${base}/#${route}`;
 }
@@ -37,14 +41,14 @@ export async function navigateToText(item: {
         { collection: item.collection, book: item.book, chapter: item.chapter, verse: item.verse },
         logHistoryItemAdded
     );
-    goto(getRoute(`/text`));
+    gotoRoute(`/text`);
 }
 
 export async function navigateToTextReference(reference: string) {
     playStop();
     await refs.setReference(reference);
     const nowRef: any = get(refs);
-    goto(getRoute(`/text`));
+    gotoRoute(`/text`);
     addHistory(
         {
             collection: nowRef.collection,

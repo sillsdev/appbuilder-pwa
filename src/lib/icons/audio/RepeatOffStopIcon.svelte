@@ -1,7 +1,8 @@
 <script lang="ts">
     // From app-builders/source/scripture/app-android-scripture/src/main/res/drawable-xxxhdpi/ic_repeat_black_24.png
     // Converted with https://vectorizer.ai/
-    export let color = 'black';
+
+    let { size = 24, color = 'black' } = $props();
 </script>
 
 <svg
@@ -9,8 +10,8 @@
     fill={color}
     version="1.1"
     viewBox="0 0 96 96"
-    height="24"
-    width="24"
+    height={size}
+    width={size}
 >
     <rect
         x="-4.00"

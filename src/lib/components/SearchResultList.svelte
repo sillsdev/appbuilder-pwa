@@ -33,8 +33,9 @@
     });
 
     $effect(() => {
-        results;
-        onResults();
+        if (results.length > 0) {
+            onResults();
+        }
     });
 
     function onResults() {

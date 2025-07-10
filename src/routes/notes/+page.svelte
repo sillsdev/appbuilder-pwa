@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -10,7 +9,7 @@
     import { bodyFontSize, modal, MODAL_NOTE, monoIconColor, refs, t } from '$lib/data/stores';
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
 
@@ -18,10 +17,10 @@
         switch (event.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(note);
-                goto(getRoute(`/`));
+                gotoRoute(`/`);
                 break;
             case $t['Annotation_Menu_Edit']:
-                modal.open(MODAL_NOTE, note);
+                gotoRoute(`/notes/edit/${note.date}`);
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(note);

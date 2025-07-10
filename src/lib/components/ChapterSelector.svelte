@@ -13,29 +13,30 @@ The navbar component.
     import TabsMenu from './TabsMenu.svelte';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
-    let chapterSelector;
+    let chapterSelector = $state();
 
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
-    $: book = $nextRef.book === '' ? $refs.book : $nextRef.book;
-    $: chapter = $nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter;
-    $: showVerseSelector = $userSettingsOrDefault['verse-selection'];
-    $: verseCount = getVerseCount(book, chapter);
-    $: numeralSystem = numerals.systemForBook(config, $refs.collection, book);
-    $: chaptersLabels =
+    const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
+    const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
+    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']);
+    const verseCount = $derived(getVerseCount(book, chapter));
+    const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
+    const chaptersLabels = $derived(
         config.bookCollections
             .find((x) => $refs.collection === x.id)
-            .books.find((x) => book === x.id).chaptersLabels ?? {};
+            .books.find((x) => book === x.id).chaptersLabels ?? {}
+    );
 
-    $: c = $t.Selector_Chapter;
-    $: v = $t.Selector_Verse;
+    const c = $derived($t.Selector_Chapter);
+    const v = $derived($t.Selector_Verse);
 
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
-    async function navigateReference(e) {
-        switch (e.detail.tab) {
+    async function navigateReference({ text, url, tab }) {
+        switch (tab) {
             case c:
-                $nextRef.chapter = e.detail.text;
+                $nextRef.chapter = text;
                 if (!showVerseSelector || $nextRef.chapter === 'i' || verseCount === 0) {
                     await completeNavigation();
                 } else {
@@ -43,13 +44,13 @@ The navbar component.
                 }
                 break;
             case v:
-                if (e.detail.text === 'i') {
+                if (text === 'i') {
                     // Chapter getting set because if you just select verse
                     // from introduction, both blank goes to chapter 1
                     $nextRef.chapter = 'i';
                     $nextRef.verse = '';
                 } else {
-                    $nextRef.verse = e.detail.text;
+                    $nextRef.verse = text;
                 }
                 await completeNavigation();
                 break;
@@ -69,7 +70,7 @@ The navbar component.
         close();
     }
 
-    let dropdown;
+    let dropdown = $state();
     function close() {
         dropdown.close();
     }
@@ -114,11 +115,6 @@ The navbar component.
 
     // Needs to be reactive when the chapter changes if there is a nextRef.book
     let chapterIndicator = (book, chapter) => {
-        chaptersLabels =
-            config.bookCollections
-                .find((x) => $refs.collection === x.id)
-                .books.find((x) => book === x.id)?.chaptersLabels ?? {};
-
         let value = '';
         if (chapter === 'i') {
             value = $t['Chapter_Introduction_Symbol'];
@@ -159,26 +155,27 @@ The navbar component.
         return value;
     };
     /**list of books in current docSet*/
-    $: books = $refs.catalog.documents;
+    const books = $derived($refs.catalog.documents);
     /**list of chapters in current book*/
-    $: chapters = books.find((d) => d.bookCode === book)?.versesByChapters;
-    $: showSelector =
-        config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0;
+    const chapters = $derived(books.find((d) => d.bookCode === book)?.versesByChapters || {});
+    const showSelector = $derived(
+        config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0
+    );
     const canSelect = config.mainFeatures['show-chapter-selector'];
 </script>
 
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
-    <Dropdown bind:this={dropdown} on:nav-end={resetNavigation} cols="5">
-        <svelte:fragment slot="label">
+    <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols="5">
+        {#snippet label()}
             <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
                 <DropdownIcon color="white" />
             {/if}
-        </svelte:fragment>
-        <svelte:fragment slot="content">
+        {/snippet}
+        {#snippet content()}
             {#if canSelect}
                 <div>
                     <TabsMenu
@@ -191,7 +188,7 @@ The navbar component.
                                     options: [
                                         {
                                             rows: books.find((x) => x.bookCode === book)
-                                                .hasIntroduction
+                                                ?.hasIntroduction
                                                 ? [
                                                       {
                                                           label: $t['Chapter_Introduction_Title'],
@@ -217,10 +214,10 @@ The navbar component.
                                 visible: showVerseSelector
                             }
                         }}
-                        on:menuaction={navigateReference}
+                        menuaction={navigateReference}
                     />
                 </div>
             {/if}
-        </svelte:fragment>
+        {/snippet}
     </Dropdown>
 {/if}

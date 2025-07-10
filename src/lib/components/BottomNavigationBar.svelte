@@ -2,20 +2,19 @@
 @component
 -->
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
 
-    export let barType = undefined;
+    let { barType = undefined } = $props();
 
     const bottomNavBarItems = config?.bottomNavBarItems;
 
-    $: barBackgroundColor = $s['ui.bottom-navigation.']['background-color'];
-    $: barTextColor = $s['ui.bottom-navigation.item.text']['color'];
-    $: barTextSelectedColor = $s['ui.bottom-navigation.item.text.selected']['color'];
+    const barBackgroundColor = $derived($s['ui.bottom-navigation.']['background-color']);
+    const barTextColor = $derived($s['ui.bottom-navigation.item.text']['color']);
+    const barTextSelectedColor = $derived($s['ui.bottom-navigation.item.text.selected']['color']);
 
     const showContents = contents.screens?.length > 0;
     const showSearch = config.mainFeatures['search'];
@@ -71,10 +70,10 @@
         switch (buttonType) {
             case 'contents':
                 let gotoLink = link && link !== '' ? link : '1';
-                goto(getRoute(`/contents/${gotoLink}`));
+                gotoRoute(`/contents/${gotoLink}`);
                 break;
             case 'about':
-                goto(getRoute(`/about`));
+                gotoRoute(`/about`);
                 break;
             case 'book':
                 if (link && link !== '') {
@@ -94,16 +93,16 @@
                         verse: '1'
                     });
                 }
-                goto(getRoute(`/text`));
+                gotoRoute(`/text`);
                 break;
             case 'plans':
-                goto(getRoute(`/plans`));
+                gotoRoute(`/plans`);
                 break;
             case 'search':
-                goto(getRoute(`/search/${$refs.collection}`));
+                gotoRoute(`/search/${$refs.collection}`);
                 break;
             case 'settings':
-                goto(getRoute(`/settings`));
+                gotoRoute(`/settings`);
                 break;
             default:
                 console.log(
@@ -124,7 +123,7 @@
                     {#if showButton(item.type)}
                         <button
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
-                            on:click={() => handleClick(item.type, item.link['default'])}
+                            onclick={() => handleClick(item.type, item.link['default'])}
                         >
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->

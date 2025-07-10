@@ -4,6 +4,8 @@ import type {
     AppConfig,
     BookCollectionAudioConfig,
     BookCollectionConfig,
+    BookTabConfig,
+    BookTabsConfig,
     DictionaryConfig,
     DictionaryWritingSystemConfig,
     ScriptureConfig,
@@ -603,6 +605,88 @@ export function parseBookCollections(document: Document, verbose: number) {
                 chaptersN = cnTag.attributes.getNamedItem('value')!.value;
             }
 
+            let bookTabs: BookTabsConfig | undefined = undefined;
+            const bookTabsTag = book.getElementsByTagName('book-tabs')[0];
+            if (bookTabsTag) {
+                bookTabs = {
+                    mainType: bookTabsTag.attributes.getNamedItem('main-type')!.value,
+                    tabs: []
+                };
+                for (const bookTab of bookTabsTag.getElementsByTagName('book-tab')) {
+                    const tabFeaturesTag = bookTab
+                        .querySelector('features[type=book]')
+                        ?.getElementsByTagName('e');
+                    const tabFeatures: any = {};
+                    if (tabFeaturesTag) {
+                        for (const tabFeature of tabFeaturesTag) {
+                            tabFeatures[tabFeature.attributes.getNamedItem('name')!.value] =
+                                parseConfigValue(
+                                    tabFeature.attributes.getNamedItem('value')!.value
+                                );
+                        }
+                    }
+                    let tabChapters;
+                    const tabChaptersTag = bookTab.getElementsByTagName('ct')[0];
+                    if (tabChaptersTag) {
+                        tabChapters = parseInt(tabChaptersTag.attributes.getNamedItem('c')!.value);
+                    }
+
+                    let tabChaptersN;
+                    const tabCnTag = bookTab.getElementsByTagName('cn')[0];
+                    if (tabCnTag) {
+                        tabChaptersN = tabCnTag.attributes.getNamedItem('value')!.value;
+                    }
+
+                    const tabStyle = bookTab.getElementsByTagName('styles-info')[0];
+                    const style = tabStyle ? parseStylesInfo(tabStyle, verbose) : undefined;
+                    const tabStyles = bookTab.querySelector('styles');
+                    const styles = tabStyles ? parseStyles(tabStyles, verbose) : undefined;
+
+                    const fontChoiceTag = bookTab.querySelector('font-choice');
+                    const fonts = fontChoiceTag
+                        ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
+                              .filter((x) => fontFamilies.includes(x.innerHTML))
+                              .map((x) => x.innerHTML)
+                        : [];
+
+                    const audio: BookCollectionAudioConfig[] = [];
+                    const audioTags = bookTab.getElementsByTagName('audio');
+                    for (const audioTag of audioTags) {
+                        const fTag = audioTag.getElementsByTagName('f')[0];
+                        if (fTag) {
+                            audio.push({
+                                num: parseInt(audioTag.attributes.getNamedItem('chapter')!.value),
+                                filename: fTag.innerHTML,
+                                len: fTag.hasAttribute('len')
+                                    ? parseInt(fTag.attributes.getNamedItem('len')!.value)
+                                    : undefined,
+                                size: fTag.hasAttribute('size')
+                                    ? parseInt(fTag.attributes.getNamedItem('size')!.value)
+                                    : undefined,
+                                src: fTag.attributes.getNamedItem('src')!.value,
+                                timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
+                            });
+                        }
+                    }
+
+                    const footerTags = bookTab.getElementsByTagName('footer');
+                    const footer = convertFooter(footerTags[0]?.innerHTML, document);
+
+                    bookTabs.tabs.push({
+                        type: bookTab.attributes.getNamedItem('type')!.value,
+                        file: bookTab.getElementsByTagName('f')[0]?.innerHTML, //If format ends up needing to be part of BookTabs, this will need to change a little bit (See below in books.push).
+                        features: tabFeatures,
+                        chapters: tabChapters,
+                        chaptersN: tabChaptersN,
+                        style: style,
+                        styles: styles,
+                        fonts: fonts,
+                        audio: audio,
+                        footer: footer
+                    });
+                }
+            }
+
             books.push({
                 portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
                     ?.value,
@@ -624,7 +708,8 @@ export function parseBookCollections(document: Document, verbose: number) {
                 quizFeatures,
                 style,
                 styles,
-                footer
+                footer,
+                bookTabs
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }

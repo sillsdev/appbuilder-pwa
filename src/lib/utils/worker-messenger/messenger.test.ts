@@ -176,7 +176,7 @@ describe('postRequest', () => {
         const io = new BrokenMessageIO();
         const messenger = new Messenger(io, { inboundHandler: incomingRequestHandler, timeout: 5 });
         const request = { type: 'test' };
-        expect(async () => await messenger.postRequest(request)).rejects.toThrow('time');
+        await expect(async () => await messenger.postRequest(request)).rejects.toThrow('time');
     });
 
     test('null timeout indicates no timeout', async () => {
@@ -201,14 +201,14 @@ describe('postRequest', () => {
         }
     });
 
-    test('error response rejects promise', () => {
+    test('error response rejects promise', async () => {
         const response: ErrorResponse = {
             type: 'error',
             message: 'this is a test'
         };
         const io = new TestMessageIO(response);
         const messenger = new Messenger(io, { inboundHandler: incomingRequestHandler });
-        expect(() => messenger.postRequest({ type: 'test' })).rejects.toThrow('test');
+        await expect(() => messenger.postRequest({ type: 'test' })).rejects.toThrow('test');
     });
 });
 

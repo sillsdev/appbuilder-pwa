@@ -1,5 +1,4 @@
 <script>
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { page } from '$app/stores';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -20,7 +19,7 @@
         themeColors
     } from '$lib/data/stores';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import { getRoute, navigateToText } from '$lib/navigate';
+    import { gotoRoute, navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
 
@@ -60,19 +59,20 @@
             case 'reference':
                 contentsStack.pushItem($page.data.menu.id);
                 const contentsRef = await getReference(item);
+                console.log('contentsRef', contentsRef);
                 await navigateToText(contentsRef);
                 break;
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
-                await goto(getRoute(`/contents/${item.linkTarget}`));
+                await gotoRoute(`/contents/${item.linkTarget}`);
                 break;
             case 'other':
                 //switch on item.linkLocation
                 switch (item.linkLocation) {
                     case 'about':
                     case 'settings':
-                        goto(getRoute(`/${item.linkLocation}`));
+                        gotoRoute(`/${item.linkLocation}`);
                         break;
                     case 'layout':
                         modal.open(MODAL_COLLECTION);
@@ -88,7 +88,7 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                goto(getRoute(`/${item.linkLocation}`));
+                gotoRoute(`/${item.linkLocation}`);
                 break;
         }
     }
@@ -187,17 +187,25 @@
     function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            goto(getRoute(`/contents/${menuId}`));
+            gotoRoute(`/contents/${menuId}`);
         }
     }
     async function firstChapter(book, docset) {
         let first = '1';
         if (docset === currentDocSet) {
-            first = Object.keys(books.find((x) => x.bookCode === book).versesByChapters)[0];
+            const currBook = books.find((x) => x.bookCode === book);
+            if (currBook?.versesByChapters) {
+                // If the book has versesByChapters, we can get the first chapter directly
+                first = Object.keys(currBook.versesByChapters)[0];
+            }
         } else {
-            let docSetCatalog = await loadCatalog(docset);
-            let docSetBooks = docSetCatalog.documents;
-            first = Object.keys(docSetBooks.find((x) => x.bookCode === book).versesByChapters)[0];
+            const docSetCatalog = await loadCatalog(docset);
+            const docSetBooks = docSetCatalog.documents;
+            const docSetBook = docSetBooks.find((x) => x.bookCode === book);
+            if (docSetBook?.versesByChapters) {
+                // If the book has versesByChapters, we can get the first chapter directly
+                first = Object.keys(docSetBook.versesByChapters)[0];
+            }
         }
         return first;
     }

@@ -1,98 +1,66 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-    import { addNote, editNote } from '$lib/data/notes';
     import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
+    import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
     export let note = undefined;
-    export let editing = false;
 
     let id = 'note';
     let modal;
-    let title: string;
     let text: string;
 
-    $: heading = editing ? ($t[title] ?? '') : (note?.reference ?? '');
+    $: heading = note?.reference ?? '';
 
     export function showModal() {
         if (note !== undefined) {
             text = note.text;
-            title = 'Annotation_Note_Edit';
+            modal.showModal();
         } else {
-            editing = true;
-            title = 'Annotation_Note_Add';
+            console.log('No note available!');
         }
-        modal.showModal();
     }
 
     function reset() {
         text = '';
-        editing = false;
         selectedVerses.reset();
     }
 
-    async function modifyNote() {
+    function onEditNote() {
         if (note !== undefined) {
-            await editNote({
-                note: note,
-                newText: text
-            });
-        } else {
-            await addNote({
-                docSet: $selectedVerses[0].docSet,
-                collection: $selectedVerses[0].collection,
-                book: $selectedVerses[0].book,
-                chapter: $selectedVerses[0].chapter,
-                verse: $selectedVerses[0].verse,
-                text,
-                reference: $selectedVerses[0].reference
-            });
+            gotoRoute(`/notes/edit/${note.date}`);
         }
     }
 </script>
 
 <Modal bind:this={modal} {id} onclose={reset}>
-    {#snippet content()}
-        <div class="flex flex-col justify-evenly">
-            <div class="w-full flex justify-between">
-                <div class="w-full pb-3" style:font-weight={editing ? 'normal' : 'bold'}>
+    <div class="flex flex-col justify-evenly">
+        <div class="w-full flex justify-between items-center">
+            <div class="w-full pb-3" style:font-weight="bold">
+                <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
                     {heading}
-                </div>
-                {#if !editing}
-                    <button
-                        on:click={() => {
-                            editing = true;
-                        }}
-                    >
-                        <EditIcon />
-                    </button>
-                {/if}
+                </p>
             </div>
-            <div style:word-wrap="break-word">
-                {#if editing}
-                    <textarea bind:value={text} class="dy-textarea w-full"></textarea>
-                {:else if text !== undefined}
-                    {#each text.split(/\r?\n/) as line}
-                        {#if line}
-                            <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                                {line}
-                            </p>
-                        {:else}
-                            <br />
-                        {/if}
-                    {/each}
-                {/if}
-            </div>
-            {#if editing}
-                <div class="w-full flex mt-4 justify-between">
-                    <button class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button>
-                    <button on:click={modifyNote} class="dy-btn dy-btn-sm dy-btn-ghost"
-                        >{$t['Button_OK']}</button
-                    >
-                </div>
+
+            <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onEditNote}>
+                <EditIcon />
+            </button>
+        </div>
+
+        <div style:word-wrap="break-word" class="mt-2">
+            {#if text !== undefined}
+                {#each text.split(/\r?\n/) as line}
+                    {#if line}
+                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                            {line}
+                        </p>
+                    {:else}
+                        <br />
+                    {/if}
+                {/each}
             {/if}
         </div>
-    {/snippet}
+    </div>
 </Modal>

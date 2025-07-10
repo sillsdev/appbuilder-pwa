@@ -10,7 +10,6 @@ LOGGING:
     { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { base } from '$app/paths';
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
     import config from '$lib/data/config';
@@ -36,7 +35,7 @@ LOGGING:
         t,
         userSettings
     } from '$lib/data/stores';
-    import { getRoute } from '$lib/navigate';
+    import { gotoRoute } from '$lib/navigate';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
@@ -57,57 +56,83 @@ LOGGING:
     } from '$lib/scripts/verseSelectUtil';
     import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
+    import { fromStore } from 'svelte/store';
 
-    export let audioPhraseEndChars: string;
-    export let bodyFontSize: any;
-    export let bodyLineHeight: any;
-    export let bookmarks: any;
-    export let notes: any;
-    export let highlights: any;
-    export let maxSelections: any;
-    export let redLetters: boolean;
-    export let references: any;
-    export let glossary: any;
-    export let selectedVerses: any;
-    export let themeColors: any;
-    export let verseLayout: any;
-    export let viewShowBibleImages: string;
-    export let viewShowBibleVideos: string;
-    export let viewShowIllustrations: boolean;
-    export let viewShowVerses: boolean;
-    export let viewShowGlossaryWords: boolean;
-    export let font: string;
-    export let proskomma: SABProskomma;
+    let {
+        audioPhraseEndChars,
+        bodyFontSize,
+        bodyLineHeight,
+        bookmarks,
+        notes,
+        highlights,
+        maxSelections,
+        redLetters,
+        references,
+        glossary,
+        selectedVerses,
+        themeColors,
+        verseLayout,
+        viewShowBibleImages,
+        viewShowBibleVideos,
+        viewShowIllustrations,
+        viewShowVerses,
+        viewShowGlossaryWords,
+        font,
+        proskomma
+    }: {
+        audioPhraseEndChars: string;
+        bodyFontSize: any;
+        bodyLineHeight: any;
+        bookmarks: any;
+        notes: any;
+        highlights: any;
+        maxSelections: any;
+        redLetters: boolean;
+        references: any;
+        glossary: any;
+        selectedVerses: any;
+        themeColors: any;
+        verseLayout: any;
+        viewShowBibleImages: string;
+        viewShowBibleVideos: string;
+        viewShowIllustrations: boolean;
+        viewShowVerses: boolean;
+        viewShowGlossaryWords: boolean;
+        font: string;
+        proskomma: SABProskomma;
+    } = $props();
 
-    $: scriptureLogs = $userSettings['scripture-logs']
-        ? {
-              root: 1,
-              docResult: 1,
-              document: 1,
-              paragraph: 1,
-              phrase: 1,
-              chapter: 1,
-              verses: 1,
-              text: 1,
-              sequence: 1,
-              wrapper: 1,
-              milestone: 1,
-              blockGraft: 1,
-              inlineGraft: 1,
-              mark: 1,
-              meta: 1,
-              row: 1,
-              placement: 1
-          }
-        : $logs['scripture'];
+    const scriptureLogs = $derived(
+        $userSettings['scripture-logs']
+            ? {
+                  root: 1,
+                  docResult: 1,
+                  document: 1,
+                  paragraph: 1,
+                  phrase: 1,
+                  chapter: 1,
+                  verses: 1,
+                  text: 1,
+                  sequence: 1,
+                  wrapper: 1,
+                  milestone: 1,
+                  blockGraft: 1,
+                  inlineGraft: 1,
+                  mark: 1,
+                  meta: 1,
+                  row: 1,
+                  placement: 1
+              }
+            : $logs['scripture']
+    );
 
-    let container: HTMLElement;
-    let displayingIntroduction = false;
+    let container: HTMLElement = $state();
+    let displayingIntroduction = $state(false);
 
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
-    let planDivObserver; // To store the observer instance
-    let planObservationCompleted = false;
+    let planDivObserver = $state(null); // To store the observer instance
+    let planObservationCompleted = $state(false);
     // Function to observe the visibility of the plan div
     function observeVisibility() {
         if (planDivObserver) {
@@ -156,12 +181,6 @@ LOGGING:
         }
     });
 
-    afterUpdate(() => {
-        if (references) {
-            observeVisibility();
-        }
-    });
-
     onDestroy(() => {
         if (planDivObserver) {
             planDivObserver.disconnect();
@@ -185,15 +204,15 @@ LOGGING:
         const regEx = new RegExp(result, 'g');
         return regEx;
     };
-    $: seprgx = seprgx2(audioPhraseEndChars);
+    const seprgx = $derived(seprgx2(audioPhraseEndChars));
 
     const onlySpaces = (str) => {
         return str.trim().length === 0;
     };
 
-    let nextPlanDay;
-    let lastPlanReference;
-    $: {
+    let nextPlanDay = $state(null);
+    let lastPlanReference = $state();
+    $effect(() => {
         if ($currentPlanData && $plan.planDay) {
             getFirstIncompleteDay($currentPlanData, $plan.planDay).then((day) => {
                 nextPlanDay = day;
@@ -214,8 +233,14 @@ LOGGING:
         } else {
             nextPlanDay = null;
         }
-    }
-    $: $selectedVerses, updateSelections(selectedVerses);
+    });
+
+    const stateSelectedVerses = fromStore(selectedVerses);
+    $effect(() => {
+        if ((stateSelectedVerses.current as any[]).length > 0) {
+            updateSelections(selectedVerses);
+        }
+    });
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
         let result = 0;
@@ -975,9 +1000,9 @@ LOGGING:
     function planClicked() {
         if ($plan.planNextReference === '') {
             if ($currentPlanState === 'completed') {
-                goto(getRoute(`/plans`));
+                gotoRoute(`/plans`);
             } else {
-                goto(getRoute(`/plans/${$plan.planId}`));
+                gotoRoute(`/plans/${$plan.planId}`);
             }
         } else {
             gotoPlanReference();
@@ -1313,11 +1338,11 @@ LOGGING:
             }
         }
     }
-    let bookRoot = document.createElement('div');
+    let bookRoot = $state(document.createElement('div'));
     if (scriptureLogs?.root) {
         console.log('START: %o', bookRoot);
     }
-    let loading = true;
+    let loading = $state(true);
 
     const output = {};
     const query = async (
@@ -1427,6 +1452,9 @@ LOGGING:
                                 addPlanDiv(workspace, '-1');
                             }
                             addFooter(document, workspace.root, docSet);
+                            if (references) {
+                                observeVisibility();
+                            }
                         }
                     }
                 ],
@@ -2467,28 +2495,34 @@ LOGGING:
         );
         return illustrations;
     }
-    $: fontSize = bodyFontSize + 'px';
+    const fontSize = $derived(bodyFontSize + 'px');
 
-    $: lineHeight = bodyLineHeight + '%';
+    const lineHeight = $derived(bodyLineHeight + '%');
 
-    $: currentChapter = references.chapter;
+    const currentChapter = $derived(references.chapter);
 
-    $: currentBook = references.book;
+    const currentBook = $derived(references.book);
 
-    $: currentDocSet = references.docSet;
+    const currentDocSet = $derived(references.docSet);
 
-    $: currentIsBibleBook = isBibleBook(references);
+    const currentIsBibleBook = $derived(isBibleBook(references));
 
-    $: numeralSystem = numerals.systemForBook(config, references.collection, currentBook);
+    const numeralSystem = $derived(
+        numerals.systemForBook(config, references.collection, currentBook)
+    );
 
-    $: versePerLine = verseLayout === 'one-per-line';
+    const versePerLine = $derived(verseLayout === 'one-per-line');
     /**list of books in current docSet*/
-    $: books = $refs.catalog.documents;
-    $: direction = config.bookCollections.find((x) => x.id === references.collection).style
-        .textDirection;
-    $: verseRangeSeparator = config.bookCollections.find((x) => x.id === references.collection)
-        .features['ref-verse-range-separator'];
-    $: (() => {
+    const books = $derived($refs.catalog.documents);
+    const direction = $derived(
+        config.bookCollections.find((x) => x.id === references.collection).style.textDirection
+    );
+    const verseRangeSeparator = $derived(
+        config.bookCollections.find((x) => x.id === references.collection).features[
+            'ref-verse-range-separator'
+        ]
+    );
+    $effect(() => {
         performance.mark('query-start');
         const bookHasIntroduction = books.find((x) => x.bookCode === currentBook)?.hasIntroduction;
         let chapterToDisplay = currentChapter;
@@ -2520,7 +2554,7 @@ LOGGING:
         );
         performance.mark('query-end');
         performance.measure('query-duration', 'query-start', 'query-end');
-    })();
+    });
 </script>
 
 <article class="container" bind:this={container}>
