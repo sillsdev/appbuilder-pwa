@@ -131,7 +131,7 @@ The navbar component. We have sliders that update reactively to both font size a
                     <div class="text-md text-{$monoIconColor} place-self-end">
                         {contentsMode ? $contentsFontSize : $bodyFontSize}
                     </div>
-                {/if}
+                </div>
                 {#if showFonts}
                     <div class="grid gap-4 items-center range-row m-2">
                         <ImageIcon.FontChoice color={$monoIconColor} />
