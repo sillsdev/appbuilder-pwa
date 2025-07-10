@@ -60,7 +60,9 @@ The sidebar/drawer.
         menuToggle = false;
     }
     function closeOnEscape(event) {
-        event.key === 'Escape' && closeDrawer();
+        if (event.key === 'Escape') {
+            closeDrawer();
+        }
     }
 
     const menuItems = config?.menuItems;
