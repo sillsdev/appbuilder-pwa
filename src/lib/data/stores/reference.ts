@@ -13,6 +13,7 @@ interface ReferenceStore {
     numVerses: number;
     hasAudio: any;
     title: string;
+    bookTab: number;
     name: string;
     next: { book: string | null; chapter: string | null };
     prev: { book: string | null; chapter: string | null };
@@ -36,6 +37,7 @@ export const referenceStore = () => {
             numVerses: nav.chapterLength,
             hasAudio: nav.audio,
             title: nav.title,
+            bookTab: nav.bookTab,
             name: nav.name,
             next: nav.next,
             prev: nav.prev,
@@ -73,12 +75,17 @@ export const referenceStore = () => {
         await nav.gotoInitial(start);
         update();
     };
+    const setBookTab = (bookTab: number) => {
+        nav.updateBookTab(bookTab);
+        update();
+    }
 
     return {
         init,
         subscribe: external.subscribe,
         set,
         setReference,
+        setBookTab,
         skip
     };
 };

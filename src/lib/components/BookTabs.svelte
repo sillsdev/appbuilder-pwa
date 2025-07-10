@@ -14,7 +14,6 @@ TODO:
     import TextIcon from '$lib/icons/TextIcon.svelte';
     import VideoIcon from '$lib/icons/VideoIcon.svelte';
 
-    let { curTab = 0 } = $props();
     const bookTabs = $derived(
         config?.bookCollections
             .find((x) => x.id === $refs.collection)
@@ -29,32 +28,36 @@ TODO:
         V: VideoIcon
     };
     const MainIcon = $derived(icons[bookTabs.mainType]);
+
+    function changeTab(newTab) {
+        refs.setBookTab(newTab);
+    }
 </script>
 
 <div class="dy-tabs dy-tabs-border w-full">
-    {#if curTab === 0}
+    {#if $refs.bookTab === 0 || $refs.bookTab === undefined}
         <div
             class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
         >
             <MainIcon color={primaryColor}></MainIcon>
         </div>
     {:else}
-        <div class="dy-tab text-center dy-btn rounded-none">
+        <button class="dy-tab text-center dy-btn rounded-none" onclick={() => changeTab(0)}>
             <MainIcon color={primaryColor}></MainIcon>
-        </div>
+        </button>
     {/if}
     {#each bookTabs.tabs as bookTab, i}
         {@const Icon = icons[bookTab.type]}
-        {#if curTab === i + 1}
+        {#if $refs.bookTab === i + 1}
             <div
                 class="dy-tab text-center dy-btn rounded-none border-primary border-b-5 border-x-0 border-t-0"
             >
                 <Icon color={primaryColor}></Icon>
             </div>
         {:else}
-            <div class="dy-tab text-center dy-btn rounded-none">
+            <button class="dy-tab text-center dy-btn rounded-none" onclick={() => changeTab(i + 1)}>
                 <Icon color={primaryColor}></Icon>
-            </div>
+            </button>
         {/if}
     {/each}
     <!--
