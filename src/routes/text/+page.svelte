@@ -89,7 +89,6 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
-
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     async function doSwipe(event) {
         const swipeDirection = event.detail.direction;
@@ -103,9 +102,11 @@
         }
     }
 
-    $: bookTabs = config?.bookCollections
-        .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === $refs.book)?.bookTabs; //This should hopefully be reactive and find the book tabs if the current book has them.
+    const bookTabs = $derived(
+        config?.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books.find((x) => x.id === $refs.book)?.bookTabs
+    ); //This should hopefully be reactive and find the book tabs if the current book has them.
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';

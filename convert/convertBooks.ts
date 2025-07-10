@@ -426,10 +426,17 @@ export async function convertBooks(
                     }
                     if (book.bookTabs) {
                         for (const bookTab of book.bookTabs?.tabs) {
-                            convertBookTab(pk, context, book, bookTab, bcGlossary, docs, inputFiles);
+                            convertBookTab(
+                                pk,
+                                context,
+                                book,
+                                bookTab,
+                                bcGlossary,
+                                docs,
+                                inputFiles
+                            );
                         }
                     }
-                    //Go through and check the quizes and run convertScriptureBook on them.
                     break;
             }
             if (!bookConverted) {
@@ -447,11 +454,11 @@ export async function convertBooks(
         process.stdout.write('\n');
         if (verbose) console.timeEnd('convert ' + collection.id);
         //start freezing process and map promise to docSet name
+
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
-
         //check if folder exists for collection
         const collPath = path.join('static', 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
@@ -793,7 +800,6 @@ function convertScriptureBook(
     );
 }
 
-
 /*convertScriptureBook, except for book tabs instead. It requires the book as a parameter because BookTabConfig doesn't have id, name, section, or testament*/
 function convertBookTab(
     pk: SABProskomma,
@@ -807,12 +813,19 @@ function convertBookTab(
     function processBookTabContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
+        //Add the book tab id (Which is just its index in the bookTabs.tabs array) to the \id tag in content so its book code is different than the actual scripture book
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id + bookTab.bookTabID);
+        //console.log("\nContent:" + content);
+        content =
+            content.slice(0, content.indexOf('\n')) +
+            bookTab.bookTabID +
+            content.slice(content.indexOf('\n'));
+        //console.log("\nNew Content:" + content);
         if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
-            content = removeMissingVerses(content, context.bcId, book.id);
+            content = removeMissingVerses(content, context.bcId, book.id + bookTab.bookTabID);
         }
         // Cannot use GraphQL mutation asynchronously since content with triple double quotes
         // in the contents (see Scriptoria project 3949 for an example) will fail to load.
@@ -827,8 +840,6 @@ function convertBookTab(
         const contentType = bookTab.file.split('.').pop();
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            content = content.slice(0, content.indexOf("\n")) + bookTab.bookTabID + content.slice(content.indexOf("\n"));
-            //Add the book tab id (Which is just its index in the bookTabs.tabs array) to the \id tag in content so its book code is different than the actual scripture book
             const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
             if (pkDoc) {
                 if (context.verbose) {
@@ -840,7 +851,7 @@ function convertBookTab(
                         path.join(context.dataDir, 'books', context.bcId, bookTab.file)
                     );
                 }
-                displayBookId(context.bcId, book.id);
+                displayBookId(context.bcId, book.id + bookTab.bookTabID);
             }
             resolve();
         } catch (err) {
