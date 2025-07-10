@@ -10,7 +10,8 @@ import svelteConfig from './svelte.config.js';
 export default ts.config(
   js.configs.recommended,
   ...ts.configs.recommended,
-  ...svelte.configs['flat/prettier'],
+  ...svelte.configs.recommended,
+  ...svelte.configs.prettier,
   eslintConfigPrettier,
   {
     languageOptions: {
@@ -47,6 +48,8 @@ export default ts.config(
     rules: {
       // Override or add rule settings here, such as:
       // 'svelte/rule-name': 'error'
+      'svelte/no-navigation-without-base': 'error', // Necessary since hash-based navigation.
+      'svelte/no-dupe-style-properties': 'off', // Height is duplicated with dvh and vh for compatibility.
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       'no-tabs': 'error',
