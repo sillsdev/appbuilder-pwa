@@ -56,12 +56,13 @@
         //check type of link
         switch (item.linkType) {
             //reference linkType
-            case 'reference':
+            case 'reference': {
                 contentsStack.pushItem($page.data.menu.id);
                 const contentsRef = await getReference(item);
                 console.log('contentsRef', contentsRef);
                 await navigateToText(contentsRef);
                 break;
+            }
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
