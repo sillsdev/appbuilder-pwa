@@ -6,6 +6,7 @@
 
     // Redirect to home if not in development mode
     if (!dev) {
+        // eslint-disable-next-line svelte/no-navigation-without-base, svelte/no-navigation-without-resolve
         goto('/');
     }
 
