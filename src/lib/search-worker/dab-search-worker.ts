@@ -8,10 +8,9 @@ export async function searchDictionary(phrase: string, options: SearchOptions) {
     const column = options.accentsAndTones ? 'word' : 'word_no_accents';
 
     const db = await initializeDatabase({ fetch });
-    let results;
     const dynamicQuery = searchWords.map(() => `${column} LIKE ?`).join(' OR ');
     const dynamicParams = searchWords.map((word) => (options.wholeWords ? word : `%${word}%`));
-    results = db.exec(`SELECT locations FROM search_words WHERE ${dynamicQuery}`, dynamicParams);
+    const results = db.exec(`SELECT locations FROM search_words WHERE ${dynamicQuery}`, dynamicParams);
     console.log('results:', results);
 
     if (!results?.length || !results[0]?.values?.length) {
