@@ -180,7 +180,7 @@ function handleNoCaptionFigures(
         const parts = figContent.split('|');
 
         // Extract the image caption
-        let imageCaption = parts[0];
+        const imageCaption = parts[0];
 
         // Check if the image caption is missing
         if (!imageCaption) {
@@ -302,7 +302,7 @@ function moveFigureToNextNonVerseMarker(
     const eol = text.includes('\r\n') ? '\r\n' : '\n';
 
     const lines = text.split(/\r?\n/);
-    for (let line of lines) {
+    for (const line of lines) {
         // Add any figures that were carried over from the previous lines
         if (carryOverFigures.length > 0) {
             if (!line.startsWith('\\v ') && !line.startsWith('\\fig')) {

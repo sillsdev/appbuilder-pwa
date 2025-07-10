@@ -141,7 +141,7 @@ export class ConvertMedia extends Task {
                     // Copy tab images to static/icons/tabs
                     const tabsPath = path.join('src', 'gen-assets', 'icons', 'tabs');
                     mkdirSync(tabsPath, { recursive: true });
-                    for (let i in scriptureConfig.tabTypes) {
+                    for (const i in scriptureConfig.tabTypes) {
                         const tabType = scriptureConfig.tabTypes[i];
                         if (tabType.style === 'image' && tabType.images) {
                             for (const image of tabType.images) {

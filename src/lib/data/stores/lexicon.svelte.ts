@@ -3,9 +3,9 @@ import initSqlJs, { type Database } from 'sql.js';
 import { SvelteMap } from 'svelte/reactivity';
 
 // Store for vernacularLanguage
-export let vernacularLanguageId = $state({ value: '' });
+export const vernacularLanguageId = $state({ value: '' });
 
-export let displayNames: { value: Record<string, string> } = $state({ value: {} });
+export const displayNames: { value: Record<string, string> } = $state({ value: {} });
 
 export type VernacularWord = {
     id: number;
@@ -17,7 +17,7 @@ export type VernacularWord = {
     letter: string;
 };
 // Store for vernacularWordsList
-export let vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
+export const vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
 
 // Store for reversalWordsList, keyed by language
 export type VernacularWordReference = {
@@ -36,7 +36,7 @@ export type ReversalWord = {
 /**
  * code -> letter -> file -> loaded
  */
-export let reversals: SvelteMap<
+export const reversals: SvelteMap<
     string,
     SvelteMap<string, SvelteMap<string, ReversalWord[]> | undefined> | undefined
 > = new SvelteMap();
@@ -51,8 +51,8 @@ type SelectableFromVernacular = {
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
-export let selectedWord: { value: SelectedWord | null } = $state({ value: null });
-export let wordIDs: { value: number[] } = $state({ value: [] });
+export const selectedWord: { value: SelectedWord | null } = $state({ value: null });
+export const wordIDs: { value: number[] } = $state({ value: [] });
 export function selectWord(word: SelectedWord | null, resetWords = true) {
     selectedWord.value = word;
     if (resetWords) {

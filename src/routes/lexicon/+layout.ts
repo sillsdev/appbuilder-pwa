@@ -72,7 +72,7 @@ export const load: LayoutLoad = async ({ fetch }) => {
     // load all 'a', then all 'b', etc.
     toFetch.sort((a, b) => a[1].localeCompare(b[1], 'en-US'));
 
-    let db = await initializeDatabase({ fetch });
+    const db = await initializeDatabase({ fetch });
     let results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
 
     if (!results || results.length === 0) {

@@ -171,7 +171,7 @@ export function parseItemTitle(
 }
 
 export function parseItemSubtitle(tag: Element | HTMLElement | undefined): LangContainer {
-    let subtitle: LangContainer = {};
+    const subtitle: LangContainer = {};
     if (tag === undefined) return subtitle;
 
     const subtitleTags = tag.getElementsByTagName('subtitle');
@@ -247,7 +247,7 @@ export function parseItemLink(
     scriptureConfig: ScriptureConfig,
     verbose: number
 ): LinkMeta {
-    let link: LinkMeta = {};
+    const link: LinkMeta = {};
     if (tag === undefined) return link;
     if (typeof tag.getElementsByTagName !== 'function') {
         if (verbose >= 3) {
@@ -376,7 +376,7 @@ export function convertContents(
     if (itemTags?.length > 0) {
         data.items = [];
         let prevItemType: string | undefined = undefined;
-        let currentContentContainer: number | undefined = undefined;
+        const currentContentContainer: number | undefined = undefined;
         let hasNestedItems = false; // Does this specific item have nested items?
 
         for (const itemTag of itemTags) {
@@ -392,7 +392,7 @@ export function convertContents(
                 continue; // skip nesteditems in the main loop, we will get them below for the parent item
             }
 
-            let contentItemContainer = itemTag.hasAttribute('type');
+            const contentItemContainer = itemTag.hasAttribute('type');
             const itemType = parseItemType(itemTag, contentItemContainer);
 
             if (verbose >= 3) console.log(`itemTypes: prev: ${prevItemType} now: ${itemType} `);
@@ -435,11 +435,11 @@ export function convertContents(
             if (hasNestedItems) {
                 if (itemTag.children.length > 0) {
                     nestedItems = true;
-                    let itemChildren = itemTag.querySelectorAll('contents-item');
+                    const itemChildren = itemTag.querySelectorAll('contents-item');
                     for (const itemChild of itemChildren) {
                         const cId = parseItemId(itemChild);
                         const cTitle = parseItemTitle(itemChild, false, verbose);
-                        let childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
+                        const childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
                         const cItemType = itemType; // Technically this is a child of the item
                         const cSubtitle = parseItemSubtitle(itemChild);
                         if (verbose >= 3) console.log(`Child Tag: ${itemChild.tagName}`);
