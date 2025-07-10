@@ -506,7 +506,7 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
+                    <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
                 </button>
             </div>
             <div class="basis-5/6 max-w-screen-md">
@@ -540,7 +540,7 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 0 : 180} />
+                    <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
                 </button>
             </div>
         </div>
