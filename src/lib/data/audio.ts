@@ -72,18 +72,18 @@ function createAudio(audioSource: string): HTMLAudioElement {
     const audio: HTMLAudioElement = new Audio();
 
     // If you do 'new Audio(audioSource)', it won't look at additional sources
-    var source = document.createElement('source');
+    const source = document.createElement('source');
     source.src = audioSource;
     audio.appendChild(source);
 
     // webm isn't supported by MobileSafari, so add fallback for caf and mp3 (like static PWA)
     if (/\.webm$/i.test(audioSource)) {
         // Create additional source elements
-        var sourceCaf = document.createElement('source');
+        const sourceCaf = document.createElement('source');
         sourceCaf.src = audioSource.replace(/\.webm$/i, '.caf');
         sourceCaf.type = 'audio/x-caf';
 
-        var sourceMp3 = document.createElement('source');
+        const sourceMp3 = document.createElement('source');
         sourceMp3.src = audioSource.replace(/\.webm$/i, '.mp3');
         sourceMp3.type = 'audio/mpeg';
 
@@ -92,7 +92,7 @@ function createAudio(audioSource: string): HTMLAudioElement {
         audio.appendChild(sourceMp3);
     } else if (/\.3gp$/i.test(audioSource)) {
         // Create additional source elements
-        var sourceMp3 = document.createElement('source');
+        const sourceMp3 = document.createElement('source');
         sourceMp3.src = audioSource.replace(/\.3gp$/i, '.mp3');
         sourceMp3.type = 'audio/mpeg';
 
@@ -128,7 +128,9 @@ async function getAudio() {
 }
 // plays or pauses the audio
 export function playPause() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (currentAudioPlayer.playing === true) {
         pause();
     } else {
@@ -137,7 +139,9 @@ export function playPause() {
     audioPlayerStore.set(currentAudioPlayer);
 }
 export function playStop() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (currentAudioPlayer.playing === true) {
         pause();
     }
@@ -149,16 +153,22 @@ export async function skip(direction) {
 }
 // formats timing information
 export function format(seconds) {
-    if (isNaN(seconds)) return '0:00';
+    if (isNaN(seconds)) {
+        return '0:00';
+    }
 
     const minutes = Math.floor(seconds / 60);
     seconds = Math.floor(seconds % 60);
-    if (seconds < 10) seconds = '0' + seconds;
+    if (seconds < 10) {
+        seconds = '0' + seconds;
+    }
     return `${minutes}:${seconds}`;
 }
 // changes the phrase of the audio
 export async function changeVerse(direction) {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     const playing = currentAudioPlayer.playing;
     pause();
     if (direction >= 0) {
@@ -338,7 +348,9 @@ export function hasAudioPlayed() {
     return currentAudioPlayer.progress > 0;
 }
 function pause() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.pause();
         logAudioDuration(currentAudioPlayer);
@@ -348,7 +360,9 @@ function pause() {
 }
 
 export function play() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
         currentAudioPlayer.playStart = Date.now();
@@ -360,7 +374,6 @@ export function play() {
 // selects the tag to highlight
 function updateHighlights() {
     const highlights = [];
-    let tag = '';
     for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
         const timing = currentAudioPlayer.timing[i];
         if (
@@ -477,7 +490,7 @@ export function seekToVerse(verseClicked) {
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer.timing[i].tag;
         // Handle timing tags that are just the verse number
-        let containsAlpha = /[a-z]/.test(tag);
+        const containsAlpha = /[a-z]/.test(tag);
         const adjustedTag = containsAlpha ? tag : tag + 'a';
         if (verseClicked === adjustedTag) {
             const newtime = currentAudioPlayer.timing[i].starttime;

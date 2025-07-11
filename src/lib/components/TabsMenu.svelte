@@ -26,7 +26,9 @@ A component to display tabbed menus.
 
     /**sets the active tab*/
     export const setActive = (tab: string) => {
-        if (!Object.hasOwn(options, tab)) return;
+        if (!Object.hasOwn(options, tab)) {
+            return;
+        }
         active = tab;
     };
     const ActiveComponent = $derived(options[active].component);

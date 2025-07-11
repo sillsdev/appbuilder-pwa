@@ -9,7 +9,9 @@ export const renderDoc = (
     /**@type{function(data, element)}*/ graftHandler,
     /**@type{function(root)}*/ finalprocess
 ) => {
-    if (!root || !mainSeq?.blocks?.length) return;
+    if (!root || !mainSeq?.blocks?.length) {
+        return;
+    }
     root.replaceChildren(); //clear current blocks from root
 
     const grafts = [];

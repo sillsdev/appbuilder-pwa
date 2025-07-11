@@ -69,7 +69,7 @@ export function getEmbeddedVideoUrl(
     const type = getVideoType(videoUrl);
 
     switch (type) {
-        case VideoType.YouTube:
+        case VideoType.YouTube: {
             // YouTube video
             // Transform https://www.youtube.com/watch?v=abcdefghijk to https://www.youtube.com/embed/abcdefghijk
             const videoId = getYouTubeVideoId(videoUrl);
@@ -92,12 +92,13 @@ export function getEmbeddedVideoUrl(
                 }
             }
             break;
+        }
 
-        case VideoType.Vimeo:
+        case VideoType.Vimeo: {
             // Vimeo video
             // Transform https://vimeo.com/12345678 to https://player.vimeo.com/video/12345678
-            let pattern = /https:\/\/(?:www\.)?vimeo\.(\w+)\/([0-9]+)/;
-            let match = returnUrl.match(pattern);
+            const pattern = /https:\/\/(?:www\.)?vimeo\.(\w+)\/([0-9]+)/;
+            const match = returnUrl.match(pattern);
 
             if (match) {
                 // Construct the Vimeo embed URL
@@ -109,17 +110,18 @@ export function getEmbeddedVideoUrl(
                 }
             }
             break;
-
-        case VideoType.Daily:
-            pattern = /https?:\/\/dai\\.ly\/(.*)/;
-            match = returnUrl.match(pattern);
+        }
+        case VideoType.Daily: {
+            const pattern = /https?:\/\/dai\\.ly\/(.*)/;
+            const match = returnUrl.match(pattern);
 
             if (match) {
                 returnUrl = `https://www.dailymotion.com/embed/video/${match[1]}`;
             }
             break;
+        }
 
-        case VideoType.Jesus:
+        case VideoType.Jesus: {
             // Jesus Film Media
             // Get the embed code from https://www.jesusfilm.org/watch, select video and click Share > Embed Code
             // Example:
@@ -128,10 +130,12 @@ export function getEmbeddedVideoUrl(
                 returnUrl = returnUrl + '&playerStyle=default&player=bc.vanilla5';
             }
             break;
+        }
 
-        case VideoType.Hls:
+        case VideoType.Hls: {
             // Do nothing
             break;
+        }
     }
 
     return returnUrl;

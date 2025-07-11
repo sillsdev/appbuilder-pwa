@@ -188,7 +188,9 @@
     let isFetching = false;
 
     async function checkIfScrolledToBottom(event) {
-        if (isFetching) return;
+        if (isFetching) {
+            return;
+        }
 
         if (
             ($selectedLanguageStore === reversalLanguage && reversalWordsList.length > 0) ||

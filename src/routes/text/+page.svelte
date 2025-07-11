@@ -226,8 +226,12 @@
 
     /**scrolls element with id into view*/
     const scrollTo = (id) => {
-        if (scrollMod === key) return;
-        if (!id) return;
+        if (scrollMod === key) {
+            return;
+        }
+        if (!id) {
+            return;
+        }
         let el = document.querySelector(
             `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
         );
@@ -480,7 +484,7 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
+                    <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
                 </button>
             </div>
             <div class="basis-5/6 max-w-screen-md">
@@ -514,7 +518,7 @@
                         ? 'visible'
                         : 'invisible'}"
                 >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 0 : 180} />
+                    <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
                 </button>
             </div>
         </div>

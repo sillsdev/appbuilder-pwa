@@ -186,7 +186,7 @@ TODO:
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
-                        style:background-color={'white'}
+                        style:background-color="white"
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(6)}
                         role="button"

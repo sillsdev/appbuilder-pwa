@@ -168,12 +168,16 @@ export const currentFonts = writable(JSON.parse(localStorage.currentFonts));
 currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fonts)));
 
 export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
-    if (!$refs.initialized) return config.fonts[0].family;
+    if (!$refs.initialized) {
+        return config.fonts[0].family;
+    }
     return $currentFonts[$refs.collection];
 });
 
 export const fontChoices = derived(refs, ($refs) => {
-    if (!$refs.initialized) return [];
+    if (!$refs.initialized) {
+        return [];
+    }
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book)?.fonts;

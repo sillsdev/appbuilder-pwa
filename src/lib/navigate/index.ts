@@ -7,6 +7,7 @@ import { refs } from '$lib/data/stores';
 import { get } from 'svelte/store';
 
 export function gotoRoute(route: string) {
+    // eslint-disable-next-line svelte/no-navigation-without-base
     return goto(getRoute(route));
 }
 
@@ -20,6 +21,7 @@ function logHistoryItemAdded(itemAdded: HistoryItem) {
 
 export function navigateToUrl(item: { collection: string; book: string; url: string }) {
     addHistory({ ...item, chapter: '' }, logHistoryItemAdded);
+    // eslint-disable-next-line svelte/no-navigation-without-base
     goto(item.url);
 }
 

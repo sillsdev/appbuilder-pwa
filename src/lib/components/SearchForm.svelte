@@ -44,7 +44,9 @@
 
     function doSubmit(event: Event) {
         event.preventDefault();
-        if (!phrase) return;
+        if (!phrase) {
+            return;
+        }
         // Dismiss the search bar by disabling it.
         // Then re-enable the search bar to allow the user to modify the query.
         dismissSearchBar = true;

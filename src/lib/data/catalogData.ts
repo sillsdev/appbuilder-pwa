@@ -13,7 +13,7 @@ export interface CatalogData {
         toc: string;
         toc2: string;
         toc3: string;
-        sequences: {}[];
+        sequences: object[];
         hasIntroduction: boolean;
         versesByChapters: {
             [chapter: string]: {
@@ -21,8 +21,8 @@ export interface CatalogData {
             };
         };
     }[];
-    tags: {};
-    quizzes: {};
+    tags: object;
+    quizzes: object;
     htmlBooks?: {
         id: string;
         name: string;

@@ -105,7 +105,8 @@ if (programType === 'DAB') {
             expect(bc.books).not.toHaveLength(0);
             for (const bk in bc.books) {
                 const bkk = bc.books[bk];
-                expect(bkk.chapters).not.toBe(0 || undefined);
+                expect(bkk.chapters).not.toBe(0);
+                expect(bkk.chapters).toBeDefined();
                 expect(bkk.chaptersN).not.toSatisfy((r) => r === '' || r === undefined);
                 expect(bkk.id).not.toSatisfy((r) => r === '' || r === undefined);
                 expect(bkk.name).not.toSatisfy((r) => r === '' || r === undefined);

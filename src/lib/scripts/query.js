@@ -11,7 +11,9 @@ export const query = async (query, cb) => {
         }
     });
     const j = await res.json();
-    if (cb) cb(j);
+    if (cb) {
+        cb(j);
+    }
     return j;
 };
 

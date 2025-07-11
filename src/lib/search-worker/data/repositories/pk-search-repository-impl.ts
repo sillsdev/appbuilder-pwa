@@ -59,7 +59,9 @@ export class ProskommaSearchRepositoryImpl implements ProskommaSearchRepository 
     }
 
     async queryBooks(phrase: string, options: SearchOptions): Promise<GQLBookId[]> {
-        if (this.phraseIsEmtpy(phrase)) return [];
+        if (this.phraseIsEmtpy(phrase)) {
+            return [];
+        }
         const query = `{
             docSet(id: "${options.docSet}") {
                 documents(sortedBy: "paratext") {
@@ -78,7 +80,9 @@ export class ProskommaSearchRepositoryImpl implements ProskommaSearchRepository 
         bookId: string,
         options: SearchOptions
     ): Promise<GQLBlockToken[]> {
-        if (this.phraseIsEmtpy(phrase)) return [];
+        if (this.phraseIsEmtpy(phrase)) {
+            return [];
+        }
         const params = searchParams(phrase, options);
         const query = `{
             document(id: "${bookId}") {

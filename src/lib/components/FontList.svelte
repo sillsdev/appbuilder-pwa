@@ -32,7 +32,7 @@ Font list component.
                     ? $themeColors['ButtonSelectedColor']
                     : ''}
                 style:color={$monoIconColor}
-                style:font-famly={font}
+                style:font-family={font}
                 role="button"
             >
                 {config.fonts.find((x) => x.family === font).name}

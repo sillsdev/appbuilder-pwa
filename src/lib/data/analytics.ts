@@ -87,9 +87,9 @@ export function logShareApp(appName, appVersion, appType) {
 }
 
 export function logShareContent(
-    contentType: String,
-    bookCol: String,
-    bookAbbrev: String,
+    contentType: string,
+    bookCol: string,
+    bookAbbrev: string,
     reference: string
 ) {
     // include reference info (bookCol, bookAbbrev, verses selected)

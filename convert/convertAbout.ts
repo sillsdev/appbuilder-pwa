@@ -12,8 +12,12 @@ export function convertAbout(dataDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'about.partial.html');
     const dstFile = path.join('static', 'about.partial.html');
     copyFile(srcFile, dstFile, function (err: any) {
-        if (err) throw err;
-        if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
+        if (err) {
+            throw err;
+        }
+        if (verbose) {
+            console.log(`copied ${srcFile} to ${dstFile}`);
+        }
     });
 }
 export class ConvertAbout extends Task {

@@ -36,7 +36,9 @@ export class SearchQueryManagerImpl implements SearchQueryManager {
         this.queryID++;
         const queryID = this.queryID;
 
-        if (this.onNewQuery) this.onNewQuery();
+        if (this.onNewQuery) {
+            this.onNewQuery();
+        }
 
         const query = await this.createQuery(phrase, options);
         await this.runQuery(query, queryID, { batchSize, limit });
@@ -56,8 +58,12 @@ export class SearchQueryManagerImpl implements SearchQueryManager {
             }
 
             // Cancel if another query comes in before this one completes.
-            if (id != this.queryID) break;
-            if (this.onResults) this.onResults(results);
+            if (id != this.queryID) {
+                break;
+            }
+            if (this.onResults) {
+                this.onResults(results);
+            }
 
             nResults += results.length;
         }
