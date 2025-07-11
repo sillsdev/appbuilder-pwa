@@ -456,10 +456,10 @@
                 </div>
             {/snippet}
         </Navbar>
+        {#if bookTabs}
+            <BookTabs></BookTabs>
+        {/if}
     </div>
-    {#if bookTabs}
-        <BookTabs></BookTabs>
-    {/if}
 
     {#if showCollectionViewer && enoughCollections}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
