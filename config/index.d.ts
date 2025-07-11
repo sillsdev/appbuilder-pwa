@@ -19,6 +19,7 @@ export type StyleConfig = {
 };
 
 export type BookTabConfig = {
+    bookTabID: string;
     type: string;
     file: string;
     features: any;

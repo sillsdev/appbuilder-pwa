@@ -15,6 +15,7 @@ export class NavigationContext {
     verse: string;
     audio: any;
     title: string;
+    bookTab: number;
     name: string;
     catalog: CatalogData;
     allBookIds: string[];
@@ -65,6 +66,9 @@ export class NavigationContext {
         this.updateHeadings();
         this.updateNextPrev();
         this.updateReference();
+    }
+    updateBookTab(bookTab: number) {
+        this.bookTab = bookTab;
     }
 
     private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {

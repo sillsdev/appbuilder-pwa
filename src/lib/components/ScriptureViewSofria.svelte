@@ -1318,6 +1318,9 @@ LOGGING:
         }
     }
     function chapterCount(book) {
+        if (bookTabSelected && bookTabs.tabs[references.bookTab - 1].chapters === 1) {
+            return 0;
+        }
         const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
         return count;
     }
@@ -2505,6 +2508,20 @@ LOGGING:
 
     const currentDocSet = $derived(references.docSet);
 
+    const bookTabs = $derived(
+        config?.bookCollections
+            .find((x) => x.id === references.collection)
+            .books.find((x) => x.id === references.book)?.bookTabs
+    );
+
+    const bookTabSelected = $derived(bookTabs && references.bookTab > 0);
+
+    $effect(() => {
+        if (!bookTabSelected) {
+            refs.setBookTab(0);
+        }
+    });
+
     const currentIsBibleBook = $derived(isBibleBook(references));
 
     const numeralSystem = $derived(
@@ -2537,21 +2554,39 @@ LOGGING:
         const docSet = currentDocSet;
         const videos = videosForChapter(docSet, bookCode, chapter);
         const illustrations = illustrationsForChapter(docSet, bookCode, chapter);
-        query(
-            docSet,
-            bookCode,
-            chapter,
-            viewShowVerses,
-            viewShowGlossaryWords,
-            redLetters,
-            versePerLine,
-            bookmarks,
-            notes,
-            highlights,
-            videos,
-            illustrations,
-            nextPlanDay
-        );
+        if (bookTabSelected) {
+            query(
+                docSet,
+                bookCode + bookTabs.tabs[references.bookTab - 1].bookTabID,
+                chapter,
+                viewShowVerses,
+                viewShowGlossaryWords,
+                redLetters,
+                versePerLine,
+                bookmarks,
+                notes,
+                highlights,
+                videos,
+                illustrations,
+                nextPlanDay
+            );
+        } else {
+            query(
+                docSet,
+                bookCode,
+                chapter,
+                viewShowVerses,
+                viewShowGlossaryWords,
+                redLetters,
+                versePerLine,
+                bookmarks,
+                notes,
+                highlights,
+                videos,
+                illustrations,
+                nextPlanDay
+            );
+        }
         performance.mark('query-end');
         performance.measure('query-duration', 'query-start', 'query-end');
     });
