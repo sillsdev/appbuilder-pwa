@@ -221,7 +221,9 @@
     /**scrolls element with id into view*/
     const scrollTo = (id) => {
         let verseId = id === 'start-none' ? '1-a' : id;
-        if (!verseId) return;
+        if (!verseId) {
+            return;
+        }
         let el = findVerseElement(verseId);
         makeElementVisible(el);
     };
@@ -289,13 +291,17 @@
         let el = document.querySelector(
             `div[data-verse="${verseNumStr}"][data-phrase="${phrase}"]`
         );
-        if (el) return el;
+        if (el) {
+            return el;
+        }
         // Fall back: look for ranges
         const candidates = document.querySelectorAll(`div[data-phrase="${phrase}"]`);
 
         for (const candidate of candidates) {
             const verseAttr = candidate.getAttribute('data-verse');
-            if (!verseAttr) continue;
+            if (!verseAttr) {
+                continue;
+            }
 
             if (/^\d+-\d+$/.test(verseAttr)) {
                 const [start, end] = verseAttr.split('-').map(Number);

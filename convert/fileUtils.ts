@@ -36,7 +36,9 @@ export function createHashedFile(dataDir: string, src: string, verbose: number, 
 
     if (hashedPath && !existsSync(dest)) {
         copyFileSync(fullPath, dest);
-        if (verbose) console.log(`converted ${src} to ${dest}`);
+        if (verbose) {
+            console.log(`converted ${src} to ${dest}`);
+        }
     } else if (verbose) {
         console.log(`skipping ${dest}`);
     }
@@ -55,7 +57,9 @@ export function createHashedFileFromContents(
 
     if (!existsSync(dest)) {
         writeFileSync(dest, contents);
-        if (verbose) console.log(`converted ${src} to ${dest}`);
+        if (verbose) {
+            console.log(`converted ${src} to ${dest}`);
+        }
     } else if (verbose) {
         console.log(`skipping ${dest}`);
     }

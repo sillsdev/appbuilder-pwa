@@ -88,7 +88,9 @@ function setup(
     testSetup.scriptureConfig = {} as ScriptureConfig;
 
     if (testSetup.contentsFileExists) {
-        if (verbose >= 3) console.log(`Read Contents file: ${testSetup.contentsFilePath}`);
+        if (verbose >= 3) {
+            console.log(`Read Contents file: ${testSetup.contentsFilePath}`);
+        }
         testSetup.dom = new jsdom.JSDOM(readFileSync(testSetup.contentsFilePath).toString(), {
             contentType: 'text/xml'
         });

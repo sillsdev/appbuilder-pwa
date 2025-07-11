@@ -22,11 +22,17 @@ function cpSyncOptional(source: string, destination: string, opts?: CopySyncOpti
 function cloneDirectory(from: string, to: string, verbose: number, optional = false) {
     if (optional) {
         if (cpSyncOptional(from, to, { recursive: true })) {
-            if (verbose) console.log(`copied ${from} to ${to}`);
-        } else if (verbose) console.log(`no files found in ${from}`);
+            if (verbose) {
+                console.log(`copied ${from} to ${to}`);
+            }
+        } else if (verbose) {
+            console.log(`no files found in ${from}`);
+        }
     } else {
         cpSync(from, to, { recursive: true });
-        if (verbose) console.log(`copied ${from} to ${to}`);
+        if (verbose) {
+            console.log(`copied ${from} to ${to}`);
+        }
     }
 }
 
@@ -40,11 +46,14 @@ function cloneToAssets(from: string[], verbose: number) {
                 recursive: true
             })
         ) {
-            if (verbose)
+            if (verbose) {
                 console.log(
                     `copied ${path.join('data', f)} to ${path.join('static', 'assets', f)}`
                 );
-        } else if (verbose) console.log(`${path.join('data', f)} does not exist`);
+            }
+        } else if (verbose) {
+            console.log(`${path.join('data', f)} does not exist`);
+        }
     });
 }
 
@@ -110,7 +119,9 @@ export class ConvertMedia extends Task {
         await Promise.all(
             modifiedDirectories.map((p) =>
                 rimraf(path.join('src/gen-assets', p)).then(() => {
-                    if (verbose) console.log(`removed ${path.join('src/gen-assets', p)}`);
+                    if (verbose) {
+                        console.log(`removed ${path.join('src/gen-assets', p)}`);
+                    }
                     return p;
                 })
             )

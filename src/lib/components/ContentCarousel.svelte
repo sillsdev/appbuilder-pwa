@@ -36,9 +36,15 @@
     }
 
     function hasIdUnderMouseItem(item: Element | HTMLElement | undefined) {
-        if (item === undefined) return false;
-        if (!item.hasAttribute('id')) return false;
-        if (item.id === null) return false;
+        if (item === undefined) {
+            return false;
+        }
+        if (!item.hasAttribute('id')) {
+            return false;
+        }
+        if (item.id === null) {
+            return false;
+        }
         return item.id !== '';
     }
 
@@ -88,7 +94,9 @@
         });
 
         carouselScroll.addEventListener('mousemove', (e: MouseEvent) => {
-            if (!isDown) return;
+            if (!isDown) {
+                return;
+            }
 
             isScrolling = true;
             e.preventDefault();

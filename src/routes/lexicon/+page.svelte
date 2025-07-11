@@ -78,7 +78,9 @@
     let isFetching = false;
 
     async function checkIfScrolledToBottom(div: HTMLDivElement) {
-        if (isFetching) return;
+        if (isFetching) {
+            return;
+        }
 
         if (
             (validReversal && currentReversal.words.length > 0) ||

@@ -16,15 +16,23 @@ export function convertSQLite(dataDir: string, verbose: number) {
     const dstFileWasm = path.join(dstDirWasm, 'sql-wasm.wasm');
     createOutputDir(dstDirWasm);
     copyFile(srcFileWasm, dstFileWasm, function (err: any) {
-        if (err) throw err;
-        if (verbose) console.log(`Copied ${srcFileWasm} to ${dstFileWasm}`);
+        if (err) {
+            throw err;
+        }
+        if (verbose) {
+            console.log(`Copied ${srcFileWasm} to ${dstFileWasm}`);
+        }
     });
 
     const srcFileData = path.join(dataDir, 'data.sqlite');
     const dstFileData = path.join('src/gen-assets', 'data.sqlite');
     copyFile(srcFileData, dstFileData, function (err: any) {
-        if (err) throw err;
-        if (verbose) console.log(`Copied ${srcFileData} to ${dstFileData}`);
+        if (err) {
+            throw err;
+        }
+        if (verbose) {
+            console.log(`Copied ${srcFileData} to ${dstFileData}`);
+        }
     });
 }
 

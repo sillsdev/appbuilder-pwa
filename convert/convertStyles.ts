@@ -24,7 +24,9 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
     readdirSync(srcDir).forEach((file) => {
         const srcFile = path.join(srcDir, file);
         const dstFile = path.join(dstDir, file);
-        if (verbose) console.log('Converting: ', srcFile);
+        if (verbose) {
+            console.log('Converting: ', srcFile);
+        }
 
         let swapped = false;
 
@@ -89,10 +91,11 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                                     path.join(dataDir, 'cloud', fontName),
                                     path.join(targetDir, fontName)
                                 );
-                                if (verbose)
+                                if (verbose) {
                                     console.log(
                                         `found ${fontName} at ${path.join(dataDir, 'cloud', fontName)}`
                                     );
+                                }
                             } else {
                                 console.warn(
                                     `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
@@ -119,7 +122,9 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
 function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
     const tempStyles: string[] = [];
     if (compareVersions(configData.data.programVersion!, '12.0') < 0) {
-        if (verbose) console.log('Add contents styles');
+        if (verbose) {
+            console.log('Add contents styles');
+        }
         tempStyles.push('div.contents-item-locked { position:relative; }');
         tempStyles.push(
             "div.contents-item-locked::after { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 50px solid transparent; border-top: 50px solid yellow; background-size: cover; border-width: 70px; }"
@@ -133,7 +138,9 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
         );
     }
     if (compareVersions(configData.data.programVersion!, '12.6') < 0) {
-        if (verbose) console.log('Add plan styles');
+        if (verbose) {
+            console.log('Add plan styles');
+        }
         tempStyles.push(
             '.plan-days-scroller { overflow-x: scroll; white-space: nowrap; margin-top: 6px; margin-bottom: 6px; }'
         );
