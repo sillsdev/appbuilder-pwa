@@ -189,12 +189,15 @@ export function convertContents(
                 // standard SFM tags.
 
                 scriptureConfig.bookCollections?.some((collection) => {
-                    if (verbose) console.log(`Searching for ${linkTarget} in ${collection.id}`);
+                    if (verbose) {
+                        console.log(`Searching for ${linkTarget} in ${collection.id}`);
+                    }
                     const book = collection.books.find((x) => x.id === linkTarget);
                     if (book && book.type) {
                         // We found a book and the book.type is not default (i.e. undefined)
-                        if (verbose)
+                        if (verbose) {
                             console.log(`Found ${linkTarget} in ${collection.id} as ${book.type}`);
+                        }
                         linkType = book.type;
                         linkLocation = `${linkType}/${collection.id}/${linkTarget}`;
                         return true;

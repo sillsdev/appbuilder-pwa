@@ -226,8 +226,12 @@
 
     /**scrolls element with id into view*/
     const scrollTo = (id) => {
-        if (scrollMod === key) return;
-        if (!id) return;
+        if (scrollMod === key) {
+            return;
+        }
+        if (!id) {
+            return;
+        }
         let el = document.querySelector(
             `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
         );

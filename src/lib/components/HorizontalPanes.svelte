@@ -22,7 +22,9 @@ heavily modified because it did not support more than 2 panes and touch was not 
      * @type {any | null}
      */ let curr = null;
     const onPointerdown = (/** @type PointerEvent */ e, /** @type number*/ i) => {
-        if (e.cancelable) e.preventDefault();
+        if (e.cancelable) {
+            e.preventDefault();
+        }
         curr = {
             e,
             i: i,
@@ -32,8 +34,12 @@ heavily modified because it did not support more than 2 panes and touch was not 
         };
     };
     const onPointermove = (/** @type PointerEvent */ e) => {
-        if (e.cancelable) e.preventDefault();
-        if (curr === null) return;
+        if (e.cancelable) {
+            e.preventDefault();
+        }
+        if (curr === null) {
+            return;
+        }
         /**i is tedious to replace with curr.i*/ const i = curr.i;
         //calculate distance in px to move edge and slider
         var deltaX = Math.min(
@@ -52,12 +58,17 @@ heavily modified because it did not support more than 2 panes and touch was not 
         widths[i + 1] = (sum * (100 - sliders[i])) / 100;
 
         //adjust neighboring sliders if they exist
-        if (i > 0) sliders[i - 1] = (100 * widths[i - 1]) / (widths[i - 1] + widths[i]);
-        if (i < sliders.length)
+        if (i > 0) {
+            sliders[i - 1] = (100 * widths[i - 1]) / (widths[i - 1] + widths[i]);
+        }
+        if (i < sliders.length) {
             sliders[i + 1] = (100 * widths[i + 1]) / (widths[i + 1] + widths[i + 2]);
+        }
     };
     const onPointerup = (/** @type PointerEvent */ e) => {
-        if (e && e.cancelable) e.preventDefault();
+        if (e && e.cancelable) {
+            e.preventDefault();
+        }
         curr = null;
     };
 </script>

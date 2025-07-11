@@ -29,8 +29,11 @@ function decodeFromXml(input: string): string {
 }
 
 export function parseConfigValue(value: any) {
-    if (!value.includes(':') && !isNaN(parseInt(value))) value = parseInt(value);
-    else if (['true', 'false'].includes(value)) value = value === 'true' ? true : false;
+    if (!value.includes(':') && !isNaN(parseInt(value))) {
+        value = parseInt(value);
+    } else if (['true', 'false'].includes(value)) {
+        value = value === 'true' ? true : false;
+    }
     // else {} // " " split array, string, enum or time
     return value;
 }
@@ -51,7 +54,9 @@ export function parseAdditionalNames(namesTag: Element, verbose: number) {
 export function parseStyles(stylesTag: Element, verbose: number) {
     const styles = [];
     const styleTags = stylesTag?.getElementsByTagName('style');
-    if (!styleTags) throw new Error('Styles tag not found in xml');
+    if (!styleTags) {
+        throw new Error('Styles tag not found in xml');
+    }
     for (const tag of styleTags) {
         //console.log(tag.outerHTML);
         const name = tag.attributes.getNamedItem('name')!.value;
@@ -64,10 +69,11 @@ export function parseStyles(stylesTag: Element, verbose: number) {
             if (propName && propValue) {
                 // Check for sp values (Android-specific) and convert to rem values:
                 properties[propName] = changeAndroidToRem(propValue);
-                if (verbose)
+                if (verbose) {
                     console.log(
                         'Parsing ' + propName + ' = ' + propValue + ' -> ' + properties[propName]
                     );
+                }
             }
         }
         styles.push({
@@ -219,11 +225,15 @@ function convertConfig(dataDir: string, verbose: number) {
 
     // Name
     data.name = document.getElementsByTagName('app-name')[0].innerHTML;
-    if (verbose) console.log(`Converting ${data.name}...`);
+    if (verbose) {
+        console.log(`Converting ${data.name}...`);
+    }
 
     // Package
     data.package = document.getElementsByTagName('package')[0].innerHTML;
-    if (verbose) console.log(`Converting ${data.package}...`);
+    if (verbose) {
+        console.log(`Converting ${data.package}...`);
+    }
 
     // Version
     data.version = document
@@ -373,7 +383,9 @@ export function parseFeatures(document: Document, verbose: number) {
     const mainFeatureTags = document
         .querySelector('features[type=main]')
         ?.getElementsByTagName('e');
-    if (!mainFeatureTags) throw new Error('Features tag not found in xml');
+    if (!mainFeatureTags) {
+        throw new Error('Features tag not found in xml');
+    }
     const mainFeatures: { [key: string]: any } = {};
 
     for (const tag of mainFeatureTags) {
@@ -385,10 +397,14 @@ export function parseFeatures(document: Document, verbose: number) {
                 console.error(
                     'The main features section did not have the expected attributes `name` and `value`'
                 );
-            } else throw e;
+            } else {
+                throw e;
+            }
         }
     }
-    if (verbose) console.log(`Converted ${Object.keys(mainFeatures).length} features`);
+    if (verbose) {
+        console.log(`Converted ${Object.keys(mainFeatures).length} features`);
+    }
 
     return mainFeatures;
 }
@@ -411,7 +427,9 @@ export function parseFonts(document: Document, verbose: number) {
         fonts.push({ family, name, file, fontStyle, fontWeight });
     }
 
-    if (verbose) console.log(`Converted ${fonts.length} fonts`);
+    if (verbose) {
+        console.log(`Converted ${fonts.length} fonts`);
+    }
 
     return fonts;
 }
@@ -426,7 +444,9 @@ export function parseColorThemes(document: Document, verbose: number) {
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
-        if (verbose >= 2) console.log(`. theme ${theme}`);
+        if (verbose >= 2) {
+            console.log(`. theme ${theme}`);
+        }
 
         themes.push({
             name: theme,
@@ -438,13 +458,21 @@ export function parseColorThemes(document: Document, verbose: number) {
                     const cm = color.querySelector(`cm[theme="${theme}"]`);
                     const name = color.getAttribute('name');
                     const value = cm?.getAttribute('value');
-                    if (name && value) colors[name] = value;
-                    if (verbose >= 3) console.log(`.. colors[${name}]=${value} `);
+                    if (name && value) {
+                        colors[name] = value;
+                    }
+                    if (verbose >= 3) {
+                        console.log(`.. colors[${name}]=${value} `);
+                    }
                 }
-                if (verbose >= 3) console.log(`.. done with colorTags`);
+                if (verbose >= 3) {
+                    console.log(`.. done with colorTags`);
+                }
 
                 Object.keys(colors).forEach((x) => {
-                    if (verbose >= 3) console.log(`.. ${x}: colors[${x}]=${colors[x]}`);
+                    if (verbose >= 3) {
+                        console.log(`.. ${x}: colors[${x}]=${colors[x]}`);
+                    }
                     while (!colors[x].startsWith('#')) {
                         const key = colors[x];
                         const value = colors[key];
@@ -457,10 +485,14 @@ export function parseColorThemes(document: Document, verbose: number) {
                         colors[x] = value;
                     }
                 });
-                if (verbose >= 3) console.log(`.. done with resolving colors`);
+                if (verbose >= 3) {
+                    console.log(`.. done with resolving colors`);
+                }
 
                 const type = cst.getAttribute('type')!;
-                if (verbose >= 2) console.log(`.. ${type}: ${JSON.stringify(colors)}`);
+                if (verbose >= 2) {
+                    console.log(`.. ${type}: ${JSON.stringify(colors)}`);
+                }
                 return {
                     type,
                     colors
@@ -468,11 +500,14 @@ export function parseColorThemes(document: Document, verbose: number) {
             })
         });
 
-        if (tag.attributes.getNamedItem('default')?.value === 'true')
+        if (tag.attributes.getNamedItem('default')?.value === 'true') {
             defaultTheme = themes[themes.length - 1].name;
+        }
     }
 
-    if (verbose) console.log(`Converted ${themes.length} themes`);
+    if (verbose) {
+        console.log(`Converted ${themes.length} themes`);
+    }
 
     return { themes, defaultTheme };
 }
@@ -492,7 +527,9 @@ export function parseTraits(document: Document, dataDir: string, verbose: number
     traits['has-borders'] = !dirEmpty(path.join(dataDir, 'borders'));
     traits['has-illustrations'] = !dirEmpty(path.join(dataDir, 'illustrations'));
 
-    if (verbose) console.log(`Converted ${Object.keys(traits).length} traits`);
+    if (verbose) {
+        console.log(`Converted ${Object.keys(traits).length} traits`);
+    }
 
     return traits;
 }
@@ -502,11 +539,17 @@ export function parseBookCollections(document: Document, verbose: number) {
     const bookCollections = [];
 
     for (const tag of booksTags) {
-        if (verbose >= 2) console.log(`Converting Collection: ${tag.id}`);
+        if (verbose >= 2) {
+            console.log(`Converting Collection: ${tag.id}`);
+        }
         const featuresTags = tag.querySelector('features[type=bc]')?.getElementsByTagName('e');
-        if (!featuresTags) throw 'Book collection feature tags missing';
+        if (!featuresTags) {
+            throw 'Book collection feature tags missing';
+        }
         const features: any = {};
-        if (verbose >= 2) console.log(`. features`);
+        if (verbose >= 2) {
+            console.log(`. features`);
+        }
         for (const feature of featuresTags) {
             features[feature.attributes.getNamedItem('name')!.value] = parseConfigValue(
                 feature.attributes.getNamedItem('value')!.value
@@ -515,11 +558,15 @@ export function parseBookCollections(document: Document, verbose: number) {
         const books: BookCollectionConfig['books'] = [];
         const bookTags = tag.getElementsByTagName('book');
         for (const book of bookTags) {
-            if (verbose >= 2) console.log(`. book: ${book.id}`);
+            if (verbose >= 2) {
+                console.log(`. book: ${book.id}`);
+            }
             const audio: BookCollectionAudioConfig[] = [];
             let chaptersLabels: { [key: string]: string } | undefined;
             for (const page of book.getElementsByTagName('page')) {
-                if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
+                if (verbose >= 2) {
+                    console.log(`.. page: ${page.attributes[0].value}`);
+                }
                 const char = page.attributes.getNamedItem('char')?.value;
                 if (char) {
                     if (!chaptersLabels) {
@@ -530,12 +577,16 @@ export function parseBookCollections(document: Document, verbose: number) {
                     chaptersLabels[chapterNum] = char;
                 }
                 const audioTag = page.getElementsByTagName('audio')[0];
-                if (!audioTag) continue;
+                if (!audioTag) {
+                    continue;
+                }
                 const fTag = audioTag.getElementsByTagName('f')[0];
                 if (verbose >= 2) {
                     console.log(`... audioTag: ${audioTag.outerHTML}, fTag:${fTag?.outerHTML}`);
                 }
-                if (!fTag) continue;
+                if (!fTag) {
+                    continue;
+                }
                 audio.push({
                     num: parseInt(page.attributes.getNamedItem('num')!.value),
                     filename: fTag.innerHTML,
@@ -548,7 +599,9 @@ export function parseBookCollections(document: Document, verbose: number) {
                     src: fTag.attributes.getNamedItem('src')!.value,
                     timingFile: audioTag.getElementsByTagName('y')[0]?.innerHTML
                 });
-                if (verbose >= 3) console.log(`.... audio: `, JSON.stringify(audio[0]));
+                if (verbose >= 3) {
+                    console.log(`.... audio: `, JSON.stringify(audio[0]));
+                }
             }
             const bookFeaturesTag = book
                 .querySelector('features[type=book]')
@@ -588,7 +641,9 @@ export function parseBookCollections(document: Document, verbose: number) {
 
             const footerTags = book.getElementsByTagName('footer');
             const footer = convertFooter(footerTags[0]?.innerHTML, document);
-            if (verbose >= 2) console.log(`.... footer: `, footer);
+            if (verbose >= 2) {
+                console.log(`.... footer: `, footer);
+            }
 
             const format = book.attributes.getNamedItem('format')?.value;
             const file = book.getElementsByTagName('f')[0]?.innerHTML;
@@ -711,17 +766,25 @@ export function parseBookCollections(document: Document, verbose: number) {
                 footer,
                 bookTabs
             });
-            if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
+            if (verbose >= 3) {
+                console.log(`.... book: `, JSON.stringify(books[0]));
+            }
         }
         const collectionNameTags = tag.getElementsByTagName('book-collection-name');
         const collectionName = collectionNameTags[0].innerHTML.length
             ? collectionNameTags[0].innerHTML
             : undefined;
-        if (verbose >= 2) console.log(`.. collectionName: `, collectionName);
+        if (verbose >= 2) {
+            console.log(`.. collectionName: `, collectionName);
+        }
         const stylesTag = tag.getElementsByTagName('styles-info')[0];
-        if (verbose >= 3) console.log(`.... styles: `, JSON.stringify(stylesTag));
+        if (verbose >= 3) {
+            console.log(`.... styles: `, JSON.stringify(stylesTag));
+        }
         const fontChoiceTag = tag.getElementsByTagName('font-choice')[0];
-        if (verbose >= 3) console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
+        if (verbose >= 3) {
+            console.log(`.... fontChoice: `, JSON.stringify(fontChoiceTag));
+        }
         const fonts = fontChoiceTag
             ? Array.from(fontChoiceTag.getElementsByTagName('font-choice-family'))
                   .filter((x) => fontFamilies.includes(x.innerHTML))
@@ -729,7 +792,9 @@ export function parseBookCollections(document: Document, verbose: number) {
             : [];
 
         const writingSystem = tag.getElementsByTagName('writing-system')[0];
-        if (verbose >= 3) console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
+        if (verbose >= 3) {
+            console.log(`.... writingSystem: `, JSON.stringify(writingSystem));
+        }
         if (!writingSystem) {
             throw `BookCollection "${collectionName}" missing writing-system`;
         }
@@ -744,14 +809,20 @@ export function parseBookCollections(document: Document, verbose: number) {
         const collectionDescription = collectionDescriptionTags[0]?.innerHTML.length
             ? collectionDescriptionTags[0].innerHTML
             : undefined;
-        if (verbose >= 2) console.log(`.. collectionDescription: `, collectionDescription);
+        if (verbose >= 2) {
+            console.log(`.. collectionDescription: `, collectionDescription);
+        }
         const collectionAbbreviationTags = tag.getElementsByTagName('book-collection-abbrev');
         const collectionAbbreviation = collectionAbbreviationTags[0]?.innerHTML.length
             ? collectionAbbreviationTags[0].innerHTML
             : undefined;
-        if (verbose >= 2) console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
+        if (verbose >= 2) {
+            console.log(`.. collectionAbbreviation: `, collectionAbbreviation);
+        }
         const footer = convertCollectionFooter(tag, document);
-        if (verbose >= 2) console.log(`.. footer: `, footer);
+        if (verbose >= 2) {
+            console.log(`.. footer: `, footer);
+        }
 
         const collectionImageTags = tag.getElementsByTagName('image');
         const collectionImage = collectionImageTags[0]?.innerHTML.length
@@ -776,19 +847,21 @@ export function parseBookCollections(document: Document, verbose: number) {
             style: parseStylesInfo(stylesTag, verbose),
             styles
         });
-        if (verbose >= 3)
+        if (verbose >= 3) {
             console.log(
                 `.... collection: `,
                 JSON.stringify(bookCollections[bookCollections.length - 1])
             );
+        }
     }
 
-    if (verbose)
+    if (verbose) {
         console.log(
             `Converted ${bookCollections.length} book collections with [${bookCollections
                 .map((x) => x.books.length)
                 .join(', ')}] books`
         );
+    }
 
     return bookCollections;
 }
@@ -814,10 +887,11 @@ export function parseInterfaceLanguages(document: Document, data: AppConfig, ver
             console.log(`.. writing system ${code}`);
         }
     }
-    if (verbose)
+    if (verbose) {
         console.log(
             `Converted ${Object.keys(interfaceLanguages.writingSystems).length} writing systems`
         );
+    }
     return interfaceLanguages;
 }
 
@@ -906,20 +980,25 @@ export function parseMenuLocalizations(document: Document, verbose: number) {
         const translationMappingsTags = translationMappingsTag.getElementsByTagName('tm');
 
         for (const tag of translationMappingsTags) {
-            if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
+            if (verbose >= 2) {
+                console.log(`.. translationMapping: ${tag.id}`);
+            }
             const localizations: Record<string, string> = {};
             for (const localization of tag.getElementsByTagName('t')) {
                 localizations[localization.attributes.getNamedItem('lang')!.value] = decodeFromXml(
                     localization.innerHTML
                 );
             }
-            if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
+            if (verbose >= 3) {
+                console.log(`....`, JSON.stringify(localizations));
+            }
             translationMappings.mappings[tag.id] = localizations;
         }
-        if (verbose)
+        if (verbose) {
             console.log(
                 `Converted ${Object.keys(translationMappings.mappings).length} translation mappings`
             );
+        }
     }
     return translationMappings;
 }
@@ -929,7 +1008,9 @@ export function parseKeys(document: Document, verbose: number) {
         const keys = Array.from(
             document.getElementsByTagName('keys')[0].getElementsByTagName('key')
         ).map((key) => key.innerHTML);
-        if (verbose) console.log(`Converted ${keys.length} keys`);
+        if (verbose) {
+            console.log(`Converted ${keys.length} keys`);
+        }
 
         return keys;
     }
@@ -981,7 +1062,9 @@ export function parseAnalytics(document: Document, verbose: number) {
         }
     }
 
-    if (verbose) console.log(`Converted ${analyticsElements.length} analytics elements`);
+    if (verbose) {
+        console.log(`Converted ${analyticsElements.length} analytics elements`);
+    }
     return analytics;
 }
 
@@ -1008,7 +1091,9 @@ export function parseFirebase(document: Document, verbose: number) {
         }
     }
 
-    if (verbose) console.log(`Converted ${firebaseElements.length} firebase elements`);
+    if (verbose) {
+        console.log(`Converted ${firebaseElements.length} firebase elements`);
+    }
     return firebase;
 }
 
@@ -1032,7 +1117,9 @@ export function parseAudioSources(document: Document, verbose: number) {
     if (audioSources?.length > 0) {
         for (const source of audioSources) {
             const id = source.getAttribute('id')!;
-            if (verbose >= 2) console.log(`Converting audioSource: ${id}`);
+            if (verbose >= 2) {
+                console.log(`Converting audioSource: ${id}`);
+            }
             const type = source.getAttribute('type')!;
             const name = source.getElementsByTagName('name')[0].innerHTML;
 
@@ -1056,7 +1143,9 @@ export function parseAudioSources(document: Document, verbose: number) {
                     sources[id].damId = source.getElementsByTagName('dam-id')[0].innerHTML;
                 }
             }
-            if (verbose >= 3) console.log(`....`, JSON.stringify(sources[id]));
+            if (verbose >= 3) {
+                console.log(`....`, JSON.stringify(sources[id]));
+            }
         }
 
         // Audio files
@@ -1066,7 +1155,9 @@ export function parseAudioSources(document: Document, verbose: number) {
         if (audioTags?.length > 0) {
             for (const tag of audioTags) {
                 const fileEntry = tag.getElementsByTagName('filename')[0];
-                if (!fileEntry) continue;
+                if (!fileEntry) {
+                    continue;
+                }
 
                 const filename = fileEntry.innerHTML;
                 const src = fileEntry.getAttribute('src') ?? '';
@@ -1074,7 +1165,9 @@ export function parseAudioSources(document: Document, verbose: number) {
             }
         }
     }
-    if (verbose) console.log(`Converted ${audioSources?.length} audio sources`);
+    if (verbose) {
+        console.log(`Converted ${audioSources?.length} audio sources`);
+    }
 
     return { sources, files };
 }
@@ -1117,7 +1210,9 @@ export function parseVideos(document: Document, verbose: number) {
             });
         }
     }
-    if (verbose) console.log(`Converted ${videoTags?.length} videos`);
+    if (verbose) {
+        console.log(`Converted ${videoTags?.length} videos`);
+    }
 
     return videos;
 }
@@ -1155,7 +1250,9 @@ export function parseIllustrations(document: Document, verbose: number) {
             }
         }
     }
-    if (verbose) console.log(`Converted ${imagesTags?.length} illustrations`);
+    if (verbose) {
+        console.log(`Converted ${imagesTags?.length} illustrations`);
+    }
     return illustrations;
 }
 
@@ -1168,7 +1265,9 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
     if (layoutTags?.length > 0) {
         for (const layout of layoutTags) {
             const mode = layout.getAttribute('mode')!;
-            if (verbose >= 2) console.log(`Converting layout`, mode);
+            if (verbose >= 2) {
+                console.log(`Converting layout`, mode);
+            }
 
             const enabled = layout.getAttribute('enabled') === 'true';
 
@@ -1196,7 +1295,9 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
             });
         }
     }
-    if (verbose) console.log(`Converted ${layoutTags?.length} layouts`);
+    if (verbose) {
+        console.log(`Converted ${layoutTags?.length} layouts`);
+    }
 
     return { layouts, defaultLayout };
 }
@@ -1214,7 +1315,9 @@ export function parseBackgroundImages(document: Document, verbose: number) {
             backgroundImages.push({ width, height, filename });
         }
     }
-    if (verbose) console.log(`Converted ${backgroundImageTags?.length} background images`);
+    if (verbose) {
+        console.log(`Converted ${backgroundImageTags?.length} background images`);
+    }
 
     return backgroundImages;
 }
@@ -1232,7 +1335,9 @@ export function parseWatermarkImages(document: Document, verbose: number) {
             watermarkImages.push({ width, height, filename });
         }
     }
-    if (verbose) console.log(`Converted ${watermarkImageTags?.length} watermark images`);
+    if (verbose) {
+        console.log(`Converted ${watermarkImageTags?.length} watermark images`);
+    }
 
     return watermarkImages;
 }
@@ -1244,8 +1349,12 @@ export function parseMenuItems(document: Document, type: string, verbose: number
     if (menuItemTags && menuItemTags?.length > 0) {
         for (const menuItem of menuItemTags) {
             const type = menuItem.attributes.getNamedItem('type')!.value;
-            if (verbose >= 2) console.log(`.. Converting menuItem: ${type}`);
-            if (verbose >= 3) console.log('.... menuItem:', menuItem.outerHTML);
+            if (verbose >= 2) {
+                console.log(`.. Converting menuItem: ${type}`);
+            }
+            if (verbose >= 3) {
+                console.log('.... menuItem:', menuItem.outerHTML);
+            }
 
             const titleTags = menuItem.getElementsByTagName('title')[0].getElementsByTagName('t');
             const title: { [lang: string]: string } = {};
@@ -1293,7 +1402,9 @@ export function parseMenuItems(document: Document, type: string, verbose: number
                 images
             });
 
-            if (verbose >= 3) console.log(`....`, JSON.stringify(menuItems));
+            if (verbose >= 3) {
+                console.log(`....`, JSON.stringify(menuItems));
+            }
         }
     }
 
@@ -1319,8 +1430,9 @@ export function parsePlans(document: Document, verbose: number) {
             for (const feature of featuresTag.getElementsByTagName('e')) {
                 const name = feature.attributes.getNamedItem('name')!.value;
                 const value = feature.attributes.getNamedItem('value')!.value;
-                if (verbose >= 2)
+                if (verbose >= 2) {
                     console.log(`.. Converting feature: name=${name}, value=${value}`);
+                }
                 features[name] = value;
             }
         }
@@ -1363,7 +1475,9 @@ export function parsePlans(document: Document, verbose: number) {
         }
     }
 
-    if (verbose) console.log(`Converted ${plansTags.length} plans`);
+    if (verbose) {
+        console.log(`Converted ${plansTags.length} plans`);
+    }
 
     return { features, plans };
 }

@@ -75,9 +75,15 @@
 
     function playSound(path, callback, type = 'answer') {
         let audio = new Audio();
-        if (type === 'question') currentQuestionAudio = audio;
-        if (type === 'answer') currentAnswerAudio = audio;
-        if (type === 'explanation') currentExplanationAudio = audio;
+        if (type === 'question') {
+            currentQuestionAudio = audio;
+        }
+        if (type === 'answer') {
+            currentAnswerAudio = audio;
+        }
+        if (type === 'explanation') {
+            currentExplanationAudio = audio;
+        }
 
         audio.src = path;
         audio.onended = function () {

@@ -58,7 +58,8 @@ export default ts.config(
             'no-undef': 'off', // Covered by TS, and eslint false flags some globals
             'no-inner-declarations': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
-            'no-self-assign': 'off'
+            'no-self-assign': 'off',
+            curly: 'error'
         }
     },
     {

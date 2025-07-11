@@ -28,7 +28,9 @@ export function convertManifest(dataDir: string, verbose: number) {
             })
             .join('\n');
         writeFileSync(dstFile, updatedFileContents);
-        if (verbose) console.log(`converted ${srcFile} to ${dstFile}`);
+        if (verbose) {
+            console.log(`converted ${srcFile} to ${dstFile}`);
+        }
     } else {
         // If no manifest exists, we need to at least have a minimum manifest to build.
         const manifest = {

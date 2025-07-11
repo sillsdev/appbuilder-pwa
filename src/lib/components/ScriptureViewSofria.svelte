@@ -1361,7 +1361,9 @@ LOGGING:
         nextPlanDay: number
     ) => {
         // Is it possible that this could be called and proskomma is not set yet?
-        if (!proskomma) return;
+        if (!proskomma) {
+            return;
+        }
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         const cl = new SofriaRenderFromProskomma({
             proskomma,

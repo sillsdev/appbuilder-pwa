@@ -40,7 +40,9 @@ TODO:
     }
 
     function seekAudio(event) {
-        if (!$audioPlayer.loaded) return;
+        if (!$audioPlayer.loaded) {
+            return;
+        }
         const progressBar = document.getElementById('progress-bar');
         const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
         // Set the current time of the audio element to the corresponding time based on the percent

@@ -33,8 +33,12 @@ export async function convertBadges(
         if (existsSync(srcFile)) {
             foundLanguages.push(language);
             copyFile(srcFile, dstFile, function (err: any) {
-                if (err) throw err;
-                if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);
+                if (err) {
+                    throw err;
+                }
+                if (verbose) {
+                    console.log(`copied ${srcFile} to ${dstFile}`);
+                }
             });
         }
     }

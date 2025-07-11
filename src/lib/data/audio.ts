@@ -128,7 +128,9 @@ async function getAudio() {
 }
 // plays or pauses the audio
 export function playPause() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (currentAudioPlayer.playing === true) {
         pause();
     } else {
@@ -137,7 +139,9 @@ export function playPause() {
     audioPlayerStore.set(currentAudioPlayer);
 }
 export function playStop() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (currentAudioPlayer.playing === true) {
         pause();
     }
@@ -149,16 +153,22 @@ export async function skip(direction) {
 }
 // formats timing information
 export function format(seconds) {
-    if (isNaN(seconds)) return '0:00';
+    if (isNaN(seconds)) {
+        return '0:00';
+    }
 
     const minutes = Math.floor(seconds / 60);
     seconds = Math.floor(seconds % 60);
-    if (seconds < 10) seconds = '0' + seconds;
+    if (seconds < 10) {
+        seconds = '0' + seconds;
+    }
     return `${minutes}:${seconds}`;
 }
 // changes the phrase of the audio
 export async function changeVerse(direction) {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     const playing = currentAudioPlayer.playing;
     pause();
     if (direction >= 0) {
@@ -338,7 +348,9 @@ export function hasAudioPlayed() {
     return currentAudioPlayer.progress > 0;
 }
 function pause() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.pause();
         logAudioDuration(currentAudioPlayer);
@@ -348,7 +360,9 @@ function pause() {
 }
 
 export function play() {
-    if (!currentAudioPlayer.loaded) return;
+    if (!currentAudioPlayer.loaded) {
+        return;
+    }
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
         currentAudioPlayer.playStart = Date.now();
