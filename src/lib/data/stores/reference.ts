@@ -78,7 +78,7 @@ export const referenceStore = () => {
     const setBookTab = (bookTab: number) => {
         nav.updateBookTab(bookTab);
         update();
-    }
+    };
 
     return {
         init,

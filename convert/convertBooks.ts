@@ -740,10 +740,10 @@ function convertScriptureBook(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                        ' <- ' +
-                        book.name +
-                        ': ' +
-                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                            ' <- ' +
+                            book.name +
+                            ': ' +
+                            path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 }
                 displayBookId(context.bcId, book.id);
@@ -814,7 +814,12 @@ function convertBookTab(
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
         //Add the book tab id (Which is just its index in the bookTabs.tabs array) to the \id tag in content so its book code is different than the actual scripture book
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id + bookTab.bookTabID);
+        content = applyFilters(
+            content,
+            usfmFilterFunctions,
+            context.bcId,
+            book.id + bookTab.bookTabID
+        );
         //console.log("\nContent:" + content);
         content =
             content.slice(0, content.indexOf('\n')) +
@@ -845,10 +850,10 @@ function convertBookTab(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                        ' <- ' +
-                        book.name +
-                        ': ' +
-                        path.join(context.dataDir, 'books', context.bcId, bookTab.file)
+                            ' <- ' +
+                            book.name +
+                            ': ' +
+                            path.join(context.dataDir, 'books', context.bcId, bookTab.file)
                     );
                 }
                 displayBookId(context.bcId, book.id + bookTab.bookTabID);
