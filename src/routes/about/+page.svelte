@@ -22,6 +22,9 @@
     </div>
     <div class="overflow-y-auto mx-auto max-w-screen-md">
         <div id="container" class="about">
+            <!-- `data` is fetched from a static asset file.
+                 Using HTML is acceptable in this case. -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html data.partial}
         </div>
     </div>
