@@ -11,6 +11,7 @@ import { convertMarkdownsToMilestones } from './convertMarkdown';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
+import { convertStorybookElements } from './storybook';
 
 const base = process.env.BUILD_BASE_PATH || '';
 
@@ -291,11 +292,18 @@ function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
-    bookId: string
+    bookId: string, bookType?: string
 ): string {
     let filteredText = text;
+    if (bookType === 'story') {
+        console.log("Before filters:");
+        console.log(text);
+    }
     for (const filterFn of filterFunctions) {
         filteredText = filterFn(filteredText, bcId, bookId);
+    }
+    if (bookType === 'story') {
+        filteredText = convertStorybookElements(filteredText);
     }
     return filteredText;
 }
@@ -394,7 +402,6 @@ export async function convertBooks(
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
-                case 'story':
                 case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
@@ -702,7 +709,7 @@ function convertScriptureBook(
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id, book.type);
         if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
@@ -727,10 +734,10 @@ function convertScriptureBook(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 }
                 displayBookId(context.bcId, book.id);
@@ -780,8 +787,22 @@ function convertScriptureBook(
                     const filePath = path.join(context.dataDir, 'books', context.bcId, file);
                     fileContents.push(fs.readFileSync(filePath, 'utf-8'));
                 });
+                // Collect the file contents into a single document
+                let usfm: string;
 
-                processBookContent(resolve, null, fileContents.join(''));
+                if (book.type == 'story') {
+                    // The first file contains meta-content (id, title, etc)
+                    usfm = fileContents[0];
+
+                    // Subsequent files represent storybook pages.
+                    // SAB deletes the \page tags. Replace them with chapter tags.
+                    for (let i = 1; i < fileContents.length; i++) {
+                        usfm += `\\c ${i} ${fileContents[i]}`;
+                    }
+                } else {
+                    usfm = fileContents.join('');
+                }
+                processBookContent(resolve, null, usfm);
             }
         })
     );
