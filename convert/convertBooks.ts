@@ -504,7 +504,7 @@ export async function convertBooks(
                         convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
                     }
                     if (book.bookTabs) {
-                        for (const bookTab of book.bookTabs?.tabs) {
+                        for (const bookTab of book.bookTabs.tabs) {
                             convertScriptureBook(
                                 pk,
                                 context,

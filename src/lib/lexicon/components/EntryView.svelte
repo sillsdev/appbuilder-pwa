@@ -70,6 +70,7 @@
         );
 
         // Collect audio elements to add at the end
+        // eslint-disable-next-line svelte/prefer-svelte-reactivity
         const audioElements = new Map<string, string>();
 
         const parseError = xmlDoc.querySelector('parsererror');
@@ -290,4 +291,7 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html xmlData}
+</pre>

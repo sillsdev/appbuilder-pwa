@@ -26,6 +26,7 @@
     import { gotoRoute, navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
+    import { SvelteMap } from 'svelte/reactivity';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -154,7 +155,7 @@
             verse
         };
     }
-    let referenceTexts = new Map();
+    let referenceTexts = new SvelteMap();
     async function loadReferenceText(item) {
         if (!referenceTexts.has(item)) {
             referenceTexts.set(item, await getReferenceText(item));

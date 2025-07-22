@@ -108,9 +108,11 @@ export async function getVerseText(item, item2 = undefined) {
 }
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
+
 /*
  *  glossary is returning a Promise
  */
+/* eslint-disable-next-line svelte/no-store-async */
 export const glossary = derived(docSet, async ($docSet) => {
     const proskomma = get(pk);
     await loadDocSetIfNotLoaded(proskomma, $docSet, fetch);

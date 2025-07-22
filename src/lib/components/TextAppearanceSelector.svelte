@@ -71,9 +71,9 @@ The navbar component. We have sliders that update reactively to both font size a
         'rem; inset-inline-end:1rem;';
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
-    $: _showFontSize = showFontSize();
+    const _showFontSize = showFontSize();
     $: _showFonts = showFonts($fontChoices, contentsMode);
-    $: _showThemes = showThemes();
+    const _showThemes = showThemes();
     $: _showLineHeight = showLineHeight(contentsMode);
 
     $: _showTextAppearance = showTextAppearance($fontChoices, contentsMode);
