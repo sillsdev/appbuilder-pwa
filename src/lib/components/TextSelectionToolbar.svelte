@@ -48,6 +48,7 @@ TODO:
     $: isShareEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-share-text'
     ];
+    /* eslint-disable-next-line @typescript-eslint/no-unused-expressions */
     $: $selectedVerses, updateSelectedVerseInBookmarks($selectedVerses);
     $: buttonBorder = '1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888');
 
