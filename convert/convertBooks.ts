@@ -149,7 +149,7 @@ function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): s
         const parts = figContent.split('|');
 
         // Extract the image caption
-        let imageCaption = parts[0];
+        const imageCaption = parts[0];
 
         // Check if the image caption is missing
         if (!imageCaption) {
@@ -236,7 +236,7 @@ function moveFigureToNextNonVerseMarker(text: string): string {
     let carryOverFigures: string[] = [];
 
     const lines = text.split('\n');
-    for (let line of lines) {
+    for (const line of lines) {
         // Add any figures that were carried over from the previous lines
         if (carryOverFigures.length > 0) {
             if (!line.startsWith('\\v ') && !line.startsWith('\\fig')) {
@@ -373,10 +373,11 @@ export async function convertBooks(
             );
         }
         usedLangs.add(context.lang);
-        if (verbose)
+        if (verbose) {
             console.log(
                 'converting collection: ' + collection.id + ' to docSet: ' + context.docSet
             );
+        }
         /**array of promises of Proskomma mutations*/
         const inputFiles = await fs.promises.readdir(
             path.join(context.dataDir, 'books', context.bcId)
@@ -432,14 +433,18 @@ export async function convertBooks(
                 continue;
             }
         }
-        if (verbose) console.time('convert ' + collection.id);
+        if (verbose) {
+            console.time('convert ' + collection.id);
+        }
         //wait for documents to finish being added to Proskomma
         await Promise.all(docs);
         if (ignoredBooks.length > 0) {
             process.stdout.write(` -- Not Supported: ${ignoredBooks.join(' ')}`);
         }
         process.stdout.write('\n');
-        if (verbose) console.timeEnd('convert ' + collection.id);
+        if (verbose) {
+            console.timeEnd('convert ' + collection.id);
+        }
         //start freezing process and map promise to docSet name
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
@@ -449,14 +454,18 @@ export async function convertBooks(
         //check if folder exists for collection
         const collPath = path.join('static', 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
-            if (verbose) console.log('creating: ' + collPath);
+            if (verbose) {
+                console.log('creating: ' + collPath);
+            }
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
             const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
-                if (verbose) console.log('creating: ' + qPath);
+                if (verbose) {
+                    console.log('creating: ' + qPath);
+                }
                 fs.mkdirSync(qPath, { recursive: true });
             }
         }
@@ -465,7 +474,9 @@ export async function convertBooks(
     const entries = await Promise.all(catalogEntries);
     const catalogPath = path.join('static', 'collections', 'catalog');
     if (!fs.existsSync(catalogPath)) {
-        if (verbose) console.log('creating: ' + catalogPath);
+        if (verbose) {
+            console.log('creating: ' + catalogPath);
+        }
         fs.mkdirSync(catalogPath, { recursive: true });
     }
     entries.forEach((entry) => {
@@ -474,7 +485,9 @@ export async function convertBooks(
             JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks))
         );
     });
-    if (verbose) console.time('freeze');
+    if (verbose) {
+        console.time('freeze');
+    }
     //write frozen archives for import
     //const vals = await Promise.all(freezer.values());
     //write frozen archives
@@ -501,7 +514,9 @@ export async function convertBooks(
             return s;
         })()}]`
     );
-    if (verbose) console.timeEnd('freeze');
+    if (verbose) {
+        console.timeEnd('freeze');
+    }
     return {
         files,
         taskName: 'ConvertBooks'
@@ -701,7 +716,9 @@ function convertScriptureBook(
 ) {
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
-        if (err) throw err;
+        if (err) {
+            throw err;
+        }
         content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
         if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
@@ -763,7 +780,9 @@ function convertScriptureBook(
                     const filenameWithoutExt = basename(file, ext).normalize('NFC');
 
                     // Check if the filename starts with baseFilename
-                    if (!filenameWithoutExt.startsWith(baseFilename)) return false;
+                    if (!filenameWithoutExt.startsWith(baseFilename)) {
+                        return false;
+                    }
 
                     // Get the part after baseFilename
                     const suffix = filenameWithoutExt.slice(baseFilename.length);
@@ -836,17 +855,25 @@ export class ConvertBooks extends Task {
  * recursively deep-compares two objects based on properties passed in include.
  */
 function deepCompareObjects(obj1: any, obj2: any, include: Set<string> = new Set()): boolean {
-    if (typeof obj1 !== typeof obj2) return false;
+    if (typeof obj1 !== typeof obj2) {
+        return false;
+    }
     if (typeof obj1 === 'object') {
         if (Array.isArray(obj1)) {
-            if (obj1.length !== obj2.length) return false;
+            if (obj1.length !== obj2.length) {
+                return false;
+            }
             for (let i = 0; i < obj1.length; i++) {
-                if (!deepCompareObjects(obj1[i], obj2[i])) return false;
+                if (!deepCompareObjects(obj1[i], obj2[i])) {
+                    return false;
+                }
             }
         } else {
             for (const k in obj1) {
                 if (include.has(k)) {
-                    if (!deepCompareObjects(obj1[k], obj2[k])) return false;
+                    if (!deepCompareObjects(obj1[k], obj2[k])) {
+                        return false;
+                    }
                 }
             }
         }

@@ -108,9 +108,11 @@ export async function getVerseText(item, item2 = undefined) {
 }
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
+
 /*
  *  glossary is returning a Promise
  */
+/* eslint-disable-next-line svelte/no-store-async */
 export const glossary = derived(docSet, async ($docSet) => {
     const proskomma = get(pk);
     await loadDocSetIfNotLoaded(proskomma, $docSet, fetch);
@@ -168,12 +170,16 @@ export const currentFonts = writable(JSON.parse(localStorage.currentFonts));
 currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fonts)));
 
 export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
-    if (!$refs.initialized) return config.fonts[0].family;
+    if (!$refs.initialized) {
+        return config.fonts[0].family;
+    }
     return $currentFonts[$refs.collection];
 });
 
 export const fontChoices = derived(refs, ($refs) => {
-    if (!$refs.initialized) return [];
+    if (!$refs.initialized) {
+        return [];
+    }
     const bookFonts = config.bookCollections
         .find((x) => x.id === $refs.collection)
         .books.find((x) => x.id === $refs.book)?.fonts;

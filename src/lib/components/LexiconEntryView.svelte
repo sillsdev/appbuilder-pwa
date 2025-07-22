@@ -34,7 +34,9 @@
     }
 
     function formatXmlByClass(xmlString) {
-        if (!xmlString) return '';
+        if (!xmlString) {
+            return '';
+        }
 
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
@@ -195,7 +197,9 @@
                     .replace(/margin-left:\s*4em;?/g, '')
                     .trim();
 
-                if (cleaned && !cleaned.endsWith(';')) cleaned += ';';
+                if (cleaned && !cleaned.endsWith(';')) {
+                    cleaned += ';';
+                }
                 cleaned += ' margin-left: -1.1em;';
 
                 style = cleaned;
@@ -222,4 +226,8 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor); color: var(--TextColor);">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor); color: var(--TextColor);">
+
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html xmlData}
+</pre>

@@ -18,7 +18,7 @@ export function findLanguage(desired: string, available: string[]): string {
     let bestSimilarity = 0;
     let bestMatch: string = null;
     available.forEach((lang) => {
-        let similarity = compareLanguages(lang, desired);
+        const similarity = compareLanguages(lang, desired);
         if (similarity > bestSimilarity) {
             bestSimilarity = similarity;
             bestMatch = lang;
@@ -37,7 +37,7 @@ export function findBestLanguage(
 ): string {
     let best = fallback;
     for (let i = 0; i < preferred.length; i++) {
-        let match = findLanguage(preferred[i], available);
+        const match = findLanguage(preferred[i], available);
         if (match !== null) {
             best = match;
             break;
@@ -66,8 +66,8 @@ export function getDefaultLanguage(): string {
  *      fr      (Completely different)
  */
 function compareLanguages(lang1: string, lang2: string): number {
-    let parts1 = lang1.split('-');
-    let parts2 = lang2.split('-');
+    const parts1 = lang1.split('-');
+    const parts2 = lang2.split('-');
     const n = Math.min(parts1.length, parts2.length);
     for (let i = 0; i < n; i++) {
         if (parts1[i] !== parts2[i]) {

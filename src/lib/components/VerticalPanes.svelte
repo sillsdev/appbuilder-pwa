@@ -18,7 +18,9 @@ moderately modified because touch was not working.
      * @type {any | null}
      */ let move = null;
     const onPointerdown = (/** @type {PointerEvent} */ e) => {
-        if (e.cancelable) e.preventDefault();
+        if (e.cancelable) {
+            e.preventDefault();
+        }
         move = {
             e,
             offsetTop: separator.offsetHeight,
@@ -27,8 +29,12 @@ moderately modified because touch was not working.
         };
     };
     const onPointermove = (/** @type {PointerEvent} */ e) => {
-        if (e.cancelable) e.preventDefault();
-        if (move === null) return;
+        if (e.cancelable) {
+            e.preventDefault();
+        }
+        if (move === null) {
+            return;
+        }
         //calculate distance in px to move separator
         var deltaY = Math.min(
             Math.max(e.clientY - move.e.clientY, -move.firstHeight),
@@ -40,7 +46,9 @@ moderately modified because touch was not working.
         downHeight = 100 - topHeight;
     };
     const onPointerup = (/** @type {PointerEvent} */ e) => {
-        if (e && e.cancelable) e.preventDefault();
+        if (e && e.cancelable) {
+            e.preventDefault();
+        }
         move = null;
     };
 </script>

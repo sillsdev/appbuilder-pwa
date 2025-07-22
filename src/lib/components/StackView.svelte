@@ -116,6 +116,7 @@
                 style:font-size={fontSize}
                 style:line-height={lineHeight}
             >
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html item}
             </div>
         </div>

@@ -67,7 +67,7 @@ export async function addHighlights(
 
     //isHighlight = false;
 
-    for (var i = 0; i < verseCount; i++) {
+    for (let i = 0; i < verseCount; i++) {
         const selectedVerse = selectedVerses[i];
         const index = await findHighlight({ ...selectedVerse });
 
@@ -122,7 +122,7 @@ export async function removeHighlight(date: number) {
 
 export async function removeHighlights(selectedVerses) {
     const verseCount = selectedVerses.length;
-    for (var i = 0; i < verseCount; i++) {
+    for (let i = 0; i < verseCount; i++) {
         const selectedVerse = selectedVerses[i];
         let index = await findHighlight({ ...selectedVerse });
         // Could be highlighted with multiple colors, remove all

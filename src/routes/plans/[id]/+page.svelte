@@ -169,7 +169,9 @@
     }
 
     function handleMouseMove(event) {
-        if (!isDragging) return;
+        if (!isDragging) {
+            return;
+        }
         event.preventDefault();
         const x = event.pageX - scroller.offsetLeft;
         const walk = (x - startX) * 2; // Adjust scroll speed

@@ -48,6 +48,7 @@ TODO:
     $: isShareEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
         'bc-allow-share-text'
     ];
+    /* eslint-disable-next-line @typescript-eslint/no-unused-expressions */
     $: $selectedVerses, updateSelectedVerseInBookmarks($selectedVerses);
     $: buttonBorder = '1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888');
 
@@ -186,7 +187,7 @@ TODO:
                     <!-- svelte-ignore a11y-interactive-supports-focus -->
                     <div
                         class="dy-btn-sm"
-                        style:background-color={'white'}
+                        style:background-color="white"
                         style:border={buttonBorder}
                         on:click={() => modifyHighlight(6)}
                         role="button"

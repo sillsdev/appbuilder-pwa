@@ -58,7 +58,9 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
     });
 
     async getVerses(limit: number = 0): Promise<SearchCandidate[]> {
-        if (this.searchIsBlank) return [];
+        if (this.searchIsBlank) {
+            return [];
+        }
         await this.ensureBooksSet();
         return await this.verseReader.read(limit);
     }
@@ -117,7 +119,9 @@ export class ProskommaVerseProvider implements QueryVerseProvider {
     private collectVerseTexts(tokens: GQLBlockToken[]): { [verse: string]: string } {
         return tokens.reduce((verses, token) => {
             const ref = chapterVerseFromScopes(token.scopes);
-            if (!verses[ref]) verses[ref] = '';
+            if (!verses[ref]) {
+                verses[ref] = '';
+            }
             verses[ref] += token.payload;
             return verses;
         }, {});

@@ -123,10 +123,11 @@ describe('on new query request', () => {
 
         if (isNewQueryResponse(response1) && isNewQueryResponse(response2)) {
             expect(response1.queryId === response2.queryId).toBe(false);
-        } else
+        } else {
             throw new Error(
                 `expected new query responses, but got types '${response1.type}' and ${response2.type}`
             );
+        }
     });
 });
 

@@ -45,7 +45,7 @@ export async function addHistory(
     },
     callback?: (addedItem: HistoryItem) => void
 ) {
-    let history = await openHistory();
+    const history = await openHistory();
     if (nextTimer) {
         clearTimeout(nextTimer);
         nextTimer = null;
@@ -64,7 +64,7 @@ export async function addHistory(
 }
 
 export async function clearHistory() {
-    let history = await openHistory();
+    const history = await openHistory();
     await history.clear('history');
 }
 

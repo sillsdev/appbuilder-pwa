@@ -42,5 +42,6 @@ Display an HTML Book.
 </script>
 
 <div class="prose" style="line-height: {lineHeight}; font-size: {fontSize};">
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html htmlBody}
 </div>

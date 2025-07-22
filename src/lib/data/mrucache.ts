@@ -37,7 +37,7 @@ export class MRUCache<TKey, TValue> {
 
     print(): void {
         console.log('Cache Contents:');
-        for (let [key, value] of this.cache) {
+        for (const [key, value] of this.cache) {
             console.log(`${key}:`, value);
         }
     }

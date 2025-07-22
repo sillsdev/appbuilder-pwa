@@ -68,10 +68,11 @@
     }
     function handleClick(buttonType, link) {
         switch (buttonType) {
-            case 'contents':
+            case 'contents': {
                 let gotoLink = link && link !== '' ? link : '1';
                 gotoRoute(`/contents/${gotoLink}`);
                 break;
+            }
             case 'about':
                 gotoRoute(`/about`);
                 break;
