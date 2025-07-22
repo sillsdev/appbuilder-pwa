@@ -81,11 +81,11 @@ TODO:
     }
 
     const highlight_colors = [
-        { color: $themeColors['HighlighterPenPink'], number: 5 },
-        { color: $themeColors['HighlighterPenOrange'], number: 4 },
-        { color: $themeColors['HighlighterPenBlue'], number: 3 },
-        { color: $themeColors['HighlighterPenGreen'], number: 2 },
         { color: $themeColors['HighlighterPenYellow'], number: 1 },
+        { color: $themeColors['HighlighterPenGreen'], number: 2 },
+        { color: $themeColors['HighlighterPenBlue'], number: 3 },
+        { color: $themeColors['HighlighterPenOrange'], number: 4 },
+        { color: $themeColors['HighlighterPenPink'], number: 5 },
         { color: 'white', number: 6 }
     ];
 
