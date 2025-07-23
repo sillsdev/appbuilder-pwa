@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import ColorCard from '$lib/components/ColorCard.svelte';
+    import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
@@ -88,6 +88,7 @@
             {#each toSorted(page.data.highlights, sortOrder) as h}
                 {@const colorCard = {
                     docSet: h.docSet,
+                    collection: h.collection,
                     book: h.book,
                     chapter: h.chapter,
                     verse: h.verse,
@@ -98,10 +99,16 @@
                         $t['Annotation_Menu_View'],
                         $t['Annotation_Menu_Share'],
                         $t['Annotation_Menu_Delete']
-                    ],
-                    penColor: h.penColor
+                    ]
                 }}
-                <ColorCard menuaction={(e) => handleMenuaction(e, h)} {...colorCard} />
+                <IconCard menuaction={(e) => handleMenuaction(e, h)} {...colorCard}>
+                    {#snippet icon()}
+                        <div
+                            class="annotation-item-color {'hlp' +
+                                h.penColor.toString()} self-center"
+                        ></div>
+                    {/snippet}
+                </IconCard>
             {/each}
         {/if}
     </div>
