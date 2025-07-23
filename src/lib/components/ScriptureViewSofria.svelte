@@ -237,9 +237,8 @@ LOGGING:
 
     const stateSelectedVerses = fromStore(selectedVerses);
     $effect(() => {
-        if ((stateSelectedVerses.current as any[]).length > 0) {
-            updateSelections(selectedVerses);
-        }
+        stateSelectedVerses.current;
+        updateSelections(selectedVerses);
     });
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
