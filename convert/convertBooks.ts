@@ -842,10 +842,10 @@ function convertBookTab(
             fs.writeFileSync(bookPath, content);
         }
         const selectors = { lang: context.lang, abbr: context.bcId };
-        const contentType = bookTab.file.split('.').pop();
+        const contentType = 'usfm'; // book tabs are always usfm
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
+            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(
