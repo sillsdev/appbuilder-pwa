@@ -19,18 +19,10 @@ TODO:
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import { audioActive, refs, s, selectedVerses, theme, themeColors } from '$lib/data/stores';
-    import {
-        AudioIcon,
-        BookmarkIcon,
-        BookmarkOutlineIcon,
-        CopyContentIcon,
-        HighlightIcon,
-        NoteIcon,
-        ShareIcon
-    } from '$lib/icons';
+    import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import { gotoRoute } from '$lib/navigate';
-    import { createEventDispatcher } from 'svelte';
+    import BookmarkButton from './BookmarkButton.svelte';
 
     const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
     const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
@@ -39,30 +31,39 @@ TODO:
     const isHighlightEnabled = config?.mainFeatures['annotation-highlights'];
     const isNotesEnabled = config?.mainFeatures['annotation-notes'];
 
-    let selectedVerseInBookmarks = -1;
-    let showHightlightPens = false;
+    let showHighlightPens = $state(false);
 
-    $: isCopyEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
-        'bc-allow-copy-text'
-    ];
-    $: isShareEnabled = config.bookCollections.find((x) => x.id === $refs.collection).features[
-        'bc-allow-share-text'
-    ];
-    $: $selectedVerses, updateSelectedVerseInBookmarks($selectedVerses);
-    $: buttonBorder = '1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888');
+    let { oncopy } = $props();
 
-    async function updateSelectedVerseInBookmarks(selectedVerses) {
-        selectedVerseInBookmarks = await findBookmark({
-            collection: selectedVerses[0].collection,
-            book: selectedVerses[0].book,
-            chapter: selectedVerses[0].chapter,
-            verse: selectedVerses[0].verse
+    const isCopyEnabled = $derived(
+        config.bookCollections.find((x) => x.id === $refs.collection).features['bc-allow-copy-text']
+    );
+    const isShareEnabled = $derived(
+        config.bookCollections.find((x) => x.id === $refs.collection).features[
+            'bc-allow-share-text'
+        ]
+    );
+
+    const buttonBorder = $derived('1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888'));
+
+    let selectedVerseBookmarks = $state(-1);
+    async function updateSelectedVerseBookmarks() {
+        selectedVerseBookmarks = await findBookmark({
+            collection: $selectedVerses[0].collection,
+            book: $selectedVerses[0].book,
+            chapter: $selectedVerses[0].chapter,
+            verse: $selectedVerses[0].verse
         });
+        return;
     }
+
+    $effect(() => {
+        updateSelectedVerseBookmarks();
+    });
 
     async function modifyBookmark() {
         // If there is already a bookmark at this verse, remove it
-        if (selectedVerseInBookmarks === -1) {
+        if (selectedVerseBookmarks === -1) {
             const text = await selectedVerses.getVerseTextByIndex(0);
             await addBookmark({
                 docSet: $selectedVerses[0].docSet,
@@ -74,13 +75,21 @@ TODO:
                 reference: $selectedVerses[0].reference
             });
         } else {
-            await removeBookmark(selectedVerseInBookmarks);
+            await removeBookmark(selectedVerseBookmarks);
         }
-
         selectedVerses.reset();
     }
 
-    async function modifyHighlight(numColor) {
+    const highlight_colors = [
+        { color: $themeColors['HighlighterPenYellow'], number: 1 },
+        { color: $themeColors['HighlighterPenGreen'], number: 2 },
+        { color: $themeColors['HighlighterPenBlue'], number: 3 },
+        { color: $themeColors['HighlighterPenOrange'], number: 4 },
+        { color: $themeColors['HighlighterPenPink'], number: 5 },
+        { color: 'white', number: 6 }
+    ];
+
+    async function modifyHighlight(numColor: number) {
         if (numColor == 6) {
             await removeHighlights($selectedVerses);
         } else {
@@ -89,6 +98,7 @@ TODO:
 
         selectedVerses.reset();
     }
+
     // resets underlined verses and plays verse audio
     function playVerseAudio() {
         const element = $selectedVerses[0].verse;
@@ -98,15 +108,17 @@ TODO:
         $audioActive = true;
         selectedVerses.reset();
     }
+
     async function copy() {
         var copyText =
             (await selectedVerses.getCompositeText()) +
             '\n' +
             selectedVerses.getCompositeReference();
         navigator.clipboard.writeText(copyText);
-        notifyTextCopied(copyText);
+        oncopy(copyText);
         selectedVerses.reset();
     }
+
     async function shareSelectedText() {
         const book = $selectedVerses[0].book;
         const reference = selectedVerses.getCompositeReference();
@@ -118,134 +130,79 @@ TODO:
         logShareContent('Text', bookCol, bookAbbrev, reference);
     }
 
-    $: barBackgroundColor = $s['ui.bar.text-select']['background-color'];
-    $: barIconColor = $s['ui.bar.text-select.icon']['color'];
-    const dispatch = createEventDispatcher();
-    function notifyTextCopied(text) {
-        dispatch('copied', {
-            text
-        });
-    }
+    const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);
+    const iconColor = $derived($s['ui.bar.text-select.icon']['color']);
 </script>
 
 <div
     class="h-12 bg-base-100 mx-auto flex items-center flex-col"
-    style:background-color={barBackgroundColor}
+    style:background-color={backgroundColor}
 >
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">
-            {#if showHightlightPens}
+            {#if showHighlightPens}
                 <div class="pen-grid grid grid-rows-1 gap-2 my-2">
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-interactive-supports-focus -->
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenYellow']}
-                        style:border={buttonBorder}
-                        on:click={() => modifyHighlight(1)}
-                        role="button"
-                    ></div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-interactive-supports-focus -->
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenGreen']}
-                        style:border={buttonBorder}
-                        on:click={() => modifyHighlight(2)}
-                        role="button"
-                    ></div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-interactive-supports-focus -->
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenBlue']}
-                        style:border={buttonBorder}
-                        on:click={() => modifyHighlight(3)}
-                        role="button"
-                    ></div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-interactive-supports-focus -->
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenOrange']}
-                        style:border={buttonBorder}
-                        on:click={() => modifyHighlight(4)}
-                        role="button"
-                    ></div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-interactive-supports-focus -->
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={$themeColors['HighlighterPenPink']}
-                        style:border={buttonBorder}
-                        on:click={() => modifyHighlight(5)}
-                        role="button"
-                    ></div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-interactive-supports-focus -->
-                    <div
-                        class="dy-btn-sm"
-                        style:background-color={'white'}
-                        style:border={buttonBorder}
-                        on:click={() => modifyHighlight(6)}
-                        role="button"
-                    ></div>
+                    {#each highlight_colors as { color, number }}
+                        <button
+                            class="dy-btn-sm"
+                            style:background-color={color}
+                            style:border={buttonBorder}
+                            onclick={() => modifyHighlight(number)}
+                            aria-label="Highlight {color}"
+                        ></button>
+                    {/each}
                 </div>
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={() => playVerseAudio()}>
-                        <AudioIcon.Play color={barIconColor} />
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playVerseAudio()}>
+                        <AudioIcon.Play color={iconColor} />
                     </button>
                 {/if}
                 {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
                     <button class="dy-btn-sm dy-btn-ghost">
-                        <AudioIcon.PlayRepeat color={barIconColor} />
+                        <AudioIcon.PlayRepeat color={iconColor} />
                     </button>
                 {/if}
                 {#if isTextOnImageEnabled}
                     <button class="dy-btn-sm dy-btn-ghost">
-                        <ImageIcon.Image color={barIconColor} />
+                        <ImageIcon.Image color={iconColor} />
                     </button>
                 {/if}
                 {#if isHighlightEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => (showHightlightPens = true)}
+                        onclick={() => (showHighlightPens = true)}
                     >
-                        <HighlightIcon color={barIconColor} />
+                        <HighlightIcon color={iconColor} />
                     </button>
                 {/if}
                 {#if isNotesEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        on:click={() => gotoRoute(`/notes/edit/new`)}
+                        onclick={() => gotoRoute(`/notes/edit/new`)}
                     >
-                        <NoteIcon color={barIconColor} />
+                        <NoteIcon color={iconColor} />
                     </button>
                 {/if}
                 {#if isBookmarkEnabled}
-                    <button
-                        class="dy-btn-sm dy-btn-ghost"
-                        on:click={async function () {
+                    <BookmarkButton
+                        onclick={async function () {
                             await modifyBookmark();
                         }}
-                    >
-                        {#if selectedVerseInBookmarks >= 0}
-                            <BookmarkIcon color="#b10000" />
-                        {:else}
-                            <BookmarkOutlineIcon color={barIconColor} />
-                        {/if}
-                    </button>
+                        fillColor="#b10000"
+                        emptyColor={iconColor}
+                        filled={selectedVerseBookmarks >= 0}
+                    />
                 {/if}
                 {#if isCopyEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={copy}>
-                        <CopyContentIcon color={barIconColor} />
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={copy}>
+                        <CopyContentIcon color={iconColor} />
                     </button>
                 {/if}
                 {#if isShareEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" on:click={shareSelectedText}>
-                        <ShareIcon color={barIconColor} />
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={shareSelectedText}>
+                        <ShareIcon color={iconColor} />
                     </button>
                 {/if}
             {/if}
