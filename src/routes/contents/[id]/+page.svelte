@@ -247,7 +247,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-screen-md">
+    <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
         <div id="container" class="contents" style={convertStyle($s['body.contents'])}>
             {#each $page.data.items as item}
                 <!-- iterate through the items, adding html -->
