@@ -8,10 +8,10 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
+import { convertStorybookElements } from './storybook';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
-import { convertStorybookElements } from './storybook';
 
 const base = process.env.BUILD_BASE_PATH || '';
 
@@ -292,11 +292,12 @@ function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
-    bookId: string, bookType?: string
+    bookId: string,
+    bookType?: string
 ): string {
     let filteredText = text;
     if (bookType === 'story') {
-        console.log("Before filters:");
+        console.log('Before filters:');
         console.log(text);
     }
     for (const filterFn of filterFunctions) {
@@ -422,6 +423,7 @@ export async function convertBooks(
                     });
                     displayBookId(context.bcId, book.id);
                     break;
+                case 'story':
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
@@ -734,10 +736,10 @@ function convertScriptureBook(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                        ' <- ' +
-                        book.name +
-                        ': ' +
-                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                            ' <- ' +
+                            book.name +
+                            ': ' +
+                            path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 }
                 displayBookId(context.bcId, book.id);
@@ -790,7 +792,7 @@ function convertScriptureBook(
                 // Collect the file contents into a single document
                 let usfm: string;
 
-                if (book.type == 'story') {
+                if (book.type === 'story') {
                     // The first file contains meta-content (id, title, etc)
                     usfm = fileContents[0];
 
