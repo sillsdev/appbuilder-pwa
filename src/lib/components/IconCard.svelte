@@ -23,7 +23,8 @@ TODO:
         src = '',
         alt = '',
         icon,
-        menuaction
+        menuaction,
+        href = `${base}/#/text`
     } = $props();
 
     const bc = config.bookCollections.find((x) => x.id === collection);
@@ -46,7 +47,7 @@ TODO:
         >
             <a
                 style="text-decoration:none;"
-                href="{base}/"
+                {href}
                 onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {reference}
@@ -60,7 +61,7 @@ TODO:
         >
             <a
                 style="text-decoration:none;"
-                href="{base}/"
+                {href}
                 onclick={() => refs.set({ docSet, book, chapter, verse })}
             >
                 {text}
