@@ -518,6 +518,7 @@ export function parseBookCollections(document: Document, verbose: number) {
             if (verbose >= 2) console.log(`. book: ${book.id}`);
             const audio: BookCollectionAudioConfig[] = [];
             let chaptersLabels: { [key: string]: string } | undefined;
+            let pageIllustrations: { num: number; filename: string }[] = [];
             for (const page of book.getElementsByTagName('page')) {
                 if (verbose >= 2) console.log(`.. page: ${page.attributes[0].value}`);
                 const char = page.attributes.getNamedItem('char')?.value;
@@ -529,6 +530,14 @@ export function parseBookCollections(document: Document, verbose: number) {
                     const chapterNum = page.attributes.getNamedItem('num')!.value;
                     chaptersLabels[chapterNum] = char;
                 }
+                const imageFileTag = page.getElementsByTagName('image-filename')[0];
+                if (imageFileTag) {
+                    pageIllustrations.push({
+                        num: Number(page.attributes.getNamedItem('num')?.value),
+                        filename: imageFileTag.innerHTML
+                    });
+                }
+
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) continue;
                 const fTag = audioTag.getElementsByTagName('f')[0];
@@ -709,7 +718,8 @@ export function parseBookCollections(document: Document, verbose: number) {
                 style,
                 styles,
                 footer,
-                bookTabs
+                bookTabs,
+                pageIllustrations
             });
             if (verbose >= 3) console.log(`.... book: `, JSON.stringify(books[0]));
         }

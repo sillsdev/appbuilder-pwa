@@ -72,6 +72,10 @@ export type BookConfig = {
         };
     }[];
     bookTabs?: BookTabsConfig;
+    pageIllustrations?: {
+        num: number;
+        filename: string;
+    }[];
 };
 
 export type BookCollectionConfig = {
