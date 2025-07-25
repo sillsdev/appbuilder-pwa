@@ -600,7 +600,13 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 if (imageFileTag) {
                     pageIllustrations.push({
                         num: Number(page.attributes.getNamedItem('num')?.value),
-                        filename: imageFileTag.innerHTML
+                        filename: book.getElementsByTagName('images')[0]
+                            ? tag.id +
+                              '-' +
+                              book.attributes.getNamedItem('id')!.value +
+                              '-' +
+                              imageFileTag.innerHTML
+                            : imageFileTag.innerHTML
                     });
                 }
 
