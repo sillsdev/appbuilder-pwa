@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit';
 import { base } from '$app/paths';
 import type { DictionaryConfig } from '$config';
 import config from '$lib/data/config';
@@ -7,7 +8,6 @@ import {
     vernacularWordsStore
 } from '$lib/data/stores/lexicon';
 import type { ReversalIndex } from '$lib/lexicon';
-import { redirect } from '@sveltejs/kit';
 
 export async function load({ fetch }) {
     if (!(config as DictionaryConfig).writingSystems) {

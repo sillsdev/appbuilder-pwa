@@ -4,11 +4,11 @@ import { redirect } from '@sveltejs/kit';
 export async function load({ url }) {
     try {
         const ref = url.searchParams.get('ref');
-        const audio = url.searchParams.get('audio')
+        const audio = url.searchParams.get('audio');
 
         if (!ref && !audio) {
             throw new Error('Missing required query parameters: "ref" or "audio".');
-        };
+        }
 
         return { ref, audio };
     } catch (err) {
