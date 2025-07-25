@@ -45,6 +45,7 @@ The navbar component.
         {#if !showBackButton}
             <label
                 for="sidebar"
+                data-testid="hamburger-icon"
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
                 class:lg:hidden={$showDesktopSidebar && $layout.mode !== LAYOUT_TWO}
             >
@@ -52,7 +53,11 @@ The navbar component.
             </label>
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <button onclick={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
+            <button
+                onclick={handleBackNavigation}
+                class="dy-btn dy-btn-ghost dy-btn-circle"
+                data-testid="back-icon"
+            >
                 {#if $direction === 'ltr'}
                     <ArrowBackIcon color="white" />
                 {:else}
@@ -62,7 +67,7 @@ The navbar component.
         {/if}
         {@render start?.()}
     </div>
-    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
+    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])} data-testid="title">
         {@render center?.()}
     </div>
     <div class="dy-navbar-end fill-base-content">

@@ -61,6 +61,7 @@
                 </div>
                 <select
                     class="dy-select dy-select-ghost dy-select-sm px-0"
+                    data-testid={setting.key + '-setting'}
                     bind:value={$userSettings[setting.key]}
                 >
                     {#each setting.entries ?? [] as entry, i}
