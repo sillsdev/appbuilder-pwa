@@ -85,8 +85,8 @@
     let collectionSelector: CollectionSelector = $state();
     let fontSelector: FontSelector = $state();
     let noteDialog: NoteDialog = $state();
-    let planStopDialog: PlanStopDialog;
-    let planStopId: string;
+    let planStopDialog: PlanStopDialog = $state();
+    let planStopId: string = $state();
     let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
 </script>
 

@@ -7,6 +7,7 @@ import {
     vernacularWordsStore
 } from '$lib/data/stores/lexicon';
 import type { ReversalIndex } from '$lib/lexicon';
+import { redirect } from '@sveltejs/kit';
 
 export async function load({ fetch }) {
     if (!(config as DictionaryConfig).writingSystems) {
@@ -42,11 +43,16 @@ export async function load({ fetch }) {
 
     for (const [key, ws] of Object.entries(dictionaryConfig.writingSystems)) {
         if (!ws.type.includes('main')) {
-            const response = await fetch(`${base}/reversal/${key}/index.json`);
-            if (response.ok) {
-                reversalIndexes[key] = (await response.json()) as ReversalIndex; // Explicitly cast the JSON response
-            } else {
-                console.warn(`Failed to load reversal index for language: ${key}`);
+            try {
+                const response = await fetch(`${base}/reversal/${key}/index.json`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load reversal index for language: ${key}`);
+                }
+                reversalIndexes[key] = (await response.json()) as ReversalIndex;
+            } catch (err) {
+                const message = err instanceof Error ? err.message : `Unknown error loading ${key}`;
+                const stack = err instanceof Error && err.stack ? err.stack : 'No stack trace';
+                window.location.hash = `/error?message=${encodeURIComponent(message)}&stack=${encodeURIComponent(stack)}`;
             }
         }
     }
