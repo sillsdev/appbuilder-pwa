@@ -480,10 +480,19 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div class="flex flex-col">
+    <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
             <!-- svelte-ignore a11y_missing_attribute -->
-            <img src={getCurrentIllustrationFile()} class="w-screen object-cover" />
+            <img
+                src={getCurrentIllustrationFile()}
+                class="w-screen object-cover"
+                use:swipe={{
+                    timeframe: 300,
+                    minSwipeDistance: 60,
+                    touchAction: 'pan-y'
+                }}
+                onswipe={doSwipe}
+            />
         {/if}
         <div
             class:borderimg={showBorder}
