@@ -296,10 +296,6 @@ function applyFilters(
     bookType?: string
 ): string {
     let filteredText = text;
-    if (bookType === 'story') {
-        console.log('Before filters:');
-        console.log(text);
-    }
     for (const filterFn of filterFunctions) {
         filteredText = filterFn(filteredText, bcId, bookId);
     }

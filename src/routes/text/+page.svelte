@@ -372,15 +372,7 @@
             .books.find((x) => x.id === $refs.book)?.pageIllustrations;
         for (let i = 0; i < illustrations.length; i++) {
             if (illustrations[i].num === Number($refs.chapter)) {
-                return (
-                    base +
-                    '/illustrations/' +
-                    $refs.collection +
-                    '-' +
-                    $refs.book +
-                    '-' +
-                    illustrations[i].filename
-                );
+                return base + '/illustrations/' + illustrations[i].filename;
             }
         }
     }

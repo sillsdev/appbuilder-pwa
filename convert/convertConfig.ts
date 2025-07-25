@@ -534,7 +534,13 @@ export function parseBookCollections(document: Document, verbose: number) {
                 if (imageFileTag) {
                     pageIllustrations.push({
                         num: Number(page.attributes.getNamedItem('num')?.value),
-                        filename: imageFileTag.innerHTML
+                        filename: book.getElementsByTagName('images')[0]
+                            ? tag.id +
+                              '-' +
+                              book.attributes.getNamedItem('id')!.value +
+                              '-' +
+                              imageFileTag.innerHTML
+                            : imageFileTag.innerHTML
                     });
                 }
 

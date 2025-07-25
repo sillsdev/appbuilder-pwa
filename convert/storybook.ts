@@ -36,13 +36,9 @@ export function transformHeadings(usfm: string): string {
 } //Also maybe keep, maybe not
 
 export function convertStorybookElements(usfm: string) {
-    console.log('Storybook start:');
-    console.log(usfm);
     usfm = replacePageTags(usfm);
     usfm = replaceImageTags(usfm);
     //usfm = transformLists(usfm);
     //usfm = transformHeadings(usfm);
-    console.log('Storybook end:');
-    console.log(usfm);
     return usfm;
 }
