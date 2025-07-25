@@ -426,14 +426,14 @@ export async function convertBooks(
                     }
                     if (book.bookTabs) {
                         for (const bookTab of book.bookTabs?.tabs) {
-                            convertBookTab(
+                            convertScriptureBook(
                                 pk,
                                 context,
                                 book,
-                                bookTab,
                                 bcGlossary,
                                 docs,
-                                inputFiles
+                                inputFiles,
+                                bookTab
                             );
                         }
                     }
@@ -710,29 +710,38 @@ function convertScriptureBook(
     book: BookConfig,
     bcGlossary: string[],
     docs: Promise<void>[],
-    files: string[]
+    files: string[],
+    bookTab?: BookTabConfig
 ) {
+    const file = bookTab ? bookTab.file : book.file;
+    const id = bookTab ? book.id + bookTab.bookTabID : book.id; //Book tab ID is derived from the book ID because book tabs don't have distinct IDs.
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, id);
+        if (bookTab) {
+            content =
+                content.slice(0, content.indexOf('\n')) +
+                bookTab.bookTabID +
+                content.slice(content.indexOf('\n')); //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. This fixes that.
+        }
         if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
-            content = removeMissingVerses(content, context.bcId, book.id);
+            content = removeMissingVerses(content, context.bcId, id);
         }
         // Cannot use GraphQL mutation asynchronously since content with triple double quotes
         // in the contents (see Scriptoria project 3949 for an example) will fail to load.
         if (context.verbose > 10) {
             const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
-            const bookPath = path.join(bookFullDir, book.file);
+            const bookPath = path.join(bookFullDir, file);
             console.log(`Writing file: ${bookPath}`);
             fs.mkdirSync(bookFullDir, { recursive: true });
             fs.writeFileSync(bookPath, content);
         }
         const selectors = { lang: context.lang, abbr: context.bcId };
-        const contentType = book.file.split('.').pop();
+        const contentType = file.split('.').pop();
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
             const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
@@ -743,22 +752,22 @@ function convertScriptureBook(
                             ' <- ' +
                             book.name +
                             ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
+                            path.join(context.dataDir, 'books', context.bcId, file)
                     );
                 }
-                displayBookId(context.bcId, book.id);
+                displayBookId(context.bcId, id);
             }
             resolve();
         } catch (err) {
             console.log(err);
-            const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, file);
             throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
         }
     }
     //push new Proskomma import to docs array
     docs.push(
         new Promise<void>((resolve) => {
-            const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, file);
             //process.stdout.write(`Checking for book: ${bookPath}\n`);
             if (fs.existsSync(bookPath)) {
                 //read the single usfm file (pre-12.0)
@@ -795,116 +804,6 @@ function convertScriptureBook(
                 });
 
                 processBookContent(resolve, null, fileContents.join(''));
-            }
-        })
-    );
-}
-
-/*convertScriptureBook, except for book tabs instead. It requires the book as a parameter because BookTabConfig doesn't have id, name, section, or testament*/
-function convertBookTab(
-    pk: SABProskomma,
-    context: ConvertBookContext,
-    book: BookConfig,
-    bookTab: BookTabConfig,
-    bcGlossary: string[],
-    docs: Promise<void>[],
-    files: string[]
-) {
-    function processBookTabContent(resolve: () => void, err: any, content: string) {
-        //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
-        if (err) throw err;
-        //Add the book tab id (Which is just its index in the bookTabs.tabs array) to the \id tag in content so its book code is different than the actual scripture book
-        content = applyFilters(
-            content,
-            usfmFilterFunctions,
-            context.bcId,
-            book.id + bookTab.bookTabID
-        );
-        //console.log("\nContent:" + content);
-        content =
-            content.slice(0, content.indexOf('\n')) +
-            bookTab.bookTabID +
-            content.slice(content.indexOf('\n'));
-        //console.log("\nNew Content:" + content);
-        if (context.scriptureConfig.traits['has-glossary']) {
-            content = verifyGlossaryEntries(content, bcGlossary);
-        }
-        if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
-            content = removeMissingVerses(content, context.bcId, book.id + bookTab.bookTabID);
-        }
-        // Cannot use GraphQL mutation asynchronously since content with triple double quotes
-        // in the contents (see Scriptoria project 3949 for an example) will fail to load.
-        if (context.verbose > 10) {
-            const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
-            const bookPath = path.join(bookFullDir, bookTab.file);
-            console.log(`Writing file: ${bookPath}`);
-            fs.mkdirSync(bookFullDir, { recursive: true });
-            fs.writeFileSync(bookPath, content);
-        }
-        const selectors = { lang: context.lang, abbr: context.bcId };
-        const contentType = 'usfm'; // book tabs are always usfm
-        const tags = [`sections:${book.section}`, `testament:${book.testament}`];
-        try {
-            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
-            if (pkDoc) {
-                if (context.verbose) {
-                    console.log(
-                        context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, bookTab.file)
-                    );
-                }
-                displayBookId(context.bcId, book.id + bookTab.bookTabID);
-            }
-            resolve();
-        } catch (err) {
-            console.log(err);
-            const bookPath = path.join(context.dataDir, 'books', context.bcId, bookTab.file);
-            throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
-        }
-    }
-    //push new Proskomma import to docs array
-    docs.push(
-        new Promise<void>((resolve) => {
-            const bookPath = path.join(context.dataDir, 'books', context.bcId, bookTab.file);
-            //process.stdout.write(`Checking for book: ${bookPath}\n`);
-            if (fs.existsSync(bookPath)) {
-                //read the single usfm file (pre-12.0)
-                fs.readFile(bookPath, 'utf8', (err, content) =>
-                    processBookTabContent(resolve, err, content)
-                );
-            } else {
-                //read multiple files that have been split up (so that portions parameter is processed)
-                const extension = extname(bookPath);
-                const baseFilename = basename(bookPath, extension).normalize('NFC');
-
-                //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
-                const matchingFiles = files.filter((file) => {
-                    const ext = extname(file);
-                    const filenameWithoutExt = basename(file, ext).normalize('NFC');
-
-                    // Check if the filename starts with baseFilename
-                    if (!filenameWithoutExt.startsWith(baseFilename)) return false;
-
-                    // Get the part after baseFilename
-                    const suffix = filenameWithoutExt.slice(baseFilename.length);
-
-                    // Check if it matches `-###` pattern
-                    return suffix.startsWith('-') && /^\d{3}$/.test(suffix.slice(1));
-                });
-
-                matchingFiles.sort();
-                //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
-
-                const fileContents: string[] = [];
-                matchingFiles.map((file) => {
-                    const filePath = path.join(context.dataDir, 'books', context.bcId, file);
-                    fileContents.push(fs.readFileSync(filePath, 'utf-8'));
-                });
-
-                processBookTabContent(resolve, null, fileContents.join(''));
             }
         })
     );
