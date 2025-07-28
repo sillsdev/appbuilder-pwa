@@ -270,6 +270,18 @@ export type ScriptureConfig = AppConfig & {
             [key: string]: string;
         };
     }[];
+    tabTypes?: {
+        id: string;
+        style: 'image' | 'text';
+        name: {
+            [lang: string]: string;
+        };
+        images?: {
+            width: number;
+            height: number;
+            file: string;
+        }[];
+    }[];
     backgroundImages?: {
         width: string;
         height: string;
