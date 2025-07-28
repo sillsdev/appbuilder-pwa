@@ -741,10 +741,10 @@ function convertScriptureBook(
             fs.writeFileSync(bookPath, content);
         }
         const selectors = { lang: context.lang, abbr: context.bcId };
-        const contentType = file.split('.').pop();
+        const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
+            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(
