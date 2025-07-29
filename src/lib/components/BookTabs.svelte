@@ -1,9 +1,6 @@
 <!--
 @component
 A component that displays the book tabs and allows the user to switch between them.
-TODO:
-- Determine which tab is selected and visually demonstrate that it is selected
-- Switch tabs
 -->
 <script>
     import { base } from '$app/paths';
