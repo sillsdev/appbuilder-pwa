@@ -60,6 +60,9 @@ function replaceVideoTags(
 ): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
+function replaceStyleTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
+}
 
 // This is the start of supporting story books, but it still fails if there is no chapter.
 function replacePageTags(
@@ -355,6 +358,7 @@ type FilterFunction = (
 const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
+    replaceStyleTags,
     replacePageTags,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
@@ -380,7 +384,7 @@ function applyFilters(
         filteredText = filterFn(filteredText, bcId, bookId, context);
     }
     if (bookType === 'story') {
-        filteredText = convertStorybookElements(filteredText);
+        console.log(filteredText);
     }
     return filteredText;
 }

@@ -2461,6 +2461,11 @@ LOGGING:
                                     workspace.audioClips.push(workspace.milestoneLink);
                                     break;
                                 }
+                                case 'usfm:zstyle': {
+                                    const style = element.atts['id'][0];
+                                    workspace.paragraphDiv.classList.add(style);
+                                    break;
+                                } //WIP
                                 case 'usfm:zreflink': {
                                     workspace.textType.push('reflink');
                                     workspace.milestoneLink = decodeURIComponent(
