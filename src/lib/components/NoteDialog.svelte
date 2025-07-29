@@ -1,18 +1,16 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
     import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
-    export let note = undefined;
+    let { note = $bindable(undefined) } = $props();
 
-    let id = 'note';
-    let modal;
-    let text: string;
+    let id = $state('note');
+    let modal: Modal = $state();
+    let text: string = $state();
 
-    $: heading = note?.reference ?? '';
+    const heading = $derived(note?.reference ?? '');
 
     export function showModal() {
         if (note !== undefined) {
