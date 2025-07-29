@@ -8,7 +8,6 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
-import { convertStorybookElements } from './storybook';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -40,6 +39,9 @@ function displayBookId(bcId: string, bookId: string) {
 
 function replaceVideoTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
+}
+function replaceStyleTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
 }
 
 // This is the start of supporting story books, but it still fails if there is no chapter.
@@ -276,6 +278,7 @@ type FilterFunction = (text: string, bcId: string, bookId: string) => string;
 const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
+    replaceStyleTags,
     replacePageTags,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
@@ -300,7 +303,7 @@ function applyFilters(
         filteredText = filterFn(filteredText, bcId, bookId);
     }
     if (bookType === 'story') {
-        filteredText = convertStorybookElements(filteredText);
+        console.log(filteredText);
     }
     return filteredText;
 }
