@@ -6,30 +6,43 @@ TODO:
 - Switch tabs
 -->
 <script>
+    import { base } from '$app/paths';
     import config from '$lib/data/config';
-    import { convertStyle, monoIconColor, refs, s } from '$lib/data/stores';
-    import MusicIcon from '$lib/icons/MusicIcon.svelte';
-    import NotesIcon from '$lib/icons/NotesIcon.svelte';
-    import QuestionsIcon from '$lib/icons/QuestionsIcon.svelte';
-    import TextIcon from '$lib/icons/TextIcon.svelte';
-    import VideoIcon from '$lib/icons/VideoIcon.svelte';
+    import {
+        convertStyle,
+        language,
+        languageDefault,
+        monoIconColor,
+        refs,
+        s,
+        theme
+    } from '$lib/data/stores';
 
     const bookTabs = $derived(
         config?.bookCollections
             .find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === $refs.book)?.bookTabs
     );
-    const icons = {
-        T: TextIcon,
-        Q: QuestionsIcon,
-        N: NotesIcon,
-        M: MusicIcon,
-        V: VideoIcon
-    };
     const MainIcon = $derived(icons[bookTabs.mainType]);
 
     function changeTab(newTab) {
         refs.setBookTab(newTab);
+    }
+    function getImageName(tabType) {
+        let types = config?.tabTypes;
+        for (let i = 0; i < types.length; i++) {
+            if (types[i].id === tabType) {
+                return types[i].images[0]?.file;
+            }
+        }
+    }
+    function getTabTypeName(tabType) {
+        let types = config?.tabTypes;
+        for (let i = 0; i < types.length; i++) {
+            if (types[i].id === tabType) {
+                return types[i].name[$language] || types[i].name[languageDefault];
+            }
+        }
     }
 </script>
 
@@ -39,16 +52,31 @@ TODO:
         onclick={() => changeTab(0)}
         style={convertStyle($s['ui.book.tabs'])}
     >
-        <MainIcon color={$monoIconColor}></MainIcon>
+        <picture class:invert={$theme === 'Dark'}>
+            <img
+                src="{base}/icons/tabs/{getImageName(bookTabs.mainType)}"
+                color={$monoIconColor}
+                height="24"
+                width="24"
+                alt={getTabTypeName(bookTabs.mainType)}
+            />
+        </picture>
     </button>
     {#each bookTabs.tabs as bookTab, i}
-        {@const Icon = icons[bookTab.type]}
         <button
             class="dy-tab {$refs.bookTab === i + 1 ? 'dy-tab-active' : ''} "
             onclick={() => changeTab(i + 1)}
             style={convertStyle($s['ui.book.tabs'])}
         >
-            <Icon color={$monoIconColor}></Icon>
+            <picture class:invert={$theme === 'Dark'}>
+                <img
+                    src="{base}/icons/tabs/{getImageName(bookTab.type)}"
+                    color={$monoIconColor}
+                    height="24"
+                    width="24"
+                    alt={getTabTypeName(bookTab.type)}
+                />
+            </picture>
         </button>
     {/each}
 </div>
