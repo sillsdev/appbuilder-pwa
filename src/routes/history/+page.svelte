@@ -6,8 +6,13 @@
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
     // Use "export let data" instead of $page so that local data can
-    // be cleared during onClearHistory.
-    export let data;
+
+    interface Props {
+        // be cleared during onClearHistory.
+        data: any;
+    }
+
+    let { data = $bindable() }: Props = $props();
     async function onClearHistory() {
         await clearHistory();
         data.history = [];
@@ -24,7 +29,7 @@
             {/snippet}
 
             {#snippet end()}
-                <button class="dy-btn dy-btn-ghost dy-btn-circle" on:click={onClearHistory}>
+                <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onClearHistory}>
                     <DeleteSweepIcon color="white" />
                 </button>
             {/snippet}

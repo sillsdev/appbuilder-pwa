@@ -43,7 +43,7 @@
         actions: [$t['Annotation_Sort_Order_Reference'], $t['Annotation_Sort_Order_Date']]
     };
 
-    let sortOrder = SORT_DATE;
+    let sortOrder = $state(SORT_DATE);
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
