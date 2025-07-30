@@ -40,12 +40,12 @@
             <div class="plan-setup-title">
                 {$t['Plans_Setup_Start_Completed_Message']}
             </div>
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
                 class="plan-button"
                 id="plan-continue"
-                on:click={async function () {
+                onclick={async function () {
                     await startPlan($page.data.planConfig.id);
                 }}
             >

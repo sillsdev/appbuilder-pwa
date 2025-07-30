@@ -34,13 +34,13 @@
     //need some way to know the status of the plan
     //for now assume it's from choose plans
 
-    let selectedTab = 'info';
-    let inUse = false;
+    let selectedTab = $state('info');
+    let inUse = $state(false);
     //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
     checkPlanState();
-    let selectedDay = $page.data.planData.items[0];
+    let selectedDay = $state($page.data.planData.items[0]);
     let planId = $page.data.planData.id;
-    let currentPlanStatus = '';
+    let currentPlanStatus = $state('');
     let currentStatusDateString = '';
     async function checkPlanState() {
         const planStateRecord = await getLastPlanStateRecord($page.data.planData.id);
@@ -209,18 +209,18 @@
                 />
             </div>
         {/if}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"
             style={convertStyle($s['ui.plans.tabs'])}
         >
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
 
             <div
                 name="my_tabs_1"
                 class="dy-tab dy-tab-bordered {selectedTab === 'info' ? 'dy-tab-active' : ''}"
-                on:click={() => (selectedTab = 'info')}
+                onclick={() => (selectedTab = 'info')}
                 aria-label="info icon"
                 style={convertStyle($s['ui.plans.tabs.text'])}
             >
@@ -228,11 +228,11 @@
                 ></InfoIcon>
             </div>
 
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
                 name="my_tabs_1"
                 class="dy-tab {selectedTab === 'calendar' ? 'dy-tab-active' : ''}"
-                on:click={() => (selectedTab = 'calendar')}
+                onclick={() => (selectedTab = 'calendar')}
                 aria-label="calendar logo"
             >
                 <CalendarMonthIcon
@@ -240,12 +240,12 @@
                     style={convertStyle($s['ui.plans.tabs.icon'])}
                 ></CalendarMonthIcon>
             </div>
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             {#if inUse === true}
                 <div
                     name="my_tabs_1"
                     class="dy-tab {selectedTab === 'settings' ? 'dy-tab-active' : ''}"
-                    on:click={() => (selectedTab = 'settings')}
+                    onclick={() => (selectedTab = 'settings')}
                     aria-label="settings icon"
                 >
                     <SettingsIcon
@@ -280,19 +280,19 @@
                     {#if inUse === true}
                         <div class="plan-button-block">
                             <div class="plan-button" id="PLAN-continue">
-                                <button on:click={() => (selectedTab = 'calendar')}>
+                                <button onclick={() => (selectedTab = 'calendar')}>
                                     {$t['Plans_Button_Continue_Reading']}
                                 </button>
                             </div>
                         </div>
                     {:else}
                         <div class="plan-button-block">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <div
                                 class="plan-button"
                                 id="PLAN-start"
-                                on:click={() =>
+                                onclick={() =>
                                     gotoRoute(`/plans/${$page.data.planData.id}/settings`)}
                             >
                                 {$t['Plans_Button_Start_Plan']}
@@ -302,21 +302,21 @@
                 </div>
             {/if}
             {#if selectedTab === 'calendar'}
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                     class="plan-days-scroller"
                     id="scroller"
-                    on:mousedown={handleMouseDown}
-                    on:mousemove={handleMouseMove}
-                    on:mouseup={handleMouseUp}
-                    on:mouseleave={handleMouseUp}
+                    onmousedown={handleMouseDown}
+                    onmousemove={handleMouseMove}
+                    onmouseup={handleMouseUp}
+                    onmouseleave={handleMouseUp}
                 >
                     <ul class="dy-menu-horizontal bg-base-200 rounded-box">
                         {#each $page.data.planData.items as item}
                             <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
                          plan-day-box plan-day-box-unselected plan-day-box-uncompleted -->
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <!-- the class plan-day-box in particular does not seem to work-->
                             <li>
                                 <div
@@ -325,7 +325,7 @@
                                         ? 'selected plan-day-box-selected'
                                         : 'plan-day-box-unselected'}"
                                     id="D-1"
-                                    on:click={() => (selectedDay = item)}
+                                    onclick={() => (selectedDay = item)}
                                 >
                                     <div class="plan-day-box-content">
                                         <div class="plan-day-box-weekday">{$t['Plans_Day']}</div>
@@ -344,7 +344,7 @@
                                 <tr
                                     class="plan-item"
                                     id={'R-' + index}
-                                    on:click={goToDailyReference(selectedDay, ref, index)}
+                                    onclick={goToDailyReference(selectedDay, ref, index)}
                                 >
                                     <td class="plan-item-checkbox plan-checkbox-image">
                                         {#if referenceCompleted(selectedDay.day, index) === true}
@@ -369,12 +369,12 @@
                     <div class="plan-config-info">
                         {$t['Plans_Config_Stop_Plan_info']}
                     </div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class="plan-button plan-config-button"
                         id="PLAN-stop"
-                        on:click={() => modal.open(MODAL_STOP_PLAN, planId)}
+                        onclick={() => modal.open(MODAL_STOP_PLAN, planId)}
                     >
                         {$t['Plans_Button_Stop_Plan']}
                     </div>
