@@ -720,10 +720,13 @@ function convertScriptureBook(
         if (err) throw err;
         content = applyFilters(content, usfmFilterFunctions, context.bcId, id);
         if (bookTab) {
+            //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
+            const firstLine = content.split('\n')[0];
+            const remainingLines = content.slice(content.indexOf('\n'));
             content =
-                content.slice(0, content.indexOf('\n')) +
-                bookTab.bookTabID +
-                content.slice(content.indexOf('\n')); //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. This fixes that.
+                firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +
+                '\n' +
+                remainingLines;
         }
         if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
