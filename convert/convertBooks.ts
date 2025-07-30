@@ -322,7 +322,7 @@ type ConvertBookContext = {
     bcId: string;
 };
 
-const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['story', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     scriptureConfig: ScriptureConfig,
@@ -395,7 +395,6 @@ export async function convertBooks(
             let bookConverted = false;
             switch (book.type) {
                 case 'story':
-                case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
                 case 'undefined':
@@ -727,10 +726,10 @@ function convertScriptureBook(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                            ' <- ' +
-                            book.name +
-                            ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
+                        ' <- ' +
+                        book.name +
+                        ': ' +
+                        path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 }
                 displayBookId(context.bcId, book.id);
