@@ -326,7 +326,7 @@ function convertConfig(dataDir: string, verbose: number) {
         data.layouts = layouts;
 
         const tabTypes = parseTabTypes(document, verbose);
-        if (tabTypes.length > 0) {
+        if (Object.keys(tabTypes).length > 0) {
             data.tabTypes = tabTypes;
         }
 
@@ -1211,17 +1211,18 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
 
 export function parseTabTypes(document: Document, verbose: number) {
     const tabTypes: {
-        id: string;
-        style: 'image' | 'text';
-        name: {
-            [lang: string]: string;
+        [key: string]: {
+            style: 'image' | 'text';
+            name: {
+                [lang: string]: string;
+            };
+            images?: {
+                width: number;
+                height: number;
+                file: string;
+            }[];
         };
-        images?: {
-            width: number;
-            height: number;
-            file: string;
-        }[];
-    }[] = [];
+    } = {};
     const tabTypesTag = document.getElementsByTagName('tab-types')[0];
     const tabTags = tabTypesTag.getElementsByTagName('tab-type');
     for (const tab of tabTags) {
@@ -1249,12 +1250,11 @@ export function parseTabTypes(document: Document, verbose: number) {
             images.push({ width, height, file });
         }
 
-        tabTypes.push({
-            id,
+        tabTypes[id] = {
             style,
             name,
             images: images.length > 0 ? images : undefined
-        });
+        };
     }
     return tabTypes;
 }

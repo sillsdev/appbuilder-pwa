@@ -140,7 +140,8 @@ export class ConvertMedia extends Task {
                     // Copy tab images to static/icons/tabs
                     const tabsPath = path.join('static', 'icons', 'tabs');
                     mkdirSync(tabsPath, { recursive: true });
-                    scriptureConfig.tabTypes.forEach((tabType) => {
+                    for (let i in scriptureConfig.tabTypes) {
+                        const tabType = scriptureConfig.tabTypes[i];
                         if (tabType.style === 'image' && tabType.images) {
                             for (const image of tabType.images) {
                                 const src = path.join('data', image.file);
@@ -153,7 +154,7 @@ export class ConvertMedia extends Task {
                                 }
                             }
                         }
-                    });
+                    }
                 }
             }
         }

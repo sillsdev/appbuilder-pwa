@@ -20,26 +20,18 @@ A component that displays the book tabs and allows the user to switch between th
             .find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === $refs.book)?.bookTabs
     );
-    const MainIcon = $derived(icons[bookTabs.mainType]);
 
     function changeTab(newTab) {
         refs.setBookTab(newTab);
     }
     function getImageName(tabType) {
-        let types = config?.tabTypes;
-        for (let i = 0; i < types.length; i++) {
-            if (types[i].id === tabType) {
-                return types[i].images[0]?.file;
-            }
-        }
+        return config?.tabTypes[tabType]?.images[0].file;
     }
     function getTabTypeName(tabType) {
-        let types = config?.tabTypes;
-        for (let i = 0; i < types.length; i++) {
-            if (types[i].id === tabType) {
-                return types[i].name[$language] || types[i].name[languageDefault];
-            }
-        }
+        return (
+            config?.tabTypes[tabType]?.name[$language] ||
+            config?.tabTypes[tabType]?.name[languageDefault]
+        );
     }
 </script>
 

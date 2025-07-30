@@ -272,17 +272,18 @@ export type ScriptureConfig = AppConfig & {
         };
     }[];
     tabTypes?: {
-        id: string;
-        style: 'image' | 'text';
-        name: {
-            [lang: string]: string;
+        [key: string]: {
+            style: 'image' | 'text';
+            name: {
+                [lang: string]: string;
+            };
+            images?: {
+                width: number;
+                height: number;
+                file: string;
+            }[];
         };
-        images?: {
-            width: number;
-            height: number;
-            file: string;
-        }[];
-    }[];
+    };
     backgroundImages?: {
         width: string;
         height: string;
