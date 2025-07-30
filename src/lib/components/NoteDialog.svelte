@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { bodyFontSize, currentFont, selectedVerses } from '$lib/data/stores';
+    import { bodyFontSize, currentFont } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
