@@ -1,31 +1,23 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
-    import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
+    import { bodyFontSize, currentFont } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
-    export let note = undefined;
+    let id = $state('note');
+    let modal: Modal = $state();
+    let note: { date: string; text: string; reference: string } | undefined = $state(undefined);
 
-    let id = 'note';
-    let modal;
-    let text: string;
+    const heading = $derived(note?.reference ?? '');
+    const text = $derived(note?.text ?? '');
 
-    $: heading = note?.reference ?? '';
-
-    export function showModal() {
-        if (note !== undefined) {
-            text = note.text;
-            modal.showModal();
-        } else {
-            console.log('No note available!');
-        }
+    export function showModal(showNote: { date: string; text: string; reference: string }) {
+        note = showNote;
+        modal.showModal();
     }
 
     function reset() {
-        text = '';
-        selectedVerses.reset();
+        note = undefined;
     }
 
     function onEditNote() {
@@ -50,17 +42,15 @@
         </div>
 
         <div style:word-wrap="break-word" class="mt-2">
-            {#if text !== undefined}
-                {#each text.split(/\r?\n/) as line}
-                    {#if line}
-                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                            {line}
-                        </p>
-                    {:else}
-                        <br />
-                    {/if}
-                {/each}
-            {/if}
+            {#each text.split(/\r?\n/) as line}
+                {#if line}
+                    <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                        {line}
+                    </p>
+                {:else}
+                    <br />
+                {/if}
+            {/each}
         </div>
     </div>
 </Modal>
