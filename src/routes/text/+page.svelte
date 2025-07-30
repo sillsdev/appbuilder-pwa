@@ -102,6 +102,12 @@
         }
     }
 
+    const bookType = $derived(
+        config?.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books.find((x) => x.id === $refs.book)?.type
+    );
+
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
 
@@ -360,6 +366,16 @@
         // stop audio when changing routes
         playStop();
     });
+    function getCurrentIllustrationFile() {
+        let illustrations = config?.bookCollections
+            .find((x) => x.id === $refs.collection)
+            .books.find((x) => x.id === $refs.book)?.pageIllustrations;
+        for (let i = 0; i < illustrations.length; i++) {
+            if (illustrations[i].num === Number($refs.chapter)) {
+                return base + '/illustrations/' + illustrations[i].filename;
+            }
+        }
+    }
 </script>
 
 <div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
@@ -464,58 +480,81 @@
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
     {/if}
-    <div
-        class:borderimg={showBorder}
-        class="overflow-y-auto"
-        bind:this={scrollingDiv}
-        onscroll={saveScrollPosition}
-    >
-        <!-- flex causes the imported html to display outside of the view port. Use md: -->
-        <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
-            <div class="hidden md:flex basis-1/12 justify-center">
-                <button
-                    onclick={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
-                    navigateBetweenBooksPrev
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 180 : 0} />
-                </button>
-            </div>
-            <div class="basis-5/6 max-w-screen-md">
-                <div class="p-2 w-full">
-                    <main>
-                        <div
-                            class="max-w-screen-md mx-auto"
-                            use:pinch
-                            onpinch={doPinch}
-                            use:swipe={{
-                                timeframe: 300,
-                                minSwipeDistance: 60,
-                                touchAction: 'pan-y'
-                            }}
-                            onswipe={doSwipe}
-                        >
-                            {#if format === 'html'}
-                                <HtmlBookView {...viewSettings} />
-                            {:else}
-                                <ScriptureViewSofria {...viewSettings} />
-                            {/if}
-                        </div>
-                    </main>
+    <div class="flex flex-col overflow-y-auto">
+        {#if bookType === 'story'}
+            <!-- svelte-ignore a11y_missing_attribute -->
+            <img
+                src={getCurrentIllustrationFile()}
+                class="w-screen object-cover"
+                use:swipe={{
+                    timeframe: 300,
+                    minSwipeDistance: 60,
+                    touchAction: 'pan-y'
+                }}
+                onswipe={doSwipe}
+            />
+        {/if}
+        <div
+            class:borderimg={showBorder}
+            class="overflow-y-auto grow"
+            bind:this={scrollingDiv}
+            onscroll={saveScrollPosition}
+        >
+            <!-- flex causes the imported html to display outside of the view port. Use md: -->
+            <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
+                <div class="hidden md:flex basis-1/12 justify-center">
+                    <button
+                        onclick={prevChapter}
+                        class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
+                        navigateBetweenBooksPrev
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronIcon
+                            size={36}
+                            color={'gray'}
+                            deg={$direction === 'ltr' ? 180 : 0}
+                        />
+                    </button>
                 </div>
-            </div>
-            <div class="hidden basis-1/12 md:flex justify-center">
-                <button
-                    onclick={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
-                    navigateBetweenBooksNext
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronIcon size={36} color={'gray'} deg={$direction === 'ltr' ? 0 : 180} />
-                </button>
+                <div class="basis-5/6 max-w-screen-md">
+                    <div class="p-2 w-full">
+                        <main>
+                            <div
+                                class="max-w-screen-md mx-auto"
+                                use:pinch
+                                onpinch={doPinch}
+                                use:swipe={{
+                                    timeframe: 300,
+                                    minSwipeDistance: 60,
+                                    touchAction: 'pan-y'
+                                }}
+                                onswipe={doSwipe}
+                            >
+                                {#if format === 'html'}
+                                    <HtmlBookView {...viewSettings} />
+                                {:else}
+                                    <ScriptureViewSofria {...viewSettings} />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+                </div>
+                <div class="hidden basis-1/12 md:flex justify-center">
+                    <button
+                        onclick={nextChapter}
+                        class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
+                        navigateBetweenBooksNext
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronIcon
+                            size={36}
+                            color={'gray'}
+                            deg={$direction === 'ltr' ? 0 : 180}
+                        />
+                    </button>
+                </div>
             </div>
         </div>
     </div>

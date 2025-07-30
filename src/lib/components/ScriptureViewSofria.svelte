@@ -455,6 +455,16 @@ LOGGING:
                 } else {
                     workspace.phraseDiv = div.cloneNode(true);
                 }
+                if (workspace.encloseInSpanTag) {
+                    const textNode = workspace.phraseDiv.firstChild;
+                    workspace.encloseInSpanTag.appendChild(textNode);
+                    workspace.phraseDiv.innerHTML = workspace.encloseInSpanTag;
+                    workspace.phraseDiv.replaceChild(
+                        workspace.encloseInSpanTag,
+                        workspace.phraseDiv.firstChild
+                    );
+                    workspace.encloseInSpanTag = undefined;
+                } //Enclose the text in a previously-created span tag
             }
             workspace.lastPhraseTerminated =
                 phrases.length > 0 ? phraseTerminated(phrases[phrases.length - 1]) : false;
@@ -2349,6 +2359,19 @@ LOGGING:
                                         element.atts['link'][0]
                                     );
                                     workspace.audioClips.push(workspace.milestoneLink);
+                                    break;
+                                }
+                                case 'usfm:zstyle': {
+                                    const style = element.atts['id'][0];
+                                    workspace.paragraphDiv.classList.add(style);
+                                    break;
+                                }
+                                case 'usfm:zcstyle': {
+                                    const style = element.atts['id'][0];
+                                    console.log('Element: ');
+                                    console.log(element);
+                                    workspace.encloseInSpanTag = document.createElement('span');
+                                    workspace.encloseInSpanTag.classList.add(style);
                                     break;
                                 }
                                 case 'usfm:zreflink': {
