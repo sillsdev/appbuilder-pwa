@@ -40,8 +40,11 @@ function displayBookId(bcId: string, bookId: string) {
 function replaceVideoTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
-function replaceStyleTags(text: string, _bcId: string, _bookId: string): string {
+function replacePStyleTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
+}
+function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\(c_[^\s]+)(.*)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
 }
 
 // This is the start of supporting story books, but it still fails if there is no chapter.
@@ -278,7 +281,8 @@ type FilterFunction = (text: string, bcId: string, bookId: string) => string;
 const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
-    replaceStyleTags,
+    replacePStyleTags,
+    replaceCStyleTags,
     replacePageTags,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
