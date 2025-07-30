@@ -4,7 +4,7 @@
     import config from '$lib/data/config';
     import { t } from '$lib/data/stores';
 
-    export let data;
+    let { data } = $props();
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'about';
