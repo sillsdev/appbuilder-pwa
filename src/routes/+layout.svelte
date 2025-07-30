@@ -59,8 +59,7 @@
                         collectionSelector.showModal();
                         break;
                     case MODAL_NOTE:
-                        noteDialogNote = data;
-                        noteDialog.showModal();
+                        noteDialog.showModal(data);
                         break;
                     case MODAL_TEXT_APPEARANCE:
                         textAppearanceSelector.options = data;
@@ -96,7 +95,6 @@
     let collectionSelector: CollectionSelector = $state();
     let fontSelector: FontSelector = $state();
     let noteDialog: NoteDialog = $state();
-    let noteDialogNote = $state();
     let planStopDialog: PlanStopDialog;
     let planStopId: string;
     let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
@@ -119,7 +117,7 @@
 
         {#if isSAB}
             <!-- Add Note Menu -->
-            <NoteDialog bind:this={noteDialog} bind:note={noteDialogNote} />
+            <NoteDialog bind:this={noteDialog} />
 
             <!-- Collection Selector Menu -->
             <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />

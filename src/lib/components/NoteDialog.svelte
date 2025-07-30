@@ -1,29 +1,23 @@
 <script lang="ts">
-    import { bodyFontSize, currentFont, selectedVerses, t } from '$lib/data/stores';
+    import { bodyFontSize, currentFont, selectedVerses } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
-    let { note = $bindable(undefined) } = $props();
-
     let id = $state('note');
     let modal: Modal = $state();
-    let text: string = $state();
+    let note: { date: string; text: string; reference: string } | undefined = $state(undefined);
 
     const heading = $derived(note?.reference ?? '');
+    const text = $derived(note?.text ?? '');
 
-    export function showModal() {
-        if (note !== undefined) {
-            text = note.text;
-            modal.showModal();
-        } else {
-            console.log('No note available!');
-        }
+    export function showModal(showNote: { date: string; text: string; reference: string }) {
+        note = showNote;
+        modal.showModal();
     }
 
     function reset() {
-        text = '';
-        selectedVerses.reset();
+        note = undefined;
     }
 
     function onEditNote() {
@@ -48,17 +42,15 @@
         </div>
 
         <div style:word-wrap="break-word" class="mt-2">
-            {#if text !== undefined}
-                {#each text.split(/\r?\n/) as line}
-                    {#if line}
-                        <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
-                            {line}
-                        </p>
-                    {:else}
-                        <br />
-                    {/if}
-                {/each}
-            {/if}
+            {#each text.split(/\r?\n/) as line}
+                {#if line}
+                    <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
+                        {line}
+                    </p>
+                {:else}
+                    <br />
+                {/if}
+            {/each}
         </div>
     </div>
 </Modal>
