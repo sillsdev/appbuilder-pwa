@@ -34,7 +34,6 @@ TODO:
     let showHighlightPens = $state(false);
 
     let { oncopy } = $props();
-
     const isCopyEnabled = $derived(
         config.bookCollections.find((x) => x.id === $refs.collection).features['bc-allow-copy-text']
     );

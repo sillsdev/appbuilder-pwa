@@ -2,12 +2,14 @@
     import LexiconAlphabetStrip from './LexiconAlphabetStrip.svelte';
     import LexiconLanguageTabs from './LexiconLanguageTabs.svelte';
 
-    export let alphabet = [];
-    export let selectedLanguage;
-    export let vernacularLanguage;
-    export let reversalLanguage;
-    export let onSwitchLanguage;
-    export let onLetterChange;
+    let {
+        alphabet,
+        selectedLanguage,
+        vernacularLanguage,
+        reversalLanguage,
+        onSwitchLanguage,
+        onLetterChange
+    } = $props();
 
     async function handleLetterSelect(letter) {
         onLetterChange(letter);

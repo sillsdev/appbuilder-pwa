@@ -52,7 +52,7 @@
         console.log(wordIds);
     }
 
-    function selectWord(word) {
+    function onSelectWord(word) {
         selectedWord = selectedWord && selectedWord.word === word ? null : word;
         wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
     }
@@ -123,13 +123,13 @@
             </div>
 
             {#if selectedWord}
-                <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+                <WordNavigationStrip currentWord={selectedWord} {onSelectWord} />
             {/if}
 
             <div class="flex justify-center">
                 <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
                     {#if wordIds && wordIds.length > 0}
-                        <LexiconEntryView {wordIds} onSelectWord={selectWord} removeNewLines />
+                        <LexiconEntryView {wordIds} {onSelectWord} removeNewLines />
                     {:else if wordIds && wordIds.length == 0}
                         <div class="text-center" style="color: var(--SettingsSummaryColor);">
                             No results found.
