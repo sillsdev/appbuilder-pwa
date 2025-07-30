@@ -2,10 +2,7 @@
     import { expoInOut } from 'svelte/easing';
     import { fly } from 'svelte/transition';
 
-    export let reversalLanguage;
-    export let selectedLanguage;
-    export let onSwitchLanguage;
-    export let vernacularLanguage;
+    let { reversalLanguage, selectedLanguage, onSwitchLanguage, vernacularLanguage } = $props();
 </script>
 
 <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
@@ -13,8 +10,8 @@
         role="button"
         tabindex="0"
         aria-pressed={selectedLanguage === vernacularLanguage}
-        on:click={() => onSwitchLanguage(vernacularLanguage)}
-        on:keydown={(e) => e.key === 'Enter' && onSwitchLanguage(vernacularLanguage)}
+        onclick={() => onSwitchLanguage(vernacularLanguage)}
+        onkeydown={(e) => e.key === 'Enter' && onSwitchLanguage(vernacularLanguage)}
         class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
     >
         {vernacularLanguage}
@@ -29,8 +26,8 @@
         role="button"
         tabindex="0"
         aria-pressed={selectedLanguage === reversalLanguage}
-        on:click={() => onSwitchLanguage(reversalLanguage)}
-        on:keydown={(e) => e.key === 'Enter' && onSwitchLanguage(reversalLanguage)}
+        onclick={() => onSwitchLanguage(reversalLanguage)}
+        onkeydown={(e) => e.key === 'Enter' && onSwitchLanguage(reversalLanguage)}
         class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
     >
         {reversalLanguage}
