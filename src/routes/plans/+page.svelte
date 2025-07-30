@@ -16,7 +16,6 @@
     } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
     import { compareVersions } from '$lib/scripts/stringUtils';
-    import { effect, state } from 'svelte/effects';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
