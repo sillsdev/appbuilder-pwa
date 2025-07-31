@@ -226,9 +226,10 @@ if (programType === 'DAB') {
 
     test('convertConfig: parse tab types', () => {
         const result = parseTabTypes(document, 1);
-        expect(result).not.toHaveLength(0);
-        for (const tabType of result) {
-            expect(tabType.id).not.toSatisfy((r) => r === '' || r === undefined);
+        expect(Object.keys(result)).not.toHaveLength(0);
+        for (const id in result) {
+            const tabType = result[id];
+            expect(id).not.toSatisfy((r) => r === '' || r === undefined);
             expect(tabType.style).toSatisfy((r) => r === 'text' || r === 'image');
             expect(Object.keys(tabType.name)).not.toHaveLength(0);
             if (tabType.style === 'image') {

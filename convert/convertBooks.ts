@@ -3,7 +3,7 @@
 
 import * as fs from 'fs';
 import path, { basename, extname } from 'path';
-import type { BookConfig, ScriptureConfig } from '$config';
+import type { BookConfig, BookTabConfig, ScriptureConfig } from '$config';
 import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
@@ -424,6 +424,19 @@ export async function convertBooks(
                     } else {
                         convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
                     }
+                    if (book.bookTabs) {
+                        for (const bookTab of book.bookTabs?.tabs) {
+                            convertScriptureBook(
+                                pk,
+                                context,
+                                book,
+                                bcGlossary,
+                                docs,
+                                inputFiles,
+                                bookTab
+                            );
+                        }
+                    }
                     break;
             }
             if (!bookConverted) {
@@ -441,11 +454,11 @@ export async function convertBooks(
         process.stdout.write('\n');
         if (verbose) console.timeEnd('convert ' + collection.id);
         //start freezing process and map promise to docSet name
+
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
-
         //check if folder exists for collection
         const collPath = path.join('static', 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
@@ -697,32 +710,44 @@ function convertScriptureBook(
     book: BookConfig,
     bcGlossary: string[],
     docs: Promise<void>[],
-    files: string[]
+    files: string[],
+    bookTab?: BookTabConfig
 ) {
+    const file = bookTab ? bookTab.file : book.file;
+    const id = bookTab ? book.id + bookTab.bookTabID : book.id; //Book tab ID is derived from the book ID because book tabs don't have distinct IDs.
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, book.id);
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, id);
+        if (bookTab) {
+            //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
+            const firstLine = content.split('\n')[0];
+            const remainingLines = content.slice(content.indexOf('\n'));
+            content =
+                firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +
+                '\n' +
+                remainingLines;
+        }
         if (context.scriptureConfig.traits['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
-            content = removeMissingVerses(content, context.bcId, book.id);
+            content = removeMissingVerses(content, context.bcId, id);
         }
         // Cannot use GraphQL mutation asynchronously since content with triple double quotes
         // in the contents (see Scriptoria project 3949 for an example) will fail to load.
         if (context.verbose > 10) {
             const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
-            const bookPath = path.join(bookFullDir, book.file);
+            const bookPath = path.join(bookFullDir, file);
             console.log(`Writing file: ${bookPath}`);
             fs.mkdirSync(bookFullDir, { recursive: true });
             fs.writeFileSync(bookPath, content);
         }
         const selectors = { lang: context.lang, abbr: context.bcId };
-        const contentType = book.file.split('.').pop();
+        const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType!, content, tags);
+            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(
@@ -730,22 +755,22 @@ function convertScriptureBook(
                             ' <- ' +
                             book.name +
                             ': ' +
-                            path.join(context.dataDir, 'books', context.bcId, book.file)
+                            path.join(context.dataDir, 'books', context.bcId, file)
                     );
                 }
-                displayBookId(context.bcId, book.id);
+                displayBookId(context.bcId, id);
             }
             resolve();
         } catch (err) {
             console.log(err);
-            const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, file);
             throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
         }
     }
     //push new Proskomma import to docs array
     docs.push(
         new Promise<void>((resolve) => {
-            const bookPath = path.join(context.dataDir, 'books', context.bcId, book.file);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, file);
             //process.stdout.write(`Checking for book: ${bookPath}\n`);
             if (fs.existsSync(bookPath)) {
                 //read the single usfm file (pre-12.0)

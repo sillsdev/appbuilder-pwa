@@ -326,7 +326,7 @@ function convertConfig(dataDir: string, verbose: number) {
         data.layouts = layouts;
 
         const tabTypes = parseTabTypes(document, verbose);
-        if (tabTypes.length > 0) {
+        if (Object.keys(tabTypes).length > 0) {
             data.tabTypes = tabTypes;
         }
 
@@ -617,6 +617,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     mainType: bookTabsTag.attributes.getNamedItem('main-type')!.value,
                     tabs: []
                 };
+                let i = 0;
                 for (const bookTab of bookTabsTag.getElementsByTagName('book-tab')) {
                     const tabFeaturesTag = bookTab
                         .querySelector('features[type=book]')
@@ -678,6 +679,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     const footer = convertFooter(footerTags[0]?.innerHTML, document);
 
                     bookTabs.tabs.push({
+                        bookTabID: i.toString(),
                         type: bookTab.attributes.getNamedItem('type')!.value,
                         file: bookTab.getElementsByTagName('f')[0]?.innerHTML, //If format ends up needing to be part of BookTabs, this will need to change a little bit (See below in books.push).
                         features: tabFeatures,
@@ -689,6 +691,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                         audio: audio,
                         footer: footer
                     });
+                    i++;
                 }
             }
 
@@ -1208,17 +1211,18 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
 
 export function parseTabTypes(document: Document, verbose: number) {
     const tabTypes: {
-        id: string;
-        style: 'image' | 'text';
-        name: {
-            [lang: string]: string;
+        [key: string]: {
+            style: 'image' | 'text';
+            name: {
+                [lang: string]: string;
+            };
+            images?: {
+                width: number;
+                height: number;
+                file: string;
+            }[];
         };
-        images?: {
-            width: number;
-            height: number;
-            file: string;
-        }[];
-    }[] = [];
+    } = {};
     const tabTypesTag = document.getElementsByTagName('tab-types')[0];
     const tabTags = tabTypesTag.getElementsByTagName('tab-type');
     for (const tab of tabTags) {
@@ -1246,12 +1250,11 @@ export function parseTabTypes(document: Document, verbose: number) {
             images.push({ width, height, file });
         }
 
-        tabTypes.push({
-            id,
+        tabTypes[id] = {
             style,
             name,
             images: images.length > 0 ? images : undefined
-        });
+        };
     }
     return tabTypes;
 }
