@@ -515,7 +515,7 @@ type ConvertBookContext = {
     bcId: string;
 };
 
-const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     scriptureConfig: ScriptureConfig,
