@@ -2375,6 +2375,26 @@ LOGGING:
                                     workspace.encloseInSpanTag.classList.add(style);
                                     break;
                                 }
+                                case 'usfm:zon1': {
+                                    workspace.paragraphDiv.style.counterSet =
+                                        'list-item ' + element.atts['start'][0];
+                                    break;
+                                }
+                                case 'usfm:zoli1': {
+                                    workspace.paragraphDiv.classList.add('list-item');
+                                    workspace.paragraphDiv.classList.add('list-decimal');
+                                    workspace.paragraphDiv.classList.add('list-inside');
+
+                                    workspace.paragraphDiv.classList.add('!ps-4');
+                                    break;
+                                }
+                                case 'usfm:zuli1': {
+                                    workspace.paragraphDiv.classList.add('list-item');
+                                    workspace.paragraphDiv.classList.add('list-inside');
+
+                                    workspace.paragraphDiv.classList.add('!ps-4');
+                                    break;
+                                }
                                 case 'usfm:zreflink': {
                                     workspace.textType.push('reflink');
                                     workspace.milestoneLink = decodeURIComponent(
