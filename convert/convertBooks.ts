@@ -409,9 +409,6 @@ function applyFilters(
     for (const filterFn of filterFunctions) {
         filteredText = filterFn(filteredText, bcId, bookId);
     }
-    if (bookType === 'story') {
-        console.log(filteredText);
-    }
     return filteredText;
 }
 
