@@ -2333,6 +2333,36 @@ LOGGING:
                             }
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
+                            let match;
+                            if ((match = element.subType.match(/^usfm:zon(\d+)$/))) {
+                                workspace['level' + match[1] + 'ListNum'] =
+                                    element.atts['start'][0];
+                            } else if ((match = element.subType.match(/^usfm:zoli(\d+)$/))) {
+                                workspace.paragraphDiv.classList.add('list-item');
+                                workspace.paragraphDiv.classList.add('list-decimal');
+                                workspace.paragraphDiv.classList.add('list-inside');
+                                workspace.paragraphDiv.style.counterSet =
+                                    'list-item ' + workspace['level' + match[1] + 'ListNum'];
+                                workspace['level' + match[1] + 'ListNum']++;
+
+                                workspace.paragraphDiv.style.paddingInlineStart =
+                                    2 * match[1] - 1 + 'rem';
+                            } else if ((match = element.subType.match(/^usfm:zuli(\d+)$/))) {
+                                workspace.paragraphDiv.classList.add('list-item');
+                                workspace.paragraphDiv.classList.add('list-inside');
+
+                                workspace.paragraphDiv.style.paddingInlineStart =
+                                    2 * match[1] - 1 + 'rem';
+                                if (match[1] === 2) {
+                                    workspace.paragraphDiv.classList.add(
+                                        '[list-style-type:circle]'
+                                    );
+                                } else if (match[1] >= 3) {
+                                    workspace.paragraphDiv.classList.add(
+                                        '[list-style-type:square]'
+                                    );
+                                }
+                            }
                             switch (element.subType) {
                                 case 'usfm:zvideo': {
                                     const id = element.atts['id'][0];
@@ -2373,26 +2403,6 @@ LOGGING:
                                     console.log(element);
                                     workspace.encloseInSpanTag = document.createElement('span');
                                     workspace.encloseInSpanTag.classList.add(style);
-                                    break;
-                                }
-                                case 'usfm:zon1': {
-                                    workspace.paragraphDiv.style.counterSet =
-                                        'list-item ' + element.atts['start'][0];
-                                    break;
-                                }
-                                case 'usfm:zoli1': {
-                                    workspace.paragraphDiv.classList.add('list-item');
-                                    workspace.paragraphDiv.classList.add('list-decimal');
-                                    workspace.paragraphDiv.classList.add('list-inside');
-
-                                    workspace.paragraphDiv.classList.add('!ps-4');
-                                    break;
-                                }
-                                case 'usfm:zuli1': {
-                                    workspace.paragraphDiv.classList.add('list-item');
-                                    workspace.paragraphDiv.classList.add('list-inside');
-
-                                    workspace.paragraphDiv.classList.add('!ps-4');
                                     break;
                                 }
                                 case 'usfm:zreflink': {
