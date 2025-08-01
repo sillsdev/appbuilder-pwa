@@ -199,56 +199,68 @@ function createLexicon() {
             if (language === vernacularLanguage) {
                 return; // The vernacularLanguage is already loaded by setup!
             }
+
+            if (reversals.letters[language].includes(letter)) {
+                return; // The letter is already loaded!
+            }
+
+            reversals.letters[language].push(letter);
+            const newWords = [];
             const defaultReversalKey = reversalKeys[language];
             const index = reversals.indexes[defaultReversalKey];
             const files = index[letter] || [];
-            for (const file of files) {
-                const reversalFile = `${base}/reversal/${defaultReversalKey}/${file}`;
-                const response = await fetch(reversalFile);
-                if (response.ok) {
-                    const data = await response.json();
-                    const currentFileWords = Object.entries(data).map(([word, entries]) => {
-                        return {
-                            word,
-                            indexes: entries.map((entry: { index: any }) => entry.index),
-                            vernacularWords: entries
-                                .map((entry: { index: number }) => {
-                                    const foundWord = vernacularWords.find(
-                                        (vw) => vw.id === entry.index
-                                    );
-                                    if (foundWord) {
-                                        return {
-                                            word: foundWord.word,
-                                            homonymIndex: foundWord.homonym_index || 0
-                                        };
-                                    } else {
-                                        console.log(
-                                            `Index ${entry.index} not found in vernacularWordsList`
+            try {
+                for (const file of files) {
+                    const reversalFile = `${base}/reversal/${defaultReversalKey}/${file}`;
+                    const response = await fetch(reversalFile);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const currentFileWords = Object.entries(data).map(([word, entries]) => {
+                            return {
+                                word,
+                                indexes: entries.map((entry: { index: any }) => entry.index),
+                                vernacularWords: entries
+                                    .map((entry: { index: number }) => {
+                                        const foundWord = vernacularWords.find(
+                                            (vw) => vw.id === entry.index
                                         );
-                                        return null; // Return null for missing indexes
-                                    }
-                                })
-                                .filter((index: null) => index !== null), // Filter out null values
-                            letter: letter
-                        };
-                    });
+                                        if (foundWord) {
+                                            return {
+                                                word: foundWord.word,
+                                                homonymIndex: foundWord.homonym_index || 0
+                                            };
+                                        } else {
+                                            console.log(
+                                                `Index ${entry.index} not found in vernacularWordsList`
+                                            );
+                                            return null; // Return null for missing indexes
+                                        }
+                                    })
+                                    .filter((index: null) => index !== null), // Filter out null values
+                                letter: letter
+                            };
+                        });
 
-                    currentFileWords.forEach((newWord) => {
-                        const existingWord = reversals.words[language].find(
-                            (w) => w.word === newWord.word
-                        );
-
-                        if (existingWord) {
-                            existingWord.indexes = [
-                                ...new Set([...existingWord.indexes, ...newWord.indexes])
-                            ];
-                        } else {
-                            reversals.words[language].push(newWord);
-                        }
-                    });
+                        currentFileWords.forEach((newWord) => {
+                            const existingWord = reversals.words[language].find(
+                                (w) => w.word === newWord.word
+                            );
+                            if (existingWord) {
+                                existingWord.indexes = [
+                                    ...new Set([...existingWord.indexes, ...newWord.indexes])
+                                ];
+                            } else {
+                                newWords.push(newWord);
+                            }
+                        });
+                    }
                 }
+            } catch (error) {
+                reversals.letters[language] = reversals.letters[language].filter(l => l !== letter);
+                console.error(`Error fetching data for letter ${letter}:`, error);
+                return;
             }
-            reversals.letters[language].push(letter);
+            reversals.words[language] = [...reversals.words[language], ...newWords];
         }
 
         async function fetchReversalWords({ letter, language }) {
@@ -263,8 +275,11 @@ function createLexicon() {
             }
 
 
-            if (letter in reversals.letters[language]) {
+            console.log(letter);
+            console.log($state.snapshot(reversals.letters[language]));
+            if (reversals.letters[language].includes(letter)) {
                 // Reversal already contains the letter we want.
+                console.log("skip");
                 return;
             }
 
@@ -272,11 +287,11 @@ function createLexicon() {
             const letterIndex = reversalAlphabet.indexOf(letter);
             const lettersToLoad = reversalAlphabet
                 .slice(0, letterIndex + 1)
-                .filter((l: string) => !reversals.letters || !(l in reversals.letters[language]));
+                .filter((l: string) => !reversals.letters || !(reversals.letters[language].includes(l)));
 
-            await Promise.all([
+            await Promise.all(
                 lettersToLoad.map(letter => fetchReversalLetterData({ letter, language })),
-            ]);
+            );
 
             reversals.words[language].sort((a, b) => {
                 return (
