@@ -68,7 +68,7 @@ function transformUnorderedLists(usfm: string): string {
     while (usfm.includes(tag)) {
         const inlineMarkers = [...characterMarkers, `zuli[^1-${level}]`].join('|');
         const pattern = new RegExp(`\\${tag}\\s(([^\\\\]|\\\\(${inlineMarkers}))*)`, 'g');
-        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\* $1 ${tag}-e\\* `);//\nb is where the \m goes
+        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\* $1 ${tag}-e\\* `); //\nb is where the \m goes
         level++;
         tag = '\\zuli' + level;
     }
@@ -144,7 +144,7 @@ function transformOrderedListItems(usfm: string, level: number) {
     return items
         .map((item) => {
             const sublist = item[2] ? transformOrderedSublist(item[2], level + 1) : '';
-            return `\\nb \\zoli${level}-s |\\* ${item[1]} ${sublist} \\zoli${level}-e\\*`;//Beginning of this line is where the \m goes.
+            return `\\nb \\zoli${level}-s |\\* ${item[1]} ${sublist} \\zoli${level}-e\\*`; //Beginning of this line is where the \m goes.
         })
         .join(' ');
 }
@@ -842,10 +842,10 @@ function convertScriptureBook(
                 if (context.verbose) {
                     console.log(
                         context.docSet +
-                        ' <- ' +
-                        book.name +
-                        ': ' +
-                        path.join(context.dataDir, 'books', context.bcId, book.file)
+                            ' <- ' +
+                            book.name +
+                            ': ' +
+                            path.join(context.dataDir, 'books', context.bcId, book.file)
                     );
                 }
                 displayBookId(context.bcId, book.id);
