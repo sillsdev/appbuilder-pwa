@@ -50,41 +50,22 @@ function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string
  * Convert list tags to milestones
  */
 export function transformLists(text: string, _bcId: string, _bookId: string): string {
-    text = transformUnorderedLists(text);
-    text = transformOrderedLists(text);
+    text = transformZuliTags(text);
+    text = transformZoliTags(text);
+    text = transformZonTags(text);
     return text;
 }
 
-function transformUnorderedLists(usfm: string): string {
-    let level = 1;
-    let tag = '\\zuli' + level;
-    while (usfm.includes(tag)) {
-        const pattern = new RegExp(`\\${tag}`, 'g');
-        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\*`);
-        level++;
-        tag = '\\zuli' + level;
-    }
-    return usfm;
+function transformZuliTags(usfm: string): string {
+    return usfm.replace(/(\\zuli\d+)/g, '\\nb $1\\*');
 }
 
-function transformOrderedLists(usfm: string) {
-    let level = 1;
-    let tag = '\\zoli' + level;
-    while (usfm.includes(tag)) {
-        const pattern = new RegExp(`\\${tag}`, 'g');
-        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\*`);
-        level++;
-        tag = '\\zoli' + level;
-    }
-    level = 1;
-    tag = '\\zon' + level;
-    while (usfm.includes(tag)) {
-        const pattern = new RegExp(`\\${tag}\\s(\\d+)`, 'g');
-        usfm = usfm.replace(pattern, `${tag}-s |start="$1"\\*`);
-        level++;
-        tag = '\\zon' + level;
-    }
-    return usfm;
+function transformZoliTags(usfm: string): string {
+    return usfm.replace(/(\\zoli\d+)/g, '\\nb $1\\*');
+}
+
+function transformZonTags(usfm: string): string {
+    return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
 function replacePageTags(text: string, _bcId: string, _bookId: string): string {

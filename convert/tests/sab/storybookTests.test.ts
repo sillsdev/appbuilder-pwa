@@ -14,9 +14,9 @@ test('convert unordered list to milestones', () => {
     `;
     const expected = `
         \\m Some content
-        \\nb \\zuli1-s |\\* One
-        \\nb \\zuli1-s |\\* Two
-        \\nb \\zuli1-s |\\* Three in a row!
+        \\nb \\zuli1\\* One
+        \\nb \\zuli1\\* Two
+        \\nb \\zuli1\\* Three in a row!
         \\b
     `;
     const result = transformLists(input, '', '');
@@ -33,10 +33,10 @@ test('convert ordered list to milestones', () => {
     `;
     const expected = `
         \\m Some content
-        \\zon1-s |start="10"\\*
-        \\nb \\zoli1-s |\\* One
-        \\nb \\zoli1-s |\\* Two
-        \\nb \\zoli1-s |\\* Three in a row!
+        \\zon1 |start="10"\\*
+        \\nb \\zoli1\\* One
+        \\nb \\zoli1\\* Two
+        \\nb \\zoli1\\* Three in a row!
         \\b
     `;
     const result = transformLists(input, '', '');
@@ -64,19 +64,19 @@ test('convert multilevel unordered list to milestones', () => {
     const expected = `
         \\c 2
         \\b
-        \\nb \\zuli1-s |\\* Old Testament
-            \\nb \\zuli2-s |\\* Pentateuch
-                \\nb \\zuli3-s |\\* Genesis
-                \\nb \\zuli3-s |\\* Exodus
-                \\nb \\zuli3-s |\\* Leviticus
-            \\nb \\zuli2-s |\\* Joshua
-            \\nb \\zuli2-s |\\* Judges
-        \\nb \\zuli1-s |\\* New Testament
-            \\nb \\zuli2-s |\\* Matthew
-            \\nb \\zuli2-s |\\* Mark
-            \\nb \\zuli2-s |\\* Luke
-            \\nb \\zuli2-s |\\* John
-        \\nb \\zuli1-s |\\* Glossary
+        \\nb \\zuli1\\* Old Testament
+            \\nb \\zuli2\\* Pentateuch
+                \\nb \\zuli3\\* Genesis
+                \\nb \\zuli3\\* Exodus
+                \\nb \\zuli3\\* Leviticus
+            \\nb \\zuli2\\* Joshua
+            \\nb \\zuli2\\* Judges
+        \\nb \\zuli1\\* New Testament
+            \\nb \\zuli2\\* Matthew
+            \\nb \\zuli2\\* Mark
+            \\nb \\zuli2\\* Luke
+            \\nb \\zuli2\\* John
+        \\nb \\zuli1\\* Glossary
     `;
     const result = transformLists(input, '', '');
     expect(tokensOf(result)).toEqual(tokensOf(expected));
@@ -106,22 +106,22 @@ test('convert multilevel ordered list to milestones', () => {
     const expected = `
         \\m My List:
         \\b
-        \\zon1-s |start="1"\\*
-        \\nb \\zoli1-s |\\* Food
-            \\zon2-s |start="1"\\*
-            \\nb \\zoli2-s |\\* Fruit
-                \\zon3-s |start="1"\\*
-                \\nb \\zoli3-s |\\* Apples
-                \\nb \\zoli3-s |\\* Bananas
-                \\nb \\zoli3-s |\\* Pears
-            \\nb \\zoli2-s |\\* Dessert
-                \\nb \\zoli3-s |\\* Pie
-                \\nb \\zoli3-s |\\* Cake
-                \\nb \\zoli3-s |\\* Ice Cream
-        \\nb \\zoli1-s |\\* Drinks
-            \\nb \\zoli2-s |\\* Coffee
-            \\nb \\zoli2-s |\\* Water
-            \\nb \\zoli2-s |\\* Tea
+        \\zon1 |start="1"\\*
+        \\nb \\zoli1\\* Food
+            \\zon2 |start="1"\\*
+            \\nb \\zoli2\\* Fruit
+                \\zon3 |start="1"\\*
+                \\nb \\zoli3\\* Apples
+                \\nb \\zoli3\\* Bananas
+                \\nb \\zoli3\\* Pears
+            \\nb \\zoli2\\* Dessert
+                \\nb \\zoli3\\* Pie
+                \\nb \\zoli3\\* Cake
+                \\nb \\zoli3\\* Ice Cream
+        \\nb \\zoli1\\* Drinks
+            \\nb \\zoli2\\* Coffee
+            \\nb \\zoli2\\* Water
+            \\nb \\zoli2\\* Tea
     `;
     const result = transformLists(input, '', '');
     expect(tokensOf(result)).toEqual(tokensOf(expected));
@@ -137,9 +137,9 @@ test('convert unordered list with formatting to milestones', () => {
     `;
     const expected = `
         \\m Some content
-        \\nb \\zuli1-s |\\* One
-        \\nb \\zuli1-s |\\* \\bd Two \\bd*
-        \\nb \\zuli1-s |\\* Three in a row!
+        \\nb \\zuli1\\* One
+        \\nb \\zuli1\\* \\bd Two \\bd*
+        \\nb \\zuli1\\* Three in a row!
         \\b
     `;
     const result = transformLists(input, '', '');
@@ -157,10 +157,10 @@ test('convert ordered list with formatting to milestones', () => {
     `;
     const expected = `
         \\m Some content
-        \\zon1-s |start="10"\\*
-        \\nb \\zoli1-s |\\* One
-        \\nb \\zoli1-s |\\* \\bdit Two \\bdit*
-        \\nb \\zoli1-s |\\* Three in a row!
+        \\zon1 |start="10"\\*
+        \\nb \\zoli1\\* One
+        \\nb \\zoli1\\* \\bdit Two \\bdit*
+        \\nb \\zoli1\\* Three in a row!
         \\b
     `;
     const result = transformLists(input, '', '');
@@ -181,13 +181,13 @@ test('convert multilevel ordered list with formatting to milestones', () => {
     `;
     const expected = `
         \\m Some content
-        \\zon1-s |start="10"\\*
-        \\nb \\zoli1-s |\\* One
-            \\zon2-s |start="3"\\*
-            \\nb \\zoli2-s |\\* \\it sub-point 1 \\it*
-            \\nb \\zoli2-s |\\* sub-point 2
-        \\nb \\zoli1-s |\\* \\bdit Two \\bdit*
-        \\nb \\zoli1-s |\\* Three in a row!
+        \\zon1 |start="10"\\*
+        \\nb \\zoli1\\* One
+            \\zon2 |start="3"\\*
+            \\nb \\zoli2\\* \\it sub-point 1 \\it*
+            \\nb \\zoli2\\* sub-point 2
+        \\nb \\zoli1\\* \\bdit Two \\bdit*
+        \\nb \\zoli1\\* Three in a row!
         \\b
     `;
     const result = transformLists(input, '', '');
