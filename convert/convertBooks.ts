@@ -44,31 +44,23 @@ function replacePStyleTags(text: string, _bcId: string, _bookId: string): string
     return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
 }
 function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string {
-    return text.replace(/\\(c_[^\s]+)(.*)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
+    return text.replace(/\\(c_[^\s]+)(.*?)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
 }
 /**
  * Convert list tags to milestones
  */
-function transformLists(text: string, _bcId: string, _bookId: string): string {
+export function transformLists(text: string, _bcId: string, _bookId: string): string {
     text = transformUnorderedLists(text);
     text = transformOrderedLists(text);
     return text;
 }
-/**
- * A list of inline character format markers
- */
-const characterMarkers = 'em bd it bdit no sc sup'.split(' ');
+
 function transformUnorderedLists(usfm: string): string {
-    const inlineMarkers = [...characterMarkers, 'zuli'].join('|');
-    const listPattern = new RegExp(`\\\\zuli([^\\\\]|\\\\(${inlineMarkers}))*`, 'g');
-    // Place a paragraph marker (\m) before unordered lists
-    usfm = usfm.replace(listPattern, '\\m $& ');
     let level = 1;
     let tag = '\\zuli' + level;
     while (usfm.includes(tag)) {
-        const inlineMarkers = [...characterMarkers, `zuli[^1-${level}]`].join('|');
-        const pattern = new RegExp(`\\${tag}\\s(([^\\\\]|\\\\(${inlineMarkers}))*)`, 'g');
-        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\* $1 ${tag}-e\\* `); //\nb is where the \m goes
+        const pattern = new RegExp(`\\${tag}`, 'g');
+        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\*`);
         level++;
         tag = '\\zuli' + level;
     }
@@ -76,80 +68,25 @@ function transformUnorderedLists(usfm: string): string {
 }
 
 function transformOrderedLists(usfm: string) {
-    // Each ordered list
-    //  * begins with \zon1
-    //  * contains no sfm markers except the following:
-    //     - inline character markup
-    //     - \zoli#, where # is any number
-    //     - \zon#, where # is not 1
-    const allowedMarkers = [...characterMarkers, 'zoli', 'zon[^1]'].join('|');
-    const listPattern = new RegExp(`\\\\zon1\\s([^\\\\]|\\\\(${allowedMarkers}))*`, 'g');
-    const lists = usfm.matchAll(listPattern);
-    let transformed = '';
-    let i = 0;
-    for (const list of lists) {
-        transformed += usfm.substring(i, list.index);
-        transformed += ' \\m ';
-        transformed += transformOrderedSublist(list[0], 1);
-        if (list.index === undefined) {
-            throw new Error('Expected regex match index to be defined');
-        } else {
-            i = list.index + list[0].length;
-        }
+    let level = 1;
+    let tag = '\\zoli' + level;
+    while (usfm.includes(tag)) {
+        const pattern = new RegExp(`\\${tag}`, 'g');
+        usfm = usfm.replace(pattern, `\\nb ${tag}-s |\\*`);
+        level++;
+        tag = '\\zoli' + level;
     }
-    return transformed + usfm.substring(i);
-}
-function transformOrderedSublist(usfm: string, level: number): string {
-    const start = getStartNumber(usfm, level);
-
-    // A list's contents
-    //  * begins with \zoli#, where # is the current level
-    //  * contains no sfm tags except the following:
-    //     - \zoli#, where # is any number
-    //     - \zon#, where # is not the current level
-    const allowedMarkers = [...characterMarkers, 'zoli', `zon[^${level}]`].join('|');
-    const contentsPattern = new RegExp(`\\\\zoli${level}\\s([^\\\\]|\\\\(${allowedMarkers}))*`);
-    const contentsMatch = usfm.match(contentsPattern);
-    if (contentsMatch) {
-        const contents = transformOrderedListItems(contentsMatch[0], level);
-        return ` \\zon${level}-s |start="${start}"\\* ${contents} \\zon${level}-e\\* `;
+    level = 1;
+    tag = '\\zon' + level;
+    while (usfm.includes(tag)) {
+        const pattern = new RegExp(`\\${tag}\\s(\\d+)`, 'g');
+        usfm = usfm.replace(pattern, `${tag}-s |start="$1"\\*`);
+        level++;
+        tag = '\\zon' + level;
     }
-    throw new Error(`Invalid USFM list: ${usfm}`);
-}
-/**
- * Get the start number for an ordered list
- */
-function getStartNumber(usfm: string, level: number) {
-    const startPattern = new RegExp(`\\\\zon${level} (\\d+)`);
-    const startMatch = usfm.match(startPattern);
-    return startMatch ? startMatch[1] : '1';
-}
-function transformOrderedListItems(usfm: string, level: number) {
-    // A nested list
-    //  * begins with \zon# or \zoli#, where # does not equal the current level
-    //  * ends at the first sfm tag that is not \zon#, \zoli#, or a character marker
-    const sublistMarkers = [...characterMarkers, `zon[^${level}]`, `zoli[^${level}]`].join('|');
-    const sublistPattern = `(\\\\zo(n|li)[^${level}])([^\\\\]|\\\\(${sublistMarkers}))*`;
-
-    // A list item consists of the following parts:
-    //  * \zoli# tag, where # is the current level
-    //  * text that may include only character markers
-    //  * a nested list (optional)
-    const textMarkers = characterMarkers.join('|');
-    const itemPattern = new RegExp(
-        `\\\\zoli${level}\\s((?:[^\\\\]|\\\\(?:${textMarkers}))*)(${sublistPattern})?`,
-        'g'
-    );
-    const items = Array.from(usfm.matchAll(itemPattern));
-    return items
-        .map((item) => {
-            const sublist = item[2] ? transformOrderedSublist(item[2], level + 1) : '';
-            return `\\nb \\zoli${level}-s |\\* ${item[1]} ${sublist} \\zoli${level}-e\\*`; //Beginning of this line is where the \m goes.
-        })
-        .join(' ');
+    return usfm;
 }
 
-// This is the start of supporting story books, but it still fails if there is no chapter.
 function replacePageTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
 }

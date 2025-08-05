@@ -2341,12 +2341,22 @@ LOGGING:
                                 workspace.paragraphDiv.classList.add('list-item');
                                 workspace.paragraphDiv.classList.add('list-decimal');
                                 workspace.paragraphDiv.classList.add('list-inside');
+                                if (!workspace['level' + match[1] + 'ListNum']) {
+                                    workspace['level' + match[1] + 'ListNum'] = 1;
+                                }
                                 workspace.paragraphDiv.style.counterSet =
                                     'list-item ' + workspace['level' + match[1] + 'ListNum'];
                                 workspace['level' + match[1] + 'ListNum']++;
 
                                 workspace.paragraphDiv.style.paddingInlineStart =
                                     2 * match[1] - 1 + 'rem';
+                                for (
+                                    let i = Number(match[1]) + 1;
+                                    workspace['level' + i + 'ListNum'];
+                                    i++
+                                ) {
+                                    workspace['level' + i + 'ListNum'] = undefined;
+                                } //This resets all lower-level list numbering so future lower-level lists don't continue from previous ones.
                             } else if ((match = element.subType.match(/^usfm:zuli(\d+)$/))) {
                                 workspace.paragraphDiv.classList.add('list-item');
                                 workspace.paragraphDiv.classList.add('list-inside');
