@@ -68,9 +68,6 @@ function transformZonTags(usfm: string): string {
     return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
-function replacePageTags(text: string, _bcId: string, _bookId: string): string {
-    return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
-}
 function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
@@ -304,7 +301,6 @@ const usfmFilterFunctions: FilterFunction[] = [
     replacePStyleTags,
     replaceCStyleTags,
     transformLists,
-    replacePageTags,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
     handleNoCaptionFigures,
