@@ -26,8 +26,6 @@
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
     const audioFolder = compareVersions(config.programVersion, '12.0') < 0 ? 'assets' : 'contents';
-    $: highlightColor = $themeColors['ContentsItemTouchColor'];
-    $: title = setTitle($page);
 
     function playAudio(event, item) {
         event.stopPropagation();
@@ -209,11 +207,13 @@
         }
         return first;
     }
-    $: books = $refs.catalog.documents;
-    $: currentDocSet = $refs.docSet;
-    $: showBackButton = $contentsStack.length > 0;
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'contents';
+    let highlightColor = $derived($themeColors['ContentsItemTouchColor']);
+    let title = $derived(setTitle($page));
+    let books = $derived($refs.catalog.documents);
+    let currentDocSet = $derived($refs.docSet);
+    let showBackButton = $derived($contentsStack.length > 0);
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -230,12 +230,12 @@
                 <div class="flex items-center">
                     <div class="flex">
                         {#if $page.data.features['show-text-size-button'] === true}
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-label-has-associated-control -->
-                            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_label_has_associated_control -->
+                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                             <label
                                 class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                                on:click={() =>
+                                onclick={() =>
                                     modal.open(MODAL_TEXT_APPEARANCE, { contentsMode: true })}
                             >
                                 <TextAppearanceIcon color="white" />
@@ -252,20 +252,20 @@
             {#each $page.data.items as item}
                 <!-- iterate through the items, adding html -->
 
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                     class="contents-item-block contents-link-ref"
                     id={item.id}
-                    on:click={(event) => onClick(event, item)}
+                    onclick={(event) => onClick(event, item)}
                 >
                     <!--check for the various elements in the item-->
                     {#if item.audioFilename[$language] || item.audioFilename.default}
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                         <div
                             class="contents-item-audio-image"
-                            on:click={(event) => playAudio(event, item)}
+                            onclick={(event) => playAudio(event, item)}
                         >
                             <AudioIcon.Volume></AudioIcon.Volume>
                         </div>
