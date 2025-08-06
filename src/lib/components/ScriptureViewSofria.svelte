@@ -2363,11 +2363,11 @@ LOGGING:
 
                                 workspace.paragraphDiv.style.paddingInlineStart =
                                     2 * match[1] - 1 + 'rem';
-                                if (match[1] === 2) {
+                                if (Number(match[1]) === 2) {
                                     workspace.paragraphDiv.classList.add(
                                         '[list-style-type:circle]'
                                     );
-                                } else if (match[1] >= 3) {
+                                } else if (Number(match[1]) >= 3) {
                                     workspace.paragraphDiv.classList.add(
                                         '[list-style-type:square]'
                                     );
