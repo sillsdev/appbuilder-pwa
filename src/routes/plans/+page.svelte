@@ -1,5 +1,5 @@
 <script>
-    import { base } from '$app/paths';
+    import { asset } from '$app/paths';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
@@ -11,34 +11,31 @@
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
 
-    //filter out the ones that are in $data.plans, looking at id
-    // $: availablePlans =
-    // //what plans are viewed based on what tab is selected
-    // $: viewedPlans =
-
     let selectedTab = $state('available');
-
     let availablePlans = $state([]);
     let completedPlans = $state([]);
     let usedPlans = $state([]);
     let allPlans = config.plans.plans || [];
     let plansInUse = $state([]);
-    const promises = allPlans.map((plan) =>
-        getLastPlanState(plan.id)
-            .then((planState) => {
-                if (planState && planState === 'started') {
-                    plansInUse = [...plansInUse, plan];
-                }
-                if (planState && planState === 'completed') {
-                    completedPlans = [...completedPlans, plan];
-                }
-            })
-            .catch(console.error)
-    );
-    Promise.all(promises).then(() => {
-        if (plansInUse.length > 0) {
-            selectedTab = 'in-use';
-        }
+
+    $effect(() => {
+        const promises = allPlans.map((plan) =>
+            getLastPlanState(plan.id)
+                .then((planState) => {
+                    if (planState && planState === 'started') {
+                        plansInUse = [...plansInUse, plan];
+                    }
+                    if (planState && planState === 'completed') {
+                        completedPlans = [...completedPlans, plan];
+                    }
+                })
+                .catch(console.error)
+        );
+        Promise.all(promises).then(() => {
+            if (plansInUse.length > 0) {
+                selectedTab = 'in-use';
+            }
+        });
     });
 
     $effect(() => {
@@ -119,7 +116,7 @@
                                 <div class="plan-image-block">
                                     <img
                                         class="plan-image"
-                                        src="{base}/{imageFolder}/{plan.image.file}"
+                                        src={asset(`/${imageFolder}/${plan.image.file}`)}
                                         alt={plan.image.file}
                                         width={plan.image.width}
                                         height={plan.image.height}
@@ -151,7 +148,7 @@
                                 <div class="plan-image-block">
                                     <img
                                         class="plan-image"
-                                        src="{base}/{imageFolder}/{plan.image.file}"
+                                        src={asset(`/${imageFolder}/${plan.image.file}`)}
                                         alt={plan.image.file}
                                         width={plan.image.width}
                                         height={plan.image.height}
@@ -183,7 +180,7 @@
                                 <div class="plan-image-block">
                                     <img
                                         class="plan-image"
-                                        src="{base}/{imageFolder}/{plan.image.file}"
+                                        src={asset(`/${imageFolder}/${plan.image.file}`)}
                                         alt={plan.image.file}
                                         width={plan.image.width}
                                         height={plan.image.height}
