@@ -109,9 +109,11 @@ if (programType === 'DAB') {
                 expect(bkk.chaptersN).not.toSatisfy((r) => r === '' || r === undefined);
                 expect(bkk.id).not.toSatisfy((r) => r === '' || r === undefined);
                 expect(bkk.name).not.toSatisfy((r) => r === '' || r === undefined);
-                expect(bkk.section).not.toSatisfy((r) => r === '' || r === undefined);
-                expect(bkk.testament).not.toSatisfy((r) => r === '' || r === undefined);
-                expect(bkk.abbreviation).not.toSatisfy((r) => r === '' || r === undefined);
+                if (bkk.type !== 'story') {
+                    expect(bkk.section).not.toSatisfy((r) => r === '' || r === undefined);
+                    expect(bkk.testament).not.toSatisfy((r) => r === '' || r === undefined);
+                    expect(bkk.abbreviation).not.toSatisfy((r) => r === '' || r === undefined);
+                }
                 expect(bkk.file).not.toSatisfy((r) => r === '' || r === undefined);
 
                 for (const audio in bkk.audio) {
