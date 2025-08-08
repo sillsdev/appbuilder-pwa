@@ -116,9 +116,10 @@ export class ConvertMedia extends Task {
         );
 
         for (const p of modifiedDirectories) {
+            const dest = p.includes('icons') ? 'src/generatedAssets' : 'static';
             cloneDirectory(
                 path.join(dataDir, p),
-                path.join('static', p),
+                path.join(dest, p),
                 verbose,
                 !required.includes(p)
             );
@@ -138,7 +139,7 @@ export class ConvertMedia extends Task {
                 const scriptureConfig = configData.data as ScriptureConfig;
                 if (scriptureConfig.tabTypes) {
                     // Copy tab images to static/icons/tabs
-                    const tabsPath = path.join('static', 'icons', 'tabs');
+                    const tabsPath = path.join('src', 'generatedAssets', 'icons', 'tabs');
                     mkdirSync(tabsPath, { recursive: true });
                     for (let i in scriptureConfig.tabTypes) {
                         const tabType = scriptureConfig.tabTypes[i];
