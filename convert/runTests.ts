@@ -1,9 +1,6 @@
 import { spawn } from 'node:child_process';
 
-let args = '';
-for (let i = 2; i < process.argv.length; i++) {
-    args += process.argv[i];
-}
+const args = process.argv.slice(2).join(' ');
 console.log('playwright test ' + args);
 spawn('playwright test ' + args, {
     shell: true,
