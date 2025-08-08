@@ -5,12 +5,12 @@
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
 
-    export let data;
+    let { data } = $props();
 
-    let textarea;
+    let textarea = $state();
     let note = data.note;
     let isNew = note ? false : true;
-    let text = note?.text ?? '';
+    let text = $state(note?.text ?? '');
     let reference = note?.reference ?? $selectedVerses[0]?.reference;
     const title = isNew ? 'Annotation_Note_Add' : 'Annotation_Note_Edit';
 
@@ -83,10 +83,10 @@
 
         {#snippet end()}
             <div class="dy-join">
-                <button on:click={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
+                <button onclick={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
                     ><DeleteIcon color="white" /></button
                 >
-                <button on:click={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
+                <button onclick={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
                     ><CheckIcon color="white" /></button
                 >
             </div>

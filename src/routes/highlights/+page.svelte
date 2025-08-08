@@ -49,7 +49,7 @@
         ]
     };
 
-    let sortOrder = SORT_DATE;
+    let sortOrder = $state(SORT_DATE);
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -63,7 +63,7 @@
                 </label>
             {/snippet}
 
-            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <!-- svelte-ignore a11y_label_has_associated_control -->
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
