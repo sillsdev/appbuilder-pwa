@@ -26,7 +26,6 @@ static/watermarks
 static/borders
 static/clips
 static/videos
-static/icons
 static/*.partial.html
 static/manifest.json
 static/assets
@@ -41,4 +40,5 @@ src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js
 src/lib/data/contents.js
+src/generatedAssets
 vite.config.js.timestamp*
