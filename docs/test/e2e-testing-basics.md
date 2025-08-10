@@ -19,7 +19,7 @@ Here's what a test generally looks like:
 
 ```js
 test('Test Navigation', async ({ page }) => {
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://100.76.234.109:5173/');
 
     await page.getByTestId("about-icon").click();
     await expect(page.getByTestId("title")).toHaveText("About");

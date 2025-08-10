@@ -174,6 +174,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             class="dy-btn-sm"
                             style:background-color={buttonBackground('Normal')}
                             style:border={buttonBorder('Normal', $theme)}
+                            data-testid="normal"
                             on:click={() => ($theme = 'Normal')}
                         ></button>
                     {/if}
@@ -182,6 +183,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             class="dy-btn-sm"
                             style:background-color={buttonBackground('Sepia')}
                             style:border={buttonBorder('Sepia', $theme)}
+                            data-testid="sepia"
                             on:click={() => ($theme = 'Sepia')}
                         ></button>
                     {/if}
@@ -190,6 +192,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             class="dy-btn-sm"
                             style:background-color={buttonBackground('Dark')}
                             style:border={buttonBorder('Dark', $theme)}
+                            data-testid="dark"
                             on:click={() => ($theme = 'Dark')}
                         ></button>
                     {/if}

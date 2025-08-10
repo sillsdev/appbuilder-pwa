@@ -67,7 +67,7 @@ The navbar component.
         {/if}
         {@render start?.()}
     </div>
-    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])} data-testid="title">
+    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
         {@render center?.()}
     </div>
     <div class="dy-navbar-end fill-base-content">
