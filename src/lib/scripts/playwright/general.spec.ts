@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Test Navigation', async ({ page }) => {
     const cfg = await import('$lib/data/config');
-    await page.goto('http://100.76.234.109:5173/');
+    await page.goto('http://localhost:5173/');
 
     if (cfg.default.programType == "DAB") {
         let title = await page.getByTestId("title-text")
@@ -33,7 +33,7 @@ test('Test Text Appearance', async ({ page }) => {
     } else {
         menuButton = await page.getByTestId('hamburger-icon');
     }
-    await page.goto('http://100.76.234.109:5173/');
+    await page.goto('http://localhost:5173/');
     for (let thm of cfg.default.themes) {
         if (thm.name == "Normal" && thm.enabled == true) {
             await menuButton.click();
@@ -63,7 +63,7 @@ test('Test Text Appearance', async ({ page }) => {
 })
 
 test('Test Share', async ({ page }) => {
-    await page.goto('http://100.76.234.109:5173/');
+    await page.goto('http://localhost:5173/');
     const cfg = await import('$lib/data/config');
     if (cfg.default.programType == "DAB") {
         await page.getByTestId('title').click();
@@ -79,7 +79,7 @@ test('Test Share', async ({ page }) => {
 
 test('Test Settings', async ({ page }) => {
     const cfg = await import('$lib/data/config');
-    await page.goto('http://100.76.234.109:5173/');
+    await page.goto('http://localhost:5173/');
     if (cfg.default.programType == "DAB") {
         await page.getByTestId('title').click();
     } else {
@@ -146,7 +146,7 @@ test('Test Settings', async ({ page }) => {
 test('Test Tabs of Dictionary', async ({ page }) => {
     const cfg = await import('$lib/data/config');
     if (cfg.default.programType == "DAB") {
-        await page.goto('http://100.76.234.109:5173/');
+        await page.goto('http://localhost:5173/');
         // find writing system name
         const vernName = await page.getByTestId("vernacular-language-tab").textContent();
         const revName = await page.getByTestId("reversal-language-tab").textContent();
