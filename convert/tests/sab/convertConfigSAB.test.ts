@@ -19,6 +19,7 @@ import {
     parseMenuItems,
     parseMenuLocalizations,
     parsePlans,
+    parseTabTypes,
     parseTraits,
     parseVideos,
     parseWatermarkImages
@@ -219,6 +220,28 @@ if (programType === 'DAB') {
             }
             for (const lc of Object.keys(layout.features)) {
                 expect(layout.features[lc]).not.toSatisfy((r) => r === '' || r === undefined);
+            }
+        }
+    });
+
+    test('convertConfig: parse tab types', () => {
+        const result = parseTabTypes(document, 1);
+        expect(Object.keys(result)).not.toHaveLength(0);
+        for (const id in result) {
+            const tabType = result[id];
+            expect(id).not.toSatisfy((r) => r === '' || r === undefined);
+            expect(tabType.style).toSatisfy((r) => r === 'text' || r === 'image');
+            expect(Object.keys(tabType.name)).not.toHaveLength(0);
+            if (tabType.style === 'image') {
+                expect(tabType.images).not.toBe(undefined);
+                if (tabType.images) {
+                    expect(tabType.images).not.toHaveLength(0);
+                    for (const image of tabType.images) {
+                        expect(image.file).not.toSatisfy((r) => r === '' || r === undefined);
+                        expect(image.width).toBeGreaterThan(0);
+                        expect(image.height).toBeGreaterThan(0);
+                    }
+                }
             }
         }
     });

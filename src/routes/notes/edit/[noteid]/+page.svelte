@@ -3,9 +3,11 @@
     import { addNote, editNote, removeNote } from '$lib/data/notes';
     import { selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
+    import { onMount } from 'svelte';
 
     export let data;
 
+    let textarea;
     let note = data.note;
     let isNew = note ? false : true;
     let text = note?.text ?? '';
@@ -53,6 +55,13 @@
         goBack();
     }
 
+    onMount(() => {
+        if (textarea) {
+            textarea.focus();
+            textarea.selectionStart = text.length;
+        }
+    });
+
     let action = isNew ? createNote : modifyNote;
 </script>
 
@@ -85,7 +94,11 @@
     </Navbar>
 
     <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
-        <textarea bind:value={text} class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md">
+        <textarea
+            bind:this={textarea}
+            bind:value={text}
+            class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md"
+        >
         </textarea>
     </div>
 </div>

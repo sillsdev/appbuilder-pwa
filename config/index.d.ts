@@ -19,6 +19,7 @@ export type StyleConfig = {
 };
 
 export type BookTabConfig = {
+    bookTabID: string;
     type: string;
     file: string;
     features: any;
@@ -270,6 +271,19 @@ export type ScriptureConfig = AppConfig & {
             [key: string]: string;
         };
     }[];
+    tabTypes?: {
+        [key: string]: {
+            style: 'image' | 'text';
+            name: {
+                [lang: string]: string;
+            };
+            images?: {
+                width: number;
+                height: number;
+                file: string;
+            }[];
+        };
+    };
     backgroundImages?: {
         width: string;
         height: string;

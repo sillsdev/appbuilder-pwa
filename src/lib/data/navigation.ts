@@ -15,6 +15,7 @@ export class NavigationContext {
     verse: string;
     audio: any;
     title: string;
+    bookTab: number;
     name: string;
     catalog: CatalogData;
     allBookIds: string[];
@@ -52,7 +53,15 @@ export class NavigationContext {
             // Deprecated 2-part reference.
             await this.goto(this.docSets[0], ref[0], ref[1], '1');
         } else {
-            await this.goto(ref[0], ref[1], ref[2], '1');
+            let docSet = ref[0];
+            if (!ref[0].includes('_')) {
+                // This is a collection id.
+                const collection = this.config.bookCollections.find((c) => c.id === ref[0]);
+                docSet = collection
+                    ? `${collection.languageCode}_${collection.id}`
+                    : this.docSets[0];
+            }
+            await this.goto(docSet, ref[1], ref[2], '1');
         }
     }
 
@@ -65,6 +74,9 @@ export class NavigationContext {
         this.updateHeadings();
         this.updateNextPrev();
         this.updateReference();
+    }
+    updateBookTab(bookTab: number) {
+        this.bookTab = bookTab;
     }
 
     private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {

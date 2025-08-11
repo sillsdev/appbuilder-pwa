@@ -325,6 +325,11 @@ function convertConfig(dataDir: string, verbose: number) {
         }
         data.layouts = layouts;
 
+        const tabTypes = parseTabTypes(document, verbose);
+        if (Object.keys(tabTypes).length > 0) {
+            data.tabTypes = tabTypes;
+        }
+
         const backgroundImages = parseBackgroundImages(document, verbose);
         if (backgroundImages.length > 0) {
             data.backgroundImages = backgroundImages;
@@ -612,6 +617,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     mainType: bookTabsTag.attributes.getNamedItem('main-type')!.value,
                     tabs: []
                 };
+                let i = 0;
                 for (const bookTab of bookTabsTag.getElementsByTagName('book-tab')) {
                     const tabFeaturesTag = bookTab
                         .querySelector('features[type=book]')
@@ -673,6 +679,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                     const footer = convertFooter(footerTags[0]?.innerHTML, document);
 
                     bookTabs.tabs.push({
+                        bookTabID: i.toString(),
                         type: bookTab.attributes.getNamedItem('type')!.value,
                         file: bookTab.getElementsByTagName('f')[0]?.innerHTML, //If format ends up needing to be part of BookTabs, this will need to change a little bit (See below in books.push).
                         features: tabFeatures,
@@ -684,6 +691,7 @@ export function parseBookCollections(document: Document, verbose: number) {
                         audio: audio,
                         footer: footer
                     });
+                    i++;
                 }
             }
 
@@ -1199,6 +1207,56 @@ export function parseLayouts(document: Document, bookCollections: any, verbose: 
     if (verbose) console.log(`Converted ${layoutTags?.length} layouts`);
 
     return { layouts, defaultLayout };
+}
+
+export function parseTabTypes(document: Document, verbose: number) {
+    const tabTypes: {
+        [key: string]: {
+            style: 'image' | 'text';
+            name: {
+                [lang: string]: string;
+            };
+            images?: {
+                width: number;
+                height: number;
+                file: string;
+            }[];
+        };
+    } = {};
+    const tabTypesTag = document.getElementsByTagName('tab-types')[0];
+    const tabTags = tabTypesTag.getElementsByTagName('tab-type');
+    for (const tab of tabTags) {
+        if (verbose >= 2) console.log(`Converting tabType: ${tab.id}`);
+        const id = tab.getAttribute('id')!;
+        const style = tab.getAttribute('style') as 'image' | 'text';
+
+        const nameTags = tab.getElementsByTagName('tab-name')[0].getElementsByTagName('t');
+        const name: { [lang: string]: string } = {};
+        for (const nameTag of nameTags) {
+            name[nameTag.attributes.getNamedItem('lang')!.value] = nameTag.innerHTML;
+        }
+
+        const images: { width: number; height: number; file: string }[] = [];
+        const imagesTag = tab.getElementsByTagName('images')[0];
+        const imageTags = imagesTag.getElementsByTagName('image');
+        for (const imageTag of imageTags) {
+            if (verbose >= 3) console.log(`.... image: ${imageTag.outerHTML}`);
+            if (!imageTag.hasAttribute('width') || !imageTag.hasAttribute('height')) {
+                throw `Tab "${id}" image missing width or height`;
+            }
+            const width = parseInt(imageTag.getAttribute('width')!);
+            const height = parseInt(imageTag.getAttribute('height')!);
+            const file = imageTag.innerHTML;
+            images.push({ width, height, file });
+        }
+
+        tabTypes[id] = {
+            style,
+            name,
+            images: images.length > 0 ? images : undefined
+        };
+    }
+    return tabTypes;
 }
 
 export function parseBackgroundImages(document: Document, verbose: number) {

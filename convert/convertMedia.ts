@@ -1,5 +1,6 @@
-import { CopySyncOptions, cpSync, existsSync } from 'fs';
+import { copyFileSync, CopySyncOptions, cpSync, existsSync, mkdirSync } from 'fs';
 import path from 'path';
+import { ScriptureConfig } from '$config';
 import { rimraf } from 'rimraf';
 import { ConfigTaskOutput } from './convertConfig';
 import { compareVersions } from './stringUtils';
@@ -128,6 +129,34 @@ export class ConvertMedia extends Task {
             throw Error(
                 `Version ${configData.data.programVersion} not supported. Use 12.0 or later`
             );
+        }
+
+        if (compareVersions(configData.data.programVersion!, '13.0') < 0) {
+            // Prior to 13.0, tab icons were copied to the root of the data folder.
+            // After 13.0, they are in data/icons/tabs (and wll be copied with all the other icons).
+            if (configData.data.programType === 'SAB') {
+                const scriptureConfig = configData.data as ScriptureConfig;
+                if (scriptureConfig.tabTypes) {
+                    // Copy tab images to static/icons/tabs
+                    const tabsPath = path.join('static', 'icons', 'tabs');
+                    mkdirSync(tabsPath, { recursive: true });
+                    for (let i in scriptureConfig.tabTypes) {
+                        const tabType = scriptureConfig.tabTypes[i];
+                        if (tabType.style === 'image' && tabType.images) {
+                            for (const image of tabType.images) {
+                                const src = path.join('data', image.file);
+                                if (existsSync(src)) {
+                                    // copy the used icons to the tabs folder
+                                    copyFileSync(
+                                        path.join('data', image.file),
+                                        path.join(tabsPath, image.file)
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

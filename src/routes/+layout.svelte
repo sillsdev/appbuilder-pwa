@@ -59,8 +59,7 @@
                         collectionSelector.showModal();
                         break;
                     case MODAL_NOTE:
-                        noteDialog.note = data;
-                        noteDialog.showModal();
+                        noteDialog.showModal(data);
                         break;
                     case MODAL_TEXT_APPEARANCE:
                         textAppearanceSelector.options = data;
