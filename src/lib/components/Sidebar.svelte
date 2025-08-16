@@ -135,6 +135,7 @@ The sidebar/drawer.
                         class="btn"
                         style:color={textColor}
                         onclick={() => gotoRoute('/account')}
+                        data-testid="account-icon"
                     >
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </button>
@@ -146,6 +147,7 @@ The sidebar/drawer.
                         class="btn"
                         style:color={textColor}
                         onclick={() => gotoRoute('/contents/1')}
+                        data-testid="contents-icon"
                     >
                         <HomeIcon color={iconColor} />{$t['Menu_Contents']}
                     </button>
@@ -153,7 +155,12 @@ The sidebar/drawer.
             {/if}
             {#if showSearch}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={goToSearch}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={goToSearch}
+                        data-testid="search-icon"
+                    >
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </button>
                 </li>
@@ -165,6 +172,7 @@ The sidebar/drawer.
                         style:color={textColor}
                         class="btn"
                         onclick={() => modal.open(MODAL_COLLECTION)}
+                        data-testid="layouts-icon"
                     >
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
@@ -179,6 +187,7 @@ The sidebar/drawer.
                         class="btn"
                         style:color={textColor}
                         onclick={() => gotoRoute('/history')}
+                        data-testid="history-icon"
                     >
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </button>
@@ -190,6 +199,7 @@ The sidebar/drawer.
                         class="btn"
                         style:color={textColor}
                         onclick={() => gotoRoute('/bookmarks')}
+                        data-testid="bookmarks-icon"
                     >
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </button>
@@ -197,7 +207,12 @@ The sidebar/drawer.
             {/if}
             {#if showNotes}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/notes')}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => gotoRoute('/notes')}
+                        data-testid="notes-icon"
+                    >
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </button>
                 </li>
@@ -208,6 +223,7 @@ The sidebar/drawer.
                         class="btn"
                         style:color={textColor}
                         onclick={() => gotoRoute('/highlights')}
+                        data-testid="highlights-icon"
                     >
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </button>
@@ -218,7 +234,12 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/share')}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => gotoRoute('/share')}
+                        data-testid="share-icon"
+                    >
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </button>
                 </li>
@@ -226,7 +247,12 @@ The sidebar/drawer.
             {/if}
             {#if showPlans}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/plans')}>
+                    <button
+                        class="btn"
+                        style:color={textColor}
+                        onclick={() => gotoRoute('/plans')}
+                        data-testid="plans-icon"
+                    >
                         <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
                     </button>
                 </li>
@@ -237,6 +263,7 @@ The sidebar/drawer.
                         class="btn"
                         style:color={textColor}
                         onclick={() => gotoRoute('/settings')}
+                        data-testid="settings-icon"
                     >
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                     </button>
@@ -248,6 +275,7 @@ The sidebar/drawer.
                     style:color={textColor}
                     class="btn"
                     onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                    data-testid="text-appearance-icon"
                 >
                     <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                 </button>
@@ -283,7 +311,12 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <button class="btn" style:color={textColor} onclick={() => gotoRoute('/about')}>
+                <button
+                    class="btn"
+                    style:color={textColor}
+                    onclick={() => gotoRoute('/about')}
+                    data-testid="about-icon"
+                >
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </button>
             </li>

@@ -12,6 +12,7 @@
     <div
         role="button"
         tabindex="0"
+        data-testid="vernacular-language-tab"
         aria-pressed={selectedLanguage === vernacularLanguage}
         on:click={() => onSwitchLanguage(vernacularLanguage)}
         on:keydown={(e) => e.key === 'Enter' && onSwitchLanguage(vernacularLanguage)}
@@ -20,6 +21,7 @@
         {vernacularLanguage}
         {#if selectedLanguage === vernacularLanguage}
             <div
+                data-testid="vernacular-language-indicator"
                 transition:fly={{ axis: 'x', easing: expoInOut, x: 70 }}
                 class="absolute -bottom-1 left-0 w-full h-1 bg-black"
             ></div>
@@ -28,6 +30,7 @@
     <div
         role="button"
         tabindex="0"
+        data-testid="reversal-language-tab"
         aria-pressed={selectedLanguage === reversalLanguage}
         on:click={() => onSwitchLanguage(reversalLanguage)}
         on:keydown={(e) => e.key === 'Enter' && onSwitchLanguage(reversalLanguage)}
@@ -36,6 +39,7 @@
         {reversalLanguage}
         {#if selectedLanguage === reversalLanguage}
             <div
+                data-testid="reversal-language-indicator"
                 transition:fly={{ axis: 'x', easing: expoInOut, x: -70 }}
                 class="absolute -bottom-1 left-0 w-full h-1 bg-black"
             ></div>

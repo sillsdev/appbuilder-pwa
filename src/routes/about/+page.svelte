@@ -15,7 +15,9 @@
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_About']}</div>
+                    <div data-testid="about-title" class="btn btn-ghost normal-case text-xl">
+                        {$t['Menu_About']}
+                    </div>
                 </label>
             {/snippet}
         </Navbar>

@@ -42,3 +42,9 @@ src/lib/data/firebase-config.js
 src/lib/data/config.js
 src/lib/data/contents.js
 vite.config.js.timestamp*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

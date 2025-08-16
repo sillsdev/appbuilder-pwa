@@ -79,3 +79,17 @@ jobs:
                         done
                     done
                   done
+
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+
+            - name: Run Playwright E2E Tests
+              run: npx playwright test --reporter=html
+
+            - name: Upload Playwright Report
+              if: always() # ensures report uploads even if tests fail
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report
+                  retention-days: 7
