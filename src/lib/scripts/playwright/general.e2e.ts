@@ -126,11 +126,9 @@ test('Test Settings', async ({ page }) => {
             //await expect(page.locator('[class="mt2"]')).toHaveText("The Good News According to");
 
             await expect(page.getByText('Verse layout')).toBeVisible();
-            const selbox1 = page
-                .getByRole('combobox')
-                .filter({
-                    has: page.getByRole('option').filter({ hasText: 'Verses in paragraphs' })
-                });
+            const selbox1 = page.getByRole('combobox').filter({
+                has: page.getByRole('option').filter({ hasText: 'Verses in paragraphs' })
+            });
             await expect(selbox1).toBeVisible();
             await expect(selbox1).toHaveValue('paragraphs');
             await selbox1.selectOption('one-per-line');
