@@ -344,7 +344,7 @@
                                 <tr
                                     class="plan-item"
                                     id={'R-' + index}
-                                    on:click={goToDailyReference(selectedDay, ref, index)}
+                                    on:click={() => goToDailyReference(selectedDay, ref, index)}
                                 >
                                     <td class="plan-item-checkbox plan-checkbox-image">
                                         {#if referenceCompleted(selectedDay.day, index) === true}

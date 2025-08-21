@@ -38,7 +38,6 @@
         notes,
         refs,
         s,
-        scrolls,
         selectedVerses,
         showDesktopSidebar,
         t,
@@ -218,31 +217,22 @@
         showOverlowMenu = false;
     }
 
-    /**unique key to use for groupStore modifier*/
-    const key = {};
-
-    let group = 'default';
-    let scrollId;
-    let scrollMod;
-    const unSub = scrolls.subscribe((val, mod) => {
-        scrollId = val;
-        scrollMod = mod;
-    }, group);
-    onDestroy(unSub);
-
     /**scrolls element with id into view*/
     const scrollTo = (id) => {
-        if (scrollMod === key) return;
-        if (!id) return;
+        let verseId = id === 'start-none' ? '1-a' : id;
+        if (!verseId) return;
         let el = document.querySelector(
-            `div[data-verse="${id.split('-')[0]}"][data-phrase="${id.split('-')[1]}"]`
+            `div[data-verse="${verseId.split('-')[0]}"][data-phrase="${verseId.split('-')[1]}"]`
         );
         makeElementVisible(el);
     };
-    $effect(() => {
-        scrollTo(scrollId);
-    });
-
+    function delayedScroll(id) {
+        let updateTimer;
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(() => {
+            scrollTo(id);
+        }, 100);
+    }
     function delayedSeek(id) {
         let updateTimer;
         clearTimeout(updateTimer);
@@ -258,11 +248,11 @@
             updateTimer = setTimeout(() => {
                 let verse = $refs.verse;
                 if (verse === '' || verse === '1') {
-                    scrolls.set('start-none');
+                    delayedScroll('start-none');
                 } else {
                     let verseID = verse + '-a';
                     let audioID = verse + 'a';
-                    scrolls.set(verseID);
+                    delayedScroll(verseID);
                     updateAudioPlayer($refs);
                     delayedSeek(audioID);
                 }

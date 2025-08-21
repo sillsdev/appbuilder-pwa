@@ -15,8 +15,6 @@ export const isFirstLaunch = derived(
     ([$firstLaunchTime, $launchTime]) => $firstLaunchTime === $launchTime
 );
 
-/**a group of writable stores to store the top visible verse in a group*/
-export const scrolls = groupStore(writable, 'title');
 /**the current view/layout mode*/
 export const LAYOUT_SINGLE = 'single';
 export const LAYOUT_TWO = 'two';
