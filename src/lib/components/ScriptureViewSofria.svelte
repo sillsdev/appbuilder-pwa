@@ -1422,6 +1422,7 @@ LOGGING:
                             workspace.lemma = '';
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
+                            workspace.jmpText = '';
                             deselectAllElements(selectedVerses);
 
                             const div = document.createElement('div');
@@ -1789,6 +1790,10 @@ LOGGING:
                                                 createIllustrationCaptionBlock(text);
                                             workspace.figureDiv.append(divFigureText);
                                         }
+                                        break;
+                                    }
+                                    case 'jmp': {
+                                        workspace.jmpText += text;
                                         break;
                                     }
                                     case 'audioc':
@@ -2193,6 +2198,7 @@ LOGGING:
                                             addFigureDiv(source, workspace);
                                         }
                                     } else if (usfmType === 'jmp') {
+                                        workspace.textType.push('jmp');
                                         if (isDefined(element.atts['href'])) {
                                             workspace.jmpLink = decodeURIComponent(
                                                 element.atts['href'][0]
@@ -2204,6 +2210,7 @@ LOGGING:
                                                 element.atts['title'][0]
                                             );
                                         }
+                                        workspace.jmpText = '';
                                     } else {
                                         workspace.textType.push('usfm');
                                         if (usfmType === 'w') {
@@ -2260,14 +2267,21 @@ LOGGING:
                                     break;
                                 }
                                 case 'usfm': {
-                                    workspace.textType.pop();
                                     let usfmType = element.subType.split(':')[1];
                                     if (usfmType === 'fig') {
                                         if (showImage()) {
                                             workspace.paragraphDiv.appendChild(workspace.figureDiv);
                                         }
                                     } else if (usfmType === 'jmp') {
+                                        workspace.textType.pop();
                                         if (workspace.jmpLink) {
+                                            let parentDiv;
+                                            if (workspace.textType.includes('heading')) {
+                                                parentDiv = workspace.headerInnerDiv;
+                                            } else {
+                                                parentDiv =
+                                                    workspace.phraseDiv ?? workspace.paragraphDiv;
+                                            }
                                             const jmpLink = document.createElement('a');
 
                                             const className = workspace.jmpLink.startsWith('mailto')
@@ -2278,8 +2292,7 @@ LOGGING:
                                             jmpLink.classList.add(className);
                                             jmpLink.setAttribute('href', workspace.jmpLink);
                                             jmpLink.setAttribute('target', '_blank');
-                                            jmpLink.innerHTML = workspace.phraseDiv.innerHTML;
-
+                                            jmpLink.innerHTML = workspace.jmpText;
                                             if (workspace.jmpTitle) {
                                                 // must use inline style
                                                 const tip = document.createElement('span');
@@ -2287,14 +2300,15 @@ LOGGING:
                                                 tip.classList.add('dy-tooltip');
                                                 tip.setAttribute('data-tip', workspace.jmpTitle);
                                                 tip.appendChild(jmpLink);
-                                                workspace.paragraphDiv.appendChild(tip);
+                                                parentDiv.appendChild(tip);
                                             } else {
-                                                workspace.paragraphDiv.appendChild(jmpLink);
+                                                parentDiv.appendChild(jmpLink);
                                             }
-                                            workspace.phraseDiv = null;
                                             workspace.jmpLink = '';
                                             workspace.jmpTitle = '';
                                         }
+                                    } else {
+                                        workspace.textType.pop();
                                     }
                                     workspace.usfmWrapperType = '';
                                     break;
