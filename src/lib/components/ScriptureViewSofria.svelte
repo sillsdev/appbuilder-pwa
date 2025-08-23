@@ -1297,14 +1297,24 @@ LOGGING:
     }
     function addJmpLink(workspace: any) {
         if (workspace.jmpLink) {
-            let parentDiv;
+            let parentDiv: HTMLElement | null;
             if (workspace.textType.includes('heading')) {
                 parentDiv = workspace.headerInnerDiv;
             } else {
                 parentDiv = workspace.phraseDiv ?? workspace.paragraphDiv;
             }
-            // For safety, if no parent, do nothing
             if (!parentDiv) {
+                // For safety, if no parent, reset and return
+                workspace.jmpLink = '';
+                workspace.jmpTitle = '';
+                workspace.jmpText = '';
+                return;
+            }
+            // Graceful degradation: no/unsupported href -> emit plain text
+            if (!workspace.jmpLink) {
+                appendTextToElement(parentDiv, workspace.jmpText);
+                workspace.jmpTitle = '';
+                workspace.jmpText = '';
                 return;
             }
             const jmpLink = document.createElement('a');
