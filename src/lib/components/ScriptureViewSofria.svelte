@@ -1266,6 +1266,79 @@ LOGGING:
             checkImageExists(imageSource, divFigure);
         }
     }
+    function prepareJmpLink(workspace: any, element: any) {
+        if (isDefined(element.atts['href'])) {
+            const rawHref = element.atts['href'][0];
+            try {
+                workspace.jmpLink = decodeURIComponent(rawHref);
+            } catch {
+                workspace.jmpLink = rawHref;
+            }
+            const hrefLower = workspace.jmpLink.trim().toLowerCase();
+            const allowed =
+                hrefLower.startsWith('http://') ||
+                hrefLower.startsWith('https://') ||
+                hrefLower.startsWith('mailto:') ||
+                hrefLower.startsWith('tel:');
+            if (!allowed) {
+                console.warn('Ignoring unsupported jmp href protocol:', workspace.jmpLink);
+                workspace.jmpLink = '';
+            }
+        }
+        if (isDefined(element.atts['title'])) {
+            const rawTitle = element.atts['title'][0];
+            try {
+                workspace.jmpTitle = decodeURIComponent(rawTitle);
+            } catch {
+                workspace.jmpTitle = rawTitle;
+            }
+        }
+        workspace.jmpText = '';
+    }
+    function addJmpLink(workspace: any) {
+        if (workspace.jmpLink) {
+            let parentDiv;
+            if (workspace.textType.includes('heading')) {
+                parentDiv = workspace.headerInnerDiv;
+            } else {
+                parentDiv = workspace.phraseDiv ?? workspace.paragraphDiv;
+            }
+            // For safety, if no parent, do nothing
+            if (!parentDiv) {
+                return;
+            }
+            const jmpLink = document.createElement('a');
+
+            const linkLower = workspace.jmpLink.toLowerCase();
+            const className = linkLower.startsWith('mailto')
+                ? 'email-link'
+                : linkLower.startsWith('tel')
+                  ? 'tel-link'
+                  : 'web-link';
+            jmpLink.classList.add(className);
+            jmpLink.setAttribute('href', workspace.jmpLink);
+            if (className === 'web-link') {
+                jmpLink.setAttribute('target', '_blank');
+                jmpLink.setAttribute('rel', 'noopener');
+            }
+            jmpLink.textContent = workspace.jmpText;
+            jmpLink.addEventListener('click', (e) => e.stopPropagation());
+            if (workspace.jmpTitle) {
+                // must use inline style
+                const tip = document.createElement('span');
+                tip.style.display = 'inline';
+                tip.classList.add('dy-tooltip');
+                tip.setAttribute('data-tip', workspace.jmpTitle);
+                tip.appendChild(jmpLink);
+                parentDiv.appendChild(tip);
+            } else {
+                parentDiv.appendChild(jmpLink);
+            }
+            workspace.jmpLink = '';
+            workspace.jmpTitle = '';
+            workspace.jmpText = '';
+        }
+    }
 
     async function checkImageExists(src: string, div: HTMLElement) {
         try {
@@ -1301,6 +1374,12 @@ LOGGING:
                 break;
             case 'audioclip':
                 remoteAudioClipHandler(e);
+                break;
+            case 'web-link':
+            case 'email-link':
+            case 'tel-link':
+                // Allow native navigation without verse selection side-effects.
+                e.stopPropagation();
                 break;
             default:
                 if (e.target.classList.contains('ref-link')) {
@@ -2199,18 +2278,7 @@ LOGGING:
                                         }
                                     } else if (usfmType === 'jmp') {
                                         workspace.textType.push('jmp');
-                                        if (isDefined(element.atts['href'])) {
-                                            workspace.jmpLink = decodeURIComponent(
-                                                element.atts['href'][0]
-                                            );
-                                        }
-
-                                        if (isDefined(element.atts['title'])) {
-                                            workspace.jmpTitle = decodeURIComponent(
-                                                element.atts['title'][0]
-                                            );
-                                        }
-                                        workspace.jmpText = '';
+                                        prepareJmpLink(workspace, element);
                                     } else {
                                         workspace.textType.push('usfm');
                                         if (usfmType === 'w') {
@@ -2274,39 +2342,7 @@ LOGGING:
                                         }
                                     } else if (usfmType === 'jmp') {
                                         workspace.textType.pop();
-                                        if (workspace.jmpLink) {
-                                            let parentDiv;
-                                            if (workspace.textType.includes('heading')) {
-                                                parentDiv = workspace.headerInnerDiv;
-                                            } else {
-                                                parentDiv =
-                                                    workspace.phraseDiv ?? workspace.paragraphDiv;
-                                            }
-                                            const jmpLink = document.createElement('a');
-
-                                            const className = workspace.jmpLink.startsWith('mailto')
-                                                ? 'email-link'
-                                                : workspace.jmpLink.startsWith('tel')
-                                                  ? 'tel-link'
-                                                  : 'web-link';
-                                            jmpLink.classList.add(className);
-                                            jmpLink.setAttribute('href', workspace.jmpLink);
-                                            jmpLink.setAttribute('target', '_blank');
-                                            jmpLink.innerHTML = workspace.jmpText;
-                                            if (workspace.jmpTitle) {
-                                                // must use inline style
-                                                const tip = document.createElement('span');
-                                                tip.style.display = 'inline';
-                                                tip.classList.add('dy-tooltip');
-                                                tip.setAttribute('data-tip', workspace.jmpTitle);
-                                                tip.appendChild(jmpLink);
-                                                parentDiv.appendChild(tip);
-                                            } else {
-                                                parentDiv.appendChild(jmpLink);
-                                            }
-                                            workspace.jmpLink = '';
-                                            workspace.jmpTitle = '';
-                                        }
+                                        addJmpLink(workspace);
                                     } else {
                                         workspace.textType.pop();
                                     }
