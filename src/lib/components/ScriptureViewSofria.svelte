@@ -1296,58 +1296,56 @@ LOGGING:
         workspace.jmpText = '';
     }
     function addJmpLink(workspace: any) {
-        if (workspace.jmpLink) {
-            let parentDiv: HTMLElement | null;
-            if (workspace.textType.includes('heading')) {
-                parentDiv = workspace.headerInnerDiv;
-            } else {
-                parentDiv = workspace.phraseDiv ?? workspace.paragraphDiv;
-            }
-            if (!parentDiv) {
-                // For safety, if no parent, reset and return
-                workspace.jmpLink = '';
-                workspace.jmpTitle = '';
-                workspace.jmpText = '';
-                return;
-            }
-            // Graceful degradation: no/unsupported href -> emit plain text
-            if (!workspace.jmpLink) {
-                appendTextToElement(parentDiv, workspace.jmpText);
-                workspace.jmpTitle = '';
-                workspace.jmpText = '';
-                return;
-            }
-            const jmpLink = document.createElement('a');
-
-            const linkLower = workspace.jmpLink.toLowerCase();
-            const className = linkLower.startsWith('mailto')
-                ? 'email-link'
-                : linkLower.startsWith('tel')
-                  ? 'tel-link'
-                  : 'web-link';
-            jmpLink.classList.add(className);
-            jmpLink.setAttribute('href', workspace.jmpLink);
-            if (className === 'web-link') {
-                jmpLink.setAttribute('target', '_blank');
-                jmpLink.setAttribute('rel', 'noopener');
-            }
-            jmpLink.textContent = workspace.jmpText;
-            jmpLink.addEventListener('click', (e) => e.stopPropagation());
-            if (workspace.jmpTitle) {
-                // must use inline style
-                const tip = document.createElement('span');
-                tip.style.display = 'inline';
-                tip.classList.add('dy-tooltip');
-                tip.setAttribute('data-tip', workspace.jmpTitle);
-                tip.appendChild(jmpLink);
-                parentDiv.appendChild(tip);
-            } else {
-                parentDiv.appendChild(jmpLink);
-            }
+        let parentDiv: HTMLElement | null;
+        if (workspace.textType.includes('heading')) {
+            parentDiv = workspace.headerInnerDiv;
+        } else {
+            parentDiv = workspace.phraseDiv ?? workspace.paragraphDiv;
+        }
+        if (!parentDiv) {
+            // For safety, if no parent, reset and return
             workspace.jmpLink = '';
             workspace.jmpTitle = '';
             workspace.jmpText = '';
+            return;
         }
+        // Graceful degradation: no/unsupported href -> emit plain text
+        if (!workspace.jmpLink) {
+            appendTextToElement(parentDiv, workspace.jmpText);
+            workspace.jmpTitle = '';
+            workspace.jmpText = '';
+            return;
+        }
+        const jmpLink = document.createElement('a');
+
+        const linkLower = workspace.jmpLink.toLowerCase();
+        const className = linkLower.startsWith('mailto')
+            ? 'email-link'
+            : linkLower.startsWith('tel')
+                ? 'tel-link'
+                : 'web-link';
+        jmpLink.classList.add(className);
+        jmpLink.setAttribute('href', workspace.jmpLink);
+        if (className === 'web-link') {
+            jmpLink.setAttribute('target', '_blank');
+            jmpLink.setAttribute('rel', 'noopener');
+        }
+        jmpLink.textContent = workspace.jmpText;
+        jmpLink.addEventListener('click', (e) => e.stopPropagation());
+        if (workspace.jmpTitle) {
+            // must use inline style
+            const tip = document.createElement('span');
+            tip.style.display = 'inline';
+            tip.classList.add('dy-tooltip');
+            tip.setAttribute('data-tip', workspace.jmpTitle);
+            tip.appendChild(jmpLink);
+            parentDiv.appendChild(tip);
+        } else {
+            parentDiv.appendChild(jmpLink);
+        }
+        workspace.jmpLink = '';
+        workspace.jmpTitle = '';
+        workspace.jmpText = '';
     }
 
     async function checkImageExists(src: string, div: HTMLElement) {
