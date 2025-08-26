@@ -1319,16 +1319,16 @@ LOGGING:
         const jmpLink = document.createElement('a');
 
         const linkLower = workspace.jmpLink.toLowerCase();
-        const className = linkLower.startsWith('mailto')
+        const className = linkLower.startsWith('mailto:')
             ? 'email-link'
-            : linkLower.startsWith('tel')
+            : linkLower.startsWith('tel:')
               ? 'tel-link'
               : 'web-link';
         jmpLink.classList.add(className);
         jmpLink.setAttribute('href', workspace.jmpLink);
         if (className === 'web-link') {
             jmpLink.setAttribute('target', '_blank');
-            jmpLink.setAttribute('rel', 'noopener');
+            jmpLink.setAttribute('rel', 'noopener noreferrer');
         }
         jmpLink.textContent = workspace.jmpText;
         jmpLink.addEventListener('click', (e) => e.stopPropagation());
