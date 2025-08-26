@@ -1322,8 +1322,8 @@ LOGGING:
         const className = linkLower.startsWith('mailto')
             ? 'email-link'
             : linkLower.startsWith('tel')
-                ? 'tel-link'
-                : 'web-link';
+              ? 'tel-link'
+              : 'web-link';
         jmpLink.classList.add(className);
         jmpLink.setAttribute('href', workspace.jmpLink);
         if (className === 'web-link') {
