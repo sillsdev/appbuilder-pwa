@@ -824,7 +824,7 @@ LOGGING:
         return planEntryInChapter;
     };
     function addPlanDiv(workspace, verseNumber) {
-        if (planDivInChapter() && $plan.planToVerse.toString() === verseNumber) {
+        if (planDivInChapter() && matchesVerse($plan.planToVerse, verseNumber)) {
             const planDiv = document.createElement('div');
             planDiv.id = 'plan-progress';
             planDiv.classList.add('plan-progress-block');
@@ -1006,6 +1006,26 @@ LOGGING:
         } else {
             gotoPlanReference();
         }
+    }
+    function matchesVerse(planToVerse: number, verseNumber: string): boolean {
+        // If end of plan range is -1, then only match verseNumber '-1'
+        if (planToVerse === -1) {
+            return verseNumber === '-1';
+        }
+
+        // If it's just a single number string, compare directly
+        if (/^\d+$/.test(verseNumber)) {
+            return planToVerse === Number(verseNumber);
+        }
+
+        // If it's a range like "3-5"
+        if (/^\d+-\d+$/.test(verseNumber)) {
+            const [start, end] = verseNumber.split('-').map(Number);
+            return planToVerse >= start && planToVerse <= end;
+        }
+
+        // If verseNumber is something unexpected, return false
+        return false;
     }
     function findBookmarkElementForVerse(verse, verseRangeSeparator) {
         const elements = document.querySelectorAll('[id^="bookmarks"]');

@@ -221,9 +221,7 @@
     const scrollTo = (id) => {
         let verseId = id === 'start-none' ? '1-a' : id;
         if (!verseId) return;
-        let el = document.querySelector(
-            `div[data-verse="${verseId.split('-')[0]}"][data-phrase="${verseId.split('-')[1]}"]`
-        );
+        let el = findVerseElement(verseId);
         makeElementVisible(el);
     };
     function delayedScroll(id) {
@@ -281,6 +279,32 @@
                 }
             }
         }
+    }
+    function findVerseElement(verseId) {
+        const [verseNumStr, phrase] = verseId.split('-');
+        const verseNum = Number(verseNumStr);
+
+        // Try direct match first
+        let el = document.querySelector(
+            `div[data-verse="${verseNumStr}"][data-phrase="${phrase}"]`
+        );
+        if (el) return el;
+        // Fall back: look for ranges
+        const candidates = document.querySelectorAll(`div[data-phrase="${phrase}"]`);
+
+        for (const candidate of candidates) {
+            const verseAttr = candidate.getAttribute('data-verse');
+            if (!verseAttr) continue;
+
+            if (/^\d+-\d+$/.test(verseAttr)) {
+                const [start, end] = verseAttr.split('-').map(Number);
+                if (verseNum >= start && verseNum <= end) {
+                    return candidate;
+                }
+            }
+        }
+
+        return null;
     }
     const highlightColor = $derived($themeColors['TextHighlightColor']);
     let currentVerse = '';
