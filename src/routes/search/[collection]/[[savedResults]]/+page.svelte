@@ -11,22 +11,26 @@
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
     import type { SearchFormSubmitEvent } from '$lib/types';
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
     let { data } = $props();
 
-    let phrase: string = $state();
-    let wholeWords: boolean = $state();
-    let matchAccents: boolean = $state();
-
+    let phrase: string = $state('');
+    let wholeWords: boolean = $state(false);
+    let matchAccents: boolean = $state(false);
     let results: SearchResult[] = $state([]);
     let queryId = $state(0);
     let queryDone = $state(true);
     let restoreResults = $state(false); // Whether saved results are currently being loaded
 
-    let scrollDiv: HTMLDivElement;
+    let scrollDiv: HTMLDivElement | null = $state(null);
     let scrollPosition = 0;
     let scrollSaved = false;
+
+    // The following block should be inside a function or reactive statement, not at top-level
+    // if (scrollDiv) {
+    //     scrollPosition = scrollDiv.scrollTop;
+    // }
 
     const presenter: SearchPresenter = {
         setOptions: function (newPhrase: string, options: UserSearchOptions): void {

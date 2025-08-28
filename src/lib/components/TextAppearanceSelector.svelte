@@ -132,6 +132,21 @@ The navbar component. We have sliders that update reactively to both font size a
                         {contentsMode ? $contentsFontSize : $bodyFontSize}
                     </div>
                 </div>
+                {#if showFonts}
+                    <div class="grid gap-4 items-center range-row m-2">
+                        <ImageIcon.FontChoice color={$monoIconColor} />
+                        <button
+                            class="dy-btn-sm col-span-2 rounded"
+                            style:border="1px dotted"
+                            style:font-family={$currentFont}
+                            style:font-size="large"
+                            style:color={$monoIconColor}
+                            on:click={() => modal.open(MODAL_FONT)}
+                            >{config.fonts.find((x) => x.family === $currentFont)?.name ??
+                                $currentFont}
+                        </button>
+                    </div>
+                {/if}
             {/if}
             {#if showLineHeight}
                 <div class="grid gap-4 items-center range-row m-2">
@@ -146,20 +161,6 @@ The navbar component. We have sliders that update reactively to both font size a
                     <div class="text-md text-{$monoIconColor} place-self-end">
                         {formatLineHeight($bodyLineHeight)}
                     </div>
-                </div>
-            {/if}
-            {#if showFonts}
-                <div class="grid gap-4 items-center range-row m-2">
-                    <ImageIcon.FontChoice color={$monoIconColor} />
-                    <button
-                        class="dy-btn-sm col-span-2 rounded"
-                        style:border="1px dotted"
-                        style:font-family={$currentFont}
-                        style:font-size="large"
-                        style:color={$monoIconColor}
-                        on:click={() => modal.open(MODAL_FONT)}
-                        >{config.fonts.find((x) => x.family === $currentFont).name}</button
-                    >
                 </div>
             {/if}
             <!-- Theme Selction buttons-->
