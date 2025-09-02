@@ -1,77 +1,52 @@
 <script>
-    import {
-        currentReversalWordsStore,
-        selectedLanguageStore,
-        vernacularLanguageStore,
-        vernacularWordsStore
-    } from '$lib/data/stores/lexicon.ts';
-    import { get } from 'svelte/store';
-
-    // Current word being displayed
-    export let currentWord;
-
-    // Function to handle word selection from parent component
-    export let onSelectWord;
-
+    let { wordsList, currentWord, onSelectWord } = $props();
     // List of all words (should come from either vernacularWordsList or reversalWordsList)
-    let wordsList;
-    if (get(selectedLanguageStore) === get(vernacularLanguageStore)) {
-        wordsList = get(vernacularWordsStore);
-    } else {
-        wordsList = get(currentReversalWordsStore);
-    }
 
     // Compute the index of the current word in the list
-    $: currentIndex = wordsList.findIndex((word) => {
-        // Handle both vernacular and reversal word structures
-        if (typeof word === 'object') {
-            if (word.id && currentWord.index) {
-                // For vernacular words, match by ID which is unique
-                return word.id === currentWord.index;
-            } else if (
-                word.name &&
-                currentWord.word &&
-                word.homonym_index !== undefined &&
-                currentWord.homonym_index !== undefined
-            ) {
-                // For vernacular words with homonyms, match both word and homonym index
-                return (
-                    word.name === currentWord.word &&
-                    word.homonym_index === currentWord.homonym_index
-                );
-            } else if (word.name && currentWord.word) {
-                // For regular vernacular words
-                return word.name === currentWord.word;
-            } else if (word.word && currentWord.word) {
-                // For reversal words
-                return word.word === currentWord.word;
+    let currentIndex = $derived(
+        wordsList.findIndex((word) => {
+            // Handle both vernacular and reversal word structures
+            if (typeof word === 'object') {
+                if (word.id && currentWord.index) {
+                    // For vernacular words, match by ID which is unique
+                    return word.id === currentWord.index;
+                } else if (
+                    word.word &&
+                    currentWord.word &&
+                    word.homonym_index !== undefined &&
+                    currentWord.homonym_index !== undefined
+                ) {
+                    // For vernacular words with homonyms, match both word and homonym index
+                    return (
+                        word.word === currentWord.word &&
+                        word.homonym_index === currentWord.homonym_index
+                    );
+                } else {
+                    // For regular vernacular words
+                    return word.word === currentWord.word;
+                }
             }
-        }
-        return false;
-    });
+            return false;
+        })
+    );
 
     // Compute previous and next words
-    $: previousWord = currentIndex > 0 ? wordsList[currentIndex - 1] : null;
-    $: nextWord = currentIndex < wordsList.length - 1 ? wordsList[currentIndex + 1] : null;
+    let previousWord = $derived(currentIndex > 0 ? wordsList[currentIndex - 1] : null);
+    let nextWord = $derived(
+        currentIndex < wordsList.length - 1 ? wordsList[currentIndex + 1] : null
+    );
 
     // Navigate to previous word
     function goToPrevious() {
         if (previousWord) {
             // Format the word object to match the expected structure
-            let wordObject;
-            if (previousWord.name !== undefined) {
-                wordObject = {
-                    word: previousWord.name,
-                    index: previousWord.id,
+            onSelectWord({
+                word: previousWord.word,
+                indexes: previousWord.id !== undefined ? [previousWord.id] : previousWord.indexes,
+                ...(previousWord.homonym_index !== undefined && {
                     homonym_index: previousWord.homonym_index
-                };
-            } else {
-                wordObject = {
-                    word: previousWord.word,
-                    indexes: previousWord.indexes
-                };
-            }
-            onSelectWord(wordObject);
+                })
+            });
         }
     }
 
@@ -79,20 +54,13 @@
     function goToNext() {
         if (nextWord) {
             // Format the word object to match the expected structure
-            let wordObject;
-            if (nextWord.name !== undefined) {
-                wordObject = {
-                    word: nextWord.name,
-                    index: nextWord.id,
+            onSelectWord({
+                word: nextWord.word,
+                indexes: nextWord.id !== undefined ? [nextWord.id] : nextWord.indexes,
+                ...(nextWord.homonym_index !== undefined && {
                     homonym_index: nextWord.homonym_index
-                };
-            } else {
-                wordObject = {
-                    word: nextWord.word,
-                    indexes: nextWord.indexes
-                };
-            }
-            onSelectWord(wordObject);
+                })
+            });
         }
     }
 </script>
@@ -104,7 +72,7 @@
     <button
         class="flex items-center justify-center w-10 h-10 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
         style="color: var(--TabTextColor);"
-        on:click={goToPrevious}
+        onclick={goToPrevious}
         disabled={!previousWord}
         aria-label="Previous word"
     >
@@ -127,7 +95,7 @@
     <button
         class="flex items-center justify-center w-10 h-10 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
         style="color: var(--TabTextColor);"
-        on:click={goToNext}
+        onclick={goToNext}
         disabled={!nextWord}
         aria-label="Next word"
     >
