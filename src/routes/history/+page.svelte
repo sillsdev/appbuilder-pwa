@@ -5,17 +5,12 @@
     import { bodyFontSize, t } from '$lib/data/stores';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
-    // Use "export let data" instead of $page so that local data can
+    let { data } = $props();
+    let history = $state([...data.history].reverse());
 
-    interface Props {
-        // be cleared during onClearHistory.
-        data: any;
-    }
-
-    let { data = $bindable() }: Props = $props();
     async function onClearHistory() {
         await clearHistory();
-        data.history = [];
+        history = [];
     }
 </script>
 
@@ -40,11 +35,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if data.history.length === 0}
+        {#if history.length === 0}
             <div class="history-message-none">{$t['History_None']}</div>
             <div class="history-message-none-info">{$t['History_None_Info']}</div>
         {:else}
-            {#each data.history.reverse() as h}
+            {#each history as h}
                 <HistoryCard history={h} />
             {/each}
         {/if}
