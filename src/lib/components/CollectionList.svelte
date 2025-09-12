@@ -30,9 +30,10 @@ Custom list of collections for the LayoutOptions menu
         <li>
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_interactive_supports_focus -->
+
             <a
                 onclick={() => handleClick(d)}
-                style:background-color={selectedLayouts.id === d.id
+                style:background-color={selectedLayouts?.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}
                 class="flex justify-between"
