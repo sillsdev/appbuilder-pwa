@@ -116,7 +116,7 @@ export class ConvertMedia extends Task {
         );
 
         for (const p of modifiedDirectories) {
-            const dest = p.includes('icons') ? 'src/generatedAssets' : 'static';
+            const dest = p.match(/icons|images/) ? 'src/generatedAssets' : 'static';
             cloneDirectory(
                 path.join(dataDir, p),
                 path.join(dest, p),
