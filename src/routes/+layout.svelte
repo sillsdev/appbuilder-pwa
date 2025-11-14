@@ -2,6 +2,7 @@
     import { base } from '$app/paths';
     import appleIconHref from '$assets/icons/apple-touch-icon.png';
     import faviconHref from '$assets/icons/favicon.png';
+    import manifestHref from '$assets/manifestUrl.json';
     import '$lib/app.css';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -106,6 +107,7 @@
     <!-- app.html (with cache-busting) -->
     <link rel="icon" href={faviconHref} />
     <link rel="apple-touch-icon" href={appleIconHref} />
+    <link rel="manifest" href={manifestHref.url} />
     <!-- +layout.svelte -->
     <meta name="theme-color" content={$s['ui.bar.action']?.['background-color']} />
     <link rel="stylesheet" href="{base}/styles/{config.programType.toLowerCase()}-app.css" />

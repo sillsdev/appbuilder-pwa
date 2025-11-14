@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { createHash } from 'crypto';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
@@ -10,11 +11,12 @@ export interface ManifestTaskOutput extends TaskOutput {
  */
 export function convertManifest(dataDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'manifest.json');
-    const dstFile = path.join('static', 'manifest.json');
-    if (existsSync(srcFile)) {
+    let contents = '';
+    const existing = existsSync(srcFile);
+    if (existing) {
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
-        const updatedFileContents = lines
+        contents = lines
             .map((line) => {
                 if (line.includes('start_url')) {
                     const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '.';
@@ -27,8 +29,6 @@ export function convertManifest(dataDir: string, verbose: number) {
                 return line;
             })
             .join('\n');
-        writeFileSync(dstFile, updatedFileContents);
-        if (verbose) console.log(`converted ${srcFile} to ${dstFile}`);
     } else {
         // If no manifest exists, we need to at least have a minimum manifest to build.
         const manifest = {
@@ -38,8 +38,25 @@ export function convertManifest(dataDir: string, verbose: number) {
             background_color: '#000000',
             theme_color: '#000000'
         };
-        writeFileSync(dstFile, JSON.stringify(manifest));
+        contents = JSON.stringify(manifest);
     }
+
+    const hash = createHash('md5');
+    hash.update(contents);
+    const digest = hash.digest('base64url');
+
+    const name = `manifest.${digest}.json`;
+
+    const dstFile = path.join('static', name);
+
+    writeFileSync(dstFile, contents);
+    if (verbose && existing) console.log(`converted ${srcFile} to ${dstFile}`);
+
+    mkdirSync(path.join('src', 'generatedAssets'), { recursive: true });
+    writeFileSync(
+        path.join('src/generatedAssets', 'manifestUrl.json'),
+        JSON.stringify({ url: name })
+    );
 }
 export class ConvertManifest extends Task {
     public triggerFiles: string[] = ['manifest.json'];

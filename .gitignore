@@ -27,7 +27,7 @@ static/borders
 static/clips
 static/videos
 static/*.partial.html
-static/manifest.json
+static/manifest*.json
 static/assets
 static/contents
 static/songs
