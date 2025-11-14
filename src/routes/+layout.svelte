@@ -1,5 +1,7 @@
 <script lang="ts">
     import { base } from '$app/paths';
+    import appleIconHref from '$assets/icons/apple-touch-icon.png';
+    import faviconHref from '$assets/icons/favicon.png';
     import '$lib/app.css';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -101,6 +103,10 @@
 </script>
 
 <svelte:head>
+    <!-- app.html (with cache-busting) -->
+    <link rel="icon" href={faviconHref} />
+    <link rel="apple-touch-icon" href={appleIconHref} />
+    <!-- +layout.svelte -->
     <meta name="theme-color" content={$s['ui.bar.action']?.['background-color']} />
     <link rel="stylesheet" href="{base}/styles/{config.programType.toLowerCase()}-app.css" />
     {#if isSAB}
