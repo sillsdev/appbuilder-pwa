@@ -68,7 +68,7 @@
         "vitest": "^2"
     },
     "volta": {
-        "node": "20.9.0"
+        "node": "22.21.1"
     },
     "dependencies": {
         "sql.js": "^1.13.0"
