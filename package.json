@@ -35,7 +35,7 @@
         "@types/unzipper": "^0.10.10",
         "@typescript-eslint/eslint-plugin": "^8",
         "@typescript-eslint/parser": "^8",
-        "@vitest/ui": "^2",
+        "@vitest/ui": "^3.2.4",
         "autoprefixer": "^10.4.7",
         "concurrently": "^9.1.2",
         "daisyui": "^4",
@@ -65,7 +65,7 @@
         "typescript": "^5.5.0",
         "unzipper": "^0.12.3",
         "vite": "^7.2.2",
-        "vitest": "^2"
+        "vitest": "^3.2.4"
     },
     "volta": {
         "node": "22.21.1"
