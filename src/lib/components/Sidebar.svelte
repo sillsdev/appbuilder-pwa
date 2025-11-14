@@ -40,11 +40,10 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
 
-    const menuIcons = import.meta.glob('$assets/icons/menu-items/*', { eager: true });
-    // TODO Updated Vite to allow using the base option in glob imports.
-    // This will allow us to use the final file name as a key in menuIcons, rather than the whole path,
-    // allowing us to eliminate this variable.
-    const menuIconBasePath = '/src/generatedAssets/icons/menu-items';
+    const menuIcons = import.meta.glob('./*', {
+        eager: true,
+        base: '/src/generatedAssets/icons/menu-items'
+    });
 
     let { children } = $props();
 
@@ -88,7 +87,7 @@ The sidebar/drawer.
                     multiplier === 1
                         ? ''
                         : ' ' + multiplier.toFixed(multiplier % 1 === 0 ? 0 : 1) + 'x';
-                return menuIcons[`${menuIconBasePath}/${image.file}`].default + multiplierString;
+                return menuIcons[`./${image.file}`].default + multiplierString;
             })
             .join(', ');
     }
@@ -270,8 +269,7 @@ The sidebar/drawer.
                                     <source srcset={imageSrcSet(item.images)} />
                                 {/if}
                                 <img
-                                    src={menuIcons[`${menuIconBasePath}/${item.images[0].file}`]
-                                        .default}
+                                    src={menuIcons[`./${item.images[0].file}`].default}
                                     height="24"
                                     width="24"
                                     alt={item.title[$language] || item.title[languageDefault]}

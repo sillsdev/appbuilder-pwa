@@ -15,11 +15,10 @@ A component that displays the book tabs and allows the user to switch between th
         theme
     } from '$lib/data/stores';
 
-    const tabIcons = import.meta.glob('$assets/icons/tabs/*', { eager: true });
-    // TODO Updated Vite to allow using the base option in glob imports.
-    // This will allow us to use the final file name as a key in tabIcons, rather than the whole path,
-    // allowing us to eliminate this variable.
-    const tabIconBasePath = '/src/generatedAssets/icons/tabs';
+    const tabIcons = import.meta.glob('./*', {
+        eager: true,
+        base: '/src/generatedAssets/icons/tabs'
+    });
 
     const bookTabs = $derived(
         config?.bookCollections
@@ -49,7 +48,7 @@ A component that displays the book tabs and allows the user to switch between th
     >
         <picture class:invert={$theme === 'Dark'}>
             <img
-                src={tabIcons[`${tabIconBasePath}/${getImageName(bookTabs.mainType)}`].default}
+                src={tabIcons[`./${getImageName(bookTabs.mainType)}`].default}
                 color={$monoIconColor}
                 height="24"
                 width="24"
@@ -65,7 +64,7 @@ A component that displays the book tabs and allows the user to switch between th
         >
             <picture class:invert={$theme === 'Dark'}>
                 <img
-                    src={tabIcons[`${tabIconBasePath}/${getImageName(bookTab.type)}`].default}
+                    src={tabIcons[`./${getImageName(bookTab.type)}`].default}
                     color={$monoIconColor}
                     height="24"
                     width="24"
