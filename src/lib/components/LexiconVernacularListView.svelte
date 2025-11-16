@@ -3,7 +3,11 @@
     export let onSelectWord;
 </script>
 
-<ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">
+<ul
+    data-testid="list-view"
+    class="space-y-3 px-4 pb-4"
+    style="background-color: var(--BackgroundColor);"
+>
     {#each vernacularWordsList as { id, name, homonym_index, type, num_senses, summary, letter }}
         <li class="cursor-pointer text-lg mb-3 scroll-mt-16" id="letter-{letter}">
             <button

@@ -3,7 +3,11 @@
     export let onSelectWord;
 </script>
 
-<ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">
+<ul
+    data-testid="list-view"
+    class="space-y-3 px-4 pb-4"
+    style="background-color: var(--BackgroundColor);"
+>
     {#each reversalWordsList as { word, indexes, vernacularWords, letter }}
         <li class="cursor-pointer text-lg mb-3" id="letter-{letter}">
             <button

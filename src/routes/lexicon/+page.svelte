@@ -249,8 +249,11 @@
 >
     <Navbar {showBackButton}>
         {#snippet start()}
-            <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+            <label for="sidebar" class="navbar" data-testid="title">
+                <div
+                    data-testid="title-text"
+                    class="btn btn-ghost normal-case text-xl text-white font-bold pl-1"
+                >
                     {config.name}
                 </div>
             </label>
@@ -271,7 +274,6 @@
             </div>
         {/snippet}
     </Navbar>
-
     {#if !selectedWord}
         <LexiconListViewHeader
             alphabet={currentAlphabet}
