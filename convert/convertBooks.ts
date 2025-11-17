@@ -2,12 +2,13 @@
 ///<reference path="./proskomma.d.ts"/>
 
 import * as fs from 'fs';
-import path, { basename, extname } from 'path';
+import path, { basename, extname, join } from 'path';
 import type { BookConfig, BookTabConfig, ScriptureConfig } from '$config';
 import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
+import { createHashedFile } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -200,14 +201,27 @@ function removeMissingFigures(text: string, _bcId: string, _bookId: string): str
     });
 }
 
-function updateImgTags(text: string, _bcId: string, _bookId: string): string {
+function updateImgTags(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    context: ConvertBookContext
+): string {
     return text.replace(
         /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
         (_match, _path, fileName) => {
-            const imagePath = `${base}/illustrations/${fileName}`;
-
             // If the image is missing in the "illustrations" folder, filter out the entire tag
-            return isImageMissing(fileName) ? '' : `<img src="${imagePath}">`;
+            if (isImageMissing(fileName)) {
+                return '';
+            } else {
+                const imagePath = createHashedFile(
+                    context.dataDir,
+                    `/illustrations/${fileName}`,
+                    context.verbose
+                );
+
+                return `<img src="/${imagePath}">`;
+            }
         }
     );
 }
@@ -270,7 +284,12 @@ function moveFigureToNextNonVerseMarker(text: string): string {
     return result.join('\n');
 }
 
-type FilterFunction = (text: string, bcId: string, bookId: string) => string;
+type FilterFunction = (
+    text: string,
+    bcId: string,
+    bookId: string,
+    context: ConvertBookContext
+) => string;
 
 const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
@@ -291,11 +310,12 @@ function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
-    bookId: string
+    bookId: string,
+    context: ConvertBookContext
 ): string {
     let filteredText = text;
     for (const filterFn of filterFunctions) {
-        filteredText = filterFn(filteredText, bcId, bookId);
+        filteredText = filterFn(filteredText, bcId, bookId, context);
     }
     return filteredText;
 }
@@ -391,6 +411,9 @@ export async function convertBooks(
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
         htmlBooks[context.docSet] = [];
+        if (collection.books.find((b) => b.format === 'html')) {
+            fs.mkdirSync(join('static', 'illustrations'));
+        }
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
@@ -568,7 +591,7 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
     const dstFile = path.join('static', 'collections', context.bcId, book.file);
 
     let content = fs.readFileSync(srcFile, 'utf-8');
-    content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id);
+    content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id, context);
     files.push({
         path: dstFile,
         content
@@ -718,7 +741,7 @@ function convertScriptureBook(
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, id);
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
         if (bookTab) {
             //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
             const firstLine = content.split('\n')[0];

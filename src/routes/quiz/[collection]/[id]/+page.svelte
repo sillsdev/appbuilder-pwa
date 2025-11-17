@@ -18,6 +18,11 @@
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { onDestroy } from 'svelte';
 
+    const illustrations = import.meta.glob('./*', {
+        eager: true,
+        base: '/src/generatedAssets/illustrations'
+    });
+
     /** @type {import('./$types').PageData} */
     export let data;
 
@@ -124,8 +129,7 @@
     }
 
     function getImageSource(image) {
-        let source = `${base}/illustrations/${$refs.collection}-${quiz.id}-${image}`;
-        return source;
+        return illustrations[`./${$refs.collection}-${quiz.id}-${image}`].default;
     }
 
     function shuffleAnswers(answerArray) {
