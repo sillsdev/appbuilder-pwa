@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 
@@ -14,6 +14,7 @@ export function convertManifest(dataDir: string, verbose: number) {
     let contents = '';
     const existing = existsSync(srcFile);
     if (existing) {
+        mkdirSync(path.join('static', 'icons'), { recursive: true });
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
         contents = lines
@@ -25,6 +26,41 @@ export function convertManifest(dataDir: string, verbose: number) {
                 if (line.includes('scope')) {
                     const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '/';
                     line = `  "scope" : "${path}",`;
+                }
+                if (line.includes('"src":') && line.includes('./icons')) {
+                    const split = line.split('./');
+                    const bareFileName = split[1].replace(/",$/, '');
+
+                    let finalName = bareFileName;
+
+                    const iconPath = path.join(dataDir, bareFileName);
+
+                    if (existsSync(iconPath)) {
+                        const hash = createHash('md5');
+                        hash.update(readFileSync(iconPath));
+                        const digest = hash.digest('base64url');
+
+                        const ext = path.extname(bareFileName);
+                        const fname = path.basename(bareFileName, ext);
+
+                        const hashedPath = bareFileName.replace(
+                            `${fname}${ext}`,
+                            `${fname}.${digest}${ext}`
+                        );
+
+                        finalName = hashedPath;
+
+                        const dest = path.join('static', hashedPath);
+
+                        if (!existsSync(dest)) {
+                            copyFileSync(iconPath, dest);
+                            if (verbose) console.log(`converted ${iconPath} to ${dest}`);
+                        }
+                    } else {
+                        console.error(`File ${iconPath} does not exist!`);
+                    }
+
+                    line = split[0] + './' + finalName + '",';
                 }
                 return line;
             })

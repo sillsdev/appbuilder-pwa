@@ -26,6 +26,7 @@ static/watermarks
 static/borders
 static/clips
 static/videos
+static/icons
 static/*.partial.html
 static/manifest*.json
 static/assets
