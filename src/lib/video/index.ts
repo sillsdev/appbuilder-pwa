@@ -1,6 +1,11 @@
 import { base } from '$app/paths';
 import config from '$lib/data/config';
 
+const thumbnails = import.meta.glob('./*', {
+    eager: true,
+    base: '/src/generatedAssets/images'
+}) as Record<string, { default: Object }>;
+
 enum VideoType {
     None = 'none',
     YouTube = 'youtube',
@@ -200,7 +205,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     }
     videoContainerDiv.style.setProperty(
         'background-image',
-        `url('${base}/images/${video.thumbnail}')`
+        `url('${thumbnails['./' + video.thumbnail].default}')`
     );
     const videoLink = document.createElement('a');
     videoLink.setAttribute('href', '#');
