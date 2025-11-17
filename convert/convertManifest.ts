@@ -1,6 +1,6 @@
-import { createHash } from 'crypto';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
+import { createHashedFile, createHashedFileFromContents } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 export interface ManifestTaskOutput extends TaskOutput {
@@ -36,26 +36,7 @@ export function convertManifest(dataDir: string, verbose: number) {
                     const iconPath = path.join(dataDir, bareFileName);
 
                     if (existsSync(iconPath)) {
-                        const hash = createHash('md5');
-                        hash.update(readFileSync(iconPath));
-                        const digest = hash.digest('base64url');
-
-                        const ext = path.extname(bareFileName);
-                        const fname = path.basename(bareFileName, ext);
-
-                        const hashedPath = bareFileName.replace(
-                            `${fname}${ext}`,
-                            `${fname}.${digest}${ext}`
-                        );
-
-                        finalName = hashedPath;
-
-                        const dest = path.join('static', hashedPath);
-
-                        if (!existsSync(dest)) {
-                            copyFileSync(iconPath, dest);
-                            if (verbose) console.log(`converted ${iconPath} to ${dest}`);
-                        }
+                        finalName = createHashedFile(dataDir, bareFileName, verbose);
                     } else {
                         console.error(`File ${iconPath} does not exist!`);
                     }
@@ -77,21 +58,12 @@ export function convertManifest(dataDir: string, verbose: number) {
         contents = JSON.stringify(manifest);
     }
 
-    const hash = createHash('md5');
-    hash.update(contents);
-    const digest = hash.digest('base64url');
-
-    const name = `manifest.${digest}.json`;
-
-    const dstFile = path.join('static', name);
-
-    writeFileSync(dstFile, contents);
-    if (verbose && existing) console.log(`converted ${srcFile} to ${dstFile}`);
+    const hashedName = createHashedFileFromContents(contents, 'manifest.json', verbose);
 
     mkdirSync(path.join('src', 'generatedAssets'), { recursive: true });
     writeFileSync(
         path.join('src/generatedAssets', 'manifestUrl.json'),
-        JSON.stringify({ url: name })
+        JSON.stringify({ url: hashedName })
     );
 }
 export class ConvertManifest extends Task {
