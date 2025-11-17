@@ -108,18 +108,17 @@ export class ConvertMedia extends Task {
         // error there will need to be a delay between the removal and the copy.
         await Promise.all(
             modifiedDirectories.map((p) =>
-                rimraf(path.join('static', p)).then(() => {
-                    if (verbose) console.log(`removed ${path.join('static', p)}`);
+                rimraf(path.join('src/generatedAssets', p)).then(() => {
+                    if (verbose) console.log(`removed ${path.join('src/generatedAssets', p)}`);
                     return p;
                 })
             )
         );
 
         for (const p of modifiedDirectories) {
-            const dest = p.match(/icons|images/) ? 'src/generatedAssets' : 'static';
             cloneDirectory(
                 path.join(dataDir, p),
-                path.join(dest, p),
+                path.join('src/generatedAssets', p),
                 verbose,
                 !required.includes(p)
             );
