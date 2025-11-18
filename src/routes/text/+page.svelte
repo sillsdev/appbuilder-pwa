@@ -577,7 +577,7 @@
     }
     .borderimg {
         border: 30px solid transparent;
-        border-image-source: url(/borders/border.png);
+        border-image-source: url($assets/borders/border.png);
         border-image-slice: 100;
     }
 </style>
