@@ -220,7 +220,7 @@ function updateImgTags(
                     context.verbose
                 );
 
-                return `<img src="/${imagePath}">`;
+                return `<img src="${base}/${imagePath}">`;
             }
         }
     );
