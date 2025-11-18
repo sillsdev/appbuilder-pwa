@@ -230,7 +230,11 @@
                 if (!answer.correct && answer.explanation && answer.explanation.text) {
                     explanation = answer.explanation.text;
                     if (answer.explanation.audio) {
-                        playSound(clips[`./${answer.explanation.audio}`].default, null, 'explanation');
+                        playSound(
+                            clips[`./${answer.explanation.audio}`].default,
+                            null,
+                            'explanation'
+                        );
                     }
                 } else if (
                     !answer.correct &&
