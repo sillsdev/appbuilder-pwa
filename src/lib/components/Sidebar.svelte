@@ -87,7 +87,7 @@ The sidebar/drawer.
                     multiplier === 1
                         ? ''
                         : ' ' + multiplier.toFixed(multiplier % 1 === 0 ? 0 : 1) + 'x';
-                return menuIcons[`./${image.file}`].default + multiplierString;
+                return menuIcons[`./${image.file}${multiplierString}`]?.default ?? '';
             })
             .join(', ');
     }
@@ -269,7 +269,7 @@ The sidebar/drawer.
                                     <source srcset={imageSrcSet(item.images)} />
                                 {/if}
                                 <img
-                                    src={menuIcons[`./${item.images[0].file}`].default}
+                                    src={menuIcons[`./${item.images[0].file}`]?.default ?? ''}
                                     height="24"
                                     width="24"
                                     alt={item.title[$language] || item.title[languageDefault]}
