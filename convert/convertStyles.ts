@@ -89,10 +89,7 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                                 `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
                             );
                         }
-                        line = line.replace(
-                            '/' + fontPath,
-                            '/' + finalPath,
-                        );
+                        line = line.replace('/' + fontPath, '/' + finalPath);
                     }
                     return line;
                 })
