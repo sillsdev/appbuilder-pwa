@@ -16,6 +16,16 @@ import {
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
+const audioSources = import.meta.glob('./*', {
+    eager: true,
+    base: '/src/generatedAssets/audio'
+}) as Record<string, { default: string }>;
+
+const timings = import.meta.glob('./*', {
+    eager: true,
+    base: '/src/generatedAssets/timings'
+}) as Record<string, { default: string }>;
+
 export interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;
@@ -426,14 +436,14 @@ export async function getAudioSourceInfo(item: {
 
         audioPath = result.data[0].path;
     } else if (audioSource.type === 'assets') {
-        audioPath = pathJoin([`${base}/audio/`, audio.filename]);
+        audioPath = audioSources[`./${audio.filename}`].default;
     } else if (audioSource.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
-        const timeFilePath = `${base}/timings/${audio.timingFile}`;
+        const timeFilePath = timings[`./${audio.timingFile}`].default;
         const response = await fetch(timeFilePath);
         if (!response.ok) {
             throw new Error('Failed to read file');
