@@ -4,7 +4,12 @@ import config from '$lib/data/config';
 const thumbnails = import.meta.glob('./*', {
     eager: true,
     base: '/src/generatedAssets/images'
-}) as Record<string, { default: Object }>;
+}) as Record<string, { default: string }>;
+
+const videos = import.meta.glob('./*', {
+    eager: true,
+    base: '/src/generatedAssets/videos'
+}) as Record<string, { default: string }>;
 
 enum VideoType {
     None = 'none',
@@ -216,7 +221,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     if (sourceType === 'assets') {
         videoLink.setAttribute(
             'onclick',
-            "playVideoFile('" + id + "', 'videos/" + video.filename + "'); return false;"
+            `playVideoFile('${id}', '${videos[`./${video.filename}`].default}'); return false;`
         );
     } else {
         videoLink.setAttribute(
