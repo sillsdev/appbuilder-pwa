@@ -15,16 +15,8 @@ data-sandbox/node_modules
 static/sab-stylesheet.css
 static/badges
 static/fonts
-static/audio
-static/styles
 static/illustrations
 static/collections
-static/timings
-static/backgrounds
-static/watermarks
-static/borders
-static/clips
-static/videos
 static/icons
 static/*.partial.html
 static/manifest*.json
