@@ -28,6 +28,11 @@
         base: '/src/generatedAssets/clips'
     });
 
+    const quizAssets = import.meta.glob('./*', {
+        eager: true,
+        base: '/src/generatedAssets/quiz'
+    });
+
     /** @type {import('./$types').PageData} */
     export let data;
 
@@ -76,7 +81,11 @@
     let explanation = '';
     let commentaryMessage = '';
 
-    const quizAssetFolder = compareVersions(config.programVersion, '12.0') < 0 ? 'assets' : 'quiz';
+    const staticAssets = compareVersions(config.programVersion, '12.0') < 0;
+
+    function getQuizAssetAudio(file) {
+        return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].default.replace(/^\//, '');
+    }
 
     function getRandomAudio(audioArray) {
         const randomIndex = Math.floor(Math.random() * audioArray.length);
@@ -210,12 +219,12 @@
         let sound;
         if (correct) {
             sound = quiz.rightAnswerAudio
-                ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
-                : quizAssetFolder + '/quiz-right-answer.mp3';
+                ? clips[`./${getRandomAudio(quiz.rightAnswerAudio)}`].default
+                : getQuizAssetAudio('quiz-right-answer.mp3');
         } else {
             sound = quiz.wrongAnswerAudio
-                ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
-                : quizAssetFolder + '/quiz-wrong-answer.mp3';
+                ? clips[`./${getRandomAudio(quiz.wrongAnswerAudio)}`].default
+                : getQuizAssetAudio('quiz-wrong-answer.mp3');
         }
         return sound;
     }

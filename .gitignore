@@ -20,9 +20,7 @@ static/icons
 static/manifest*.json
 static/assets
 static/contents
-static/songs
 static/plans
-static/quiz
 static/data.sqlite
 static/reversal
 static/wasm

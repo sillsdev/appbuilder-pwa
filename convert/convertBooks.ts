@@ -364,7 +364,7 @@ export async function convertBooks(
     // copy book-related folder resources
     ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('static', folder);
+        const folderDstDir = path.join('src/generatedAssets', folder);
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
