@@ -22,7 +22,7 @@ export function convertPlans(
     verbose: number
 ): PlansTaskOutput {
     const plansDir = path.join(dataDir, 'plans');
-    const destDir = path.join('static', 'plans');
+    const destDir = path.join('src/generatedAssets', 'plans');
     if (existsSync(plansDir)) {
         if (existsSync(destDir)) {
             rmSync(destDir, { recursive: true });

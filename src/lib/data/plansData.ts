@@ -1,5 +1,11 @@
 import { base } from '$app/paths';
 
+const plans = import.meta.glob('./*', {
+    eager: true,
+    query: '?url', // this is important to get url instead of JSON
+    base: '/src/generatedAssets/plans'
+}) as Record<string, { default: string }>;
+
 export type PlanDataItem = {
     day: number;
     heading?: {
@@ -22,7 +28,7 @@ export type PlansData = {
 };
 
 export async function getPlanData(fetch: any, planConfig: any): Promise<PlansData> {
-    const src = `${base}/plans/${planConfig.jsonFilename}`;
+    const src = plans[`./${planConfig.jsonFilename}`].default;
     let planData;
 
     try {
