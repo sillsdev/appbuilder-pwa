@@ -23,6 +23,11 @@
         base: '/src/generatedAssets/illustrations'
     });
 
+    const clips = import.meta.glob('./*', {
+        eager: true,
+        base: '/src/generatedAssets/clips'
+    });
+
     /** @type {import('./$types').PageData} */
     export let data;
 
@@ -225,7 +230,7 @@
                 if (!answer.correct && answer.explanation && answer.explanation.text) {
                     explanation = answer.explanation.text;
                     if (answer.explanation.audio) {
-                        playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
+                        playSound(clips[`./${answer.explanation.audio}`].default, null, 'explanation');
                     }
                 } else if (
                     !answer.correct &&
@@ -235,7 +240,7 @@
                     explanation = currentQuizQuestion.explanation.text;
                     if (currentQuizQuestion.explanation.audio) {
                         playSound(
-                            `${base}/clips/${currentQuizQuestion.explanation.audio}`,
+                            clips[`./${currentQuizQuestion.explanation.audio}`].default,
                             null,
                             'explanation'
                         );
@@ -268,7 +273,7 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playSound(`${base}/clips/${question.audio}`, listener, 'question');
+                    playSound(clips[`./${question.audio}`].default, listener, 'question');
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -286,7 +291,7 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     textHighlightIndex = answerIndex;
-                    playSound(`${base}/clips/${answer.audio}`, listener, 'answer');
+                    playSound(clips[`./${answer.audio}`].default, listener, 'answer');
                 }
             } else {
                 textHighlightIndex = -1;
