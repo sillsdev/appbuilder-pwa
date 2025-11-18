@@ -32,6 +32,11 @@
     import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
 
+    const styles = import.meta.glob('./*', {
+        eager: true,
+        base: '/src/generatedAssets/styles'
+    }) as Record<string, { default: string }>;
+
     let { children } = $props();
 
     const isSAB = config.programType == 'SAB';
@@ -110,10 +115,10 @@
     <link rel="manifest" href={manifestHref.url} />
     <!-- +layout.svelte -->
     <meta name="theme-color" content={$s['ui.bar.action']?.['background-color']} />
-    <link rel="stylesheet" href="{base}/styles/{config.programType.toLowerCase()}-app.css" />
+    <link rel="stylesheet" href={styles[`./${config.programType.toLowerCase()}-app.css`].default} />
     {#if isSAB}
         {#if $refs.initialized}
-            <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
+            <link rel="stylesheet" href={styles[`./sab-bc-${$refs.collection}.css`].default} />
         {/if}
         <link rel="stylesheet" href="{base}/override-sab.css" />
     {/if}

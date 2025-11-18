@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
+import { createHashedFile } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
 
@@ -17,8 +18,9 @@ export interface StylesTaskOutput extends TaskOutput {
  */
 export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
-    const dstDir = path.join('static', 'styles');
+    const dstDir = path.join('src/generatedAssets', 'styles');
     mkdirSync(dstDir, { recursive: true });
+    mkdirSync(path.join('static', 'fonts'), { recursive: true });
 
     readdirSync(srcDir).forEach((file) => {
         const srcFile = path.join(srcDir, file);
@@ -74,8 +76,23 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                     if (line.indexOf('body') === 0) {
                         line = line.replace('body', '#container');
                     }
-                    if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
-                        line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
+                    if (line.includes('/fonts/')) {
+                        const fontPath = path.join(
+                            'fonts',
+                            line.split('/fonts/')[1].replace(/("|')\).*$/, '')
+                        );
+                        let finalPath = fontPath;
+                        if (existsSync(path.join(dataDir, fontPath))) {
+                            finalPath = createHashedFile(dataDir, fontPath, verbose);
+                        } else {
+                            console.warn(
+                                `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
+                            );
+                        }
+                        line = line.replace(
+                            '/' + fontPath,
+                            '/' + finalPath,
+                        );
                     }
                     return line;
                 })
