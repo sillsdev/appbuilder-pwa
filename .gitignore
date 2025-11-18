@@ -17,7 +17,6 @@ static/fonts
 static/illustrations
 static/collections
 static/icons
-static/*.partial.html
 static/manifest*.json
 static/assets
 static/contents

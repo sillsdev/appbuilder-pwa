@@ -17,7 +17,7 @@
         "convert": "ts-node convert/index.ts",
         "convert:watch": "ts-node convert/index.ts --watch",
         "sandbox": "ts-node data-sandbox/index.ts",
-        "clean": "rimraf .svelte-kit build src/generatedAssets /lib/data/config.js src/lib/data/catalog.js src/lib/data/firebase-config.js src/lib/data/contents.js static/about.partial.html static/collections static/fonts static/illustrations static/icons static/plans static/quiz static/contents static/manifest*.json static/data.sqlite static/wasm static/reversal && echo 🔔 Reminder: The project cannot be built until the conversion scripts are run again.",
+        "clean": "rimraf .svelte-kit build src/generatedAssets /lib/data/config.js src/lib/data/catalog.js src/lib/data/firebase-config.js src/lib/data/contents.js static/collections static/fonts static/illustrations static/icons static/plans static/quiz static/contents static/manifest*.json static/data.sqlite static/wasm static/reversal && echo 🔔 Reminder: The project cannot be built until the conversion scripts are run again.",
         "clean:data": "rimraf --glob data/*",
         "clean:all": "npm run clean && npm run clean:data",
         "test": "vitest",
