@@ -1,6 +1,7 @@
 <script>
     import { beforeNavigate } from '$app/navigation';
     import { base } from '$app/paths';
+    import { page } from '$app/state';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
@@ -11,7 +12,6 @@
         modal,
         MODAL_TEXT_APPEARANCE,
         quizAudioActive,
-        refs,
         t
     } from '$lib/data/stores';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
@@ -34,7 +34,7 @@
     $: ({ locked, quiz, quizId, quizName, passScore } = data);
 
     $: book = config.bookCollections
-        .find((x) => x.id === $refs.collection)
+        .find((x) => x.id === page.params.collection)
         .books.find((x) => x.id === quizId);
 
     $: displayLabel = quizName || 'Quiz';
@@ -134,7 +134,7 @@
     }
 
     function getImageSource(image) {
-        return illustrations[`./${$refs.collection}-${quiz.id}-${image}`].default;
+        return illustrations[`./${page.params.collection}-${quiz.id}-${image}`]?.default ?? '';
     }
 
     function shuffleAnswers(answerArray) {
@@ -373,7 +373,7 @@
         </div>
         {#if !quizSaved}
             {@const pass = score >= passScore}
-            {#await addQuiz( { collection: $refs.collection, book: quizId, score, passScore, pass } ) then _}
+            {#await addQuiz( { collection: page.params.collection, book: quizId, score, passScore, pass } ) then _}
                 <p>Quiz result saved!</p>
             {:catch error}
                 <p>Error saving quiz result: {error.message}</p>
