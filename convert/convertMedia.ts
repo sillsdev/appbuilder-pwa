@@ -60,9 +60,9 @@ export class ConvertMedia extends Task {
         'illustrations',
         'audio',
         'timings',
-        'backgrounds',
+        'backgrounds', // TODO these are not used anywhere?
         'borders',
-        'watermarks',
+        'watermarks', // TODO these are not used anywhere?
         'clips',
         'videos',
         'icons'
