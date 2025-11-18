@@ -77,13 +77,22 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                         line = line.replace('body', '#container');
                     }
                     if (line.includes('/fonts/')) {
-                        const fontPath = path.join(
-                            'fonts',
-                            line.split('/fonts/')[1].replace(/("|')\).*$/, '')
-                        );
+                        const fontName = line.split('/fonts/')[1].replace(/("|')\).*$/, '');
+                        const fontPath = path.join('fonts', fontName);
                         let finalPath = fontPath;
                         if (existsSync(path.join(dataDir, fontPath))) {
                             finalPath = createHashedFile(dataDir, fontPath, verbose);
+                        } else if (existsSync(path.join(dataDir, 'cloud', fontName))) {
+                            finalPath = createHashedFile(
+                                path.join(dataDir, 'cloud'),
+                                fontName,
+                                verbose,
+                                'fonts'
+                            );
+                            if (verbose)
+                                console.log(
+                                    `found ${fontName} at ${path.join(dataDir, 'cloud', fontName)}`
+                                );
                         } else {
                             console.warn(
                                 `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
