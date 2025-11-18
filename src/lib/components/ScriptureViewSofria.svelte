@@ -62,7 +62,7 @@ LOGGING:
     const illustrations = import.meta.glob('./*', {
         eager: true,
         base: '/src/generatedAssets/illustrations'
-    }) as Record<string, { default: Object }>;
+    }) as Record<string, { default: string }>;
 
     let {
         audioPhraseEndChars,
@@ -1184,7 +1184,7 @@ LOGGING:
     }
 
     function createIllustrationBlock(source: string, caption: string | null) {
-        const imageSource = illustrations['./' + source].default as string;
+        const imageSource = illustrations['./' + source]?.default ?? '';
         const divFigure = document.createElement('div');
         divFigure.classList.add('image-block');
         const spanFigure = document.createElement('span');
