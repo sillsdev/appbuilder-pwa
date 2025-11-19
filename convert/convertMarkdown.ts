@@ -10,7 +10,8 @@ enum ConversionFormat {
 export function convertMarkdownsToMilestones(
     content: string,
     bcId: string,
-    bookId: string
+    bookId: string,
+    _ctx: unknown
 ): string {
     return convertMarkdown(content, ConversionFormat.USFM, bcId, bookId);
 }

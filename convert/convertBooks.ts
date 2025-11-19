@@ -38,12 +38,22 @@ function displayBookId(bcId: string, bookId: string) {
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 
-function replaceVideoTags(text: string, _bcId: string, _bookId: string): string {
+function replaceVideoTags(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 
 // This is the start of supporting story books, but it still fails if there is no chapter.
-function replacePageTags(text: string, _bcId: string, _bookId: string): string {
+function replacePageTags(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
 }
 function loadGlossary(collection: any, dataDir: string): string[] {
@@ -70,7 +80,12 @@ function loadGlossary(collection: any, dataDir: string): string[] {
     }
     return glossary;
 }
-function removeStrongNumberReferences(text: string, _bcId: string, _bookId: string): string {
+function removeStrongNumberReferences(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     //remove strong number references
     // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
     // \v 4  \wj  \+w Blessed|strong="G3107"\+w* \+w are|strong="G3107"\+w* \+w those|strong="G3588"\+w* \+w who|strong="G3588"\+w* \+w mourn|strong="G3996"\+w*,\wj*  (Matt 5:4 WEBBE)
@@ -100,7 +115,12 @@ function removeMissingVerses(text: string, _bcId: string, _bookId: string): stri
     });
 }
 
-export function encodeJmpLinks(text: string, _bcId: string, _bookId: string): string {
+export function encodeJmpLinks(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     // Regular expression to match \jmp tags
     const jmpRegex = /\\jmp\s([^\\]+)\\jmp\*/g;
 
@@ -140,7 +160,12 @@ export function encodeJmpLinks(text: string, _bcId: string, _bookId: string): st
 // This is a HACK!!!
 // See https://github.com/Proskomma/proskomma-json-tools/issues/63
 //
-function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): string {
+function handleNoCaptionFigures(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
 
@@ -163,7 +188,12 @@ function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): s
     });
 }
 
-function removeMissingFigures(text: string, _bcId: string, _bookId: string): string {
+function removeMissingFigures(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
 
@@ -226,7 +256,12 @@ function updateImgTags(
     );
 }
 
-function trimTrailingWhitespace(text: string, _bcId: string, _bookId: string): string {
+function trimTrailingWhitespace(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text
         .split('\n') // Split the text into lines
         .map((line) => line.trimEnd()) // Trim trailing whitespace from each line
@@ -241,11 +276,21 @@ function isImageMissing(imageSource: string): boolean {
     return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
 
-function addParagraphMarkersAroundTableRows(text: string): string {
+function addParagraphMarkersAroundTableRows(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text.replace(/((?:\\tr [^\n]*\n)+)/g, '\n\\p\n$1\\p\n');
 }
 
-function moveFigureToNextNonVerseMarker(text: string): string {
+function moveFigureToNextNonVerseMarker(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     const result = [];
     let carryOverFigures: string[] = [];
 
