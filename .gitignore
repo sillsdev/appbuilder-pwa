@@ -13,7 +13,6 @@ data-*/*
 data-sandbox/node_modules
 !data/.empty
 static/sab-stylesheet.css
-static/fonts
 static/illustrations
 static/collections
 static/icons

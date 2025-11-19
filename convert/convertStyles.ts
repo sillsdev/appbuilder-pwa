@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
 import { createHashedFile } from './fileUtils';
@@ -20,7 +20,6 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
     const srcDir = path.join(dataDir, 'styles');
     const dstDir = path.join('src/gen-assets', 'styles');
     mkdirSync(dstDir, { recursive: true });
-    mkdirSync(path.join('static', 'fonts'), { recursive: true });
 
     readdirSync(srcDir).forEach((file) => {
         const srcFile = path.join(srcDir, file);
@@ -79,26 +78,29 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                     if (line.includes('/fonts/')) {
                         const fontName = line.split('/fonts/')[1].replace(/("|')\).*$/, '');
                         const fontPath = path.join('fonts', fontName);
-                        let finalPath = fontPath;
-                        if (existsSync(path.join(dataDir, fontPath))) {
-                            finalPath = createHashedFile(dataDir, fontPath, verbose);
-                        } else if (existsSync(path.join(dataDir, 'cloud', fontName))) {
-                            finalPath = createHashedFile(
-                                path.join(dataDir, 'cloud'),
-                                fontName,
-                                verbose,
-                                'fonts'
-                            );
-                            if (verbose)
-                                console.log(
-                                    `found ${fontName} at ${path.join(dataDir, 'cloud', fontName)}`
+                        let finalPath = 'fonts';
+                        if (!existsSync(path.join(dataDir, fontPath))) {
+                            if (existsSync(path.join(dataDir, 'cloud', fontName))) {
+                                finalPath = 'cloud';
+                                const targetDir = path.join('src/gen-assets', 'cloud');
+                                if (!existsSync(targetDir)) {
+                                    mkdirSync(targetDir, { recursive: true });
+                                }
+                                copyFileSync(
+                                    path.join(dataDir, 'cloud', fontName),
+                                    path.join(targetDir, fontName)
                                 );
-                        } else {
-                            console.warn(
-                                `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
-                            );
+                                if (verbose)
+                                    console.log(
+                                        `found ${fontName} at ${path.join(dataDir, 'cloud', fontName)}`
+                                    );
+                            } else {
+                                console.warn(
+                                    `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
+                                );
+                            }
                         }
-                        line = line.replace('/' + fontPath, '/' + finalPath);
+                        line = line.replace('/fonts', `$assets/${finalPath}`);
                     }
                     return line;
                 })
