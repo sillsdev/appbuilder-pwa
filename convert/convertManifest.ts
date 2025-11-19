@@ -28,8 +28,12 @@ export function convertManifest(dataDir: string, verbose: number) {
                     line = `  "scope" : "${path}",`;
                 }
                 if (line.includes('"src":') && line.includes('./icons')) {
-                    const split = line.split('./');
-                    const bareFileName = split[1].replace(/",$/, '');
+                    const srcMatch = line.match(/"src"\s*:\s*"\.\/([^"]+)"/);
+                    if (!srcMatch) {
+                        console.error(`Could not parse icon path from line: ${line}`);
+                        return line;
+                    }
+                    const bareFileName = srcMatch[1];
 
                     let finalName = bareFileName;
 
@@ -38,10 +42,10 @@ export function convertManifest(dataDir: string, verbose: number) {
                     if (existsSync(iconPath)) {
                         finalName = createHashedFile(dataDir, bareFileName, verbose);
                     } else {
-                        console.error(`File ${iconPath} does not exist!`);
+                        throw new Error(`Required icon file ${iconPath} does not exist!`);
                     }
 
-                    line = split[0] + './' + finalName + '",';
+                    line = line.replace(srcMatch[0], `"src": "./${finalName}"`);
                 }
                 return line;
             })

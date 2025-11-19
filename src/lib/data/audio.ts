@@ -436,14 +436,22 @@ export async function getAudioSourceInfo(item: {
 
         audioPath = result.data[0].path;
     } else if (audioSource.type === 'assets') {
-        audioPath = audioSources[`./${audio.filename}`].default;
+        const audioKey = `./${audio.filename}`;
+        if (!audioSources[audioKey]) {
+            throw new Error(`Audio file not found in generated assets: ${audio.filename}`);
+        }
+        audioPath = audioSources[audioKey].default;
     } else if (audioSource.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
-        const timeFilePath = timings[`./${audio.timingFile}`].default;
+        const timingKey = `./${audio.timingFile}`;
+        if (!timings[timingKey]) {
+            throw new Error(`Timing file not found in generated assets: ${audio.timingFile}`);
+        }
+        const timeFilePath = timings[timingKey].default;
         const response = await fetch(timeFilePath);
         if (!response.ok) {
             throw new Error('Failed to read file');

@@ -28,11 +28,16 @@ export type PlansData = {
 };
 
 export async function getPlanData(fetch: any, planConfig: any): Promise<PlansData> {
-    const src = plans[`./${planConfig.jsonFilename}`].default;
     let planData;
 
     try {
-        const response = await fetch(src);
+        const key = `./${planConfig.jsonFilename}`;
+        const entry = plans[key];
+        if (!entry?.default) {
+            throw new Error(`Plan JSON asset not found for key ${key}`);
+        }
+
+        const response = await fetch(entry.default);
 
         if (!response.ok) {
             throw new Error('Failed to fetch plan JSON file');

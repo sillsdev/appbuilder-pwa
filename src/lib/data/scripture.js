@@ -29,7 +29,12 @@ export async function initProskomma({ fetch }) {
 }
 
 export function getDocSetUrl(docSet) {
-    return collections[`./${docSet}.pkf`].default;
+    const key = `./${docSet}.pkf`;
+    const entry = collections[key];
+    if (!entry?.default) {
+        throw new Error(`DocSet PKF asset not found for key ${key}`);
+    }
+    return entry.default;
 }
 
 export async function fetchDocSet(docSet, fetch) {

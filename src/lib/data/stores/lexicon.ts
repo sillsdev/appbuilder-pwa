@@ -61,7 +61,12 @@ export async function initializeDatabase({ fetch }) {
     let sql = get(sqlJs);
     if (!sql || !db) {
         // Fetch the WebAssembly binary manually using SvelteKit's fetch
-        const wasmResponse = await fetch(wasmUrl[`./sql-wasm.wasm`].default);
+        const wasmKey = './sql-wasm.wasm';
+        const wasmEntry = wasmUrl[wasmKey];
+        if (!wasmEntry?.default) {
+            throw new Error(`Lexicon wasm asset not found for key ${wasmKey}`);
+        }
+        const wasmResponse = await fetch(wasmEntry.default);
         const wasmBinary = await wasmResponse.arrayBuffer();
 
         // Initialize sql.js with the manually loaded wasm binary
@@ -69,7 +74,12 @@ export async function initializeDatabase({ fetch }) {
         sqlJs.set(sql);
 
         // Fetch the database file
-        const response = await fetch(sqliteUrl[`./data.sqlite`].default);
+        const dbKey = './data.sqlite';
+        const dbEntry = sqliteUrl[dbKey];
+        if (!dbEntry?.default) {
+            throw new Error(`Lexicon sqlite asset not found for key ${dbKey}`);
+        }
+        const response = await fetch(dbEntry.default);
         const buffer = await response.arrayBuffer();
 
         // Load the database into sql.js

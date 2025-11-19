@@ -35,7 +35,13 @@ export interface CatalogData {
 
 export async function loadCatalog(docSet: string): Promise<CatalogData> {
     let result: CatalogData;
-    await fetchFn(catalogs[`./${docSet}.json`].default)
+    const key = `./${docSet}.json`;
+    const entry = catalogs[key];
+    if (!entry?.default) {
+        throw new Error(`Catalog JSON asset not found for key ${key}`);
+    }
+
+    await fetchFn(entry.default)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(

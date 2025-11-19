@@ -90,7 +90,11 @@
         const index = reversalIndexes[defaultReversalKey];
         const files = index[letter] || [];
         for (const file of files) {
-            const reversalFile = reversals[`./${defaultReversalKey}/${file}`].default;
+            const reversalFile = reversals[`./${defaultReversalKey}/${file}`]?.default;
+            if (!reversalFile) {
+                console.error(`Reversal file not found in glob: ./${defaultReversalKey}/${file}`);
+                continue;
+            }
             const response = await fetch(reversalFile);
             if (response.ok) {
                 const data = await response.json();
