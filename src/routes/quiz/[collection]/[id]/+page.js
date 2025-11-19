@@ -1,6 +1,11 @@
-import { base } from '$app/paths';
 import config from '$lib/data/config';
 import { checkQuizAccess } from '$lib/data/quiz';
+
+const quizzes = import.meta.glob('./**/quizzes/*.json', {
+    eager: true,
+    base: '/src/generatedAssets/collections',
+    query: '?url'
+});
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ params, fetch }) {
@@ -29,7 +34,7 @@ export async function load({ params, fetch }) {
     let passScore = 0;
     if (!locked) {
         try {
-            const response = await fetch(`${base}/collections/${collection}/quizzes/${id}.json`);
+            const response = await fetch(quizzes[`./${collection}/quizzes/${id}.json`].default);
             if (!response.ok) {
                 throw new Error('Failed to fetch quiz JSON file');
             }

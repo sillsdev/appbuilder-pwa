@@ -5,6 +5,12 @@ import { SABProskomma } from '$lib/sab-proskomma';
 import { get } from 'svelte/store';
 import { thaw } from '../scripts/thaw';
 
+const collections = import.meta.glob('./*.pkf', {
+    eager: true,
+    base: '/src/generatedAssets/collections',
+    query: '?url'
+});
+
 export async function initProskomma({ fetch }) {
     let proskomma = get(pk);
     if (!proskomma) {
@@ -23,7 +29,7 @@ export async function initProskomma({ fetch }) {
 }
 
 export function getDocSetUrl(docSet) {
-    return `${base}/collections/${docSet}.pkf`;
+    return collections[`./${docSet}.pkf`].default;
 }
 
 export async function fetchDocSet(docSet, fetch) {

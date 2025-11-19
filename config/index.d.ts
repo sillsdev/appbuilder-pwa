@@ -60,6 +60,7 @@ export type BookConfig = {
     chaptersLabels?: { [key: string]: string };
     fonts: string[];
     file: string;
+    hashedFileName?: string; // currently just for HTML books
     audio: BookCollectionAudioConfig[];
     features: any;
     quizFeatures?: any;

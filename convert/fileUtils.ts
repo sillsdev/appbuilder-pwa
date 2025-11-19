@@ -2,16 +2,26 @@ import { createHash } from 'crypto';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'fs';
 import { basename, extname, join } from 'path';
 
-export function createHashedFile(dataDir: string, src: string, verbose: number, destPrefix = '') {
+export function getHashedName(dataDir: string, src: string) {
     const fullPath = join(dataDir, src);
+    return getHashedNameFromContents(String(readFileSync(fullPath)), src);
+}
+
+export function getHashedNameFromContents(contents: string, src: string) {
     const hash = createHash('md5');
-    hash.update(readFileSync(fullPath));
+    hash.update(contents);
     const digest = hash.digest('base64url');
 
     const ext = extname(src);
     const fname = basename(src, ext);
 
-    const hashedPath = join(destPrefix, src.replace(`${fname}${ext}`, `${fname}.${digest}${ext}`));
+    return src.replace(`${fname}${ext}`, `${fname}.${digest}${ext}`);
+}
+
+export function createHashedFile(dataDir: string, src: string, verbose: number, destPrefix = '') {
+    const fullPath = join(dataDir, src);
+
+    const hashedPath = join(destPrefix, getHashedName(dataDir, src));
     const dest = join('static', hashedPath);
 
     if (!existsSync(dest)) {
@@ -30,14 +40,7 @@ export function createHashedFileFromContents(
     verbose: number,
     destPrefix = ''
 ) {
-    const hash = createHash('md5');
-    hash.update(contents);
-    const digest = hash.digest('base64url');
-
-    const ext = extname(src);
-    const fname = basename(src, ext);
-
-    const hashedPath = join(destPrefix, src.replace(`${fname}${ext}`, `${fname}.${digest}${ext}`));
+    const hashedPath = join(destPrefix, getHashedNameFromContents(contents, src));
     const dest = join('static', hashedPath);
 
     if (!existsSync(dest)) {

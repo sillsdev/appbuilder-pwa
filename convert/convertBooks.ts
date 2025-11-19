@@ -8,7 +8,7 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
-import { createHashedFile } from './fileUtils';
+import { createHashedFile, getHashedNameFromContents } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -216,7 +216,7 @@ function updateImgTags(
             } else {
                 const imagePath = createHashedFile(
                     context.dataDir,
-                    `/illustrations/${fileName}`,
+                    `illustrations/${fileName}`,
                     context.verbose
                 );
 
@@ -412,7 +412,14 @@ export async function convertBooks(
         quizzes[context.docSet] = [];
         htmlBooks[context.docSet] = [];
         if (collection.books.find((b) => b.format === 'html')) {
-            fs.mkdirSync(join('static', 'illustrations'));
+            const illPath = join('static', 'illustrations');
+            if (!fs.existsSync(illPath)) {
+                fs.mkdirSync(illPath, { recursive: true });
+            }
+            const collPath = join('static', 'collections', collection.id);
+            if (!fs.existsSync(collPath)) {
+                fs.mkdirSync(collPath, { recursive: true });
+            }
         }
         for (const book of collection.books) {
             let bookConverted = false;
@@ -428,7 +435,7 @@ export async function convertBooks(
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
-                            'static',
+                            'src/generatedAssets',
                             'collections',
                             context.bcId,
                             'quizzes',
@@ -483,14 +490,14 @@ export async function convertBooks(
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
         //check if folder exists for collection
-        const collPath = path.join('static', 'collections', context.bcId);
+        const collPath = path.join('src/generatedAssets', 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
             if (verbose) console.log('creating: ' + collPath);
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
-            const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
+            const qPath = path.join('src/generatedAssets', 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 fs.mkdirSync(qPath, { recursive: true });
@@ -499,7 +506,7 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-    const catalogPath = path.join('static', 'collections', 'catalog');
+    const catalogPath = path.join('src/generatedAssets', 'collections', 'catalog');
     if (!fs.existsSync(catalogPath)) {
         if (verbose) console.log('creating: ' + catalogPath);
         fs.mkdirSync(catalogPath, { recursive: true });
@@ -518,14 +525,14 @@ export async function convertBooks(
     //push files to be written to files array
     freezer.forEach((value, key) =>
         files.push({
-            path: path.join('static', 'collections', key + '.pkf'),
+            path: path.join('src/generatedAssets', 'collections', key + '.pkf'),
             content: value
         })
     );
 
     //write index file
     fs.writeFileSync(
-        path.join('static', 'collections', 'index.json'),
+        path.join('src/generatedAssets', 'collections', 'index.json'),
         `[${(() => {
             //export collection names as array
             let s = '';
@@ -588,12 +595,14 @@ export type Quiz = {
 
 function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
     const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
-    const dstFile = path.join('static', 'collections', context.bcId, book.file);
 
     let content = fs.readFileSync(srcFile, 'utf-8');
+    const before = getHashedNameFromContents(content, book.file);
     content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id, context);
+    // file name already in config from before filtration
+    // don't want to modify config to account for filtration
     files.push({
-        path: dstFile,
+        path: path.join('static', 'collections', context.bcId, before),
         content
     });
 }

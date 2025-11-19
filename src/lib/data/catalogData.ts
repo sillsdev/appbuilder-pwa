@@ -1,4 +1,8 @@
-import { base } from '$app/paths';
+const catalogs = import.meta.glob('./*.json', {
+    eager: true,
+    base: '/src/generatedAssets/collections/catalog',
+    query: '?url'
+}) as Record<string, { default: string }>;
 
 let fetchFn = fetch;
 
@@ -31,7 +35,7 @@ export interface CatalogData {
 
 export async function loadCatalog(docSet: string): Promise<CatalogData> {
     let result: CatalogData;
-    await fetchFn(`${base}/collections/catalog/${docSet}.json`)
+    await fetchFn(catalogs[`./${docSet}.json`].default)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(
