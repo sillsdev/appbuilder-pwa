@@ -45,12 +45,23 @@ export const currentReversalLettersStore = derived(
 export const sqlJs = writable<ReturnType<typeof initSqlJs> | null>(null);
 export const sqlDb = writable<Database | null>(null);
 
+const sqliteUrl = import.meta.glob('./*.sqlite', {
+    eager: true,
+    base: '/src/generatedAssets',
+    query: '?url'
+}) as Record<string, { default: string }>;
+const wasmUrl = import.meta.glob('./*.wasm', {
+    eager: true,
+    base: '/src/generatedAssets/wasm',
+    query: '?url'
+}) as Record<string, { default: string }>;
+
 export async function initializeDatabase({ fetch }) {
     let db = get(sqlDb);
     let sql = get(sqlJs);
     if (!sql || !db) {
         // Fetch the WebAssembly binary manually using SvelteKit's fetch
-        const wasmResponse = await fetch(`${base}/wasm/sql-wasm.wasm`);
+        const wasmResponse = await fetch(wasmUrl[`./sql-wasm.wasm`].default);
         const wasmBinary = await wasmResponse.arrayBuffer();
 
         // Initialize sql.js with the manually loaded wasm binary
@@ -58,7 +69,7 @@ export async function initializeDatabase({ fetch }) {
         sqlJs.set(sql);
 
         // Fetch the database file
-        const response = await fetch(`${base}/data.sqlite`);
+        const response = await fetch(sqliteUrl[`./data.sqlite`].default);
         const buffer = await response.arrayBuffer();
 
         // Load the database into sql.js

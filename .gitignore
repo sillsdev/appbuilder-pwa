@@ -20,8 +20,6 @@ static/icons
 static/manifest*.json
 static/assets
 static/contents
-static/data.sqlite
-static/wasm
 src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js
