@@ -1,15 +1,23 @@
+import { base } from '$app/paths';
 import config from '$lib/data/config';
+
+const languageJSON = import.meta.glob('./*.json', {
+    eager: true,
+    base: '/src/generatedAssets/badges',
+    query: '?url'
+});
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ fetch }) {
-    /**
-     * @type {string[]}
-     */
     let languages = [];
     if (config.mainFeatures['share-apple-app-link']) {
-        const response = await import('$assets/badges/languages.json');
-        if (response.default) {
-            languages = response.default;
+        const url = languageJSON['./languages.json']?.default;
+        if (url) {
+            const response = await fetch(url);
+            const result = await response.json();
+            if (!result.error) {
+                languages = result;
+            }
         }
     }
 
