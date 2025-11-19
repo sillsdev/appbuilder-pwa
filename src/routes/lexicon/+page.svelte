@@ -21,6 +21,12 @@
     import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
+    const reversals = import.meta.glob('./**/*.json', {
+        eager: true,
+        base: '/src/generatedAssets/reversal',
+        query: '?url'
+    });
+
     const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = page.data;
 
     const alphabets = {
@@ -84,7 +90,7 @@
         const index = reversalIndexes[defaultReversalKey];
         const files = index[letter] || [];
         for (const file of files) {
-            const reversalFile = `${base}/reversal/${defaultReversalKey}/${file}`;
+            const reversalFile = reversals[`./${defaultReversalKey}/${file}`].default;
             const response = await fetch(reversalFile);
             if (response.ok) {
                 const data = await response.json();

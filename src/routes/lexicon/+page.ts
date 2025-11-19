@@ -8,6 +8,12 @@ import {
 } from '$lib/data/stores/lexicon';
 import type { ReversalIndex } from '$lib/lexicon';
 
+const reversalIndexUrls = import.meta.glob('./**/index.json', {
+    eager: true,
+    base: '/src/generatedAssets/reversal',
+    query: '?url'
+}) as Record<string, { default: string }>;
+
 export async function load({ fetch }) {
     if (!(config as DictionaryConfig).writingSystems) {
         throw new Error('Writing systems configuration not found');
@@ -42,7 +48,7 @@ export async function load({ fetch }) {
 
     for (const [key, ws] of Object.entries(dictionaryConfig.writingSystems)) {
         if (!ws.type.includes('main')) {
-            const response = await fetch(`${base}/reversal/${key}/index.json`);
+            const response = await fetch(reversalIndexUrls[`./${key}/index.json`].default);
             if (response.ok) {
                 reversalIndexes[key] = (await response.json()) as ReversalIndex; // Explicitly cast the JSON response
             } else {
