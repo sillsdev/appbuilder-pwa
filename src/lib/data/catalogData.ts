@@ -1,8 +1,9 @@
 const catalogs = import.meta.glob('./*.json', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/collections/catalog',
     query: '?url'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 let fetchFn = fetch;
 
@@ -37,11 +38,11 @@ export async function loadCatalog(docSet: string): Promise<CatalogData> {
     let result: CatalogData;
     const key = `./${docSet}.json`;
     const entry = catalogs[key];
-    if (!entry?.default) {
+    if (!entry) {
         throw new Error(`Catalog JSON asset not found for key ${key}`);
     }
 
-    await fetchFn(entry.default)
+    await fetchFn(entry)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(

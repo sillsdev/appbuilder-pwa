@@ -60,9 +60,10 @@ LOGGING:
     import { fromStore } from 'svelte/store';
 
     const illustrations = import.meta.glob('./*', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/illustrations'
-    }) as Record<string, { default: string }>;
+    }) as Record<string, string>;
 
     let {
         audioPhraseEndChars,
@@ -1184,7 +1185,7 @@ LOGGING:
     }
 
     function createIllustrationBlock(source: string, caption: string | null) {
-        const imageSource = illustrations['./' + source]?.default ?? '';
+        const imageSource = illustrations['./' + source] ?? '';
         const divFigure = document.createElement('div');
         divFigure.classList.add('image-block');
         const spanFigure = document.createElement('span');

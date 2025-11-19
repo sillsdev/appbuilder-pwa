@@ -22,6 +22,7 @@
     import { onMount, tick } from 'svelte';
 
     const reversals = import.meta.glob('./**/*.json', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/reversal',
         query: '?url'
@@ -90,7 +91,7 @@
         const index = reversalIndexes[defaultReversalKey];
         const files = index[letter] || [];
         for (const file of files) {
-            const reversalFile = reversals[`./${defaultReversalKey}/${file}`]?.default;
+            const reversalFile = reversals[`./${defaultReversalKey}/${file}`];
             if (!reversalFile) {
                 console.error(`Reversal file not found in glob: ./${defaultReversalKey}/${file}`);
                 continue;

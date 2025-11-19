@@ -19,16 +19,19 @@
     import { onDestroy } from 'svelte';
 
     const illustrations = import.meta.glob('./*', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/illustrations'
     });
 
     const clips = import.meta.glob('./*', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/clips'
     });
 
     const quizAssets = import.meta.glob('./*', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/quiz'
     });
@@ -84,7 +87,7 @@
     const staticAssets = compareVersions(config.programVersion, '12.0') < 0;
 
     function getQuizAssetAudio(file) {
-        return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].default.replace(/^\//, '');
+        return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].replace(/^\//, '');
     }
 
     function getRandomAudio(audioArray) {
@@ -143,7 +146,7 @@
     }
 
     function getImageSource(image) {
-        return illustrations[`./${page.params.collection}-${quiz.id}-${image}`]?.default ?? '';
+        return illustrations[`./${page.params.collection}-${quiz.id}-${image}`] ?? '';
     }
 
     function shuffleAnswers(answerArray) {
@@ -219,11 +222,11 @@
         let sound;
         if (correct) {
             sound = quiz.rightAnswerAudio
-                ? clips[`./${getRandomAudio(quiz.rightAnswerAudio)}`].default
+                ? clips[`./${getRandomAudio(quiz.rightAnswerAudio)}`]
                 : getQuizAssetAudio('quiz-right-answer.mp3');
         } else {
             sound = quiz.wrongAnswerAudio
-                ? clips[`./${getRandomAudio(quiz.wrongAnswerAudio)}`].default
+                ? clips[`./${getRandomAudio(quiz.wrongAnswerAudio)}`]
                 : getQuizAssetAudio('quiz-wrong-answer.mp3');
         }
         return sound;
@@ -239,11 +242,7 @@
                 if (!answer.correct && answer.explanation && answer.explanation.text) {
                     explanation = answer.explanation.text;
                     if (answer.explanation.audio) {
-                        playSound(
-                            clips[`./${answer.explanation.audio}`].default,
-                            null,
-                            'explanation'
-                        );
+                        playSound(clips[`./${answer.explanation.audio}`], null, 'explanation');
                     }
                 } else if (
                     !answer.correct &&
@@ -253,7 +252,7 @@
                     explanation = currentQuizQuestion.explanation.text;
                     if (currentQuizQuestion.explanation.audio) {
                         playSound(
-                            clips[`./${currentQuizQuestion.explanation.audio}`].default,
+                            clips[`./${currentQuizQuestion.explanation.audio}`],
                             null,
                             'explanation'
                         );
@@ -286,7 +285,7 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playSound(clips[`./${question.audio}`].default, listener, 'question');
+                    playSound(clips[`./${question.audio}`], listener, 'question');
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -304,7 +303,7 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     textHighlightIndex = answerIndex;
-                    playSound(clips[`./${answer.audio}`].default, listener, 'answer');
+                    playSound(clips[`./${answer.audio}`], listener, 'answer');
                 }
             } else {
                 textHighlightIndex = -1;

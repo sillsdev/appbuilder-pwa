@@ -2,9 +2,10 @@ import type { AudioConfig } from '$config';
 import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 
 const clips = import.meta.glob('./*', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/clips'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 export function checkForMilestoneLinks(
     textType: string[],
@@ -121,7 +122,7 @@ function getAudioLinkHtml(
             if (audioSource) {
                 sourceType = audioSource.type;
                 if (audioSource.type === 'assets') {
-                    src = clips[`./${filename}`]?.default ?? 'clips/' + filename;
+                    src = clips[`./${filename}`] ?? 'clips/' + filename;
                 } else if (audioSource.type === 'download') {
                     const address = audioSource.address;
                     src = ensureTrailingSlash(address) + filename;

@@ -41,6 +41,7 @@ The sidebar/drawer.
     import { gotoRoute } from '$lib/navigate';
 
     const menuIcons = import.meta.glob('./*', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/icons/menu-items'
     });
@@ -87,7 +88,7 @@ The sidebar/drawer.
                     multiplier === 1
                         ? ''
                         : ' ' + multiplier.toFixed(multiplier % 1 === 0 ? 0 : 1) + 'x';
-                const url = menuIcons[`./${image.file}`]?.default;
+                const url = menuIcons[`./${image.file}`];
                 return url ? `${url}${multiplierString}` : '';
             })
             .filter((i) => !!i)
@@ -271,7 +272,7 @@ The sidebar/drawer.
                                     <source srcset={imageSrcSet(item.images)} />
                                 {/if}
                                 <img
-                                    src={menuIcons[`./${item.images[0].file}`]?.default ?? ''}
+                                    src={menuIcons[`./${item.images[0].file}`] ?? ''}
                                     height="24"
                                     width="24"
                                     alt={item.title[$language] || item.title[languageDefault]}

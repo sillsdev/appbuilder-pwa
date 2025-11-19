@@ -6,6 +6,7 @@ import { get } from 'svelte/store';
 import { thaw } from '../scripts/thaw';
 
 const collections = import.meta.glob('./*.pkf', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/collections',
     query: '?url'
@@ -31,10 +32,10 @@ export async function initProskomma({ fetch }) {
 export function getDocSetUrl(docSet) {
     const key = `./${docSet}.pkf`;
     const entry = collections[key];
-    if (!entry?.default) {
+    if (!entry) {
         throw new Error(`DocSet PKF asset not found for key ${key}`);
     }
-    return entry.default;
+    return entry;
 }
 
 export async function fetchDocSet(docSet, fetch) {

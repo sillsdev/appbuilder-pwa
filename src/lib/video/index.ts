@@ -2,14 +2,16 @@ import { base } from '$app/paths';
 import config from '$lib/data/config';
 
 const thumbnails = import.meta.glob('./*', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/images'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 const videos = import.meta.glob('./*', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/videos'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 enum VideoType {
     None = 'none',
@@ -210,7 +212,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     }
     videoContainerDiv.style.setProperty(
         'background-image',
-        `url('${thumbnails['./' + video.thumbnail].default}')`
+        `url('${thumbnails['./' + video.thumbnail]}')`
     );
     const videoLink = document.createElement('a');
     videoLink.setAttribute('href', '#');
@@ -221,7 +223,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     if (sourceType === 'assets') {
         videoLink.setAttribute(
             'onclick',
-            `playVideoFile('${id}', '${videos[`./${video.filename}`].default}'); return false;`
+            `playVideoFile('${id}', '${videos[`./${video.filename}`]}'); return false;`
         );
     } else {
         videoLink.setAttribute(

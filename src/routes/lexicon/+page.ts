@@ -9,10 +9,11 @@ import {
 import type { ReversalIndex } from '$lib/lexicon';
 
 const reversalIndexUrls = import.meta.glob('./**/index.json', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/reversal',
     query: '?url'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 export async function load({ fetch }) {
     if (!(config as DictionaryConfig).writingSystems) {
@@ -48,7 +49,7 @@ export async function load({ fetch }) {
 
     for (const [key, ws] of Object.entries(dictionaryConfig.writingSystems)) {
         if (!ws.type.includes('main')) {
-            const response = await fetch(reversalIndexUrls[`./${key}/index.json`].default);
+            const response = await fetch(reversalIndexUrls[`./${key}/index.json`]);
             if (response.ok) {
                 reversalIndexes[key] = (await response.json()) as ReversalIndex; // Explicitly cast the JSON response
             } else {

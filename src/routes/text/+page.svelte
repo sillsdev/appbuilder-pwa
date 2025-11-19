@@ -61,7 +61,11 @@
     import { pinch, swipe } from 'svelte-gestures';
     import { slide } from 'svelte/transition';
 
-    const borders = import.meta.glob('./*', { eager: true, base: '/src/gen-assets/borders' });
+    const borders = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/borders'
+    });
 
     let scrollingUp = $state(true);
     let savedScrollPosition = 0;
@@ -491,7 +495,7 @@
         </div>
     {/if}
     <div
-        style="--borderImageSource=url({borders['./border.png']?.default});"
+        style="--borderImageSource=url({borders['./border.png']});"
         class:borderimg={showBorder}
         class="overflow-y-auto"
         bind:this={scrollingDiv}

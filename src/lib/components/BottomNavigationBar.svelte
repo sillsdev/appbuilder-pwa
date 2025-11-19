@@ -9,6 +9,7 @@
     import { gotoRoute } from '$lib/navigate';
 
     const menuIcons = import.meta.glob('./*', {
+        import: 'default',
         eager: true,
         base: '/src/gen-assets/icons/menu-items'
     });
@@ -133,7 +134,7 @@
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
                                 <img
-                                    src={menuIcons[`./${item.images[0].file}`].default}
+                                    src={menuIcons[`./${item.images[0].file}`]}
                                     alt=""
                                     class={selectedLink(item.type, item.link['default'])
                                         ? 'opacity-100'

@@ -17,14 +17,16 @@ import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
 const audioSources = import.meta.glob('./*', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/audio'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 const timings = import.meta.glob('./*', {
+    import: 'default',
     eager: true,
     base: '/src/gen-assets/timings'
-}) as Record<string, { default: string }>;
+}) as Record<string, string>;
 
 export interface AudioPlayer {
     audio: HTMLAudioElement;
@@ -440,7 +442,7 @@ export async function getAudioSourceInfo(item: {
         if (!audioSources[audioKey]) {
             throw new Error(`Audio file not found in generated assets: ${audio.filename}`);
         }
-        audioPath = audioSources[audioKey].default;
+        audioPath = audioSources[audioKey];
     } else if (audioSource.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
@@ -451,7 +453,7 @@ export async function getAudioSourceInfo(item: {
         if (!timings[timingKey]) {
             throw new Error(`Timing file not found in generated assets: ${audio.timingFile}`);
         }
-        const timeFilePath = timings[timingKey].default;
+        const timeFilePath = timings[timingKey];
         const response = await fetch(timeFilePath);
         if (!response.ok) {
             throw new Error('Failed to read file');
