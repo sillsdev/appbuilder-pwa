@@ -4,7 +4,17 @@ import { basename, extname, join } from 'path';
 
 export function getHashedName(dataDir: string, src: string) {
     const fullPath = join(dataDir, src);
-    return getHashedNameFromContents(String(readFileSync(fullPath)), src);
+    try {
+        if (existsSync(fullPath)) {
+            return getHashedNameFromContents(String(readFileSync(fullPath)), src);
+        } else {
+            console.warn(`Could not locate ${src}`);
+            return '';
+        }
+    } catch (e) {
+        console.error(`Error when reading ${fullPath}:\n${e}`);
+        return '';
+    }
 }
 
 export function getHashedNameFromContents(contents: string, src: string) {
@@ -24,7 +34,7 @@ export function createHashedFile(dataDir: string, src: string, verbose: number, 
     const hashedPath = join(destPrefix, getHashedName(dataDir, src));
     const dest = join('static', hashedPath);
 
-    if (!existsSync(dest)) {
+    if (hashedPath && !existsSync(dest)) {
         copyFileSync(fullPath, dest);
         if (verbose) console.log(`converted ${src} to ${dest}`);
     } else if (verbose) {
