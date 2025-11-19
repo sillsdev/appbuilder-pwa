@@ -14,7 +14,6 @@ data-sandbox/node_modules
 !data/.empty
 static/sab-stylesheet.css
 static/illustrations
-static/collections
 static/icons
 static/manifest*.json
 static/assets
