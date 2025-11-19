@@ -87,8 +87,10 @@ The sidebar/drawer.
                     multiplier === 1
                         ? ''
                         : ' ' + multiplier.toFixed(multiplier % 1 === 0 ? 0 : 1) + 'x';
-                return menuIcons[`./${image.file}${multiplierString}`]?.default ?? '';
+                const url = menuIcons[`./${image.file}`]?.default;
+                return url ? `${url}${multiplierString}` : '';
             })
+            .filter((i) => !!i)
             .join(', ');
     }
 
