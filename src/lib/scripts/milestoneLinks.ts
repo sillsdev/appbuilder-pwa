@@ -121,7 +121,7 @@ function getAudioLinkHtml(
             if (audioSource) {
                 sourceType = audioSource.type;
                 if (audioSource.type === 'assets') {
-                    src = clips[`./${filename}`].default;
+                    src = clips[`./${filename}`]?.default ?? 'clips/' + filename;
                 } else if (audioSource.type === 'download') {
                     const address = audioSource.address;
                     src = ensureTrailingSlash(address) + filename;
