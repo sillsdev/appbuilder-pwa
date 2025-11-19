@@ -1,6 +1,7 @@
 import config from '$lib/data/config';
 import { checkQuizAccess } from '$lib/data/quiz';
 
+/** @type {Record<string, string>} */
 const quizzes = import.meta.glob('./**/quizzes/*.json', {
     import: 'default',
     eager: true,
@@ -35,7 +36,12 @@ export async function load({ params, fetch }) {
     let passScore = 0;
     if (!locked) {
         try {
-            const response = await fetch(quizzes[`./${collection}/quizzes/${id}.json`]);
+            const key = `./${collection}/quizzes/${id}.json`;
+            const url = quizzes[key];
+            if (!url) {
+                throw new Error(`Quiz JSON asset not found for key ${key}`);
+            }
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Failed to fetch quiz JSON file');
             }
