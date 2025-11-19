@@ -1,6 +1,6 @@
 const catalogs = import.meta.glob('./*.json', {
     eager: true,
-    base: '/src/generatedAssets/collections/catalog',
+    base: '/src/gen-assets/collections/catalog',
     query: '?url'
 }) as Record<string, { default: string }>;
 

@@ -64,9 +64,9 @@ export function convertManifest(dataDir: string, verbose: number) {
 
     const hashedName = createHashedFileFromContents(contents, 'manifest.json', verbose);
 
-    mkdirSync(path.join('src', 'generatedAssets'), { recursive: true });
+    mkdirSync(path.join('src', 'gen-assets'), { recursive: true });
     writeFileSync(
-        path.join('src/generatedAssets', 'manifestUrl.json'),
+        path.join('src/gen-assets', 'manifestUrl.json'),
         JSON.stringify({ url: hashedName })
     );
 }

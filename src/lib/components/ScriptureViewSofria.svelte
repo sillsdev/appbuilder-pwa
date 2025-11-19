@@ -61,7 +61,7 @@ LOGGING:
 
     const illustrations = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/illustrations'
+        base: '/src/gen-assets/illustrations'
     }) as Record<string, { default: string }>;
 
     let {

@@ -409,7 +409,7 @@ export async function convertBooks(
     // copy book-related folder resources
     ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('src/generatedAssets', folder);
+        const folderDstDir = path.join('src/gen-assets', folder);
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
@@ -480,7 +480,7 @@ export async function convertBooks(
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
-                            'src/generatedAssets',
+                            'src/gen-assets',
                             'collections',
                             context.bcId,
                             'quizzes',
@@ -535,14 +535,14 @@ export async function convertBooks(
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
         //check if folder exists for collection
-        const collPath = path.join('src/generatedAssets', 'collections', context.bcId);
+        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
             if (verbose) console.log('creating: ' + collPath);
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
-            const qPath = path.join('src/generatedAssets', 'collections', context.bcId, 'quizzes');
+            const qPath = path.join('src/gen-assets', 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 fs.mkdirSync(qPath, { recursive: true });
@@ -551,7 +551,7 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-    const catalogPath = path.join('src/generatedAssets', 'collections', 'catalog');
+    const catalogPath = path.join('src/gen-assets', 'collections', 'catalog');
     if (!fs.existsSync(catalogPath)) {
         if (verbose) console.log('creating: ' + catalogPath);
         fs.mkdirSync(catalogPath, { recursive: true });
@@ -570,14 +570,14 @@ export async function convertBooks(
     //push files to be written to files array
     freezer.forEach((value, key) =>
         files.push({
-            path: path.join('src/generatedAssets', 'collections', key + '.pkf'),
+            path: path.join('src/gen-assets', 'collections', key + '.pkf'),
             content: value
         })
     );
 
     //write index file
     fs.writeFileSync(
-        path.join('src/generatedAssets', 'collections', 'index.json'),
+        path.join('src/gen-assets', 'collections', 'index.json'),
         `[${(() => {
             //export collection names as array
             let s = '';

@@ -3,12 +3,12 @@ import config from '$lib/data/config';
 
 const thumbnails = import.meta.glob('./*', {
     eager: true,
-    base: '/src/generatedAssets/images'
+    base: '/src/gen-assets/images'
 }) as Record<string, { default: string }>;
 
 const videos = import.meta.glob('./*', {
     eager: true,
-    base: '/src/generatedAssets/videos'
+    base: '/src/gen-assets/videos'
 }) as Record<string, { default: string }>;
 
 enum VideoType {

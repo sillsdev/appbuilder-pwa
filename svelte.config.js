@@ -21,8 +21,7 @@ const config = {
         alias: {
             $config: './config',
             $static: './static',
-            $images: './src/generatedAssets/images',
-            $assets: './src/generatedAssets/'
+            $assets: './src/gen-assets/'
         },
         router: {
             type: 'hash'

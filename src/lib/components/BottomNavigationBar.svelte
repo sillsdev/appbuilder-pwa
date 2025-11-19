@@ -10,7 +10,7 @@
 
     const menuIcons = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/icons/menu-items'
+        base: '/src/gen-assets/icons/menu-items'
     });
 
     let { barType = undefined } = $props();

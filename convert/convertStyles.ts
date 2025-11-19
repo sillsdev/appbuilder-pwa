@@ -18,7 +18,7 @@ export interface StylesTaskOutput extends TaskOutput {
  */
 export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
-    const dstDir = path.join('src/generatedAssets', 'styles');
+    const dstDir = path.join('src/gen-assets', 'styles');
     mkdirSync(dstDir, { recursive: true });
     mkdirSync(path.join('static', 'fonts'), { recursive: true });
 

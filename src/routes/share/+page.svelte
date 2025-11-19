@@ -9,7 +9,7 @@
 
     const badges = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/badges'
+        base: '/src/gen-assets/badges'
     }) as Record<string, { default: string }>;
 
     const googlePlayBadgesRoot = 'https://play.google.com/intl/en_us/badges/static/images/badges/';

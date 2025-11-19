@@ -3,7 +3,7 @@ import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 
 const clips = import.meta.glob('./*', {
     eager: true,
-    base: '/src/generatedAssets/clips'
+    base: '/src/gen-assets/clips'
 }) as Record<string, { default: string }>;
 
 export function checkForMilestoneLinks(

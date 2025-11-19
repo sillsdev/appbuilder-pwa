@@ -31,7 +31,7 @@ export function convertReverseIndex(
     alphabet: string[]
 ): FileContent[] {
     const indexFilePath = path.join(dataDir, 'reversal', `lexicon-${language}.idx`);
-    const outputDir = path.join('src/generatedAssets', 'reversal', language);
+    const outputDir = path.join('src/gen-assets', 'reversal', language);
     const files: FileContent[] = [];
 
     if (!existsSync(indexFilePath)) {

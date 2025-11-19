@@ -19,7 +19,7 @@ async function startApolloServer(typeDefs: any, resolvers: any) {
     const httpServer = http.createServer(app);
     const pk = new SABProskomma();
 
-    const staticDir = path.join('src/generatedAssets', 'collections');
+    const staticDir = path.join('src/gen-assets', 'collections');
     const fileIndex = fse.readJsonSync(path.join(staticDir, 'index.json'));
     for (const file of fileIndex) {
         console.log(`Loading ${file}`);

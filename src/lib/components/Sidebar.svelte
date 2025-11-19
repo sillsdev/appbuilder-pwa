@@ -4,8 +4,8 @@ The sidebar/drawer.
 -->
 <script>
     import { resolve } from '$app/paths';
-    import nav_drawer_image from '$images/nav_drawer.png';
-    import nav_drawer_2x from '$images/nav_drawer@2x.png';
+    import nav_drawer_image from '$assets/images/nav_drawer.png';
+    import nav_drawer_2x from '$assets/images/nav_drawer@2x.png';
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import {
@@ -42,7 +42,7 @@ The sidebar/drawer.
 
     const menuIcons = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/icons/menu-items'
+        base: '/src/gen-assets/icons/menu-items'
     });
 
     let { children } = $props();

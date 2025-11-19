@@ -47,12 +47,12 @@ export const sqlDb = writable<Database | null>(null);
 
 const sqliteUrl = import.meta.glob('./*.sqlite', {
     eager: true,
-    base: '/src/generatedAssets',
+    base: '/src/gen-assets',
     query: '?url'
 }) as Record<string, { default: string }>;
 const wasmUrl = import.meta.glob('./*.wasm', {
     eager: true,
-    base: '/src/generatedAssets/wasm',
+    base: '/src/gen-assets/wasm',
     query: '?url'
 }) as Record<string, { default: string }>;
 

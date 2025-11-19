@@ -3,7 +3,7 @@ import { checkQuizAccess } from '$lib/data/quiz';
 
 const quizzes = import.meta.glob('./**/quizzes/*.json', {
     eager: true,
-    base: '/src/generatedAssets/collections',
+    base: '/src/gen-assets/collections',
     query: '?url'
 });
 

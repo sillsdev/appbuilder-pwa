@@ -7,7 +7,7 @@ import { thaw } from '../scripts/thaw';
 
 const collections = import.meta.glob('./*.pkf', {
     eager: true,
-    base: '/src/generatedAssets/collections',
+    base: '/src/gen-assets/collections',
     query: '?url'
 });
 

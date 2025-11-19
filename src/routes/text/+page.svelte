@@ -61,7 +61,7 @@
     import { pinch, swipe } from 'svelte-gestures';
     import { slide } from 'svelte/transition';
 
-    const borders = import.meta.glob('./*', { eager: true, base: '/src/generatedAssets/borders' });
+    const borders = import.meta.glob('./*', { eager: true, base: '/src/gen-assets/borders' });
 
     let scrollingUp = $state(true);
     let savedScrollPosition = 0;

@@ -24,5 +24,5 @@ src/lib/data/catalog.js
 src/lib/data/firebase-config.js
 src/lib/data/config.js
 src/lib/data/contents.js
-src/generatedAssets
+src/gen-assets
 vite.config.js.timestamp*

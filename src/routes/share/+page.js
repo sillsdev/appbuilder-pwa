@@ -3,7 +3,7 @@ import config from '$lib/data/config';
 
 const languageJSON = import.meta.glob('./*.json', {
     eager: true,
-    base: '/src/generatedAssets/badges',
+    base: '/src/gen-assets/badges',
     query: '?url'
 });
 

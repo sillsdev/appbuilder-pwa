@@ -10,7 +10,7 @@ import type { ReversalIndex } from '$lib/lexicon';
 
 const reversalIndexUrls = import.meta.glob('./**/index.json', {
     eager: true,
-    base: '/src/generatedAssets/reversal',
+    base: '/src/gen-assets/reversal',
     query: '?url'
 }) as Record<string, { default: string }>;
 

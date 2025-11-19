@@ -20,17 +20,17 @@
 
     const illustrations = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/illustrations'
+        base: '/src/gen-assets/illustrations'
     });
 
     const clips = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/clips'
+        base: '/src/gen-assets/clips'
     });
 
     const quizAssets = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/quiz'
+        base: '/src/gen-assets/quiz'
     });
 
     /** @type {import('./$types').PageData} */

@@ -8,7 +8,7 @@ Custom list of collections for the LayoutOptions menu
 
     const illustrations = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/illustrations'
+        base: '/src/gen-assets/illustrations'
     }) as Record<string, { default: Object }>;
 
     //docSets is the array of all selectable docsets. selectedLayouts is the selected docset to highlight

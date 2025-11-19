@@ -18,12 +18,12 @@ import { logAudioDuration, logAudioPlay } from './analytics';
 
 const audioSources = import.meta.glob('./*', {
     eager: true,
-    base: '/src/generatedAssets/audio'
+    base: '/src/gen-assets/audio'
 }) as Record<string, { default: string }>;
 
 const timings = import.meta.glob('./*', {
     eager: true,
-    base: '/src/generatedAssets/timings'
+    base: '/src/gen-assets/timings'
 }) as Record<string, { default: string }>;
 
 export interface AudioPlayer {

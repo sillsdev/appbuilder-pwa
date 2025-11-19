@@ -34,7 +34,7 @@
 
     const styles = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/styles'
+        base: '/src/gen-assets/styles'
     }) as Record<string, { default: string }>;
 
     let { children } = $props();

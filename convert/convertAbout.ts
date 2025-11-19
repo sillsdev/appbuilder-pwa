@@ -10,7 +10,7 @@ export interface AboutTaskOutput extends TaskOutput {
  */
 export function convertAbout(dataDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'about.partial.html');
-    const dstFile = path.join('src/generatedAssets', 'about.partial.html');
+    const dstFile = path.join('src/gen-assets', 'about.partial.html');
     copyFile(srcFile, dstFile, function (err: any) {
         if (err) throw err;
         if (verbose) console.log(`copied ${srcFile} to ${dstFile}`);

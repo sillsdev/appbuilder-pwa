@@ -17,7 +17,7 @@ A component that displays the book tabs and allows the user to switch between th
 
     const tabIcons = import.meta.glob('./*', {
         eager: true,
-        base: '/src/generatedAssets/icons/tabs'
+        base: '/src/gen-assets/icons/tabs'
     });
 
     const bookTabs = $derived(

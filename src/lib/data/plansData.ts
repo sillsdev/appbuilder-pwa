@@ -3,7 +3,7 @@ import { base } from '$app/paths';
 const plans = import.meta.glob('./*', {
     eager: true,
     query: '?url', // this is important to get url instead of JSON
-    base: '/src/generatedAssets/plans'
+    base: '/src/gen-assets/plans'
 }) as Record<string, { default: string }>;
 
 export type PlanDataItem = {

@@ -23,7 +23,7 @@
 
     const reversals = import.meta.glob('./**/*.json', {
         eager: true,
-        base: '/src/generatedAssets/reversal',
+        base: '/src/gen-assets/reversal',
         query: '?url'
     });
 
