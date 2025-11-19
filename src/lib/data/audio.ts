@@ -406,7 +406,7 @@ export async function getAudioSourceInfo(item: {
 }) {
     //search config for audio on provided collection, book, and chapter
     const audio = config.bookCollections
-        .find((c) => item.collection === c.id)
+        ?.find((c) => item.collection === c.id)
         ?.books?.find((b) => b.id === item.book)
         ?.audio?.find((a) => item.chapter === '' + a.num);
     if (!audio) {
