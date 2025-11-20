@@ -1,11 +1,7 @@
 <script>
     import { base } from '$app/paths';
     import { page } from '$app/state';
-    import EntryView from '$lib/components/EntryView.svelte';
-    import ListViewHeader from '$lib/components/ListViewHeader.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import ReversalListView from '$lib/components/ReversalListView.svelte';
-    import VernacularListView from '$lib/components/VernacularListView.svelte';
     import config from '$lib/data/config';
     import {
         currentReversalLettersStore,
@@ -17,6 +13,10 @@
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
     import { SearchIcon } from '$lib/icons';
+    import EntryView from '$lib/lexicon/components/EntryView.svelte';
+    import ListViewHeader from '$lib/lexicon/components/ListViewHeader.svelte';
+    import ReversalListView from '$lib/lexicon/components/ReversalListView.svelte';
+    import VernacularListView from '$lib/lexicon/components/VernacularListView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
