@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "concurrently --restart-tries -1 --restart-after 10 -t HH:mm:ss -p \"[{time} {name}]\" -n Converter,Svelte \"ts-node convert/index.ts --watch\" \"vite dev --host\"",
         "dev:noconvert": "vite dev --host",
-        "build": "npm run enforce-version && ts-node convert/index.ts && vite build",
+        "build": "npm run enforce-version && ts-node convert/index.ts && npx svelte-kit sync && vite build",
         "extract:example": "tsx example/index.ts",
         "package": "vite package",
         "preview": "vite preview --host",
