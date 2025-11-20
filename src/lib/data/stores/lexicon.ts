@@ -1,5 +1,5 @@
 import { base } from '$app/paths';
-import initSqlJs, { Database } from 'sql.js';
+import initSqlJs, { type Database } from 'sql.js';
 import { derived, get, writable, type Writable } from 'svelte/store';
 
 // Store for vernacularLanguage
