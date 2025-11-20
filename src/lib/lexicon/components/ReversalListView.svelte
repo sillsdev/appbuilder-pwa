@@ -1,6 +1,5 @@
 <script>
-    export let reversalWordsList;
-    export let onSelectWord;
+    let { reversalWordsList, onSelectWord } = $props();
 </script>
 
 <ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">
@@ -11,8 +10,8 @@
                 class="w-full text-left py-1"
                 aria-label={`Select word ${word}`}
                 style="color: var(--TextColor); border-bottom: 1px solid var(--SettingsSeparatorColor);"
-                on:click={() => onSelectWord({ word, indexes })}
-                on:keydown={(event) => {
+                onclick={() => onSelectWord({ word, indexes })}
+                onkeydown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                         onSelectWord({ word, indexes });
                         event.preventDefault();

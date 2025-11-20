@@ -7,14 +7,21 @@
         vernacularLanguageStore,
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
-    import { afterUpdate, onMount } from 'svelte';
+    import { onMount } from 'svelte';
+    import { run } from 'svelte/legacy';
     import { get } from 'svelte/store';
 
-    export let wordIds;
-    export let onSelectWord;
-    export let removeNewLines = false;
+    /**
+     * @typedef {Object} Props
+     * @property {any} wordIds
+     * @property {any} onSelectWord
+     * @property {boolean} [removeNewLines]
+     */
 
-    let xmlData = '';
+    /** @type {Props} */
+    let { wordIds, onSelectWord, removeNewLines = false } = $props();
+
+    let xmlData = $state('');
 
     async function queryXmlByWordId(wordIds) {
         try {
@@ -211,13 +218,15 @@
 
     onMount(updateXmlData);
 
-    $: if (wordIds) {
-        (async () => {
-            await updateXmlData();
-            applyStyles();
-            attachEventListeners();
-        })();
-    }
+    run(() => {
+        if (wordIds) {
+            (async () => {
+                await updateXmlData();
+                applyStyles();
+                attachEventListeners();
+            })();
+        }
+    });
 </script>
 
 <pre

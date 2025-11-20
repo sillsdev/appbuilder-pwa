@@ -20,6 +20,7 @@
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
+    import { run } from 'svelte/legacy';
 
     const reversals = import.meta.glob('./**/*.json', {
         import: 'default',
@@ -36,22 +37,28 @@
     };
 
     let selectedLetter = alphabets.vernacular[0];
-    let selectedWord = null;
-    $: showBackButton = selectedWord ? true : false;
+    let selectedWord = $state(null);
+    let showBackButton = $derived(selectedWord ? true : false);
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
-    let loadedReversalLetters = new Set();
-    let reversalWordsList;
-    let vernacularWordsList;
-    let vernacularLanguage;
-    let scrollContainer;
-    let wordIds;
+    let loadedReversalLetters = $state(new Set());
+    let reversalWordsList = $derived($currentReversalWordsStore);
+    let vernacularWordsList = $derived($vernacularWordsStore);
+    let vernacularLanguage = $state();
+    let scrollContainer = $state();
+    let wordIds = $state();
 
-    $: loadedReversalLetters = new Set($currentReversalLettersStore);
-    $: reversalWordsList = $currentReversalWordsStore;
-    $: vernacularLanguage = $vernacularLanguageStore;
-    $: vernacularWordsList = $vernacularWordsStore;
+    run(() => {
+        loadedReversalLetters = new Set($currentReversalLettersStore);
+    });
+
+    run(() => {
+        vernacularLanguage = $vernacularLanguageStore;
+    });
+
     //$: selectedLanguage = $selectedLanguageStore;
-    $: selectedLanguageStore.set(vernacularLanguage);
+    run(() => {
+        selectedLanguageStore.set(vernacularLanguage);
+    });
 
     const reversalLanguage = Object.values(reversalLanguages[0])[0];
 
@@ -239,8 +246,9 @@
         }
     }
 
-    $: currentAlphabet =
-        $selectedLanguageStore === reversalLanguage ? alphabets.reversal : alphabets.vernacular;
+    let currentAlphabet = $derived(
+        $selectedLanguageStore === reversalLanguage ? alphabets.reversal : alphabets.vernacular
+    );
 
     onMount(() => {
         if (selectedLetter && $selectedLanguageStore != vernacularLanguage) {
@@ -271,7 +279,7 @@
                 <div id="extraButtons" class:pr-4={!selectedWord}>
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
-                        on:click={() => {
+                        onclick={() => {
                             wordIds = null;
                             gotoRoute(`/lexicon/search`);
                         }}
@@ -306,7 +314,7 @@
             class="flex-1 overflow-y-auto bg-base-100"
             style="background-color: var(--BackgroundColor);"
             bind:this={scrollContainer}
-            on:scroll={checkIfScrolledToBottom}
+            onscroll={checkIfScrolledToBottom}
         >
             <EntryView {wordIds} onSelectWord={selectWord} />
         </div>
@@ -315,7 +323,7 @@
             class="flex-1 overflow-y-auto bg-base-100"
             style="background-color: var(--BackgroundColor);"
             bind:this={scrollContainer}
-            on:scroll={checkIfScrolledToBottom}
+            onscroll={checkIfScrolledToBottom}
         >
             <VernacularListView {vernacularWordsList} onSelectWord={selectWord} />
         </div>
@@ -325,7 +333,7 @@
             class="flex-1 overflow-y-auto bg-base-100 width-full"
             style="background-color: var(--BackgroundColor);"
             bind:this={scrollContainer}
-            on:scroll={checkIfScrolledToBottom}
+            onscroll={checkIfScrolledToBottom}
         >
             <ReversalListView {reversalWordsList} onSelectWord={selectWord} />
         </div>
