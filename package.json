@@ -22,8 +22,7 @@
         "clean:all": "npm run clean && npm run clean:data",
         "test": "vitest",
         "test:ui": "vitest --ui",
-        "enforce-version": "ts-node convert/checkVersion.ts",
-        "preinstall": "npm run enforce-version"
+        "enforce-version": "ts-node convert/checkVersion.ts"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
