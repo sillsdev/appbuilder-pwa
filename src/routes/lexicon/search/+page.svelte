@@ -1,11 +1,11 @@
 <script lang="ts">
-    import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
-    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
     import { vernacularLanguageStore, vernacularWordsStore } from '$lib/data/stores/lexicon';
     import { SearchIcon } from '$lib/icons';
+    import EntryView from '$lib/lexicon/components/EntryView.svelte';
+    import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
     import { searchDictionary } from '$lib/search-worker/dab-search-worker';
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
@@ -129,7 +129,7 @@
             <div class="flex justify-center">
                 <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
                     {#if wordIds && wordIds.length > 0}
-                        <LexiconEntryView {wordIds} onSelectWord={selectWord} removeNewLines />
+                        <EntryView {wordIds} onSelectWord={selectWord} removeNewLines />
                     {:else if wordIds && wordIds.length == 0}
                         <div class="text-center" style="color: var(--SettingsSummaryColor);">
                             No results found.

@@ -1,12 +1,11 @@
 <script>
     import { base } from '$app/paths';
     import { page } from '$app/state';
-    import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
-    import LexiconListViewHeader from '$lib/components/LexiconListViewHeader.svelte';
-    import LexiconReversalListView from '$lib/components/LexiconReversalListView.svelte';
-    import LexiconVernacularListView from '$lib/components/LexiconVernacularListView.svelte';
+    import EntryView from '$lib/components/EntryView.svelte';
+    import ListViewHeader from '$lib/components/ListViewHeader.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
+    import ReversalListView from '$lib/components/ReversalListView.svelte';
+    import VernacularListView from '$lib/components/VernacularListView.svelte';
     import config from '$lib/data/config';
     import {
         currentReversalLettersStore,
@@ -18,6 +17,7 @@
         vernacularWordsStore
     } from '$lib/data/stores/lexicon.ts';
     import { SearchIcon } from '$lib/icons';
+    import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
@@ -284,7 +284,7 @@
     </Navbar>
 
     {#if !selectedWord}
-        <LexiconListViewHeader
+        <ListViewHeader
             alphabet={currentAlphabet}
             selectedLanguage={$selectedLanguageStore}
             {vernacularLanguage}
@@ -308,7 +308,7 @@
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
-            <LexiconEntryView {wordIds} onSelectWord={selectWord} />
+            <EntryView {wordIds} onSelectWord={selectWord} />
         </div>
     {:else if $selectedLanguageStore === vernacularLanguage}
         <div
@@ -317,7 +317,7 @@
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
-            <LexiconVernacularListView {vernacularWordsList} onSelectWord={selectWord} />
+            <VernacularListView {vernacularWordsList} onSelectWord={selectWord} />
         </div>
     {:else}
         <div
@@ -327,7 +327,7 @@
             bind:this={scrollContainer}
             on:scroll={checkIfScrolledToBottom}
         >
-            <LexiconReversalListView {reversalWordsList} onSelectWord={selectWord} />
+            <ReversalListView {reversalWordsList} onSelectWord={selectWord} />
         </div>
     {/if}
 </div>
