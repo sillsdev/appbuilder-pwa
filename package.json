@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "concurrently --restart-tries -1 --restart-after 10 -t HH:mm:ss -p \"[{time} {name}]\" -n Converter,Svelte \"ts-node convert/index.ts --watch\" \"vite dev --host\"",
         "dev:noconvert": "vite dev --host",
-        "build": "ts-node convert/index.ts && vite build",
+        "build": "npm run enforce-version && ts-node convert/index.ts && vite build",
         "extract:example": "tsx example/index.ts",
         "package": "vite package",
         "preview": "vite preview --host",
@@ -21,7 +21,8 @@
         "clean:data": "rimraf --glob data/*",
         "clean:all": "npm run clean && npm run clean:data",
         "test": "vitest",
-        "test:ui": "vitest --ui"
+        "test:ui": "vitest --ui",
+        "enforce-version": "ts-node convert/checkVersion.ts"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
