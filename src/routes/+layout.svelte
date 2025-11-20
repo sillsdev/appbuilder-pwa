@@ -70,7 +70,7 @@
                         break;
                     case MODAL_STOP_PLAN:
                         planStopId = data;
-                        planStopDialog.showModal();
+                        planStopDialog?.showModal();
                         break;
                     case MODAL_PLAYBACK_SPEED:
                         audioPlaybackSpeed.showModal();
@@ -95,8 +95,8 @@
     let collectionSelector: CollectionSelector = $state();
     let fontSelector: FontSelector = $state();
     let noteDialog: NoteDialog = $state();
-    let planStopDialog: PlanStopDialog;
-    let planStopId: string;
+    let planStopDialog: PlanStopDialog | undefined = $state(undefined);
+    let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
 </script>
 
