@@ -1448,7 +1448,7 @@ LOGGING:
         }
     }
     let bookRoot = $state(document.createElement('div'));
-    $inspect(scriptureLogs?.root, bookRoot).with(() => {
+    $effect(() => {
         if (scriptureLogs?.root) console.log('START: %o', bookRoot);
     });
 
