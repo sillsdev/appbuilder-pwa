@@ -10,7 +10,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 import { createLogger } from 'vite';
 
-const logger = createLogger('warn');
+const logger = createLogger();
 const loggerWarn = logger.warn;
 /** @type {((msg: string) => boolean)[]} */
 const matchers = [
