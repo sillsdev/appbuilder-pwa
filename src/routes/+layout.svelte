@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { base } from '$app/paths';
     import appleIconHref from '$assets/icons/apple-touch-icon.png';
     import faviconHref from '$assets/icons/favicon.png';
     import manifestHref from '$assets/manifestUrl.json';
@@ -36,6 +35,13 @@
         import: 'default',
         eager: true,
         base: '/src/gen-assets/styles',
+        query: '?url'
+    }) as Record<string, string>;
+
+    const overrideStyles = import.meta.glob('./override-*.css', {
+        import: 'default',
+        eager: true,
+        base: '/static',
         query: '?url'
     }) as Record<string, string>;
 
@@ -122,8 +128,11 @@
         {#if $refs.initialized}
             <link rel="stylesheet" href={styles[`./sab-bc-${$refs.collection}.css`]} />
         {/if}
-        <link rel="stylesheet" href="{base}/override-sab.css" />
     {/if}
+    <link
+        rel="stylesheet"
+        href={overrideStyles[`./override-${config.programType.toLowerCase()}.css`]}
+    />
 </svelte:head>
 
 {#if showPage}
