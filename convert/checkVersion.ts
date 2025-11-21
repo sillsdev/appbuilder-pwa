@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { exit } from 'node:process';
 import { compareVersions } from './stringUtils';
 
-const verNumRegExp = /[\d]+(\.[\d]+){0,2}/;
+const verNumRegExp = /\d+(\.\d+){0,2}/;
 
 const fromCLI = execSync('node --version').toString().match(verNumRegExp)?.at(0) ?? '';
 const fromPackage =
