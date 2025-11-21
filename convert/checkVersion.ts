@@ -13,8 +13,8 @@ if (compareVersions(fromCLI, fromPackage) < 0) {
     console.error(
         `❌ Error: The PWA requires a newer version of NodeJS. Please use AppBuilders 13.3 or newer.`
     );
-    console.error(`Environment: Node v${fromCLI}`);
-    console.error(`Required: Node >= v${fromPackage}`);
+    console.error(`| Environment: Node v${fromCLI}`);
+    console.error(`> Required: Node >= v${fromPackage}`);
     exit(1);
 } else {
     console.log(`✅ Using Node v${fromCLI}`);
