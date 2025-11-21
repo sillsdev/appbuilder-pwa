@@ -1,5 +1,12 @@
 import { base } from '$app/paths';
 
+const plans = import.meta.glob('./*', {
+    import: 'default',
+    eager: true,
+    query: '?url', // this is important to get url instead of JSON
+    base: '/src/gen-assets/plans'
+}) as Record<string, string>;
+
 export type PlanDataItem = {
     day: number;
     heading?: {
@@ -22,11 +29,16 @@ export type PlansData = {
 };
 
 export async function getPlanData(fetch: any, planConfig: any): Promise<PlansData> {
-    const src = `${base}/plans/${planConfig.jsonFilename}`;
     let planData;
 
     try {
-        const response = await fetch(src);
+        const key = `./${planConfig.jsonFilename}`;
+        const entry = plans[key];
+        if (!entry) {
+            throw new Error(`Plan JSON asset not found for key ${key}`);
+        }
+
+        const response = await fetch(entry);
 
         if (!response.ok) {
             throw new Error('Failed to fetch plan JSON file');

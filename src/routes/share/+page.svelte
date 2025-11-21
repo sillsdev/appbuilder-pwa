@@ -7,6 +7,12 @@
     import { shareText } from '$lib/data/share';
     import { language, languageDefault, t } from '$lib/data/stores';
 
+    const badges = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/badges'
+    }) as Record<string, string>;
+
     const googlePlayBadgesRoot = 'https://play.google.com/intl/en_us/badges/static/images/badges/';
     const googlePlayBadgeSuffix = '_badge_web_generic.png';
     let googlePlayStoreLanguage = 'en';
@@ -17,12 +23,12 @@
     const googlePlayBadge = $derived(
         googlePlayBadgesRoot + googlePlayStoreLanguage + googlePlayBadgeSuffix
     );
-    const appStoreBadge = $derived(`${base}/badges/${$language}_app_store.svg`);
+    const appStoreBadge = $derived(badges[`./${$language}_app_store.svg`] ?? '');
     const badgeLanguages = page.data.languages;
     const fallbackAppStoreLanguage = badgeLanguages.includes(languageDefault)
         ? languageDefault
         : 'en';
-    const fallbackAppStoreBadge = `${base}/badges/${fallbackAppStoreLanguage}_app_store.svg`;
+    const fallbackAppStoreBadge = badges[`./${fallbackAppStoreLanguage}_app_store.svg`] ?? '';
 
     async function updateGooglePlayLanguage(language: string): Promise<string> {
         if (await verifyImageUrl(googlePlayBadgesRoot + language + googlePlayBadgeSuffix)) {

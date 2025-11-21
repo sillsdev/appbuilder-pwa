@@ -35,7 +35,7 @@ Font list component.
                 style:font-famly={font}
                 role="button"
             >
-                {config.fonts.find((x) => x.family === font).name}
+                {config.fonts.find((x) => x.family === font)?.name}
             </a>
         </li>
     {/each}

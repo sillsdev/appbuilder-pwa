@@ -1,6 +1,7 @@
 <script>
     import { beforeNavigate } from '$app/navigation';
     import { base } from '$app/paths';
+    import { page } from '$app/state';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
@@ -11,12 +12,29 @@
         modal,
         MODAL_TEXT_APPEARANCE,
         quizAudioActive,
-        refs,
         t
     } from '$lib/data/stores';
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { onDestroy } from 'svelte';
+
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/illustrations'
+    });
+
+    const clips = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/clips'
+    });
+
+    const quizAssets = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/quiz'
+    });
 
     /** @type {import('./$types').PageData} */
     export let data;
@@ -24,7 +42,7 @@
     $: ({ locked, quiz, quizId, quizName, passScore } = data);
 
     $: book = config.bookCollections
-        .find((x) => x.id === $refs.collection)
+        .find((x) => x.id === page.params.collection)
         .books.find((x) => x.id === quizId);
 
     $: displayLabel = quizName || 'Quiz';
@@ -66,7 +84,11 @@
     let explanation = '';
     let commentaryMessage = '';
 
-    const quizAssetFolder = compareVersions(config.programVersion, '12.0') < 0 ? 'assets' : 'quiz';
+    const staticAssets = compareVersions(config.programVersion, '12.0') < 0;
+
+    function getQuizAssetAudio(file) {
+        return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].replace(/^\//, '');
+    }
 
     function getRandomAudio(audioArray) {
         const randomIndex = Math.floor(Math.random() * audioArray.length);
@@ -124,8 +146,7 @@
     }
 
     function getImageSource(image) {
-        let source = `${base}/illustrations/${$refs.collection}-${quiz.id}-${image}`;
-        return source;
+        return illustrations[`./${page.params.collection}-${quiz.id}-${image}`] ?? '';
     }
 
     function shuffleAnswers(answerArray) {
@@ -201,12 +222,12 @@
         let sound;
         if (correct) {
             sound = quiz.rightAnswerAudio
-                ? 'clips/' + getRandomAudio(quiz.rightAnswerAudio)
-                : quizAssetFolder + '/quiz-right-answer.mp3';
+                ? clips[`./${getRandomAudio(quiz.rightAnswerAudio)}`]
+                : getQuizAssetAudio('quiz-right-answer.mp3');
         } else {
             sound = quiz.wrongAnswerAudio
-                ? 'clips/' + getRandomAudio(quiz.wrongAnswerAudio)
-                : quizAssetFolder + '/quiz-wrong-answer.mp3';
+                ? clips[`./${getRandomAudio(quiz.wrongAnswerAudio)}`]
+                : getQuizAssetAudio('quiz-wrong-answer.mp3');
         }
         return sound;
     }
@@ -221,7 +242,7 @@
                 if (!answer.correct && answer.explanation && answer.explanation.text) {
                     explanation = answer.explanation.text;
                     if (answer.explanation.audio) {
-                        playSound(`${base}/clips/${answer.explanation.audio}`, null, 'explanation');
+                        playSound(clips[`./${answer.explanation.audio}`], null, 'explanation');
                     }
                 } else if (
                     !answer.correct &&
@@ -231,7 +252,7 @@
                     explanation = currentQuizQuestion.explanation.text;
                     if (currentQuizQuestion.explanation.audio) {
                         playSound(
-                            `${base}/clips/${currentQuizQuestion.explanation.audio}`,
+                            clips[`./${currentQuizQuestion.explanation.audio}`],
                             null,
                             'explanation'
                         );
@@ -264,7 +285,7 @@
                     const listener = () => {
                         playQuizAnswerAudio(0);
                     };
-                    playSound(`${base}/clips/${question.audio}`, listener, 'question');
+                    playSound(clips[`./${question.audio}`], listener, 'question');
                 } else {
                     playQuizAnswerAudio(0);
                 }
@@ -282,7 +303,7 @@
                         playQuizAnswerAudio(answerIndex + 1);
                     };
                     textHighlightIndex = answerIndex;
-                    playSound(`${base}/clips/${answer.audio}`, listener, 'answer');
+                    playSound(clips[`./${answer.audio}`], listener, 'answer');
                 }
             } else {
                 textHighlightIndex = -1;
@@ -360,7 +381,7 @@
         </div>
         {#if !quizSaved}
             {@const pass = score >= passScore}
-            {#await addQuiz( { collection: $refs.collection, book: quizId, score, passScore, pass } ) then _}
+            {#await addQuiz( { collection: page.params.collection, book: quizId, score, passScore, pass } ) then _}
                 <p>Quiz result saved!</p>
             {:catch error}
                 <p>Error saving quiz result: {error.message}</p>

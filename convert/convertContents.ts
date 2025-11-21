@@ -1,8 +1,9 @@
-import { cpSync, existsSync, readFileSync, rmSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { ScriptureConfig } from '$config';
 import jsdom from 'jsdom';
 import { ConfigTaskOutput } from './convertConfig';
+import { createHashedFile } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 type ContentItem = {
@@ -77,8 +78,9 @@ export function convertContents(
 ) {
     const contentsDir = path.join(dataDir, 'contents');
     const destDir = path.join('static', 'contents');
-    if (existsSync(contentsDir)) {
-        cpSync(contentsDir, destDir, { recursive: true });
+    const hasContentsDir = existsSync(contentsDir);
+    if (hasContentsDir) {
+        mkdirSync(destDir, { recursive: true });
     } else {
         if (existsSync(destDir)) {
             rmSync(destDir, { recursive: true });
@@ -151,9 +153,33 @@ export function convertContents(
                 for (const audioTag of audioTags) {
                     const lang = audioTag.attributes.getNamedItem('lang')!.value;
                     audioFilename[lang] = decodeFromXml(audioTag.innerHTML);
+                    if (hasContentsDir) {
+                        if (existsSync(path.join(contentsDir, audioFilename[lang]))) {
+                            audioFilename[lang] = createHashedFile(
+                                contentsDir,
+                                audioFilename[lang],
+                                verbose,
+                                'contents'
+                            ).replace(/contents\//, '');
+                        } else {
+                            console.warn(`Could not locate ${audioFilename[lang]}`);
+                        }
+                    }
                 }
             }
-            const imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
+            let imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
+            if (hasContentsDir && imageFilename) {
+                if (existsSync(path.join(contentsDir, imageFilename))) {
+                    imageFilename = createHashedFile(
+                        contentsDir,
+                        imageFilename,
+                        verbose,
+                        'contents'
+                    ).replace(/contents\//, '');
+                } else {
+                    console.warn(`Could not locate ${imageFilename}`);
+                }
+            }
 
             const linkTags = itemTag.getElementsByTagName('link');
             let linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;

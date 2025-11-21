@@ -2,12 +2,13 @@
 ///<reference path="./proskomma.d.ts"/>
 
 import * as fs from 'fs';
-import path, { basename, extname } from 'path';
+import path, { basename, extname, join } from 'path';
 import type { BookConfig, BookTabConfig, ScriptureConfig } from '$config';
 import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
+import { createHashedFile, getHashedNameFromContents } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -37,12 +38,22 @@ function displayBookId(bcId: string, bookId: string) {
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 
-function replaceVideoTags(text: string, _bcId: string, _bookId: string): string {
+function replaceVideoTags(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 
 // This is the start of supporting story books, but it still fails if there is no chapter.
-function replacePageTags(text: string, _bcId: string, _bookId: string): string {
+function replacePageTags(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
 }
 function loadGlossary(collection: any, dataDir: string): string[] {
@@ -69,7 +80,12 @@ function loadGlossary(collection: any, dataDir: string): string[] {
     }
     return glossary;
 }
-function removeStrongNumberReferences(text: string, _bcId: string, _bookId: string): string {
+function removeStrongNumberReferences(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     //remove strong number references
     // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
     // \v 4  \wj  \+w Blessed|strong="G3107"\+w* \+w are|strong="G3107"\+w* \+w those|strong="G3588"\+w* \+w who|strong="G3588"\+w* \+w mourn|strong="G3996"\+w*,\wj*  (Matt 5:4 WEBBE)
@@ -99,7 +115,12 @@ function removeMissingVerses(text: string, _bcId: string, _bookId: string): stri
     });
 }
 
-export function encodeJmpLinks(text: string, _bcId: string, _bookId: string): string {
+export function encodeJmpLinks(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     // Regular expression to match \jmp tags
     const jmpRegex = /\\jmp\s([^\\]+)\\jmp\*/g;
 
@@ -139,7 +160,12 @@ export function encodeJmpLinks(text: string, _bcId: string, _bookId: string): st
 // This is a HACK!!!
 // See https://github.com/Proskomma/proskomma-json-tools/issues/63
 //
-function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): string {
+function handleNoCaptionFigures(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
 
@@ -162,7 +188,12 @@ function handleNoCaptionFigures(text: string, _bcId: string, _bookId: string): s
     });
 }
 
-function removeMissingFigures(text: string, _bcId: string, _bookId: string): string {
+function removeMissingFigures(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     // Regular expression to match \fig markers
     const figRegex = /\\fig\s(.*?)\\fig\*/g;
 
@@ -200,19 +231,37 @@ function removeMissingFigures(text: string, _bcId: string, _bookId: string): str
     });
 }
 
-function updateImgTags(text: string, _bcId: string, _bookId: string): string {
+function updateImgTags(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    context: ConvertBookContext
+): string {
     return text.replace(
         /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
         (_match, _path, fileName) => {
-            const imagePath = `${base}/illustrations/${fileName}`;
-
             // If the image is missing in the "illustrations" folder, filter out the entire tag
-            return isImageMissing(fileName) ? '' : `<img src="${imagePath}">`;
+            if (isImageMissing(fileName)) {
+                return '';
+            } else {
+                const imagePath = createHashedFile(
+                    context.dataDir,
+                    `illustrations/${fileName}`,
+                    context.verbose
+                );
+
+                return `<img src="${base}/${imagePath}">`;
+            }
         }
     );
 }
 
-function trimTrailingWhitespace(text: string, _bcId: string, _bookId: string): string {
+function trimTrailingWhitespace(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text
         .split('\n') // Split the text into lines
         .map((line) => line.trimEnd()) // Trim trailing whitespace from each line
@@ -227,11 +276,21 @@ function isImageMissing(imageSource: string): boolean {
     return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
 
-function addParagraphMarkersAroundTableRows(text: string): string {
+function addParagraphMarkersAroundTableRows(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     return text.replace(/((?:\\tr [^\n]*\n)+)/g, '\n\\p\n$1\\p\n');
 }
 
-function moveFigureToNextNonVerseMarker(text: string): string {
+function moveFigureToNextNonVerseMarker(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
+): string {
     const result = [];
     let carryOverFigures: string[] = [];
 
@@ -270,7 +329,12 @@ function moveFigureToNextNonVerseMarker(text: string): string {
     return result.join('\n');
 }
 
-type FilterFunction = (text: string, bcId: string, bookId: string) => string;
+type FilterFunction = (
+    text: string,
+    bcId: string,
+    bookId: string,
+    context: ConvertBookContext
+) => string;
 
 const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
@@ -291,11 +355,12 @@ function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
-    bookId: string
+    bookId: string,
+    context: ConvertBookContext
 ): string {
     let filteredText = text;
     for (const filterFn of filterFunctions) {
-        filteredText = filterFn(filteredText, bcId, bookId);
+        filteredText = filterFn(filteredText, bcId, bookId, context);
     }
     return filteredText;
 }
@@ -344,7 +409,7 @@ export async function convertBooks(
     // copy book-related folder resources
     ['quiz', 'songs'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('static', folder);
+        const folderDstDir = path.join('src/gen-assets', folder);
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
@@ -391,6 +456,16 @@ export async function convertBooks(
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
         htmlBooks[context.docSet] = [];
+        if (collection.books.find((b) => b.format === 'html')) {
+            const illPath = join('static', 'illustrations');
+            if (!fs.existsSync(illPath)) {
+                fs.mkdirSync(illPath, { recursive: true });
+            }
+            const collPath = join('static', 'collections', collection.id);
+            if (!fs.existsSync(collPath)) {
+                fs.mkdirSync(collPath, { recursive: true });
+            }
+        }
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
@@ -405,7 +480,7 @@ export async function convertBooks(
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
                     files.push({
                         path: path.join(
-                            'static',
+                            'src/gen-assets',
                             'collections',
                             context.bcId,
                             'quizzes',
@@ -460,14 +535,14 @@ export async function convertBooks(
         //start catalog generation process
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
         //check if folder exists for collection
-        const collPath = path.join('static', 'collections', context.bcId);
+        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
         if (!fs.existsSync(collPath)) {
             if (verbose) console.log('creating: ' + collPath);
             fs.mkdirSync(collPath, { recursive: true });
         }
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
-            const qPath = path.join('static', 'collections', context.bcId, 'quizzes');
+            const qPath = path.join('src/gen-assets', 'collections', context.bcId, 'quizzes');
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 fs.mkdirSync(qPath, { recursive: true });
@@ -476,7 +551,7 @@ export async function convertBooks(
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
-    const catalogPath = path.join('static', 'collections', 'catalog');
+    const catalogPath = path.join('src/gen-assets', 'collections', 'catalog');
     if (!fs.existsSync(catalogPath)) {
         if (verbose) console.log('creating: ' + catalogPath);
         fs.mkdirSync(catalogPath, { recursive: true });
@@ -495,14 +570,14 @@ export async function convertBooks(
     //push files to be written to files array
     freezer.forEach((value, key) =>
         files.push({
-            path: path.join('static', 'collections', key + '.pkf'),
+            path: path.join('src/gen-assets', 'collections', key + '.pkf'),
             content: value
         })
     );
 
     //write index file
     fs.writeFileSync(
-        path.join('static', 'collections', 'index.json'),
+        path.join('src/gen-assets', 'collections', 'index.json'),
         `[${(() => {
             //export collection names as array
             let s = '';
@@ -565,12 +640,14 @@ export type Quiz = {
 
 function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
     const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
-    const dstFile = path.join('static', 'collections', context.bcId, book.file);
 
     let content = fs.readFileSync(srcFile, 'utf-8');
-    content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id);
+    const before = getHashedNameFromContents(content, book.file);
+    content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id, context);
+    // file name already in config from before filtration
+    // don't want to modify config to account for filtration
     files.push({
-        path: dstFile,
+        path: path.join('static', 'collections', context.bcId, before),
         content
     });
 }
@@ -718,7 +795,7 @@ function convertScriptureBook(
     function processBookContent(resolve: () => void, err: any, content: string) {
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) throw err;
-        content = applyFilters(content, usfmFilterFunctions, context.bcId, id);
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
         if (bookTab) {
             //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
             const firstLine = content.split('\n')[0];

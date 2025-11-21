@@ -3,7 +3,9 @@
 The sidebar/drawer.
 -->
 <script>
-    import { base } from '$app/paths';
+    import { resolve } from '$app/paths';
+    import nav_drawer_image from '$assets/images/nav_drawer.png';
+    import nav_drawer_2x from '$assets/images/nav_drawer@2x.png';
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import {
@@ -38,6 +40,12 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
 
+    const menuIcons = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/icons/menu-items'
+    });
+
     let { children } = $props();
 
     const drawerId = 'sidebar';
@@ -70,7 +78,7 @@ The sidebar/drawer.
     const showAccount =
         config.firebase.features['firebase-database'] && config.mainFeatures['user-accounts'];
 
-    function imageSrcSet(base, images) {
+    function imageSrcSet(images) {
         const baseSize = Number(images[0].width);
         return images
             .map((image) => {
@@ -79,13 +87,14 @@ The sidebar/drawer.
                 const multiplierString =
                     multiplier === 1
                         ? ''
-                        : ' ' +
-                          (multiplier % 1 === 0 ? multiplier.toFixed(0) : multiplier.toFixed(1)) +
-                          'x';
-                return `${base}/${image.file}${multiplierString}`;
+                        : ' ' + multiplier.toFixed(multiplier % 1 === 0 ? 0 : 1) + 'x';
+                const url = menuIcons[`./${image.file}`];
+                return url ? `${url}${multiplierString}` : '';
             })
+            .filter((i) => !!i)
             .join(', ');
     }
+
     async function goToSearch() {
         if (config.programType === 'DAB') {
             await gotoRoute(`/lexicon/search`);
@@ -119,14 +128,10 @@ The sidebar/drawer.
             style:direction={$direction}
         >
             <!-- Sidebar content here -->
-            <a class="fill" href="{base}/">
+            <a class="fill" href={resolve('/')}>
                 <picture>
-                    <source srcset="{base}/images/nav_drawer@2x.png 2x" />
-                    <img
-                        src="{base}/images/nav_drawer.png"
-                        alt="Drawer Header"
-                        style="width:auto;"
-                    />
+                    <source srcset="{nav_drawer_2x} 2x" />
+                    <img src={nav_drawer_image} alt="Drawer Header" style="width:auto;" />
                 </picture>
             </a>
             {#if showAccount}
@@ -264,15 +269,10 @@ The sidebar/drawer.
                         >
                             <picture class:invert={$theme === 'Dark'}>
                                 {#if item.images.length > 1}
-                                    <source
-                                        srcset={imageSrcSet(
-                                            `${base}/icons/menu-items`,
-                                            item.images
-                                        )}
-                                    />
+                                    <source srcset={imageSrcSet(item.images)} />
                                 {/if}
                                 <img
-                                    src="{base}/icons/menu-items/{item.images[0].file}"
+                                    src={menuIcons[`./${item.images[0].file}`] ?? ''}
                                     height="24"
                                     width="24"
                                     alt={item.title[$language] || item.title[languageDefault]}

@@ -1,5 +1,8 @@
 <script lang="ts">
     import { base } from '$app/paths';
+    import appleIconHref from '$assets/icons/apple-touch-icon.png';
+    import faviconHref from '$assets/icons/favicon.png';
+    import manifestHref from '$assets/manifestUrl.json';
     import '$lib/app.css';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -28,6 +31,13 @@
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
     import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
+
+    const styles = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/styles',
+        query: '?url'
+    }) as Record<string, string>;
 
     let { children } = $props();
 
@@ -101,11 +111,16 @@
 </script>
 
 <svelte:head>
+    <!-- app.html (with cache-busting) -->
+    <link rel="icon" href={faviconHref} />
+    <link rel="apple-touch-icon" href={appleIconHref} />
+    <link rel="manifest" href={manifestHref.url} />
+    <!-- +layout.svelte -->
     <meta name="theme-color" content={$s['ui.bar.action']?.['background-color']} />
-    <link rel="stylesheet" href="{base}/styles/{config.programType.toLowerCase()}-app.css" />
+    <link rel="stylesheet" href={styles[`./${config.programType.toLowerCase()}-app.css`]} />
     {#if isSAB}
         {#if $refs.initialized}
-            <link rel="stylesheet" href="{base}/styles/sab-bc-{$refs.collection}.css" />
+            <link rel="stylesheet" href={styles[`./sab-bc-${$refs.collection}.css`]} />
         {/if}
         <link rel="stylesheet" href="{base}/override-sab.css" />
     {/if}

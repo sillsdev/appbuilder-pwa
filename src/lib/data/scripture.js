@@ -5,6 +5,13 @@ import { SABProskomma } from '$lib/sab-proskomma';
 import { get } from 'svelte/store';
 import { thaw } from '../scripts/thaw';
 
+const collections = import.meta.glob('./*.pkf', {
+    import: 'default',
+    eager: true,
+    base: '/src/gen-assets/collections',
+    query: '?url'
+});
+
 export async function initProskomma({ fetch }) {
     let proskomma = get(pk);
     if (!proskomma) {
@@ -23,7 +30,12 @@ export async function initProskomma({ fetch }) {
 }
 
 export function getDocSetUrl(docSet) {
-    return `${base}/collections/${docSet}.pkf`;
+    const key = `./${docSet}.pkf`;
+    const entry = collections[key];
+    if (!entry) {
+        throw new Error(`DocSet PKF asset not found for key ${key}`);
+    }
+    return entry;
 }
 
 export async function fetchDocSet(docSet, fetch) {

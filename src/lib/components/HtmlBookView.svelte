@@ -32,7 +32,9 @@ Display an HTML Book.
             ?.books.find((x) => x.id === bookId);
 
         if (book) {
-            const result = await fetch(`${base}/collections/${references.collection}/${book.file}`);
+            const result = await fetch(
+                `${base}/collections/${references.collection}/${book.hashedFileName ?? book.file}`
+            );
 
             if (result.ok) {
                 htmlBody = await result.text();

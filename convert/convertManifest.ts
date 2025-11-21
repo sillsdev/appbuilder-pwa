@@ -1,5 +1,6 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
+import { createHashedFile, createHashedFileFromContents } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 export interface ManifestTaskOutput extends TaskOutput {
@@ -10,11 +11,13 @@ export interface ManifestTaskOutput extends TaskOutput {
  */
 export function convertManifest(dataDir: string, verbose: number) {
     const srcFile = path.join(dataDir, 'manifest.json');
-    const dstFile = path.join('static', 'manifest.json');
-    if (existsSync(srcFile)) {
+    let contents = '';
+    const existing = existsSync(srcFile);
+    if (existing) {
+        mkdirSync(path.join('static', 'icons'), { recursive: true });
         const fileContents = readFileSync(srcFile).toString();
         const lines = fileContents.split('\n');
-        const updatedFileContents = lines
+        contents = lines
             .map((line) => {
                 if (line.includes('start_url')) {
                     const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '.';
@@ -24,11 +27,29 @@ export function convertManifest(dataDir: string, verbose: number) {
                     const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '/';
                     line = `  "scope" : "${path}",`;
                 }
+                if (line.includes('"src":') && line.includes('./icons')) {
+                    const srcMatch = line.match(/"src"\s*:\s*"\.\/([^"]+)"/);
+                    if (!srcMatch) {
+                        console.error(`Could not parse icon path from line: ${line}`);
+                        return line;
+                    }
+                    const bareFileName = srcMatch[1];
+
+                    let finalName = bareFileName;
+
+                    const iconPath = path.join(dataDir, bareFileName);
+
+                    if (existsSync(iconPath)) {
+                        finalName = createHashedFile(dataDir, bareFileName, verbose);
+                    } else {
+                        throw new Error(`Required icon file ${iconPath} does not exist!`);
+                    }
+
+                    line = line.replace(srcMatch[0], `"src": "./${finalName}"`);
+                }
                 return line;
             })
             .join('\n');
-        writeFileSync(dstFile, updatedFileContents);
-        if (verbose) console.log(`converted ${srcFile} to ${dstFile}`);
     } else {
         // If no manifest exists, we need to at least have a minimum manifest to build.
         const manifest = {
@@ -38,8 +59,16 @@ export function convertManifest(dataDir: string, verbose: number) {
             background_color: '#000000',
             theme_color: '#000000'
         };
-        writeFileSync(dstFile, JSON.stringify(manifest));
+        contents = JSON.stringify(manifest);
     }
+
+    const hashedName = createHashedFileFromContents(contents, 'manifest.json', verbose);
+
+    mkdirSync(path.join('src', 'gen-assets'), { recursive: true });
+    writeFileSync(
+        path.join('src/gen-assets', 'manifestUrl.json'),
+        JSON.stringify({ url: hashedName })
+    );
 }
 export class ConvertManifest extends Task {
     public triggerFiles: string[] = ['manifest.json'];

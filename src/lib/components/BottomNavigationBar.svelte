@@ -8,6 +8,12 @@
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
 
+    const menuIcons = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/icons/menu-items'
+    });
+
     let { barType = undefined } = $props();
 
     const bottomNavBarItems = config?.bottomNavBarItems;
@@ -128,7 +134,7 @@
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
                                 <img
-                                    src="{base}/icons/menu-items/{item.images[0].file}"
+                                    src={menuIcons[`./${item.images[0].file}`]}
                                     alt=""
                                     class={selectedLink(item.type, item.link['default'])
                                         ? 'opacity-100'

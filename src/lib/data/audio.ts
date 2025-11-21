@@ -16,6 +16,18 @@ import {
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
+const audioSources = import.meta.glob('./*', {
+    import: 'default',
+    eager: true,
+    base: '/src/gen-assets/audio'
+}) as Record<string, string>;
+
+const timings = import.meta.glob('./*', {
+    import: 'default',
+    eager: true,
+    base: '/src/gen-assets/timings'
+}) as Record<string, string>;
+
 export interface AudioPlayer {
     audio: HTMLAudioElement;
     loaded: boolean;
@@ -396,7 +408,7 @@ export async function getAudioSourceInfo(item: {
 }) {
     //search config for audio on provided collection, book, and chapter
     const audio = config.bookCollections
-        .find((c) => item.collection === c.id)
+        ?.find((c) => item.collection === c.id)
         ?.books?.find((b) => b.id === item.book)
         ?.audio?.find((a) => item.chapter === '' + a.num);
     if (!audio) {
@@ -426,14 +438,22 @@ export async function getAudioSourceInfo(item: {
 
         audioPath = result.data[0].path;
     } else if (audioSource.type === 'assets') {
-        audioPath = pathJoin([`${base}/audio/`, audio.filename]);
+        const audioKey = `./${audio.filename}`;
+        if (!audioSources[audioKey]) {
+            throw new Error(`Audio file not found in generated assets: ${audio.filename}`);
+        }
+        audioPath = audioSources[audioKey];
     } else if (audioSource.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
     //parse timing file
     const timing = [];
     if (audio.timingFile) {
-        const timeFilePath = `${base}/timings/${audio.timingFile}`;
+        const timingKey = `./${audio.timingFile}`;
+        if (!timings[timingKey]) {
+            throw new Error(`Timing file not found in generated assets: ${audio.timingFile}`);
+        }
+        const timeFilePath = timings[timingKey];
         const response = await fetch(timeFilePath);
         if (!response.ok) {
             throw new Error('Failed to read file');

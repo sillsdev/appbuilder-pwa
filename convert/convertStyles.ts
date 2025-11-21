@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
 import { compareVersions } from './stringUtils';
@@ -17,7 +17,7 @@ export interface StylesTaskOutput extends TaskOutput {
  */
 export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
-    const dstDir = path.join('static', 'styles');
+    const dstDir = path.join('src/gen-assets', 'styles');
     mkdirSync(dstDir, { recursive: true });
 
     readdirSync(srcDir).forEach((file) => {
@@ -74,8 +74,32 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                     if (line.indexOf('body') === 0) {
                         line = line.replace('body', '#container');
                     }
-                    if (line.includes('/fonts/') && process.env.BUILD_BASE_PATH) {
-                        line = line.replace('/fonts/', process.env.BUILD_BASE_PATH + '/fonts/');
+                    if (line.includes('/fonts/')) {
+                        const fontName = line.split('/fonts/')[1].replace(/("|')\).*$/, '');
+                        const fontPath = path.join('fonts', fontName);
+                        let finalPath = 'fonts';
+                        if (!existsSync(path.join(dataDir, fontPath))) {
+                            if (existsSync(path.join(dataDir, 'cloud', fontName))) {
+                                finalPath = 'cloud';
+                                const targetDir = path.join('src/gen-assets', 'cloud');
+                                if (!existsSync(targetDir)) {
+                                    mkdirSync(targetDir, { recursive: true });
+                                }
+                                copyFileSync(
+                                    path.join(dataDir, 'cloud', fontName),
+                                    path.join(targetDir, fontName)
+                                );
+                                if (verbose)
+                                    console.log(
+                                        `found ${fontName} at ${path.join(dataDir, 'cloud', fontName)}`
+                                    );
+                            } else {
+                                console.warn(
+                                    `${srcFile}: Could not locate ${path.join(dataDir, fontPath)}`
+                                );
+                            }
+                        }
+                        line = line.replace('/fonts', `$assets/${finalPath}`);
                     }
                     return line;
                 })

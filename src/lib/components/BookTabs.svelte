@@ -15,6 +15,12 @@ A component that displays the book tabs and allows the user to switch between th
         theme
     } from '$lib/data/stores';
 
+    const tabIcons = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/icons/tabs'
+    });
+
     const bookTabs = $derived(
         config?.bookCollections
             .find((x) => x.id === $refs.collection)
@@ -43,7 +49,7 @@ A component that displays the book tabs and allows the user to switch between th
     >
         <picture class:invert={$theme === 'Dark'}>
             <img
-                src="{base}/icons/tabs/{getImageName(bookTabs.mainType)}"
+                src={tabIcons[`./${getImageName(bookTabs.mainType)}`]}
                 color={$monoIconColor}
                 height="24"
                 width="24"
@@ -59,7 +65,7 @@ A component that displays the book tabs and allows the user to switch between th
         >
             <picture class:invert={$theme === 'Dark'}>
                 <img
-                    src="{base}/icons/tabs/{getImageName(bookTab.type)}"
+                    src={tabIcons[`./${getImageName(bookTab.type)}`]}
                     color={$monoIconColor}
                     height="24"
                     width="24"

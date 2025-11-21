@@ -3,8 +3,13 @@
 Custom list of collections for the LayoutOptions menu
 -->
 <script lang="ts">
-    import { base } from '$app/paths';
     import { convertStyle, s, themeColors } from '$lib/data/stores';
+
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
 
     //docSets is the array of all selectable docsets. selectedLayouts is the selected docset to highlight
     let {
@@ -42,7 +47,7 @@ Custom list of collections for the LayoutOptions menu
                 <div class="layout-item-block">
                     {#if d.image}
                         <div class="layout-image-block" style="width:15%">
-                            <img class="layout-image" src="{base}/illustrations/{d.image}" />
+                            <img class="layout-image" src={illustrations['./' + d.image]} />
                         </div>
                     {/if}
                     <div class="layout-text-block">

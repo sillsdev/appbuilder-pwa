@@ -21,6 +21,13 @@
     import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
 
+    const reversals = import.meta.glob('./**/*.json', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/reversal',
+        query: '?url'
+    });
+
     const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = page.data;
 
     const alphabets = {
@@ -84,7 +91,11 @@
         const index = reversalIndexes[defaultReversalKey];
         const files = index[letter] || [];
         for (const file of files) {
-            const reversalFile = `${base}/reversal/${defaultReversalKey}/${file}`;
+            const reversalFile = reversals[`./${defaultReversalKey}/${file}`];
+            if (!reversalFile) {
+                console.error(`Reversal file not found in glob: ./${defaultReversalKey}/${file}`);
+                continue;
+            }
             const response = await fetch(reversalFile);
             if (response.ok) {
                 const data = await response.json();

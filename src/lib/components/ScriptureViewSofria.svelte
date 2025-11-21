@@ -59,6 +59,12 @@ LOGGING:
     import { onDestroy, onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
 
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
+
     let {
         audioPhraseEndChars,
         bodyFontSize,
@@ -1163,7 +1169,7 @@ LOGGING:
         if (illustrations) {
             illustrations.forEach((illustration, index) => {
                 let verse = illustration.placement.ref.split(/[:.]/).at(-1);
-                const illustrationBlockDiv = createIllustrationBlock(
+                const { block: illustrationBlockDiv } = createIllustrationBlock(
                     illustration.filename,
                     illustration.placement.caption
                 );
@@ -1178,8 +1184,8 @@ LOGGING:
         }
     }
 
-    function createIllustrationBlock(source, caption) {
-        const imageSource = base + '/illustrations/' + source;
+    function createIllustrationBlock(source: string, caption: string | null) {
+        const imageSource = illustrations['./' + source] ?? '';
         const divFigure = document.createElement('div');
         divFigure.classList.add('image-block');
         const spanFigure = document.createElement('span');
@@ -1196,7 +1202,7 @@ LOGGING:
             const divFigureText = createIllustrationCaptionBlock(caption);
             divFigure.appendChild(divFigureText);
         }
-        return divFigure;
+        return { block: divFigure, source: imageSource };
     }
 
     function createIllustrationCaptionBlock(caption) {
@@ -1279,8 +1285,7 @@ LOGGING:
             appendPhrase(workspace);
         }
         workspace.phraseDiv = null;
-        const divFigure = createIllustrationBlock(source, null);
-        const imageSource = base + '/illustrations/' + source;
+        const { block: divFigure, source: imageSource } = createIllustrationBlock(source, null);
         workspace.figureDiv = divFigure;
         if (showImage()) {
             checkImageExists(imageSource, divFigure);

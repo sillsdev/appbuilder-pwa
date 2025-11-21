@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, type PathLike } from 'fs';
-import path, { basename, extname } from 'path';
+import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
     BookCollectionAudioConfig,
@@ -14,6 +14,7 @@ import type {
 } from '$config';
 import jsdom from 'jsdom';
 import { convertMarkdownsToHTML } from './convertMarkdown';
+import { getHashedName } from './fileUtils';
 import { splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
@@ -261,7 +262,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     if (isScriptureConfig(data)) {
         data.traits = parseTraits(document, dataDir, verbose);
-        data.bookCollections = parseBookCollections(document, verbose);
+        data.bookCollections = parseBookCollections(document, dataDir, verbose);
 
         // After all the book collections have been parsed, we can determine some traits
         data.traits['has-glossary'] =
@@ -502,7 +503,7 @@ export function parseTraits(document: Document, dataDir: string, verbose: number
     return traits;
 }
 
-export function parseBookCollections(document: Document, verbose: number) {
+export function parseBookCollections(document: Document, dataDir: string, verbose: number) {
     const booksTags = document.getElementsByTagName('books');
     const bookCollections = [];
 
@@ -712,6 +713,10 @@ export function parseBookCollections(document: Document, verbose: number) {
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
                 file: format ? file : file.replace(/\.\w*$/, '.usfm'), // Default format is USFM and multiple files are combined into single .usfm
+                hashedFileName:
+                    format === 'html'
+                        ? getHashedName(join(dataDir, 'books', tag.id), file)
+                        : undefined,
                 features: bookFeatures,
                 quizFeatures,
                 style,

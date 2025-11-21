@@ -19,7 +19,9 @@ const config = {
             base: process.env.BUILD_BASE_PATH
         },
         alias: {
-            $config: './config'
+            $config: './config',
+            $static: './static',
+            $assets: './src/gen-assets/'
         },
         router: {
             type: 'hash'

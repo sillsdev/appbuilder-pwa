@@ -13,6 +13,7 @@ src/lib/data/firebase-config.js
 static
 example_data
 test_data
+/project_data
 *.md
 
 # Ignore files for PNPM, NPM and YARN

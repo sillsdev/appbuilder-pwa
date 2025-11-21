@@ -60,9 +60,9 @@ export class ConvertMedia extends Task {
         'illustrations',
         'audio',
         'timings',
-        'backgrounds',
+        'backgrounds', // TODO these are not used anywhere?
         'borders',
-        'watermarks',
+        'watermarks', // TODO these are not used anywhere?
         'clips',
         'videos',
         'icons'
@@ -108,8 +108,8 @@ export class ConvertMedia extends Task {
         // error there will need to be a delay between the removal and the copy.
         await Promise.all(
             modifiedDirectories.map((p) =>
-                rimraf(path.join('static', p)).then(() => {
-                    if (verbose) console.log(`removed ${path.join('static', p)}`);
+                rimraf(path.join('src/gen-assets', p)).then(() => {
+                    if (verbose) console.log(`removed ${path.join('src/gen-assets', p)}`);
                     return p;
                 })
             )
@@ -118,7 +118,7 @@ export class ConvertMedia extends Task {
         for (const p of modifiedDirectories) {
             cloneDirectory(
                 path.join(dataDir, p),
-                path.join('static', p),
+                path.join('src/gen-assets', p),
                 verbose,
                 !required.includes(p)
             );
@@ -138,7 +138,7 @@ export class ConvertMedia extends Task {
                 const scriptureConfig = configData.data as ScriptureConfig;
                 if (scriptureConfig.tabTypes) {
                     // Copy tab images to static/icons/tabs
-                    const tabsPath = path.join('static', 'icons', 'tabs');
+                    const tabsPath = path.join('src', 'gen-assets', 'icons', 'tabs');
                     mkdirSync(tabsPath, { recursive: true });
                     for (let i in scriptureConfig.tabTypes) {
                         const tabType = scriptureConfig.tabTypes[i];

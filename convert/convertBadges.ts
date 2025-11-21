@@ -8,7 +8,7 @@ export async function convertBadges(
     configData: ConfigTaskOutput,
     verbose: number
 ) {
-    const dstBadgeDir = path.join('static', 'badges');
+    const dstBadgeDir = path.join('src/gen-assets', 'badges');
     if (!configData.data.mainFeatures['share-apple-app-link']) {
         if (existsSync(dstBadgeDir)) {
             rmSync(dstBadgeDir, { recursive: true });

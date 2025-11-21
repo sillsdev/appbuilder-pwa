@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import { createReadStream, readdirSync } from 'fs';
+import { createReadStream, existsSync, readdirSync } from 'fs';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
@@ -70,6 +70,10 @@ function checkCommandExists(command: string, argument: string): boolean {
 // Ensure the temp directory exists
 async function ensureTempDir(): Promise<void> {
     try {
+        // if temp dir already exists, delete and recreate
+        if (existsSync(TEMP_DIR)) {
+            await fs.rm(TEMP_DIR, { recursive: true, force: true });
+        }
         await fs.mkdir(TEMP_DIR, { recursive: true });
     } catch (error) {
         throw new Error(`Failed to create temp directory: ${error.message}`);
