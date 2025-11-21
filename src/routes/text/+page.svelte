@@ -1,5 +1,4 @@
 <script>
-    import { base } from '$app/paths';
     import { page } from '$app/state';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
@@ -59,7 +58,6 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { onDestroy, onMount } from 'svelte';
     import { pinch, swipe } from 'svelte-gestures';
-    import { slide } from 'svelte/transition';
 
     const borders = import.meta.glob('./*', {
         import: 'default',

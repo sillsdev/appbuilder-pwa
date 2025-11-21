@@ -109,7 +109,7 @@ LOGGING:
         proskomma: SABProskomma;
     } = $props();
 
-    const scriptureLogs = $derived(
+    const scriptureLogs = $derived.by(() =>
         $userSettings['scripture-logs']
             ? {
                   root: 1,
@@ -1453,9 +1453,10 @@ LOGGING:
         }
     }
     let bookRoot = $state(document.createElement('div'));
-    if (scriptureLogs?.root) {
-        console.log('START: %o', bookRoot);
-    }
+    $effect(() => {
+        if (scriptureLogs?.root) console.log('START: %o', bookRoot);
+    });
+
     let loading = $state(true);
 
     const output = {};
