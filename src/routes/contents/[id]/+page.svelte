@@ -255,7 +255,7 @@
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
-                    class="contents-item-block contents-link-ref"
+                    class="contents-item-block-base contents-item-block contents-link-ref"
                     id={item.id}
                     onclick={(event) => onClick(event, item)}
                 >
