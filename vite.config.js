@@ -42,7 +42,7 @@ const matchers = [
 /** @type {(msg: string, options: any) => void} */
 logger.warn = (msg, options) => {
     // suppress specific warning messages on build
-    if (!matchers.some((m) => m(msg))) {
+    if (process.env.NODE_ENV === 'development' || !matchers.some((m) => m(msg))) {
         loggerWarn(msg, options);
     }
 };
