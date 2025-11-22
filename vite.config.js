@@ -8,6 +8,44 @@ import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfil
 import { sveltekit } from '@sveltejs/kit/vite';
 // You don't need to add this to deps, it's included by @esbuild-plugins/node-modules-polyfill
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
+import { createLogger } from 'vite';
+
+const logger = createLogger();
+const loggerWarn = logger.warn;
+/** @type {((msg: string) => boolean)[]} */
+const matchers = [
+    // "pinch" and "swipe" are imported from external module "svelte-gestures" but never used in "src/routes/text/+page.svelte".
+    (msg) =>
+        !!(
+            msg.match(/"pinch"/) &&
+            msg.match(/"swipe"/) &&
+            msg.match(/"svelte-gestures"/) &&
+            msg.match(/"src\/routes\/text\/\+page.svelte"/)
+        ),
+    // [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "node_modules/sql.js/dist/sql-wasm.js".
+    (msg) =>
+        !!(
+            msg.match(/vite:resolve/) &&
+            msg.match(/externalized/) &&
+            msg.match(/sql\.js\/dist\/sql-wasm\.js/)
+        ),
+    // [plugin vite:resolve] Module "process" has been externalized for browser compatibility, imported by "node_modules/@firebase/util/dist/index.esm2017.js".
+    (msg) => !!(msg.match(/vite:resolve/) && msg.match(/externalized/) && msg.match(/@firebase/)),
+    /*
+    (!) Some chunks are larger than 500 kB after minification. Consider:
+        - Using dynamic import() to code-split the application
+        - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+        - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+    */
+    (msg) => !!msg.match(/Some chunks are larger than/)
+];
+/** @type {(msg: string, options: any) => void} */
+logger.warn = (msg, options) => {
+    // suppress specific warning messages on build
+    if (process.env.NODE_ENV === 'development' || !matchers.some((m) => m(msg))) {
+        loggerWarn(msg, options);
+    }
+};
 
 /** @type {import('vite').UserConfig} */
 const config = {
@@ -77,6 +115,7 @@ const config = {
     },
     test: {
         environment: 'jsdom'
-    }
+    },
+    customLogger: logger
 };
 export default config;
