@@ -3,9 +3,9 @@ import type { DictionaryConfig } from '$config';
 import config from '$lib/data/config';
 import {
     initializeDatabase,
-    vernacularLanguageStore,
-    vernacularWordsStore
-} from '$lib/data/stores/lexicon';
+    vernacularLanguage,
+    vernacularWords
+} from '$lib/data/stores/lexicon.svelte';
 import type { ReversalIndex } from '$lib/lexicon';
 
 const reversalIndexUrls = import.meta.glob('./**/index.json', {

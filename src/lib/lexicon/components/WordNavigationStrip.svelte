@@ -1,10 +1,10 @@
 <script>
     import {
-        currentReversalWordsStore,
-        selectedLanguageStore,
-        vernacularLanguageStore,
-        vernacularWordsStore
-    } from '$lib/data/stores/lexicon.ts';
+        currentReversalWords,
+        selectedLanguage,
+        vernacularLanguage,
+        vernacularWords
+    } from '$lib/data/stores/lexicon.svelte';
     import { get } from 'svelte/store';
 
     /**

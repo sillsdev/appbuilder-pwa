@@ -1,12 +1,12 @@
 <script>
     import config from '$lib/data/config';
     import { convertStyle } from '$lib/data/stores';
-    import { initializeDatabase } from '$lib/data/stores/lexicon';
     import {
-        selectedLanguageStore,
-        vernacularLanguageStore,
-        vernacularWordsStore
-    } from '$lib/data/stores/lexicon.ts';
+        initializeDatabase,
+        selectedLanguage,
+        vernacularLanguage,
+        vernacularWords
+    } from '$lib/data/stores/lexicon.svelte';
     import { onMount } from 'svelte';
     import { run } from 'svelte/legacy';
     import { get } from 'svelte/store';

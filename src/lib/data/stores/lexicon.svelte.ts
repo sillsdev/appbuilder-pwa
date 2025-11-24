@@ -1,15 +1,10 @@
-import { base } from '$app/paths';
 import initSqlJs, { type Database } from 'sql.js';
-import { derived, get, writable, type Writable } from 'svelte/store';
 
 // Store for vernacularLanguage
-export const vernacularLanguageStore = writable<string>('');
+export let vernacularLanguage = $state({ value: '' });
 
 // Store for vernacularWordsList
-export const vernacularWordsStore = writable<string[]>();
-
-// Store for selectedLanguageStore
-export const selectedLanguageStore = writable<string | null>(null);
+export let vernacularWords: { value: string[] } = $state({ value: [] });
 
 // Store for reversalWordsList, keyed by language
 interface VernacularWordReference {
@@ -23,27 +18,29 @@ interface ReversalWord {
     vernacularWords: VernacularWordReference[];
     letter: string;
 }
-export const reversalWordsStore = writable<Record<string, ReversalWord[]>>({});
+export let reversalWords: Record<string, ReversalWord[]> = $state({});
 
 // Store for the loaded reversalLetters, keyed by language
-export const reversalLettersStore = writable<Record<string, string[]>>({});
+export let reversalLetters: Record<string, string[]> = $state({});
 
-// Derived store to get the current language's reversalWordsList
-export const currentReversalWordsStore = derived(
-    [selectedLanguageStore, reversalWordsStore],
-    ([selectedLanguage, wordsStore]) => (selectedLanguage ? wordsStore[selectedLanguage] || [] : [])
-);
+class CurrentReversal {
+    // Store for selectedLanguageStore
+    selectedLanguage: string | null = $state(null);
+    // Derived store to get the current language's reversalWordsList
+    words = $derived(
+        this.selectedLanguage ? reversalWords[this.selectedLanguage] || [] : []
+    );
+    // Derived store to get the current language's reversalLetters
+    letters = $derived(
+        new Set(this.selectedLanguage ? reversalLetters[this.selectedLanguage] || [] : [])
+    );
+}
 
-// Derived store to get the current language's reversalLetters
-export const currentReversalLettersStore = derived(
-    [selectedLanguageStore, reversalLettersStore],
-    ([selectedLanguage, lettersStore]) =>
-        selectedLanguage ? lettersStore[selectedLanguage] || [] : []
-);
+export const currentReversal = new CurrentReversal();
 
 // Store for database instance
-export const sqlJs = writable<ReturnType<typeof initSqlJs> | null>(null);
-export const sqlDb = writable<Database | null>(null);
+let sql: Awaited<ReturnType<typeof initSqlJs>> | null = null;
+let db: Database | null = null;
 
 const sqliteUrl = import.meta.glob('./*.sqlite', {
     import: 'default',
@@ -59,8 +56,6 @@ const wasmUrl = import.meta.glob('./*.wasm', {
 }) as Record<string, string>;
 
 export async function initializeDatabase({ fetch }) {
-    let db = get(sqlDb);
-    let sql = get(sqlJs);
     if (!sql || !db) {
         // Fetch the WebAssembly binary manually using SvelteKit's fetch
         const wasmKey = './sql-wasm.wasm';
@@ -73,7 +68,6 @@ export async function initializeDatabase({ fetch }) {
 
         // Initialize sql.js with the manually loaded wasm binary
         sql = await initSqlJs({ wasmBinary });
-        sqlJs.set(sql);
 
         // Fetch the database file
         const dbKey = './data.sqlite';
@@ -86,7 +80,6 @@ export async function initializeDatabase({ fetch }) {
 
         // Load the database into sql.js
         db = new sql.Database(new Uint8Array(buffer));
-        sqlDb.set(db);
     }
     return db;
 }

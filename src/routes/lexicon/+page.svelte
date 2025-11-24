@@ -4,14 +4,12 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import {
-        currentReversalLettersStore,
-        currentReversalWordsStore,
-        reversalLettersStore,
-        reversalWordsStore,
-        selectedLanguageStore,
-        vernacularLanguageStore,
-        vernacularWordsStore
-    } from '$lib/data/stores/lexicon.ts';
+        currentReversal,
+        reversalLetters,
+        reversalWords,
+        vernacularLanguage,
+        vernacularWords
+    } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import ListViewHeader from '$lib/lexicon/components/ListViewHeader.svelte';

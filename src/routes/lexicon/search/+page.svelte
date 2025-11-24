@@ -2,7 +2,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import config from '$lib/data/config';
-    import { vernacularLanguageStore, vernacularWordsStore } from '$lib/data/stores/lexicon';
+    import { vernacularLanguage, vernacularWords } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
