@@ -1,5 +1,11 @@
-<script>
-    let { vernacularWordsList, onSelectWord } = $props();
+<script lang="ts">
+    import type { VernacularWord } from '$lib/data/stores/lexicon.svelte';
+
+    interface Props {
+        vernacularWordsList: VernacularWord[];
+        onSelectWord: (_: { word: string; index: number }) => void;
+    }
+    let { vernacularWordsList, onSelectWord }: Props = $props();
 </script>
 
 <ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">

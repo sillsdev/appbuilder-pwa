@@ -9,7 +9,7 @@
         /** Current word being displayed */
         currentWord: any;
         /** Function to handle word selection from parent component */
-        onSelectWord: any;
+        onSelectWord: (word: any) => void;
     }
 
     let { currentWord, onSelectWord }: Props = $props();

@@ -1,6 +1,15 @@
-<script>
+<script lang="ts">
     import AlphabetStrip from '$lib/lexicon/components/AlphabetStrip.svelte';
     import LanguageTabs from '$lib/lexicon/components/LanguageTabs.svelte';
+
+    interface Props {
+        alphabet: string[];
+        selectedLanguage: string;
+        vernacularLanguage: string;
+        reversalLanguage: string;
+        onSwitchLanguage: (_: string) => void;
+        onLetterChange: (_: string) => void;
+    }
 
     let {
         alphabet = [],
@@ -9,9 +18,9 @@
         reversalLanguage,
         onSwitchLanguage,
         onLetterChange
-    } = $props();
+    }: Props = $props();
 
-    async function handleLetterSelect(letter) {
+    async function handleLetterSelect(letter: string) {
         onLetterChange(letter);
     }
 </script>

@@ -44,7 +44,7 @@
     let showBackButton = $derived(selectedWord ? true : false);
     let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
-    let wordIds = $state();
+    let wordIds: number[] | null = $state(null);
 
     //$: selectedLanguage = currentReversal.selectedLanguage;
     $effect(() => {
@@ -166,7 +166,7 @@
         }
     }
 
-    async function handleLetterChange(letter) {
+    async function handleLetterChange(letter: string) {
         selectedLetter = letter;
         if (currentReversal.selectedLanguage === reversalLanguage) {
             await fetchWords();
@@ -282,7 +282,7 @@
         <ListViewHeader
             alphabet={currentAlphabet}
             selectedLanguage={currentReversal.selectedLanguage}
-            {vernacularLanguage}
+            vernacularLanguage={vernacularLanguage.value}
             {reversalLanguage}
             onSwitchLanguage={switchLanguage}
             onLetterChange={handleLetterChange}
@@ -306,7 +306,10 @@
             bind:this={scrollContainer}
             onscroll={checkIfScrolledToBottom}
         >
-            <VernacularListView vernacularWordsList={vernacularWords} onSelectWord={selectWord} />
+            <VernacularListView
+                vernacularWordsList={vernacularWords.value}
+                onSelectWord={selectWord}
+            />
         </div>
     {:else}
         <div

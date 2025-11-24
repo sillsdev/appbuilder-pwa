@@ -1,5 +1,12 @@
-<script>
-    let { reversalWordsList, onSelectWord } = $props();
+<script lang="ts">
+    import type { ReversalWord } from '$lib/data/stores/lexicon.svelte';
+
+    interface Props {
+        reversalWordsList: ReversalWord[];
+        onSelectWord: (_: { word: string; indexes: number[] }) => void;
+    }
+
+    let { reversalWordsList, onSelectWord }: Props = $props();
 </script>
 
 <ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">

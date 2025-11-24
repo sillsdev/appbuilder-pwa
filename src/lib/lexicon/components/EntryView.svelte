@@ -10,8 +10,8 @@
     import { onMount } from 'svelte';
 
     interface Props {
-        wordIds: any;
-        onSelectWord: any;
+        wordIds: number[] | null;
+        onSelectWord: (_: { word: string; index: number; homonym_index: number }) => void;
         removeNewLines?: boolean;
     }
 
@@ -19,7 +19,7 @@
 
     let xmlData = $state('');
 
-    async function queryXmlByWordId(wordIds) {
+    async function queryXmlByWordId(wordIds: number[]) {
         try {
             let db = await initializeDatabase({ fetch });
 
@@ -35,7 +35,7 @@
         }
     }
 
-    function formatXmlByClass(xmlString) {
+    function formatXmlByClass(xmlString: string) {
         if (!xmlString) return '';
 
         const parser = new DOMParser();
@@ -131,13 +131,13 @@
             return;
         }
 
-        let xmlResults = await queryXmlByWordId(wordIds);
+        let xmlResults = (await queryXmlByWordId(wordIds)) as string[][];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
-                .map(formatXmlByClass)
+                .flatMap((v) => v.map(formatXmlByClass))
                 .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
             '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
     }

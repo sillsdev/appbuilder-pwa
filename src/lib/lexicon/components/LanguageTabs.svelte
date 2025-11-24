@@ -1,8 +1,16 @@
-<script>
+<script lang="ts">
     import { expoInOut } from 'svelte/easing';
     import { fly } from 'svelte/transition';
 
-    let { reversalLanguage, selectedLanguage, onSwitchLanguage, vernacularLanguage } = $props();
+    interface Props {
+        reversalLanguage: string;
+        selectedLanguage: string;
+        vernacularLanguage: string;
+        onSwitchLanguage: (_: string) => void;
+    }
+
+    let { reversalLanguage, selectedLanguage, onSwitchLanguage, vernacularLanguage }: Props =
+        $props();
 </script>
 
 <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
@@ -17,7 +25,7 @@
         {vernacularLanguage}
         {#if selectedLanguage === vernacularLanguage}
             <div
-                transition:fly={{ axis: 'x', easing: expoInOut, x: 70 }}
+                transition:fly={{ easing: expoInOut, x: 70 }}
                 class="absolute -bottom-1 left-0 w-full h-1 bg-black"
             ></div>
         {/if}
@@ -33,7 +41,7 @@
         {reversalLanguage}
         {#if selectedLanguage === reversalLanguage}
             <div
-                transition:fly={{ axis: 'x', easing: expoInOut, x: -70 }}
+                transition:fly={{ easing: expoInOut, x: -70 }}
                 class="absolute -bottom-1 left-0 w-full h-1 bg-black"
             ></div>
         {/if}
