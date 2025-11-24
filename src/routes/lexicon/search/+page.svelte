@@ -2,7 +2,6 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import config from '$lib/data/config';
-    import { vernacularLanguage, vernacularWords } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -11,16 +10,12 @@
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
     import { type SearchFormSubmitEvent } from '$lib/types.js';
 
-    let { data } = $props();
-
     let phrase: string = $state('');
     let wholeWords: boolean = $state(false);
     let matchAccents: boolean = $state(false);
     let wordIds: number[] | undefined = $state();
     let searchWord: string | undefined = $state();
     let selectedWord: any = $state();
-    const vernacularLanguage = $derived($vernacularLanguageStore);
-    const vernacularWordsList = $derived($vernacularWordsStore);
 
     let scrollDiv: HTMLDivElement | undefined = $state(undefined);
 

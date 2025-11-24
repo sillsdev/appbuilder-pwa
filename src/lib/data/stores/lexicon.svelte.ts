@@ -3,8 +3,17 @@ import initSqlJs, { type Database } from 'sql.js';
 // Store for vernacularLanguage
 export let vernacularLanguage = $state({ value: '' });
 
+export type VernacularWord = {
+    id: number;
+    name: string;
+    homonym_index: number;
+    type: number;
+    num_senses: number;
+    summary: string;
+    letter: string;
+};
 // Store for vernacularWordsList
-export let vernacularWords: { value: string[] } = $state({ value: [] });
+export let vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
 
 // Store for reversalWordsList, keyed by language
 interface VernacularWordReference {
@@ -12,9 +21,9 @@ interface VernacularWordReference {
     homonymIndex: number;
 }
 
-interface ReversalWord {
+export interface ReversalWord {
     word: string;
-    indexes: string[];
+    indexes: number[];
     vernacularWords: VernacularWordReference[];
     letter: string;
 }
@@ -27,9 +36,7 @@ class CurrentReversal {
     // Store for selectedLanguageStore
     selectedLanguage: string | null = $state(null);
     // Derived store to get the current language's reversalWordsList
-    words = $derived(
-        this.selectedLanguage ? reversalWords[this.selectedLanguage] || [] : []
-    );
+    words = $derived(this.selectedLanguage ? reversalWords[this.selectedLanguage] || [] : []);
     // Derived store to get the current language's reversalLetters
     letters = $derived(
         new Set(this.selectedLanguage ? reversalLetters[this.selectedLanguage] || [] : [])
@@ -55,7 +62,7 @@ const wasmUrl = import.meta.glob('./*.wasm', {
     query: '?url'
 }) as Record<string, string>;
 
-export async function initializeDatabase({ fetch }) {
+export async function initializeDatabase({ fetch }): Promise<Database> {
     if (!sql || !db) {
         // Fetch the WebAssembly binary manually using SvelteKit's fetch
         const wasmKey = './sql-wasm.wasm';
