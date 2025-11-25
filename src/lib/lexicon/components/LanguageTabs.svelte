@@ -6,7 +6,7 @@
         reversalLanguage: string;
         selectedLanguage: string;
         vernacularLanguage: string;
-        onSwitchLanguage: (_: string) => void;
+        onSwitchLanguage: (lang: string) => void;
     }
 
     let { reversalLanguage, selectedLanguage, onSwitchLanguage, vernacularLanguage }: Props =

@@ -7,8 +7,8 @@
         selectedLanguage: string;
         vernacularLanguage: string;
         reversalLanguage: string;
-        onSwitchLanguage: (_: string) => void;
-        onLetterChange: (_: string) => void;
+        onSwitchLanguage: (lang: string) => void;
+        onLetterChange: (letter: string) => void;
     }
 
     let {
