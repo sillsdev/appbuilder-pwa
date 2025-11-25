@@ -25,7 +25,7 @@
                     }
                 }}
             >
-                <p class="font-bold break-words" style="color: var(--TextColor);">{word}</p>
+                <p class="font-bold break-words" style="color: var(--TextColor);">{word.word}</p>
                 <p class="text-md ml-4" style="color: var(--TextColor);">
                     {#each word.vernacularWords as { name, homonymIndex }, i}
                         {#if i > 0},
