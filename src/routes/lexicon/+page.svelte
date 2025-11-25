@@ -16,7 +16,7 @@
     import VernacularListView from '$lib/lexicon/components/VernacularListView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
-    import { onMount, tick } from 'svelte';
+    import { onMount, tick, untrack } from 'svelte';
     import type { PageData } from './$types';
 
     const reversals = import.meta.glob('./**/*.json', {
@@ -48,6 +48,9 @@
 
     //$: selectedLanguage = currentReversal.selectedLanguage;
     $effect(() => {
+        // NOTE: currentReversal is not a dependency of this $effect.
+        // Do not make it a dependency, or this will not work.
+        // If you need to console.log in here for debugging, make sure to use `untrack`.
         currentReversal.selectedLanguage = vernacularLanguage.value;
     });
 
