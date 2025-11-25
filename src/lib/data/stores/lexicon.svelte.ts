@@ -32,6 +32,16 @@ export let reversalWords: Record<string, ReversalWord[]> = $state({});
 // Store for the loaded reversalLetters, keyed by language
 export let reversalLetters: Record<string, string[]> = $state({});
 
+export type Word = VernacularWord | ReversalWord;
+
+export type SelectableFromVernacular = {
+    word: string;
+    index: number;
+    homonym_index: number;
+};
+
+export type SelectedWord = ReversalWord | SelectableFromVernacular;
+
 class CurrentReversal {
     // Store for selectedLanguageStore
     selectedLanguage: string | null = $state(null);
