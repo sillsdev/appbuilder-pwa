@@ -8,7 +8,6 @@
         vernacularWords,
         type SelectedWord
     } from '$lib/data/stores/lexicon.svelte';
-    import { onMount } from 'svelte';
 
     interface Props {
         wordIds: number[] | null;
@@ -209,8 +208,6 @@
             el.setAttribute('style', style.trim());
         });
     }
-
-    onMount(updateXmlData);
 
     $effect(() => {
         if (wordIds) {
