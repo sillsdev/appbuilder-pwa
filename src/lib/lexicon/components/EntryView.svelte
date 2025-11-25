@@ -8,6 +8,7 @@
         vernacularWords,
         type SelectedWord
     } from '$lib/data/stores/lexicon.svelte';
+    import type { SqlValue } from 'sql.js';
 
     interface Props {
         wordIds: number[] | null;
@@ -19,7 +20,7 @@
 
     let xmlData = $state('');
 
-    async function queryXmlByWordId(wordIds: number[]) {
+    async function queryXmlByWordId(wordIds: number[]): Promise<SqlValue[][] | null> {
         try {
             let db = await initializeDatabase({ fetch });
 
@@ -131,7 +132,7 @@
             return;
         }
 
-        let xmlResults = (await queryXmlByWordId(wordIds)) as string[][];
+        const xmlResults = (await queryXmlByWordId(wordIds)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
