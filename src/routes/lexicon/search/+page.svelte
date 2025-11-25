@@ -2,6 +2,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import config from '$lib/data/config';
+    import type { SelectedWord } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -15,7 +16,7 @@
     let matchAccents: boolean = $state(false);
     let wordIds: number[] | undefined = $state();
     let searchWord: string | undefined = $state();
-    let selectedWord: any = $state();
+    let selectedWord: SelectedWord | null = $state(null);
 
     let scrollDiv: HTMLDivElement | undefined = $state(undefined);
 
@@ -47,9 +48,9 @@
         console.log(wordIds);
     }
 
-    function selectWord(word) {
-        selectedWord = selectedWord && selectedWord.word === word ? null : word;
-        wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
+    function selectWord(word: SelectedWord) {
+        selectedWord = selectedWord && selectedWord.word === word.word ? null : word;
+        wordIds = 'indexes' in selectedWord ? selectedWord.indexes : [selectedWord.index];
     }
 </script>
 

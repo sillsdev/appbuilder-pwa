@@ -5,13 +5,14 @@
         currentReversal,
         initializeDatabase,
         vernacularLanguage,
-        vernacularWords
+        vernacularWords,
+        type SelectedWord
     } from '$lib/data/stores/lexicon.svelte';
     import { onMount } from 'svelte';
 
     interface Props {
         wordIds: number[] | null;
-        onSelectWord: (_: { word: string; index: number; homonym_index: number }) => void;
+        onSelectWord: (word: SelectedWord) => void;
         removeNewLines?: boolean;
     }
 
