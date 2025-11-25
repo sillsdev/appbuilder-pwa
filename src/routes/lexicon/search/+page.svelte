@@ -14,7 +14,7 @@
     let phrase: string = $state('');
     let wholeWords: boolean = $state(false);
     let matchAccents: boolean = $state(false);
-    let wordIds: number[] | undefined = $state();
+    let wordIds: number[] | null = $state(null);
     let searchWord: string | undefined = $state();
     let selectedWord: SelectedWord | null = $state(null);
 
