@@ -50,7 +50,11 @@
 
     function selectWord(word: SelectedWord) {
         selectedWord = selectedWord && selectedWord.word === word.word ? null : word;
-        wordIds = 'indexes' in selectedWord ? selectedWord.indexes : [selectedWord.index];
+        wordIds = selectedWord
+            ? 'indexes' in selectedWord
+                ? selectedWord.indexes
+                : [selectedWord.index]
+            : [];
     }
 </script>
 
