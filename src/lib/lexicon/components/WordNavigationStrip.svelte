@@ -3,6 +3,7 @@
         currentReversal,
         vernacularLanguage,
         vernacularWords,
+        wordToSelected,
         type SelectedWord,
         type Word
     } from '$lib/data/stores/lexicon.svelte';
@@ -63,15 +64,7 @@
     function goToPrevious() {
         if (previousWord) {
             // Format the word object to match the expected structure
-            onSelectWord(
-                'name' in previousWord
-                    ? {
-                          word: previousWord.name,
-                          index: previousWord.id,
-                          homonym_index: previousWord.homonym_index
-                      }
-                    : previousWord
-            );
+            onSelectWord(wordToSelected(previousWord));
         }
     }
 
@@ -79,15 +72,7 @@
     function goToNext() {
         if (nextWord) {
             // Format the word object to match the expected structure
-            onSelectWord(
-                'name' in nextWord
-                    ? {
-                          word: nextWord.name,
-                          index: nextWord.id,
-                          homonym_index: nextWord.homonym_index
-                      }
-                    : nextWord
-            );
+            onSelectWord(wordToSelected(nextWord));
         }
     }
 </script>

@@ -42,6 +42,16 @@ export type SelectableFromVernacular = {
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
+export function wordToSelected(word: Word): SelectedWord {
+    return 'name' in word
+        ? {
+              word: word.name,
+              index: word.id,
+              homonym_index: word.homonym_index
+          }
+        : word;
+}
+
 class CurrentReversal {
     // Store for selectedLanguageStore
     selectedLanguage: string | null = $state(null);
