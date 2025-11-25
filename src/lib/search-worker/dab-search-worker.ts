@@ -1,4 +1,4 @@
-import { initializeDatabase } from '$lib/data/stores/lexicon';
+import { initializeDatabase } from '$lib/data/stores/lexicon.svelte';
 import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
 
 // Search the dictionary based on the phrase and options

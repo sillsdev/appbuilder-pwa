@@ -1,6 +1,10 @@
 <script lang="ts">
-    export let alphabet: string[];
-    export let onLetterSelect: (letter: string) => void;
+    interface Props {
+        alphabet: string[];
+        onLetterSelect: (letter: string) => void;
+    }
+
+    let { alphabet, onLetterSelect }: Props = $props();
 </script>
 
 <div
@@ -13,7 +17,7 @@
             md:px-5 md:py-4 md:text-base
             lg:px-6 lg:py-4 lg:text-lg"
             style="background-color: var(--BackgroundColor); color: var(--TabTextColor); border-color: var(--SettingsSeparatorColor);"
-            on:click={() => onLetterSelect(letter)}
+            onclick={() => onLetterSelect(letter)}
         >
             {letter}
         </button>

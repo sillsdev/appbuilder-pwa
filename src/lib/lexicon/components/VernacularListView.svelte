@@ -1,6 +1,11 @@
-<script>
-    export let vernacularWordsList;
-    export let onSelectWord;
+<script lang="ts">
+    import type { SelectedWord, VernacularWord } from '$lib/data/stores/lexicon.svelte';
+
+    interface Props {
+        vernacularWordsList: VernacularWord[];
+        onSelectWord: (word: SelectedWord) => void;
+    }
+    let { vernacularWordsList, onSelectWord }: Props = $props();
 </script>
 
 <ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">
@@ -11,8 +16,8 @@
                 class="w-full text-left py-1"
                 aria-label={`Select word ${name}`}
                 style="color: var(--TextColor); border-bottom: 1px solid var(--SettingsSeparatorColor);"
-                on:click={() => onSelectWord({ word: name, index: id })}
-                on:keydown={(event) => {
+                onclick={() => onSelectWord({ word: name, index: id })}
+                onkeydown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                         onSelectWord({ word: name, index: id });
                         event.preventDefault();

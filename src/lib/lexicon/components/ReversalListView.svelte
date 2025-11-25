@@ -1,27 +1,33 @@
-<script>
-    export let reversalWordsList;
-    export let onSelectWord;
+<script lang="ts">
+    import type { ReversalWord } from '$lib/data/stores/lexicon.svelte';
+
+    interface Props {
+        reversalWordsList: ReversalWord[];
+        onSelectWord: (word: ReversalWord) => void;
+    }
+
+    let { reversalWordsList, onSelectWord }: Props = $props();
 </script>
 
 <ul class="space-y-3 px-4 pb-4" style="background-color: var(--BackgroundColor);">
-    {#each reversalWordsList as { word, indexes, vernacularWords, letter }}
-        <li class="cursor-pointer text-lg mb-3" id="letter-{letter}">
+    {#each reversalWordsList as word}
+        <li class="cursor-pointer text-lg mb-3" id="letter-{word.letter}">
             <button
                 type="button"
                 class="w-full text-left py-1"
                 aria-label={`Select word ${word}`}
                 style="color: var(--TextColor); border-bottom: 1px solid var(--SettingsSeparatorColor);"
-                on:click={() => onSelectWord({ word, indexes })}
-                on:keydown={(event) => {
+                onclick={() => onSelectWord(word)}
+                onkeydown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
-                        onSelectWord({ word, indexes });
+                        onSelectWord(word);
                         event.preventDefault();
                     }
                 }}
             >
-                <p class="font-bold break-words" style="color: var(--TextColor);">{word}</p>
+                <p class="font-bold break-words" style="color: var(--TextColor);">{word.word}</p>
                 <p class="text-md ml-4" style="color: var(--TextColor);">
-                    {#each vernacularWords as { name, homonymIndex }, i}
+                    {#each word.vernacularWords as { name, homonymIndex }, i}
                         {#if i > 0},
                         {/if}
                         <span style="color: var(--TextColor);"
