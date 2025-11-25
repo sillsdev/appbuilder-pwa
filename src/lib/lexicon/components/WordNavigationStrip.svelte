@@ -85,7 +85,7 @@
                           index: nextWord.id,
                           homonym_index: nextWord.homonym_index
                       }
-                    : previousWord
+                    : nextWord
             );
         }
     }
