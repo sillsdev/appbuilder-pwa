@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { VernacularWord } from '$lib/data/stores/lexicon.svelte';
+    import type { SelectedWord, VernacularWord } from '$lib/data/stores/lexicon.svelte';
 
     interface Props {
         vernacularWordsList: VernacularWord[];
-        onSelectWord: (_: { word: string; index: number }) => void;
+        onSelectWord: (word: SelectedWord) => void;
     }
     let { vernacularWordsList, onSelectWord }: Props = $props();
 </script>

@@ -37,7 +37,7 @@ export type Word = VernacularWord | ReversalWord;
 export type SelectableFromVernacular = {
     word: string;
     index: number;
-    homonym_index: number;
+    homonym_index?: number;
 };
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;

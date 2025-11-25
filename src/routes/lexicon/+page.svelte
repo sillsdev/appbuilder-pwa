@@ -7,7 +7,8 @@
         reversalWords,
         vernacularLanguage,
         vernacularWords,
-        type ReversalWord
+        type ReversalWord,
+        type SelectedWord
     } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
@@ -16,7 +17,7 @@
     import VernacularListView from '$lib/lexicon/components/VernacularListView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
-    import { onMount, tick, untrack } from 'svelte';
+    import { onMount, tick } from 'svelte';
     import type { PageData } from './$types';
 
     const reversals = import.meta.glob('./**/*.json', {
@@ -150,12 +151,16 @@
         ];
     }
 
-    function selectWord(word) {
-        selectedWord = selectedWord && selectedWord.word === word ? null : word;
-        wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
+    function selectWord(word: SelectedWord) {
+        selectedWord = selectedWord && selectedWord.word === word.word ? null : word;
+        wordIds = selectedWord
+            ? 'indexes' in selectedWord
+                ? selectedWord.indexes
+                : [selectedWord.index]
+            : [];
     }
 
-    async function scrollToLetter(letter) {
+    async function scrollToLetter(letter: string) {
         await tick();
         const target = document.getElementById(`letter-${letter}`);
         if (target && scrollContainer) {

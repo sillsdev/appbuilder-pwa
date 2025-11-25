@@ -75,7 +75,7 @@ export async function load({ fetch }) {
 
             let firstLetter = entry.name.charAt(0).toLowerCase();
 
-            let firstTwoChars;
+            let firstTwoChars = '';
             let startingPosition = 0;
 
             if (firstLetter === '*' || firstLetter === '-') {
