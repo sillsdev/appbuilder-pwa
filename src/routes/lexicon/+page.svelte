@@ -55,13 +55,14 @@
         currentReversal.selectedLanguage = vernacularLanguage.value;
     });
 
-    const reversalLanguage = Object.values(reversalLanguages[0])[0];
+    const reversalLanguageValues = $derived(reversalLanguages.map((rv) => Object.values(rv)[0]));
+
+    const validReversal = $derived(
+        reversalLanguageValues.includes(currentReversal.selectedLanguage)
+    );
 
     async function fetchWords(letter = selectedLetter) {
-        if (
-            currentReversal.selectedLanguage === reversalLanguage &&
-            !currentReversal.letters.has(letter)
-        ) {
+        if (validReversal && !currentReversal.letters.has(letter)) {
             const letterIndex = alphabets.reversal.indexOf(letter);
             const lettersToLoad = alphabets.reversal
                 .slice(0, letterIndex)
@@ -176,7 +177,7 @@
 
     async function handleLetterChange(letter: string) {
         selectedLetter = letter;
-        if (currentReversal.selectedLanguage === reversalLanguage) {
+        if (validReversal) {
             await fetchWords();
         }
         scrollToLetter(letter);
@@ -200,8 +201,7 @@
         if (isFetching) return;
 
         if (
-            (currentReversal.selectedLanguage === reversalLanguage &&
-                currentReversal.words.length > 0) ||
+            (validReversal && currentReversal.words.length > 0) ||
             (currentReversal.selectedLanguage === vernacularLanguage.value &&
                 vernacularWords.value.length > 0)
         ) {
@@ -218,8 +218,7 @@
                     }
                 }
             } else if (
-                (currentReversal.selectedLanguage === reversalLanguage &&
-                    currentReversal.letters.has(selectedLetter)) ||
+                (validReversal && currentReversal.letters.has(selectedLetter)) ||
                 currentReversal.selectedLanguage === vernacularLanguage.value
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
@@ -239,11 +238,7 @@
         }
     }
 
-    let currentAlphabet = $derived(
-        currentReversal.selectedLanguage === reversalLanguage
-            ? alphabets.reversal
-            : alphabets.vernacular
-    );
+    let currentAlphabet = $derived(validReversal ? alphabets.reversal : alphabets.vernacular);
 
     onMount(() => {
         if (selectedLetter && currentReversal.selectedLanguage != vernacularLanguage.value) {
@@ -291,7 +286,7 @@
             alphabet={currentAlphabet}
             selectedLanguage={currentReversal.selectedLanguage}
             vernacularLanguage={vernacularLanguage.value}
-            {reversalLanguage}
+            reversalLanguages={reversalLanguageValues}
             onSwitchLanguage={switchLanguage}
             onLetterChange={handleLetterChange}
         />
