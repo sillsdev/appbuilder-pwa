@@ -43,7 +43,6 @@
     let selectedLetter = alphabets.vernacular[0];
     let selectedWord = $state(null);
     let showBackButton = $derived(selectedWord ? true : false);
-    let defaultReversalKey = Object.keys(reversalAlphabets[0])[0];
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
     let wordIds: number[] | null = $state(null);
 
@@ -90,12 +89,19 @@
     async function loadLetterData(letter: string) {
         let newWords: ReversalWord[] = [];
 
-        const index = reversalIndexes[defaultReversalKey];
+        const reversalKey =
+            Object.keys(
+                reversalLanguages.find(
+                    (rl) => Object.values(rl)[0] === currentReversal.selectedLanguage
+                )
+            )[0] || Object.keys(reversalAlphabets[0])[0];
+
+        const index = reversalIndexes[reversalKey];
         const files = index[letter] || [];
         for (const file of files) {
-            const reversalFile = reversals[`./${defaultReversalKey}/${file}`];
+            const reversalFile = reversals[`./${reversalKey}/${file}`];
             if (!reversalFile) {
-                console.error(`Reversal file not found in glob: ./${defaultReversalKey}/${file}`);
+                console.error(`Reversal file not found in glob: ./${reversalKey}/${file}`);
                 continue;
             }
             const response = await fetch(reversalFile);
