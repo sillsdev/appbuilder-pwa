@@ -11,38 +11,32 @@
 
     let { reversalLanguages, selectedLanguage, onSwitchLanguage, vernacularLanguage }: Props =
         $props();
+
+    const tabs = $derived([vernacularLanguage, ...reversalLanguages]);
+
+    let lastSelected = $state(selectedLanguage);
+    const indexOfPrevious = $derived(tabs.indexOf(lastSelected));
+
+    function handleLangSelected(lang: string) {
+        lastSelected = selectedLanguage;
+        onSwitchLanguage(lang);
+    }
 </script>
 
 <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
-    <div
-        role="button"
-        tabindex="0"
-        aria-pressed={selectedLanguage === vernacularLanguage}
-        onclick={() => onSwitchLanguage(vernacularLanguage)}
-        onkeydown={(e) => e.key === 'Enter' && onSwitchLanguage(vernacularLanguage)}
-        class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
-    >
-        {vernacularLanguage}
-        {#if selectedLanguage === vernacularLanguage}
-            <div
-                transition:fly={{ easing: expoInOut, x: 70 }}
-                class="absolute -bottom-1 left-0 w-full h-1 bg-black"
-            ></div>
-        {/if}
-    </div>
-    {#each reversalLanguages as lang}
+    {#each tabs as lang, i}
         <div
             role="button"
             tabindex="0"
             aria-pressed={selectedLanguage === lang}
-            onclick={() => onSwitchLanguage(lang)}
-            onkeydown={(e) => e.key === 'Enter' && onSwitchLanguage(lang)}
+            onclick={() => handleLangSelected(lang)}
+            onkeydown={(e) => e.key === 'Enter' && handleLangSelected(lang)}
             class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
         >
             {lang}
             {#if selectedLanguage === lang}
                 <div
-                    transition:fly={{ easing: expoInOut, x: -70 }}
+                    transition:fly={{ easing: expoInOut, x: 70 * (indexOfPrevious - i) }}
                     class="absolute -bottom-1 left-0 w-full h-1 bg-black"
                 ></div>
             {/if}
