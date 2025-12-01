@@ -40,11 +40,11 @@ export async function load({ fetch }) {
     const vernacularAlphabet = vernacularWritingSystem.alphabet;
 
     const reversalWritingSystems = Object.entries(dictionaryConfig.writingSystems).filter(
-        ([key, ws]) => 'reversalFilename' in ws
+        ([_, ws]) => 'reversalFilename' in ws
     );
 
-    if (!reversalWritingSystems) {
-        throw new Error('Reversal language not found');
+    if (!reversalWritingSystems.length) {
+        throw new Error('Reversal language(s) not found');
     }
 
     const reversalAlphabets = reversalWritingSystems.map(([key, ws]) => ({ [key]: ws.alphabet }));
@@ -52,14 +52,12 @@ export async function load({ fetch }) {
 
     const reversalIndexes: { [language: string]: ReversalIndex } = {}; // Updated type for reversalIndexes
 
-    for (const [key, ws] of Object.entries(dictionaryConfig.writingSystems)) {
-        if (!ws.type.includes('main')) {
-            const response = await fetch(reversalIndexUrls[`./${key}/index.json`]);
-            if (response.ok) {
-                reversalIndexes[key] = (await response.json()) as ReversalIndex; // Explicitly cast the JSON response
-            } else {
-                console.warn(`Failed to load reversal index for language: ${key}`);
-            }
+    for (const [key] of reversalWritingSystems) {
+        const response = await fetch(reversalIndexUrls[`./${key}/index.json`]);
+        if (response.ok) {
+            reversalIndexes[key] = (await response.json()) as ReversalIndex; // Explicitly cast the JSON response
+        } else {
+            console.warn(`Failed to load reversal index for language: ${key}`);
         }
     }
 
