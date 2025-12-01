@@ -1,7 +1,9 @@
 import initSqlJs, { type Database } from 'sql.js';
 
 // Store for vernacularLanguage
-export let vernacularLanguage = $state({ value: '' });
+export let vernacularLanguageId = $state({ value: '' });
+
+export let displayNames: { value: Record<string, string> } = $state({ value: {} });
 
 export type VernacularWord = {
     id: number;
@@ -54,13 +56,11 @@ export function wordToSelected(word: Word): SelectedWord {
 
 class CurrentReversal {
     // Store for selectedLanguageStore
-    selectedLanguage: string | null = $state(null);
+    languageId: string | null = $state(null);
     // Derived store to get the current language's reversalWordsList
-    words = $derived(this.selectedLanguage ? reversalWords[this.selectedLanguage] || [] : []);
+    words = $derived(this.languageId ? reversalWords[this.languageId] || [] : []);
     // Derived store to get the current language's reversalLetters
-    letters = $derived(
-        new Set(this.selectedLanguage ? reversalLetters[this.selectedLanguage] || [] : [])
-    );
+    letters = $derived(new Set(this.languageId ? reversalLetters[this.languageId] || [] : []));
 }
 
 export const currentReversal = new CurrentReversal();

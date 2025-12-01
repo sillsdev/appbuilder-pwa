@@ -1,7 +1,7 @@
 <script lang="ts">
     import {
         currentReversal,
-        vernacularLanguage,
+        vernacularLanguageId,
         vernacularWords,
         wordToSelected,
         type SelectedWord,
@@ -19,7 +19,7 @@
 
     // List of all words (should come from either vernacularWordsList or reversalWordsList)
     let wordsList: Word[] = $derived(
-        vernacularLanguage.value === currentReversal.selectedLanguage
+        vernacularLanguageId.value === currentReversal.languageId
             ? vernacularWords.value
             : currentReversal.words
     );

@@ -4,7 +4,7 @@
     import {
         currentReversal,
         initializeDatabase,
-        vernacularLanguage,
+        vernacularLanguageId,
         vernacularWords,
         type SelectedWord
     } from '$lib/data/stores/lexicon.svelte';
@@ -154,7 +154,7 @@
         const freshSpans = document.querySelectorAll('.clickable');
         freshSpans.forEach((span) => {
             span.addEventListener('click', () => {
-                currentReversal.selectedLanguage = vernacularLanguage.value;
+                currentReversal.languageId = vernacularLanguageId.value;
                 const word = span.getAttribute('data-word');
                 const index = parseInt(span.getAttribute('data-index'), 10);
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);

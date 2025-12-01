@@ -5,7 +5,7 @@
         currentReversal,
         reversalLetters,
         reversalWords,
-        vernacularLanguage,
+        vernacularLanguageId,
         vernacularWords,
         type ReversalWord,
         type SelectedWord
@@ -51,14 +51,10 @@
         // NOTE: currentReversal is not a dependency of this $effect.
         // Do not make it a dependency, or this will not work.
         // If you need to console.log in here for debugging, make sure to use `untrack`.
-        currentReversal.selectedLanguage = vernacularLanguage.value;
+        currentReversal.languageId = vernacularLanguageId.value;
     });
 
-    const reversalLanguageValues = $derived(reversalLanguages.map((rv) => Object.values(rv)[0]));
-
-    const validReversal = $derived(
-        reversalLanguageValues.includes(currentReversal.selectedLanguage)
-    );
+    const validReversal = $derived(reversalLanguages.includes(currentReversal.languageId));
 
     async function fetchWords(letter = selectedLetter) {
         if (validReversal && !currentReversal.letters.has(letter)) {
@@ -74,8 +70,8 @@
             await loadLetterData(letter);
 
             // Sort the results based on the selectedLanguage's alphabet
-            reversalWords[currentReversal.selectedLanguage] = (
-                reversalWords[currentReversal.selectedLanguage] || []
+            reversalWords[currentReversal.languageId] = (
+                reversalWords[currentReversal.languageId] || []
             ).sort((a, b) => {
                 const alphabet = currentAlphabet;
                 return (
@@ -89,12 +85,7 @@
     async function loadLetterData(letter: string) {
         let newWords: ReversalWord[] = [];
 
-        const reversalKey =
-            Object.keys(
-                reversalLanguages.find(
-                    (rl) => Object.values(rl)[0] === currentReversal.selectedLanguage
-                )
-            )[0] || Object.keys(reversalAlphabets[0])[0];
+        const reversalKey = currentReversal.languageId || Object.keys(reversalAlphabets[0])[0];
 
         const index = reversalIndexes[reversalKey];
         const files = index[letter] || [];
@@ -147,13 +138,13 @@
             }
         }
 
-        reversalWords[currentReversal.selectedLanguage] = [
-            ...(reversalWords[currentReversal.selectedLanguage] || []),
+        reversalWords[currentReversal.languageId] = [
+            ...(reversalWords[currentReversal.languageId] || []),
             ...newWords
         ];
 
-        reversalLetters[currentReversal.selectedLanguage] = [
-            ...(reversalLetters[currentReversal.selectedLanguage] || []),
+        reversalLetters[currentReversal.languageId] = [
+            ...(reversalLetters[currentReversal.languageId] || []),
             letter
         ];
     }
@@ -190,9 +181,9 @@
     }
 
     function switchLanguage(language: string) {
-        currentReversal.selectedLanguage = language;
+        currentReversal.languageId = language;
         selectedLetter = currentAlphabet[0];
-        if (currentReversal.selectedLanguage != vernacularLanguage.value) {
+        if (currentReversal.languageId != vernacularLanguageId.value) {
             fetchWords();
         }
         const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
@@ -208,7 +199,7 @@
 
         if (
             (validReversal && currentReversal.words.length > 0) ||
-            (currentReversal.selectedLanguage === vernacularLanguage.value &&
+            (currentReversal.languageId === vernacularLanguageId.value &&
                 vernacularWords.value.length > 0)
         ) {
             let div = event.target;
@@ -225,7 +216,7 @@
                 }
             } else if (
                 (validReversal && currentReversal.letters.has(selectedLetter)) ||
-                currentReversal.selectedLanguage === vernacularLanguage.value
+                currentReversal.languageId === vernacularLanguageId.value
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
                 let visibleLetter = null;
@@ -247,7 +238,7 @@
     let currentAlphabet = $derived(validReversal ? alphabets.reversal : alphabets.vernacular);
 
     onMount(() => {
-        if (selectedLetter && currentReversal.selectedLanguage != vernacularLanguage.value) {
+        if (selectedLetter && currentReversal.languageId != vernacularLanguageId.value) {
             fetchWords();
         }
         if (config.programType !== 'DAB') {
@@ -290,9 +281,9 @@
     {#if !selectedWord}
         <ListViewHeader
             alphabet={currentAlphabet}
-            selectedLanguage={currentReversal.selectedLanguage}
-            vernacularLanguage={vernacularLanguage.value}
-            reversalLanguages={reversalLanguageValues}
+            selectedLanguage={currentReversal.languageId}
+            vernacularLanguage={vernacularLanguageId.value}
+            {reversalLanguages}
             onSwitchLanguage={switchLanguage}
             onLetterChange={handleLetterChange}
         />
@@ -308,7 +299,7 @@
         >
             <EntryView {wordIds} onSelectWord={selectWord} />
         </div>
-    {:else if currentReversal.selectedLanguage === vernacularLanguage.value}
+    {:else if currentReversal.languageId === vernacularLanguageId.value}
         <div
             class="flex-1 overflow-y-auto bg-base-100"
             style="background-color: var(--BackgroundColor);"

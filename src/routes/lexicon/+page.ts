@@ -1,8 +1,9 @@
 import type { DictionaryConfig } from '$config';
 import config from '$lib/data/config';
 import {
+    displayNames,
     initializeDatabase,
-    vernacularLanguage,
+    vernacularLanguageId,
     vernacularWords,
     type VernacularWord
 } from '$lib/data/stores/lexicon.svelte';
@@ -21,16 +22,22 @@ export async function load({ fetch }) {
     }
     const dictionaryConfig = config as DictionaryConfig;
 
-    const vernacularWritingSystem = Object.values(dictionaryConfig.writingSystems).find((ws) =>
-        ws.type.includes('main')
-    );
+    const [vernacularLanguage, vernacularWritingSystem] = Object.entries(
+        dictionaryConfig.writingSystems
+    ).find(([_, ws]) => ws.type.includes('main'));
 
     if (!vernacularWritingSystem) {
         throw new Error('Vernacular language not found');
     }
 
+    displayNames.value = Object.fromEntries(
+        Object.entries(dictionaryConfig.writingSystems).map(([id, ws]) => [
+            id,
+            ws.displayNames.default
+        ])
+    );
+
     const vernacularAlphabet = vernacularWritingSystem.alphabet;
-    const vernacularLanguageName = vernacularWritingSystem.displayNames.default;
 
     const reversalWritingSystems = Object.entries(dictionaryConfig.writingSystems).filter(
         ([key, ws]) => 'reversalFilename' in ws
@@ -41,9 +48,7 @@ export async function load({ fetch }) {
     }
 
     const reversalAlphabets = reversalWritingSystems.map(([key, ws]) => ({ [key]: ws.alphabet }));
-    const reversalLanguages = reversalWritingSystems.map(([key, ws]) => ({
-        [key]: ws.displayNames.default
-    }));
+    const reversalLanguages = reversalWritingSystems.map(([key, _]) => key);
 
     const reversalIndexes: { [language: string]: ReversalIndex } = {}; // Updated type for reversalIndexes
 
@@ -98,7 +103,7 @@ export async function load({ fetch }) {
             entry.letter = firstLetter;
             return entry;
         });
-        vernacularLanguage.value = vernacularLanguageName;
+        vernacularLanguageId.value = vernacularLanguage;
         vernacularWords.value = vernacularWordsList;
     }
 

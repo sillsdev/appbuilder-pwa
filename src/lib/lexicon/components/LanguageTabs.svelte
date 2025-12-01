@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { displayNames } from '$lib/data/stores/lexicon.svelte';
     import { expoInOut } from 'svelte/easing';
     import { fly } from 'svelte/transition';
 
@@ -33,7 +34,7 @@
             onkeydown={(e) => e.key === 'Enter' && handleLangSelected(lang)}
             class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
         >
-            {lang}
+            {displayNames.value[lang]}
             {#if selectedLanguage === lang}
                 <div
                     transition:fly={{ easing: expoInOut, x: 70 * (indexOfPrevious - i) }}
