@@ -88,6 +88,10 @@
         const reversalKey = currentReversal.languageId || Object.keys(reversalAlphabets[0])[0];
 
         const index = reversalIndexes[reversalKey];
+        if (!index) {
+            console.error(`No reversal index loaded for language: ${reversalKey}`);
+            return;
+        }
         const files = index[letter] || [];
         for (const file of files) {
             const reversalFile = reversals[`./${reversalKey}/${file}`];
