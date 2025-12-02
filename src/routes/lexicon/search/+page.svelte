@@ -1,26 +1,22 @@
 <script lang="ts">
-    import LexiconEntryView from '$lib/components/LexiconEntryView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
-    import WordNavigationStrip from '$lib/components/WordNavigationStrip.svelte';
     import config from '$lib/data/config';
-    import { vernacularLanguageStore, vernacularWordsStore } from '$lib/data/stores/lexicon';
+    import type { SelectedWord } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
+    import EntryView from '$lib/lexicon/components/EntryView.svelte';
+    import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
     import { gotoRoute } from '$lib/navigate';
     import { searchDictionary } from '$lib/search-worker/dab-search-worker';
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
     import { type SearchFormSubmitEvent } from '$lib/types.js';
 
-    let { data } = $props();
-
     let phrase: string = $state('');
     let wholeWords: boolean = $state(false);
     let matchAccents: boolean = $state(false);
-    let wordIds: number[] | undefined = $state();
+    let wordIds: number[] | null = $state(null);
     let searchWord: string | undefined = $state();
-    let selectedWord: any = $state();
-    const vernacularLanguage = $derived($vernacularLanguageStore);
-    const vernacularWordsList = $derived($vernacularWordsStore);
+    let selectedWord: SelectedWord | null = $state(null);
 
     let scrollDiv: HTMLDivElement | undefined = $state(undefined);
 
@@ -52,9 +48,13 @@
         console.log(wordIds);
     }
 
-    function selectWord(word) {
-        selectedWord = selectedWord && selectedWord.word === word ? null : word;
-        wordIds = selectedWord.indexes ? selectedWord.indexes : [selectedWord.index];
+    function selectWord(word: SelectedWord) {
+        selectedWord = selectedWord && selectedWord.word === word.word ? null : word;
+        wordIds = selectedWord
+            ? 'indexes' in selectedWord
+                ? selectedWord.indexes
+                : [selectedWord.index]
+            : [];
     }
 </script>
 
@@ -129,7 +129,7 @@
             <div class="flex justify-center">
                 <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
                     {#if wordIds && wordIds.length > 0}
-                        <LexiconEntryView {wordIds} onSelectWord={selectWord} removeNewLines />
+                        <EntryView {wordIds} onSelectWord={selectWord} removeNewLines />
                     {:else if wordIds && wordIds.length == 0}
                         <div class="text-center" style="color: var(--SettingsSummaryColor);">
                             No results found.

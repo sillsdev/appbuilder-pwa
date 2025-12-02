@@ -1,11 +1,11 @@
-import { base } from '$app/paths';
 import type { DictionaryConfig } from '$config';
 import config from '$lib/data/config';
 import {
     initializeDatabase,
-    vernacularLanguageStore,
-    vernacularWordsStore
-} from '$lib/data/stores/lexicon';
+    vernacularLanguage,
+    vernacularWords,
+    type VernacularWord
+} from '$lib/data/stores/lexicon.svelte';
 import type { ReversalIndex } from '$lib/lexicon';
 
 const reversalIndexUrls = import.meta.glob('./**/index.json', {
@@ -30,7 +30,7 @@ export async function load({ fetch }) {
     }
 
     const vernacularAlphabet = vernacularWritingSystem.alphabet;
-    const vernacularLanguage = vernacularWritingSystem.displayNames.default;
+    const vernacularLanguageName = vernacularWritingSystem.displayNames.default;
 
     const reversalWritingSystems = Object.entries(dictionaryConfig.writingSystems).filter(
         ([key, ws]) => !ws.type.includes('main')
@@ -65,17 +65,17 @@ export async function load({ fetch }) {
         throw new Error('Vernacular query error');
     }
 
-    let vernacularWordsList = [];
+    let vernacularWordsList: VernacularWord[] = [];
     if (results[0]) {
         vernacularWordsList = results[0].values.map((value) => {
             const entry = results[0].columns.reduce((acc, column, index) => {
                 acc[column] = value[index];
                 return acc;
-            }, {});
+            }, {} as VernacularWord);
 
             let firstLetter = entry.name.charAt(0).toLowerCase();
 
-            let firstTwoChars;
+            let firstTwoChars = '';
             let startingPosition = 0;
 
             if (firstLetter === '*' || firstLetter === '-') {
@@ -98,8 +98,8 @@ export async function load({ fetch }) {
             entry.letter = firstLetter;
             return entry;
         });
-        vernacularLanguageStore.set(vernacularLanguage);
-        vernacularWordsStore.set(vernacularWordsList);
+        vernacularLanguage.value = vernacularLanguageName;
+        vernacularWords.value = vernacularWordsList;
     }
 
     return {

@@ -1,29 +1,32 @@
-<script>
+<script lang="ts">
     import config from '$lib/data/config';
     import { convertStyle } from '$lib/data/stores';
-    import { initializeDatabase } from '$lib/data/stores/lexicon';
     import {
-        selectedLanguageStore,
-        vernacularLanguageStore,
-        vernacularWordsStore
-    } from '$lib/data/stores/lexicon.ts';
-    import { afterUpdate, onMount } from 'svelte';
-    import { get } from 'svelte/store';
+        currentReversal,
+        initializeDatabase,
+        vernacularLanguage,
+        vernacularWords,
+        type SelectedWord
+    } from '$lib/data/stores/lexicon.svelte';
+    import type { SqlValue } from 'sql.js';
 
-    export let wordIds;
-    export let onSelectWord;
-    export let removeNewLines = false;
+    interface Props {
+        wordIds: number[] | null;
+        onSelectWord: (word: SelectedWord) => void;
+        removeNewLines?: boolean;
+    }
 
-    let xmlData = '';
+    let { wordIds, onSelectWord, removeNewLines = false }: Props = $props();
 
-    async function queryXmlByWordId(wordIds) {
+    let xmlData = $state('');
+
+    async function queryXmlByWordId(wordIds: number[]): Promise<SqlValue[][] | null> {
         try {
             let db = await initializeDatabase({ fetch });
 
-            let results;
             const dynamicQuery = wordIds.map(() => `id = ?`).join(' OR ');
             const dynamicParams = wordIds.map((id) => id);
-            results = db.exec(`SELECT xml FROM entries WHERE ${dynamicQuery}`, dynamicParams);
+            const results = db.exec(`SELECT xml FROM entries WHERE ${dynamicQuery}`, dynamicParams);
             console.log('results:', results[0].values);
 
             return results[0].values;
@@ -33,7 +36,7 @@
         }
     }
 
-    function formatXmlByClass(xmlString) {
+    function formatXmlByClass(xmlString: string) {
         if (!xmlString) return '';
 
         const parser = new DOMParser();
@@ -74,9 +77,7 @@
                     const match = href.match(/E-(\d+)/);
                     if (match) {
                         const index = parseInt(match[1], 10);
-                        const wordObject = get(vernacularWordsStore).find(
-                            (item) => item.id === index
-                        );
+                        const wordObject = vernacularWords.value.find((item) => item.id === index);
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
@@ -131,13 +132,13 @@
             return;
         }
 
-        let xmlResults = await queryXmlByWordId(wordIds);
+        const xmlResults = (await queryXmlByWordId(wordIds)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
-                .map(formatXmlByClass)
+                .flatMap((v) => v.map(formatXmlByClass))
                 .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
             '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
     }
@@ -153,7 +154,7 @@
         const freshSpans = document.querySelectorAll('.clickable');
         freshSpans.forEach((span) => {
             span.addEventListener('click', () => {
-                selectedLanguageStore.set(get(vernacularLanguageStore));
+                currentReversal.selectedLanguage = vernacularLanguage.value;
                 const word = span.getAttribute('data-word');
                 const index = parseInt(span.getAttribute('data-index'), 10);
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
@@ -170,7 +171,7 @@
     function applyStyles() {
         // Apply styles from config
         for (let stl of config.singleEntryStyles) {
-            for (let elm of document.querySelectorAll(stl.name)) {
+            for (let elm of document.querySelectorAll(stl.name) as NodeListOf<HTMLElement>) {
                 let styleString = convertStyle(stl.properties);
 
                 if (removeNewLines) {
@@ -209,15 +210,15 @@
         });
     }
 
-    onMount(updateXmlData);
-
-    $: if (wordIds) {
-        (async () => {
-            await updateXmlData();
-            applyStyles();
-            attachEventListeners();
-        })();
-    }
+    $effect(() => {
+        if (wordIds) {
+            (async () => {
+                await updateXmlData();
+                applyStyles();
+                attachEventListeners();
+            })();
+        }
+    });
 </script>
 
 <pre
