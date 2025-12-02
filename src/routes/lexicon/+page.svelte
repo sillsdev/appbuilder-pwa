@@ -74,10 +74,7 @@
                 reversalWords[currentReversal.languageId] || []
             ).sort((a, b) => {
                 const alphabet = currentAlphabet;
-                return (
-                    alphabet.indexOf(a.letter) -
-                    alphabet.indexOf(b.letter)
-                );
+                return alphabet.indexOf(a.letter) - alphabet.indexOf(b.letter);
             });
         }
     }
