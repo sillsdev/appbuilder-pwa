@@ -75,8 +75,8 @@
             ).sort((a, b) => {
                 const alphabet = currentAlphabet;
                 return (
-                    alphabet.indexOf(a.word[0].toLowerCase()) -
-                    alphabet.indexOf(b.word[0].toLowerCase())
+                    alphabet.indexOf(a.letter) -
+                    alphabet.indexOf(b.letter)
                 );
             });
         }
