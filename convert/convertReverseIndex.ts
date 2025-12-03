@@ -67,9 +67,14 @@ export function convertReverseIndex(
         latestLetter = entryLetter;
     });
 
+    // smart quotes are causing issues with sort correctness
+    const noCompareRE = /[“”]/g;
+
     Object.entries(entriesByLetter).forEach(([letter, entries]) => {
         const fileLetter = letter.toLowerCase();
-        entries.sort(([a], [b]) => a.localeCompare(b, language));
+        entries.sort(([a], [b]) =>
+            a.replace(noCompareRE, '').localeCompare(b.replace(noCompareRE, ''), language)
+        );
 
         let currentChunk: { [key: string]: ReversalEntry[] } = {};
         let currentCount = 0;
