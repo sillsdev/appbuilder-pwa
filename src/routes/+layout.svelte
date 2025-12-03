@@ -44,8 +44,6 @@
         query: '?url'
     }) as Record<string, string>;
 
-    console.log(overrideStyles);
-
     let { children } = $props();
 
     const isSAB = config.programType == 'SAB';
