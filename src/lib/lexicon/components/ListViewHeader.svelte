@@ -6,7 +6,7 @@
         alphabet: string[];
         selectedLanguage: string;
         vernacularLanguage: string;
-        reversalLanguage: string;
+        reversalLanguages: string[];
         onSwitchLanguage: (lang: string) => void;
         onLetterChange: (letter: string) => void;
     }
@@ -15,7 +15,7 @@
         alphabet = [],
         selectedLanguage,
         vernacularLanguage,
-        reversalLanguage,
+        reversalLanguages,
         onSwitchLanguage,
         onLetterChange
     }: Props = $props();
@@ -25,6 +25,6 @@
     }
 </script>
 
-<LanguageTabs {reversalLanguage} {selectedLanguage} {onSwitchLanguage} {vernacularLanguage} />
+<LanguageTabs {reversalLanguages} {selectedLanguage} {onSwitchLanguage} {vernacularLanguage} />
 
 <AlphabetStrip {alphabet} onLetterSelect={handleLetterSelect} />
