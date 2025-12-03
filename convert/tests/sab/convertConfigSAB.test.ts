@@ -89,7 +89,7 @@ if (programType === 'DAB') {
     });
 
     test('convertConfig: parse book collections', () => {
-        const result = parseBookCollections(document, 1);
+        const result = parseBookCollections(document, dataDir, 1);
         expect(result).not.toHaveLength(0);
         for (const bookCol in result) {
             const bc = result[bookCol];
@@ -248,7 +248,9 @@ if (programType === 'DAB') {
 
     test('convertConfig: parse features', () => {
         const result = parseFeatures(document, 1);
-        expect(Object.keys(result)).toHaveLength(141);
+        // If this number is different from expected, AppBuilders likely has new features.
+        // Care should be taken to look at what's new and open issues accordingly.
+        expect(Object.keys(result)).toHaveLength(143);
     });
 
     test('convertConfig: parse background images', () => {
