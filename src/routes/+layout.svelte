@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { base } from '$app/paths';
     import appleIconHref from '$assets/icons/apple-touch-icon.png';
     import faviconHref from '$assets/icons/favicon.png';
     import manifestHref from '$assets/manifestUrl.json';
-    import '$lib/app.css';
+    import '$lib/styles/app.css';
+    import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
+    import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import catalog from '$lib/data/catalogData';
@@ -26,9 +27,6 @@
         s,
         theme
     } from '$lib/data/stores';
-    import '$lib/app.css';
-    import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
-    import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
     import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
 
@@ -36,6 +34,13 @@
         import: 'default',
         eager: true,
         base: '/src/gen-assets/styles',
+        query: '?url'
+    }) as Record<string, string>;
+
+    const overrideStyles = import.meta.glob('./override-*.css', {
+        import: 'default',
+        eager: true,
+        base: '/src/lib/styles',
         query: '?url'
     }) as Record<string, string>;
 
@@ -122,8 +127,11 @@
         {#if $refs.initialized}
             <link rel="stylesheet" href={styles[`./sab-bc-${$refs.collection}.css`]} />
         {/if}
-        <link rel="stylesheet" href="{base}/override-sab.css" />
     {/if}
+    <link
+        rel="stylesheet"
+        href={overrideStyles[`./override-${config.programType.toLowerCase()}.css`]}
+    />
 </svelte:head>
 
 {#if showPage}
