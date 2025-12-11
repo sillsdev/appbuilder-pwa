@@ -44,7 +44,7 @@ export function convertReverseIndex(
 
     const content = readFileSync(indexFilePath, 'utf-8');
     const indexEntries = content
-        .split('\n')
+        .split(/\r?\n/)
         .map((line) => line.trim().split('\t'))
         .filter(([gloss]) => gloss?.length > 0);
 

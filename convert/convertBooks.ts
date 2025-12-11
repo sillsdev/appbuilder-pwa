@@ -262,10 +262,11 @@ function trimTrailingWhitespace(
     _bookId: string,
     _ctx: ConvertBookContext
 ): string {
+    const eol = text.includes('\r\n') ? '\r\n' : '\n';
     return text
-        .split('\n') // Split the text into lines
+        .split(/\r?\n/) // Split the text into lines
         .map((line) => line.trimEnd()) // Trim trailing whitespace from each line
-        .join('\n'); // Join the lines back together
+        .join(eol); // Join the lines back together
 }
 
 // Function to check if an image is missing
@@ -293,8 +294,9 @@ function moveFigureToNextNonVerseMarker(
 ): string {
     const result = [];
     let carryOverFigures: string[] = [];
+    const eol = text.includes('\r\n') ? '\r\n' : '\n';
 
-    const lines = text.split('\n');
+    const lines = text.split(/\r?\n/);
     for (let line of lines) {
         // Add any figures that were carried over from the previous lines
         if (carryOverFigures.length > 0) {
@@ -326,7 +328,7 @@ function moveFigureToNextNonVerseMarker(
     }
 
     // Join the lines back together
-    return result.join('\n');
+    return result.join(eol);
 }
 
 type FilterFunction = (
@@ -778,7 +780,8 @@ function updateExplanation(
 }
 
 function firstFiveLines(text: string): string {
-    return text.split('\n').slice(0, 5).join('\n');
+    const eol = text.includes('\r\n') ? '\r\n' : '\n';
+    return text.split(/\r?\n/).slice(0, 5).join(eol);
 }
 
 function convertScriptureBook(
@@ -798,7 +801,7 @@ function convertScriptureBook(
         content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
         if (bookTab) {
             //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
-            const firstLine = content.split('\n')[0];
+            const firstLine = content.split(/\r?\n/)[0];
             const remainingLines = content.slice(content.indexOf('\n'));
             content =
                 firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +

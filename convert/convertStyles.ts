@@ -28,7 +28,8 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
         let swapped = false;
 
         const fileContents = readFileSync(srcFile).toString();
-        const lines = fileContents.split('\n');
+        const lines = fileContents.split(/\r?\n/);
+        const eol = fileContents.includes('\r\n') ? '\r\n' : '\n';
         // Until App Builders 12.0 is released, then add these styles
         const tempStyles = srcFile.endsWith('-app.css') ? getTempStyles(configData, verbose) : '';
         const updatedFileContents =
@@ -103,7 +104,7 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                     }
                     return line;
                 })
-                .join('\n');
+                .join(eol);
         writeFileSync(dstFile, updatedFileContents);
     });
 }
