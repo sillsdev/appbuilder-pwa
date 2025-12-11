@@ -401,13 +401,15 @@ export async function convertBooks(
     const catalogEntries: Promise<any>[] = [];
     /**quizzes by book collection*/
     const quizzes: any = {};
+    /**songbooks by book collection*/
+    const songbooks: any = {};
     /**htmlBooks by book collection*/
     const htmlBooks: any = {};
     /**array of files to be written*/
     const files: any[] = [];
 
     // copy book-related folder resources
-    ['quiz', 'songs'].forEach((folder) => {
+    ['quiz'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
         const folderDstDir = path.join('src/gen-assets', folder);
         if (fs.existsSync(folderSrcDir)) {
@@ -455,6 +457,7 @@ export async function convertBooks(
         }
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
+        songbooks[context.docSet] = [];
         htmlBooks[context.docSet] = [];
         if (collection.books.find((b) => b.format === 'html')) {
             const illPath = join('static', 'illustrations');
@@ -470,7 +473,6 @@ export async function convertBooks(
             let bookConverted = false;
             switch (book.type) {
                 case 'story':
-                case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
                 case 'undefined':
@@ -488,6 +490,22 @@ export async function convertBooks(
                         ),
                         content: JSON.stringify(convertQuizBook(context, book), null, 2)
                     });
+                    displayBookId(context.bcId, book.id);
+                    break;
+                case 'songs':
+                    bookConverted = true;
+                    songbooks[context.docSet].push({ id: book.id, name: book.name });
+                    files.push({
+                        path: path.join(
+                            'static',
+                            'collections',
+                            context.bcId,
+                            'songs',
+                            book.id + '.json'
+                        ),
+                        content: JSON.stringify(convertSongIndex(context, book), null, 2)
+                    });
+                    convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
                     displayBookId(context.bcId, book.id);
                     break;
                 default:
@@ -546,6 +564,14 @@ export async function convertBooks(
             if (!fs.existsSync(qPath)) {
                 if (verbose) console.log('creating: ' + qPath);
                 fs.mkdirSync(qPath, { recursive: true });
+            }
+        }
+        //add songbooks path if necessary
+        if (songbooks[context.docSet].length > 0) {
+            const sPath = path.join('static', 'collections', context.bcId, 'songs');
+            if (!fs.existsSync(sPath)) {
+                if (verbose) console.log('creating: ' + sPath);
+                fs.mkdirSync(sPath, { recursive: true });
             }
         }
     }
@@ -638,6 +664,18 @@ export type Quiz = {
     passScore?: number; //\pm
 };
 
+export type SongIndex = {
+    id: string;
+    byNumber: {
+        id: number;
+        title: string;
+    }[];
+    byTitle: {
+        id: number;
+        title: string;
+    }[];
+};
+
 function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
     const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
 
@@ -652,6 +690,50 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
     });
 }
 
+function convertSongIndex(context: ConvertBookContext, book: BookConfig): SongIndex {
+    if (context.verbose) {
+        console.log('Converting SongBook:', book.id);
+    }
+    const idxByNumber = fs.readFileSync(
+        path.join(context.dataDir, 'songs', `${context.bcId}-${book.id}-songs-by-number.txt`),
+        'utf8'
+    );
+    const idxByTitle = fs.readFileSync(
+        path.join(context.dataDir, 'songs', `${context.bcId}-${book.id}-songs-by-title.txt`),
+        'utf8'
+    );
+
+    const songIndex: SongIndex = {
+        id: book.id,
+        byNumber: [],
+        byTitle: []
+    };
+
+    idxByNumber
+        .trim()
+        .split('\n')
+        .forEach((line) => {
+            const parts = line.split('\t');
+
+            songIndex.byNumber.push({
+                id: Number(parts[0]),
+                title: parts[1]
+            });
+        });
+
+    idxByTitle
+        .trim()
+        .split('\n')
+        .forEach((line) => {
+            const parts = line.split('\t');
+            songIndex.byTitle.push({
+                id: Number(parts[0]),
+                title: parts[1]
+            });
+        });
+
+    return songIndex;
+}
 function convertQuizBook(context: ConvertBookContext, book: BookConfig): Quiz {
     if (context.verbose) {
         console.log('Converting QuizBook:', book.id);
