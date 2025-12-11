@@ -16,7 +16,8 @@ export function convertManifest(dataDir: string, verbose: number) {
     if (existing) {
         mkdirSync(path.join('static', 'icons'), { recursive: true });
         const fileContents = readFileSync(srcFile).toString();
-        const lines = fileContents.split('\n');
+        const lines = fileContents.split(/\r?\n/);
+        const eol = fileContents.includes('\r\n') ? '\r\n' : '\n';
         contents = lines
             .map((line) => {
                 if (line.includes('start_url')) {
@@ -49,7 +50,7 @@ export function convertManifest(dataDir: string, verbose: number) {
                 }
                 return line;
             })
-            .join('\n');
+            .join(eol);
     } else {
         // If no manifest exists, we need to at least have a minimum manifest to build.
         const manifest = {
