@@ -28,7 +28,17 @@
     import { compareVersions } from '$lib/scripts/stringUtils';
 
     const imageFolder =
-        compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
+        compareVersions(config.programVersion, '12.0') < 0
+            ? import.meta.glob('./*', {
+                  eager: true,
+                  import: 'default',
+                  base: '/src/gen-assets/illustrations'
+              })
+            : import.meta.glob(['./*', '!./*.json'], {
+                  eager: true,
+                  import: 'default',
+                  base: '/src/gen-assets/plans'
+              });
 
     const barIconColor = $s['ui.bar.text-select.icon']['color'];
     //need some way to know the status of the plan
@@ -202,7 +212,7 @@
             <div>
                 <img
                     class="plan-image"
-                    src="{base}/{imageFolder}/{$page.data.planConfig.image.file}"
+                    src={imageFolder[`./${$page.data.planConfig.image.file}`]}
                     alt={$page.data.planConfig.image.file}
                     width={$page.data.planConfig.image.width}
                     height={$page.data.planConfig.image.height}
