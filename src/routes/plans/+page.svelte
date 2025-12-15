@@ -1,5 +1,4 @@
 <script>
-    import { asset } from '$app/paths';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
@@ -9,7 +8,17 @@
     import { compareVersions } from '$lib/scripts/stringUtils';
 
     const imageFolder =
-        compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'plans';
+        compareVersions(config.programVersion, '12.0') < 0
+            ? import.meta.glob('./*', {
+                  eager: true,
+                  import: 'default',
+                  base: '/src/gen-assets/illustrations'
+              })
+            : import.meta.glob(['./*', '!./*.json'], {
+                  eager: true,
+                  import: 'default',
+                  base: '/src/gen-assets/plans'
+              });
 
     let selectedTab = $state('available');
     let availablePlans = $state([]);
@@ -116,7 +125,7 @@
                                 <div class="plan-image-block">
                                     <img
                                         class="plan-image"
-                                        src={asset(`/${imageFolder}/${plan.image.file}`)}
+                                        src={imageFolder[`./${plan.image.file}`]}
                                         alt={plan.image.file}
                                         width={plan.image.width}
                                         height={plan.image.height}
@@ -148,7 +157,7 @@
                                 <div class="plan-image-block">
                                     <img
                                         class="plan-image"
-                                        src={asset(`/${imageFolder}/${plan.image.file}`)}
+                                        src={imageFolder[`./${plan.image.file}`]}
                                         alt={plan.image.file}
                                         width={plan.image.width}
                                         height={plan.image.height}
@@ -180,7 +189,7 @@
                                 <div class="plan-image-block">
                                     <img
                                         class="plan-image"
-                                        src={asset(`/${imageFolder}/${plan.image.file}`)}
+                                        src={imageFolder[`./${plan.image.file}`]}
                                         alt={plan.image.file}
                                         width={plan.image.width}
                                         height={plan.image.height}
