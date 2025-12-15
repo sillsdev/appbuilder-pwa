@@ -239,7 +239,7 @@ function updateImgTags(
 ): string {
     return text.replace(
         /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
-        (_match, _path, fileName) => {
+        (match, _path, fileName) => {
             // If the image is missing in the "illustrations" folder, filter out the entire tag
             if (isImageMissing(fileName)) {
                 return '';
@@ -250,7 +250,7 @@ function updateImgTags(
                     context.verbose
                 );
 
-                return `<img src="${base}/${imagePath}">`;
+                return match.replace(/src=["'][^"']*["']/, `src="${base}/${imagePath}"`);
             }
         }
     );
