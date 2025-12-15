@@ -7,14 +7,13 @@ const illustrations = import.meta.glob('./*', {
 function updateImgTags(/** @type {string} */ text) {
     return text.replace(
         /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
-        (_match, _path, fileName) => {
+        (match, _path, fileName) => {
             const img = illustrations[`./${fileName}`];
             if (!img) {
-                console.error(`Error loading plan: could not find image ${fileName}`);
-                return '';
-            } else {
-                return `<img src="${img}">`;
+                console.error(`Error loading about illustration: could not find image ${fileName}`);
+                return match; // keep original tag instead of dropping it
             }
+            return match.replace(/src=["'][^"']*["']/, `src="${img}"`);
         }
     );
 }
