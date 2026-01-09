@@ -1240,7 +1240,7 @@ export function parseTabTypes(document: Document, verbose: number) {
         for (const nameTag of nameTags) {
             if (verbose >= 3)
                 console.log(
-                    `.... names:  ${nameTag} has lang attribute ${nameTag.hasAttribute('lang')}`
+                    `.... names: nameTag ${nameTag.tagName} has lang attribute ${nameTag.hasAttribute('lang')}`
                 );
             if (nameTag.hasAttribute('lang')) {
                 name[nameTag.attributes.getNamedItem('lang')!.value] = nameTag.innerHTML;
