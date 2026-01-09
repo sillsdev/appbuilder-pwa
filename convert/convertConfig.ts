@@ -1238,7 +1238,10 @@ export function parseTabTypes(document: Document, verbose: number) {
         const nameTags = tab.getElementsByTagName('tab-name')[0].getElementsByTagName('t');
         const name: { [lang: string]: string } = {};
         for (const nameTag of nameTags) {
-            name[nameTag.attributes.getNamedItem('lang')!.value] = nameTag.innerHTML;
+            if(verbose >= 3) console.log(`.... names:  ${nameTag} has lang attribute ${nameTag.hasAttribute('lang')}`);
+            if (nameTag.hasAttribute('lang')) {
+                name[nameTag.attributes.getNamedItem('lang')!.value] = nameTag.innerHTML;
+            }
         }
 
         const images: { width: number; height: number; file: string }[] = [];
