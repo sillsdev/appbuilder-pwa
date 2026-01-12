@@ -25,6 +25,11 @@ const config = {
         },
         router: {
             type: 'hash'
+        },
+        serviceWorker: {
+            options: {
+                scope: process.env.BUILD_BASE_PATH
+            }
         }
     }
 };
