@@ -291,7 +291,7 @@ function convertConfig(dataDir: string, verbose: number) {
         const indexesTag = document.getElementsByTagName('indexes')[0];
         const indexTags = indexesTag.getElementsByTagName('index');
         for (const tag of indexTags) {
-            const lang: string = langAttrCheck(tag); //tag.attributes.getNamedItem('lang')!.value;
+            const lang: string = langAttrCheck(tag);
             const displayed: boolean = tag.attributes.getNamedItem('displayed')!.value === 'true';
             indexes[lang] = { displayed };
         }
@@ -847,7 +847,6 @@ export function parseWritingSystem(element: Element, verbose: number): WritingSy
     const displayNames: Record<string, string> = {};
     for (const form of displaynamesTag.getElementsByTagName('form')) {
         displayNames[langAttrCheck(form)] = form.innerHTML;
-        //displayNames[form.attributes.getNamedItem('lang')!.value] = form.innerHTML;
     }
     const writingSystem: WritingSystemConfig = {
         type,
@@ -928,9 +927,6 @@ export function parseMenuLocalizations(document: Document, verbose: number) {
             if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
             const localizations: Record<string, string> = {};
             for (const localization of tag.getElementsByTagName('t')) {
-                //localizations[localization.attributes.getNamedItem('lang')!.value] = decodeFromXml(
-                //    localization.innerHTML
-                //);
                 localizations[langAttrCheck(localization)] = decodeFromXml(localization.innerHTML);
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
@@ -1245,7 +1241,6 @@ export function parseTabTypes(document: Document, verbose: number) {
         const nameTags = tab.getElementsByTagName('tab-name')[0].getElementsByTagName('t');
         const name: { [lang: string]: string } = {};
         for (const nameTag of nameTags) {
-            //name[nameTag.attributes.getNamedItem('lang')!.value] = nameTag.innerHTML;
             name[langAttrCheck(nameTag)] = nameTag.innerHTML;
 
             if (verbose >= 3) console.log(name);
@@ -1323,7 +1318,6 @@ export function parseMenuItems(document: Document, type: string, verbose: number
             const titleTags = menuItem.getElementsByTagName('title')[0].getElementsByTagName('t');
             const title: { [lang: string]: string } = {};
             for (const titleTag of titleTags) {
-                //title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
                 title[langAttrCheck(titleTag)] = titleTag.innerHTML;
             }
 
@@ -1331,7 +1325,6 @@ export function parseMenuItems(document: Document, type: string, verbose: number
             const link: { [lang: string]: string } = {};
             if (linkTags) {
                 for (const linkTag of linkTags) {
-                    //link[linkTag.attributes.getNamedItem('lang')!.value] = linkTag.innerHTML;
                     link[langAttrCheck(linkTag)] = linkTag.innerHTML;
                 }
             }
@@ -1342,7 +1335,6 @@ export function parseMenuItems(document: Document, type: string, verbose: number
             const linkId: { [lang: string]: string } = {};
             if (linkIdTags) {
                 for (const linkIdTag of linkIdTags) {
-                    //linkId[linkIdTag.attributes.getNamedItem('lang')!.value] = linkIdTag.innerHTML;
                     linkId[langAttrCheck(linkIdTag)] = linkIdTag.innerHTML;
                 }
             }
@@ -1407,7 +1399,6 @@ export function parsePlans(document: Document, verbose: number) {
                 const titleTags = tag.getElementsByTagName('title')[0].getElementsByTagName('t');
                 const title: { [lang: string]: string } = {};
                 for (const titleTag of titleTags) {
-                    //title[titleTag.attributes.getNamedItem('lang')!.value] = titleTag.innerHTML;
                     title[langAttrCheck(titleTag)] = titleTag.innerHTML;
                 }
                 // Image
