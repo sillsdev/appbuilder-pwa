@@ -1238,13 +1238,14 @@ export function parseTabTypes(document: Document, verbose: number) {
         const nameTags = tab.getElementsByTagName('tab-name')[0].getElementsByTagName('t');
         const name: { [lang: string]: string } = {};
         for (const nameTag of nameTags) {
-            if (verbose >= 3)
-                console.log(
-                    `.... names: nameTag ${nameTag.tagName} has lang attribute ${nameTag.hasAttribute('lang')}`
-                );
             if (nameTag.hasAttribute('lang')) {
                 name[nameTag.attributes.getNamedItem('lang')!.value] = nameTag.innerHTML;
+            } else {
+                // no lang attribute now is assumed as 'default'
+                name['default'] = nameTag.innerHTML;
             }
+
+            if (verbose >= 3) console.log(name);
         }
 
         const images: { width: number; height: number; file: string }[] = [];
