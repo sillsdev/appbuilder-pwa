@@ -29,7 +29,7 @@ function decodeFromXml(input: string): string {
         .replace('&amp;', '&');
 }
 
-function langAttrCheck(element: Element): string {
+export function parseLangAttribute(element: Element): string {
     if (!element.hasAttribute('lang')) return 'default';
     return element.attributes.getNamedItem('lang')!.value;
 }
@@ -291,7 +291,7 @@ function convertConfig(dataDir: string, verbose: number) {
         const indexesTag = document.getElementsByTagName('indexes')[0];
         const indexTags = indexesTag.getElementsByTagName('index');
         for (const tag of indexTags) {
-            const lang: string = langAttrCheck(tag);
+            const lang: string = parseLangAttribute(tag);
             const displayed: boolean = tag.attributes.getNamedItem('displayed')!.value === 'true';
             indexes[lang] = { displayed };
         }
@@ -846,7 +846,7 @@ export function parseWritingSystem(element: Element, verbose: number): WritingSy
     const displaynamesTag = element.getElementsByTagName('display-names')[0];
     const displayNames: Record<string, string> = {};
     for (const form of displaynamesTag.getElementsByTagName('form')) {
-        displayNames[langAttrCheck(form)] = form.innerHTML;
+        displayNames[parseLangAttribute(form)] = form.innerHTML;
     }
     const writingSystem: WritingSystemConfig = {
         type,
@@ -927,7 +927,9 @@ export function parseMenuLocalizations(document: Document, verbose: number) {
             if (verbose >= 2) console.log(`.. translationMapping: ${tag.id}`);
             const localizations: Record<string, string> = {};
             for (const localization of tag.getElementsByTagName('t')) {
-                localizations[langAttrCheck(localization)] = decodeFromXml(localization.innerHTML);
+                localizations[parseLangAttribute(localization)] = decodeFromXml(
+                    localization.innerHTML
+                );
             }
             if (verbose >= 3) console.log(`....`, JSON.stringify(localizations));
             translationMappings.mappings[tag.id] = localizations;
@@ -1241,7 +1243,7 @@ export function parseTabTypes(document: Document, verbose: number) {
         const nameTags = tab.getElementsByTagName('tab-name')[0].getElementsByTagName('t');
         const name: { [lang: string]: string } = {};
         for (const nameTag of nameTags) {
-            name[langAttrCheck(nameTag)] = nameTag.innerHTML;
+            name[parseLangAttribute(nameTag)] = nameTag.innerHTML;
 
             if (verbose >= 3) console.log(name);
         }
@@ -1318,14 +1320,14 @@ export function parseMenuItems(document: Document, type: string, verbose: number
             const titleTags = menuItem.getElementsByTagName('title')[0].getElementsByTagName('t');
             const title: { [lang: string]: string } = {};
             for (const titleTag of titleTags) {
-                title[langAttrCheck(titleTag)] = titleTag.innerHTML;
+                title[parseLangAttribute(titleTag)] = titleTag.innerHTML;
             }
 
             const linkTags = menuItem.getElementsByTagName('link')[0]?.getElementsByTagName('t');
             const link: { [lang: string]: string } = {};
             if (linkTags) {
                 for (const linkTag of linkTags) {
-                    link[langAttrCheck(linkTag)] = linkTag.innerHTML;
+                    link[parseLangAttribute(linkTag)] = linkTag.innerHTML;
                 }
             }
 
@@ -1335,7 +1337,7 @@ export function parseMenuItems(document: Document, type: string, verbose: number
             const linkId: { [lang: string]: string } = {};
             if (linkIdTags) {
                 for (const linkIdTag of linkIdTags) {
-                    linkId[langAttrCheck(linkIdTag)] = linkIdTag.innerHTML;
+                    linkId[parseLangAttribute(linkIdTag)] = linkIdTag.innerHTML;
                 }
             }
 
@@ -1399,7 +1401,7 @@ export function parsePlans(document: Document, verbose: number) {
                 const titleTags = tag.getElementsByTagName('title')[0].getElementsByTagName('t');
                 const title: { [lang: string]: string } = {};
                 for (const titleTag of titleTags) {
-                    title[langAttrCheck(titleTag)] = titleTag.innerHTML;
+                    title[parseLangAttribute(titleTag)] = titleTag.innerHTML;
                 }
                 // Image
                 const imageTag = tag.getElementsByTagName('image')[0];
