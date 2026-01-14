@@ -1,5 +1,11 @@
+import { readFileSync } from 'fs';
 import adapter from '@sveltejs/adapter-static';
 import { sveltePreprocess } from 'svelte-preprocess';
+
+// Read template version from package.json
+const packageJson = JSON.parse(readFileSync('package.json', 'utf-8'));
+const templateVersion = packageJson.version;
+const buildTimestamp = Date.now();
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -30,6 +36,9 @@ const config = {
             options: {
                 scope: process.env.BUILD_BASE_PATH
             }
+        },
+        version: {
+            name: `${templateVersion}-${buildTimestamp}`
         }
     }
 };

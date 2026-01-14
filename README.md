@@ -74,3 +74,13 @@ npm run sandbox
 ```
 
 Open a browser to http://localhost:2468/graphql to query the Scripture data using GraphQL.
+
+### Release
+
+The version of the PWA can be read from the property `version` from the file `_app/version.json`.
+AppBuilders includes the latest tagged version of the repo. Before making a new release with the 
+AppBuilders, do the following:
+
+- update the version in package.json with the version of the AppBuilders
+- merge into main
+- tag main with "v{version}"

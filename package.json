@@ -1,6 +1,6 @@
 {
     "name": "appbuilder-pwa",
-    "version": "0.0.1",
+    "version": "13.3.2",
     "type": "module",
     "scripts": {
         "dev": "concurrently --restart-tries -1 --restart-after 10 -t HH:mm:ss -p \"[{time} {name}]\" -n Converter,Svelte \"ts-node convert/index.ts --watch\" \"vite dev --host\"",
