@@ -391,7 +391,7 @@ LOGGING:
         }
 
         if (callerSymbol === '+') {
-            callerSymbol = fnc.charAt(workspace.footnoteIndex % 26);
+            callerSymbol = createLetterIndex(workspace.footnoteIndex);
             workspace.footnoteIndex++;
         }
 
