@@ -6,6 +6,14 @@ import { Task, TaskOutput } from './Task';
 export interface ManifestTaskOutput extends TaskOutput {
     taskName: 'ConvertManifest';
 }
+
+function normalizePath(p: string): string {
+    if (p.endsWith('/')) {
+        return p;
+    } else {
+        return p + '/';
+    }
+}
 /**
  * Copies manifest.webmanifest to static folder
  */
@@ -20,17 +28,14 @@ export function convertManifest(dataDir: string, verbose: number) {
         const eol = fileContents.includes('\r\n') ? '\r\n' : '\n';
         contents = lines
             .map((line) => {
+                const pwaPath = process.env.BUILD_BASE_PATH
+                    ? normalizePath(process.env.BUILD_BASE_PATH)
+                    : '/';
                 if (line.includes('start_url')) {
-                    const urlPath = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '.';
-                    line = `  "start_url" : "${urlPath}/",`;
+                    line = `  "start_url" : "${pwaPath}",`;
                 }
                 if (line.includes('scope')) {
-                    const scopePath = process.env.BUILD_BASE_PATH
-                        ? process.env.BUILD_BASE_PATH.endsWith('/')
-                            ? process.env.BUILD_BASE_PATH
-                            : process.env.BUILD_BASE_PATH + '/'
-                        : '/';
-                    line = `  "scope" : "${scopePath}",`;
+                    line = `  "scope" : "${pwaPath}",`;
                 }
                 if (line.includes('"src":') && line.includes('./icons')) {
                     const srcMatch = line.match(/"src"\s*:\s*"\.\/([^"]+)"/);
