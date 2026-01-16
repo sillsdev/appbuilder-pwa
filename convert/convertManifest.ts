@@ -21,12 +21,16 @@ export function convertManifest(dataDir: string, verbose: number) {
         contents = lines
             .map((line) => {
                 if (line.includes('start_url')) {
-                    const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '.';
-                    line = `  "start_url" : "${path}/",`;
+                    const urlPath = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '.';
+                    line = `  "start_url" : "${urlPath}/",`;
                 }
                 if (line.includes('scope')) {
-                    const path = process.env.BUILD_BASE_PATH ? process.env.BUILD_BASE_PATH : '/';
-                    line = `  "scope" : "${path}",`;
+                    const scopePath = process.env.BUILD_BASE_PATH
+                        ? process.env.BUILD_BASE_PATH.endsWith('/')
+                            ? process.env.BUILD_BASE_PATH
+                            : process.env.BUILD_BASE_PATH + '/'
+                        : '/';
+                    line = `  "scope" : "${scopePath}",`;
                 }
                 if (line.includes('"src":') && line.includes('./icons')) {
                     const srcMatch = line.match(/"src"\s*:\s*"\.\/([^"]+)"/);
