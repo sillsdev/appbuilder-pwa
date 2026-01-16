@@ -137,6 +137,16 @@ LOGGING:
     let displayingIntroduction = $state(false);
 
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
+    /** calculate letter index from number
+     *
+     * 0-25 => a-z; 26+ => aa, ab, ... zz
+     */
+    function createLetterIndex(index: number) {
+        return (
+            (index >= fnc.length ? fnc.charAt(Math.floor(index / fnc.length) - 1) : '') +
+            fnc.charAt(index % fnc.length)
+        );
+    }
     let planDivObserver = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
     // Function to observe the visibility of the plan div
@@ -290,7 +300,7 @@ LOGGING:
                 default:
                     break;
             }
-            const phraseIndex = fnc.charAt(workspace.currentPhraseIndex);
+            const phraseIndex = createLetterIndex(workspace.currentPhraseIndex);
             div.id = workspace.currentVerse + phraseIndex;
             div.setAttribute('data-verse', workspace.currentVerse);
             div.setAttribute('data-phrase', phraseIndex);
