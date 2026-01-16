@@ -7,6 +7,14 @@ const packageJson = JSON.parse(readFileSync('package.json', 'utf-8'));
 const templateVersion = packageJson.version;
 const buildTimestamp = Date.now();
 
+// Scope should end with a slash if defined
+// BUILD_BASE_PATH should not have a trailing slash, but just make sure
+const serviceWorkerScope = process.env.BUILD_BASE_PATH
+    ? process.env.BUILD_BASE_PATH.endsWith('/')
+        ? process.env.BUILD_BASE_PATH
+        : process.env.BUILD_BASE_PATH + '/'
+    : '/';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
     // Consult https://github.com/sveltejs/svelte-preprocess
@@ -34,7 +42,7 @@ const config = {
         },
         serviceWorker: {
             options: {
-                scope: process.env.BUILD_BASE_PATH
+                scope: serviceWorkerScope
             }
         },
         version: {
