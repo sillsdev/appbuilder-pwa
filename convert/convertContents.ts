@@ -6,25 +6,31 @@ import { ConfigTaskOutput, parseLangAttribute } from './convertConfig';
 import { createHashedFile, createOutputDir, deleteOutputDir, joinUrlPath } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
+type LangContainer = { [lang: string]: string };
+
+type LinkMeta = {
+    // intended to pass between functions so that there is one object passed
+    linkType?: string;
+    linkTarget?: string;
+    linkLocation?: string;
+};
+
 type ContentItem = {
     id: number;
     heading?: boolean;
     features?: any;
-    title: {
-        [lang: string]: string;
-    };
-    subtitle?: {
-        [lang: string]: string;
-    };
-    audioFilename?: {
-        [lang: string]: string;
-    };
+    title: LangContainer;
+    subtitle?: LangContainer;
+    audioFilename?: LangContainer;
     imageFilename?: string;
+    itemType?: string;
+    contentItemContainer: boolean;
     linkType?: string;
     linkTarget?: string;
     linkLocation?: string;
     layoutMode?: string;
     layoutCollection?: string[];
+    children?: ContentItem[];
 };
 
 type ContentScreen = {
@@ -43,6 +49,7 @@ export type ContentsData = {
     };
     features?: any;
     items?: ContentItem[];
+    nestedItems?: boolean;
     screens?: ContentScreen[];
 };
 
@@ -62,6 +69,38 @@ function parseFeatureValue(value: any): any {
     return value;
 }
 
+// Nested items detection
+function isTagInnerNestedItem(tag: Element | HTMLElement | undefined): boolean {
+    if (tag === undefined) return false;
+    if (tag.parentElement?.tagName === 'contents') return false; // for /contents/contents-items
+    if (
+        // for /contents/contents-items/content-item/contents-items/title
+        tag.parentElement?.parentElement?.parentElement?.tagName === 'contents-item' &&
+        tag.parentElement?.parentElement?.parentElement?.hasAttribute('type')
+    )
+        return true;
+
+    return (
+        // for upper level contents-item
+        // more of the default expectation
+        tag.parentElement?.parentElement?.tagName === 'contents-item' &&
+        tag.parentElement?.parentElement?.hasAttribute('type')
+    );
+}
+
+function tagHasInnerNestedItems(tag: Element | HTMLElement | undefined): boolean {
+    if (tag === undefined) return false;
+
+    if (tag.children.length > 0) {
+        for (const child of tag.children) {
+            if (child.tagName === 'contents-items') {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function decodeFromXml(input: string): string {
     return input
         .replace('&quot;', '"')
@@ -69,6 +108,209 @@ function decodeFromXml(input: string): string {
         .replace('&lt;', '<')
         .replace('&gt;', '>')
         .replace('&amp;', '&');
+}
+
+// Item Parsing functions
+function parseItemId(tag: Element | HTMLElement | undefined): number {
+    if (tag === undefined) {
+        console.warn('parseItemId got an undefined tag');
+        return 0;
+    }
+    return Number(tag.attributes.getNamedItem('id')!.value);
+}
+
+function parseItemType(
+    tag: Element | HTMLElement | undefined,
+    contentItemContainer: boolean,
+    prevItemType: string | undefined = undefined
+): string | undefined {
+    if (tag === undefined) return undefined;
+    let itemType: string | undefined = undefined;
+
+    if (tag.hasAttribute('type')) {
+        itemType = String(tag.attributes.getNamedItem('type')!.value);
+    } else {
+        itemType = 'single'; // the only item type that is not specified in contents.xml
+    }
+
+    return itemType;
+}
+
+function parseItemHeading(tag: Element | HTMLElement | undefined): boolean {
+    if (tag === undefined) return false;
+
+    const heading = tag.attributes.getNamedItem('heading')?.value
+        ? Boolean(tag.attributes.getNamedItem('heading')?.value)
+        : false;
+
+    return heading;
+}
+
+function parseItemTitle(
+    tag: Element | HTMLElement | undefined,
+    upperLayer: boolean
+): LangContainer {
+    let title: LangContainer = {};
+    if (tag === undefined) return title; // empty title
+    const titleTags = tag.getElementsByTagName('title');
+    if (titleTags?.length > 0) {
+        for (const titleTag of titleTags) {
+            console.log(
+                `title is nested: ${isTagInnerNestedItem(titleTag)} ${titleTag.innerHTML} ${titleTag.parentElement?.parentElement?.tagName}`
+            );
+            if ((!isTagInnerNestedItem(titleTag) && upperLayer) || !upperLayer) {
+                // This logic is necessary because getElementsByTagName flattens the xml with both current and child nodes. Thus an upper layer node would get
+                // the last child item's title
+                const lang = parseLangAttribute(titleTag);
+                title[lang] = decodeFromXml(titleTag.innerHTML);
+            }
+        }
+    }
+    return title;
+}
+
+function parseItemSubtitle(tag: Element | HTMLElement | undefined): LangContainer {
+    let subtitle: LangContainer = {};
+    if (tag === undefined) return subtitle;
+    // TODO: Check to be sure that the issue with titles and flattening upper layer and child level is not mixing up subtitles
+
+    const subtitleTags = tag.getElementsByTagName('subtitle');
+    if (subtitleTags?.length > 0) {
+        for (const subtitleTag of subtitleTags) {
+            const lang = parseLangAttribute(subtitleTag);
+            subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
+        }
+    }
+    return subtitle;
+}
+
+function parseItemImage(
+    tag: Element | HTMLElement | undefined,
+    contentsDir: string,
+    verbose: number,
+    hasContentsDir: boolean
+): string | undefined {
+    if (tag === undefined) return undefined;
+    let imageFilename = '';
+
+    imageFilename = tag.getElementsByTagName('image-filename')[0]?.innerHTML;
+    if (hasContentsDir && imageFilename) {
+        if (existsSync(path.join(contentsDir, imageFilename))) {
+            imageFilename = createHashedFile(
+                contentsDir,
+                imageFilename,
+                verbose,
+                'contents'
+            ).replace(/contents\//, '');
+        } else {
+            console.warn(`Could not locate ${imageFilename}`);
+        }
+    }
+
+    return imageFilename;
+}
+
+function parseItemAudio(
+    tag: Element | HTMLElement | undefined,
+    contentsDir: string,
+    destDir: string,
+    verbose: number,
+    hasContentsDir: boolean
+): LangContainer {
+    const audioFilename: LangContainer = {};
+    if (tag === undefined) return audioFilename;
+
+    const audioTags = tag.getElementsByTagName('audio');
+    if (audioTags?.length > 0) {
+        for (const audioTag of audioTags) {
+            const lang = parseLangAttribute(audioTag);
+            audioFilename[lang] = decodeFromXml(audioTag.innerHTML);
+            if (hasContentsDir) {
+                if (existsSync(path.join(contentsDir, audioFilename[lang]))) {
+                    audioFilename[lang] = createHashedFile(
+                        contentsDir,
+                        audioFilename[lang],
+                        verbose,
+                        'contents'
+                    ).replace(/contents\//, '');
+                } else {
+                    console.warn(`Could not locate ${audioFilename[lang]}`);
+                }
+            }
+        }
+    }
+    return audioFilename;
+}
+
+function parseItemLink(
+    tag: Element | HTMLElement | undefined,
+    scriptureConfig: ScriptureConfig,
+    verbose: number
+): LinkMeta {
+    let link: LinkMeta = {};
+    if (tag === undefined) return link;
+
+    const linkTags = tag.getElementsByTagName('link');
+    link.linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
+    link.linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value;
+    link.linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
+
+    if (link.linkType === 'reference') {
+        // In the native app, app of the books are handled by the BookFragment.
+        // In the PWA, we have different routes for different book types since
+        // Proskomma can only handle USFM and the other book types include non-
+        // standard SFM tags.
+
+        scriptureConfig.bookCollections?.some((collection) => {
+            if (verbose) console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
+            const book = collection.books.find((x) => x.id === link.linkTarget);
+            if (book && book.type) {
+                // We found a book and the book.type is not default (i.e. undefined)
+                if (verbose)
+                    console.log(`Found ${link.linkTarget} in ${collection.id} as ${book.type}`);
+                link.linkType = book.type;
+                link.linkLocation = `${link.linkType}/${collection.id}/${link.linkTarget}`;
+                return true;
+            }
+        });
+    }
+
+    return link;
+}
+
+function parseItemFeatures(tag: Element | HTMLElement | undefined): any {
+    const features: any = {};
+    if (tag === undefined) return features;
+
+    const featureTags = tag.getElementsByTagName('feature');
+    for (const featureTag of featureTags) {
+        const value = featureTag.attributes.getNamedItem('value')!.value;
+        const name = featureTag.attributes.getNamedItem('name')!.value;
+        features[name] = parseFeatureValue(value);
+    }
+    return features;
+}
+
+function parseItemLayoutMode(tag: Element | HTMLElement | undefined): string | undefined {
+    if (tag === undefined) return undefined;
+    const layoutTags = tag.getElementsByTagName('layout');
+    return layoutTags[0]?.attributes.getNamedItem('mode')?.value;
+}
+
+function parseItemLayoutCollection(
+    tag: Element | HTMLElement | undefined
+): Array<string> | undefined {
+    let layoutCollection = undefined;
+    if (tag === undefined) return layoutCollection;
+    const layoutCollectionTags = tag.getElementsByTagName('layout-collection');
+    if (layoutCollectionTags?.length > 0) {
+        layoutCollection = [];
+        for (const layoutCollectionTag of layoutCollectionTags) {
+            const id = layoutCollectionTag.attributes.getNamedItem('id')!.value;
+            layoutCollection.push(id);
+        }
+    }
+    return layoutCollection;
 }
 
 export function convertContents(
@@ -84,6 +326,8 @@ export function convertContents(
     } else {
         deleteOutputDir(destDir);
     }
+    {
+    }
 
     const contentsFile = path.join(dataDir, 'contents.xml');
     if (!existsSync(contentsFile)) {
@@ -94,7 +338,7 @@ export function convertContents(
     });
     const { document } = dom.window;
 
-    // title
+    // Contents Menu title
     const contents = document.children[0];
     const titleTags = Array.from(contents.children).filter(
         (element) => element.tagName.toLowerCase() === 'title'
@@ -107,7 +351,7 @@ export function convertContents(
         }
     }
 
-    // Features
+    // Contents Menu Features
     data.features = {};
     const featuresTag = document.getElementsByTagName('features')[0];
     const featureTags = featuresTag.getElementsByTagName('feature');
@@ -117,113 +361,118 @@ export function convertContents(
         data.features[name] = parseFeatureValue(value);
     }
 
+    let nestedItems = false; // Do any of the items have a nested items?
+
     // Items
     const itemsTag = document.getElementsByTagName('contents-items')[0];
     const itemTags = itemsTag.getElementsByTagName('contents-item');
+
     if (itemTags?.length > 0) {
         data.items = [];
+        // TODO: Determine if these two variables are needed
+        let prevItemType: string | undefined = undefined;
+        let currentContentContainer: number | undefined = undefined;
+        let hasNestedItems = false; // Does this specific item have nested items?
+
         for (const itemTag of itemTags) {
-            const id = Number(itemTag.attributes.getNamedItem('id')!.value);
-            const heading = itemTag.attributes.getNamedItem('heading')?.value
-                ? Boolean(itemTag.attributes.getNamedItem('heading')?.value)
-                : undefined;
-            const title: { [lang: string]: string } = {};
-            const titleTags = itemTag.getElementsByTagName('title');
-            if (titleTags?.length > 0) {
-                for (const titleTag of titleTags) {
-                    const lang = parseLangAttribute(titleTag);
-                    title[lang] = decodeFromXml(titleTag.innerHTML);
-                }
+            const isNestedItem = isTagInnerNestedItem(itemTag);
+            hasNestedItems = tagHasInnerNestedItems(itemTag);
+
+            if (verbose >= 3)
+                console.log(
+                    `tagName: ${itemTag.tagName} itemType: ${itemTag.getAttribute('type') ?? ''} isNestedItem: ${isNestedItem} hasNestedItems: ${hasNestedItems}`
+                );
+
+            if (isNestedItem) {
+                continue; // skip nesteditems in the main loop, we will get them below for the parent item
             }
 
-            const subtitle: { [lang: string]: string } = {};
-            const subtitleTags = itemTag.getElementsByTagName('subtitle');
-            if (subtitleTags?.length > 0) {
-                for (const subtitleTag of subtitleTags) {
-                    const lang = parseLangAttribute(subtitleTag);
-                    subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
-                }
+            let contentItemContainer = itemTag.hasAttribute('type');
+            const itemType = parseItemType(itemTag, contentItemContainer);
+
+            if (verbose >= 3) console.log(`itemTypes: prev: ${prevItemType} now: ${itemType} `);
+
+            const id = parseItemId(itemTag);
+
+            const heading = parseItemHeading(itemTag);
+
+            const title = parseItemTitle(itemTag, true);
+
+            if (verbose >= 3 && itemType === undefined)
+                console.warn(`item type is undefined for ${title}`);
+
+            const subtitle = parseItemSubtitle(itemTag);
+
+            let audioFilename: { [lang: string]: string } = {};
+            let imageFilename: string | undefined = undefined;
+            if (!hasNestedItems) {
+                audioFilename = parseItemAudio(
+                    itemTag,
+                    contentsDir,
+                    destDir,
+                    verbose,
+                    hasContentsDir
+                );
+                imageFilename = parseItemImage(itemTag, contentsDir, verbose, hasContentsDir);
             }
 
-            const audioFilename: { [lang: string]: string } = {};
-            const audioTags = itemTag.getElementsByTagName('audio');
-            if (audioTags?.length > 0) {
-                for (const audioTag of audioTags) {
-                    const lang = parseLangAttribute(audioTag);
-                    audioFilename[lang] = decodeFromXml(audioTag.innerHTML);
-                    if (hasContentsDir) {
-                        if (existsSync(path.join(contentsDir, audioFilename[lang]))) {
-                            audioFilename[lang] = createHashedFile(
-                                contentsDir,
-                                audioFilename[lang],
-                                verbose,
-                                'contents'
-                            ).replace(/contents\//, '');
-                        } else {
-                            console.warn(`Could not locate ${audioFilename[lang]}`);
-                        }
+            const link: LinkMeta = parseItemLink(itemTag, scriptureConfig, verbose);
+
+            const features: any = parseItemFeatures(itemTag);
+
+            const layoutMode = parseItemLayoutMode(itemTag); //= layoutTags[0]?.attributes.getNamedItem('mode')?.value;
+
+            const layoutCollection = parseItemLayoutCollection(itemTag);
+
+            // Children items
+            const children: ContentItem[] = [];
+
+            if (hasNestedItems) {
+                if (itemTag.children.length > 0) {
+                    nestedItems = true;
+                    let itemChildren = itemTag.querySelectorAll('contents-item');
+                    for (const itemChild of itemChildren) {
+                        const cId = parseItemId(itemChild);
+                        const cTitle = parseItemTitle(itemChild, false);
+                        let childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
+                        const cItemType = itemType; // Technically this is a child of the item
+                        const cSubtitle = parseItemSubtitle(itemChild);
+                        console.log(`Child Tag: ${itemChild.tagName}`);
+                        const cImageFileName = parseItemImage(
+                            itemChild,
+                            contentsDir,
+                            verbose,
+                            hasContentsDir
+                        );
+                        const cAudioFilename = parseItemAudio(
+                            itemChild,
+                            contentsDir,
+                            destDir,
+                            verbose,
+                            hasContentsDir
+                        );
+                        const cLink: LinkMeta = parseItemLink(itemChild, scriptureConfig, verbose);
+                        const cFeatures: any = parseItemFeatures(itemChild);
+                        const cLayoutMode = parseItemLayoutMode(itemChild);
+                        const cLayoutCollection = parseItemLayoutCollection(itemChild);
+
+                        children.push({
+                            id: cId,
+                            title: cTitle,
+                            subtitle: cSubtitle,
+                            contentItemContainer: childContentItemContainer,
+                            itemType: cItemType,
+                            imageFilename: cImageFileName,
+                            audioFilename: cAudioFilename,
+                            linkLocation: cLink.linkLocation,
+                            linkType: cLink.linkType,
+                            linkTarget: cLink.linkTarget,
+                            features: cFeatures,
+                            layoutMode: cLayoutMode,
+                            layoutCollection: cLayoutCollection
+                        });
                     }
                 }
-            }
-            let imageFilename = itemTag.getElementsByTagName('image-filename')[0]?.innerHTML;
-            if (hasContentsDir && imageFilename) {
-                if (existsSync(path.join(contentsDir, imageFilename))) {
-                    imageFilename = createHashedFile(
-                        contentsDir,
-                        imageFilename,
-                        verbose,
-                        'contents'
-                    ).replace(/contents\//, '');
-                } else {
-                    console.warn(`Could not locate ${imageFilename}`);
-                }
-            }
-
-            const linkTags = itemTag.getElementsByTagName('link');
-            let linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
-            const linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value;
-            let linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
-
-            const features: any = {};
-
-            const featureTags = itemTag.getElementsByTagName('feature');
-            for (const featureTag of featureTags) {
-                const value = featureTag.attributes.getNamedItem('value')!.value;
-                const name = featureTag.attributes.getNamedItem('name')!.value;
-                features[name] = parseFeatureValue(value);
-            }
-
-            const layoutTags = itemTag.getElementsByTagName('layout');
-            const layoutMode = layoutTags[0]?.attributes.getNamedItem('mode')?.value;
-
-            let layoutCollection = undefined;
-            const layoutCollectionTags = itemTag.getElementsByTagName('layout-collection');
-            if (layoutCollectionTags?.length > 0) {
-                layoutCollection = [];
-                for (const layoutCollectionTag of layoutCollectionTags) {
-                    const id = layoutCollectionTag.attributes.getNamedItem('id')!.value;
-                    layoutCollection.push(id);
-                }
-            }
-
-            if (linkType === 'reference') {
-                // In the native app, app of the books are handled by the BookFragment.
-                // In the PWA, we have different routes for different book types since
-                // Proskomma can only handle USFM and the other book types include non-
-                // standard SFM tags.
-
-                scriptureConfig.bookCollections?.some((collection) => {
-                    if (verbose) console.log(`Searching for ${linkTarget} in ${collection.id}`);
-                    const book = collection.books.find((x) => x.id === linkTarget);
-                    if (book && book.type && linkTarget) {
-                        // We found a book and the book.type is not default (i.e. undefined)
-                        if (verbose)
-                            console.log(`Found ${linkTarget} in ${collection.id} as ${book.type}`);
-                        linkType = book.type;
-                        linkLocation = joinUrlPath(linkType, collection.id, linkTarget);
-                        return true;
-                    }
-                });
             }
 
             data.items.push({
@@ -233,15 +482,23 @@ export function convertContents(
                 subtitle,
                 audioFilename,
                 imageFilename,
-                linkType,
-                linkLocation,
-                linkTarget,
+                itemType,
+                contentItemContainer,
+                linkType: link.linkType,
+                linkLocation: link.linkLocation,
+                linkTarget: link.linkTarget,
                 features,
                 layoutMode,
-                layoutCollection
+                layoutCollection,
+                children
             });
+
+            // TODO: Dtermine if this passing of the item type is still a valid need since we are handling the children in the iteration rather than the next... next ... next iteration(s)
+            if (itemType !== prevItemType) prevItemType = itemType; // pass on itemType the next iteration
         }
     }
+
+    data.nestedItems = nestedItems;
 
     // Screens
     const screensTag = document.getElementsByTagName('contents-screens')[0];
