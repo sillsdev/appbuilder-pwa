@@ -2,7 +2,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { ScriptureConfig } from '$config';
 import jsdom from 'jsdom';
-import { ConfigTaskOutput } from './convertConfig';
+import { ConfigTaskOutput, parseLangAttribute } from './convertConfig';
 import { createHashedFile } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
@@ -104,7 +104,7 @@ export function convertContents(
     if (titleTags?.length > 0) {
         data.title = {};
         for (const titleTag of titleTags) {
-            const lang = titleTag.attributes.getNamedItem('lang')!.value;
+            const lang = parseLangAttribute(titleTag);
             data.title[lang] = decodeFromXml(titleTag.innerHTML);
         }
     }
@@ -133,7 +133,7 @@ export function convertContents(
             const titleTags = itemTag.getElementsByTagName('title');
             if (titleTags?.length > 0) {
                 for (const titleTag of titleTags) {
-                    const lang = titleTag.attributes.getNamedItem('lang')!.value;
+                    const lang = parseLangAttribute(titleTag);
                     title[lang] = decodeFromXml(titleTag.innerHTML);
                 }
             }
@@ -142,7 +142,7 @@ export function convertContents(
             const subtitleTags = itemTag.getElementsByTagName('subtitle');
             if (subtitleTags?.length > 0) {
                 for (const subtitleTag of subtitleTags) {
-                    const lang = subtitleTag.attributes.getNamedItem('lang')!.value;
+                    const lang = parseLangAttribute(subtitleTag);
                     subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
                 }
             }
@@ -151,7 +151,7 @@ export function convertContents(
             const audioTags = itemTag.getElementsByTagName('audio');
             if (audioTags?.length > 0) {
                 for (const audioTag of audioTags) {
-                    const lang = audioTag.attributes.getNamedItem('lang')!.value;
+                    const lang = parseLangAttribute(audioTag);
                     audioFilename[lang] = decodeFromXml(audioTag.innerHTML);
                     if (hasContentsDir) {
                         if (existsSync(path.join(contentsDir, audioFilename[lang]))) {
@@ -256,7 +256,7 @@ export function convertContents(
             const titleTags = screenTag.getElementsByTagName('title');
             if (titleTags?.length > 0) {
                 for (const titleTag of titleTags) {
-                    const lang = titleTag.attributes.getNamedItem('lang')!.value;
+                    const lang = parseLangAttribute(titleTag);
                     title[lang] = titleTag.innerHTML;
                 }
             }
