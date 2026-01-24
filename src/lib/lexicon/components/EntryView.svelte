@@ -89,6 +89,10 @@
 
                         output += `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                     }
+                } else if (node.tagName === 'audio-link' && node.hasAttribute('src')) {
+                    // TEMP: This is where the audio-link tag needs to be handled
+                    const src = node.getAttribute('src');
+                    output += `<a href="${src}"><img src="audio_black_72x72.png" class="audio"></a>`;
                 } else {
                     output += `<${node.tagName}`;
                     for (let attr of node.attributes) {
