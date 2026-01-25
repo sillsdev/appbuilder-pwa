@@ -95,7 +95,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {#each folderIcons as icon}
                         <div
-                            class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors min-w-[250]"
+                            class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors min-w-[250px]"
                         >
                             <div
                                 class="flex items-center justify-center w-16 h-16 mb-2 bg-white border rounded"
