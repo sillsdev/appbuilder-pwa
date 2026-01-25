@@ -48,6 +48,9 @@
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
 
+        // Collect audio elements to add at the end
+        let audioElements = '';
+
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
@@ -100,12 +103,12 @@
                     const audioFile = node.getAttribute('src');
                     const src = clips[`./${audioFile}`] ?? 'clips/' + audioFile;
                     const audioId = 'audio-' + Math.random().toString(36).substr(2, 9); // Generate unique ID
-                    
-                    // Add audio element to the page (hidden)
-                    output += `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`;
-                    
-                    // Add clickable link that plays the audio
-                    output += `<a href="#" onclick="document.getElementById('${audioId}').play(); return false;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24" class="audio"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></a>`;
+
+                    // Collect audio element to add at the very end
+                    audioElements += `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`;
+
+                    // Add just the inline clickable icon - no audio element here
+                    output += `<a href="#" onclick="document.getElementById('${audioId}').play(); return false;" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></a>`;
                 } else {
                     output += `<${node.tagName}`;
                     for (let attr of node.attributes) {
@@ -140,7 +143,7 @@
             return output;
         }
 
-        return processNode(xmlDoc.documentElement);
+        return processNode(xmlDoc.documentElement) + audioElements;
     }
 
     async function updateXmlData() {
