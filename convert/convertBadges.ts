@@ -1,6 +1,7 @@
-import { copyFile, existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import { copyFile, existsSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from './convertConfig';
+import { createOutputDir, deleteOutputDir } from './fileUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 
 export async function convertBadges(
@@ -10,15 +11,11 @@ export async function convertBadges(
 ) {
     const dstBadgeDir = path.join('src/gen-assets', 'badges');
     if (!configData.data.mainFeatures['share-apple-app-link']) {
-        if (existsSync(dstBadgeDir)) {
-            rmSync(dstBadgeDir, { recursive: true });
-        }
+        deleteOutputDir(dstBadgeDir);
         return;
     }
 
-    if (!existsSync(dstBadgeDir)) {
-        mkdirSync(dstBadgeDir);
-    }
+    createOutputDir(dstBadgeDir);
 
     // Badge languages from config
     const languages = Object.keys(configData.data.interfaceLanguages!.writingSystems);

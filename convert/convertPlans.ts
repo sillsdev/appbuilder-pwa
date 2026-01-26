@@ -3,6 +3,7 @@ import path from 'path';
 import type { ScriptureConfig } from '$config';
 import { PlanDataItem, PlansData } from '../src/lib/data/plansData';
 import { ConfigTaskOutput } from './convertConfig';
+import { createOutputDir, deleteOutputDir } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 function changeFileExtension(filename: string, ext: string): string {
@@ -24,14 +25,9 @@ export function convertPlans(
     const plansDir = path.join(dataDir, 'plans');
     const destDir = path.join('src/gen-assets', 'plans');
     if (existsSync(plansDir)) {
-        if (existsSync(destDir)) {
-            rmSync(destDir, { recursive: true });
-        }
-        mkdirSync(destDir);
+        createOutputDir(destDir);
     } else {
-        if (existsSync(destDir)) {
-            rmSync(destDir, { recursive: true });
-        }
+        deleteOutputDir(destDir);
     }
 
     const files: any[] = [];

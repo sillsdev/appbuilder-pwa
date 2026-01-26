@@ -1,9 +1,9 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { ScriptureConfig } from '$config';
 import jsdom from 'jsdom';
 import { ConfigTaskOutput, parseLangAttribute } from './convertConfig';
-import { createHashedFile } from './fileUtils';
+import { createHashedFile, createOutputDir, deleteOutputDir } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 type ContentItem = {
@@ -80,11 +80,9 @@ export function convertContents(
     const destDir = path.join('static', 'contents');
     const hasContentsDir = existsSync(contentsDir);
     if (hasContentsDir) {
-        mkdirSync(destDir, { recursive: true });
+        createOutputDir(destDir);
     } else {
-        if (existsSync(destDir)) {
-            rmSync(destDir, { recursive: true });
-        }
+        deleteOutputDir(destDir);
     }
 
     const contentsFile = path.join(dataDir, 'contents.xml');

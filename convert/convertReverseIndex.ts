@@ -1,6 +1,7 @@
-import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import type { DictionaryConfig } from '$config';
+import { createOutputDir } from './fileUtils';
 import { FileContent, Task, TaskOutput } from './Task';
 
 interface ReversalEntry {
@@ -38,9 +39,7 @@ export function convertReverseIndex(
         throw new Error(`Required reversal index not found: ${indexFilePath}`);
     }
 
-    if (!existsSync(outputDir)) {
-        mkdirSync(outputDir, { recursive: true });
-    }
+    createOutputDir(outputDir);
 
     const content = readFileSync(indexFilePath, 'utf-8');
     const indexEntries = content
