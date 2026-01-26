@@ -1,4 +1,4 @@
-import { copyFile, existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { Task, TaskOutput } from './Task';
 

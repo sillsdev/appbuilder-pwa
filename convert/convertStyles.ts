@@ -1,6 +1,7 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
+import { createOutputDir } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
 
@@ -18,7 +19,7 @@ export interface StylesTaskOutput extends TaskOutput {
 export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
     const dstDir = path.join('src/gen-assets', 'styles');
-    mkdirSync(dstDir, { recursive: true });
+    createOutputDir(dstDir);
 
     readdirSync(srcDir).forEach((file) => {
         const srcFile = path.join(srcDir, file);
@@ -83,9 +84,7 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                             if (existsSync(path.join(dataDir, 'cloud', fontName))) {
                                 finalPath = 'cloud';
                                 const targetDir = path.join('src/gen-assets', 'cloud');
-                                if (!existsSync(targetDir)) {
-                                    mkdirSync(targetDir, { recursive: true });
-                                }
+                                createOutputDir(targetDir);
                                 copyFileSync(
                                     path.join(dataDir, 'cloud', fontName),
                                     path.join(targetDir, fontName)

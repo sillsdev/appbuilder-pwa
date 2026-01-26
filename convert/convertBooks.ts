@@ -8,7 +8,7 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
-import { createHashedFile, getHashedNameFromContents } from './fileUtils';
+import { createHashedFile, createOutputDir, getHashedNameFromContents } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -460,13 +460,9 @@ export async function convertBooks(
         htmlBooks[context.docSet] = [];
         if (collection.books.find((b) => b.format === 'html')) {
             const illPath = join('static', 'illustrations');
-            if (!fs.existsSync(illPath)) {
-                fs.mkdirSync(illPath, { recursive: true });
-            }
+            createOutputDir(illPath);
             const collPath = join('static', 'collections', collection.id);
-            if (!fs.existsSync(collPath)) {
-                fs.mkdirSync(collPath, { recursive: true });
-            }
+            createOutputDir(collPath);
         }
         for (const book of collection.books) {
             let bookConverted = false;
@@ -538,26 +534,17 @@ export async function convertBooks(
         catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
         //check if folder exists for collection
         const collPath = path.join('src/gen-assets', 'collections', context.bcId);
-        if (!fs.existsSync(collPath)) {
-            if (verbose) console.log('creating: ' + collPath);
-            fs.mkdirSync(collPath, { recursive: true });
-        }
+        createOutputDir(collPath);
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
             const qPath = path.join('src/gen-assets', 'collections', context.bcId, 'quizzes');
-            if (!fs.existsSync(qPath)) {
-                if (verbose) console.log('creating: ' + qPath);
-                fs.mkdirSync(qPath, { recursive: true });
-            }
+            createOutputDir(qPath);
         }
     }
     //write catalog entries
     const entries = await Promise.all(catalogEntries);
     const catalogPath = path.join('src/gen-assets', 'collections', 'catalog');
-    if (!fs.existsSync(catalogPath)) {
-        if (verbose) console.log('creating: ' + catalogPath);
-        fs.mkdirSync(catalogPath, { recursive: true });
-    }
+    createOutputDir(catalogPath);
     entries.forEach((entry) => {
         fs.writeFileSync(
             path.join(catalogPath, entry.data.docSets[0].id + '.json'),
@@ -820,7 +807,7 @@ function convertScriptureBook(
             const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
             const bookPath = path.join(bookFullDir, file);
             console.log(`Writing file: ${bookPath}`);
-            fs.mkdirSync(bookFullDir, { recursive: true });
+            createOutputDir(bookFullDir);
             fs.writeFileSync(bookPath, content);
         }
         const selectors = { lang: context.lang, abbr: context.bcId };
