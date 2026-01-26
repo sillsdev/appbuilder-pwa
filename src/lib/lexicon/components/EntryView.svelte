@@ -33,7 +33,6 @@
             const dynamicQuery = wordIds.map(() => `id = ?`).join(' OR ');
             const dynamicParams = wordIds.map((id) => id);
             const results = db.exec(`SELECT xml FROM entries WHERE ${dynamicQuery}`, dynamicParams);
-            console.log('results:', results[0].values);
 
             return results[0].values;
         } catch (error) {
@@ -108,7 +107,7 @@
                     audioElements += `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`;
 
                     // Add just the inline clickable icon - no audio element here
-                    output += `<a href="#" onclick="document.getElementById('${audioId}').play(); return false;" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></a>`;
+                    output += `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
                 } else {
                     output += `<${node.tagName}`;
                     for (let attr of node.attributes) {
@@ -184,6 +183,17 @@
                     index,
                     homonym_index
                 });
+            });
+        });
+
+        const audioButtons = document.querySelectorAll('.audio-link');
+        audioButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const audioId = button.getAttribute('data-audio-id');
+                const audioElement = document.getElementById(audioId) as HTMLAudioElement;
+                if (audioElement) {
+                    audioElement.play();
+                }
             });
         });
     }
