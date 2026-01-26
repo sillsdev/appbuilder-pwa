@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { basename, extname, join } from 'path';
 
 export function getHashedName(dataDir: string, src: string) {
@@ -65,13 +65,13 @@ export function createHashedFileFromContents(
 
 export function createOutputDir(dirPath: string) {
     if (existsSync(dirPath)) {
-        rmdirSync(dirPath, { recursive: true });
+        rmSync(dirPath, { recursive: true });
     }
     mkdirSync(dirPath, { recursive: true });
 }
 
 export function deleteOutputDir(dirPath: string) {
     if (existsSync(dirPath)) {
-        rmdirSync(dirPath, { recursive: true });
+        rmSync(dirPath, { recursive: true });
     }
 }
