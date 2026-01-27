@@ -3,7 +3,7 @@ import path from 'path';
 import { ScriptureConfig } from '$config';
 import jsdom from 'jsdom';
 import { ConfigTaskOutput, parseLangAttribute } from './convertConfig';
-import { createHashedFile, createOutputDir, deleteOutputDir } from './fileUtils';
+import { createHashedFile, createOutputDir, deleteOutputDir, joinUrlPath } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 type ContentItem = {
@@ -215,12 +215,12 @@ export function convertContents(
                 scriptureConfig.bookCollections?.some((collection) => {
                     if (verbose) console.log(`Searching for ${linkTarget} in ${collection.id}`);
                     const book = collection.books.find((x) => x.id === linkTarget);
-                    if (book && book.type) {
+                    if (book && book.type && linkTarget) {
                         // We found a book and the book.type is not default (i.e. undefined)
                         if (verbose)
                             console.log(`Found ${linkTarget} in ${collection.id} as ${book.type}`);
                         linkType = book.type;
-                        linkLocation = `${linkType}/${collection.id}/${linkTarget}`;
+                        linkLocation = joinUrlPath(linkType, collection.id, linkTarget);
                         return true;
                     }
                 });
