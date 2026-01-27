@@ -78,5 +78,6 @@ export function deleteOutputDir(dirPath: string) {
 
 export function joinUrlPath(...parts: string[]) {
     // Always use posix style paths for URLs
-    return posix.join(...parts);
+    const normalized = parts.map((part) => part.replace(/\\/g, '/'));
+    return posix.join(...normalized);
 }
