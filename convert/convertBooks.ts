@@ -8,7 +8,12 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
-import { createHashedFile, createOutputDir, getHashedNameFromContents } from './fileUtils';
+import {
+    createHashedFile,
+    createOutputDir,
+    getHashedNameFromContents,
+    joinUrlPath
+} from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -246,11 +251,11 @@ function updateImgTags(
             } else {
                 const imagePath = createHashedFile(
                     context.dataDir,
-                    `illustrations/${fileName}`,
+                    joinUrlPath('illustrations', fileName),
                     context.verbose
                 );
 
-                return match.replace(/src=["'][^"']*["']/, `src="${base}/${imagePath}"`);
+                return match.replace(/src=["'][^"']*["']/, `src="${joinUrlPath(base, imagePath)}"`);
             }
         }
     );

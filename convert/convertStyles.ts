@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
-import { createOutputDir } from './fileUtils';
+import { createOutputDir, joinUrlPath } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
 
@@ -99,7 +99,7 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                                 );
                             }
                         }
-                        line = line.replace('/fonts', `$assets/${finalPath}`);
+                        line = line.replace('/fonts', joinUrlPath('$assets', finalPath));
                     }
                     return line;
                 })

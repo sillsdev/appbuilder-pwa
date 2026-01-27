@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { createHashedFile, createHashedFileFromContents } from './fileUtils';
+import { createHashedFile, createHashedFileFromContents, joinUrlPath } from './fileUtils';
 import { Task, TaskOutput } from './Task';
 
 export interface ManifestTaskOutput extends TaskOutput {
@@ -55,7 +55,7 @@ export function convertManifest(dataDir: string, verbose: number) {
                         throw new Error(`Required icon file ${iconPath} does not exist!`);
                     }
 
-                    line = line.replace(srcMatch[0], `"src": "./${finalName}"`);
+                    line = line.replace(srcMatch[0], `"src": "${joinUrlPath('.', finalName)}"`);
                 }
                 return line;
             })

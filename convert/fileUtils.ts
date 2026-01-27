@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
-import { basename, extname, join } from 'path';
+import { basename, extname, join, posix } from 'path';
 
 export function getHashedName(dataDir: string, src: string) {
     const fullPath = join(dataDir, src);
@@ -31,7 +31,7 @@ export function getHashedNameFromContents(contents: string, src: string) {
 export function createHashedFile(dataDir: string, src: string, verbose: number, destPrefix = '') {
     const fullPath = join(dataDir, src);
 
-    const hashedPath = join(destPrefix, getHashedName(dataDir, src));
+    const hashedPath = joinUrlPath(destPrefix, getHashedName(dataDir, src));
     const dest = join('static', hashedPath);
 
     if (hashedPath && !existsSync(dest)) {
@@ -50,7 +50,7 @@ export function createHashedFileFromContents(
     verbose: number,
     destPrefix = ''
 ) {
-    const hashedPath = join(destPrefix, getHashedNameFromContents(contents, src));
+    const hashedPath = joinUrlPath(destPrefix, getHashedNameFromContents(contents, src));
     const dest = join('static', hashedPath);
 
     if (!existsSync(dest)) {
@@ -74,4 +74,10 @@ export function deleteOutputDir(dirPath: string) {
     if (existsSync(dirPath)) {
         rmSync(dirPath, { recursive: true });
     }
+}
+
+export function joinUrlPath(...parts: string[]) {
+    // Always use posix style paths for URLs
+    const normalized = parts.map((part) => part.replace(/\\/g, '/'));
+    return posix.join(...normalized);
 }
