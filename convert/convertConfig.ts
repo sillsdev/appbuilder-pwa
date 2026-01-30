@@ -1478,6 +1478,11 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
     data.mainFeatures['settings-daily-reminder-time'] = false;
     data.mainFeatures['settings-keep-screen-on'] = false;
     data.mainFeatures['settings-share-usage-data'] = false;
+
+    // Offline audio is not done
+    data.mainFeatures['settings-audio-access-method'] = false;
+    data.mainFeatures['settings-video-access-method'] = false;
+    data.mainFeatures['settings-audio-download-mode'] = false;
     return data;
 }
 
