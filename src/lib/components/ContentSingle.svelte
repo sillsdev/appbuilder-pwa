@@ -28,7 +28,8 @@
         console.warn('USING loadReferenceTextFallback');
     }
 
-    function renderLastTextBox(layout) {
+    function renderLastTextBox(layout: string | undefined): boolean {
+        if (layout === undefined) return false;
         const exclude: Array<string> = ['image-left-text-right', 'image-right-text-left'];
         console.log(`renderLastTextBox: ${exclude.find((x) => x === layout).length === 0}`);
         return exclude.find((x) => x === layout).length === 0;
@@ -40,7 +41,7 @@
 <div
     id={item.id}
     onclick={(event) => onClick(event, item)}
-    class="contents-item-block contents-item-block-base contents-link-ref"
+    class="contents-item-block contents-item-block-base"
     style="padding-top:10px;padding-bottom:10px;"
 >
     {#snippet img(item)}

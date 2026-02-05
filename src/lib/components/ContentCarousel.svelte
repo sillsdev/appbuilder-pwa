@@ -35,6 +35,12 @@
         onClickCallback(e, item);
     }
 
+    function hasIdUnderMouseItem(item: Element | HTMLElement | undefined) {
+        if (item === undefined) return false;
+        if (!item.hasAttribute('id')) return false;
+        return item.id !== undefined || item.id !== '' || item.id !== null;
+    }
+
     onMount(() => {
         const carousel: HTMLElement = document.getElementById(carouselId);
         const carouselScroll: HTMLElement = carousel.querySelector('.contents-carousel-row');
@@ -59,16 +65,20 @@
             if (!isScrolling) {
                 // register onclick event
                 let itemUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
-                if (
-                    itemUnderMouse.id === undefined ||
-                    itemUnderMouse.id === '' ||
-                    itemUnderMouse.id === null
-                ) {
-                    itemUnderMouse = itemUnderMouse.parentElement;
+                if (!hasIdUnderMouseItem(itemUnderMouse)) {
+                    if (hasIdUnderMouseItem(itemUnderMouse.parentElement)) {
+                        itemUnderMouse = itemUnderMouse.parentElement;
+                    } else if (hasIdUnderMouseItem(itemUnderMouse.parentElement.parentElement)) {
+                        itemUnderMouse = itemUnderMouse.parentElement.parentElement;
+                    }
                 }
 
-                const curItem = item.children.find((x) => x.id === Number(itemUnderMouse.id));
-                carouselOnClickHandler(e, curItem);
+                if (itemUnderMouse.hasAttribute('id')) {
+                    const curItem = item.children.find((x) => x.id === Number(itemUnderMouse.id));
+                    carouselOnClickHandler(e, curItem);
+                } else {
+                    console.error('itemUnderMouse does not have an id');
+                }
             }
 
             // finish

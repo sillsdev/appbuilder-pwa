@@ -27,8 +27,8 @@
     function loadReferenceTextFallback(item: any) {
         console.warn('USING loadReferenceTextFallback');
     }
-
-    function renderLastTextBox(layout) {
+    function renderLastTextBox(layout: string | undefined): boolean {
+        if (layout === undefined) return false;
         const exclude: Array<string> = ['image-left-text-right', 'image-right-text-left'];
         console.log(`renderLastTextBox: ${exclude.find((x) => x === layout).length === 0}`);
         return exclude.find((x) => x === layout).length === 0;

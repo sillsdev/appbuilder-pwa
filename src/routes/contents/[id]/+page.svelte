@@ -55,6 +55,10 @@
         }
     }
     async function clicked(item) {
+        if (item.linkType === undefined || item.linkType === 'undefined') {
+            if (item.itemType !== 'heading') console.warn('linkType is undefined');
+            return;
+        }
         //check type of link
         switch (item.linkType) {
             //reference linkType
