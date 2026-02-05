@@ -38,7 +38,8 @@
     function hasIdUnderMouseItem(item: Element | HTMLElement | undefined) {
         if (item === undefined) return false;
         if (!item.hasAttribute('id')) return false;
-        return item.id !== undefined || item.id !== '' || item.id !== null;
+        if (item.id === null) return false;
+        return item.id !== '';
     }
 
     onMount(() => {
@@ -103,12 +104,12 @@
         <!-- Carousel title and subtitle -->
         {#if features['show-titles'] === true}
             <div class="contents-carousel-heading-title">
-                {item.title[$language] ?? item.title.default ?? ''}
+                {item.title?.[$language] ?? item.title?.default ?? ''}
             </div>
         {/if}
         {#if features['show-titles'] === true}
             <div class="contents-carousel-heading-subtitle">
-                {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                {item.subtitle?.[$language] ?? item.subtitle?.default ?? ''}
             </div>
         {/if}
     </div>
@@ -143,7 +144,7 @@
                             <div
                                 class="contents-carousel-item-title-block contents-carousel-item-title"
                             >
-                                {child.title[$language] ?? child.title.default ?? ''}
+                                {child.title?.[$language] ?? child.title?.default ?? ''}
                             </div>
                         {/if}
 
@@ -152,7 +153,7 @@
                             <div
                                 class="contents-caoursel-item-subtitle-block contents-carousel-item-subtitle"
                             >
-                                {child.subtitle[$language] ?? child.subtitle.default ?? ''}
+                                {child.subtitle?.[$language] ?? child.subtitle?.default ?? ''}
                             </div>
                         {/if}
 

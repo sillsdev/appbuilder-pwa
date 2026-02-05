@@ -34,12 +34,12 @@
     <div class="contents-grid-heading">
         {#if features['show-titles'] === true}
             <div class="contents-grid-heading-title">
-                {item.title[$language] ?? item.title.default ?? ''}
+                {item.title?.[$language] ?? item.title?.default ?? ''}
             </div>
         {/if}
         {#if features['show-subtitles'] === true}
             <div class="contents-grid-heading-subtitle">
-                {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                {item.subtitle?.[$language] ?? item.subtitle?.default ?? ''}
             </div>
         {/if}
     </div>
@@ -63,14 +63,14 @@
                     <!-- Check for title -->
                     {#if features['show-titles'] === true}
                         <div class="contents-grid-item-title-block contents-grid-item-title">
-                            {child.title[$language] ?? child.title.default ?? ''}
+                            {child.title?.[$language] ?? child.title?.default ?? ''}
                         </div>
                     {/if}
 
                     <!-- Check for subtitles -->
                     {#if features['show-subtitles'] === true}
                         <div class="contents-grid-item-subtitle-block contents-grid-item-subtitle">
-                            {child.subtitle[$language] ?? child.subtitle.default ?? ''}
+                            {child.subtitle?.[$language] ?? child.subtitle?.default ?? ''}
                         </div>
                     {/if}
 

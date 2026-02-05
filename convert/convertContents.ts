@@ -139,10 +139,8 @@ function parseItemType(
 function parseItemHeading(tag: Element | HTMLElement | undefined): boolean {
     if (tag === undefined) return false;
 
-    const heading = tag.attributes.getNamedItem('heading')?.value
-        ? Boolean(tag.attributes.getNamedItem('heading')?.value)
-        : false;
-
+    const headingAttr = tag.attributes.getNamedItem('heading')?.value;
+    const heading = headingAttr !== undefined ? headingAttr.toLocaleLowerCase() === 'true' : false;
     return heading;
 }
 
@@ -172,7 +170,6 @@ function parseItemTitle(
 function parseItemSubtitle(tag: Element | HTMLElement | undefined): LangContainer {
     let subtitle: LangContainer = {};
     if (tag === undefined) return subtitle;
-    // TODO: Check to be sure that the issue with titles and flattening upper layer and child level is not mixing up subtitles
 
     const subtitleTags = tag.getElementsByTagName('subtitle');
     if (subtitleTags?.length > 0) {
@@ -272,6 +269,7 @@ function parseItemLink(
                 link.linkLocation = `${link.linkType}/${collection.id}/${link.linkTarget}`;
                 return true;
             }
+            return false;
         });
     }
 
@@ -369,7 +367,6 @@ export function convertContents(
 
     if (itemTags?.length > 0) {
         data.items = [];
-        // TODO: Determine if these two variables are needed
         let prevItemType: string | undefined = undefined;
         let currentContentContainer: number | undefined = undefined;
         let hasNestedItems = false; // Does this specific item have nested items?
@@ -493,7 +490,6 @@ export function convertContents(
                 children
             });
 
-            // TODO: Dtermine if this passing of the item type is still a valid need since we are handling the children in the iteration rather than the next... next ... next iteration(s)
             if (itemType !== prevItemType) prevItemType = itemType; // pass on itemType the next iteration
         }
     }

@@ -31,7 +31,7 @@
         if (layout === undefined) return false;
         const exclude: Array<string> = ['image-left-text-right', 'image-right-text-left'];
         console.log(`renderLastTextBox: ${exclude.find((x) => x === layout).length === 0}`);
-        return exclude.find((x) => x === layout).length === 0;
+        return !exclude.includes(layout);
     }
 </script>
 
@@ -60,14 +60,14 @@
             <!-- Check for title -->
             {#if features['show-titles'] === true}
                 <div class="contents-heading-title">
-                    {item.title[$language] ?? item.title.default ?? ''}
+                    {item.title?.[$language] ?? item.title?.default ?? ''}
                 </div>
             {/if}
 
             <!-- Check for subtitles -->
             {#if features['show-subtitles'] === true}
                 <div class="contents-heading-subtitle">
-                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                    {item.subtitle?.[$language] ?? item.subtitle?.default ?? ''}
                 </div>
             {/if}
         </div>
@@ -86,7 +86,7 @@
                 {@render img(item)}
                 {@render text(item)}
             </div>
-        {:else if renderLastTextBox(features['layout'])}
+        {:else if renderLastTextBox(item.features['layout']) || renderLastTextBox(features['layout'])}
             {@render img(item)}
         {/if}
     {/if}

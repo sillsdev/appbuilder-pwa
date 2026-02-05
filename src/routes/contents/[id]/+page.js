@@ -14,7 +14,7 @@ export async function load({ params }) {
         if (found && Object.keys(found).length !== 0) {
             items.push(found);
         } else {
-            console.warn(`Found items for menu item: ${item.id}`);
+            console.warn(`No items found for menu item: ${item.id}`);
         }
     }
 

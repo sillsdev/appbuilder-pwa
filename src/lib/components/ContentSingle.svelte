@@ -32,7 +32,7 @@
         if (layout === undefined) return false;
         const exclude: Array<string> = ['image-left-text-right', 'image-right-text-left'];
         console.log(`renderLastTextBox: ${exclude.find((x) => x === layout).length === 0}`);
-        return exclude.find((x) => x === layout).length === 0;
+        return !exclude.includes(layout);
     }
 </script>
 
@@ -40,7 +40,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
     id={item.id}
-    onclick={(event) => onClick(event, item)}
+    onclick={(event) => onClickCallback(event, item)}
     class="contents-item-block contents-item-block-base"
     style="padding-top:10px;padding-bottom:10px;"
 >
@@ -63,14 +63,14 @@
             <!-- Check for title -->
             {#if features['show-titles'] === true}
                 <div class="contents-heading-title">
-                    {item.title[$language] ?? item.title.default ?? ''}
+                    {item.title?.[$language] ?? item.title?.default ?? ''}
                 </div>
             {/if}
 
             <!-- Check for subtitles -->
             {#if features['show-subtitles'] === true}
                 <div class="contents-heading-subtitle">
-                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                    {item.subtitle?.[$language] ?? item.subtitle?.default ?? ''}
                 </div>
             {/if}
         </div>
