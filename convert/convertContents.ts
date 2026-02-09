@@ -146,16 +146,19 @@ function parseItemHeading(tag: Element | HTMLElement | undefined): boolean {
 
 function parseItemTitle(
     tag: Element | HTMLElement | undefined,
-    upperLayer: boolean
+    upperLayer: boolean,
+    verbose: number
 ): LangContainer {
     let title: LangContainer = {};
     if (tag === undefined) return title; // empty title
     const titleTags = tag.getElementsByTagName('title');
     if (titleTags?.length > 0) {
         for (const titleTag of titleTags) {
-            console.log(
-                `title is nested: ${isTagInnerNestedItem(titleTag)} ${titleTag.innerHTML} ${titleTag.parentElement?.parentElement?.tagName}`
-            );
+            if (verbose >= 3) {
+                console.log(
+                    `title is nested: ${isTagInnerNestedItem(titleTag)} ${titleTag.innerHTML} ${titleTag.parentElement?.parentElement?.tagName}`
+                );
+            }
             if ((!isTagInnerNestedItem(titleTag) && upperLayer) || !upperLayer) {
                 // This logic is necessary because getElementsByTagName flattens the xml with both current and child nodes. Thus an upper layer node would get
                 // the last child item's title
@@ -324,8 +327,6 @@ export function convertContents(
     } else {
         deleteOutputDir(destDir);
     }
-    {
-    }
 
     const contentsFile = path.join(dataDir, 'contents.xml');
     if (!existsSync(contentsFile)) {
@@ -393,7 +394,7 @@ export function convertContents(
 
             const heading = parseItemHeading(itemTag);
 
-            const title = parseItemTitle(itemTag, true);
+            const title = parseItemTitle(itemTag, true, verbose);
 
             if (verbose >= 3 && itemType === undefined)
                 console.warn(`item type is undefined for ${title}`);
@@ -430,11 +431,11 @@ export function convertContents(
                     let itemChildren = itemTag.querySelectorAll('contents-item');
                     for (const itemChild of itemChildren) {
                         const cId = parseItemId(itemChild);
-                        const cTitle = parseItemTitle(itemChild, false);
+                        const cTitle = parseItemTitle(itemChild, false, verbose);
                         let childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
                         const cItemType = itemType; // Technically this is a child of the item
                         const cSubtitle = parseItemSubtitle(itemChild);
-                        console.log(`Child Tag: ${itemChild.tagName}`);
+                        if (verbose >= 3) console.log(`Child Tag: ${itemChild.tagName}`);
                         const cImageFileName = parseItemImage(
                             itemChild,
                             contentsDir,

@@ -9,8 +9,7 @@ export async function load({ params }) {
 
     const items = [];
     for (const item of menu.items) {
-        let found;
-        found = contents.items.find((x) => x.id === item.id);
+        const found = contents.items.find((x) => x.id === item.id);
         if (found && Object.keys(found).length !== 0) {
             items.push(found);
         } else {
