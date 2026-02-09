@@ -2,6 +2,7 @@ import { copyFileSync, CopySyncOptions, cpSync, existsSync, mkdirSync } from 'fs
 import path from 'path';
 import { ScriptureConfig } from '$config';
 import { rimraf } from 'rimraf';
+import sharp from 'sharp';
 import { ConfigTaskOutput } from './convertConfig';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
@@ -126,7 +127,7 @@ export class ConvertMedia extends Task {
 
         // audio files from quizzes and contents are not in the correct folder
         if (compareVersions(configData.data.programVersion!, '12.0') < 0) {
-            throw Error(
+            throw new Error(
                 `Version ${configData.data.programVersion} not supported. Use 12.0 or later`
             );
         }
@@ -155,6 +156,27 @@ export class ConvertMedia extends Task {
                             }
                         }
                     }
+                }
+            }
+        }
+
+        if (compareVersions(configData.data.programVersion!, '13.4') < 0) {
+            // Prior to 13.4, we had situations where the iOS icon was defined, but the files were not present. The apple-touch-icon.png is
+            // now required due to how files are referenced in src/routes/+layout.svelte.
+            // With 13.4, the apple-touch-icon.png is generated from the Android (Legacy) icon if the iOS icon files are missing.
+            if (!existsSync(path.join('src', 'gen-assets', 'icons', 'apple-touch-icon.png'))) {
+                // copy an Android icon if it doesn't exist. This is used for the SAB tab icons and should be in the icons folder.
+                const androidIconFolder = path.join('src', 'gen-assets', 'icons');
+                const preferredAndroidIconSizes = [512, 192, 144];
+                const androidIcon = preferredAndroidIconSizes
+                    .map((size) => path.join(androidIconFolder, `icon-${size}.png`))
+                    .find((iconPath) => existsSync(iconPath));
+                if (androidIcon) {
+                    await sharp(androidIcon)
+                        .resize(180, 180)
+                        .toFile(path.join('src', 'gen-assets', 'icons', 'apple-touch-icon.png'));
+                } else if (verbose) {
+                    throw new Error('No Android icon found to generate apple-touch-icon.png');
                 }
             }
         }
