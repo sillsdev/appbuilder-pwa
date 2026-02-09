@@ -50,8 +50,13 @@
     }
 
     function checkImageSize(item) {
+        console.warn(item.features);
         if (item.features['image-width']) {
             return 'width: ' + item.features['image-width'];
+        }
+
+        if (item.features['layout'] === 'image-top-text-bottom') {
+            return 'width: 100%';
         }
     }
     async function clicked(item) {

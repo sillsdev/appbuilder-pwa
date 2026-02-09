@@ -86,6 +86,11 @@
                 {@render img(item)}
                 {@render text(item)}
             </div>
+        {:else if item.features['layout'] === 'image-top-text-bottom'}
+            <div class="contents-layout-vertical">
+                {@render img(item)}
+                {@render text(item)}
+            </div>
         {:else if renderLastTextBox(item.features['layout']) || renderLastTextBox(features['layout'])}
             {@render img(item)}
         {/if}
