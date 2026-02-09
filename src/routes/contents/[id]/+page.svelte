@@ -105,10 +105,6 @@
         }
     }
 
-    async function getContentsMenu(items) {
-        console.log(items);
-    }
-
     async function getReference(item) {
         let docSet = $refs.docSet;
         let collection = docSet.split('_')[1];
