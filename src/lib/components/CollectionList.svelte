@@ -8,6 +8,7 @@ Custom list of collections for the LayoutOptions menu
     const illustrations = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/illustrations'
     }) as Record<string, string>;
 

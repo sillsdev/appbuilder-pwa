@@ -21,18 +21,21 @@
     const illustrations = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/illustrations'
     });
 
     const clips = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/clips'
     });
 
     const quizAssets = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/quiz'
     });
 

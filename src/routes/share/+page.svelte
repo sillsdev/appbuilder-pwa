@@ -10,6 +10,7 @@
     const badges = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/badges'
     }) as Record<string, string>;
 

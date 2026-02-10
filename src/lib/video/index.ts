@@ -4,12 +4,14 @@ import config from '$lib/data/config';
 const thumbnails = import.meta.glob('./*', {
     import: 'default',
     eager: true,
+    query: '?url',
     base: '/src/gen-assets/images'
 }) as Record<string, string>;
 
 const videos = import.meta.glob('./*', {
     import: 'default',
     eager: true,
+    query: '?url',
     base: '/src/gen-assets/videos'
 }) as Record<string, string>;
 
