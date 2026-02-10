@@ -1,6 +1,7 @@
 const illustrations = import.meta.glob('./*', {
     eager: true,
     import: 'default',
+    query: '?url',
     base: '/src/gen-assets/illustrations'
 });
 

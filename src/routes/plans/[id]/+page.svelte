@@ -32,11 +32,13 @@
             ? import.meta.glob('./*', {
                   eager: true,
                   import: 'default',
+                  query: '?url',
                   base: '/src/gen-assets/illustrations'
               })
             : import.meta.glob(['./*', '!./*.json'], {
                   eager: true,
                   import: 'default',
+                  query: '?url',
                   base: '/src/gen-assets/plans'
               });
 

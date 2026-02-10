@@ -4,6 +4,7 @@ import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 const clips = import.meta.glob('./*', {
     import: 'default',
     eager: true,
+    query: '?url',
     base: '/src/gen-assets/clips'
 }) as Record<string, string>;
 

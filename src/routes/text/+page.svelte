@@ -62,6 +62,7 @@
     const borders = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/borders'
     });
 
