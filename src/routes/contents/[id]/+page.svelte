@@ -2,6 +2,10 @@
     import { base } from '$app/paths';
     import { page } from '$app/stores';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
+    import ContentCarousel from '$lib/components/ContentCarousel.svelte';
+    import ContentGrid from '$lib/components/ContentGrid.svelte';
+    import ContentHeading from '$lib/components/ContentHeading.svelte';
+    import ContentSingle from '$lib/components/ContentSingle.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { loadCatalog } from '$lib/data/catalogData';
     import config from '$lib/data/config';
@@ -49,8 +53,18 @@
         if (item.features['image-width']) {
             return 'width: ' + item.features['image-width'];
         }
+
+        if (item.features['layout'] === 'image-top-text-bottom') {
+            return 'width: 100%';
+        }
+
+        return ''; // Empty result
     }
     async function clicked(item) {
+        if (item.linkType === undefined || item.linkType === 'undefined') {
+            if (item.itemType !== 'heading') console.warn('linkType is undefined');
+            return;
+        }
         //check type of link
         switch (item.linkType) {
             //reference linkType
@@ -249,73 +263,117 @@
 
     <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
         <div id="container" class="contents" style={convertStyle($s['body.contents'])}>
-            {#each $page.data.items as item}
-                <!-- iterate through the items, adding html -->
-
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div
-                    class="contents-item-block-base contents-item-block contents-link-ref"
-                    id={item.id}
-                    onclick={(event) => onClick(event, item)}
-                >
-                    <!--check for the various elements in the item-->
-                    {#if item.audioFilename[$language] || item.audioFilename.default}
-                        <!-- svelte-ignore a11y_click_events_have_key_events -->
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div
-                            class="contents-item-audio-image"
-                            onclick={(event) => playAudio(event, item)}
-                        >
-                            <AudioIcon.Volume></AudioIcon.Volume>
-                        </div>
+            {#if $page.data.nestedItems === true}
+                {#each $page.data.items as item}
+                    {#if item.itemType === 'grid'}
+                        <ContentGrid
+                            {item}
+                            {imageFolder}
+                            {onClick}
+                            {checkImageSize}
+                            {loadReferenceText}
+                            {contentsFontSize}
+                            features={$page.data.features}
+                        />
+                    {:else if item.itemType === 'carousel'}
+                        <ContentCarousel
+                            {item}
+                            {imageFolder}
+                            {onClick}
+                            {checkImageSize}
+                            {loadReferenceText}
+                            {contentsFontSize}
+                            features={$page.data.features}
+                        />
+                    {:else if item.itemType === 'heading'}
+                        <ContentHeading
+                            {item}
+                            {imageFolder}
+                            {onClick}
+                            {checkImageSize}
+                            {contentsFontSize}
+                            features={$page.data.features}
+                        />
+                    {:else if item.itemType === 'single'}
+                        <ContentSingle
+                            {item}
+                            {imageFolder}
+                            {onClick}
+                            {checkImageSize}
+                            {contentsFontSize}
+                            features={$page.data.features}
+                        />
                     {/if}
+                {/each}
+            {:else}
+                {#each $page.data.items as item}
+                    <!-- iterate through the items, adding html -->
 
-                    {#if item.imageFilename}
-                        <div
-                            class="contents-image-block"
-                            style="{convertStyle($s['div.contents-image-block'])}{checkImageSize(
-                                item
-                            )}"
-                        >
-                            <img
-                                class="contents-image"
-                                src="{base}/{imageFolder}/{item.imageFilename}"
-                                alt={item.imageFilename}
-                            />
-                        </div>
-                    {/if}
-
-                    <div class="contents-text-block" style:font-size="{$contentsFontSize}px">
-                        <!-- check for title -->
-                        {#if $page.data.features['show-titles'] === true}
-                            <div class="contents-title">
-                                {item.title[$language] ?? item.title.default ?? ''}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="contents-item-block-base contents-item-block contents-link-ref"
+                        id={item.id}
+                        onclick={(event) => onClick(event, item)}
+                    >
+                        <!--check for the various elements in the item-->
+                        {#if item.audioFilename[$language] || item.audioFilename.default}
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
+                            <div
+                                class="contents-item-audio-image"
+                                onclick={(event) => playAudio(event, item)}
+                            >
+                                <AudioIcon.Volume></AudioIcon.Volume>
                             </div>
                         {/if}
 
-                        <!--Check for subtitle-->
-                        {#if $page.data.features['show-subtitles'] === true}
-                            <div class="contents-subtitle">
-                                {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                        {#if item.imageFilename}
+                            <div
+                                class="contents-image-block"
+                                style="{convertStyle(
+                                    $s['div.contents-image-block']
+                                )}{checkImageSize(item)}"
+                            >
+                                <img
+                                    class="contents-image"
+                                    src="{base}/{imageFolder}/{item.imageFilename}"
+                                    alt={item.imageFilename}
+                                />
                             </div>
                         {/if}
 
-                        <!--check for reference -->
-                        {#if $page.data.features['show-references'] === true}
-                            {#if item.linkType === 'reference'}
-                                {#await loadReferenceText(item)}
-                                    <div class="contents-ref"></div>
-                                {:then referenceText}
-                                    <div class="contents-ref">{referenceText}</div>
-                                {:catch error}
-                                    <div class="contents-ref"></div>
-                                {/await}
+                        <div class="contents-text-block" style:font-size="{$contentsFontSize}px">
+                            <!-- check for title -->
+                            {#if $page.data.features['show-titles'] === true}
+                                <div class="contents-title">
+                                    {item.title[$language] ?? item.title.default ?? ''}
+                                </div>
                             {/if}
-                        {/if}
+
+                            <!--Check for subtitle-->
+                            {#if $page.data.features['show-subtitles'] === true}
+                                <div class="contents-subtitle">
+                                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                                </div>
+                            {/if}
+
+                            <!--check for reference -->
+                            {#if $page.data.features['show-references'] === true}
+                                {#if item.linkType === 'reference'}
+                                    {#await loadReferenceText(item)}
+                                        <div class="contents-ref"></div>
+                                    {:then referenceText}
+                                        <div class="contents-ref">{referenceText}</div>
+                                    {:catch error}
+                                        <div class="contents-ref"></div>
+                                    {/await}
+                                {/if}
+                            {/if}
+                        </div>
                     </div>
-                </div>
-            {/each}
+                {/each}
+            {/if}
         </div>
     </div>
     {#if bottomNavBarEnabled}
