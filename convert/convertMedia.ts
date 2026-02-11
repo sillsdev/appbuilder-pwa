@@ -175,7 +175,7 @@ export class ConvertMedia extends Task {
                     await sharp(androidIcon)
                         .resize(180, 180)
                         .toFile(path.join('src', 'gen-assets', 'icons', 'apple-touch-icon.png'));
-                } else if (verbose) {
+                } else {
                     throw new Error('No Android icon found to generate apple-touch-icon.png');
                 }
             }
