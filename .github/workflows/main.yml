@@ -46,14 +46,7 @@ jobs:
             - name: Get AppBuilder Version
               id: get_version
               run: |
-                  # Get tag from GHCR
-                  TOKEN_JSON=$(curl https://ghcr.io/token\?scope\="repository:sillsdev/app-builders:pull")
-                  TOKEN=$(echo "$TOKEN_JSON" | jq -r ".token")
-                  TAG_DATA=$(curl -H "Authorization: Bearer $TOKEN" https://ghcr.io/v2/sillsdev/app-builders/tags/list)
-                  NUM_TAGS=$(echo "$TAG_DATA" | jq -r '.tags | length')
-                  FROM_GHCR=$(echo "$TAG_DATA" | jq -r ".tags[$(("$NUM_TAGS" - 1))]")
-                  echo "Latest tag of sillsdev/app-builders is: $FROM_GHCR"
-                  echo "appbuilder_version=$FROM_GHCR" >> $GITHUB_OUTPUT
+                  npx ts-node convert/fetchTags >> $GITHUB_OUTPUT
 
             - name: Restore Projects cache
               id: restore-projects-cache
