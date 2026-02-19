@@ -1,3 +1,4 @@
+import { isBlank } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
 import configuration from './config';
 
@@ -50,8 +51,16 @@ export class NavigationContext {
     async gotoReference(reference: string) {
         const ref = reference.split('.');
         if (ref.length === 2) {
-            // Deprecated 2-part reference.
-            await this.goto(this.docSets[0], ref[0], ref[1], '1');
+            // Book and chapter specified but only one collection
+            if (isBlank(ref[1])) {
+                // Only book specified
+                const firstChapter = this.config.bookCollections[0].books
+                    .find((b) => b.id === ref[0])
+                    ?.chaptersN.split('-')[0]; //TODO: what if chaptersN is undefined?
+                await this.goto(this.docSets[0], ref[0], firstChapter, '1');
+            } else {
+                await this.goto(this.docSets[0], ref[0], ref[1], '1');
+            }
         } else {
             let docSet = ref[0];
             if (!ref[0].includes('_')) {
