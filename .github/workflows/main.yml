@@ -46,7 +46,7 @@ jobs:
             - name: Get AppBuilder Version
               id: get_version
               run: |
-                  npx ts-node convert/fetchTags >> $GITHUB_OUTPUT
+                  npx ts-node convert/fetchTags.ts >> $GITHUB_OUTPUT
 
             - name: Restore Projects cache
               id: restore-projects-cache
