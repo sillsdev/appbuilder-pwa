@@ -16,14 +16,14 @@ theme.subscribe((value) => (localStorage.theme = value));
 
 export const themeColors = derived(theme, ($theme) => {
     const theme = config.themes.find((x) => x.name == $theme);
-    const colorSet = theme.colorSets.find((x) => x.type === 'main');
-    return colorSet.colors;
+    const colorSet = theme?.colorSets.find((x) => x.type === 'main');
+    return colorSet?.colors ?? {};
 });
 
 export const themeBookColors = derived(theme, ($theme) => {
     const theme = config.themes.find((x) => x.name == $theme);
-    const colorSet = theme.colorSets.find((x) => x.type === 'books');
-    return colorSet.colors;
+    const colorSet = theme?.colorSets.find((x) => x.type === 'books');
+    return colorSet?.colors ?? {};
 });
 
 export const monoIconColor = derived(theme, ($theme) => {
