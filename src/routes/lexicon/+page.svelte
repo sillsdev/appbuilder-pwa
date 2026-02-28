@@ -36,7 +36,7 @@
     const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = data;
 
     const alphabets = {
-        reversal: Object.values(reversalAlphabets[0])[0],
+        reversal: reversalAlphabets.length > 0 ? Object.values(reversalAlphabets[0])[0] : [],
         vernacular: vernacularAlphabet
     };
 
@@ -82,7 +82,9 @@
     async function loadLetterData(letter: string) {
         let newWords: ReversalWord[] = [];
 
-        const reversalKey = currentReversal.languageId || Object.keys(reversalAlphabets[0])[0];
+        const reversalKey =
+            currentReversal.languageId ||
+            (reversalAlphabets.length > 0 ? Object.keys(reversalAlphabets[0])[0] : '');
 
         const index = reversalIndexes[reversalKey];
         if (!index) {

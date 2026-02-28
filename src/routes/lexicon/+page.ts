@@ -43,10 +43,6 @@ export async function load({ fetch }) {
         ([_, ws]) => 'reversalFilename' in ws
     );
 
-    if (!reversalWritingSystems.length) {
-        throw new Error('Reversal language(s) not found');
-    }
-
     const reversalAlphabets = reversalWritingSystems.map(([key, ws]) => ({ [key]: ws.alphabet }));
     const reversalLanguages = reversalWritingSystems.map(([key, _]) => key);
 
