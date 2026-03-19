@@ -316,60 +316,65 @@
                         id={item.id}
                         onclick={(event) => onClick(event, item)}
                     >
-                        <!--check for the various elements in the item-->
-                        {#if item.audioFilename[$language] || item.audioFilename.default}
-                            <!-- svelte-ignore a11y_click_events_have_key_events -->
-                            <!-- svelte-ignore a11y_no_static_element_interactions -->
-                            <div
-                                class="contents-item-audio-image"
-                                onclick={(event) => playAudio(event, item)}
-                            >
-                                <AudioIcon.Volume></AudioIcon.Volume>
-                            </div>
-                        {/if}
-
-                        {#if item.imageFilename}
-                            <div
-                                class="contents-image-block"
-                                style="{convertStyle(
-                                    $s['div.contents-image-block']
-                                )}{checkImageSize(item)}"
-                            >
-                                <img
-                                    class="contents-image"
-                                    src="{base}/{imageFolder}/{item.imageFilename}"
-                                    alt={item.imageFilename}
-                                />
-                            </div>
-                        {/if}
-
-                        <div class="contents-text-block" style:font-size="{$contentsFontSize}px">
-                            <!-- check for title -->
-                            {#if $page.data.features['show-titles'] === true}
-                                <div class="contents-title">
-                                    {item.title[$language] ?? item.title.default ?? ''}
+                        <div class="contents-layout-horizontal">
+                            <!--check for the various elements in the item-->
+                            {#if item.audioFilename[$language] || item.audioFilename.default}
+                                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                                <div
+                                    class="contents-item-audio-image"
+                                    onclick={(event) => playAudio(event, item)}
+                                >
+                                    <AudioIcon.Volume></AudioIcon.Volume>
                                 </div>
                             {/if}
 
-                            <!--Check for subtitle-->
-                            {#if $page.data.features['show-subtitles'] === true}
-                                <div class="contents-subtitle">
-                                    {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                            {#if item.imageFilename}
+                                <div
+                                    class="contents-image-block"
+                                    style="{convertStyle(
+                                        $s['div.contents-image-block']
+                                    )}{checkImageSize(item)}"
+                                >
+                                    <img
+                                        class="contents-image"
+                                        src="{base}/{imageFolder}/{item.imageFilename}"
+                                        alt={item.imageFilename}
+                                    />
                                 </div>
                             {/if}
 
-                            <!--check for reference -->
-                            {#if $page.data.features['show-references'] === true}
-                                {#if item.linkType === 'reference'}
-                                    {#await loadReferenceText(item)}
-                                        <div class="contents-ref"></div>
-                                    {:then referenceText}
-                                        <div class="contents-ref">{referenceText}</div>
-                                    {:catch error}
-                                        <div class="contents-ref"></div>
-                                    {/await}
+                            <div
+                                class="contents-text-block"
+                                style:font-size="{$contentsFontSize}px"
+                            >
+                                <!-- check for title -->
+                                {#if $page.data.features['show-titles'] === true}
+                                    <div class="contents-title">
+                                        {item.title[$language] ?? item.title.default ?? ''}
+                                    </div>
                                 {/if}
-                            {/if}
+
+                                <!--Check for subtitle-->
+                                {#if $page.data.features['show-subtitles'] === true}
+                                    <div class="contents-subtitle">
+                                        {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                                    </div>
+                                {/if}
+
+                                <!--check for reference -->
+                                {#if $page.data.features['show-references'] === true}
+                                    {#if item.linkType === 'reference'}
+                                        {#await loadReferenceText(item)}
+                                            <div class="contents-ref"></div>
+                                        {:then referenceText}
+                                            <div class="contents-ref">{referenceText}</div>
+                                        {:catch error}
+                                            <div class="contents-ref"></div>
+                                        {/await}
+                                    {/if}
+                                {/if}
+                            </div>
                         </div>
                     </div>
                 {/each}
