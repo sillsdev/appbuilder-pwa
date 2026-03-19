@@ -106,7 +106,7 @@
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
             id="container"
-            class="footnote rounded h-40 drop-shadow-lg overflow-y-auto"
+            class="footnote rounded h-40 shadow-lg overflow-y-auto"
             on:click|stopPropagation={insideClick}
         >
             <div

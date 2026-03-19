@@ -46,7 +46,7 @@ A simple dropdown menu from DaisyUI.
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
         bind:this={container}
-        class="dy-dropdown-content dy-menu drop-shadow-lg mt-2.5 bg-base-100 z-10 max-sm:absolute max-sm:start-1.5"
+        class="dy-dropdown-content dy-menu shadow-lg mt-2.5 bg-base-100 z-10 max-sm:absolute max-sm:start-1.5"
         class:min-w-[22rem]={cols == 6}
         class:min-w-[18rem]={cols == 5}
         style={convertStyle($s['ui.background'])}
