@@ -249,7 +249,6 @@ export function parseItemLink(
 ): LinkMeta {
     let link: LinkMeta = {};
     if (tag === undefined) return link;
-    if (Object.keys(tag).length === 0) return link;
 
     const linkTags = tag.getElementsByTagName('link');
     if (verbose >= 3) console.log(linkTags);
@@ -284,7 +283,6 @@ export function parseItemLink(
 export function parseItemFeatures(tag: Element | HTMLElement | undefined): any {
     const features: any = {};
     if (tag === undefined) return features;
-    if (Object.keys(tag).length === 0) return features;
 
     const featureTags = tag.getElementsByTagName('feature');
     for (const featureTag of featureTags) {
@@ -297,7 +295,6 @@ export function parseItemFeatures(tag: Element | HTMLElement | undefined): any {
 
 export function parseItemLayoutMode(tag: Element | HTMLElement | undefined): string | undefined {
     if (tag === undefined) return undefined;
-    if (Object.keys(tag).length === 0) return undefined;
     const layoutTags = tag.getElementsByTagName('layout');
     return layoutTags[0]?.attributes.getNamedItem('mode')?.value;
 }
