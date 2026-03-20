@@ -249,6 +249,12 @@ export function parseItemLink(
 ): LinkMeta {
     let link: LinkMeta = {};
     if (tag === undefined) return link;
+    if (typeof tag.getElementsByTagName !== 'function') {
+        if (verbose >= 3) {
+            console.warn('parseLinkItem tag does not have getElementsByTagName');
+        }
+        return link;
+    }
 
     const linkTags = tag.getElementsByTagName('link');
     if (verbose >= 3) console.log(linkTags);
