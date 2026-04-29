@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ReversalWord } from '$lib/data/stores/lexicon.svelte';
+    import { currentReversal, type ReversalWord } from '$lib/data/stores/lexicon.svelte';
 
     interface Props {
         reversalWordsList: ReversalWord[];
@@ -25,8 +25,9 @@
                     }
                 }}
             >
-                <p class="font-bold break-words" style="color: var(--TextColor);">{word.word}</p>
-                <p class="text-md ml-4" style="color: var(--TextColor);">
+                <span class="font-bold break-words" lang={currentReversal.languageId}>{word.word}</span>
+                <br>
+                <span class="ml-4">
                     {#each word.vernacularWords as { name, homonymIndex }, i}
                         {#if i > 0},
                         {/if}
@@ -34,7 +35,7 @@
                             >{name}{#if homonymIndex > 0}<sub>{homonymIndex}</sub>{/if}</span
                         >
                     {/each}
-                </p>
+                </span>
             </button>
         </li>
     {/each}

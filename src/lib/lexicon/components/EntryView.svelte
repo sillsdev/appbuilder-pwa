@@ -53,7 +53,7 @@
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error" style="background-color: var(--BackgroundColor);">Error parsing XML: Invalid format</span>`;
+            return `<span class="text-error">Error parsing XML: Invalid format</span>`;
         }
 
         function processNode(node, parentHasSenseNumber = false) {
@@ -115,14 +115,12 @@
                     }
 
                     // Add appropriate styling based on class name
-                    if (className.includes('sensenumber')) {
-                        output += ` style="color: var(--TextColor); font-weight: bold;"`;
-                    } else if (className.includes('vernacular')) {
-                        output += ` style="color: var(--TextColor2);"`;
-                    } else if (className.includes('example')) {
-                        output += ` style="color: var(--TextColor3); font-style: italic;"`;
-                    } else if (className.includes('definition')) {
-                        output += ` style="color: var(--TextColor); font-weight: normal;"`;
+                    if (el.classList.contains('sensenumber')) {
+                        el.classList.add('font-bold');
+                    } else if (el.classList.contains('example')) {
+                        el.classList.add('italic');
+                    } else if (el.classList.contains('definition')) {
+                        el.classList.add('font-normal');
                     }
 
                     if (addStyle) {
@@ -253,4 +251,4 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor); color: var(--TextColor);">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor);">{@html xmlData}</pre>

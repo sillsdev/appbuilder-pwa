@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SelectedWord, VernacularWord } from '$lib/data/stores/lexicon.svelte';
+    import { vernacularLanguageId, type SelectedWord, type VernacularWord } from '$lib/data/stores/lexicon.svelte';
 
     interface Props {
         vernacularWordsList: VernacularWord[];
@@ -24,12 +24,12 @@
                     }
                 }}
             >
-                <p class="font-bold break-words" style="color: var(--TextColor);">
+                <span class="font-bold break-words" lang={vernacularLanguageId.value}>
                     {word.name}{#if word.homonym_index > 0}<sub>{word.homonym_index}</sub>{/if}
-                </p>
+                </span>
                 {#if word.summary}
                     {@const matches = word.summary.match(/{(.*?)}/g) || []}
-                    <p class="ml-4" style="color: var(--TextColor2);">
+                    <p class="ml-4">
                         {#if matches.length}
                             <span class="italic">
                                 {#each matches as match}
