@@ -48,7 +48,7 @@
         const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
 
         // Collect audio elements to add at the end
-        let audioElements = '';
+        const audioElements = new Map<string, string>();
 
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
@@ -56,32 +56,21 @@
             return `<span class="text-error">Error parsing XML: Invalid format</span>`;
         }
 
-        function processNode(node, parentHasSenseNumber = false) {
-            let output = '';
-
+        function processNode(node: Node, parentHasSenseNumber = false) {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue.trim() ? node.nodeValue + ' ' : '';
-            }
-
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                let className = node.getAttribute('class') || '';
-                let isSenseNumber = className.includes('sensenumber');
+                return node.nodeValue.trim();
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node as HTMLElement;
+                let isSenseNumber = el.classList.contains('sensenumber');
 
                 let parentContainsSenseNumber =
                     parentHasSenseNumber ||
-                    [...node.parentNode.children].some(
-                        (child) =>
-                            child.getAttribute &&
-                            (child.getAttribute('class') || '').includes('sensenumber')
+                    [...el.parentNode.children].some((child) =>
+                        child.classList.contains('sensenumber')
                     );
 
-                const addStyle =
-                    node.tagName === 'span' ||
-                    className === 'clickable cursor-pointer' ||
-                    (node.tagName === 'div' && className === 'entry');
-
-                if (node.tagName === 'a' && node.hasAttribute('href')) {
-                    const href = node.getAttribute('href');
+                if (el.tagName === 'a' && el.hasAttribute('href')) {
+                    const href = el.getAttribute('href');
                     const match = href.match(/E-(\d+)/);
                     if (match) {
                         const index = parseInt(match[1], 10);
@@ -89,31 +78,26 @@
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
-                        let linkText = node.textContent.trim();
+                        let linkText = el.textContent.trim();
 
                         if (linkText === String(homonymIndex)) {
                             linkText = homonymIndex.toString();
                         }
 
-                        output += `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        return `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
                     }
-                } else if (node.tagName === 'audio-link' && node.hasAttribute('src')) {
+                } else if (el.tagName === 'audio-link' && el.hasAttribute('src')) {
                     // Handle audio-link tag - create audio element and clickable link
-                    const audioFile = node.getAttribute('src');
+                    const audioFile = el.getAttribute('src');
                     const src = clips[`./${audioFile}`] ?? 'clips/' + audioFile;
-                    const audioId = 'audio-' + Math.random().toString(36).substr(2, 9); // Generate unique ID
+                    const audioId = 'audio-' + Math.random().toString(36).substring(2); // Generate unique ID
 
                     // Collect audio element to add at the very end
-                    audioElements += `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`;
+                    audioElements.set(audioId, src);
 
                     // Add just the inline clickable icon - no audio element here
-                    output += `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
+                    return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
                 } else {
-                    output += `<${node.tagName}`;
-                    for (let attr of node.attributes) {
-                        output += ` ${attr.name}="${attr.value}"`;
-                    }
-
                     // Add appropriate styling based on class name
                     if (el.classList.contains('sensenumber')) {
                         el.classList.add('font-bold');
@@ -122,25 +106,19 @@
                     } else if (el.classList.contains('definition')) {
                         el.classList.add('font-normal');
                     }
-
-                    if (addStyle) {
-                        output += ` style="background-color: var(--BackgroundColor); color: var(--TextColor);"`;
-                    }
-
-                    output += '>';
-
-                    for (let child of node.childNodes) {
-                        output += processNode(child, parentContainsSenseNumber || isSenseNumber);
-                    }
-
-                    output += `</${node.tagName}>`;
+                    return `<${el.tagName}${Array.from(el.attributes).map((attr) => ` ${attr.name}="${attr.value}"`)}>${el.childNodes
+                        .values()
+                        .map((child) =>
+                            processNode(child, parentContainsSenseNumber || isSenseNumber)
+                        )
+                        .reduce((p, c) => p + c, '')}</${el.tagName}>`;
                 }
             }
 
-            return output;
+            return '';
         }
 
-        return processNode(xmlDoc.documentElement) + audioElements;
+        return processNode(xmlDoc.documentElement) + audioElements.entries().map(([audioId, src]) => `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`).reduce((p, c) => p + c, '');
     }
 
     async function updateXmlData() {
