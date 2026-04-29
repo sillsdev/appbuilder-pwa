@@ -258,8 +258,8 @@
 >
     <Navbar {showBackButton}>
         {#snippet start()}
-            <label for="sidebar" class="navbar">
-                <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+            <label for="sidebar">
+                <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
                     {config.name}
                 </div>
             </label>

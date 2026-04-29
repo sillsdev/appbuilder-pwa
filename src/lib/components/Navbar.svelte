@@ -41,7 +41,7 @@ The navbar component.
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
 <div class="dy-navbar" style:height={NAVBAR_HEIGHT} style:background-color={actionBarColor}>
-    <div class="dy-navbar-start">
+    <div class="justify-start grow">
         {#if !showBackButton}
             <label
                 for="sidebar"
@@ -62,10 +62,10 @@ The navbar component.
         {/if}
         {@render start?.()}
     </div>
-    <div class="dy-navbar-center" style={convertStyle($s['ui.screen-title'])}>
+    <div class="dy-navbar-center grow" style={convertStyle($s['ui.screen-title'])}>
         {@render center?.()}
     </div>
-    <div class="dy-navbar-end fill-base-content">
+    <div class="justify-end fill-base-content">
         {@render end?.()}
     </div>
 </div>
