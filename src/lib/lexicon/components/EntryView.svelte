@@ -45,7 +45,11 @@
         if (!xmlString) return '';
 
         const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+        // TODO: find better solution for <default font> replacement (this was causing xml parse errors)
+        const xmlDoc = parser.parseFromString(
+            xmlString.replaceAll("'<default font>',", ''),
+            'text/xml'
+        );
 
         // Collect audio elements to add at the end
         const audioElements = new Map<string, string>();
