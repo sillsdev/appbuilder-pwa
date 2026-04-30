@@ -22,5 +22,6 @@ function updateImgTags(/** @type {string} */ text) {
 /** @type {import('./$types').PageLoad} */
 export async function load() {
     const url = await import('$assets/about.partial.html?raw');
-    return { partial: updateImgTags(url.default ?? '') };
+    // replace a sequence of one or more new-line characters with a <br> element to preserve line breaks
+    return { partial: updateImgTags(url.default ?? '').replaceAll(/\n+/g, '<br>') };
 }

@@ -13,9 +13,9 @@
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
-            {#snippet center()}
+            {#snippet start()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_About']}</div>
+                    <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">{$t['Menu_About']}</div>
                 </label>
             {/snippet}
         </Navbar>
