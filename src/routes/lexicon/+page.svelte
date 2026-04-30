@@ -41,7 +41,7 @@
     };
 
     let selectedLetter = alphabets.vernacular[0];
-    let selectedWord = $state(null);
+    let selectedWord: SelectedWord | null = $state(null);
     let showBackButton = $derived(selectedWord ? true : false);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
     let wordIds: number[] | null = $state(null);

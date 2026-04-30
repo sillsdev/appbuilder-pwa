@@ -62,7 +62,8 @@
 
         function processNode(node: Node, parentHasSenseNumber = false) {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue.trim();
+                // TODO: Data in DB has long runs of spaces...
+                return node.nodeValue.trim().replaceAll(/ +/g, ' ');
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
                 let isSenseNumber = el.classList.contains('sensenumber');
@@ -75,6 +76,14 @@
 
                 if (el.tagName === 'a' && el.hasAttribute('href')) {
                     const href = el.getAttribute('href');
+                    let dataAttributes = '';
+                    let linkText = el.childNodes
+                            .values()
+                            .map((child) =>
+                                processNode(child, parentContainsSenseNumber || isSenseNumber)
+                            )
+                            .reduce((p, c) => p + c, '');
+
                     const match = href.match(/E-(\d+)/);
                     if (match) {
                         const index = parseInt(match[1], 10);
@@ -82,14 +91,9 @@
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
-                        let linkText = el.textContent.trim();
-
-                        if (linkText === String(homonymIndex)) {
-                            linkText = homonymIndex.toString();
-                        }
-
-                        return `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;  
                     }
+                    return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
                 } else if (el.tagName === 'audio-link' && el.hasAttribute('src')) {
                     // Handle audio-link tag - create audio element and clickable link
                     const audioFile = el.getAttribute('src');
@@ -122,7 +126,16 @@
             return '';
         }
 
-        return processNode(xmlDoc.documentElement) + audioElements.entries().map(([audioId, src]) => `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`).reduce((p, c) => p + c, '');
+        return (
+            processNode(xmlDoc.documentElement) +
+            audioElements
+                .entries()
+                .map(
+                    ([audioId, src]) =>
+                        `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`
+                )
+                .reduce((p, c) => p + c, '')
+        );
     }
 
     async function updateXmlData() {
@@ -158,11 +171,13 @@
                 const index = parseInt(span.getAttribute('data-index'), 10);
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
 
-                onSelectWord({
-                    word,
-                    index,
-                    homonym_index
-                });
+                if (word) {
+                    onSelectWord({
+                        word,
+                        index,
+                        homonym_index
+                    });
+                }
             });
         });
 
