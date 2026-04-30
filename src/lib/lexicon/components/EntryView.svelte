@@ -78,11 +78,11 @@
                     const href = el.getAttribute('href');
                     let dataAttributes = '';
                     let linkText = el.childNodes
-                            .values()
-                            .map((child) =>
-                                processNode(child, parentContainsSenseNumber || isSenseNumber)
-                            )
-                            .reduce((p, c) => p + c, '');
+                        .values()
+                        .map((child) =>
+                            processNode(child, parentContainsSenseNumber || isSenseNumber)
+                        )
+                        .reduce((p, c) => p + c, '');
 
                     const match = href.match(/E-(\d+)/);
                     if (match) {
@@ -91,7 +91,7 @@
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
-                        dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;  
+                        dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
                     }
                     return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
                 } else if (el.tagName === 'audio-link' && el.hasAttribute('src')) {
@@ -167,16 +167,12 @@
         freshSpans.forEach((span) => {
             span.addEventListener('click', () => {
                 currentReversal.languageId = vernacularLanguageId.value;
-                const word = span.getAttribute('data-word');
-                const index = parseInt(span.getAttribute('data-index'), 10);
+                const name = span.getAttribute('data-word');
+                const id = parseInt(span.getAttribute('data-index'), 10);
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
 
-                if (word) {
-                    onSelectWord({
-                        word,
-                        index,
-                        homonym_index
-                    });
+                if (name) {
+                    onSelectWord({ name, id, homonym_index });
                 }
             });
         });

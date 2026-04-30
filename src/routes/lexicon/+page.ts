@@ -8,6 +8,7 @@ import {
     type VernacularWord
 } from '$lib/data/stores/lexicon.svelte';
 import type { ReversalIndex } from '$lib/lexicon';
+import type { PageLoad } from './$types';
 
 const reversalIndexUrls = import.meta.glob('./**/index.json', {
     import: 'default',
@@ -16,7 +17,7 @@ const reversalIndexUrls = import.meta.glob('./**/index.json', {
     query: '?url'
 }) as Record<string, string>;
 
-export async function load({ fetch }) {
+export const load: PageLoad = async ({ fetch }) => {
     if (!(config as DictionaryConfig).writingSystems) {
         throw new Error('Writing systems configuration not found');
     }
@@ -24,9 +25,9 @@ export async function load({ fetch }) {
 
     const [vernacularLanguage, vernacularWritingSystem] = Object.entries(
         dictionaryConfig.writingSystems
-    ).find(([_, ws]) => ws.type.includes('main'));
+    ).find(([_, ws]) => ws.type.includes('main')) ?? [];
 
-    if (!vernacularWritingSystem) {
+    if (!(vernacularLanguage && vernacularWritingSystem)) {
         throw new Error('Vernacular language not found');
     }
 
@@ -67,10 +68,7 @@ export async function load({ fetch }) {
     let vernacularWordsList: VernacularWord[] = [];
     if (results[0]) {
         vernacularWordsList = results[0].values.map((value) => {
-            const entry = results[0].columns.reduce((acc, column, index) => {
-                acc[column] = value[index];
-                return acc;
-            }, {} as VernacularWord);
+            const entry = Object.fromEntries(results[0].columns.map((col, index) => [col, value[index]])) as VernacularWord;
 
             let firstLetter = entry.name.charAt(0).toLowerCase();
 
@@ -84,13 +82,13 @@ export async function load({ fetch }) {
                 .substring(startingPosition, 2 + startingPosition)
                 .toLowerCase();
 
-            if (vernacularAlphabet.includes(firstTwoChars)) {
+            if (vernacularAlphabet?.includes(firstTwoChars)) {
                 firstLetter = firstTwoChars;
             } else {
                 firstLetter = entry.name.charAt(startingPosition).toLowerCase();
             }
 
-            if (!vernacularAlphabet.includes(firstLetter)) {
+            if (!vernacularAlphabet?.includes(firstLetter)) {
                 firstLetter = '*';
             }
 

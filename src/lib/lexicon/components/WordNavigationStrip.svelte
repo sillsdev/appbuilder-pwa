@@ -1,12 +1,14 @@
 <script lang="ts">
     import {
         currentReversal,
+        isSelectedVernacular,
+        isVernacular,
         vernacularLanguageId,
         vernacularWords,
-        wordToSelected,
         type SelectedWord,
         type Word
     } from '$lib/data/stores/lexicon.svelte';
+    import HomonymSubscript from './HomonymSubscript.svelte';
 
     interface Props {
         /** Current word being displayed */
@@ -28,26 +30,24 @@
     let currentIndex = $derived(
         wordsList.findIndex((word: Word) => {
             // Handle both vernacular and reversal word structures
-            if (typeof word === 'object') {
-                if ('id' in word && 'index' in currentWord) {
-                    // For vernacular words, match by ID which is unique
-                    return word.id === currentWord.index;
-                } else if (currentWord.word) {
-                    if ('name' in word) {
-                        if (word.homonym_index !== undefined && 'homonym_index' in currentWord) {
-                            // For vernacular words with homonyms, match both word and homonym index
-                            return (
-                                word.name === currentWord.word &&
-                                word.homonym_index === currentWord.homonym_index
-                            );
-                        } else {
-                            // For regular vernacular words
-                            return word.name === currentWord.word;
-                        }
-                    } else if (word.word) {
-                        // For reversal words
-                        return word.word === currentWord.word;
+            if (isVernacular(word) && isSelectedVernacular(currentWord)) {
+                // For vernacular words, match by ID which is unique
+                return word.id === currentWord.id;
+            } else if (currentWord.name) {
+                if (isVernacular(word)) {
+                    if (word.homonym_index !== undefined && 'homonym_index' in currentWord) {
+                        // For vernacular words with homonyms, match both word and homonym index
+                        return (
+                            word.name === currentWord.name &&
+                            word.homonym_index === currentWord.homonym_index
+                        );
+                    } else {
+                        // For regular vernacular words
+                        return word.name === currentWord.name;
                     }
+                } else if (word.name) {
+                    // For reversal words
+                    return word.name === currentWord.name;
                 }
             }
             return false;
@@ -64,7 +64,7 @@
     function goToPrevious() {
         if (previousWord) {
             // Format the word object to match the expected structure
-            onSelectWord(wordToSelected(previousWord));
+            onSelectWord(previousWord);
         }
     }
 
@@ -72,7 +72,7 @@
     function goToNext() {
         if (nextWord) {
             // Format the word object to match the expected structure
-            onSelectWord(wordToSelected(nextWord));
+            onSelectWord(nextWord);
         }
     }
 </script>
@@ -98,10 +98,8 @@
         class="text-center font-bold text-lg px-4 truncate max-w-xs"
         style="color: var(--TextColor);"
     >
-        {currentWord['word'] || ''}
-        {#if 'homonym_index' in currentWord && currentWord.homonym_index > 0}
-            <sub>{currentWord.homonym_index}</sub>
-        {/if}
+        {currentWord.name || ''}
+        <HomonymSubscript word={currentWord} />
     </div>
 
     <button

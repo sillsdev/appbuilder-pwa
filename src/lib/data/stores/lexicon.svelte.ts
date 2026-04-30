@@ -1,3 +1,4 @@
+import type { LoadEvent } from '@sveltejs/kit';
 import initSqlJs, { type Database } from 'sql.js';
 
 // Store for vernacularLanguage
@@ -18,16 +19,17 @@ export type VernacularWord = {
 export let vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
 
 // Store for reversalWordsList, keyed by language
-interface VernacularWordReference {
+export type VernacularWordReference = {
     name: string;
-    homonymIndex: number;
+    homonym_index: number;
 }
 
-export interface ReversalWord {
-    word: string;
+export type ReversalWord = {
+    name: string;
     indexes: number[];
     vernacularWords: VernacularWordReference[];
     letter: string;
+    homonym_index?: never;
 }
 export let reversalWords: Record<string, ReversalWord[]> = $state({});
 
@@ -36,22 +38,19 @@ export let reversalLetters: Record<string, string[]> = $state({});
 
 export type Word = VernacularWord | ReversalWord;
 
-export type SelectableFromVernacular = {
-    word: string;
-    index: number;
+type SelectableFromVernacular = {
+    name: string;
+    id: number;
     homonym_index?: number;
 };
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
-export function wordToSelected(word: Word): SelectedWord {
-    return 'name' in word
-        ? {
-              word: word.name,
-              index: word.id,
-              homonym_index: word.homonym_index
-          }
-        : word;
+export function isVernacular(word: Word): word is VernacularWord {
+    return 'id' in word;
+}
+export function isSelectedVernacular(word: SelectedWord): word is SelectableFromVernacular {
+    return 'id' in word;
 }
 
 class CurrentReversal {
@@ -82,7 +81,7 @@ const wasmUrl = import.meta.glob('./*.wasm', {
     query: '?url'
 }) as Record<string, string>;
 
-export async function initializeDatabase({ fetch }): Promise<Database> {
+export async function initializeDatabase({ fetch }: Pick<LoadEvent, 'fetch'>): Promise<Database> {
     if (!sql || !db) {
         // Fetch the WebAssembly binary manually using SvelteKit's fetch
         const wasmKey = './sql-wasm.wasm';
