@@ -8,6 +8,7 @@
         isVernacular,
         reversalLetters,
         reversalWords,
+        selectedWord,
         vernacularLanguageId,
         vernacularWords,
         type ReversalWord,
@@ -46,14 +47,13 @@
     };
 
     let selectedLetter = alphabets.vernacular[0];
-    let selectedWord: SelectedWord | null = $state(null);
-    let showBackButton = $derived(selectedWord ? true : false);
+    let showBackButton = $derived(selectedWord.value ? true : false);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
     let wordIds: number[] = $derived(
-        selectedWord
-            ? isSelectedVernacular(selectedWord)
-                ? [selectedWord.id]
-                : selectedWord.indexes
+        selectedWord.value
+            ? isSelectedVernacular(selectedWord.value)
+                ? [selectedWord.value.id]
+                : selectedWord.value.indexes
             : []
     );
 
@@ -163,8 +163,8 @@
         ];
     }
 
-    function selectWord(word: SelectedWord) {
-        selectedWord = word;
+    function selectWord(word: SelectedWord | null) {
+        selectedWord.value = word;
     }
 
     async function scrollToLetter(letter: string) {
@@ -264,7 +264,7 @@
     class:grid-rows-[auto,1fr]={!selectedWord}
     style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
 >
-    <Navbar {showBackButton}>
+    <Navbar {showBackButton} backNavigation={() => selectWord(null)}>
         {#snippet start()}
             <label for="sidebar">
                 <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
@@ -274,12 +274,11 @@
         {/snippet}
         {#snippet end()}
             <div class="flex flex-nowrap">
-                <div id="extraButtons" class:pr-4={!selectedWord}>
+                <div id="extraButtons" class:pr-4={!selectedWord.value}>
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
                         onclick={() => {
-                            wordIds = null;
-                            gotoRoute(`/lexicon/search`);
+                            gotoRoute(`/lexicon/search`).then(() => selectWord(null));
                         }}
                     >
                         <SearchIcon color="white" />
@@ -289,8 +288,8 @@
         {/snippet}
     </Navbar>
 
-    {#if selectedWord}
-        <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+    {#if selectedWord.value}
+        <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
     {:else}
         {@const tabs = [vernacularLanguageId.value, ...reversalLanguages]}
         {@const indexOfPrevious = tabs.indexOf(previousLanguage)}
@@ -322,9 +321,9 @@
             {#each currentAlphabet as letter}
                 <button
                     class="px-3 py-2 text-sm font-bold border rounded-md cursor-pointer snap-start
-                    sm:px-4 sm:py-3 sm:text-base
-                    md:px-5 md:py-4 md:text-base
-                    lg:px-6 lg:py-4 lg:text-lg"
+                        sm:px-4 sm:py-3 sm:text-base
+                        md:px-5 md:py-4 md:text-base
+                        lg:px-6 lg:py-4 lg:text-lg"
                     style="border-color: var(--SettingsSeparatorColor);"
                     onclick={() => handleLetterChange(letter)}
                 >
@@ -334,12 +333,8 @@
         </div>
     {/if}
 
-    <div
-        class="flex-1 overflow-y-auto"
-        bind:this={scrollContainer}
-        onscroll={checkIfScrolledToBottom}
-    >
-        {#if selectedWord}
+    <div class="flex-1 overflow-y-auto" bind:this={scrollContainer} onscroll={checkIfScrolledToBottom}>
+        {#if selectedWord.value}
             <EntryView {wordIds} onSelectWord={selectWord} />
         {:else}
             {@const usingVernacular = currentReversal.languageId === vernacularLanguageId.value}

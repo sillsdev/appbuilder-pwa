@@ -46,6 +46,8 @@ type SelectableFromVernacular = {
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
+export let selectedWord: { value: SelectedWord | null } = $state({ value: null });
+
 export function isVernacular(word?: Word | null): word is VernacularWord {
     return !!word && 'id' in word;
 }

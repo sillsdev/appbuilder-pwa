@@ -2,7 +2,11 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import config from '$lib/data/config';
-    import { isSelectedVernacular, type SelectedWord } from '$lib/data/stores/lexicon.svelte';
+    import {
+        isSelectedVernacular,
+        selectedWord,
+        type SelectedWord
+    } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -16,7 +20,6 @@
     let matchAccents: boolean = $state(false);
     let wordIds: number[] = $state([]);
     let searchWord: string | undefined = $state();
-    let selectedWord: SelectedWord | null = $state(null);
 
     let scrollDiv: HTMLDivElement | undefined = $state(undefined);
 
@@ -49,11 +52,11 @@
     }
 
     function selectWord(word: SelectedWord) {
-        selectedWord = word;
-        wordIds = selectedWord
-            ? isSelectedVernacular(selectedWord)
-                ? [selectedWord.id]
-                : selectedWord.indexes
+        selectedWord.value = word;
+        wordIds = selectedWord.value
+            ? isSelectedVernacular(selectedWord.value)
+                ? [selectedWord.value.id]
+                : selectedWord.value.indexes
             : [];
     }
 </script>
@@ -62,7 +65,15 @@
     class="grid grid-rows-[auto,auto,1fr] fixed bg-base-100"
     style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
 >
-    <Navbar>
+    <Navbar
+        backNavigation={() => {
+            if (selectedWord.value) {
+                selectWord(null);
+            } else {
+                gotoRoute('/lexicon');
+            }
+        }}
+    >
         {#snippet start()}
             <label for="sidebar" class="navbar">
                 <div
@@ -82,7 +93,7 @@
                         onclick={() => {
                             wordIds = null;
                             searchWord = '';
-                            selectedWord = null;
+                            selectedWord.value = null;
                             gotoRoute(`/lexicon/search`);
                         }}
                     >
@@ -92,22 +103,17 @@
             </div>
         {/snippet}
     </Navbar>
-    <div class="h-full">
-        {#if !selectedWord}
-            <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
-                <div
-                    class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
-                    style="height: 36px; color: var(--TextColor);"
-                >
-                    {searchWord ? `Search: ${searchWord}` : 'Search'}
-                </div>
+    {#if !selectedWord.value}
+        <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
+            <div
+                class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
+                style="height: 36px; color: var(--TextColor);"
+            >
+                {searchWord ? `Search: ${searchWord}` : 'Search'}
             </div>
-        {/if}
-    </div>
-    <div
-        class="flex-1 overflow-y-auto width-full"
-        style="background-color: var(--BackgroundColor);"
-    >
+        </div>
+    {/if}
+    <div class="flex-1 overflow-y-auto width-full" style="background-color: var(--BackgroundColor);">
         <div class="overflow-auto" bind:this={scrollDiv}>
             <div class="flex justify-center">
                 {#if !wordIds || wordIds.length == 0}
@@ -122,8 +128,8 @@
                 />
             </div>
 
-            {#if selectedWord}
-                <WordNavigationStrip currentWord={selectedWord} onSelectWord={selectWord} />
+            {#if selectedWord.value}
+                <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
             {/if}
 
             <div class="flex justify-center">
