@@ -335,7 +335,7 @@
     {/if}
 
     <div
-        class="flex-1 overflow-y-auto bg-base-100"
+        class="flex-1 overflow-y-auto"
         bind:this={scrollContainer}
         onscroll={checkIfScrolledToBottom}
     >
@@ -344,10 +344,7 @@
         {:else}
             {@const usingVernacular = currentReversal.languageId === vernacularLanguageId.value}
             {@const words = usingVernacular ? vernacularWords.value : currentReversal.words}
-            <ul
-                class="space-y-3 px-4 pb-4"
-                style="background-color: var(--BackgroundColor); color: var(--TextColor);"
-            >
+            <ul class="space-y-3 px-4 pb-4" style="color: var(--TextColor);">
                 {#each words as word}
                     <li class="cursor-pointer text-lg mb-3 scroll-mt-16" id="letter-{word.letter}">
                         <button

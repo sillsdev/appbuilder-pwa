@@ -22,7 +22,7 @@ export let vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
 export type VernacularWordReference = {
     name: string;
     homonym_index: number;
-}
+};
 
 export type ReversalWord = {
     name: string;
@@ -30,7 +30,7 @@ export type ReversalWord = {
     vernacularWords: VernacularWordReference[];
     letter: string;
     homonym_index?: never;
-}
+};
 export let reversalWords: Record<string, ReversalWord[]> = $state({});
 
 // Store for the loaded reversalLetters, keyed by language
@@ -61,10 +61,7 @@ export function compareWordsEqual(a: SelectedWord, b: SelectedWord) {
         if (isSelectedVernacular(a)) {
             if (a.homonym_index !== undefined && 'homonym_index' in b) {
                 // For vernacular words with homonyms, match both word and homonym index
-                return (
-                    a.name === b.name &&
-                    a.homonym_index === b.homonym_index
-                );
+                return a.name === b.name && a.homonym_index === b.homonym_index;
             } else {
                 // For regular vernacular words
                 return a.name === b.name;

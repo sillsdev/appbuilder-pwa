@@ -23,9 +23,10 @@ export const load: PageLoad = async ({ fetch }) => {
     }
     const dictionaryConfig = config as DictionaryConfig;
 
-    const [vernacularLanguage, vernacularWritingSystem] = Object.entries(
-        dictionaryConfig.writingSystems
-    ).find(([_, ws]) => ws.type.includes('main')) ?? [];
+    const [vernacularLanguage, vernacularWritingSystem] =
+        Object.entries(dictionaryConfig.writingSystems).find(([_, ws]) =>
+            ws.type.includes('main')
+        ) ?? [];
 
     if (!(vernacularLanguage && vernacularWritingSystem)) {
         throw new Error('Vernacular language not found');
@@ -68,7 +69,9 @@ export const load: PageLoad = async ({ fetch }) => {
     let vernacularWordsList: VernacularWord[] = [];
     if (results[0]) {
         vernacularWordsList = results[0].values.map((value) => {
-            const entry = Object.fromEntries(results[0].columns.map((col, index) => [col, value[index]])) as VernacularWord;
+            const entry = Object.fromEntries(
+                results[0].columns.map((col, index) => [col, value[index]])
+            ) as VernacularWord;
 
             let firstLetter = entry.name.charAt(0).toLowerCase();
 
@@ -105,4 +108,4 @@ export const load: PageLoad = async ({ fetch }) => {
         reversalLanguages,
         reversalIndexes
     };
-}
+};
