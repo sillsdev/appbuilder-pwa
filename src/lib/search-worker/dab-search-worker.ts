@@ -19,26 +19,31 @@ export async function searchDictionary(phrase: string, options: SearchOptions) {
     }
 
     // Extract and process locations from the query result
-    let locations = results[0].values.flatMap((value) =>
-        value[0].split(' ').map((loc) => {
-            const [id, weight] = loc.split('(').map((v) => v.replace(')', ''));
-            return { id: parseInt(id, 10), weight: parseInt(weight, 10) };
-        })
-    );
+    let locations = results[0].values
+        .flatMap((value) =>
+            (value[0] as string | null)?.split(' ').map((loc) => {
+                const [id, weight] = loc.split('(').map((v) => v.replace(')', ''));
+                return { id: parseInt(id, 10), weight: parseInt(weight, 10) };
+            })
+        )
+        .filter((l) => !!l);
+
+    console.log(locations);
 
     // Remove duplicates by creating a Map with unique IDs
-    const uniqueLocationsMap = new Map();
+    const uniqueLocationsMap = new Map<number, (typeof locations)[number]>();
     locations.forEach((location) => {
         if (
-            !uniqueLocationsMap.has(location.id) ||
-            uniqueLocationsMap.get(location.id).weight < location.weight
+            (uniqueLocationsMap.get(location.id)?.weight ?? Number.MIN_SAFE_INTEGER) <
+            location.weight
         ) {
             uniqueLocationsMap.set(location.id, location);
         }
     });
-    locations = Array.from(uniqueLocationsMap.values());
-
-    locations = locations.sort((a, b) => b.weight - a.weight);
-    const ids = locations.map((location) => location.id);
-    return ids;
+    return uniqueLocationsMap
+        .values()
+        .toArray()
+        .toSorted((a, b) => a.id - b.id)
+        .toSorted((a, b) => b.weight - a.weight)
+        .map((location) => location.id);
 }

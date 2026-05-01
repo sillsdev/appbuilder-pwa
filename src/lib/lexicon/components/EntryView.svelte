@@ -32,9 +32,15 @@
 
             const dynamicQuery = wordIds.map(() => `id = ?`).join(' OR ');
             const dynamicParams = wordIds.map((id) => id);
-            const results = db.exec(`SELECT xml FROM entries WHERE ${dynamicQuery}`, dynamicParams);
+            const results = db.exec(
+                `SELECT id, xml FROM entries WHERE ${dynamicQuery}`,
+                dynamicParams
+            );
 
-            return results[0].values;
+            // ensure order of results matches order of ids passed in
+            return wordIds
+                .map((id) => results[0].values.find((v) => v[0] === id))
+                .filter((v) => !!v);
         } catch (error) {
             console.error(`Error querying XML for word IDs ${wordIds}:`, error);
             return null;
@@ -150,7 +156,7 @@
         xmlData =
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
-                .flatMap((v) => v.map(formatXmlByClass))
+                .map((v) => formatXmlByClass(v[1] as string))
                 .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
             '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
     }
