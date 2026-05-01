@@ -46,11 +46,11 @@ type SelectableFromVernacular = {
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
-export function isVernacular(word: Word): word is VernacularWord {
-    return 'id' in word;
+export function isVernacular(word?: Word | null): word is VernacularWord {
+    return !!word && 'id' in word;
 }
-export function isSelectedVernacular(word: SelectedWord): word is SelectableFromVernacular {
-    return 'id' in word;
+export function isSelectedVernacular(word?: SelectedWord | null): word is SelectableFromVernacular {
+    return !!word && 'id' in word;
 }
 
 class CurrentReversal {
