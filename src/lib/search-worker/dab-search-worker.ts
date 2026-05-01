@@ -28,8 +28,6 @@ export async function searchDictionary(phrase: string, options: SearchOptions) {
         )
         .filter((l) => !!l);
 
-    console.log(locations);
-
     // Remove duplicates by creating a Map with unique IDs
     const uniqueLocationsMap = new Map<number, (typeof locations)[number]>();
     locations.forEach((location) => {
