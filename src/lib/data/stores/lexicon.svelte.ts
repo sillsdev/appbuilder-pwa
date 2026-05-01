@@ -53,6 +53,30 @@ export function isSelectedVernacular(word?: SelectedWord | null): word is Select
     return !!word && 'id' in word;
 }
 
+export function compareWordsEqual(a: SelectedWord, b: SelectedWord) {
+    if (isSelectedVernacular(a) && isSelectedVernacular(b)) {
+        // For vernacular words, match by ID which is unique
+        return a.id === b.id;
+    } else if (b.name) {
+        if (isSelectedVernacular(a)) {
+            if (a.homonym_index !== undefined && 'homonym_index' in b) {
+                // For vernacular words with homonyms, match both word and homonym index
+                return (
+                    a.name === b.name &&
+                    a.homonym_index === b.homonym_index
+                );
+            } else {
+                // For regular vernacular words
+                return a.name === b.name;
+            }
+        } else if (a.name) {
+            // For reversal words
+            return a.name === b.name;
+        }
+    }
+    return false;
+}
+
 class CurrentReversal {
     // Store for selectedLanguageStore
     languageId: string | null = $state(null);

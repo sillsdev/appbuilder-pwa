@@ -1,8 +1,7 @@
 <script lang="ts">
     import {
+        compareWordsEqual,
         currentReversal,
-        isSelectedVernacular,
-        isVernacular,
         vernacularLanguageId,
         vernacularWords,
         type SelectedWord,
@@ -28,30 +27,7 @@
 
     // Compute the index of the current word in the list
     let currentIndex = $derived(
-        wordsList.findIndex((word: Word) => {
-            // Handle both vernacular and reversal word structures
-            if (isVernacular(word) && isSelectedVernacular(currentWord)) {
-                // For vernacular words, match by ID which is unique
-                return word.id === currentWord.id;
-            } else if (currentWord.name) {
-                if (isVernacular(word)) {
-                    if (word.homonym_index !== undefined && 'homonym_index' in currentWord) {
-                        // For vernacular words with homonyms, match both word and homonym index
-                        return (
-                            word.name === currentWord.name &&
-                            word.homonym_index === currentWord.homonym_index
-                        );
-                    } else {
-                        // For regular vernacular words
-                        return word.name === currentWord.name;
-                    }
-                } else if (word.name) {
-                    // For reversal words
-                    return word.name === currentWord.name;
-                }
-            }
-            return false;
-        })
+        wordsList.findIndex((word: Word) => compareWordsEqual(word, currentWord))
     );
 
     // Compute previous and next words

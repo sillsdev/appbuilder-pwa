@@ -2,7 +2,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import config from '$lib/data/config';
-    import type { SelectedWord } from '$lib/data/stores/lexicon.svelte';
+    import { isSelectedVernacular, type SelectedWord } from '$lib/data/stores/lexicon.svelte';
     import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -14,7 +14,7 @@
     let phrase: string = $state('');
     let wholeWords: boolean = $state(false);
     let matchAccents: boolean = $state(false);
-    let wordIds: number[] | null = $state(null);
+    let wordIds: number[] = $state([]);
     let searchWord: string | undefined = $state();
     let selectedWord: SelectedWord | null = $state(null);
 
@@ -49,11 +49,11 @@
     }
 
     function selectWord(word: SelectedWord) {
-        selectedWord = selectedWord && selectedWord.word === word.word ? null : word;
+        selectedWord = word;
         wordIds = selectedWord
-            ? 'indexes' in selectedWord
-                ? selectedWord.indexes
-                : [selectedWord.index]
+            ? isSelectedVernacular(selectedWord)
+                ? [selectedWord.id]
+                : selectedWord.indexes
             : [];
     }
 </script>

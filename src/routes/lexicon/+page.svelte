@@ -49,7 +49,13 @@
     let selectedWord: SelectedWord | null = $state(null);
     let showBackButton = $derived(selectedWord ? true : false);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
-    let wordIds: number[] | null = $state(null);
+    let wordIds: number[] = $derived(
+        selectedWord
+            ? isSelectedVernacular(selectedWord)
+                ? [selectedWord.id]
+                : selectedWord.indexes
+            : []
+    );
 
     //$: selectedLanguage = currentReversal.selectedLanguage;
     $effect(() => {
@@ -158,12 +164,7 @@
     }
 
     function selectWord(word: SelectedWord) {
-        selectedWord = selectedWord && selectedWord.name === word.name ? null : word;
-        wordIds = selectedWord
-            ? isSelectedVernacular(selectedWord)
-                ? [selectedWord.id]
-                : selectedWord.indexes
-            : [];
+        selectedWord = word;
     }
 
     async function scrollToLetter(letter: string) {
