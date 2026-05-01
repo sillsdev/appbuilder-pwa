@@ -8,7 +8,7 @@ import {
     type VernacularWord
 } from '$lib/data/stores/lexicon.svelte';
 import type { ReversalIndex } from '$lib/lexicon';
-import type { PageLoad } from './$types';
+import type { LayoutLoad } from './$types';
 
 const reversalIndexUrls = import.meta.glob('./**/index.json', {
     import: 'default',
@@ -17,7 +17,9 @@ const reversalIndexUrls = import.meta.glob('./**/index.json', {
     query: '?url'
 }) as Record<string, string>;
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: LayoutLoad = async ({ fetch }) => {
+    //console.log(getParams(url).entries().toArray());
+    console.log('layout load');
     if (!(config as DictionaryConfig).writingSystems) {
         throw new Error('Writing systems configuration not found');
     }

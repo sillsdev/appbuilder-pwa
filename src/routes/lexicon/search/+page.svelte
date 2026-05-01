@@ -61,87 +61,82 @@
     }
 </script>
 
-<div
-    class="grid grid-rows-[auto,auto,1fr] fixed bg-base-100"
-    style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
+<Navbar
+    backNavigation={() => {
+        if (selectedWord.value) {
+            selectWord(null);
+        } else {
+            gotoRoute('/lexicon');
+        }
+    }}
 >
-    <Navbar
-        backNavigation={() => {
-            if (selectedWord.value) {
-                selectWord(null);
-            } else {
-                gotoRoute('/lexicon');
-            }
-        }}
-    >
-        {#snippet start()}
-            <label for="sidebar" class="navbar">
-                <div
-                    class="btn btn-ghost normal-case text-xl text-white font-bold pl-1"
-                    style="color: var(--ShareButtonTextColor);"
-                >
-                    {searchWord ? `${config.name}` : 'Search'}
-                </div>
-            </label>
-        {/snippet}
-        {#snippet end()}
-            <div class="flex flex-nowrap">
-                <div id="extraButtons">
-                    <button
-                        class="dy-btn dy-btn-ghost dy-btn-circle"
-                        style="color: var(--ShareButtonTextColor);"
-                        onclick={() => {
-                            wordIds = null;
-                            searchWord = '';
-                            selectedWord.value = null;
-                            gotoRoute(`/lexicon/search`);
-                        }}
-                    >
-                        <SearchIcon color="white" />
-                    </button>
-                </div>
-            </div>
-        {/snippet}
-    </Navbar>
-    {#if !selectedWord.value}
-        <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
+    {#snippet start()}
+        <label for="sidebar" class="navbar">
             <div
-                class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
-                style="height: 36px; color: var(--TextColor);"
+                class="btn btn-ghost normal-case text-xl text-white font-bold pl-1"
+                style="color: var(--ShareButtonTextColor);"
             >
-                {searchWord ? `Search: ${searchWord}` : 'Search'}
+                {searchWord ? `${config.name}` : 'Search'}
+            </div>
+        </label>
+    {/snippet}
+    {#snippet end()}
+        <div class="flex flex-nowrap">
+            <div id="extraButtons">
+                <button
+                    class="dy-btn dy-btn-ghost dy-btn-circle"
+                    style="color: var(--ShareButtonTextColor);"
+                    onclick={() => {
+                        wordIds = null;
+                        searchWord = '';
+                        selectedWord.value = null;
+                        gotoRoute(`/lexicon/search`);
+                    }}
+                >
+                    <SearchIcon color="white" />
+                </button>
             </div>
         </div>
-    {/if}
-    <div class="flex-1 overflow-y-auto width-full" style="background-color: var(--BackgroundColor);">
-        <div class="overflow-auto" bind:this={scrollDiv}>
-            <div class="flex justify-center">
-                {#if !wordIds || wordIds.length == 0}
-                    <SearchForm {phrase} {wholeWords} {matchAccents} submit={handleSearchSubmit} />
-                {/if}
-            </div>
-
-            <div class="flex justify-center px-4">
-                <hr
-                    class="max-w-screen-md w-full"
-                    style="border-color: var(--SettingsSeparatorColor);"
-                />
-            </div>
-
-            {#if selectedWord.value}
-                <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
+    {/snippet}
+</Navbar>
+{#if !selectedWord.value}
+    <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
+        <div
+            class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
+            style="height: 36px; color: var(--TextColor);"
+        >
+            {searchWord ? `Search: ${searchWord}` : 'Search'}
+        </div>
+    </div>
+{/if}
+<div class="flex-1 overflow-y-auto width-full" style="background-color: var(--BackgroundColor);">
+    <div class="overflow-auto" bind:this={scrollDiv}>
+        <div class="flex justify-center">
+            {#if !wordIds || wordIds.length == 0}
+                <SearchForm {phrase} {wholeWords} {matchAccents} submit={handleSearchSubmit} />
             {/if}
+        </div>
 
-            <div class="flex justify-center">
-                <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
-                    {#if wordIds && wordIds.length > 0}
-                        <EntryView {wordIds} onSelectWord={selectWord} removeNewLines />
-                    {:else if wordIds && wordIds.length == 0}
-                        <div class="text-center" style="color: var(--SettingsSummaryColor);">
-                            No results found.
-                        </div>
-                    {/if}
-                </div>
+        <div class="flex justify-center px-4">
+            <hr
+                class="max-w-screen-md w-full"
+                style="border-color: var(--SettingsSeparatorColor);"
+            />
+        </div>
+
+        {#if selectedWord.value}
+            <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
+        {/if}
+
+        <div class="flex justify-center">
+            <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
+                {#if wordIds && wordIds.length > 0}
+                    <EntryView {wordIds} onSelectWord={selectWord} removeNewLines />
+                {:else if wordIds && wordIds.length == 0}
+                    <div class="text-center" style="color: var(--SettingsSummaryColor);">
+                        No results found.
+                    </div>
+                {/if}
             </div>
         </div>
     </div>

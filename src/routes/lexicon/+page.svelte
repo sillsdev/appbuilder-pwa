@@ -258,128 +258,121 @@
     let previousLanguage = $state(currentReversal.languageId);
 </script>
 
-<div
-    class="grid fixed bg-base-100"
-    class:grid-rows-[auto,auto,1fr]={selectedWord}
-    class:grid-rows-[auto,1fr]={!selectedWord}
-    style="height:100vh;height:100dvh;width:100vw;background-color: var(--BackgroundColor);"
->
-    <Navbar {showBackButton} backNavigation={() => selectWord(null)}>
-        {#snippet start()}
-            <label for="sidebar">
-                <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
-                    {config.name}
-                </div>
-            </label>
-        {/snippet}
-        {#snippet end()}
-            <div class="flex flex-nowrap">
-                <div id="extraButtons" class:pr-4={!selectedWord.value}>
-                    <button
-                        class="dy-btn dy-btn-ghost dy-btn-circle"
-                        onclick={() => {
-                            gotoRoute(`/lexicon/search`).then(() => selectWord(null));
-                        }}
-                    >
-                        <SearchIcon color="white" />
-                    </button>
-                </div>
+<Navbar {showBackButton} backNavigation={() => selectWord(null)}>
+    {#snippet start()}
+        <label for="sidebar">
+            <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
+                {config.name}
             </div>
-        {/snippet}
-    </Navbar>
-
-    {#if selectedWord.value}
-        <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
-    {:else}
-        {@const tabs = [vernacularLanguageId.value, ...reversalLanguages]}
-        {@const indexOfPrevious = tabs.indexOf(previousLanguage)}
-        <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
-            {#each tabs as lang, i}
+        </label>
+    {/snippet}
+    {#snippet end()}
+        <div class="flex flex-nowrap">
+            <div id="extraButtons" class:pr-4={!selectedWord.value}>
                 <button
-                    aria-pressed={currentReversal.languageId === lang}
+                    class="dy-btn dy-btn-ghost dy-btn-circle"
                     onclick={() => {
-                        previousLanguage = currentReversal.languageId;
-                        switchLanguage(lang);
+                        gotoRoute(`/lexicon/search`).then(() => selectWord(null));
                     }}
-                    class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
                 >
-                    {displayNames.value[lang]}
-                    {#if currentReversal.languageId === lang}
-                        <div
-                            transition:fly={{ easing: expoInOut, x: 70 * (indexOfPrevious - i) }}
-                            class="absolute -bottom-1 left-0 w-full h-1 bg-black"
-                        ></div>
-                    {/if}
+                    <SearchIcon color="white" />
                 </button>
-            {/each}
-            <div class="flex-1"></div>
+            </div>
         </div>
+    {/snippet}
+</Navbar>
 
-        <div
-            class="flex m-2 gap-1 md:gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-2 snap-x"
-        >
-            {#each currentAlphabet as letter}
-                <button
-                    class="px-3 py-2 text-sm font-bold border rounded-md cursor-pointer snap-start
+{#if selectedWord.value}
+    <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
+{:else}
+    {@const tabs = [vernacularLanguageId.value, ...reversalLanguages]}
+    {@const indexOfPrevious = tabs.indexOf(previousLanguage)}
+    <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
+        {#each tabs as lang, i}
+            <button
+                aria-pressed={currentReversal.languageId === lang}
+                onclick={() => {
+                    previousLanguage = currentReversal.languageId;
+                    switchLanguage(lang);
+                }}
+                class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
+            >
+                {displayNames.value[lang]}
+                {#if currentReversal.languageId === lang}
+                    <div
+                        transition:fly={{ easing: expoInOut, x: 70 * (indexOfPrevious - i) }}
+                        class="absolute -bottom-1 left-0 w-full h-1 bg-black"
+                    ></div>
+                {/if}
+            </button>
+        {/each}
+        <div class="flex-1"></div>
+    </div>
+
+    <div
+        class="flex m-2 gap-1 md:gap-2 mb-4 justify-start overflow-x-auto whitespace-nowrap pb-2 snap-x"
+    >
+        {#each currentAlphabet as letter}
+            <button
+                class="px-3 py-2 text-sm font-bold border rounded-md cursor-pointer snap-start
                         sm:px-4 sm:py-3 sm:text-base
                         md:px-5 md:py-4 md:text-base
                         lg:px-6 lg:py-4 lg:text-lg"
-                    style="border-color: var(--SettingsSeparatorColor);"
-                    onclick={() => handleLetterChange(letter)}
-                >
-                    {letter}
-                </button>
-            {/each}
-        </div>
-    {/if}
-
-    <div class="flex-1 overflow-y-auto" bind:this={scrollContainer} onscroll={checkIfScrolledToBottom}>
-        {#if selectedWord.value}
-            <EntryView {wordIds} onSelectWord={selectWord} />
-        {:else}
-            {@const usingVernacular = currentReversal.languageId === vernacularLanguageId.value}
-            {@const words = usingVernacular ? vernacularWords.value : currentReversal.words}
-            <ul class="space-y-3 px-4 pb-4" style="color: var(--TextColor);">
-                {#each words as word}
-                    <li class="cursor-pointer text-lg mb-3 scroll-mt-16" id="letter-{word.letter}">
-                        <button
-                            type="button"
-                            class="w-full text-left py-1"
-                            aria-label={`Select word ${word.name}`}
-                            style="border-bottom: 1px solid var(--SettingsSeparatorColor);"
-                            onclick={() => selectWord(word)}
-                        >
-                            <span class="font-bold break-words" lang={currentReversal.languageId}>
-                                {word.name}<HomonymSubscript {word} />
-                            </span>
-                            {#if usingVernacular && isVernacular(word) && word.summary}
-                                {@const matches = word.summary.match(/{(.*?)}/g) || []}
-                                <p class="ml-4">
-                                    {#if matches.length}
-                                        <span class="italic">
-                                            {#each matches as match}
-                                                {match.replace(/[{}]/g, '')}
-                                            {/each}
-                                        </span>
-                                    {/if}
-                                    {word.summary.replaceAll(/{(.*?)}/g, '')}
-                                </p>
-                            {:else if !isVernacular(word)}
-                                <br />
-                                <span class="ml-4">
-                                    {#each word.vernacularWords as ref, i}
-                                        {#if i > 0},
-                                        {/if}
-                                        <span>
-                                            {ref.name}<HomonymSubscript word={ref} />
-                                        </span>
-                                    {/each}
-                                </span>
-                            {/if}
-                        </button>
-                    </li>
-                {/each}
-            </ul>
-        {/if}
+                style="border-color: var(--SettingsSeparatorColor);"
+                onclick={() => handleLetterChange(letter)}
+            >
+                {letter}
+            </button>
+        {/each}
     </div>
+{/if}
+
+<div class="flex-1 overflow-y-auto" bind:this={scrollContainer} onscroll={checkIfScrolledToBottom}>
+    {#if selectedWord.value}
+        <EntryView {wordIds} onSelectWord={selectWord} />
+    {:else}
+        {@const usingVernacular = currentReversal.languageId === vernacularLanguageId.value}
+        {@const words = usingVernacular ? vernacularWords.value : currentReversal.words}
+        <ul class="space-y-3 px-4 pb-4" style="color: var(--TextColor);">
+            {#each words as word}
+                <li class="cursor-pointer text-lg mb-3 scroll-mt-16" id="letter-{word.letter}">
+                    <button
+                        type="button"
+                        class="w-full text-left py-1"
+                        aria-label={`Select word ${word.name}`}
+                        style="border-bottom: 1px solid var(--SettingsSeparatorColor);"
+                        onclick={() => selectWord(word)}
+                    >
+                        <span class="font-bold break-words" lang={currentReversal.languageId}>
+                            {word.name}<HomonymSubscript {word} />
+                        </span>
+                        {#if usingVernacular && isVernacular(word) && word.summary}
+                            {@const matches = word.summary.match(/{(.*?)}/g) || []}
+                            <p class="ml-4">
+                                {#if matches.length}
+                                    <span class="italic">
+                                        {#each matches as match}
+                                            {match.replace(/[{}]/g, '')}
+                                        {/each}
+                                    </span>
+                                {/if}
+                                {word.summary.replaceAll(/{(.*?)}/g, '')}
+                            </p>
+                        {:else if !isVernacular(word)}
+                            <br />
+                            <span class="ml-4">
+                                {#each word.vernacularWords as ref, i}
+                                    {#if i > 0},
+                                    {/if}
+                                    <span>
+                                        {ref.name}<HomonymSubscript word={ref} />
+                                    </span>
+                                {/each}
+                            </span>
+                        {/if}
+                    </button>
+                </li>
+            {/each}
+        </ul>
+    {/if}
 </div>
