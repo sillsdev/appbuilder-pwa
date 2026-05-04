@@ -5,6 +5,35 @@ The navbar component. We have sliders that update reactively to both font size a
 -->
 <svelte:options accessors={true} />
 
+<script module>
+    export function showFonts(
+        /** @type {unknown[]} */ choices,
+        /** @type {boolean} */ contentsMode = false
+    ) {
+        return !contentsMode && choices.length > 1;
+    }
+    export function showFontSize() {
+        return config.mainFeatures['text-font-size-slider'];
+    }
+    export function showLineHeight(/** @type {boolean} */ contentsMode = false) {
+        return !contentsMode && config.mainFeatures['text-line-height-slider'];
+    }
+    export function showThemes() {
+        return themes.length > 1;
+    }
+    export function showTextAppearance(
+        /** @type {unknown[]} */ choices,
+        /** @type {boolean} */ contentsMode = false
+    ) {
+        return (
+            showFontSize() ||
+            showLineHeight(contentsMode) ||
+            showThemes() ||
+            showFonts(choices, contentsMode)
+        );
+    }
+</script>
+
 <script>
     import config from '$lib/data/config';
     import {
@@ -42,13 +71,12 @@ The navbar component. We have sliders that update reactively to both font size a
         'rem; inset-inline-end:1rem;';
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
-    $: showFonts = !contentsMode && $fontChoices.length > 1;
+    $: _showFontSize = showFontSize();
+    $: _showFonts = showFonts($fontChoices, contentsMode);
+    $: _showThemes = showThemes();
+    $: _showLineHeight = showLineHeight(contentsMode);
 
-    const showFontSize = config.mainFeatures['text-font-size-slider'];
-    $: showLineHeight = !contentsMode && config.mainFeatures['text-line-height-slider'];
-    const showThemes = themes.length > 1;
-
-    $: showTextAppearence = showFontSize || showLineHeight || showThemes || showFonts;
+    $: _showTextAppearance = showTextAppearance($fontChoices, contentsMode);
 
     // TEMP: Use TextAppearance button to rotate through languages to test i18n
     const arrayRotate = (arr) => {
@@ -103,12 +131,12 @@ The navbar component. We have sliders that update reactively to both font size a
 </script>
 
 <!-- TextAppearanceSelector -->
-{#if showTextAppearence}
+{#if _showTextAppearance}
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <Modal bind:this={modalThis} id={modalId} addCSS={positioningCSS}>
         <div class="grid gap-4">
             <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
-            {#if showFontSize}
+            {#if _showFontSize}
                 <div class="grid gap-4 items-center range-row m-2">
                     <TextAppearanceIcon color={$monoIconColor} />
                     {#if contentsMode}
@@ -133,7 +161,7 @@ The navbar component. We have sliders that update reactively to both font size a
                     </div>
                 </div>
             {/if}
-            {#if showLineHeight}
+            {#if _showLineHeight}
                 <div class="grid gap-4 items-center range-row m-2">
                     <ImageIcon.FormatLineSpacing color={$monoIconColor} />
                     <Slider
@@ -148,7 +176,7 @@ The navbar component. We have sliders that update reactively to both font size a
                     </div>
                 </div>
             {/if}
-            {#if showFonts}
+            {#if _showFonts}
                 <div class="grid gap-4 items-center range-row m-2">
                     <ImageIcon.FontChoice color={$monoIconColor} />
                     <button
@@ -163,7 +191,7 @@ The navbar component. We have sliders that update reactively to both font size a
                 </div>
             {/if}
             <!-- Theme Selction buttons-->
-            {#if showThemes}
+            {#if _showThemes}
                 <div
                     class="grid gap-2 m-2"
                     class:grid-cols-2={themes.length === 2}

@@ -10,6 +10,7 @@ The sidebar/drawer.
     import contents from '$lib/data/contents';
     import {
         direction,
+        fontChoices,
         isDAB,
         isSAB,
         language,
@@ -41,6 +42,7 @@ The sidebar/drawer.
         TextAppearanceIcon
     } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
+    import { showTextAppearance } from './TextAppearanceSelector.svelte';
 
     const menuIcons = import.meta.glob('./*', {
         import: 'default',
@@ -244,25 +246,22 @@ The sidebar/drawer.
             {/if}
             {#if showSettings}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/settings')}
-                    >
+                    <button style:color={textColor} onclick={() => gotoRoute('/settings')}>
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                     </button>
                 </li>
             {/if}
-            <!-- svelte-ignore a11y_missing_attribute -->
-            <li>
-                <button
-                    style:color={textColor}
-                    class="btn"
-                    onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
-                >
-                    <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
-                </button>
-            </li>
+            {#if showTextAppearance($fontChoices)}
+                <!-- svelte-ignore a11y_missing_attribute -->
+                <li>
+                    <button
+                        style:color={textColor}
+                        onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                    >
+                        <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
+                    </button>
+                </li>
+            {/if}
             <div class="dy-divider m-1"></div>
             {#if menuItems}
                 {#each menuItems as item}
