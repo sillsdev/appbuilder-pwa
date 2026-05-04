@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { afterNavigate } from '$app/navigation';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import { selectedWord, selectWord, wordIDs } from '$lib/data/stores/lexicon.svelte';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
@@ -10,6 +11,7 @@
     let phrase: string = $state('');
     let wholeWords: boolean = $state(false);
     let matchAccents: boolean = $state(false);
+    // cache search word for display
     let searchWord: string | undefined = $state();
 
     let scrollDiv: HTMLDivElement | undefined = $state(undefined);
@@ -40,7 +42,12 @@
             wordIDs.value = [];
         }
         console.log(wordIDs);
+
+        // clear search bar after search submitted
+        phrase = '';
     }
+
+    afterNavigate(() => (searchWord = ''));
 </script>
 
 {#if !selectedWord.value}
@@ -56,7 +63,7 @@
 <div class="flex-1 overflow-y-auto width-full" style="background-color: var(--BackgroundColor);">
     <div class="overflow-auto" bind:this={scrollDiv}>
         <div class="flex justify-center">
-            {#if !wordIDs.value.length}
+            {#if !searchWord && !wordIDs.value.length}
                 <SearchForm {phrase} {wholeWords} {matchAccents} submit={handleSearchSubmit} />
             {/if}
         </div>
@@ -76,7 +83,7 @@
             <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
                 {#if wordIDs.value.length > 0}
                     <EntryView removeNewLines />
-                {:else if !wordIDs.value.length}
+                {:else if searchWord && !wordIDs.value.length}
                     <div class="text-center" style="color: var(--SettingsSummaryColor);">
                         No results found.
                     </div>
