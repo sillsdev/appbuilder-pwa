@@ -1,10 +1,12 @@
 <script lang="ts">
     import { page } from '$app/state';
     import Navbar from '$lib/components/Navbar.svelte';
+    import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import config from '$lib/data/config';
-    import { t } from '$lib/data/stores';
+    import { fontChoices, modal, MODAL_TEXT_APPEARANCE, t } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';
+    import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
     import { gotoRoute } from '$lib/navigate';
     import type { Snippet } from 'svelte';
     import type { LayoutData } from './$types';
@@ -51,6 +53,14 @@
                     >
                         <SearchIcon color="white" />
                     </button>
+                    {#if showTextAppearance($fontChoices)}
+                        <button
+                            class="dy-btn dy-btn-ghost dy-btn-circle"
+                            onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                        >
+                            <TextAppearanceIcon color="white" />
+                        </button>
+                    {/if}
                 </div>
             </div>
         {/snippet}
