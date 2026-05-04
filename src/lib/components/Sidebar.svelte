@@ -11,6 +11,7 @@ The sidebar/drawer.
     import {
         direction,
         isDAB,
+        isSAB,
         language,
         languageDefault,
         modal,
@@ -147,17 +148,20 @@ The sidebar/drawer.
                     </button>
                 </li>
             {/if}
-            {#if showContents}
-                <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/contents/1')}
-                    >
-                        <HomeIcon color={iconColor} />{$t['Menu_Contents']}
-                    </button>
-                </li>
-            {/if}
+            <li>
+                <button
+                    class="btn"
+                    style:color={textColor}
+                    onclick={() =>
+                        showContents
+                            ? gotoRoute('/contents/1')
+                            : isSAB(config)
+                              ? gotoRoute('/text')
+                              : gotoRoute('/lexicon')}
+                >
+                    <HomeIcon color={iconColor} />{$t[showContents ? 'Menu_Contents' : 'Menu_Home']}
+                </button>
+            </li>
             {#if showSearch}
                 <li>
                     <button class="btn" style:color={textColor} onclick={goToSearch}>
