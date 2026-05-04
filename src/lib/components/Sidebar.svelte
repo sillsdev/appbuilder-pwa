@@ -10,6 +10,7 @@ The sidebar/drawer.
     import contents from '$lib/data/contents';
     import {
         direction,
+        isDAB,
         language,
         languageDefault,
         modal,
@@ -97,7 +98,7 @@ The sidebar/drawer.
     }
 
     async function goToSearch() {
-        if (config.programType === 'DAB') {
+        if (isDAB(config)) {
             await gotoRoute(`/lexicon/search`);
         } else {
             await gotoRoute(`/search/${$refs.collection}`);

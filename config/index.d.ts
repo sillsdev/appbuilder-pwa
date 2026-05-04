@@ -246,6 +246,7 @@ export type AppConfig = {
 };
 
 export type ScriptureConfig = AppConfig & {
+    programType: 'SAB';
     traits?: any;
     bookCollections?: BookCollectionConfig[];
     videos?: {
@@ -317,6 +318,7 @@ export type ScriptureConfig = AppConfig & {
 };
 
 export type DictionaryConfig = AppConfig & {
+    programType: 'DAB';
     writingSystems: {
         [key: string]: DictionaryWritingSystemConfig;
     };

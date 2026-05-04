@@ -1,3 +1,4 @@
+import type { AppConfig, DictionaryConfig, ScriptureConfig } from '$config';
 import config from '$lib/data/config';
 import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
@@ -44,16 +45,22 @@ const sabDefaultSettings = {
     'scripture-logs': false
 };
 
-export const defaultSettings =
-    config.programType === 'SAB'
-        ? { ...commonDefaultSettings, ...sabDefaultSettings }
-        : commonDefaultSettings;
+export function isSAB(data: AppConfig): data is ScriptureConfig {
+    return data.programType === 'SAB';
+}
+
+export function isDAB(data: AppConfig): data is DictionaryConfig {
+    return data.programType === 'DAB';
+}
+
+export const defaultSettings: Record<string, string | boolean> = isSAB(config)
+    ? { ...commonDefaultSettings, ...sabDefaultSettings }
+    : commonDefaultSettings;
 
 export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
-    const isSAB = config.programType === 'SAB';
     const settings = new Array<App.UserPreferenceSetting>();
 
-    if (isSAB) {
+    if (isSAB(config)) {
         settings.push({
             type: 'checkbox',
             category: SETTINGS_CATEGORY_INTERFACE,
@@ -66,10 +73,9 @@ export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 })();
 
 export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
-    const isSAB = config.programType === 'SAB';
     const hasVerses = config.traits?.['has-verse-numbers'] || false;
     const settings = new Array<App.UserPreferenceSetting>();
-    if (isSAB) {
+    if (isSAB(config)) {
         // "Text Display"
         if (config.mainFeatures['settings-verse-numbers'] && hasVerses) {
             // Verse Numbers
@@ -229,7 +235,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         });
     }
 
-    if (isSAB) {
+    if (isSAB(config)) {
         // "Notifications"
         if (config.mainFeatures['settings-verse-of-the-day'] && hasVerses) {
             settings.push({
@@ -250,16 +256,16 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             });
         }
 
-        const bcList = config.bookCollections.filter(
+        const bcList = config.bookCollections?.filter(
             (bc) => bc.features['bc-allow-verse-of-the-day'] === true
         );
         if (config.mainFeatures['settings-verse-of-the-day-book-collection'] && hasVerses) {
             // "Translation for verse of the day"
-            if (bcList.length > 1) {
-                const entries = [];
-                const values = [];
+            if (bcList && bcList.length > 1) {
+                const entries: string[] = [];
+                const values: string[] = [];
                 bcList.forEach((bc) => {
-                    entries.push(bc.collectionName);
+                    entries.push(bc.collectionName ?? '');
                     values.push(bc.id);
                 });
                 const bcId = config.mainFeatures['verse-of-the-day-book-collection'];
@@ -347,8 +353,8 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     const langCount = Object.keys(config.interfaceLanguages.writingSystems).length;
     if (config.mainFeatures['settings-interface-language'] && langCount > 1) {
         // Interface language
-        const entries = [];
-        const values = [];
+        const entries: string[] = [];
+        const values: string[] = [];
         Object.keys(config.interfaceLanguages.writingSystems).forEach((key) => {
             entries.push('Language_' + key);
             values.push(key);
@@ -386,10 +392,13 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 })();
 
 function defaultUserSettings() {
-    return userPreferenceSettings.reduce((defaults, setting) => {
-        defaults[setting.key] = setting.defaultValue ?? defaultSettings[setting.key];
-        return defaults;
-    }, {});
+    return userPreferenceSettings.reduce(
+        (defaults, setting) => {
+            defaults[setting.key] = setting.defaultValue ?? defaultSettings[setting.key];
+            return defaults;
+        },
+        {} as typeof defaultSettings
+    );
 }
 mergeDefaultStorage('userSettings', defaultUserSettings());
 export const userSettings = writable(JSON.parse(localStorage.userSettings));

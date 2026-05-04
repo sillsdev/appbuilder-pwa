@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { convertStyle, s, t, themeColors } from '$lib/data/stores';
+    import { convertStyle, isDAB, isSAB, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SearchFormSubmitEvent } from '$lib/types';
 
@@ -19,10 +19,10 @@
     //     config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
 
     let specialCharacters: string[] = $state([]);
-    if (config.programType == 'SAB') {
+    if (isSAB(config)) {
         specialCharacters =
             config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
-    } else if (config.programType === 'DAB') {
+    } else if (isDAB(config)) {
         specialCharacters = Object.values(config.writingSystems)
             .filter((ws: any) => ws.type && ws.type.includes('main'))
             .flatMap((ws: any) => ws.inputButtons || []);
