@@ -41,7 +41,7 @@
             console.error('Search failed', err);
             wordIDs.value = [];
         }
-        console.log(wordIDs);
+        console.log($state.snapshot(wordIDs.value));
 
         // clear search bar after search submitted
         phrase = '';

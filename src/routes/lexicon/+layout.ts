@@ -18,8 +18,6 @@ const reversalIndexUrls = import.meta.glob('./**/index.json', {
 }) as Record<string, string>;
 
 export const load: LayoutLoad = async ({ fetch }) => {
-    //console.log(getParams(url).entries().toArray());
-    console.log('layout load');
     if (!(config as DictionaryConfig).writingSystems) {
         throw new Error('Writing systems configuration not found');
     }
