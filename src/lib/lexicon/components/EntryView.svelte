@@ -1,11 +1,13 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { convertStyle } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
+        selectWord,
         vernacularLanguageId,
         vernacularWords,
+        wordIDs,
         type SelectedWord
     } from '$lib/data/stores/lexicon.svelte';
     import type { SqlValue } from 'sql.js';
@@ -17,12 +19,10 @@
     }) as Record<string, string>;
 
     interface Props {
-        wordIds: number[] | null;
-        onSelectWord: (word: SelectedWord) => void;
         removeNewLines?: boolean;
     }
 
-    let { wordIds, onSelectWord, removeNewLines = false }: Props = $props();
+    let { removeNewLines = false }: Props = $props();
 
     let xmlData = $state('');
 
@@ -145,12 +145,12 @@
     }
 
     async function updateXmlData() {
-        if (!wordIds) {
+        if (!wordIDs.value.length) {
             xmlData = '';
             return;
         }
 
-        const xmlResults = (await queryXmlByWordId(wordIds)) ?? [];
+        const xmlResults = (await queryXmlByWordId(wordIDs.value)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
@@ -178,7 +178,7 @@
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
 
                 if (name) {
-                    onSelectWord({ name, id, homonym_index });
+                    selectWord({ name, id, homonym_index });
                 }
             });
         });
@@ -238,7 +238,7 @@
     }
 
     $effect(() => {
-        if (wordIds) {
+        if (wordIDs.value.length) {
             (async () => {
                 await updateXmlData();
                 applyStyles();
@@ -250,4 +250,4 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor);">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px;">{@html xmlData}</pre>

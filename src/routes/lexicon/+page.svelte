@@ -1,22 +1,19 @@
 <script lang="ts">
-    import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
     import {
         currentReversal,
         displayNames,
-        isSelectedVernacular,
         isVernacular,
         reversalLetters,
         reversalWords,
         selectedWord,
+        selectWord,
         vernacularLanguageId,
         vernacularWords,
         type ReversalWord,
-        type SelectedWord,
         type VernacularWord,
         type VernacularWordReference
     } from '$lib/data/stores/lexicon.svelte';
-    import { SearchIcon } from '$lib/icons';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import HomonymSubscript from '$lib/lexicon/components/HomonymSubscript.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -49,13 +46,6 @@
     let selectedLetter = alphabets.vernacular[0];
     let showBackButton = $derived(selectedWord.value ? true : false);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
-    let wordIds: number[] = $derived(
-        selectedWord.value
-            ? isSelectedVernacular(selectedWord.value)
-                ? [selectedWord.value.id]
-                : selectedWord.value.indexes
-            : []
-    );
 
     //$: selectedLanguage = currentReversal.selectedLanguage;
     $effect(() => {
@@ -163,10 +153,6 @@
         ];
     }
 
-    function selectWord(word: SelectedWord | null) {
-        selectedWord.value = word;
-    }
-
     async function scrollToLetter(letter: string) {
         await tick();
         const target = document.getElementById(`letter-${letter}`);
@@ -258,30 +244,6 @@
     let previousLanguage = $state(currentReversal.languageId);
 </script>
 
-<Navbar {showBackButton} backNavigation={() => selectWord(null)}>
-    {#snippet start()}
-        <label for="sidebar">
-            <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
-                {config.name}
-            </div>
-        </label>
-    {/snippet}
-    {#snippet end()}
-        <div class="flex flex-nowrap">
-            <div id="extraButtons" class:pr-4={!selectedWord.value}>
-                <button
-                    class="dy-btn dy-btn-ghost dy-btn-circle"
-                    onclick={() => {
-                        gotoRoute(`/lexicon/search`).then(() => selectWord(null));
-                    }}
-                >
-                    <SearchIcon color="white" />
-                </button>
-            </div>
-        </div>
-    {/snippet}
-</Navbar>
-
 {#if selectedWord.value}
     <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
 {:else}
@@ -329,7 +291,7 @@
 
 <div class="flex-1 overflow-y-auto" bind:this={scrollContainer} onscroll={checkIfScrolledToBottom}>
     {#if selectedWord.value}
-        <EntryView {wordIds} onSelectWord={selectWord} />
+        <EntryView />
     {:else}
         {@const usingVernacular = currentReversal.languageId === vernacularLanguageId.value}
         {@const words = usingVernacular ? vernacularWords.value : currentReversal.words}

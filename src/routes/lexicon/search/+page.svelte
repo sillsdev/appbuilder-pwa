@@ -1,16 +1,8 @@
 <script lang="ts">
-    import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
-    import config from '$lib/data/config';
-    import {
-        isSelectedVernacular,
-        selectedWord,
-        type SelectedWord
-    } from '$lib/data/stores/lexicon.svelte';
-    import { SearchIcon } from '$lib/icons';
+    import { selectedWord, selectWord, wordIDs } from '$lib/data/stores/lexicon.svelte';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
-    import { gotoRoute } from '$lib/navigate';
     import { searchDictionary } from '$lib/search-worker/dab-search-worker';
     import type { SearchOptions } from '$lib/search/domain/interfaces/data-interfaces';
     import { type SearchFormSubmitEvent } from '$lib/types.js';
@@ -18,7 +10,6 @@
     let phrase: string = $state('');
     let wholeWords: boolean = $state(false);
     let matchAccents: boolean = $state(false);
-    let wordIds: number[] = $state([]);
     let searchWord: string | undefined = $state();
 
     let scrollDiv: HTMLDivElement | undefined = $state(undefined);
@@ -43,62 +34,15 @@
         wholeWords = newWholeWords;
         matchAccents = newMatchAccents;
         try {
-            wordIds = await searchDictionary(phrase, options);
+            wordIDs.value = await searchDictionary(phrase, options);
         } catch (err) {
             console.error('Search failed', err);
-            wordIds = [];
+            wordIDs.value = [];
         }
-        console.log(wordIds);
-    }
-
-    function selectWord(word: SelectedWord) {
-        selectedWord.value = word;
-        wordIds = selectedWord.value
-            ? isSelectedVernacular(selectedWord.value)
-                ? [selectedWord.value.id]
-                : selectedWord.value.indexes
-            : [];
+        console.log(wordIDs);
     }
 </script>
 
-<Navbar
-    backNavigation={() => {
-        if (selectedWord.value) {
-            selectWord(null);
-        } else {
-            gotoRoute('/lexicon');
-        }
-    }}
->
-    {#snippet start()}
-        <label for="sidebar" class="navbar">
-            <div
-                class="btn btn-ghost normal-case text-xl text-white font-bold pl-1"
-                style="color: var(--ShareButtonTextColor);"
-            >
-                {searchWord ? `${config.name}` : 'Search'}
-            </div>
-        </label>
-    {/snippet}
-    {#snippet end()}
-        <div class="flex flex-nowrap">
-            <div id="extraButtons">
-                <button
-                    class="dy-btn dy-btn-ghost dy-btn-circle"
-                    style="color: var(--ShareButtonTextColor);"
-                    onclick={() => {
-                        wordIds = null;
-                        searchWord = '';
-                        selectedWord.value = null;
-                        gotoRoute(`/lexicon/search`);
-                    }}
-                >
-                    <SearchIcon color="white" />
-                </button>
-            </div>
-        </div>
-    {/snippet}
-</Navbar>
 {#if !selectedWord.value}
     <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
         <div
@@ -112,7 +56,7 @@
 <div class="flex-1 overflow-y-auto width-full" style="background-color: var(--BackgroundColor);">
     <div class="overflow-auto" bind:this={scrollDiv}>
         <div class="flex justify-center">
-            {#if !wordIds || wordIds.length == 0}
+            {#if !wordIDs.value.length}
                 <SearchForm {phrase} {wholeWords} {matchAccents} submit={handleSearchSubmit} />
             {/if}
         </div>
@@ -130,9 +74,9 @@
 
         <div class="flex justify-center">
             <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-screen-md p-4">
-                {#if wordIds && wordIds.length > 0}
-                    <EntryView {wordIds} onSelectWord={selectWord} removeNewLines />
-                {:else if wordIds && wordIds.length == 0}
+                {#if wordIDs.value.length > 0}
+                    <EntryView removeNewLines />
+                {:else if !wordIDs.value.length}
                     <div class="text-center" style="color: var(--SettingsSummaryColor);">
                         No results found.
                     </div>
