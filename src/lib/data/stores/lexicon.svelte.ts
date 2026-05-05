@@ -102,9 +102,8 @@ class CurrentReversal {
                   .get(this.languageId)
                   ?.values() // = letters for language
                   .filter((file) => !!file) // filter letters that don't have a file
-                  .flatMap((file) => file?.values().toArray()) // for each letter, flatten word list
-                  .toArray()
-                  .flat() || [] // return flattened array of all words
+                  .flatMap((file) => file?.values().flatMap((v) => v))
+                  .toArray() || [] // for each letter, flatten word list // return flattened array of all words
             : []
     );
     // Derived store to get the current language's reversalLetters
