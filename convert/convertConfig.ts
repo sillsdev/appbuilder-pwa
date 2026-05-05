@@ -235,7 +235,7 @@ function convertConfig(dataDir: string, verbose: number) {
     data.version = document
         .getElementsByTagName('version')[0]
         .attributes.getNamedItem('name')!.value;
-    
+
     data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
     if (Number.isNaN(splitVersion(data.programVersion)[0])) {
         // Development version so use a "high" number
