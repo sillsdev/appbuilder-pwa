@@ -27,9 +27,10 @@
 
     interface Props {
         removeNewLines?: boolean;
+        wordIDs?: number[];
     }
 
-    let { removeNewLines = false }: Props = $props();
+    let { wordIDs: _wordIDs = wordIDs.value, removeNewLines = false }: Props = $props();
 
     let xmlData = $state('');
 
@@ -170,12 +171,12 @@
     }
 
     async function updateXmlData() {
-        if (!wordIDs.value.length) {
+        if (!_wordIDs.length) {
             xmlData = '';
             return;
         }
 
-        const xmlResults = (await queryXmlByWordId(wordIDs.value)) ?? [];
+        const xmlResults = (await queryXmlByWordId(_wordIDs)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
@@ -263,7 +264,7 @@
     }
 
     $effect(() => {
-        if (wordIDs.value.length) {
+        if (_wordIDs.length) {
             (async () => {
                 await updateXmlData();
                 applyStyles();

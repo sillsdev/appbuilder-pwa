@@ -29,7 +29,7 @@
         showBackButton={inSearchRoute || !!selectedWord.value}
         backNavigation={() => {
             if (selectedWord.value) {
-                selectWord(null);
+                selectWord(null, !inSearchRoute);
             } else {
                 gotoRoute('/lexicon');
             }

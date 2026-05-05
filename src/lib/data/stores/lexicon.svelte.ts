@@ -48,13 +48,15 @@ export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
 export let selectedWord: { value: SelectedWord | null } = $state({ value: null });
 export let wordIDs: { value: number[] } = $state({ value: [] });
-export function selectWord(word: SelectedWord | null) {
+export function selectWord(word: SelectedWord | null, resetWords = true) {
     selectedWord.value = word;
-    wordIDs.value = selectedWord.value
-        ? isSelectedVernacular(selectedWord.value)
-            ? [selectedWord.value.id]
-            : selectedWord.value.indexes
-        : [];
+    if (resetWords) {
+        wordIDs.value = selectedWord.value
+            ? isSelectedVernacular(selectedWord.value)
+                ? [selectedWord.value.id]
+                : selectedWord.value.indexes
+            : [];
+    }
 }
 
 export function isVernacular(word?: Word | null): word is VernacularWord {
