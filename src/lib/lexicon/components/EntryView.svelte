@@ -7,15 +7,22 @@
         selectWord,
         vernacularLanguageId,
         vernacularWords,
-        wordIDs,
-        type SelectedWord
+        wordIDs
     } from '$lib/data/stores/lexicon.svelte';
     import type { SqlValue } from 'sql.js';
 
     const clips = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/clips'
+    }) as Record<string, string>;
+
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        query: '?url',
+        base: '/src/gen-assets/illustrations'
     }) as Record<string, string>;
 
     interface Props {
@@ -111,6 +118,18 @@
 
                     // Add just the inline clickable icon - no audio element here
                     return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
+                } else if (el.tagName === 'img' && el.hasAttribute('src')) {
+                    const src = el.getAttribute('src').replace(/^illustrations\//, '');
+                    const hashedSrc = illustrations[`./${src}`];
+                    if (!hashedSrc) {
+                        console.error(`Could not find cached image with src: ${src}`);
+                    }
+
+                    return createElementString(
+                        el,
+                        parentContainsSenseNumber || isSenseNumber,
+                        (attr) => (attr.name === 'src' && hashedSrc) || attr.value
+                    );
                 } else {
                     // Add appropriate styling based on class name
                     if (el.classList.contains('sensenumber')) {
@@ -120,16 +139,22 @@
                     } else if (el.classList.contains('definition')) {
                         el.classList.add('font-normal');
                     }
-                    return `<${el.tagName}${Array.from(el.attributes).map((attr) => ` ${attr.name}="${attr.value}"`)}>${el.childNodes
-                        .values()
-                        .map((child) =>
-                            processNode(child, parentContainsSenseNumber || isSenseNumber)
-                        )
-                        .reduce((p, c) => p + c, '')}</${el.tagName}>`;
+                    return createElementString(el, parentContainsSenseNumber || isSenseNumber);
                 }
             }
 
             return '';
+        }
+
+        function createElementString(
+            el: HTMLElement,
+            parentHasSenseNumber: boolean,
+            mapAttrValue = (attr: Attr) => attr.value
+        ) {
+            return `<${el.tagName}${Array.from(el.attributes).map((attr) => ` ${attr.name}="${mapAttrValue(attr)}"`)}>${el.childNodes
+                .values()
+                .map((child) => processNode(child, parentHasSenseNumber))
+                .reduce((p, c) => p + c, '')}</${el.tagName}>`;
         }
 
         return (
