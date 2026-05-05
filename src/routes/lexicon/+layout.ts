@@ -20,14 +20,6 @@ const reversalURLs = import.meta.glob('./**/*.json', {
     query: '?url'
 }) as Record<string, string>;
 
-type FetchJob = {
-    code: string;
-    letter: string;
-    file: string;
-};
-
-const reversalQueue: FetchJob[] = [];
-
 export const load: LayoutLoad = async ({ fetch }) => {
     if (!(config as DictionaryConfig).writingSystems) {
         throw new Error('Writing systems configuration not found');
@@ -61,7 +53,7 @@ export const load: LayoutLoad = async ({ fetch }) => {
         }
     }
 
-    reversalQueue.length = 0;
+    const toFetch: string[][] = [];
 
     for (const [code, reversal] of reversals.entries()) {
         const response = await fetch(reversalURLs[`./${code}/index.json`]);
@@ -69,7 +61,7 @@ export const load: LayoutLoad = async ({ fetch }) => {
             Object.entries((await response.json()) as Promise<Record<string, string[]>>).forEach(
                 ([letter, files]) => {
                     reversal?.set(letter, new SvelteMap(files.map((f: string) => [f, []])));
-                    reversalQueue.push(...files.map((file: string) => ({ code, letter, file })));
+                    toFetch.push(...files.map((file: string) => [code, letter, file]));
                 }
             );
         } else {
@@ -78,8 +70,9 @@ export const load: LayoutLoad = async ({ fetch }) => {
     }
 
     console.log(reversals);
-    reversalQueue.sort((a, b) => a.letter.localeCompare(b.letter, 'en-US'));
-    console.log(reversalQueue.slice(0));
+    // load all 'a', then all 'b', etc.
+    toFetch.sort((a, b) => a[1].localeCompare(b[1], 'en-US'));
+    console.log(toFetch);
 
     let db = await initializeDatabase({ fetch });
     let results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
@@ -114,26 +107,18 @@ export const load: LayoutLoad = async ({ fetch }) => {
     }
 
     // start loading reversals in background
-    loadReversals();
+    const start = new Date().valueOf();
+    Promise.all(toFetch.map((j) => loadReversal(j))).then(() =>
+        console.log(`Loaded all reversals in ${(new Date().valueOf() - start) / 1000}s`)
+    );
 
     return {
         vernacularAlphabet
     };
 };
 
-async function loadReversals() {
-    const start = new Date().valueOf();
-    while (reversalQueue.length) {
-        const job = reversalQueue.shift();
-        if (job) {
-            await loadReversal(job);
-        }
-    }
-    console.log(`Loaded all reversals in ${(new Date().valueOf() - start) / 1000}s`);
-}
-
-async function loadReversal(job: FetchJob) {
-    const { code, letter, file } = job;
+async function loadReversal(job: string[]) {
+    const [code, letter, file] = job;
 
     const key = `./${code}/${file}`;
 
