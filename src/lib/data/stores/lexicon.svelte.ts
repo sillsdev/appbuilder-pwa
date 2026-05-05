@@ -1,5 +1,6 @@
 import type { LoadEvent } from '@sveltejs/kit';
 import initSqlJs, { type Database } from 'sql.js';
+import { SvelteMap } from 'svelte/reactivity';
 
 // Store for vernacularLanguage
 export let vernacularLanguageId = $state({ value: '' });
@@ -31,10 +32,14 @@ export type ReversalWord = {
     letter: string;
     homonym_index?: never;
 };
-export let reversalWords: Record<string, ReversalWord[]> = $state({});
 
-// Store for the loaded reversalLetters, keyed by language
-export let reversalLetters: Record<string, string[]> = $state({});
+/**
+ * code -> letter -> file -> loaded
+ */
+export let reversals: SvelteMap<
+    string,
+    SvelteMap<string, SvelteMap<string, ReversalWord[]> | undefined> | undefined
+> = new SvelteMap();
 
 export type Word = VernacularWord | ReversalWord;
 
@@ -91,9 +96,21 @@ class CurrentReversal {
     // Store for selectedLanguageStore
     languageId: string | null = $state(null);
     // Derived store to get the current language's reversalWordsList
-    words = $derived(this.languageId ? reversalWords[this.languageId] || [] : []);
+    words = $derived(
+        this.languageId
+            ? reversals
+                  .get(this.languageId)
+                  ?.values() // = letters for language
+                  .filter((file) => !!file) // filter letters that don't have a file
+                  .flatMap((file) => file?.values().toArray()) // for each letter, flatten word list
+                  .toArray()
+                  .flat() || [] // return flattened array of all words
+            : []
+    );
     // Derived store to get the current language's reversalLetters
-    letters = $derived(new Set(this.languageId ? reversalLetters[this.languageId] || [] : []));
+    letters = $derived(
+        new Set(this.languageId ? reversals.get(this.languageId)?.keys() || [] : [])
+    );
 }
 
 export const currentReversal = new CurrentReversal();

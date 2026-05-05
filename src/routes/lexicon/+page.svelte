@@ -4,15 +4,11 @@
         currentReversal,
         displayNames,
         isVernacular,
-        reversalLetters,
-        reversalWords,
+        reversals,
         selectedWord,
         selectWord,
         vernacularLanguageId,
-        vernacularWords,
-        type ReversalWord,
-        type VernacularWord,
-        type VernacularWordReference
+        vernacularWords
     } from '$lib/data/stores/lexicon.svelte';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import HomonymSubscript from '$lib/lexicon/components/HomonymSubscript.svelte';
@@ -23,7 +19,7 @@
     import { fly } from 'svelte/transition';
     import type { PageData } from './$types';
 
-    const reversals = import.meta.glob('./**/*.json', {
+    const reversalJSONFiles = import.meta.glob('./**/*.json', {
         import: 'default',
         eager: true,
         base: '/src/gen-assets/reversal',
@@ -36,15 +32,17 @@
 
     const { data }: Props = $props();
 
-    const { vernacularAlphabet, reversalAlphabets, reversalLanguages, reversalIndexes } = data;
+    const { vernacularAlphabet } = data;
 
     const alphabets = {
-        reversal: reversalAlphabets.length > 0 ? Object.values(reversalAlphabets[0])[0] : [],
+        reversal:
+            reversals.size > 0
+                ? (reversals.entries().next().value[1].keys().toArray() as string[])
+                : [],
         vernacular: vernacularAlphabet
     };
 
     let selectedLetter = alphabets.vernacular[0];
-    let showBackButton = $derived(selectedWord.value ? true : false);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
 
     //$: selectedLanguage = currentReversal.selectedLanguage;
@@ -55,103 +53,7 @@
         currentReversal.languageId = vernacularLanguageId.value;
     });
 
-    const validReversal = $derived(reversalLanguages.includes(currentReversal.languageId));
-
-    async function fetchWords(letter = selectedLetter) {
-        if (validReversal && !currentReversal.letters.has(letter)) {
-            const letterIndex = alphabets.reversal.indexOf(letter);
-            const lettersToLoad = alphabets.reversal
-                .slice(0, letterIndex)
-                .filter((l) => !currentReversal.letters.has(l));
-
-            // Load all required letters in parallel
-            await Promise.all(lettersToLoad.map(loadLetterData));
-
-            // Load the current letter
-            await loadLetterData(letter);
-
-            // Sort the results based on the selectedLanguage's alphabet
-            reversalWords[currentReversal.languageId] = (
-                reversalWords[currentReversal.languageId] || []
-            ).sort((a, b) => {
-                const alphabet = currentAlphabet;
-                return alphabet.indexOf(a.letter) - alphabet.indexOf(b.letter);
-            });
-        }
-    }
-
-    async function loadLetterData(letter: string) {
-        let newWords: ReversalWord[] = [];
-
-        const reversalKey =
-            currentReversal.languageId ||
-            (reversalAlphabets.length > 0 ? Object.keys(reversalAlphabets[0])[0] : '');
-
-        const index = reversalIndexes[reversalKey];
-        if (!index) {
-            console.error(`No reversal index loaded for language: ${reversalKey}`);
-            return;
-        }
-        const files = index[letter] || [];
-        for (const file of files) {
-            const reversalFile = reversals[`./${reversalKey}/${file}`];
-            if (!reversalFile) {
-                console.error(`Reversal file not found in glob: ./${reversalKey}/${file}`);
-                continue;
-            }
-            const response = await fetch(reversalFile);
-            if (response.ok) {
-                const data: Record<string, { index: number; name: 'string' }[]> =
-                    await response.json();
-                const currentFileWords: ReversalWord[] = Object.entries(data).map(
-                    ([name, entries]) => ({
-                        name,
-                        indexes: entries.map((entry) => entry.index),
-                        vernacularWords: entries
-                            .map((entry) => {
-                                const foundWord: VernacularWord = vernacularWords.value.find(
-                                    (vw) => vw.id === entry.index
-                                );
-                                if (foundWord) {
-                                    return {
-                                        name: foundWord.name,
-                                        homonym_index: foundWord.homonym_index || 0
-                                    } satisfies VernacularWordReference;
-                                } else {
-                                    console.log(
-                                        `Index ${entry.index} not found in vernacularWords`
-                                    );
-                                    return null; // Return null for missing indexes
-                                }
-                            })
-                            .filter((index) => index !== null), // Filter out null values
-                        letter: letter
-                    })
-                );
-
-                currentFileWords.forEach((newWord) => {
-                    const existingWord = newWords.find((w) => w.name === newWord.name);
-                    if (existingWord) {
-                        existingWord.indexes = [
-                            ...new Set([...existingWord.indexes, ...newWord.indexes])
-                        ];
-                    } else {
-                        newWords.push(newWord);
-                    }
-                });
-            }
-        }
-
-        reversalWords[currentReversal.languageId] = [
-            ...(reversalWords[currentReversal.languageId] || []),
-            ...newWords
-        ];
-
-        reversalLetters[currentReversal.languageId] = [
-            ...(reversalLetters[currentReversal.languageId] || []),
-            letter
-        ];
-    }
+    const validReversal = $derived(reversals.has(currentReversal.languageId));
 
     async function scrollToLetter(letter: string) {
         await tick();
@@ -169,18 +71,12 @@
 
     async function handleLetterChange(letter: string) {
         selectedLetter = letter;
-        if (validReversal) {
-            await fetchWords();
-        }
         scrollToLetter(letter);
     }
 
     function switchLanguage(language: string) {
         currentReversal.languageId = language;
         selectedLetter = currentAlphabet[0];
-        if (currentReversal.languageId != vernacularLanguageId.value) {
-            fetchWords();
-        }
         const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
         if (scrollableDiv) {
             scrollableDiv.scrollTop = 0;
@@ -205,7 +101,7 @@
                 if (!currentReversal.letters.has(currentAlphabet[currentIndex + 1])) {
                     if (currentIndex < currentAlphabet.length - 1) {
                         isFetching = true;
-                        await fetchWords(currentAlphabet[currentIndex + 1]);
+
                         isFetching = false;
                     }
                 }
@@ -233,9 +129,6 @@
     let currentAlphabet = $derived(validReversal ? alphabets.reversal : alphabets.vernacular);
 
     onMount(() => {
-        if (selectedLetter && currentReversal.languageId != vernacularLanguageId.value) {
-            fetchWords();
-        }
         if (config.programType !== 'DAB') {
             gotoRoute(`/text`);
         }
@@ -247,7 +140,7 @@
 {#if selectedWord.value}
     <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
 {:else}
-    {@const tabs = [vernacularLanguageId.value, ...reversalLanguages]}
+    {@const tabs = [vernacularLanguageId.value, ...reversals.keys()]}
     {@const indexOfPrevious = tabs.indexOf(previousLanguage)}
     <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
         {#each tabs as lang, i}
@@ -276,11 +169,17 @@
     >
         {#each currentAlphabet as letter}
             <button
-                class="px-3 py-2 text-sm font-bold border rounded-md cursor-pointer snap-start
+                class="dy-btn dy-btn-square dy-btn-sm rounded-sm font-bold snap-start
                         sm:px-4 sm:py-3 sm:text-base
                         md:px-5 md:py-4 md:text-base
                         lg:px-6 lg:py-4 lg:text-lg"
                 style="border-color: var(--SettingsSeparatorColor);"
+                disabled={currentReversal.languageId !== vernacularLanguageId.value &&
+                    !reversals
+                        .get(currentReversal.languageId)
+                        ?.get(letter)
+                        ?.values()
+                        .some((w) => w.length)}
                 onclick={() => handleLetterChange(letter)}
             >
                 {letter}
