@@ -2,21 +2,13 @@
     import {
         compareWordsEqual,
         currentReversal,
+        selectedWord,
+        selectWord,
         vernacularLanguageId,
         vernacularWords,
-        type SelectedWord,
         type Word
     } from '$lib/data/stores/lexicon.svelte';
     import HomonymSubscript from './HomonymSubscript.svelte';
-
-    interface Props {
-        /** Current word being displayed */
-        currentWord: SelectedWord;
-        /** Function to handle word selection from parent component */
-        onSelectWord: (word: SelectedWord) => void;
-    }
-
-    let { currentWord, onSelectWord }: Props = $props();
 
     // List of all words (should come from either vernacularWordsList or reversalWordsList)
     let wordsList: Word[] = $derived(
@@ -27,7 +19,7 @@
 
     // Compute the index of the current word in the list
     let currentIndex = $derived(
-        wordsList.findIndex((word: Word) => compareWordsEqual(word, currentWord))
+        wordsList.findIndex((word: Word) => compareWordsEqual(word, selectedWord.value))
     );
 
     // Compute previous and next words
@@ -40,7 +32,7 @@
     function goToPrevious() {
         if (previousWord) {
             // Format the word object to match the expected structure
-            onSelectWord(previousWord);
+            selectWord(previousWord);
         }
     }
 
@@ -48,7 +40,7 @@
     function goToNext() {
         if (nextWord) {
             // Format the word object to match the expected structure
-            onSelectWord(nextWord);
+            selectWord(nextWord);
         }
     }
 </script>
@@ -74,8 +66,8 @@
         class="text-center font-bold text-lg px-4 truncate max-w-xs"
         style="color: var(--TextColor);"
     >
-        {currentWord.name || ''}
-        <HomonymSubscript word={currentWord} />
+        {selectedWord.value.name || ''}
+        <HomonymSubscript word={selectedWord.value} />
     </div>
 
     <button

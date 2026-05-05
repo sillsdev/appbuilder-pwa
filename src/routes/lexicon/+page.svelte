@@ -130,7 +130,7 @@
 </script>
 
 {#if selectedWord.value}
-    <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
+    <WordNavigationStrip />
 {:else}
     {@const tabs = [vernacularLanguageId.value, ...reversals.keys()]}
     {@const indexOfPrevious = tabs.indexOf(previousLanguage)}

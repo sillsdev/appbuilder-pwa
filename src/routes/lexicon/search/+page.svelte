@@ -80,7 +80,7 @@
         </div>
 
         {#if selectedWord.value}
-            <WordNavigationStrip currentWord={selectedWord.value} onSelectWord={selectWord} />
+            <WordNavigationStrip />
         {/if}
 
         <div class="flex justify-center">

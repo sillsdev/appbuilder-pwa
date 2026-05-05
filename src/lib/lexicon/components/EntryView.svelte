@@ -30,7 +30,9 @@
         wordIDs?: number[];
     }
 
-    let { wordIDs: _wordIDs = wordIDs.value, removeNewLines = false }: Props = $props();
+    let { wordIDs: override, removeNewLines = false }: Props = $props();
+
+    const _wordIDs = $derived(override ?? wordIDs.value);
 
     let xmlData = $state('');
 
