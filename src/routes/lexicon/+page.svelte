@@ -19,13 +19,6 @@
     import { fly } from 'svelte/transition';
     import type { PageData } from './$types';
 
-    const reversalJSONFiles = import.meta.glob('./**/*.json', {
-        import: 'default',
-        eager: true,
-        base: '/src/gen-assets/reversal',
-        query: '?url'
-    }) as Record<string, string>;
-
     interface Props {
         data: PageData;
     }
@@ -85,7 +78,7 @@
 
     let isFetching = false;
 
-    async function checkIfScrolledToBottom(event) {
+    async function checkIfScrolledToBottom(div: HTMLDivElement) {
         if (isFetching) return;
 
         if (
@@ -93,7 +86,6 @@
             (currentReversal.languageId === vernacularLanguageId.value &&
                 vernacularWords.value.length > 0)
         ) {
-            let div = event.target;
             const threshold = 100;
 
             if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
@@ -169,10 +161,7 @@
     >
         {#each currentAlphabet as letter}
             <button
-                class="dy-btn dy-btn-square dy-btn-sm rounded-sm font-bold snap-start
-                        sm:px-4 sm:py-3 sm:text-base
-                        md:px-5 md:py-4 md:text-base
-                        lg:px-6 lg:py-4 lg:text-lg"
+                class="dy-btn dy-btn-square dy-btn-sm rounded-sm font-bold snap-start sm:text-base lg:text-lg"
                 style="border-color: var(--SettingsSeparatorColor);"
                 disabled={currentReversal.languageId !== vernacularLanguageId.value &&
                     !reversals
@@ -188,7 +177,11 @@
     </div>
 {/if}
 
-<div class="flex-1 overflow-y-auto" bind:this={scrollContainer} onscroll={checkIfScrolledToBottom}>
+<div
+    class="flex-1 overflow-y-auto"
+    bind:this={scrollContainer}
+    onscroll={(e) => checkIfScrolledToBottom(e.currentTarget)}
+>
     {#if selectedWord.value}
         <EntryView />
     {:else}
