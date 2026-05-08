@@ -18,14 +18,17 @@
     );
 
     // Compute the index of the current word in the list
-    let currentIndex = $derived(
-        wordsList.findIndex((word: Word) => compareWordsEqual(word, selectedWord.value))
+    let currentIndex: number | null = $derived(
+        selectedWord.value &&
+            wordsList.findIndex((word: Word) => compareWordsEqual(word, selectedWord.value))
     );
 
     // Compute previous and next words
-    let previousWord = $derived(currentIndex > 0 ? wordsList[currentIndex - 1] : null);
-    let nextWord = $derived(
-        currentIndex < wordsList.length - 1 ? wordsList[currentIndex + 1] : null
+    let previousWord: Word | null = $derived(
+        currentIndex && currentIndex > 0 ? wordsList[currentIndex - 1] : null
+    );
+    let nextWord: Word | null = $derived(
+        currentIndex && currentIndex < wordsList.length - 1 ? wordsList[currentIndex + 1] : null
     );
 
     // Navigate to previous word
@@ -66,7 +69,7 @@
         class="text-center font-bold text-lg px-4 truncate max-w-xs"
         style="color: var(--TextColor);"
     >
-        {selectedWord.value.name || ''}
+        {selectedWord.value?.name || ''}
         <HomonymSubscript word={selectedWord.value} />
     </div>
 

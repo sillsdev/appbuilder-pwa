@@ -72,7 +72,3 @@ export async function navigateToTextChapterInDirection(direction: number) {
         logHistoryItemAdded
     );
 }
-
-export function getParams(url: URL) {
-    return new URLSearchParams(url.href.split('?').slice(1).join('?'));
-}

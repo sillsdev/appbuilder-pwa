@@ -38,10 +38,7 @@ export async function searchDictionary(phrase: string, options: SearchOptions) {
             uniqueLocationsMap.set(location.id, location);
         }
     });
-    return uniqueLocationsMap
-        .values()
-        .toArray()
-        .toSorted((a, b) => a.id - b.id)
-        .toSorted((a, b) => b.weight - a.weight)
+    return Array.from(uniqueLocationsMap.values())
+        .sort((a, b) => (b.weight !== a.weight ? b.weight - a.weight : a.id - b.id))
         .map((location) => location.id);
 }

@@ -42,7 +42,7 @@
             console.error('Search failed', err);
             searchIDs = [];
         }
-        console.log($state.snapshot(searchIDs));
+        console.log(`${searchIDs.length} matches found`);
 
         // clear search bar after search submitted
         phrase = '';

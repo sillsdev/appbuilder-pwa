@@ -98,12 +98,13 @@ class CurrentReversal {
     // Derived store to get the current language's reversalWordsList
     words = $derived(
         this.languageId
-            ? reversals
-                  .get(this.languageId)
-                  ?.values() // = letters for language
-                  .filter((file) => !!file) // filter letters that don't have a file
-                  .flatMap((file) => file?.values().flatMap((v) => v))
-                  .toArray() || [] // for each letter, flatten word list // return flattened array of all words
+            ? Array.from(
+                  reversals
+                      .get(this.languageId)
+                      ?.values() // = letters for language
+                      .filter((file) => !!file) // filter letters that don't have a file
+                      .flatMap((file) => file?.values().flatMap((v) => v)) || []
+              ) // for each letter, flatten word list // return flattened array of all words
             : []
     );
     // Derived store to get the current language's reversalLetters

@@ -28,10 +28,9 @@
     const { vernacularAlphabet } = data;
 
     const alphabets = {
-        reversal:
-            reversals.size > 0
-                ? (reversals.entries().next().value[1].keys().toArray() as string[])
-                : [],
+        reversal: Object.fromEntries(
+            reversals.entries().map(([code, alpha]) => [code, Array.from(alpha.keys())])
+        ),
         vernacular: vernacularAlphabet
     };
 
@@ -118,7 +117,9 @@
         }
     }
 
-    let currentAlphabet = $derived(validReversal ? alphabets.reversal : alphabets.vernacular);
+    let currentAlphabet = $derived(
+        validReversal ? alphabets.reversal[currentReversal.languageId] : alphabets.vernacular
+    );
 
     onMount(() => {
         if (config.programType !== 'DAB') {
@@ -164,11 +165,9 @@
                 class="dy-btn dy-btn-square dy-btn-sm rounded-sm font-bold snap-start sm:text-base lg:text-lg"
                 style="border-color: var(--SettingsSeparatorColor);"
                 disabled={currentReversal.languageId !== vernacularLanguageId.value &&
-                    !reversals
-                        .get(currentReversal.languageId)
-                        ?.get(letter)
-                        ?.values()
-                        .some((w) => w.length)}
+                    !Array.from(
+                        reversals.get(currentReversal.languageId)?.get(letter)?.values() || []
+                    ).find((w) => w.length)}
                 onclick={() => handleLetterChange(letter)}
             >
                 {letter}

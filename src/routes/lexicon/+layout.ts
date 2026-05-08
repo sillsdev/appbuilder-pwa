@@ -69,10 +69,8 @@ export const load: LayoutLoad = async ({ fetch }) => {
         }
     }
 
-    console.log(reversals);
     // load all 'a', then all 'b', etc.
     toFetch.sort((a, b) => a[1].localeCompare(b[1], 'en-US'));
-    console.log(toFetch);
 
     let db = await initializeDatabase({ fetch });
     let results = db.exec(`SELECT id, name, homonym_index, type, num_senses, summary FROM entries`);
@@ -130,7 +128,7 @@ async function loadReversal(job: string[]) {
 
     const response = await fetch(reversalFile);
     if (response.ok) {
-        const data: Record<string, { index: number; name: 'string' }[]> = await response.json();
+        const data: Record<string, { index: number; name: string }[]> = await response.json();
         reversals
             .get(code)
             ?.get(letter)

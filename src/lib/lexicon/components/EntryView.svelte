@@ -154,7 +154,9 @@
             parentHasSenseNumber: boolean,
             mapAttrValue = (attr: Attr) => attr.value
         ) {
-            return `<${el.tagName}${Array.from(el.attributes).map((attr) => ` ${attr.name}="${mapAttrValue(attr)}"`)}>${el.childNodes
+            return `<${el.tagName}${Array.from(el.attributes)
+                .map((attr) => ` ${attr.name}="${mapAttrValue(attr)}"`)
+                .join('')}>${el.childNodes
                 .values()
                 .map((child) => processNode(child, parentHasSenseNumber))
                 .reduce((p, c) => p + c, '')}</${el.tagName}>`;
@@ -205,7 +207,7 @@
                 const id = parseInt(span.getAttribute('data-index'), 10);
                 const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
 
-                if (name) {
+                if (name && !isNaN(id) && !isNaN(homonym_index)) {
                     selectWord({ name, id, homonym_index });
                 }
             });
