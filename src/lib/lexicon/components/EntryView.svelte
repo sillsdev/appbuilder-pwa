@@ -78,8 +78,7 @@
 
         function processNode(node: Node, parentHasSenseNumber = false) {
             if (node.nodeType === Node.TEXT_NODE) {
-                // TODO: Data in DB has long runs of spaces...
-                return node.nodeValue.trim().replaceAll(/ +/g, ' ');
+                return node.nodeValue.trim();
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
                 let isSenseNumber = el.classList.contains('sensenumber');
