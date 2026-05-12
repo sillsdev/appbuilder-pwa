@@ -1,28 +1,38 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { convertStyle } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle, currentFont } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
+        selectWord,
         vernacularLanguageId,
         vernacularWords,
-        type SelectedWord
+        wordIDs
     } from '$lib/data/stores/lexicon.svelte';
     import type { SqlValue } from 'sql.js';
 
     const clips = import.meta.glob('./*', {
         import: 'default',
         eager: true,
+        query: '?url',
         base: '/src/gen-assets/clips'
     }) as Record<string, string>;
 
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        query: '?url',
+        base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
+
     interface Props {
-        wordIds: number[] | null;
-        onSelectWord: (word: SelectedWord) => void;
         removeNewLines?: boolean;
+        wordIDs?: number[];
     }
 
-    let { wordIds, onSelectWord, removeNewLines = false }: Props = $props();
+    let { wordIDs: override, removeNewLines = false }: Props = $props();
+
+    const _wordIDs = $derived(override ?? wordIDs.value);
 
     let xmlData = $state('');
 
@@ -32,9 +42,15 @@
 
             const dynamicQuery = wordIds.map(() => `id = ?`).join(' OR ');
             const dynamicParams = wordIds.map((id) => id);
-            const results = db.exec(`SELECT xml FROM entries WHERE ${dynamicQuery}`, dynamicParams);
+            const results = db.exec(
+                `SELECT id, xml FROM entries WHERE ${dynamicQuery}`,
+                dynamicParams
+            );
 
-            return results[0].values;
+            // ensure order of results matches order of ids passed in
+            return wordIds
+                .map((id) => results[0].values.find((v) => v[0] === id))
+                .filter((v) => !!v);
         } catch (error) {
             console.error(`Error querying XML for word IDs ${wordIds}:`, error);
             return null;
@@ -45,119 +61,134 @@
         if (!xmlString) return '';
 
         const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+        // TODO: find better solution for <default font> replacement (this was causing xml parse errors)
+        const xmlDoc = parser.parseFromString(
+            xmlString.replaceAll("'<default font>',", ''),
+            'text/xml'
+        );
 
         // Collect audio elements to add at the end
-        let audioElements = '';
+        const audioElements = new Map<string, string>();
 
         const parseError = xmlDoc.querySelector('parsererror');
         if (parseError) {
             console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error" style="background-color: var(--BackgroundColor);">Error parsing XML: Invalid format</span>`;
+            return `<span class="text-error">Error parsing XML: Invalid format</span>`;
         }
 
-        function processNode(node, parentHasSenseNumber = false) {
-            let output = '';
-
+        function processNode(node: Node, parentHasSenseNumber = false): string {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue.trim() ? node.nodeValue + ' ' : '';
-            }
-
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                let className = node.getAttribute('class') || '';
-                let isSenseNumber = className.includes('sensenumber');
+                return node.nodeValue?.trim() ?? '';
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node as HTMLElement;
+                let isSenseNumber = el.classList.contains('sensenumber');
 
                 let parentContainsSenseNumber =
                     parentHasSenseNumber ||
-                    [...node.parentNode.children].some(
-                        (child) =>
-                            child.getAttribute &&
-                            (child.getAttribute('class') || '').includes('sensenumber')
+                    [...(el.parentNode?.children ?? [])].some((child) =>
+                        child.classList.contains('sensenumber')
                     );
 
-                const addStyle =
-                    node.tagName === 'span' ||
-                    className === 'clickable cursor-pointer' ||
-                    (node.tagName === 'div' && className === 'entry');
+                if (el.tagName === 'a' && el.hasAttribute('href')) {
+                    const href = el.getAttribute('href');
+                    let dataAttributes = '';
+                    let linkText = el.childNodes
+                        .values()
+                        .map((child) =>
+                            processNode(child, parentContainsSenseNumber || isSenseNumber)
+                        )
+                        .reduce((p, c) => p + c, '');
 
-                if (node.tagName === 'a' && node.hasAttribute('href')) {
-                    const href = node.getAttribute('href');
-                    const match = href.match(/E-(\d+)/);
+                    const match = href?.match(/^E-(\d+)$/);
                     if (match) {
                         const index = parseInt(match[1], 10);
                         const wordObject = vernacularWords.value.find((item) => item.id === index);
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
-                        let linkText = node.textContent.trim();
-
-                        if (linkText === String(homonymIndex)) {
-                            linkText = homonymIndex.toString();
-                        }
-
-                        output += `<span class="clickable cursor-pointer" style="background-color: var(--BackgroundColor);" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}">${linkText}</span>`;
+                        dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
                     }
-                } else if (node.tagName === 'audio-link' && node.hasAttribute('src')) {
+                    if (match || href?.startsWith('#')) {
+                        return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
+                    } else {
+                        return createElementString(el, parentContainsSenseNumber || isSenseNumber);
+                    }
+                } else if (el.tagName === 'audio-link' && el.hasAttribute('src')) {
                     // Handle audio-link tag - create audio element and clickable link
-                    const audioFile = node.getAttribute('src');
+                    const audioFile = el.getAttribute('src');
                     const src = clips[`./${audioFile}`] ?? 'clips/' + audioFile;
-                    const audioId = 'audio-' + Math.random().toString(36).substr(2, 9); // Generate unique ID
+                    const audioId = 'audio-' + Math.random().toString(36).substring(2); // Generate unique ID
 
                     // Collect audio element to add at the very end
-                    audioElements += `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`;
+                    audioElements.set(audioId, src);
 
                     // Add just the inline clickable icon - no audio element here
-                    output += `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
+                    return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
+                } else if (el.tagName === 'img' && el.hasAttribute('src')) {
+                    const src = el.getAttribute('src')?.replace(/^illustrations\//, '');
+                    const hashedSrc = src && illustrations[`./${src}`];
+                    if (!hashedSrc) {
+                        console.error(`Could not find cached image with src: ${src}`);
+                    }
+
+                    return createElementString(
+                        el,
+                        parentContainsSenseNumber || isSenseNumber,
+                        (attr) => (attr.name === 'src' && hashedSrc) || attr.value
+                    );
                 } else {
-                    output += `<${node.tagName}`;
-                    for (let attr of node.attributes) {
-                        output += ` ${attr.name}="${attr.value}"`;
-                    }
-
                     // Add appropriate styling based on class name
-                    if (className.includes('sensenumber')) {
-                        output += ` style="color: var(--TextColor); font-weight: bold;"`;
-                    } else if (className.includes('vernacular')) {
-                        output += ` style="color: var(--TextColor2);"`;
-                    } else if (className.includes('example')) {
-                        output += ` style="color: var(--TextColor3); font-style: italic;"`;
-                    } else if (className.includes('definition')) {
-                        output += ` style="color: var(--TextColor); font-weight: normal;"`;
+                    if (el.classList.contains('sensenumber')) {
+                        el.classList.add('font-bold');
+                    } else if (el.classList.contains('example')) {
+                        el.classList.add('italic');
+                    } else if (el.classList.contains('definition')) {
+                        el.classList.add('font-normal');
                     }
-
-                    if (addStyle) {
-                        output += ` style="background-color: var(--BackgroundColor); color: var(--TextColor);"`;
-                    }
-
-                    output += '>';
-
-                    for (let child of node.childNodes) {
-                        output += processNode(child, parentContainsSenseNumber || isSenseNumber);
-                    }
-
-                    output += `</${node.tagName}>`;
+                    return createElementString(el, parentContainsSenseNumber || isSenseNumber);
                 }
             }
 
-            return output;
+            return '';
         }
 
-        return processNode(xmlDoc.documentElement) + audioElements;
+        function createElementString(
+            el: HTMLElement,
+            parentHasSenseNumber: boolean,
+            mapAttrValue = (attr: Attr) => attr.value
+        ) {
+            return `<${el.tagName}${Array.from(el.attributes)
+                .map((attr) => ` ${attr.name}="${mapAttrValue(attr)}"`)
+                .join('')}>${Array.from(el.childNodes)
+                .map((child) => processNode(child, parentHasSenseNumber))
+                .join('')}</${el.tagName}>`;
+        }
+
+        return (
+            processNode(xmlDoc.documentElement) +
+            audioElements
+                .entries()
+                .map(
+                    ([audioId, src]) =>
+                        `<audio id="${audioId}" src="${src}" preload="auto" style="display: none;"></audio>`
+                )
+                .reduce((p, c) => p + c, '')
+        );
     }
 
     async function updateXmlData() {
-        if (!wordIds) {
+        if (!_wordIDs.length) {
             xmlData = '';
             return;
         }
 
-        const xmlResults = (await queryXmlByWordId(wordIds)) ?? [];
+        const xmlResults = (await queryXmlByWordId(_wordIDs)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
-                .flatMap((v) => v.map(formatXmlByClass))
+                .map((v) => formatXmlByClass(v[1] as string))
                 .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
             '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
     }
@@ -167,22 +198,20 @@
 
         spans.forEach((span) => {
             const oldSpan = span.cloneNode(true);
-            span.parentNode.replaceChild(oldSpan, span);
+            span.parentNode?.replaceChild(oldSpan, span);
         });
 
         const freshSpans = document.querySelectorAll('.clickable');
         freshSpans.forEach((span) => {
             span.addEventListener('click', () => {
                 currentReversal.languageId = vernacularLanguageId.value;
-                const word = span.getAttribute('data-word');
-                const index = parseInt(span.getAttribute('data-index'), 10);
-                const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
+                const name = span.getAttribute('data-word');
+                const id = parseInt(span.getAttribute('data-index') ?? 'NaN', 10);
+                const homonym_index = parseInt(span.getAttribute('data-homonym') ?? 'NaN', 10);
 
-                onSelectWord({
-                    word,
-                    index,
-                    homonym_index
-                });
+                if (name && !isNaN(id) && !isNaN(homonym_index)) {
+                    selectWord({ name, id, homonym_index });
+                }
             });
         });
 
@@ -190,9 +219,11 @@
         audioButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 const audioId = button.getAttribute('data-audio-id');
-                const audioElement = document.getElementById(audioId) as HTMLAudioElement;
-                if (audioElement) {
-                    audioElement.play();
+                if (audioId) {
+                    const audioElement = document.getElementById(audioId) as HTMLAudioElement;
+                    if (audioElement) {
+                        audioElement.play();
+                    }
                 }
             });
         });
@@ -227,7 +258,9 @@
                     .trim();
 
                 if (cleaned && !cleaned.endsWith(';')) cleaned += ';';
+                /* removing this line for now. It doesn't look great with, so I don't think it actually fixes the issue.
                 cleaned += ' margin-left: -1.1em;';
+                */
 
                 style = cleaned;
             }
@@ -241,7 +274,7 @@
     }
 
     $effect(() => {
-        if (wordIds) {
+        if (_wordIDs.length) {
             (async () => {
                 await updateXmlData();
                 applyStyles();
@@ -253,4 +286,4 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor); color: var(--TextColor);">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">{@html xmlData}</pre>

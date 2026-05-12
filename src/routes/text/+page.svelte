@@ -9,6 +9,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
     import StackView from '$lib/components/StackView.svelte';
+    import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
     import config from '$lib/data/config';
@@ -158,11 +159,6 @@
     const showCollectionsOnFirstLaunch = config.mainFeatures['layout-config-first-launch'];
     const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
-    const showThemes = themes.length > 1;
-    const showFontSize = config.mainFeatures['text-font-size-slider'];
-    let showLineHeight = $state(config.mainFeatures['text-line-height-slider']);
-    const showFonts = $derived($fontChoices.length > 1);
-    const showTextAppearance = $derived(showFontSize || showLineHeight || showThemes || showFonts);
 
     const showBorderSetting = $derived(
         getFeatureValueBoolean('show-border', $refs.collection, $refs.book)
@@ -436,7 +432,7 @@
                         {/if}
 
                         <!-- Text Appearance Selector Button -->
-                        {#if showTextAppearance}
+                        {#if showTextAppearance($fontChoices)}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}

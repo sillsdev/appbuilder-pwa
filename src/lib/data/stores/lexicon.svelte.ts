@@ -1,4 +1,6 @@
+import type { LoadEvent } from '@sveltejs/kit';
 import initSqlJs, { type Database } from 'sql.js';
+import { SvelteMap } from 'svelte/reactivity';
 
 // Store for vernacularLanguage
 export let vernacularLanguageId = $state({ value: '' });
@@ -18,49 +20,97 @@ export type VernacularWord = {
 export let vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
 
 // Store for reversalWordsList, keyed by language
-interface VernacularWordReference {
+export type VernacularWordReference = {
     name: string;
-    homonymIndex: number;
-}
+    homonym_index: number;
+};
 
-export interface ReversalWord {
-    word: string;
+export type ReversalWord = {
+    name: string;
     indexes: number[];
     vernacularWords: VernacularWordReference[];
     letter: string;
-}
-export let reversalWords: Record<string, ReversalWord[]> = $state({});
+    homonym_index?: never;
+};
 
-// Store for the loaded reversalLetters, keyed by language
-export let reversalLetters: Record<string, string[]> = $state({});
+/**
+ * code -> letter -> file -> loaded
+ */
+export let reversals: SvelteMap<
+    string,
+    SvelteMap<string, SvelteMap<string, ReversalWord[]> | undefined> | undefined
+> = new SvelteMap();
 
 export type Word = VernacularWord | ReversalWord;
 
-export type SelectableFromVernacular = {
-    word: string;
-    index: number;
+type SelectableFromVernacular = {
+    name: string;
+    id: number;
     homonym_index?: number;
 };
 
 export type SelectedWord = ReversalWord | SelectableFromVernacular;
 
-export function wordToSelected(word: Word): SelectedWord {
-    return 'name' in word
-        ? {
-              word: word.name,
-              index: word.id,
-              homonym_index: word.homonym_index
-          }
-        : word;
+export let selectedWord: { value: SelectedWord | null } = $state({ value: null });
+export let wordIDs: { value: number[] } = $state({ value: [] });
+export function selectWord(word: SelectedWord | null, resetWords = true) {
+    selectedWord.value = word;
+    if (resetWords) {
+        wordIDs.value = selectedWord.value
+            ? isSelectedVernacular(selectedWord.value)
+                ? [selectedWord.value.id]
+                : selectedWord.value.indexes
+            : [];
+    }
+}
+
+export function isVernacular(word?: Word | null): word is VernacularWord {
+    return !!word && 'id' in word;
+}
+export function isSelectedVernacular(word?: SelectedWord | null): word is SelectableFromVernacular {
+    return !!word && 'id' in word;
+}
+
+export function compareWordsEqual(a: SelectedWord | null, b: SelectedWord | null) {
+    if (isSelectedVernacular(a) && isSelectedVernacular(b)) {
+        // For vernacular words, match by ID which is unique
+        return a.id === b.id;
+    } else if (b?.name) {
+        if (isSelectedVernacular(a)) {
+            if (a.homonym_index !== undefined && 'homonym_index' in b) {
+                // For vernacular words with homonyms, match both word and homonym index
+                return a.name === b.name && a.homonym_index === b.homonym_index;
+            } else {
+                // For regular vernacular words
+                return a.name === b.name;
+            }
+        } else if (a?.name) {
+            // For reversal words
+            return a.name === b.name;
+        }
+    }
+    return false;
 }
 
 class CurrentReversal {
     // Store for selectedLanguageStore
     languageId: string | null = $state(null);
     // Derived store to get the current language's reversalWordsList
-    words = $derived(this.languageId ? reversalWords[this.languageId] || [] : []);
+    words = $derived(
+        this.languageId
+            ? Array.from(
+                  reversals
+                      .get(this.languageId)
+                      ?.values() // = letters for language
+                      .filter((file) => !!file) // filter letters that don't have a file
+                      .flatMap((file) => file?.values().flatMap((v) => v)) || []
+              ) // for each letter, flatten word list // return flattened array of all words
+            : []
+    );
     // Derived store to get the current language's reversalLetters
-    letters = $derived(new Set(this.languageId ? reversalLetters[this.languageId] || [] : []));
+    letters = $derived(
+        new Set(this.languageId ? reversals.get(this.languageId)?.keys() || [] : [])
+    );
 }
 
 export const currentReversal = new CurrentReversal();
@@ -82,7 +132,7 @@ const wasmUrl = import.meta.glob('./*.wasm', {
     query: '?url'
 }) as Record<string, string>;
 
-export async function initializeDatabase({ fetch }): Promise<Database> {
+export async function initializeDatabase({ fetch }: Pick<LoadEvent, 'fetch'>): Promise<Database> {
     if (!sql || !db) {
         // Fetch the WebAssembly binary manually using SvelteKit's fetch
         const wasmKey = './sql-wasm.wasm';

@@ -2,12 +2,12 @@
     import { page } from '$app/stores';
     import config from '$lib/data/config';
     import contents from '$lib/data/contents';
-    import { audioActive, isFirstLaunch } from '$lib/data/stores';
+    import { audioActive, isDAB, isFirstLaunch } from '$lib/data/stores';
     import { gotoRoute, navigateToTextReference } from '$lib/navigate';
     import { onMount } from 'svelte';
 
     onMount(async () => {
-        if (config.programType === 'DAB') {
+        if (isDAB(config)) {
             await gotoRoute(`/lexicon`);
             return;
         }

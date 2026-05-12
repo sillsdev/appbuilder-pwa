@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { convertStyle, s, t, themeColors } from '$lib/data/stores';
+    import { convertStyle, isDAB, isSAB, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SearchFormSubmitEvent } from '$lib/types';
 
@@ -19,10 +19,10 @@
     //     config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
 
     let specialCharacters: string[] = $state([]);
-    if (config.programType == 'SAB') {
+    if (isSAB(config)) {
         specialCharacters =
             config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
-    } else if (config.programType === 'DAB') {
+    } else if (isDAB(config)) {
         specialCharacters = Object.values(config.writingSystems)
             .filter((ws: any) => ws.type && ws.type.includes('main'))
             .flatMap((ws: any) => ws.inputButtons || []);
@@ -107,40 +107,40 @@
     {#if config.mainFeatures['search-whole-words-show'] || config.programType == 'DAB'}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
+                <input
+                    type="checkbox"
+                    class="dy-checkbox dy-checkbox-accent"
+                    bind:checked={wholeWords}
+                    style:background-color="var(--TextHighlightColor)"
+                    style:border-color="var(--SettingsSummaryColor)"
+                />
                 <span
-                    class="dy-label-text"
+                    class="dy-label-text grow px-4"
                     style={convertStyle($s['ui.search.checkbox'])}
-                    style:color="var(--SettingsSummaryColor)"
+                    style:color="var(--TextColor)"
                 >
                     <bdi>{$t['Search_Match_Whole_Words']}</bdi>
                 </span>
-                <input
-                    type="checkbox"
-                    class="dy-toggle"
-                    bind:checked={wholeWords}
-                    style:background-color="var(--TextHighlightColor)"
-                    style:border-color="var(--SettingsSeparatorColor)"
-                />
             </label>
         </div>
     {/if}
     {#if config.mainFeatures['search-accents-show'] || config.programType == 'DAB'}
         <div class="dy-form-control max-w-xs px-4 my-2">
             <label class="dy-label cursor-pointer">
+                <input
+                    type="checkbox"
+                    class="dy-checkbox dy-checkbox-accent"
+                    bind:checked={matchAccents}
+                    style:background-color="var(--TextHighlightColor)"
+                    style:border-color="var(--SettingsSummaryColor)"
+                />
                 <span
-                    class="dy-label-text"
+                    class="dy-label-text grow px-4"
                     style={convertStyle($s['ui.search.checkbox'])}
-                    style:color="var(--SettingsSummaryColor)"
+                    style:color="var(--TextColor)"
                 >
                     <bdi>{$t['Search_Match_Accents']}</bdi>
                 </span>
-                <input
-                    type="checkbox"
-                    class="dy-toggle"
-                    bind:checked={matchAccents}
-                    style:background-color="var(--TextHighlightColor)"
-                    style:border-color="var(--SettingsSeparatorColor)"
-                />
             </label>
         </div>
     {/if}

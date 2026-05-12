@@ -10,6 +10,9 @@ The sidebar/drawer.
     import contents from '$lib/data/contents';
     import {
         direction,
+        fontChoices,
+        isDAB,
+        isSAB,
         language,
         languageDefault,
         modal,
@@ -39,6 +42,7 @@ The sidebar/drawer.
         TextAppearanceIcon
     } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
+    import { showTextAppearance } from './TextAppearanceSelector.svelte';
 
     const menuIcons = import.meta.glob('./*', {
         import: 'default',
@@ -97,7 +101,7 @@ The sidebar/drawer.
     }
 
     async function goToSearch() {
-        if (config.programType === 'DAB') {
+        if (isDAB(config)) {
             await gotoRoute(`/lexicon/search`);
         } else {
             await gotoRoute(`/search/${$refs.collection}`);
@@ -137,29 +141,27 @@ The sidebar/drawer.
             </a>
             {#if showAccount}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/account')}
-                    >
+                    <button style:color={textColor} onclick={() => gotoRoute('/account')}>
                         <AccountIcon color={iconColor} />{$t['Account_Page_Title']}
                     </button>
                 </li>
             {/if}
-            {#if showContents}
-                <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/contents/1')}
-                    >
-                        <HomeIcon color={iconColor} />{$t['Menu_Contents']}
-                    </button>
-                </li>
-            {/if}
+            <li>
+                <button
+                    style:color={textColor}
+                    onclick={() =>
+                        showContents
+                            ? gotoRoute('/contents/1')
+                            : isSAB(config)
+                              ? gotoRoute('/text')
+                              : gotoRoute('/lexicon')}
+                >
+                    <HomeIcon color={iconColor} />{$t[showContents ? 'Menu_Contents' : 'Menu_Home']}
+                </button>
+            </li>
             {#if showSearch}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={goToSearch}>
+                    <button style:color={textColor} onclick={goToSearch}>
                         <SearchIcon color={iconColor} />{$t['Menu_Search']}
                     </button>
                 </li>
@@ -167,11 +169,7 @@ The sidebar/drawer.
             {#if showLayouts}
                 <li>
                     <!-- svelte-ignore a11y_missing_attribute -->
-                    <button
-                        style:color={textColor}
-                        class="btn"
-                        onclick={() => modal.open(MODAL_COLLECTION)}
-                    >
+                    <button style:color={textColor} onclick={() => modal.open(MODAL_COLLECTION)}>
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>
@@ -181,40 +179,28 @@ The sidebar/drawer.
             {/if}
             {#if showHistory}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/history')}
-                    >
+                    <button style:color={textColor} onclick={() => gotoRoute('/history')}>
                         <HistoryIcon color={iconColor} />{$t['Menu_History']}
                     </button>
                 </li>
             {/if}
             {#if showBookmarks}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/bookmarks')}
-                    >
+                    <button style:color={textColor} onclick={() => gotoRoute('/bookmarks')}>
                         <BookmarkIcon color={iconColor} />{$t['Annotation_Bookmarks']}
                     </button>
                 </li>
             {/if}
             {#if showNotes}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/notes')}>
+                    <button style:color={textColor} onclick={() => gotoRoute('/notes')}>
                         <NoteIcon color={iconColor} />{$t['Annotation_Notes']}
                     </button>
                 </li>
             {/if}
             {#if showHighlights}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/highlights')}
-                    >
+                    <button style:color={textColor} onclick={() => gotoRoute('/highlights')}>
                         <HighlightIcon color={iconColor} />{$t['Annotation_Highlights']}
                     </button>
                 </li>
@@ -224,7 +210,7 @@ The sidebar/drawer.
             {/if}
             {#if showShare}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/share')}>
+                    <button style:color={textColor} onclick={() => gotoRoute('/share')}>
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </button>
                 </li>
@@ -232,32 +218,29 @@ The sidebar/drawer.
             {/if}
             {#if showPlans}
                 <li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/plans')}>
+                    <button style:color={textColor} onclick={() => gotoRoute('/plans')}>
                         <CalendarMonthIcon color={iconColor} />{$t['Menu_Plans']}
                     </button>
                 </li>
             {/if}
             {#if showSettings}
                 <li>
-                    <button
-                        class="btn"
-                        style:color={textColor}
-                        onclick={() => gotoRoute('/settings')}
-                    >
+                    <button style:color={textColor} onclick={() => gotoRoute('/settings')}>
                         <SettingsIcon color={iconColor} />{$t['Menu_Settings']}
                     </button>
                 </li>
             {/if}
-            <!-- svelte-ignore a11y_missing_attribute -->
-            <li>
-                <button
-                    style:color={textColor}
-                    class="btn"
-                    onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
-                >
-                    <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
-                </button>
-            </li>
+            {#if showTextAppearance($fontChoices)}
+                <!-- svelte-ignore a11y_missing_attribute -->
+                <li>
+                    <button
+                        style:color={textColor}
+                        onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                    >
+                        <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
+                    </button>
+                </li>
+            {/if}
             <div class="dy-divider m-1"></div>
             {#if menuItems}
                 {#each menuItems as item}
@@ -284,7 +267,7 @@ The sidebar/drawer.
                 {/each}
             {/if}
             <li>
-                <button class="btn" style:color={textColor} onclick={() => gotoRoute('/about')}>
+                <button style:color={textColor} onclick={() => gotoRoute('/about')}>
                     <AboutIcon color={iconColor} />{$t['Menu_About']}
                 </button>
             </li>

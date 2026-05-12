@@ -194,9 +194,9 @@ export function convertCollectionFooter(collectionTag: Element, document: Docume
 
 function setConfigType(programType: string) {
     if (programType === 'SAB') {
-        return {} as ScriptureConfig;
+        return { programType } as ScriptureConfig;
     } else if (programType === 'DAB') {
-        return {} as DictionaryConfig;
+        return { programType } as DictionaryConfig;
     } else {
         throw new Error(`Unsupported program type parsed: ${programType}`);
     }
@@ -236,7 +236,6 @@ function convertConfig(dataDir: string, verbose: number) {
         .getElementsByTagName('version')[0]
         .attributes.getNamedItem('name')!.value;
 
-    data.programType = programType;
     data.programVersion = appDefinition.attributes.getNamedItem('program-version')!.value;
     if (Number.isNaN(splitVersion(data.programVersion)[0])) {
         // Development version so use a "high" number

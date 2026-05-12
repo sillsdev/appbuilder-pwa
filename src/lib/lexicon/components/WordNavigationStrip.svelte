@@ -1,21 +1,14 @@
 <script lang="ts">
     import {
+        compareWordsEqual,
         currentReversal,
+        selectedWord,
+        selectWord,
         vernacularLanguageId,
         vernacularWords,
-        wordToSelected,
-        type SelectedWord,
         type Word
     } from '$lib/data/stores/lexicon.svelte';
-
-    interface Props {
-        /** Current word being displayed */
-        currentWord: SelectedWord;
-        /** Function to handle word selection from parent component */
-        onSelectWord: (word: SelectedWord) => void;
-    }
-
-    let { currentWord, onSelectWord }: Props = $props();
+    import HomonymSubscript from './HomonymSubscript.svelte';
 
     // List of all words (should come from either vernacularWordsList or reversalWordsList)
     let wordsList: Word[] = $derived(
@@ -25,46 +18,26 @@
     );
 
     // Compute the index of the current word in the list
-    let currentIndex = $derived(
-        wordsList.findIndex((word: Word) => {
-            // Handle both vernacular and reversal word structures
-            if (typeof word === 'object') {
-                if ('id' in word && 'index' in currentWord) {
-                    // For vernacular words, match by ID which is unique
-                    return word.id === currentWord.index;
-                } else if (currentWord.word) {
-                    if ('name' in word) {
-                        if (word.homonym_index !== undefined && 'homonym_index' in currentWord) {
-                            // For vernacular words with homonyms, match both word and homonym index
-                            return (
-                                word.name === currentWord.word &&
-                                word.homonym_index === currentWord.homonym_index
-                            );
-                        } else {
-                            // For regular vernacular words
-                            return word.name === currentWord.word;
-                        }
-                    } else if (word.word) {
-                        // For reversal words
-                        return word.word === currentWord.word;
-                    }
-                }
-            }
-            return false;
-        })
+    let currentIndex: number | null = $derived(
+        selectedWord.value &&
+            wordsList.findIndex((word: Word) => compareWordsEqual(word, selectedWord.value))
     );
 
     // Compute previous and next words
-    let previousWord = $derived(currentIndex > 0 ? wordsList[currentIndex - 1] : null);
-    let nextWord = $derived(
-        currentIndex < wordsList.length - 1 ? wordsList[currentIndex + 1] : null
+    let previousWord: Word | null = $derived(
+        currentIndex !== null && currentIndex > 0 ? wordsList[currentIndex - 1] : null
+    );
+    let nextWord: Word | null = $derived(
+        currentIndex !== null && currentIndex < wordsList.length - 1
+            ? wordsList[currentIndex + 1]
+            : null
     );
 
     // Navigate to previous word
     function goToPrevious() {
         if (previousWord) {
             // Format the word object to match the expected structure
-            onSelectWord(wordToSelected(previousWord));
+            selectWord(previousWord);
         }
     }
 
@@ -72,7 +45,7 @@
     function goToNext() {
         if (nextWord) {
             // Format the word object to match the expected structure
-            onSelectWord(wordToSelected(nextWord));
+            selectWord(nextWord);
         }
     }
 </script>
@@ -98,10 +71,8 @@
         class="text-center font-bold text-lg px-4 truncate max-w-xs"
         style="color: var(--TextColor);"
     >
-        {currentWord['word'] || ''}
-        {#if 'homonym_index' in currentWord && currentWord.homonym_index > 0}
-            <sub>{currentWord.homonym_index}</sub>
-        {/if}
+        {selectedWord.value?.name || ''}
+        <HomonymSubscript word={selectedWord.value} />
     </div>
 
     <button
