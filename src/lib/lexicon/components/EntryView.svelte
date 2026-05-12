@@ -159,10 +159,9 @@
         ) {
             return `<${el.tagName}${Array.from(el.attributes)
                 .map((attr) => ` ${attr.name}="${mapAttrValue(attr)}"`)
-                .join('')}>${el.childNodes
-                .values()
+                .join('')}>${Array.from(el.childNodes)
                 .map((child) => processNode(child, parentHasSenseNumber))
-                .reduce((p, c) => p + c, '')}</${el.tagName}>`;
+                .join('')}</${el.tagName}>`;
         }
 
         return (
