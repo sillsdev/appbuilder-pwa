@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from '$lib/data/config';
-    import { bodyFontSize, convertStyle } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle, currentFont } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
@@ -284,4 +284,4 @@
 
 <pre
     class="p-4 whitespace-pre-wrap break-words"
-    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px;">{@html xmlData}</pre>
+    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">{@html xmlData}</pre>
