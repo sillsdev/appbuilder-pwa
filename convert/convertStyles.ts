@@ -101,6 +101,14 @@ export function convertStyles(dataDir: string, configData: ConfigTaskOutput, ver
                         }
                         line = line.replace('/fonts', joinUrlPath('$assets', finalPath));
                     }
+                    // fix CSS color var usage that doesn't use `var(--var)` syntax
+                    const colorMatch = line.match(/(color): ((?!var\(--|current)[^;]*Color[^;]*)/i);
+                    if (colorMatch) {
+                        line = line.replace(
+                            colorMatch[0],
+                            `${colorMatch[1]}: var(--${colorMatch[2]})`
+                        );
+                    }
                     return line;
                 })
                 .join(eol);
