@@ -76,16 +76,16 @@
             return `<span class="text-error">Error parsing XML: Invalid format</span>`;
         }
 
-        function processNode(node: Node, parentHasSenseNumber = false) {
+        function processNode(node: Node, parentHasSenseNumber = false): string {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue.trim();
+                return node.nodeValue?.trim() ?? '';
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
                 let isSenseNumber = el.classList.contains('sensenumber');
 
                 let parentContainsSenseNumber =
                     parentHasSenseNumber ||
-                    [...el.parentNode.children].some((child) =>
+                    [...(el.parentNode?.children ?? [])].some((child) =>
                         child.classList.contains('sensenumber')
                     );
 
@@ -99,7 +99,7 @@
                         )
                         .reduce((p, c) => p + c, '');
 
-                    const match = href.match(/E-(\d+)/);
+                    const match = href?.match(/E-(\d+)/);
                     if (match) {
                         const index = parseInt(match[1], 10);
                         const wordObject = vernacularWords.value.find((item) => item.id === index);
@@ -121,8 +121,8 @@
                     // Add just the inline clickable icon - no audio element here
                     return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
                 } else if (el.tagName === 'img' && el.hasAttribute('src')) {
-                    const src = el.getAttribute('src').replace(/^illustrations\//, '');
-                    const hashedSrc = illustrations[`./${src}`];
+                    const src = el.getAttribute('src')?.replace(/^illustrations\//, '');
+                    const hashedSrc = src && illustrations[`./${src}`];
                     if (!hashedSrc) {
                         console.error(`Could not find cached image with src: ${src}`);
                     }
@@ -195,7 +195,7 @@
 
         spans.forEach((span) => {
             const oldSpan = span.cloneNode(true);
-            span.parentNode.replaceChild(oldSpan, span);
+            span.parentNode?.replaceChild(oldSpan, span);
         });
 
         const freshSpans = document.querySelectorAll('.clickable');
@@ -203,8 +203,8 @@
             span.addEventListener('click', () => {
                 currentReversal.languageId = vernacularLanguageId.value;
                 const name = span.getAttribute('data-word');
-                const id = parseInt(span.getAttribute('data-index'), 10);
-                const homonym_index = parseInt(span.getAttribute('data-homonym'), 10);
+                const id = parseInt(span.getAttribute('data-index') ?? 'NaN', 10);
+                const homonym_index = parseInt(span.getAttribute('data-homonym') ?? 'NaN', 10);
 
                 if (name && !isNaN(id) && !isNaN(homonym_index)) {
                     selectWord({ name, id, homonym_index });
@@ -216,9 +216,11 @@
         audioButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 const audioId = button.getAttribute('data-audio-id');
-                const audioElement = document.getElementById(audioId) as HTMLAudioElement;
-                if (audioElement) {
-                    audioElement.play();
+                if (audioId) {
+                    const audioElement = document.getElementById(audioId) as HTMLAudioElement;
+                    if (audioElement) {
+                        audioElement.play();
+                    }
                 }
             });
         });
