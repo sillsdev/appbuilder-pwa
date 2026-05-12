@@ -99,7 +99,7 @@
                         )
                         .reduce((p, c) => p + c, '');
 
-                    const match = href?.match(/E-(\d+)/);
+                    const match = href?.match(/^E-(\d+)$/);
                     if (match) {
                         const index = parseInt(match[1], 10);
                         const wordObject = vernacularWords.value.find((item) => item.id === index);
@@ -108,7 +108,11 @@
 
                         dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
                     }
-                    return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
+                    if (match || href?.startsWith('#')) {
+                        return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
+                    } else {
+                        return createElementString(el, parentContainsSenseNumber || isSenseNumber);
+                    }
                 } else if (el.tagName === 'audio-link' && el.hasAttribute('src')) {
                     // Handle audio-link tag - create audio element and clickable link
                     const audioFile = el.getAttribute('src');
