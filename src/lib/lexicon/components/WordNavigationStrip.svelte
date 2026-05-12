@@ -25,10 +25,12 @@
 
     // Compute previous and next words
     let previousWord: Word | null = $derived(
-        currentIndex && currentIndex > 0 ? wordsList[currentIndex - 1] : null
+        currentIndex !== null && currentIndex > 0 ? wordsList[currentIndex - 1] : null
     );
     let nextWord: Word | null = $derived(
-        currentIndex && currentIndex < wordsList.length - 1 ? wordsList[currentIndex + 1] : null
+        currentIndex !== null && currentIndex < wordsList.length - 1
+            ? wordsList[currentIndex + 1]
+            : null
     );
 
     // Navigate to previous word
