@@ -258,7 +258,9 @@
                     .trim();
 
                 if (cleaned && !cleaned.endsWith(';')) cleaned += ';';
+                /* removing this line for now. It doesn't look great with, so I don't think it actually fixes the issue.
                 cleaned += ' margin-left: -1.1em;';
+                */
 
                 style = cleaned;
             }
