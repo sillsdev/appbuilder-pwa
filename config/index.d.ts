@@ -348,6 +348,8 @@ export type QuizAnswer = {
     image?: string;
     audio?: string;
     explanation?: QuizExplanation;
+    // field is used extensively in UI, adding here for type-safety
+    clicked?: boolean;
 };
 
 export type QuizQuestion = {

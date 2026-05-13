@@ -56,6 +56,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     return {
         quiz: quizData,
         locked,
+        collection: params.collection,
         quizId: id,
         quizName: book?.name,
         dependentQuizId,

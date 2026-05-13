@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
     import { beforeNavigate } from '$app/navigation';
     import { base } from '$app/paths';
-    import { page } from '$app/state';
+    import type { Quiz, QuizAnswer, QuizQuestion, ScriptureConfig } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
@@ -18,63 +18,63 @@
     import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { onDestroy } from 'svelte';
+    import type { PageData } from './$types.js';
 
-    const illustrations = import.meta.glob('./*', {
+    const scriptConfig: ScriptureConfig = config;
+
+    const illustrations: Record<string, string> = import.meta.glob('./*', {
         import: 'default',
         eager: true,
         query: '?url',
         base: '/src/gen-assets/illustrations'
     });
 
-    const clips = import.meta.glob('./*', {
+    const clips: Record<string, string> = import.meta.glob('./*', {
         import: 'default',
         eager: true,
         query: '?url',
         base: '/src/gen-assets/clips'
     });
 
-    const quizAssets = import.meta.glob('./*', {
+    const quizAssets: Record<string, string> = import.meta.glob('./*', {
         import: 'default',
         eager: true,
         query: '?url',
         base: '/src/gen-assets/quiz'
     });
 
-    /**
-     * @typedef {Object} Props
-     * @property {import('./$types').PageData} data
-     */
-
-    /** @type {Props} */
-    let { data } = $props();
+    interface Props {
+        data: PageData;
+    }
+    let { data }: Props = $props();
 
     let textHighlightIndex = $state(-1);
     let quizSaved = $state(false);
-    let shuffledAnswers = $state([]);
-    let quizQuestions = $state([]);
+    let shuffledAnswers: QuizAnswer[] = $state([]);
+    let quizQuestions: QuizQuestion[] = $state([]);
     let score = $state(0);
     let questionNum = $state(0);
-    let currentQuizQuestion = $state();
+    let currentQuizQuestion: QuizQuestion | undefined = $state();
     let clicked = $state(false);
     let displayCorrect = $state(false);
-    let currentQuestionAudio = null;
-    let currentAnswerAudio = null;
-    let currentExplanationAudio = null;
+    let currentQuestionAudio: HTMLAudioElement | null = null;
+    let currentAnswerAudio: HTMLAudioElement | null = null;
+    let currentExplanationAudio: HTMLAudioElement | null = null;
     let explanation = $state('');
     let commentaryMessage = '';
 
     const staticAssets = compareVersions(config.programVersion, '12.0') < 0;
 
-    function getQuizAssetAudio(file) {
+    function getQuizAssetAudio(file: string) {
         return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].replace(/^\//, '');
     }
 
-    function getRandomAudio(audioArray) {
+    function getRandomAudio(audioArray: string[]) {
         const randomIndex = Math.floor(Math.random() * audioArray.length);
         return audioArray[randomIndex];
     }
 
-    function playSound(path, callback, type = 'answer') {
+    function playSound(path: string, callback: null | (() => void), type = 'answer') {
         let audio = new Audio();
         if (type === 'question') {
             currentQuestionAudio = audio;
@@ -88,9 +88,7 @@
 
         audio.src = path;
         audio.onended = function () {
-            if (callback) {
-                callback();
-            }
+            callback?.();
         };
         audio.play();
     }
@@ -130,11 +128,11 @@
         stopCurrentExplanationAudio();
     }
 
-    function getImageSource(image) {
-        return illustrations[`./${page.params.collection}-${quiz.id}-${image}`] ?? '';
+    function getImageSource(image: string) {
+        return illustrations[`./${data.collection}-${quiz?.id}-${image}`] ?? '';
     }
 
-    function shuffleAnswers(answerArray) {
+    function shuffleAnswers(answerArray: QuizAnswer[]) {
         let currentIndex = answerArray.length,
             randomIndex;
         while (currentIndex != 0) {
@@ -148,7 +146,7 @@
         return answerArray;
     }
 
-    function shuffleArray(array) {
+    function shuffleArray<T>(array: T[]) {
         let currentIndex = array.length,
             randomIndex;
 
@@ -176,10 +174,13 @@
         }
     }
 
-    function getCommentary(score) {
+    function getCommentary(score: number) {
         let result = '';
-        for (const commentary of quiz.commentary) {
-            if (score >= commentary.rangeMin && score <= commentary.rangeMax) {
+        for (const commentary of quiz?.commentary ?? []) {
+            if (
+                score >= commentary.rangeMin &&
+                (!commentary.rangeMax || score <= commentary.rangeMax)
+            ) {
                 result = commentary.message;
                 break;
             }
@@ -201,23 +202,27 @@
         displayCorrect = false;
         shuffledAnswers = [];
         explanation = '';
+        score = 0;
+        quizQuestions = [];
+        quizSaved = false;
+        questionNum = 0;
     }
 
-    function getAnswerAudio(quiz, correct) {
+    function getAnswerAudio(quiz: Quiz | null, correct: boolean) {
         let sound;
         if (correct) {
-            sound = quiz.rightAnswerAudio
+            sound = quiz?.rightAnswerAudio
                 ? clips[`./${getRandomAudio(quiz.rightAnswerAudio)}`]
                 : getQuizAssetAudio('quiz-right-answer.mp3');
         } else {
-            sound = quiz.wrongAnswerAudio
+            sound = quiz?.wrongAnswerAudio
                 ? clips[`./${getRandomAudio(quiz.wrongAnswerAudio)}`]
                 : getQuizAssetAudio('quiz-wrong-answer.mp3');
         }
         return sound;
     }
 
-    function onQuestionAnswered(answer) {
+    function onQuestionAnswered(answer: QuizAnswer) {
         textHighlightIndex = -1;
         stopAudioPlayback();
         if (!clicked) {
@@ -229,11 +234,7 @@
                     if (answer.explanation.audio) {
                         playSound(clips[`./${answer.explanation.audio}`], null, 'explanation');
                     }
-                } else if (
-                    !answer.correct &&
-                    currentQuizQuestion.explanation &&
-                    currentQuizQuestion.explanation.text
-                ) {
+                } else if (!answer.correct && currentQuizQuestion?.explanation?.text) {
                     explanation = currentQuizQuestion.explanation.text;
                     if (currentQuizQuestion.explanation.audio) {
                         playSound(
@@ -278,7 +279,7 @@
         }
     }
 
-    function playQuizAnswerAudio(answerIndex) {
+    function playQuizAnswerAudio(answerIndex: number) {
         if (currentQuizQuestion && $quizAudioActive) {
             if (answerIndex < currentQuizQuestion.answers.length) {
                 const answer = currentQuizQuestion.answers[answerIndex];
@@ -305,39 +306,21 @@
     });
     let { locked, quiz, quizId, quizName, passScore } = $derived(data);
     let book = $derived(
-        config.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === quizId)
+        scriptConfig.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === quizId)
     );
     let displayLabel = $derived(quizName || 'Quiz');
-    effect(() => {
-        const { locked, quiz, quizId, quizName, passScore } = data;
-        setBook(
-            config.bookCollections
-                .find((x) => x.id === $refs.collection)
-                .books.find((x) => x.id === quizId)
-        );
-        setDisplayLabel(quizName || 'Quiz');
-
+    $effect(() => {
+        resetQuizState();
         if (quiz) {
-            resetQuizState();
-            setScore(0);
-            setQuestionNum(0);
-            setShuffledAnswers([]);
-            const q = book.quizFeatures['shuffle-questions']
+            quizQuestions = book?.quizFeatures?.['shuffle-questions']
                 ? shuffleArray([...quiz.questions])
                 : [...quiz.questions];
-            setQuizQuestions(q);
-            handleQuestionChange(q, 0);
+            handleQuestionChange();
             playQuizQuestionAudio();
-            setQuizSaved(false);
         } else {
             stopAudioPlayback();
-            setScore(0);
-            setQuestionNum(0);
-            setShuffledAnswers([]);
-            setQuizQuestions([]);
-            setQuizSaved(false);
         }
     });
 </script>
@@ -403,7 +386,7 @@
         </div>
         {#if !quizSaved}
             {@const pass = score >= passScore}
-            {#await addQuiz( { collection: page.params.collection, book: quizId, score, passScore, pass } ) then _}
+            {#await addQuiz( { collection: data.collection, book: quizId, score, passScore, pass } ) then _}
                 <p>Quiz result saved!</p>
             {:catch error}
                 <p>Error saving quiz result: {error.message}</p>
@@ -415,7 +398,7 @@
                 <div class="quiz-question-number" style:line-height="{$bodyLineHeight}%">
                     {questionNum + 1}
                 </div>
-                {#if currentQuizQuestion.answers}
+                {#if currentQuizQuestion?.answers}
                     {#if currentQuizQuestion.answers.some((answer) => answer.text)}
                         <div class="quiz-question-block">
                             <div class="quiz-question" style:line-height="{$bodyLineHeight}%">
@@ -464,7 +447,7 @@
                             {/if}
                         </div>
                     {/if}
-                    {#if currentQuizQuestion.answers.some((answer) => answer.image)}
+                    {#if currentQuizQuestion?.answers.some((answer) => answer.image)}
                         <div class="quiz-question-block">
                             <div class="quiz-question">
                                 {currentQuizQuestion.text}
@@ -489,7 +472,7 @@
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                             <img
                                                 class="cursor-pointer"
-                                                src={getImageSource(answer.image)}
+                                                src={getImageSource(answer.image ?? '')}
                                                 alt={answer.text}
                                                 onclick={() => {
                                                     onQuestionAnswered(answer);
