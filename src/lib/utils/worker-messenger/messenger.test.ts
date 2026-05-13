@@ -250,5 +250,5 @@ test('setIncomingRequestHandler', async () => {
     messenger.setInboundHandler(incomingRequestHandler);
     io.onMessage(testRequestEvent());
     await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(io.lastPosted).toBeDefined;
+    expect(io.lastPosted).toBeDefined();
 });

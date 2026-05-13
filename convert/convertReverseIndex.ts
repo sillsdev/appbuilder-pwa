@@ -52,7 +52,9 @@ export function convertReverseIndex(
 
     let latestLetter = makeEntryLetter(alphabet[0]);
     indexEntries.forEach((entry) => {
-        if (!entry || !entry[0]) return;
+        if (!entry || !entry[0]) {
+            return;
+        }
         const gloss = entry[0];
 
         const firstLetter = getBaseLetter(gloss, alphabet);
@@ -81,7 +83,9 @@ export function convertReverseIndex(
 
         for (let i = 0; i < entries.length; i++) {
             const [gloss, ids] = entries[i];
-            if (!gloss || !ids) continue;
+            if (!gloss || !ids) {
+                continue;
+            }
 
             const idList = ids
                 .split(',')
@@ -150,7 +154,7 @@ export class ConvertReverseIndex extends Task {
             throw new Error('No writing systems found in config data');
         }
 
-        let files: FileContent[] = [];
+        const files: FileContent[] = [];
         for (const lang in configOutput.data.writingSystems) {
             const writingSystem = configOutput.data.writingSystems[lang];
 

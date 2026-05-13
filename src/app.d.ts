@@ -92,7 +92,6 @@ declare namespace App {
 }
 
 declare namespace svelte.JSX {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface HTMLProps<T> {
         onoutclick?: () => void;
     }

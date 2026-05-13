@@ -26,6 +26,7 @@
     import { gotoRoute, navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
+    import { SvelteMap } from 'svelte/reactivity';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
@@ -62,18 +63,21 @@
     }
     async function clicked(item) {
         if (item.linkType === undefined || item.linkType === 'undefined') {
-            if (item.itemType !== 'heading') console.warn('linkType is undefined');
+            if (item.itemType !== 'heading') {
+                console.warn('linkType is undefined');
+            }
             return;
         }
         //check type of link
         switch (item.linkType) {
             //reference linkType
-            case 'reference':
+            case 'reference': {
                 contentsStack.pushItem($page.data.menu.id);
                 const contentsRef = await getReference(item);
                 console.log('contentsRef', contentsRef);
                 await navigateToText(contentsRef);
                 break;
+            }
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem($page.data.menu.id);
@@ -151,7 +155,7 @@
             verse
         };
     }
-    let referenceTexts = new Map();
+    let referenceTexts = new SvelteMap();
     async function loadReferenceText(item) {
         if (!referenceTexts.has(item)) {
             referenceTexts.set(item, await getReferenceText(item));

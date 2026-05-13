@@ -54,13 +54,13 @@ export const s = derived(themeColors, ($themeColors) => {
     return config.styles.reduce((styleProperties, style) => {
         const properties = style.properties;
         let newProperties = { ...properties };
-        if (newProperties.hasOwnProperty('background-color')) {
+        if (Object.prototype.hasOwnProperty.call(newProperties, 'background-color')) {
             newProperties['background-color'] = resolveColor(
                 newProperties['background-color'],
                 $themeColors
             );
         }
-        if (newProperties.hasOwnProperty('color')) {
+        if (Object.prototype.hasOwnProperty.call(newProperties, 'color')) {
             newProperties['color'] = resolveColor(newProperties['color'], $themeColors);
         }
         styleProperties[style.name] = newProperties;

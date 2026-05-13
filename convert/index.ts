@@ -125,10 +125,13 @@ if (process.argv.includes('--watch')) {
                 Array.from(allPaths.values()).some(
                     (p) => watchPath.startsWith(p + path.sep) || watchPath === p
                 )
-            )
+            ) {
                 console.log(`${watchPath} changed`);
+            }
             paths.push(watchPath);
-            if (timer) clearTimeout(timer);
+            if (timer) {
+                clearTimeout(timer);
+            }
             timer = setTimeout(async () => {
                 if (firstRun) {
                     firstRun = false;

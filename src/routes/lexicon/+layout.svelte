@@ -16,7 +16,7 @@
         data: LayoutData;
     }
 
-    let { children }: Props = $props();
+    let { children, data: _data }: Props = $props();
 
     const inSearchRoute = $derived(page.route.id.endsWith('/search'));
 </script>

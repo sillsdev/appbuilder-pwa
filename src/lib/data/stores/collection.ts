@@ -19,7 +19,9 @@ function createInitCollections(): App.CollectionGroup {
     const initCollections: App.CollectionGroup = {};
 
     for (const layout of layouts) {
-        if (!layout.enabled) continue;
+        if (!layout.enabled) {
+            continue;
+        }
         const collections: App.CollectionEntry[] = layout.layoutCollections.map((collectionId) =>
             findCollection(collectionId)
         );

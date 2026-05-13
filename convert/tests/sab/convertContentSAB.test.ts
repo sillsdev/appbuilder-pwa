@@ -55,13 +55,13 @@ function setup(
     verbose: number = 1
 ): TestSetup {
     // Create TestSetup that the test will then use for core data
-    let testSetup: TestSetup = {
+    const testSetup: TestSetup = {
         verbose: verbose,
         noTest: false,
         contentsFileExists: false,
         hasContentsDir: false
     };
-    let contentsFname: string = 'contents.xml';
+    const contentsFname: string = 'contents.xml';
 
     if (dataDir === undefined) {
         dataDir = path.join(process.cwd(), 'data');
@@ -88,7 +88,9 @@ function setup(
     testSetup.scriptureConfig = {} as ScriptureConfig;
 
     if (testSetup.contentsFileExists) {
-        if (verbose >= 3) console.log(`Read Contents file: ${testSetup.contentsFilePath}`);
+        if (verbose >= 3) {
+            console.log(`Read Contents file: ${testSetup.contentsFilePath}`);
+        }
         testSetup.dom = new jsdom.JSDOM(readFileSync(testSetup.contentsFilePath).toString(), {
             contentType: 'text/xml'
         });

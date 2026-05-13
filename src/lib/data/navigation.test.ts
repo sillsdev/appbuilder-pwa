@@ -246,7 +246,7 @@ describe('goToInitial', async () => {
 
     describe('custom start reference', async () => {
         // Make a deep copy of the config, then change mainFeatures property.
-        let config2 = JSON.parse(JSON.stringify(config));
+        const config2 = JSON.parse(JSON.stringify(config));
         config2['mainFeatures'] = { 'start-at-reference': 'grc_C02.MAT.1' };
 
         const navContext2 = new TestNavigationContext(getTestCatalog, config2);
@@ -271,7 +271,7 @@ describe('goToInitial', async () => {
 
     describe('custom start reference - book and chapter only', async () => {
         // Make a deep copy of the config, then change mainFeatures property.
-        let config2 = JSON.parse(JSON.stringify(config));
+        const config2 = JSON.parse(JSON.stringify(config));
         config2['mainFeatures'] = { 'start-at-reference': 'MRK.2' };
 
         const navContext2 = new TestNavigationContext(getTestCatalog, config2);
@@ -456,7 +456,7 @@ describe('goTo', () => {
         });
 
         test('If book collection has no audio, no chapter has audio', async () => {
-            let config2 = JSON.parse(JSON.stringify(config));
+            const config2 = JSON.parse(JSON.stringify(config));
             config2.traits['has-audio'] = false;
             const navContext = new TestNavigationContext(getTestCatalog, config2);
             await navContext.gotoInitial();

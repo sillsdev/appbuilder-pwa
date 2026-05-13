@@ -12,7 +12,7 @@ export const groupStore = (/**@type{any}*/ groupType, /**@type{any}*/ props) => 
     /**@type{any}*/ const subs = { default: [] };
 
     const subscribe = (cb, key = 'default') => {
-        if (!stores.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(stores, key)) {
             stores[key] = groupType(props);
             unsubs[key] = stores[key].subscribe((v) => (vals[key] = v));
             subs[key] = [];

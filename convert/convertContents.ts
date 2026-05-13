@@ -71,14 +71,19 @@ function parseFeatureValue(value: any): any {
 
 // Nested items detection
 export function isTagInnerNestedItem(tag: Element | HTMLElement | undefined): boolean {
-    if (tag === undefined) return false;
-    if (tag.parentElement?.tagName === 'contents') return false; // for /contents/contents-items
+    if (tag === undefined) {
+        return false;
+    }
+    if (tag.parentElement?.tagName === 'contents') {
+        return false;
+    } // for /contents/contents-items
     if (
         // for /contents/contents-items/content-item/contents-items/title
         tag.parentElement?.parentElement?.parentElement?.tagName === 'contents-item' &&
         tag.parentElement?.parentElement?.parentElement?.hasAttribute('type')
-    )
+    ) {
         return true;
+    }
 
     return (
         // for upper level contents-item
@@ -89,7 +94,9 @@ export function isTagInnerNestedItem(tag: Element | HTMLElement | undefined): bo
 }
 
 export function tagHasInnerNestedItems(tag: Element | HTMLElement | undefined): boolean {
-    if (tag === undefined) return false;
+    if (tag === undefined) {
+        return false;
+    }
 
     if (tag.children.length > 0) {
         for (const child of tag.children) {
@@ -124,7 +131,9 @@ export function parseItemType(
     contentItemContainer: boolean,
     prevItemType: string | undefined = undefined
 ): string | undefined {
-    if (tag === undefined) return undefined;
+    if (tag === undefined) {
+        return undefined;
+    }
     let itemType: string | undefined = undefined;
 
     if (tag.hasAttribute('type')) {
@@ -137,7 +146,9 @@ export function parseItemType(
 }
 
 export function parseItemHeading(tag: Element | HTMLElement | undefined): boolean {
-    if (tag === undefined) return false;
+    if (tag === undefined) {
+        return false;
+    }
 
     const headingAttr = tag.attributes.getNamedItem('heading')?.value;
     const heading = headingAttr !== undefined ? headingAttr.toLocaleLowerCase() === 'true' : false;
@@ -149,8 +160,10 @@ export function parseItemTitle(
     upperLayer: boolean,
     verbose: number
 ): LangContainer {
-    let title: LangContainer = {};
-    if (tag === undefined) return title; // empty title
+    const title: LangContainer = {};
+    if (tag === undefined) {
+        return title;
+    } // empty title
     const titleTags = tag.getElementsByTagName('title');
     if (titleTags?.length > 0) {
         for (const titleTag of titleTags) {
@@ -171,8 +184,10 @@ export function parseItemTitle(
 }
 
 export function parseItemSubtitle(tag: Element | HTMLElement | undefined): LangContainer {
-    let subtitle: LangContainer = {};
-    if (tag === undefined) return subtitle;
+    const subtitle: LangContainer = {};
+    if (tag === undefined) {
+        return subtitle;
+    }
 
     const subtitleTags = tag.getElementsByTagName('subtitle');
     if (subtitleTags?.length > 0) {
@@ -190,7 +205,9 @@ export function parseItemImage(
     verbose: number,
     hasContentsDir: boolean
 ): string | undefined {
-    if (tag === undefined) return undefined;
+    if (tag === undefined) {
+        return undefined;
+    }
     let imageFilename = '';
 
     imageFilename = tag.getElementsByTagName('image-filename')[0]?.innerHTML;
@@ -218,7 +235,9 @@ export function parseItemAudio(
     hasContentsDir: boolean
 ): LangContainer {
     const audioFilename: LangContainer = {};
-    if (tag === undefined) return audioFilename;
+    if (tag === undefined) {
+        return audioFilename;
+    }
 
     const audioTags = tag.getElementsByTagName('audio');
     if (audioTags?.length > 0) {
@@ -247,8 +266,10 @@ export function parseItemLink(
     scriptureConfig: ScriptureConfig,
     verbose: number
 ): LinkMeta {
-    let link: LinkMeta = {};
-    if (tag === undefined) return link;
+    const link: LinkMeta = {};
+    if (tag === undefined) {
+        return link;
+    }
     if (typeof tag.getElementsByTagName !== 'function') {
         if (verbose >= 3) {
             console.warn('parseLinkItem tag does not have getElementsByTagName');
@@ -257,7 +278,9 @@ export function parseItemLink(
     }
 
     const linkTags = tag.getElementsByTagName('link');
-    if (verbose >= 3) console.log(linkTags);
+    if (verbose >= 3) {
+        console.log(linkTags);
+    }
     link.linkType = linkTags[0]?.attributes.getNamedItem('type')?.value;
     link.linkTarget = linkTags[0]?.attributes.getNamedItem('target')?.value;
     link.linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
@@ -269,12 +292,15 @@ export function parseItemLink(
         // standard SFM tags.
 
         scriptureConfig.bookCollections?.some((collection) => {
-            if (verbose) console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
+            if (verbose) {
+                console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
+            }
             const book = collection.books.find((x) => x.id === link.linkTarget);
             if (book && book.type) {
                 // We found a book and the book.type is not default (i.e. undefined)
-                if (verbose)
+                if (verbose) {
                     console.log(`Found ${link.linkTarget} in ${collection.id} as ${book.type}`);
+                }
                 link.linkType = book.type;
                 link.linkLocation = `${link.linkType}/${collection.id}/${link.linkTarget}`;
                 return true;
@@ -288,7 +314,9 @@ export function parseItemLink(
 
 export function parseItemFeatures(tag: Element | HTMLElement | undefined): any {
     const features: any = {};
-    if (tag === undefined) return features;
+    if (tag === undefined) {
+        return features;
+    }
 
     const featureTags = tag.getElementsByTagName('feature');
     for (const featureTag of featureTags) {
@@ -300,7 +328,9 @@ export function parseItemFeatures(tag: Element | HTMLElement | undefined): any {
 }
 
 export function parseItemLayoutMode(tag: Element | HTMLElement | undefined): string | undefined {
-    if (tag === undefined) return undefined;
+    if (tag === undefined) {
+        return undefined;
+    }
     const layoutTags = tag.getElementsByTagName('layout');
     return layoutTags[0]?.attributes.getNamedItem('mode')?.value;
 }
@@ -309,7 +339,9 @@ export function parseItemLayoutCollection(
     tag: Element | HTMLElement | undefined
 ): Array<string> | undefined {
     let layoutCollection = undefined;
-    if (tag === undefined) return layoutCollection;
+    if (tag === undefined) {
+        return layoutCollection;
+    }
     const layoutCollectionTags = tag.getElementsByTagName('layout-collection');
     if (layoutCollectionTags?.length > 0) {
         layoutCollection = [];
@@ -376,26 +408,29 @@ export function convertContents(
     if (itemTags?.length > 0) {
         data.items = [];
         let prevItemType: string | undefined = undefined;
-        let currentContentContainer: number | undefined = undefined;
+        const currentContentContainer: number | undefined = undefined;
         let hasNestedItems = false; // Does this specific item have nested items?
 
         for (const itemTag of itemTags) {
             const isNestedItem = isTagInnerNestedItem(itemTag);
             hasNestedItems = tagHasInnerNestedItems(itemTag);
 
-            if (verbose >= 3)
+            if (verbose >= 3) {
                 console.log(
                     `tagName: ${itemTag.tagName} itemType: ${itemTag.getAttribute('type') ?? ''} isNestedItem: ${isNestedItem} hasNestedItems: ${hasNestedItems}`
                 );
+            }
 
             if (isNestedItem) {
                 continue; // skip nesteditems in the main loop, we will get them below for the parent item
             }
 
-            let contentItemContainer = itemTag.hasAttribute('type');
+            const contentItemContainer = itemTag.hasAttribute('type');
             const itemType = parseItemType(itemTag, contentItemContainer);
 
-            if (verbose >= 3) console.log(`itemTypes: prev: ${prevItemType} now: ${itemType} `);
+            if (verbose >= 3) {
+                console.log(`itemTypes: prev: ${prevItemType} now: ${itemType} `);
+            }
 
             const id = parseItemId(itemTag);
 
@@ -403,8 +438,9 @@ export function convertContents(
 
             const title = parseItemTitle(itemTag, true, verbose);
 
-            if (verbose >= 3 && itemType === undefined)
+            if (verbose >= 3 && itemType === undefined) {
                 console.warn(`item type is undefined for ${title}`);
+            }
 
             const subtitle = parseItemSubtitle(itemTag);
 
@@ -435,14 +471,16 @@ export function convertContents(
             if (hasNestedItems) {
                 if (itemTag.children.length > 0) {
                     nestedItems = true;
-                    let itemChildren = itemTag.querySelectorAll('contents-item');
+                    const itemChildren = itemTag.querySelectorAll('contents-item');
                     for (const itemChild of itemChildren) {
                         const cId = parseItemId(itemChild);
                         const cTitle = parseItemTitle(itemChild, false, verbose);
-                        let childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
+                        const childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
                         const cItemType = itemType; // Technically this is a child of the item
                         const cSubtitle = parseItemSubtitle(itemChild);
-                        if (verbose >= 3) console.log(`Child Tag: ${itemChild.tagName}`);
+                        if (verbose >= 3) {
+                            console.log(`Child Tag: ${itemChild.tagName}`);
+                        }
                         const cImageFileName = parseItemImage(
                             itemChild,
                             contentsDir,
@@ -498,7 +536,9 @@ export function convertContents(
                 children
             });
 
-            if (itemType !== prevItemType) prevItemType = itemType; // pass on itemType the next iteration
+            if (itemType !== prevItemType) {
+                prevItemType = itemType;
+            } // pass on itemType the next iteration
         }
     }
 
