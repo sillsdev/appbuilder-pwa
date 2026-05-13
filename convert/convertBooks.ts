@@ -3,7 +3,15 @@
 
 import * as fs from 'fs';
 import path, { basename, extname, join } from 'path';
-import type { BookConfig, BookTabConfig, ScriptureConfig } from '$config';
+import type {
+    BookConfig,
+    BookTabConfig,
+    Quiz,
+    QuizAnswer,
+    QuizExplanation,
+    QuizQuestion,
+    ScriptureConfig
+} from '$config';
 import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
@@ -598,48 +606,6 @@ export async function convertBooks(
         taskName: 'ConvertBooks'
     };
 }
-
-export type QuizExplanation = {
-    text?: string;
-    audio?: string;
-};
-
-export type QuizAnswer = {
-    //\aw or \ar
-    correct: boolean;
-    text?: string;
-    image?: string;
-    audio?: string;
-    explanation?: QuizExplanation;
-};
-
-export type QuizQuestion = {
-    //\qu
-    text: string;
-    image?: string;
-    audio?: string;
-    columns?: number; //\ac
-    explanation?: QuizExplanation;
-    answers: QuizAnswer[];
-};
-
-export type Quiz = {
-    id: string; //\id
-    name?: string; //\qn
-    shortName?: string; //\qs
-    rightAnswerAudio?: string[]; //\ra
-    wrongAnswerAudio?: string[]; //\wa
-    questions: QuizQuestion[];
-    scoreMessageBefore?: string; //\sb
-    scoreMessageAfter?: string; //\sa
-    commentary?: {
-        //\sc
-        rangeMin: number;
-        rangeMax?: number;
-        message: string;
-    }[];
-    passScore?: number; //\pm
-};
 
 function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
     const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
