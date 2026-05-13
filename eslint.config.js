@@ -77,6 +77,8 @@ export default ts.config(
             'static',
             'example_data',
             'test_data',
+            // extracted projects in CI
+            'project_data',
             'pnpm-lock.yaml',
             'package-lock.json',
             'yarn.lock'
