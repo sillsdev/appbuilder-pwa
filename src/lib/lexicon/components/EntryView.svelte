@@ -63,27 +63,19 @@
         }
 
         const parser = new DOMParser();
-        // TODO: find better solution for <default font> replacement (this was causing xml parse errors)
-        const xmlDoc = parser.parseFromString(
-            xmlString.replaceAll("'<default font>',", ''),
-            'text/xml'
-        );
+        // parse as HTML instead of XML. HTML parsing is very forgiving, so we won't really get any parse errors
+        const htmlDoc = parser.parseFromString(xmlString, 'text/html');
 
         // Collect audio elements to add at the end
         // eslint-disable-next-line svelte/prefer-svelte-reactivity
         const audioElements = new Map<string, string>();
-
-        const parseError = xmlDoc.querySelector('parsererror');
-        if (parseError) {
-            console.error('XML parsing error:', parseError.textContent);
-            return `<span class="text-error">Error parsing XML: Invalid format</span>`;
-        }
 
         function processNode(node: Node, parentHasSenseNumber = false): string {
             if (node.nodeType === Node.TEXT_NODE) {
                 return node.nodeValue?.trim() ?? '';
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
+                const tagName = el.tagName.toLowerCase();
                 let isSenseNumber = el.classList.contains('sensenumber');
 
                 let parentContainsSenseNumber =
@@ -92,7 +84,7 @@
                         child.classList.contains('sensenumber')
                     );
 
-                if (el.tagName === 'a' && el.hasAttribute('href')) {
+                if (tagName === 'a' && el.hasAttribute('href')) {
                     const href = el.getAttribute('href');
                     let dataAttributes = '';
                     let linkText = el.childNodes
@@ -116,7 +108,7 @@
                     } else {
                         return createElementString(el, parentContainsSenseNumber || isSenseNumber);
                     }
-                } else if (el.tagName === 'audio-link' && el.hasAttribute('src')) {
+                } else if (tagName === 'audio-link' && el.hasAttribute('src')) {
                     // Handle audio-link tag - create audio element and clickable link
                     const audioFile = el.getAttribute('src');
                     const src = clips[`./${audioFile}`] ?? 'clips/' + audioFile;
@@ -127,7 +119,7 @@
 
                     // Add just the inline clickable icon - no audio element here
                     return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
-                } else if (el.tagName === 'img' && el.hasAttribute('src')) {
+                } else if (tagName === 'img' && el.hasAttribute('src')) {
                     const src = el.getAttribute('src')?.replace(/^illustrations\//, '');
                     const hashedSrc = src && illustrations[`./${src}`];
                     if (!hashedSrc) {
@@ -168,7 +160,7 @@
         }
 
         return (
-            processNode(xmlDoc.documentElement) +
+            processNode(htmlDoc.documentElement) +
             audioElements
                 .entries()
                 .map(
