@@ -1624,8 +1624,14 @@ export class ConvertConfig extends Task {
             data,
             files: [
                 {
-                    path: 'src/gen-assets/config.js',
-                    content: `export default ${JSON.stringify(data, null, 2)};`
+                    path: 'src/gen-assets/config.ts',
+                    content: [
+                        `import type { AppConfig, DictionaryConfig, ScriptureConfig } from '$config';`,
+                        `export const config = ${JSON.stringify(data, null, 2)} as Readonly<AppConfig>;`,
+                        `export const dictionaryConfig = config as Readonly<DictionaryConfig>;`,
+                        `export const scriptureConfig = config as Readonly<ScriptureConfig>;`,
+                        `export default config;\n`
+                    ].join('\n')
                 }
             ]
         };

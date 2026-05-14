@@ -1,5 +1,5 @@
 import { base } from '$app/paths';
-import config from '$assets/config';
+import { scriptureConfig } from '$assets/config';
 import { MRUCache } from '$lib/data/mrucache';
 import {
     audioHighlightElements,
@@ -422,7 +422,7 @@ export async function getAudioSourceInfo(item: {
     chapter: string;
 }) {
     //search config for audio on provided collection, book, and chapter
-    const audio = config.bookCollections
+    const audio = scriptureConfig.bookCollections
         ?.find((c) => item.collection === c.id)
         ?.books?.find((b) => b.id === item.book)
         ?.audio?.find((a) => item.chapter === '' + a.num);
@@ -430,10 +430,10 @@ export async function getAudioSourceInfo(item: {
         return;
     }
 
-    const audioSource = config.audio.sources[audio.src];
+    const audioSource = scriptureConfig.audio?.sources[audio.src];
     let audioPath = null;
 
-    if (audioSource.type === 'fcbh') {
+    if (audioSource?.type === 'fcbh') {
         const dbp4 = audioSource.address ? audioSource.address : 'https://4.dbt.io';
         // if (source.accessMethods.includes('download')) {
         //    // TODO: Figure out how to use Cache API to download audio to PWA
@@ -452,13 +452,13 @@ export async function getAudioSourceInfo(item: {
         }
 
         audioPath = result.data[0].path;
-    } else if (audioSource.type === 'assets') {
+    } else if (audioSource?.type === 'assets') {
         const audioKey = `./${audio.filename}`;
         if (!audioSources[audioKey]) {
             throw new Error(`Audio file not found in generated assets: ${audio.filename}`);
         }
         audioPath = audioSources[audioKey];
-    } else if (audioSource.type === 'download') {
+    } else if (audioSource?.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
     //parse timing file

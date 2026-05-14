@@ -1,5 +1,5 @@
 <script lang="ts">
-    import config from '$assets/config';
+    import config, { dictionaryConfig } from '$assets/config';
     import { convertStyle, isDAB, isSAB, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SearchFormSubmitEvent } from '$lib/types';
@@ -21,9 +21,10 @@
     let specialCharacters: string[] = $state([]);
     if (isSAB(config)) {
         specialCharacters =
-            config.mainFeatures['input-buttons']?.split(' ').filter((c) => c.length) ?? [];
+            (config.mainFeatures['input-buttons'] as string)?.split(' ').filter((c) => c.length) ??
+            [];
     } else if (isDAB(config)) {
-        specialCharacters = Object.values(config.writingSystems)
+        specialCharacters = Object.values(dictionaryConfig.writingSystems)
             .filter((ws: any) => ws.type && ws.type.includes('main'))
             .flatMap((ws: any) => ws.inputButtons || []);
     }

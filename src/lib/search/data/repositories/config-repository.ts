@@ -1,4 +1,4 @@
-import config from '$assets/config';
+import config, { scriptureConfig } from '$assets/config';
 
 export interface BookCollection {
     id: string;
@@ -12,18 +12,18 @@ export interface BookCollection {
  */
 export class ConfigRepository {
     searchWholeWordsDefault(): boolean {
-        return config.mainFeatures['search-whole-words-default'];
+        return config.mainFeatures['search-whole-words-default'] as boolean;
     }
 
     searchAccentsDefault(): boolean {
-        return config.mainFeatures['search-accents-default'];
+        return config.mainFeatures['search-accents-default'] as boolean;
     }
 
     searchAccentsToRemove(): string {
-        return config.mainFeatures['search-accents-to-remove'];
+        return config.mainFeatures['search-accents-to-remove'] as string;
     }
 
-    bookCollection(id: string): BookCollection {
-        return config.bookCollections.find((bc) => bc.id === id);
+    bookCollection(id: string): BookCollection | undefined {
+        return scriptureConfig.bookCollections?.find((bc) => bc.id === id);
     }
 }

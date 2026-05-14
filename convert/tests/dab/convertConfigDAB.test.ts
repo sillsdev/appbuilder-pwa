@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import type { DictionaryConfig, DictionaryWritingSystemConfig } from '$config';
+import type { DictionaryWritingSystemConfig } from '$config';
 import jsdom from 'jsdom';
 import { expect, test } from 'vitest';
 import { parseDictionaryWritingSystem, parseFeatures } from '../../convertConfig';

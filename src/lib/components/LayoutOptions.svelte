@@ -3,7 +3,7 @@
 Displays the three different layout option menus.  
 -->
 <script lang="ts">
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
     import {
         convertStyle,
         LAYOUT_SINGLE,
@@ -27,14 +27,15 @@ Displays the three different layout option menus.
         description: ''
     };
 
-    const allDocSets = config.bookCollections.map((ds) => ({
-        id: ds.languageCode + '_' + ds.id,
-        name: ds.collectionName,
-        singlePane:
-            ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
-        description: ds?.collectionDescription,
-        image: ds?.collectionImage
-    }));
+    const allDocSets =
+        scriptureConfig.bookCollections?.map((ds) => ({
+            id: ds.languageCode + '_' + ds.id,
+            name: ds.collectionName,
+            singlePane:
+                ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
+            description: ds?.collectionDescription,
+            image: ds?.collectionImage
+        })) ?? [];
 
     function handleClick(opt: any, index: number) {
         const docSet = opt.collection;

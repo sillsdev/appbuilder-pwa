@@ -1,5 +1,5 @@
 import { invalidate } from '$app/navigation';
-import config from '$assets/config';
+import { scriptureConfig } from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
 import { writable } from 'svelte/store';
 
@@ -76,9 +76,9 @@ export async function addHighlights(
         }
 
         const date = new Date()[Symbol.toPrimitive]('number');
-        const bookIndex = config.bookCollections
-            .find((x) => x.id === selectedVerse.collection)
-            .books.findIndex((x) => x.id === selectedVerse.book);
+        const bookIndex = scriptureConfig.bookCollections
+            ?.find((x) => x.id === selectedVerse.collection)
+            ?.books.findIndex((x) => x.id === selectedVerse.book);
         const text = await getVerseTextByIndex(i);
 
         const nextItem = { ...selectedVerse, text, date, bookIndex, penColor: numColor };

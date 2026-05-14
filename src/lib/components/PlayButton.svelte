@@ -22,7 +22,7 @@
     let { color = 'black', state, onclick }: Props = $props();
 
     const size = config.mainFeatures['audio-play-button-size'] === 'normal' ? 24 : 48;
-    const style = config.mainFeatures['audio-play-button-style'];
+    const style = config.mainFeatures['audio-play-button-style'] as keyof typeof icons;
     const icon_style = icons[style];
     const Icon = $derived(icon_style[state]);
 </script>

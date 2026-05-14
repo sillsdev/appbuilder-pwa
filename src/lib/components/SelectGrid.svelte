@@ -3,7 +3,7 @@
 A component to display menu options in a grid.
 -->
 <script lang="ts">
-    import config from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import { convertStyle, refs, s, themeBookColors, themeColors } from '$lib/data/stores';
     import { isNotBlank } from '$lib/scripts/stringUtils';
 
@@ -63,12 +63,13 @@ A component to display menu options in a grid.
     const headerStyle = $derived(convertStyle($s['ui.text.book-group-title']));
 
     const bookCollectionColor = $derived((id: string, category: string) => {
-        const section = config.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === id)?.section;
-        let color = Object.keys($themeBookColors).includes(section)
-            ? $themeBookColors[section]
-            : $s[category]['background-color'];
+        const section = scriptureConfig.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === id)?.section;
+        let color =
+            section && Object.keys($themeBookColors).includes(section)
+                ? $themeBookColors[section]
+                : $s[category]['background-color'];
         return color;
     });
 

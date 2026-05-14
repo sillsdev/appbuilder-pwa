@@ -62,8 +62,8 @@ export type BookConfig = {
     file: string;
     hashedFileName?: string; // currently just for HTML books
     audio: BookCollectionAudioConfig[];
-    features: any;
-    quizFeatures?: Record<string, string | boolean | number>;
+    features: FeatureConfig;
+    quizFeatures?: FeatureConfig;
     footer?: HTML;
     style?: StyleConfig;
     styles?: {
@@ -157,13 +157,17 @@ export type MenuItemConfig = {
         file: string;
     }[];
 };
+
+export type FeatureValue = string | boolean | number;
+export type FeatureConfig = Record<string, FeatureValue>;
+
 export type AppConfig = {
     name?: string;
     package?: string;
     version?: string;
-    programVersion?: string;
-    programType?: string;
-    mainFeatures?: any;
+    programVersion: string;
+    programType: string;
+    mainFeatures: FeatureConfig;
     audio?: AudioConfig;
     fonts?: {
         name?: string;

@@ -1,5 +1,6 @@
 /// <reference types="@sveltejs/kit" />
 /// <reference types="svelte-gestures" />
+/// <reference types="$config" />
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -64,11 +65,11 @@ declare namespace App {
 
     interface CollectionEntry {
         id: string;
-        name: string;
+        name?: string;
         // boolean value for if a collection is allowed
         // to be shown in single pane view
         singlePane: boolean;
-        description: string;
+        description?: string;
         image?: string;
     }
 
@@ -86,8 +87,8 @@ declare namespace App {
         key: string;
         entries?: string[];
         values?: string[];
-        value?: string | boolean;
-        defaultValue?: string | boolean;
+        value?: FeatureValue;
+        defaultValue?: FeatureValue;
     }
 }
 

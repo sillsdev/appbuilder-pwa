@@ -1,6 +1,6 @@
-import { derived, get, writable } from 'svelte/store';
-import config from '$assets/config';
-import { getPlanData } from '../plansData';
+import { scriptureConfig } from '$assets/config';
+import { derived, get, writable, type Writable } from 'svelte/store';
+import { getPlanData, type PlansData } from '../plansData';
 import { getLastPlanState, planStatesLastUpdated } from '../planStates';
 import { setDefaultStorage } from './storage';
 
@@ -19,7 +19,7 @@ interface PlanStore {
 }
 
 export function planItemInfo(entry: PlanStore) {
-    const allPlans = config.plans.plans;
+    const allPlans = scriptureConfig.plans?.plans ?? [];
     const planConfig = allPlans.find((x) => x.id === entry.planId);
 }
 const defaultPlanStore = {
@@ -40,7 +40,7 @@ export const plan = writable(JSON.parse(localStorage.plan));
 plan.subscribe((value) => (localStorage.plan = JSON.stringify(value)));
 
 export const currentPlanState = writable('');
-export const currentPlanData = writable(null);
+export const currentPlanData: Writable<PlansData | null> = writable(null);
 plan.subscribe(($plan) => {
     if ($plan) {
         updatePlanState($plan.planId);
@@ -54,15 +54,15 @@ planStatesLastUpdated.subscribe(() => {
     }
 });
 // Function to update the current plan state
-async function updatePlanState(planId) {
+async function updatePlanState(planId: string) {
     if (planId) {
         const result = await getLastPlanState(planId);
         currentPlanState.set(result);
     }
 }
-async function updatePlanData(planId) {
-    if (config.plans) {
-        const allPlans = config.plans.plans;
+async function updatePlanData(planId: string) {
+    if (scriptureConfig.plans) {
+        const allPlans = scriptureConfig.plans.plans;
         const planConfig = allPlans.find((x) => x.id === planId);
         if (planConfig) {
             const result = await getPlanData(fetch, planConfig);

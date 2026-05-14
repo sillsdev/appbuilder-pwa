@@ -1,5 +1,4 @@
-import config from '$assets/config';
-import type { ScriptureConfig } from '$config';
+import { scriptureConfig } from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
 
 export interface QuizScore {
@@ -54,8 +53,9 @@ export async function addQuiz(item: {
             return;
         }
         const date = new Date()[Symbol.toPrimitive]('number');
-        const scriptConfig = config as ScriptureConfig;
-        const bookCollection = scriptConfig.bookCollections?.find((x) => x.id === item.collection);
+        const bookCollection = scriptureConfig.bookCollections?.find(
+            (x) => x.id === item.collection
+        );
         const bookIndex = bookCollection?.books.findIndex((x) => x.id === item.book);
 
         if (bookIndex !== undefined && bookIndex >= 0) {

@@ -12,7 +12,7 @@ TODO:
 - Add highlight colors
 -->
 <script lang="ts">
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { play, seekToVerse } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
@@ -24,22 +24,24 @@ TODO:
     import { gotoRoute } from '$lib/navigate';
     import BookmarkButton from './BookmarkButton.svelte';
 
-    const isAudioPlayable = config?.mainFeatures['text-select-play-audio'];
-    const isRepeatableAudio = config?.mainFeatures['audio-repeat-selection-button'];
-    const isTextOnImageEnabled = config?.mainFeatures['text-on-image'];
-    const isBookmarkEnabled = config?.mainFeatures['annotation-bookmarks'];
-    const isHighlightEnabled = config?.mainFeatures['annotation-highlights'];
-    const isNotesEnabled = config?.mainFeatures['annotation-notes'];
+    const isAudioPlayable = scriptureConfig?.mainFeatures['text-select-play-audio'];
+    const isRepeatableAudio = scriptureConfig?.mainFeatures['audio-repeat-selection-button'];
+    const isTextOnImageEnabled = scriptureConfig?.mainFeatures['text-on-image'];
+    const isBookmarkEnabled = scriptureConfig?.mainFeatures['annotation-bookmarks'];
+    const isHighlightEnabled = scriptureConfig?.mainFeatures['annotation-highlights'];
+    const isNotesEnabled = scriptureConfig?.mainFeatures['annotation-notes'];
 
     let showHighlightPens = $state(false);
 
     let { oncopy } = $props();
 
     const isCopyEnabled = $derived(
-        config.bookCollections.find((x) => x.id === $refs.collection).features['bc-allow-copy-text']
+        scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.features[
+            'bc-allow-copy-text'
+        ]
     );
     const isShareEnabled = $derived(
-        config.bookCollections.find((x) => x.id === $refs.collection).features[
+        scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.features[
             'bc-allow-share-text'
         ]
     );
@@ -125,9 +127,13 @@ TODO:
         const text = await selectedVerses.getCompositeText();
         const bookCol = $selectedVerses[0].collection;
         const fullBook = getBook({ collection: bookCol, book: book });
-        const bookAbbrev = fullBook.abbreviation ?? fullBook.name;
-        shareText(config.name, config.name + '\n\n' + text + '\n' + reference, book + '.txt');
-        logShareContent('Text', bookCol, bookAbbrev, reference);
+        const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
+        shareText(
+            scriptureConfig.name ?? '',
+            scriptureConfig.name + '\n\n' + text + '\n' + reference,
+            book + '.txt'
+        );
+        logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
     }
 
     const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);

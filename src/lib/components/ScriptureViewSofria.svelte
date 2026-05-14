@@ -13,7 +13,7 @@ LOGGING:
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { base } from '$app/paths';
-    import config from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
     import {
         addPlanProgressItem,
@@ -591,7 +591,7 @@ LOGGING:
                 div.style.float = direction.toLowerCase() === 'ltr' ? 'left' : 'right';
                 div.innerText = workspace.chapterNumText;
                 workspace.paragraphDiv.appendChild(div);
-                if (!config.mainFeatures['hide-verse-number-1']) {
+                if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
                     addVerseNumber(workspace, element, showVerseNumbers);
                 }
             } else {
@@ -642,7 +642,7 @@ LOGGING:
         const splitVerse = splitRef[3];
 
         let refDocSet = currentDocSet;
-        const refBc = config.bookCollections.find((x) => x.id === splitSet);
+        const refBc = scriptureConfig.bookCollections?.find((x) => x.id === splitSet);
         if (refBc) {
             refDocSet = refBc.languageCode + '_' + refBc.id;
         } else {
@@ -659,7 +659,7 @@ LOGGING:
             event.target.getAttribute('data-end-ref') === 'undefined'
                 ? undefined
                 : JSON.parse(event.target.getAttribute('data-end-ref'));
-        if (config.mainFeatures['scripture-refs-display'] === 'viewer') {
+        if (scriptureConfig.mainFeatures['scripture-refs-display'] === 'viewer') {
             navigate(start);
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
@@ -1207,7 +1207,7 @@ LOGGING:
         const figureImg = document.createElement('img');
         figureImg.setAttribute('src', imageSource);
         figureImg.style.display = 'inline-block';
-        if (config.mainFeatures['zoom-illustrations']) {
+        if (scriptureConfig.mainFeatures['zoom-illustrations']) {
             figureImg.addEventListener('click', () => showFullscreenPopup(imageSource));
         }
         spanFigure.appendChild(figureImg);
@@ -1251,10 +1251,10 @@ LOGGING:
 
     function addFooter(document: Document, container: HTMLElement, docSet: string) {
         const collection = docSet.split('_')[1];
-        let footer = config.bookCollections.find((x) => x.id === collection)?.footer;
-        const bookFooter = config.bookCollections
-            .find((x) => x.id === collection)
-            .books.find((x) => x.id === currentBook).footer;
+        let footer = scriptureConfig.bookCollections?.find((x) => x.id === collection)?.footer;
+        const bookFooter = scriptureConfig.bookCollections
+            ?.find((x) => x.id === collection)
+            ?.books.find((x) => x.id === currentBook)?.footer;
         if (bookFooter) {
             footer = bookFooter;
         }
@@ -2430,7 +2430,7 @@ LOGGING:
                             switch (element.subType) {
                                 case 'usfm:zvideo': {
                                     const id = element.atts['id'][0];
-                                    const video = config.videos.find((x) => x.id === id);
+                                    const video = scriptureConfig.videos?.find((x) => x.id === id);
                                     if (video) {
                                         workspace.videoDiv = createVideoBlock(
                                             document,
@@ -2443,7 +2443,7 @@ LOGGING:
                                         workspace.videoDiv = createVideoBlockFromUrl(
                                             document,
                                             videoUrl,
-                                            config.mainFeatures
+                                            scriptureConfig.mainFeatures
                                         );
                                     }
                                     break;
@@ -2494,7 +2494,7 @@ LOGGING:
                                 workspace.milestoneTitle,
                                 workspace.audioClips.length,
                                 element.subType,
-                                config.audio,
+                                scriptureConfig.audio,
                                 onClick
                             );
                             workspace.milestoneLink = '';
@@ -2578,7 +2578,7 @@ LOGGING:
 
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
-        let videos = config.videos?.filter(
+        let videos = scriptureConfig.videos?.filter(
             (x) =>
                 x.placement &&
                 x.placement.collection === collection &&
@@ -2590,7 +2590,7 @@ LOGGING:
 
     function illustrationsForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
-        let illustrations = config.illustrations?.filter(
+        let illustrations = scriptureConfig.illustrations?.filter(
             (x) =>
                 x.placement &&
                 x.placement.collection === collection &&
@@ -2610,9 +2610,9 @@ LOGGING:
     const currentDocSet = $derived(references.docSet);
 
     const bookTabs = $derived(
-        config?.bookCollections
-            .find((x) => x.id === references.collection)
-            .books.find((x) => x.id === references.book)?.bookTabs
+        scriptureConfig.bookCollections
+            ?.find((x) => x.id === references.collection)
+            ?.books.find((x) => x.id === references.book)?.bookTabs
     );
 
     const bookTabSelected = $derived(bookTabs && references.bookTab > 0);
@@ -2626,17 +2626,18 @@ LOGGING:
     const currentIsBibleBook = $derived(isBibleBook(references));
 
     const numeralSystem = $derived(
-        numerals.systemForBook(config, references.collection, currentBook)
+        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
     );
 
     const versePerLine = $derived(verseLayout === 'one-per-line');
     /**list of books in current docSet*/
     const books = $derived($refs.catalog.documents);
     const direction = $derived(
-        config.bookCollections.find((x) => x.id === references.collection).style.textDirection
+        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
+            ?.textDirection
     );
     const verseRangeSeparator = $derived(
-        config.bookCollections.find((x) => x.id === references.collection).features[
+        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.features[
             'ref-verse-range-separator'
         ]
     );
