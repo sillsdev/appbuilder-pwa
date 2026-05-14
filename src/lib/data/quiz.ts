@@ -17,7 +17,7 @@ interface Quiz extends DBSchema {
         key: number;
         value: QuizScore;
         indexes: {
-            'collection, book': string;
+            'collection, book': [string, string];
             date: number;
         };
     };
@@ -58,7 +58,7 @@ export async function addQuiz(item: {
         const bookCollection = scriptConfig.bookCollections?.find((x) => x.id === item.collection);
         const bookIndex = bookCollection?.books.findIndex((x) => x.id === item.book);
 
-        if (bookIndex) {
+        if (bookIndex !== undefined && bookIndex >= 0) {
             const nextItem = {
                 ...item,
                 date: date,
@@ -80,7 +80,6 @@ export async function findQuiz(item: { collection: string; book: string }) {
     const quiz = await openQuiz();
     const tx = quiz.transaction('quiz', 'readonly');
     const index = tx.store.index('collection, book');
-    // @ts-expect-error I have no clue how to make the type system happy here... -Aidan
     const result = await index.getAll([item.collection, item.book]);
     await tx.done;
     return result;
