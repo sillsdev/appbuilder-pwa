@@ -383,3 +383,50 @@ export type Quiz = {
     }[];
     passScore?: number; //\pm
 };
+
+export type LangContainer = { [lang: string]: string };
+
+export type LinkMeta = {
+    // intended to pass between functions so that there is one object passed
+    linkType?: string;
+    linkTarget?: string;
+    linkLocation?: string;
+};
+
+export type ContentItem = {
+    id: number;
+    heading?: boolean;
+    features?: any;
+    title: LangContainer;
+    subtitle?: LangContainer;
+    audioFilename?: LangContainer;
+    imageFilename?: string;
+    itemType?: string;
+    contentItemContainer: boolean;
+    linkType?: string;
+    linkTarget?: string;
+    linkLocation?: string;
+    layoutMode?: string;
+    layoutCollection?: string[];
+    children?: ContentItem[];
+};
+
+export type ContentScreen = {
+    id: number;
+    title?: {
+        [lang: string]: string;
+    };
+    items?: {
+        id: number;
+    }[];
+};
+
+export type ContentsData = {
+    title?: {
+        [lang: string]: string;
+    };
+    features?: any;
+    items?: ContentItem[];
+    nestedItems?: boolean;
+    screens?: ContentScreen[];
+};
