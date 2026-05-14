@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, type PathLike } from 'fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, type PathLike } from 'fs';
 import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
@@ -219,6 +219,10 @@ function isDictionaryConfig(data: ScriptureConfig | DictionaryConfig): data is D
 }
 
 function convertConfig(dataDir: string, verbose: number) {
+    const genAssets = path.join('src/gen-assets');
+    if (!existsSync(genAssets)) {
+        mkdirSync(genAssets, { recursive: true });
+    }
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
     });
