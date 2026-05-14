@@ -1,39 +1,40 @@
+import type { Quiz, ScriptureConfig } from '$config';
 import config from '$lib/data/config';
 import { checkQuizAccess } from '$lib/data/quiz';
+import type { PageLoad } from './$types';
 
-/** @type {Record<string, string>} */
-const quizzes = import.meta.glob('./**/quizzes/*.json', {
+const quizzes: Record<string, string> = import.meta.glob('./**/quizzes/*.json', {
     import: 'default',
     eager: true,
     base: '/src/gen-assets/collections',
     query: '?url'
 });
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ params, fetch }) {
+export const load: PageLoad = async ({ params, fetch }) => {
     const id = params.id;
     const collection = params.collection;
 
-    const bookCollection = config.bookCollections.find((x) => x.id === collection);
-    const book = bookCollection.books.find((x) => x.id === id);
+    const scriptConfig = config as ScriptureConfig;
+
+    const bookCollection = scriptConfig.bookCollections?.find((x) => x.id === collection);
+    const book = bookCollection?.books.find((x) => x.id === id);
 
     let locked = false;
-    let dependentQuizId = null;
-    let dependentQuizName = null;
+    let dependentQuizId: string | null = null;
+    let dependentQuizName: string | null = null;
 
-    if (book.quizFeatures['access-type'] === 'after') {
-        dependentQuizId = book.quizFeatures['access-after'];
+    if (book?.quizFeatures?.['access-type'] === 'after' && book.quizFeatures['access-after']) {
+        dependentQuizId = book.quizFeatures['access-after'] as string;
         const accessGranted = await checkQuizAccess(dependentQuizId);
         locked = !accessGranted;
     }
 
     if (locked && dependentQuizId) {
-        const dependentBook = bookCollection.books.find((x) => x.id === dependentQuizId);
+        const dependentBook = bookCollection?.books.find((x) => x.id === dependentQuizId);
         dependentQuizName = dependentBook ? dependentBook.name : dependentQuizId;
     }
 
-    let quizData;
-    let passScore = 0;
+    let quizData: Quiz | null = null;
     if (!locked) {
         try {
             const key = `./${collection}/quizzes/${id}.json`;
@@ -47,7 +48,6 @@ export async function load({ params, fetch }) {
             }
 
             quizData = await response.json();
-            passScore = quizData.passScore;
         } catch (error) {
             console.error('Error fetching quiz JSON file:', error);
         }
@@ -56,10 +56,11 @@ export async function load({ params, fetch }) {
     return {
         quiz: quizData,
         locked,
+        collection: params.collection,
         quizId: id,
-        quizName: book.name,
+        displayLabel: book?.name || 'Quiz',
         dependentQuizId,
         dependentQuizName,
-        passScore
+        passScore: quizData?.passScore ?? 0
     };
-}
+};

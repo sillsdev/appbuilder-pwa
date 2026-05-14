@@ -63,7 +63,7 @@ export type BookConfig = {
     hashedFileName?: string; // currently just for HTML books
     audio: BookCollectionAudioConfig[];
     features: any;
-    quizFeatures?: any;
+    quizFeatures?: Record<string, string | boolean | number>;
     footer?: HTML;
     style?: StyleConfig;
     styles?: {
@@ -334,4 +334,48 @@ export type DictionaryConfig = AppConfig & {
             [key: string]: string;
         };
     }[];
+};
+
+export type QuizExplanation = {
+    text?: string;
+    audio?: string;
+};
+
+export type QuizAnswer = {
+    //\aw or \ar
+    correct: boolean;
+    text?: string;
+    image?: string;
+    audio?: string;
+    explanation?: QuizExplanation;
+    // field is used extensively in UI, adding here for type-safety
+    clicked?: boolean;
+};
+
+export type QuizQuestion = {
+    //\qu
+    text: string;
+    image?: string;
+    audio?: string;
+    columns?: number; //\ac
+    explanation?: QuizExplanation;
+    answers: QuizAnswer[];
+};
+
+export type Quiz = {
+    id: string; //\id
+    name?: string; //\qn
+    shortName?: string; //\qs
+    rightAnswerAudio?: string[]; //\ra
+    wrongAnswerAudio?: string[]; //\wa
+    questions: QuizQuestion[];
+    scoreMessageBefore?: string; //\sb
+    scoreMessageAfter?: string; //\sa
+    commentary?: {
+        //\sc
+        rangeMin: number;
+        rangeMax?: number;
+        message: string;
+    }[];
+    passScore?: number; //\pm
 };

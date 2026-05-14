@@ -3,6 +3,7 @@ module.exports = {
     theme: {
         extend: {}
     },
+    safelist: [{ pattern: /grid-cols-/ }],
     //tailwind typography: https://daisyui.com/docs/layout-and-typography/
     //daisyui: https://daisyui.com/docs/use/
     plugins: [require('@tailwindcss/typography'), require('daisyui')],
