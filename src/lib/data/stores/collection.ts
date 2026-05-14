@@ -1,5 +1,5 @@
 import { get, writable } from 'svelte/store';
-import config from '../config';
+import config from '$assets/config';
 import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from './view.js';
 
 function findCollection(id) {

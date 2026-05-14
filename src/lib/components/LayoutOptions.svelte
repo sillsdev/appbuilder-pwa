@@ -3,7 +3,7 @@
 Displays the three different layout option menus.  
 -->
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import {
         convertStyle,
         LAYOUT_SINGLE,

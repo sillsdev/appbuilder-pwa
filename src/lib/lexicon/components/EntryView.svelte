@@ -1,5 +1,5 @@
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { bodyFontSize, convertStyle, currentFont } from '$lib/data/stores';
     import {
         currentReversal,

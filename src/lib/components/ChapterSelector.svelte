@@ -3,7 +3,7 @@
 The navbar component.
 -->
 <script>
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText } from '$lib/navigate';

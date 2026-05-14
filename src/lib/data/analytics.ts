@@ -1,4 +1,4 @@
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { analytics } from '$lib/data/stores';
 import type { AudioPlayer } from './audio';
 import type { HistoryItem } from './history';

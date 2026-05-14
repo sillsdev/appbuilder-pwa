@@ -1,5 +1,5 @@
 import { base } from '$app/paths';
-import config from '$lib/data/config';
+import config from '$assets/config';
 
 const languageJSON = import.meta.glob('./*.json', {
     import: 'default',

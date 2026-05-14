@@ -1613,7 +1613,7 @@ export interface ConfigTaskOutput extends TaskOutput {
 
 /**
  * Converts appdef.xml into a config object which is passed to other conversion functions
- * and is also written to src/config.js.
+ * and is also written to src/gen-assets/config.ts.
  */
 export class ConvertConfig extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
@@ -1624,7 +1624,7 @@ export class ConvertConfig extends Task {
             data,
             files: [
                 {
-                    path: 'src/lib/data/config.js',
+                    path: 'src/gen-assets/config.js',
                     content: `export default ${JSON.stringify(data, null, 2)};`
                 }
             ]

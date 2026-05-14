@@ -6,6 +6,7 @@ TODO:
 - display audio not found message in UI when audio is not found
 -->
 <script lang="ts">
+    import config from '$assets/config';
     import {
         changeVerse,
         format,
@@ -15,7 +16,6 @@ TODO:
         skip,
         updatePlaybackSpeed
     } from '$lib/data/audio';
-    import config from '$lib/data/config';
     import {
         audioPlayer,
         convertStyle,

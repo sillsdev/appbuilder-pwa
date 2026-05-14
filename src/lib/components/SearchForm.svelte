@@ -1,5 +1,5 @@
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { convertStyle, isDAB, isSAB, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import type { SearchFormSubmitEvent } from '$lib/types';

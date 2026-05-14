@@ -20,10 +20,10 @@
 
 <script lang="ts">
     import { beforeNavigate } from '$app/navigation';
+    import config from '$assets/config';
     import type { QuizAnswer, QuizQuestion, ScriptureConfig } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import config from '$lib/data/config';
     import { addQuiz } from '$lib/data/quiz';
     import {
         bodyFontSize,

@@ -1,4 +1,4 @@
-import config from '$lib/data/config';
+import config from '$assets/config';
 
 export function getFeatureValueBoolean(feature: string, bc: string, book: string): boolean {
     let returnValue = false;

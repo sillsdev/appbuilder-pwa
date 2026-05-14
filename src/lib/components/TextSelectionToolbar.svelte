@@ -12,10 +12,10 @@ TODO:
 - Add highlight colors
 -->
 <script lang="ts">
+    import config from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { play, seekToVerse } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
-    import config from '$lib/data/config';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import { audioActive, refs, s, selectedVerses, theme, themeColors } from '$lib/data/stores';

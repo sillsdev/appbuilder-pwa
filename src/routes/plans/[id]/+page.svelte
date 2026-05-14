@@ -1,8 +1,8 @@
 <script>
     import { base } from '$app/paths';
     import { page } from '$app/stores';
+    import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
-    import config from '$lib/data/config';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
     import { getLastPlanState, getLastPlanStateRecord } from '$lib/data/planStates';
     import {

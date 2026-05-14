@@ -13,8 +13,8 @@ LOGGING:
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { base } from '$app/paths';
+    import config from '$assets/config';
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
-    import config from '$lib/data/config';
     import {
         addPlanProgressItem,
         deleteAllProgressItemsForPlan,

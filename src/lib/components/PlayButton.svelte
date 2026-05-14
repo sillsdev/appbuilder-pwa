@@ -1,5 +1,5 @@
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { AudioIcon } from '$lib/icons';
 
     const icons = {

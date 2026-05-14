@@ -1,5 +1,5 @@
 import { base } from '$app/paths';
-import config from '$lib/data/config';
+import config from '$assets/config';
 
 const thumbnails = import.meta.glob('./*', {
     import: 'default',

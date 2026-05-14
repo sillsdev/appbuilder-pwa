@@ -3,7 +3,7 @@
 A component to display menu options in a grid.
 -->
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { convertStyle, refs, s, themeBookColors, themeColors } from '$lib/data/stores';
     import { isNotBlank } from '$lib/scripts/stringUtils';
 

@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import { base } from '$app/paths';
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 

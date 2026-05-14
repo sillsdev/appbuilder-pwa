@@ -1,5 +1,5 @@
 import { base } from '$app/paths';
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { pk } from '$lib/data/stores/pk';
 import { SABProskomma } from '$lib/sab-proskomma';
 import { get } from 'svelte/store';

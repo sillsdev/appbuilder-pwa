@@ -1,7 +1,7 @@
 <script lang="ts">
+    import config from '$assets/config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import config from '$lib/data/config';
     import { t } from '$lib/data/stores';
 
     let { data } = $props();

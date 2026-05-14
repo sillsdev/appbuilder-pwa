@@ -3,7 +3,7 @@
 A clickable verse card representing a single search result.
 -->
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { navigateToText } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
     import type { Reference, SearchResult } from '$lib/search/domain/entities';

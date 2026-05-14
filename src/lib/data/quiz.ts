@@ -1,5 +1,5 @@
+import config from '$assets/config';
 import type { ScriptureConfig } from '$config';
-import config from '$lib/data/config';
 import { openDB, type DBSchema } from 'idb';
 
 export interface QuizScore {

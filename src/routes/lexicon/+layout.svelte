@@ -1,8 +1,8 @@
 <script lang="ts">
     import { page } from '$app/state';
+    import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
-    import config from '$lib/data/config';
     import { fontChoices, modal, MODAL_TEXT_APPEARANCE, t } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';

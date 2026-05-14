@@ -1,5 +1,5 @@
+import config from '$assets/config';
 import type { AppConfig, DictionaryConfig, ScriptureConfig } from '$config';
-import config from '$lib/data/config';
 import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
 import { derived, get, readable, writable } from 'svelte/store';

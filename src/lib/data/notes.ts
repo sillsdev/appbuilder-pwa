@@ -1,5 +1,5 @@
 import { invalidate } from '$app/navigation';
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
 import { writable } from 'svelte/store';
 

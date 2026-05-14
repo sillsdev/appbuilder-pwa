@@ -6,7 +6,7 @@
 
 import { get } from 'svelte/store';
 import type { CatalogData } from '../data/catalogData';
-import config from '../data/config';
+import config from '$assets/config';
 import { getVerseText, refs } from '../data/stores';
 import * as numerals from './numeralSystem';
 import {

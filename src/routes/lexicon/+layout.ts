@@ -1,5 +1,5 @@
+import config from '$assets/config';
 import type { DictionaryConfig } from '$config';
-import config from '$lib/data/config';
 import {
     displayNames,
     initializeDatabase,

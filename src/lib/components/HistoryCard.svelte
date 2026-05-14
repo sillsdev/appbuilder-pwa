@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';

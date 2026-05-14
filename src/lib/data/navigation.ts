@@ -1,6 +1,6 @@
 import { isBlank } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
-import configuration from './config';
+import configuration from '$assets/config';
 
 /**
  *  Maintains the currently active scripture reference.

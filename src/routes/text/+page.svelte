@@ -1,5 +1,6 @@
 <script>
     import { page } from '$app/state';
+    import config from '$assets/config';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import BookTabs from '$lib/components/BookTabs.svelte';
@@ -12,7 +13,6 @@
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
-    import config from '$lib/data/config';
     import contents from '$lib/data/contents';
     import {
         analytics,

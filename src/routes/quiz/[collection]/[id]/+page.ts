@@ -1,5 +1,5 @@
+import config from '$assets/config';
 import type { Quiz, ScriptureConfig } from '$config';
-import config from '$lib/data/config';
 import { checkQuizAccess } from '$lib/data/quiz';
 import type { PageLoad } from './$types';
 

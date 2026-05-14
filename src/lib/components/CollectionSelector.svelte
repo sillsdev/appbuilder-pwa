@@ -3,7 +3,7 @@
 Book Collection Selector component.
 -->
 <script>
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import {
         convertStyle,
         layout,

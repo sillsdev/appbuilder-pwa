@@ -1,5 +1,5 @@
 import { derived, get, writable } from 'svelte/store';
-import config from '../config';
+import config from '$assets/config';
 import { getPlanData } from '../plansData';
 import { getLastPlanState, planStatesLastUpdated } from '../planStates';
 import { setDefaultStorage } from './storage';
