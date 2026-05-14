@@ -248,7 +248,7 @@ The sidebar/drawer.
             {#if menuItems}
                 {#each menuItems as item}
                     <li>
-                        <!-- eslint-disable svelte/no-navigation-without-base -->
+                        <!-- eslint-disable svelte/no-navigation-without-base, svelte/no-navigation-without-resolve -->
                         <a
                             href={item.link['default']}
                             style:color={textColor}
