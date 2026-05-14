@@ -1,4 +1,6 @@
 import config from '$assets/config';
+import { firebaseConfig } from '$assets/firebase-config';
+import type { Analytics, logEvent } from 'firebase/analytics';
 import { derived, writable } from 'svelte/store';
 
 interface AnalyticsStore {
@@ -6,19 +8,18 @@ interface AnalyticsStore {
 }
 
 export const analyticsStore = () => {
-    let firebaseAnalytics = null;
-    let firebaseLogEvent = null;
+    let firebaseAnalytics: Analytics | null = null;
+    let firebaseLogEvent: typeof logEvent | null = null;
     const internal = writable<AnalyticsStore>({ initialized: false });
 
     const external = derived(internal, ($internal: AnalyticsStore) => ({ ...$internal }));
 
     const init = async () => {
-        if (config.firebase.features['firebase-analytics'] && config.analytics.enabled) {
+        if (config.firebase?.features['firebase-analytics'] && config.analytics?.enabled) {
             try {
                 // Dynamically import Firebase modules
                 const { initializeApp } = await import('firebase/app');
                 const { getAnalytics, logEvent } = await import('firebase/analytics');
-                const { firebaseConfig } = await import('$lib/data/firebase-config');
                 if (firebaseConfig) {
                     console.log(
                         `Analytics: Initializing Firebase: projectId=${firebaseConfig.projectId}, appId=${firebaseConfig.appId}`
@@ -40,7 +41,7 @@ export const analyticsStore = () => {
     const log = (eventName: string, eventParams?: any) => {
         if (firebaseAnalytics) {
             console.log('Analytics: Event:', eventName, eventParams);
-            firebaseLogEvent(firebaseAnalytics, eventName, eventParams);
+            firebaseLogEvent?.(firebaseAnalytics, eventName, eventParams);
         }
     };
 
