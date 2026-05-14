@@ -15,7 +15,7 @@ TODO:
     export let history: HistoryItem;
 
     $: bc = scriptureConfig.bookCollections?.find((x) => x.id === history.collection);
-    $: docSet = bc?.languageCode + '_' + bc?.id;
+    $: docSet = bc && bc.languageCode + '_' + bc.id;
     $: bcName = scriptureConfig.bookCollections?.length == 1 ? null : bc?.collectionName;
     $: bookName = bc?.books.find((x) => x.id === history.book)?.name;
     $: chapterVerseSeparator = bc?.features['ref-chapter-verse-separator'];

@@ -4,7 +4,7 @@
 -->
 
 <script>
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
     import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
@@ -45,7 +45,7 @@
         const splitVerse = splitRef[3];
 
         let refDocSet = refs.docSet;
-        const refBc = config.bookCollections.find((x) => x.id === splitSet);
+        const refBc = scriptureConfig.bookCollections?.find((x) => x.id === splitSet);
         if (refBc) {
             refDocSet = refBc.languageCode + '_' + refBc.id;
         } else {

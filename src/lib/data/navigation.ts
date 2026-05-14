@@ -39,11 +39,11 @@ export class NavigationContext {
         if (start) {
             await this.gotoReference(start);
         } else {
-            const collection = this.config.bookCollections?.[0];
+            const collection = this.config.bookCollections![0];
             await this.goto(
                 this.docSets[0],
-                collection!.books[0].id,
-                collection!.books[0].chaptersN?.split('-')?.[0] ?? '1', //TODO: what if chaptersN is undefined?
+                collection.books[0].id,
+                collection.books[0].chaptersN?.split('-')?.[0] ?? '1', //TODO: what if chaptersN is undefined?
                 '1'
             );
         }

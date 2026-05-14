@@ -1,7 +1,7 @@
-import config from '../../../../lib/data/config';
+import { scriptureConfig } from '$assets/config';
 
 export async function load({ params }) {
-    const allPlans = config.plans.plans;
+    const allPlans = scriptureConfig.plans?.plans ?? [];
 
     const id = params.id;
 

@@ -199,7 +199,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     }
 
     const hasAudioSourceWithAccessModeChoice =
-        Object.keys(config.audio?.sources || []).filter(
+        Object.keys(config.audio?.sources ?? {}).filter(
             (key) => (config.audio?.sources[key].accessMethods?.length ?? 0) > 1
         ).length > 0;
     if (config.mainFeatures['settings-audio-access-method'] && hasAudioSourceWithAccessModeChoice) {
@@ -217,7 +217,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     }
 
     const hasAudioSourceWitbDownload =
-        Object.keys(config.audio?.sources || []).filter((key) =>
+        Object.keys(config.audio?.sources ?? {}).filter((key) =>
             config.audio?.sources[key].accessMethods?.includes('download')
         ).length > 0;
     if (config.mainFeatures['settings-audio-download-mode'] && hasAudioSourceWitbDownload) {

@@ -1,9 +1,9 @@
+import { scriptureConfig } from '$assets/config';
 import { getAllProgressItemsForPlan } from '$lib/data/planProgressItems';
-import config from '../../../lib/data/config';
 import { getPlanData } from '../../../lib/data/plansData';
 
 export async function load({ params, fetch }) {
-    const allPlans = config.plans.plans;
+    const allPlans = scriptureConfig.plans?.plans ?? [];
 
     const id = params.id;
 
