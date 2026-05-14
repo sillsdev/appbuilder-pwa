@@ -1,4 +1,4 @@
-<script module>
+<script lang="ts" module>
     function getRandomItem<T>(array: T[]) {
         return array[Math.floor(Math.random() * array.length)];
     }
@@ -20,7 +20,7 @@
 
 <script lang="ts">
     import { beforeNavigate } from '$app/navigation';
-    import type { Quiz, QuizAnswer, QuizQuestion, ScriptureConfig } from '$config';
+    import type { QuizAnswer, QuizQuestion, ScriptureConfig } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import config from '$lib/data/config';
@@ -289,7 +289,7 @@
             </div>
             <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
         </div>
-    {:else if currentQuestionIdx == questions.length}
+    {:else if currentQuestionIdx === questions.length}
         <div class="score">
             <div id="content" class="text-center">
                 <div class="quiz-score-before">{$t['Quiz_Score_Page_Message_Before']}</div>
@@ -297,7 +297,7 @@
                     <span class="quiz-score">{score}</span>
                 </div>
                 <div class="quiz-score-after">
-                    {$t['Quiz_Score_Page_Message_After'].replace('%n%', currentQuestionIdx)}
+                    {$t['Quiz_Score_Page_Message_After'].replace('%n%', String(currentQuestionIdx))}
                 </div>
                 <div class="quiz-score-commentary">
                     {getCommentary(score)}
@@ -306,7 +306,7 @@
         </div>
         {#if !saved}
             {@const pass = score >= passScore}
-            {#await addQuiz({ collection, book: quizId, score, passScore, pass }) then _}
+            {#await addQuiz( { collection, book: quizId, score, passScore, pass } ).then(() => (saved = true)) then _}
                 <p>Quiz result saved!</p>
             {:catch error}
                 <p>Error saving quiz result: {error.message}</p>
@@ -320,7 +320,7 @@
                 </div>
                 {#if currentQuestion?.answers}
                     {@const imgFormat = currentQuestion.answers.some((answer) => answer.image)}
-                    {@const cols = (currentQuestion.columns ?? imgFormat) ? 2 : 1}
+                    {@const cols = currentQuestion.columns ?? (imgFormat ? 2 : 1)}
                     <div class="quiz-question-block">
                         <div class="quiz-question" style:line-height="{$bodyLineHeight}%">
                             {currentQuestion.text}

@@ -1,3 +1,4 @@
+import type { ScriptureConfig } from '$config';
 import config from '$lib/data/config';
 import { openDB, type DBSchema } from 'idb';
 
@@ -22,7 +23,7 @@ interface Quiz extends DBSchema {
     };
 }
 
-let quizDB = null;
+let quizDB: Awaited<ReturnType<typeof openDB<Quiz>>> | null = null;
 async function openQuiz() {
     if (!quizDB) {
         quizDB = await openDB<Quiz>('quiz', 1, {
@@ -53,15 +54,18 @@ export async function addQuiz(item: {
             return;
         }
         const date = new Date()[Symbol.toPrimitive]('number');
-        const bookCollection = config.bookCollections.find((x) => x.id === item.collection);
-        const bookIndex = bookCollection.books.findIndex((x) => x.id === item.book);
+        const scriptConfig = config as ScriptureConfig;
+        const bookCollection = scriptConfig.bookCollections?.find((x) => x.id === item.collection);
+        const bookIndex = bookCollection?.books.findIndex((x) => x.id === item.book);
 
-        const nextItem = {
-            ...item,
-            date: date,
-            bookIndex: bookIndex
-        };
-        await quiz.add('quiz', nextItem);
+        if (bookIndex) {
+            const nextItem = {
+                ...item,
+                date: date,
+                bookIndex: bookIndex
+            };
+            await quiz.add('quiz', nextItem);
+        }
     } catch (error) {
         console.error('Error adding quiz result:', error);
     }
@@ -76,13 +80,14 @@ export async function findQuiz(item: { collection: string; book: string }) {
     const quiz = await openQuiz();
     const tx = quiz.transaction('quiz', 'readonly');
     const index = tx.store.index('collection, book');
+    // I have no clue how to make the type system happy here... -Aidan
     const result = await index.getAll([item.collection, item.book]);
     await tx.done;
     return result;
 }
 
-export async function checkQuizAccess(quizId) {
+export async function checkQuizAccess(quizId: string) {
     const quiz = await openQuiz();
-    const result = await quiz.getAllFromIndex('quiz', 'collection, book');
+    const result: QuizScore[] = await quiz.getAllFromIndex('quiz', 'collection, book');
     return result.some((item) => item.book === quizId && item.pass);
 }

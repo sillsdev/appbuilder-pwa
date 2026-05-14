@@ -63,7 +63,7 @@ export type BookConfig = {
     hashedFileName?: string; // currently just for HTML books
     audio: BookCollectionAudioConfig[];
     features: any;
-    quizFeatures?: Record<string, string>;
+    quizFeatures?: Record<string, string | boolean | number>;
     footer?: HTML;
     style?: StyleConfig;
     styles?: {
