@@ -16,12 +16,7 @@
         analytics,
         direction,
         modal,
-        MODAL_COLLECTION,
-        MODAL_FONT,
-        MODAL_NOTE,
-        MODAL_PLAYBACK_SPEED,
-        MODAL_STOP_PLAN,
-        MODAL_TEXT_APPEARANCE,
+        ModalType,
         NAVBAR_HEIGHT,
         refs,
         s,
@@ -70,24 +65,26 @@
         if ($modal.length > 0) {
             $modal.forEach(({ modalType, data }) => {
                 switch (modalType) {
-                    case MODAL_COLLECTION:
+                    case ModalType.Collection:
                         collectionSelector.showModal();
                         break;
-                    case MODAL_NOTE:
-                        noteDialog.showModal(data);
+                    case ModalType.Note:
+                        noteDialog?.showModal(
+                            data as Parameters<(typeof noteDialog)['showModal']>[0]
+                        );
                         break;
-                    case MODAL_TEXT_APPEARANCE:
+                    case ModalType.TextAppearance:
                         textAppearanceSelector.options = data;
                         textAppearanceSelector.showModal();
                         break;
-                    case MODAL_FONT:
+                    case ModalType.Font:
                         fontSelector.showModal();
                         break;
-                    case MODAL_STOP_PLAN:
-                        planStopId = data;
+                    case ModalType.StopPlan:
+                        planStopId = data as string;
                         planStopDialog?.showModal();
                         break;
-                    case MODAL_PLAYBACK_SPEED:
+                    case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed.showModal();
                         break;
                 }
@@ -109,7 +106,7 @@
     let textAppearanceSelector: TextAppearanceSelector = $state();
     let collectionSelector: CollectionSelector = $state();
     let fontSelector: FontSelector = $state();
-    let noteDialog: NoteDialog = $state();
+    let noteDialog: NoteDialog | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed = $state();

@@ -15,8 +15,7 @@
         convertStyle,
         language,
         modal,
-        MODAL_COLLECTION,
-        MODAL_TEXT_APPEARANCE,
+        ModalType,
         refs,
         s,
         t,
@@ -91,7 +90,7 @@
                         gotoRoute(`/${item.linkLocation}`);
                         break;
                     case 'layout':
-                        modal.open(MODAL_COLLECTION);
+                        modal.open(ModalType.Collection);
                         break;
                     case 'website':
                         //opens in a separate tab
@@ -254,7 +253,7 @@
                             <label
                                 class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
                                 onclick={() =>
-                                    modal.open(MODAL_TEXT_APPEARANCE, { contentsMode: true })}
+                                    modal.open(ModalType.TextAppearance, { contentsMode: true })}
                             >
                                 <TextAppearanceIcon color="white" />
                             </label>

@@ -22,18 +22,21 @@ export const LAYOUT_VERSE_BY_VERSE = 'verse-by-verse';
 const singleLayout = { mode: LAYOUT_SINGLE, auxDocSets: [] };
 export const layout = writable(singleLayout);
 
-export const MODAL_COLLECTION = 'collection';
-export const MODAL_NOTE = 'note';
-export const MODAL_TEXT_APPEARANCE = 'text-appearance';
-export const MODAL_FONT = 'font';
-export const MODAL_STOP_PLAN = 'stop-plan';
-export const MODAL_PLAYBACK_SPEED = 'playback-speed';
+export const ModalType = {
+    Collection: 'collection',
+    Note: 'note',
+    TextAppearance: 'text-appearance',
+    Font: 'font',
+    StopPlan: 'stop-plan',
+    PlaybackSpeed: 'playback-speed'
+} as const;
+export type ModalType = (typeof ModalType)[keyof typeof ModalType];
 
 function createModal() {
-    const { subscribe, set } = writable([]);
+    const { subscribe, set } = writable([] as { modalType: ModalType; data?: unknown }[]);
     return {
         subscribe,
-        open: (modalType, data = undefined) => {
+        open: (modalType: ModalType, data?: unknown) => {
             set([...get(modal), { modalType, data }]);
         },
         clear: () => set([])
@@ -50,7 +53,7 @@ const createWindowSizeStore = () => {
 
     let numSubscriptions = 0;
 
-    function subscribe(callback) {
+    function subscribe(callback: Parameters<(typeof internal)['subscribe']>[0]) {
         // Increment the subscription count
         numSubscriptions += 1;
 
@@ -103,24 +106,24 @@ export const showDesktopSidebar = derived(
     ($userSettings) => $userSettings['desktop-sidebar'] ?? defaultSettings['desktop-sidebar']
 );
 
-function createStackStore() {
-    const { subscribe, update } = writable([]);
+function createStackStore<T>() {
+    const { subscribe, update } = writable([] as T[]);
 
     return {
         subscribe,
-        pushItem: (id) =>
+        pushItem: (id: T) =>
             update((stack) => {
                 return [...stack, id];
             }),
         popItem: () => {
-            let poppedValue = 0;
+            let poppedValue: T | undefined = undefined;
             update((stack) => {
                 if (stack.length > 0) {
                     poppedValue = stack.pop();
                 }
                 return [...stack];
             });
-            return poppedValue;
+            return poppedValue as T | undefined;
         },
         length: () => {
             let length = 0;
@@ -133,4 +136,4 @@ function createStackStore() {
     };
 }
 
-export const contentsStack = createStackStore();
+export const contentsStack = createStackStore<string>();

@@ -1,20 +1,10 @@
 <script>
-    import { base } from '$app/paths';
     import { page } from '$app/stores';
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
-    import { getLastPlanState, getLastPlanStateRecord } from '$lib/data/planStates';
-    import {
-        convertStyle,
-        language,
-        modal,
-        MODAL_STOP_PLAN,
-        plan,
-        refs,
-        s,
-        t
-    } from '$lib/data/stores';
+    import { getLastPlanStateRecord } from '$lib/data/planStates';
+    import { convertStyle, language, modal, ModalType, plan, refs, s, t } from '$lib/data/stores';
     import {
         CalendarMonthIcon,
         CheckboxIcon,
@@ -388,7 +378,7 @@
                     <div
                         class="plan-button plan-config-button"
                         id="PLAN-stop"
-                        on:click={() => modal.open(MODAL_STOP_PLAN, planId)}
+                        on:click={() => modal.open(ModalType.StopPlan, planId)}
                     >
                         {$t['Plans_Button_Stop_Plan']}
                     </div>

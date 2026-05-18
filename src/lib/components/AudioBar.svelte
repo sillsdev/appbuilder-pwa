@@ -20,7 +20,7 @@ TODO:
         audioPlayer,
         convertStyle,
         modal,
-        MODAL_PLAYBACK_SPEED,
+        ModalType,
         playMode,
         refs,
         s,
@@ -153,7 +153,7 @@ TODO:
     {#if showSpeed}
         <button
             class="audio-speed audio-control-buttons"
-            onclick={() => modal.open(MODAL_PLAYBACK_SPEED)}
+            onclick={() => modal.open(ModalType.PlaybackSpeed)}
         >
             <AudioIcon.Speed color={iconColor} />
         </button>

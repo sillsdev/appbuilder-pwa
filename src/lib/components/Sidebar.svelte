@@ -16,8 +16,7 @@ The sidebar/drawer.
         language,
         languageDefault,
         modal,
-        MODAL_COLLECTION,
-        MODAL_TEXT_APPEARANCE,
+        ModalType,
         refs,
         s,
         showDesktopSidebar,
@@ -172,7 +171,10 @@ The sidebar/drawer.
             {#if showLayouts}
                 <li>
                     <!-- svelte-ignore a11y_missing_attribute -->
-                    <button style:color={textColor} onclick={() => modal.open(MODAL_COLLECTION)}>
+                    <button
+                        style:color={textColor}
+                        onclick={() => modal.open(ModalType.Collection)}
+                    >
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>
@@ -238,7 +240,7 @@ The sidebar/drawer.
                 <li>
                     <button
                         style:color={textColor}
-                        onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                        onclick={() => modal.open(ModalType.TextAppearance)}
                     >
                         <TextAppearanceIcon color={iconColor} />{$t['Menu_Text_Appearance']}
                     </button>

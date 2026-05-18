@@ -3,7 +3,7 @@
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
-    import { fontChoices, modal, MODAL_TEXT_APPEARANCE, t } from '$lib/data/stores';
+    import { fontChoices, modal, ModalType, t } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';
     import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
@@ -56,7 +56,7 @@
                     {#if showTextAppearance($fontChoices)}
                         <button
                             class="dy-btn dy-btn-ghost dy-btn-circle"
-                            onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                            onclick={() => modal.open(ModalType.TextAppearance)}
                         >
                             <TextAppearanceIcon color="white" />
                         </button>

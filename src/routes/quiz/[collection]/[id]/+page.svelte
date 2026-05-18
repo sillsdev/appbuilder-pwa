@@ -29,7 +29,7 @@
         bodyFontSize,
         bodyLineHeight,
         modal,
-        MODAL_TEXT_APPEARANCE,
+        ModalType,
         quizAudioActive,
         t
     } from '$lib/data/stores';
@@ -270,7 +270,7 @@
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <label
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
-                        onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                        onclick={() => modal.open(ModalType.TextAppearance)}
                     >
                         <TextAppearanceIcon color="white" />
                     </label>
