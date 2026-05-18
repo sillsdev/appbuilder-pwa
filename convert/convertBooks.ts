@@ -22,6 +22,7 @@ import {
     getHashedNameFromContents,
     joinUrlPath
 } from './fileUtils';
+import { convertStorybookElements } from './storybook';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
@@ -371,11 +372,19 @@ function applyFilters(
     filterFunctions: FilterFunction[],
     bcId: string,
     bookId: string,
-    context: ConvertBookContext
+    context: ConvertBookContext,
+    bookType?: string
 ): string {
     let filteredText = text;
+    if (bookType === 'story') {
+        console.log('Before filters:');
+        console.log(text);
+    }
     for (const filterFn of filterFunctions) {
         filteredText = filterFn(filteredText, bcId, bookId, context);
+    }
+    if (bookType === 'story') {
+        filteredText = convertStorybookElements(filteredText);
     }
     return filteredText;
 }
@@ -481,7 +490,6 @@ export async function convertBooks(
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
-                case 'story':
                 case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
@@ -856,8 +864,22 @@ function convertScriptureBook(
                     const filePath = path.join(context.dataDir, 'books', context.bcId, file);
                     fileContents.push(fs.readFileSync(filePath, 'utf-8'));
                 });
+                // Collect the file contents into a single document
+                let usfm: string;
 
-                processBookContent(resolve, null, fileContents.join(''));
+                if (book.type == 'story') {
+                    // The first file contains meta-content (id, title, etc)
+                    usfm = fileContents[0];
+
+                    // Subsequent files represent storybook pages.
+                    // SAB deletes the \page tags. Replace them with chapter tags.
+                    for (let i = 1; i < fileContents.length; i++) {
+                        usfm += `\\c ${i} ${fileContents[i]}`;
+                    }
+                } else {
+                    usfm = fileContents.join('');
+                }
+                processBookContent(resolve, null, usfm);
             }
         })
     );
