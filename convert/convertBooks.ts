@@ -88,15 +88,6 @@ function transformZonTags(usfm: string): string {
     return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
-// This is the start of supporting story books, but it still fails if there is no chapter.
-function replacePageTags(
-    text: string,
-    _bcId: string,
-    _bookId: string,
-    _ctx: ConvertBookContext
-): string {
-    return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
-}
 function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
@@ -385,7 +376,6 @@ const usfmFilterFunctions: FilterFunction[] = [
     replacePStyleTags,
     replaceCStyleTags,
     transformLists,
-    replacePageTags,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
     handleNoCaptionFigures,
