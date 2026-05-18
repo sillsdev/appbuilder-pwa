@@ -1,7 +1,6 @@
 import { derived, get, readable, writable } from 'svelte/store';
 import { defaultSettings, userSettings } from './setting';
 import { setDefaultStorage } from './storage';
-import { groupStore } from './store-types';
 
 export const NAVBAR_HEIGHT = '4rem';
 
