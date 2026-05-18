@@ -582,7 +582,7 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
             }
             const audio: BookCollectionAudioConfig[] = [];
             let chaptersLabels: { [key: string]: string } | undefined;
-            let pageIllustrations: { num: number; filename: string }[] = [];
+            const pageIllustrations: { num: number; filename: string }[] = [];
             for (const page of book.getElementsByTagName('page')) {
                 if (verbose >= 2) {
                     console.log(`.. page: ${page.attributes[0].value}`);
