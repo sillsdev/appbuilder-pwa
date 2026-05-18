@@ -510,6 +510,7 @@ export async function convertBooks(
                     });
                     displayBookId(context.bcId, book.id);
                     break;
+                case 'story':
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
@@ -867,7 +868,7 @@ function convertScriptureBook(
                 // Collect the file contents into a single document
                 let usfm: string;
 
-                if (book.type == 'story') {
+                if (book.type === 'story') {
                     // The first file contains meta-content (id, title, etc)
                     usfm = fileContents[0];
 
