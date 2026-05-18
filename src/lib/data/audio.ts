@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import { scriptureConfig } from '$assets/config';
 import { MRUCache } from '$lib/data/mrucache';
 import {
@@ -7,11 +6,11 @@ import {
     audioPlayer as audioPlayerStore,
     defaultPlayMode,
     playMode,
-    PLAYMODE_CONTINUE,
-    PLAYMODE_REPEAT_PAGE,
-    PLAYMODE_REPEAT_SELECTION,
-    PLAYMODE_STOP,
-    refs
+    PlayMode,
+    refs,
+    type AudioPlayer,
+    type PlayModeSettings,
+    type Timing
 } from '$lib/data/stores';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
@@ -30,39 +29,26 @@ const timings = import.meta.glob('./*', {
     base: '/src/gen-assets/timings'
 }) as Record<string, string>;
 
-export interface AudioPlayer {
-    audio: HTMLAudioElement;
-    loaded: boolean;
-    duration: number;
-    progress: number;
-    playing: boolean;
-    timeIndex: number;
-    timing: Array<any>;
-    collection: string;
-    book: string;
-    chapter: string;
-    timer: number;
-    playStart: number;
-}
 const cache = new MRUCache<string, AudioPlayer>(10);
-export let currentAudioPlayer;
-audioPlayerStore.subscribe(async (value) => {
+let currentAudioPlayer: AudioPlayer | undefined = undefined;
+audioPlayerStore.subscribe(async (value: AudioPlayer) => {
     currentAudioPlayer = value;
     await getAudio();
 });
-export let currentPlayMode;
+let currentPlayMode: PlayModeSettings | undefined = undefined;
 playMode.subscribe((value) => {
     if (
         currentPlayMode &&
         currentPlayMode.mode !== value.mode &&
-        value.mode === PLAYMODE_REPEAT_SELECTION
+        value.mode === PlayMode.RepeatSelection
     ) {
-        value.range = getCurrentVerseTiming();
+        const timing = getCurrentVerseTiming();
+        value.range = timing || value.range;
     }
     currentPlayMode = value;
 });
 // produces the cache key for the mru audio cache
-function cacheKey(collection, book, chapter) {
+function cacheKey(collection: string, book: string, chapter: string) {
     return `${collection}-${book}-${chapter}`;
 }
 // builds a collection of audio players which can be switched between
@@ -117,7 +103,7 @@ function createAudio(audioSource: string): HTMLAudioElement {
 }
 //gets the current audio
 async function getAudio() {
-    if (currentAudioPlayer.loaded) {
+    if (!currentAudioPlayer || currentAudioPlayer.loaded) {
         return;
     }
     currentAudioPlayer.duration = 0;
@@ -132,17 +118,17 @@ async function getAudio() {
     currentAudioPlayer.timing = audioSourceInfo.timing;
     const a = createAudio(audioSourceInfo.source);
     a.onloadedmetadata = () => {
-        currentAudioPlayer.duration = a.duration;
-        currentAudioPlayer.timeIndex = 0;
-        currentAudioPlayer.loaded = true;
-        currentAudioPlayer.audio = a;
-        audioPlayerStore.set(currentAudioPlayer);
+        currentAudioPlayer!.duration = a.duration;
+        currentAudioPlayer!.timeIndex = 0;
+        currentAudioPlayer!.loaded = true;
+        currentAudioPlayer!.audio = a;
+        audioPlayerStore.set(currentAudioPlayer!);
         updateTime();
     };
 }
 // plays or pauses the audio
 export function playPause() {
-    if (!currentAudioPlayer.loaded) {
+    if (!currentAudioPlayer?.loaded) {
         return;
     }
     if (currentAudioPlayer.playing === true) {
@@ -153,7 +139,7 @@ export function playPause() {
     audioPlayerStore.set(currentAudioPlayer);
 }
 export function playStop() {
-    if (!currentAudioPlayer.loaded) {
+    if (!currentAudioPlayer?.loaded) {
         return;
     }
     if (currentAudioPlayer.playing === true) {
@@ -161,39 +147,39 @@ export function playStop() {
     }
 }
 // changes chapter
-export async function skip(direction) {
+export async function skip(direction: number) {
     pause();
     await refs.skip(direction);
 }
 // formats timing information
-export function format(seconds) {
+export function format(seconds: number) {
     if (isNaN(seconds)) {
         return '0:00';
     }
 
     const minutes = Math.floor(seconds / 60);
     seconds = Math.floor(seconds % 60);
-    if (seconds < 10) {
-        seconds = '0' + seconds;
-    }
-    return `${minutes}:${seconds}`;
+    const sPrefix = seconds < 10 ? '0' : '';
+    return `${minutes}:${sPrefix}${seconds}`;
 }
 // changes the phrase of the audio
-export async function changeVerse(direction) {
-    if (!currentAudioPlayer.loaded) {
+export async function changeVerse(direction: number) {
+    if (!currentAudioPlayer?.loaded) {
         return;
     }
     const playing = currentAudioPlayer.playing;
     pause();
     if (direction >= 0) {
         if (
-            currentAudioPlayer.timing[currentAudioPlayer.timeIndex] !=
-            currentAudioPlayer.timing.at(-1)
+            currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex] !=
+            currentAudioPlayer.timing?.at(-1)
         ) {
             currentAudioPlayer.timeIndex++;
-            const newtime = currentAudioPlayer.timing[currentAudioPlayer.timeIndex].starttime;
-            currentAudioPlayer.audio.currentTime = newtime;
-            updateTime();
+            const newtime = currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex].starttime;
+            if (newtime && currentAudioPlayer.audio) {
+                currentAudioPlayer.audio.currentTime = newtime;
+                updateTime();
+            }
         } else {
             await skip(1);
         }
@@ -201,18 +187,20 @@ export async function changeVerse(direction) {
         if (currentAudioPlayer.timeIndex > 0) {
             currentAudioPlayer.timeIndex--;
         }
-        currentAudioPlayer.audio.currentTime =
-            currentAudioPlayer.timing[currentAudioPlayer.timeIndex].starttime;
+        if (currentAudioPlayer.audio && currentAudioPlayer.timing) {
+            currentAudioPlayer.audio.currentTime =
+                currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex].starttime;
+        }
         updateTime();
     }
     if (playing) {
         play();
     }
 }
-export async function seekOffset(offset) {
-    const playing = currentAudioPlayer.playing;
+export async function seekOffset(offset: number) {
+    const playing = currentAudioPlayer?.playing;
     pause();
-    if (currentAudioPlayer.audio) {
+    if (currentAudioPlayer?.audio) {
         let time = (currentAudioPlayer.audio.currentTime += offset);
         if (time > currentAudioPlayer.duration) {
             await skip(1);
@@ -231,32 +219,35 @@ export async function seekOffset(offset) {
         play();
     }
 }
-export function seek(position) {
-    const playing = currentAudioPlayer.playing;
+export function seek(position: number) {
+    const playing = currentAudioPlayer?.playing;
     pause();
-    if (currentAudioPlayer.audio) {
+    if (currentAudioPlayer?.audio) {
         currentAudioPlayer.audio.currentTime = position;
     } else {
         console.log('audio seek: current audio player audio missing ');
     }
-    currentAudioPlayer.progress = position;
-    playMode.set({ ...currentPlayMode, range: getCurrentVerseTiming() });
-    audioPlayerStore.set(currentAudioPlayer);
+    const timing = getCurrentVerseTiming();
+    if (currentAudioPlayer && timing) {
+        currentAudioPlayer.progress = position;
+        playMode.set({ ...(currentPlayMode ?? { mode: defaultPlayMode.mode }), range: timing });
+        audioPlayerStore.set(currentAudioPlayer);
+    }
     if (playing === true) {
         play();
     }
 }
-let warmdown = undefined;
+let warmdown: number | undefined = undefined;
 async function handlePlayMode() {
     if (warmdown) {
         warmdown--;
         if (warmdown === 0) {
-            if (currentPlayMode.mode === PLAYMODE_CONTINUE) {
+            if (currentPlayMode?.mode === PlayMode.Continue) {
                 await skip(1);
                 playMode.set({ ...currentPlayMode, continue: true });
-            } else if (currentPlayMode.mode === PLAYMODE_REPEAT_PAGE) {
+            } else if (currentPlayMode?.mode === PlayMode.RepeatPage) {
                 seek(0);
-            } else if (currentPlayMode.mode === PLAYMODE_REPEAT_SELECTION) {
+            } else if (currentPlayMode?.mode === PlayMode.RepeatSelection) {
                 seek(currentPlayMode.range.start);
                 play();
             }
@@ -264,8 +255,8 @@ async function handlePlayMode() {
         }
         return;
     }
-    if (currentAudioPlayer.audio.ended) {
-        if (currentPlayMode.mode === PLAYMODE_STOP) {
+    if (currentAudioPlayer?.audio?.ended) {
+        if (currentPlayMode?.mode === PlayMode.Stop) {
             pause();
             audioPlayerStore.set(currentAudioPlayer);
         } else {
@@ -273,14 +264,14 @@ async function handlePlayMode() {
         }
         return;
     }
-    if (currentPlayMode.mode === PLAYMODE_CONTINUE && currentPlayMode.continue) {
+    if (currentPlayMode?.mode === PlayMode.Continue && currentPlayMode.continue) {
         playMode.set({ ...currentPlayMode, continue: false });
         play();
     }
-    if (currentPlayMode.mode === PLAYMODE_REPEAT_SELECTION) {
+    if (currentPlayMode?.mode === PlayMode.RepeatSelection) {
         if (currentPlayMode.range === defaultPlayMode.range) {
             const resultArray = getCurrentVerseTiming();
-            if (resultArray.start === undefined || resultArray.end === undefined) {
+            if (resultArray?.start === undefined || resultArray.end === undefined) {
                 return;
             }
             playMode.set({
@@ -288,7 +279,7 @@ async function handlePlayMode() {
                 range: { start: resultArray.start, end: resultArray.end }
             });
         }
-        if (currentAudioPlayer.progress + 0.05 > currentPlayMode.range.end) {
+        if ((currentAudioPlayer?.progress ?? 0) + 0.05 > currentPlayMode.range.end) {
             pause();
             warmdown = 5;
         }
@@ -296,34 +287,34 @@ async function handlePlayMode() {
 }
 // gets the current verse start and end tag
 function getCurrentVerseTiming() {
-    let end;
-    let start;
-    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
-        const timing = currentAudioPlayer.timing[i];
+    let end: string = '';
+    let start: string = '';
+    for (let i = 0; i < (currentAudioPlayer?.timing?.length ?? 0); i++) {
+        const timing = currentAudioPlayer!.timing![i];
         if (
-            currentAudioPlayer.progress >= timing.starttime &&
-            currentAudioPlayer.progress < timing.endtime
+            currentAudioPlayer!.progress >= timing.starttime &&
+            currentAudioPlayer!.progress < timing.endtime
         ) {
             const verseNumber = parseInt(timing.tag, 10);
             for (let k = i + 1; k >= 0; k--) {
-                const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
+                const startVerseNumber = parseInt(currentAudioPlayer!.timing![k].tag, 10);
                 if (startVerseNumber !== verseNumber) {
-                    start = currentAudioPlayer.timing[k + 1].tag;
+                    start = currentAudioPlayer!.timing![k + 1].tag;
                     break;
                 }
                 if (k === 0) {
-                    start = currentAudioPlayer.timing.tag;
+                    start = currentAudioPlayer!.timing![0].tag;
                     break;
                 }
             }
-            for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
-                const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
+            for (let j = i + 1; j < currentAudioPlayer!.timing!.length; j++) {
+                const endVerseNumber = parseInt(currentAudioPlayer!.timing![j].tag, 10);
                 if (endVerseNumber !== verseNumber) {
-                    end = currentAudioPlayer.timing[j - 1].tag;
+                    end = currentAudioPlayer!.timing![j - 1].tag;
                     break;
                 }
-                if (j === currentAudioPlayer.timing.length - 1) {
-                    end = currentAudioPlayer.timing.tag;
+                if (j === currentAudioPlayer!.timing!.length - 1) {
+                    end = currentAudioPlayer!.timing![0].tag;
                     break;
                 }
             }
@@ -335,10 +326,10 @@ function getCurrentVerseTiming() {
 // function get range of current index all labels of the current verse playing
 // calls updatehighlights() to see if highlights need to be change
 async function updateTime() {
-    if (!currentAudioPlayer.loaded) {
+    if (!currentAudioPlayer?.loaded) {
         return;
     }
-    currentAudioPlayer.progress = currentAudioPlayer.audio.currentTime;
+    currentAudioPlayer.progress = currentAudioPlayer.audio?.currentTime ?? 0;
     if (!currentAudioPlayer.timing && currentAudioPlayer.progress) {
         audioPlayerStore.set(currentAudioPlayer);
     }
@@ -349,20 +340,20 @@ async function updateTime() {
 }
 // calls updateTime() every 100ms
 function toggleTimeRunning() {
-    if (currentAudioPlayer.audio.ended || currentAudioPlayer.playing === false) {
-        clearInterval(currentAudioPlayer.timer);
+    if (currentAudioPlayer?.audio?.ended || currentAudioPlayer?.playing === false) {
+        clearInterval(currentAudioPlayer?.timer ?? undefined);
         currentAudioPlayer.timer = null;
-    } else {
+    } else if (currentAudioPlayer) {
         currentAudioPlayer.timer = setInterval(() => updateTime(), 100);
     }
     return;
 }
 // checks if audio has played
 export function hasAudioPlayed() {
-    return currentAudioPlayer.progress > 0;
+    return (currentAudioPlayer?.progress ?? 0) > 0;
 }
 function pause() {
-    if (!currentAudioPlayer.loaded) {
+    if (!currentAudioPlayer?.loaded) {
         return;
     }
     if (currentAudioPlayer.playing) {
@@ -374,7 +365,7 @@ function pause() {
 }
 
 export function play() {
-    if (!currentAudioPlayer.loaded) {
+    if (!currentAudioPlayer?.loaded) {
         return;
     }
     if (!currentAudioPlayer.playing) {
@@ -388,20 +379,20 @@ export function play() {
 // selects the tag to highlight
 function updateHighlights() {
     const highlights = [];
-    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
-        const timing = currentAudioPlayer.timing[i];
+    for (let i = 0; i < (currentAudioPlayer?.timing?.length ?? 0); i++) {
+        const timing = currentAudioPlayer!.timing![i];
         if (
-            currentAudioPlayer.progress >= timing.starttime &&
-            currentAudioPlayer.progress < timing.endtime
+            currentAudioPlayer!.progress >= timing.starttime &&
+            currentAudioPlayer!.progress < timing.endtime
         ) {
-            currentAudioPlayer.timeIndex = i;
+            currentAudioPlayer!.timeIndex = i;
             highlights.push(timing.tag);
         }
     }
     return audioHighlightElements.set(highlights);
 }
-export function updatePlaybackSpeed(playbackSpeed) {
-    if (currentAudioPlayer.audio != null && playbackSpeed) {
+export function updatePlaybackSpeed(playbackSpeed: string) {
+    if (currentAudioPlayer?.audio && playbackSpeed) {
         currentAudioPlayer.audio.playbackRate = parseFloat(playbackSpeed);
     }
 }
@@ -416,11 +407,13 @@ function getDamId(audioSource: any) {
     }
     return damId;
 }
-export async function getAudioSourceInfo(item: {
-    collection: string;
-    book: string;
-    chapter: string;
-}) {
+export async function getAudioSourceInfo(
+    item: Partial<{
+        collection: string;
+        book: string;
+        chapter: string;
+    }>
+) {
     //search config for audio on provided collection, book, and chapter
     const audio = scriptureConfig.bookCollections
         ?.find((c) => item.collection === c.id)
@@ -462,7 +455,7 @@ export async function getAudioSourceInfo(item: {
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
     //parse timing file
-    const timing = [];
+    const timing: Timing[] = [];
     if (audio.timingFile) {
         const timingKey = `./${audio.timingFile}`;
         if (!timings[timingKey]) {
@@ -504,8 +497,8 @@ export async function getAudioSourceInfo(item: {
     };
 }
 // This function can be called when the text selection toolbar play button is clicked on and it changes the audio to the start of the verse clicked on
-export function seekToVerse(verseClicked) {
-    if (!currentAudioPlayer.timing) {
+export function seekToVerse(verseClicked: string) {
+    if (!currentAudioPlayer?.timing) {
         return;
     }
     const elements = currentAudioPlayer.timing;
@@ -524,17 +517,17 @@ export function seekToVerse(verseClicked) {
     updateTime();
 }
 // takes a start and end tag and returns the range of times
-function getVerseTimingRange(startverse, endverse) {
-    const elements = currentAudioPlayer.timing;
-    let start;
+function getVerseTimingRange(startverse: string, endverse: string) {
+    const elements = currentAudioPlayer?.timing ?? [];
+    let start: number = 0;
     for (let i = 0; i < elements.length; i++) {
-        const tag = currentAudioPlayer.timing[i].tag;
+        const tag = currentAudioPlayer!.timing![i].tag;
         if (startverse === tag) {
-            const newstarttime = currentAudioPlayer.timing[i].starttime;
+            const newstarttime = currentAudioPlayer!.timing![i].starttime;
             start = newstarttime;
         }
         if (endverse === tag) {
-            const newendtime = currentAudioPlayer.timing[i].endtime;
+            const newendtime = currentAudioPlayer!.timing![i].endtime;
             const end = newendtime;
             const range = { start, end };
             return range;
