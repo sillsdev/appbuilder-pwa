@@ -4,7 +4,7 @@ import { setDefaultStorage } from './storage';
 
 //** themes */
 export const themes = config.themes?.filter((x) => x.enabled)?.map((theme) => theme.name) ?? [];
-export const themeDefault = config.defaultTheme;
+export const themeDefault = config.defaultTheme ?? '';
 setDefaultStorage('theme', themeDefault);
 export const theme = writable(localStorage.theme);
 theme.subscribe((value) => (localStorage.theme = value));
@@ -25,7 +25,7 @@ export const monoIconColor = derived(theme, ($theme) => {
     return $theme === 'Dark' ? 'white' : 'black';
 });
 
-const resolveColor = (colorValue, colors) => {
+const resolveColor = (colorValue: string, colors: Record<string, string>) => {
     if (colorValue.startsWith('#')) {
         return colorValue;
     } else if (colors[colorValue]) {
@@ -37,7 +37,7 @@ const resolveColor = (colorValue, colors) => {
 };
 
 // Convert style to string format for inline styling
-export const convertStyle = (style) => {
+export const convertStyle = (style: Record<string, string>) => {
     let result = '';
     for (const x in style) {
         result += `${x}:${style[x]};`;
@@ -46,19 +46,22 @@ export const convertStyle = (style) => {
 };
 
 export const s = derived(themeColors, ($themeColors) => {
-    return config.styles?.reduce((styleProperties, style) => {
-        const properties = style.properties;
-        let newProperties = { ...properties };
-        if (Object.prototype.hasOwnProperty.call(newProperties, 'background-color')) {
-            newProperties['background-color'] = resolveColor(
-                newProperties['background-color'],
-                $themeColors
-            );
-        }
-        if (Object.prototype.hasOwnProperty.call(newProperties, 'color')) {
-            newProperties['color'] = resolveColor(newProperties['color'], $themeColors);
-        }
-        styleProperties[style.name] = newProperties;
-        return styleProperties;
-    }, {});
+    return config.styles?.reduce(
+        (styleProperties, style) => {
+            const properties = style.properties;
+            const newProperties = { ...properties };
+            if (Object.prototype.hasOwnProperty.call(newProperties, 'background-color')) {
+                newProperties['background-color'] = resolveColor(
+                    newProperties['background-color'],
+                    $themeColors
+                );
+            }
+            if (Object.prototype.hasOwnProperty.call(newProperties, 'color')) {
+                newProperties['color'] = resolveColor(newProperties['color'], $themeColors);
+            }
+            styleProperties[style.name] = newProperties;
+            return styleProperties;
+        },
+        {} as Record<string, Record<string, string>>
+    );
 });

@@ -1,5 +1,5 @@
 import { invalidate } from '$app/navigation';
-import config, { scriptureConfig } from '$assets/config';
+import { scriptureConfig } from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
 import { writable } from 'svelte/store';
 
@@ -19,14 +19,14 @@ interface Bookmarks extends DBSchema {
         key: number;
         value: BookmarkItem;
         indexes: {
-            'collection, book, chapter, verse': string;
-            'collection, book, chapter': string;
+            'collection, book, chapter, verse': string[];
+            'collection, book, chapter': string[];
             date: string;
         };
     };
 }
 
-let bookmarkDB = null;
+let bookmarkDB: Awaited<ReturnType<typeof openDB<Bookmarks>>> | null = null;
 async function openBookmarks() {
     if (!bookmarkDB) {
         bookmarkDB = await openDB<Bookmarks>('bookmarks', 1, {
@@ -67,9 +67,11 @@ export async function addBookmark(item: {
     const bookIndex = scriptureConfig.bookCollections
         ?.find((x) => x.id === item.collection)
         ?.books.findIndex((x) => x.id === item.book);
-    const nextItem = { ...item, date: date, bookIndex: bookIndex };
-    await bookmarks.add('bookmarks', nextItem);
-    notifyUpdated();
+    if (bookIndex) {
+        const nextItem = { ...item, date: date, bookIndex: bookIndex };
+        await bookmarks.add('bookmarks', nextItem);
+        notifyUpdated();
+    }
 }
 
 export async function findBookmark(item: {

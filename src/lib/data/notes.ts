@@ -19,13 +19,13 @@ interface Notes extends DBSchema {
         key: number;
         value: NoteItem;
         indexes: {
-            'collection, book, chapter, verse': string;
-            'collection, book, chapter': string;
+            'collection, book, chapter, verse': string[];
+            'collection, book, chapter': string[];
         };
     };
 }
 
-let noteDB = null;
+let noteDB: Awaited<ReturnType<typeof openDB<Notes>>> | null = null;
 async function openNotes() {
     if (!noteDB) {
         noteDB = await openDB<Notes>('notes', 1, {
@@ -65,10 +65,12 @@ export async function addNote(item: {
     const bookIndex = scriptureConfig.bookCollections
         ?.find((x) => x.id === item.collection)
         ?.books.findIndex((x) => x.id === item.book);
-    const nextItem = { ...item, date: date, bookIndex: bookIndex };
-    await notes.add('notes', nextItem);
-    notifyUpdated();
-    return nextItem;
+    if (bookIndex) {
+        const nextItem = { ...item, date: date, bookIndex: bookIndex };
+        await notes.add('notes', nextItem);
+        notifyUpdated();
+        return nextItem;
+    }
 }
 
 export async function findNote(item: {
@@ -103,7 +105,9 @@ export async function editNote(item: { note: any; newText: string }) {
     const tx = notes.transaction('notes', 'readwrite');
     const store = tx.objectStore('notes');
     const result = await store.get(item.note.date);
-    await store.put({ ...result, text: item.newText });
+    if (result) {
+        await store.put({ ...result, text: item.newText });
+    }
     await tx.done;
     notifyUpdated();
 }

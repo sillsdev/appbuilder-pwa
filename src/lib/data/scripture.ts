@@ -1,5 +1,4 @@
-import { base } from '$app/paths';
-import config from '$assets/config';
+import type { LoadEvent } from '@sveltejs/kit';
 import { pk } from '$lib/data/stores/pk';
 import { SABProskomma } from '$lib/sab-proskomma';
 import { get } from 'svelte/store';
@@ -10,17 +9,17 @@ const collections = import.meta.glob('./*.pkf', {
     eager: true,
     base: '/src/gen-assets/collections',
     query: '?url'
-});
+}) as Record<string, string>;
 
-export async function initProskomma({ fetch }) {
+export async function initProskomma() {
     let proskomma = get(pk);
     if (!proskomma) {
         proskomma = new SABProskomma();
 
-        let docSet; //get(refs).docSet;
+        /*let docSet; //get(refs).docSet;
         if (!docSet) {
             docSet = config.bookCollections[0].languageCode + '_' + config.bookCollections[0].id;
-        }
+        }*/
         // Delay loading, allows page to render while waiting for data to load
         // await loadDocSet(proskomma, docSet, fetch);
         pk.set(proskomma);
@@ -29,7 +28,7 @@ export async function initProskomma({ fetch }) {
     return proskomma;
 }
 
-export function getDocSetUrl(docSet) {
+export function getDocSetUrl(docSet: string) {
     const key = `./${docSet}.pkf`;
     const entry = collections[key];
     if (!entry) {
@@ -38,7 +37,9 @@ export function getDocSetUrl(docSet) {
     return entry;
 }
 
-export async function fetchDocSet(docSet, fetch) {
+type Fetch = Pick<LoadEvent, 'fetch'>['fetch'];
+
+export async function fetchDocSet(docSet: string, fetch: Fetch) {
     performance.mark('pk-fetch-start');
 
     const data = await fetch(getDocSetUrl(docSet));
@@ -50,7 +51,7 @@ export async function fetchDocSet(docSet, fetch) {
     return new Uint8Array(buffer);
 }
 
-export async function loadDocSet(proskomma, docSet, fetch) {
+export async function loadDocSet(proskomma: SABProskomma, docSet: string, fetch: Fetch) {
     // console.log('fetch %o pkf', docSet);
     const data = await fetchDocSet(docSet, fetch);
     if (data.length) {
@@ -62,7 +63,7 @@ export async function loadDocSet(proskomma, docSet, fetch) {
     }
 }
 
-export async function loadDocSetIfNotLoaded(proskomma, docSet, fetch) {
+export async function loadDocSetIfNotLoaded(proskomma: SABProskomma, docSet: string, fetch: Fetch) {
     performance.mark('pk-query-docset-start');
     const docslist = await proskomma.gqlQuery('{docSets { id } }');
     performance.mark('pk-query-docset-end');
