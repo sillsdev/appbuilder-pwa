@@ -118,7 +118,7 @@
     <link rel="apple-touch-icon" href={appleIconHref} />
     <link rel="manifest" href={manifestHref.url} />
     <!-- +layout.svelte -->
-    <meta name="theme-color" content={$s['ui.bar.action']?.['background-color']} />
+    <meta name="theme-color" content={$s?.['ui.bar.action']?.['background-color']} />
     <link rel="stylesheet" href={styles[`./${config.programType.toLowerCase()}-app.css`]} />
     {#if isSAB}
         {#if $refs.initialized}

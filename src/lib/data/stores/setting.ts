@@ -2,7 +2,7 @@ import config, { scriptureConfig } from '$assets/config';
 import type { AppConfig, DictionaryConfig, FeatureConfig, ScriptureConfig } from '$config';
 import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
-import { derived, get, readable, writable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 
 export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
 export const SETTINGS_CATEGORY_NAVIGATION = 'Settings_Category_Navigation';
