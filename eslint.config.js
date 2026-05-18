@@ -73,7 +73,6 @@ export default ts.config(
             '.env.*',
             '!env.example',
             'data',
-            'src/config.js',
             'static',
             'example_data',
             'test_data',

@@ -4,10 +4,10 @@ The sidebar/drawer.
 -->
 <script>
     import { resolve } from '$app/paths';
+    import config from '$assets/config';
+    import contents from '$assets/contents';
     import nav_drawer_image from '$assets/images/nav_drawer.png';
     import nav_drawer_2x from '$assets/images/nav_drawer@2x.png';
-    import config from '$lib/data/config';
-    import contents from '$lib/data/contents';
     import {
         direction,
         fontChoices,
@@ -248,7 +248,7 @@ The sidebar/drawer.
             {#if menuItems}
                 {#each menuItems as item}
                     <li>
-                        <!-- eslint-disable svelte/no-navigation-without-base -->
+                        <!-- eslint-disable svelte/no-navigation-without-base, svelte/no-navigation-without-resolve -->
                         <a
                             href={item.link['default']}
                             style:color={textColor}

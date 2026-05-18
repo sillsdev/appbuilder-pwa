@@ -1,7 +1,7 @@
 <script>
     import { page } from '$app/stores';
-    import config from '$lib/data/config';
-    import contents from '$lib/data/contents';
+    import config from '$assets/config';
+    import contents from '$assets/contents';
     import { audioActive, isDAB, isFirstLaunch } from '$lib/data/stores';
     import { gotoRoute, navigateToTextReference } from '$lib/navigate';
     import { onMount } from 'svelte';

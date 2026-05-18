@@ -4,7 +4,7 @@ A component that displays the book tabs and allows the user to switch between th
 -->
 <script>
     import { base } from '$app/paths';
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import {
         convertStyle,
         language,

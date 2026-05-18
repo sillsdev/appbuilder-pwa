@@ -4,9 +4,10 @@
  * @author Jake Colbert & David Moore
  **/
 
+import { scriptureConfig } from '$assets/config';
+import type { ScriptureConfig } from '$config';
 import { get } from 'svelte/store';
 import type { CatalogData } from '../data/catalogData';
-import config from '../data/config';
 import { getVerseText, refs } from '../data/stores';
 import * as numerals from './numeralSystem';
 import {
@@ -94,7 +95,7 @@ function initGlobals() {
  */
 export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
     ref = get(refs);
-    bookCollections = config.bookCollections;
+    bookCollections = scriptureConfig.bookCollections;
     runtimeCatalog = ref.catalog;
     return generateHTMLMain(crossRef, refClass, bookId);
 }
@@ -149,12 +150,12 @@ export function generateHTMLMain(crossRef: string, refClass: string, bookId: str
     sb += contentToMatch.substring(lastIndex);
     return sb;
 }
-export function isBibleBook(item, testConfig: any = null) {
-    const runtimeConfig = testConfig ?? config;
+export function isBibleBook(item, testConfig: ScriptureConfig | null = null) {
+    const runtimeConfig = testConfig ?? scriptureConfig;
     const bookTestament =
         runtimeConfig.bookCollections
-            .find((x) => x.id === item.collection)
-            .books.find((x) => x.id === item.book)?.testament || '';
+            ?.find((x) => x.id === item.collection)
+            ?.books.find((x) => x.id === item.book)?.testament || '';
     const bibleBook = bookTestament === 'NT' || bookTestament === 'OT' || bookTestament === 'DC';
     return bibleBook;
 }
@@ -801,8 +802,8 @@ function lastVerseInChapter(book: string, chapter: string, docSet: string): stri
         return '0';
     }
     const books = runtimeCatalog.documents;
-    const chapters = books.find((d) => d.bookCode === book).versesByChapters;
-    const chapterEntry = chapters[chapter];
+    const chapters = books.find((d) => d.bookCode === book)?.versesByChapters;
+    const chapterEntry = chapters?.[chapter];
     if (!chapterEntry) {
         // Requested Chapter not found in book
         return '0';
@@ -932,27 +933,27 @@ export function getDisplayString(
     chapter: number,
     ranges: [number, number, string][]
 ) {
-    return getDisplayStringMain(config, collection, bookId, chapter, ranges);
+    return getDisplayStringMain(scriptureConfig, collection, bookId, chapter, ranges);
 }
 export function getDisplayStringMain(
-    cfg: any,
+    cfg: ScriptureConfig,
     collection: string,
     bookId: string,
     chapter: number,
     ranges: [number, number, string][]
 ) {
     let displayString = '';
-    const chapterVerseSeparator = cfg.bookCollections.find((x) => x.id === collection).features[
+    const chapterVerseSeparator = cfg.bookCollections?.find((x) => x.id === collection)?.features[
         'ref-chapter-verse-separator'
     ];
-    const verseRangeSeparator = cfg.bookCollections.find((x) => x.id === collection).features[
+    const verseRangeSeparator = cfg.bookCollections?.find((x) => x.id === collection)?.features[
         'ref-verse-range-separator'
     ];
     const RIGHT_TO_LEFT_MARK = '\u200F';
-    const bookCollection = cfg.bookCollections.find((x) => x.id === collection);
+    const bookCollection = cfg.bookCollections?.find((x) => x.id === collection);
     if (bookCollection) {
-        const textDirection = bookCollection.style.textDirection;
-        const rtl = textDirection.toLowerCase() === 'rtl';
+        const textDirection = bookCollection?.style?.textDirection;
+        const rtl = textDirection?.toLowerCase() === 'rtl';
         const numeralSystem = numerals.systemForBook(cfg, collection, bookId);
         const chapterString = numerals.formatNumber(numeralSystem, chapter.toString());
         const bookName = bookCollection.books.find((x) => x.id === bookId)?.name || bookId;

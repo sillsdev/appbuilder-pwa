@@ -5,7 +5,7 @@ Font list component.
 <svelte:options accessors />
 
 <script>
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import { fontChoices, monoIconColor, themeColors } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
 

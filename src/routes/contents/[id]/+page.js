@@ -1,15 +1,15 @@
-import contents from '$lib/data/contents';
+import contents from '$assets/contents';
 
 export async function load({ params }) {
     const id = Number(params.id);
-    const menu = contents.screens.find((x) => x.id === id);
+    const menu = contents.screens?.find((x) => x.id === id);
     const nestedItems = contents.nestedItems;
     const features = contents.features;
     const title = contents.title;
 
     const items = [];
-    for (const item of menu.items) {
-        const found = contents.items.find((x) => x.id === item.id);
+    for (const item of menu?.items ?? []) {
+        const found = contents.items?.find((x) => x.id === item.id);
         if (found && Object.keys(found).length !== 0) {
             items.push(found);
         } else {

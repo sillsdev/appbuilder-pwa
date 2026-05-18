@@ -1,59 +1,10 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
-import { ScriptureConfig } from '$config';
+import { ContentItem, ContentsData, LangContainer, LinkMeta, ScriptureConfig } from '$config';
 import jsdom from 'jsdom';
 import { ConfigTaskOutput, parseLangAttribute } from './convertConfig';
 import { createHashedFile, createOutputDir, deleteOutputDir, joinUrlPath } from './fileUtils';
 import { Task, TaskOutput } from './Task';
-
-export type LangContainer = { [lang: string]: string };
-
-export type LinkMeta = {
-    // intended to pass between functions so that there is one object passed
-    linkType?: string;
-    linkTarget?: string;
-    linkLocation?: string;
-};
-
-type ContentItem = {
-    id: number;
-    heading?: boolean;
-    features?: any;
-    title: LangContainer;
-    subtitle?: LangContainer;
-    audioFilename?: LangContainer;
-    imageFilename?: string;
-    itemType?: string;
-    contentItemContainer: boolean;
-    linkType?: string;
-    linkTarget?: string;
-    linkLocation?: string;
-    layoutMode?: string;
-    layoutCollection?: string[];
-    children?: ContentItem[];
-};
-
-type ContentScreen = {
-    id: number;
-    title?: {
-        [lang: string]: string;
-    };
-    items?: {
-        id: number;
-    }[];
-};
-
-export type ContentsData = {
-    title?: {
-        [lang: string]: string;
-    };
-    features?: any;
-    items?: ContentItem[];
-    nestedItems?: boolean;
-    screens?: ContentScreen[];
-};
-
-const data: ContentsData = {};
 
 export interface ContentsTaskOutput extends TaskOutput {
     taskName: 'ConvertContents';
@@ -367,6 +318,8 @@ export function convertContents(
         deleteOutputDir(destDir);
     }
 
+    const data: ContentsData = {};
+
     const contentsFile = path.join(dataDir, 'contents.xml');
     if (!existsSync(contentsFile)) {
         return data;
@@ -602,8 +555,12 @@ export class ConvertContents extends Task {
             data,
             files: [
                 {
-                    path: 'src/lib/data/contents.js',
-                    content: `export default ${JSON.stringify(data, null, 2)}`
+                    path: 'src/gen-assets/contents.ts',
+                    content: [
+                        `import type { ContentsData } from '$config';`,
+                        `export const contents = ${JSON.stringify(data, null, 2)} as Readonly<ContentsData>;`,
+                        `export default contents;\n`
+                    ].join('\n')
                 }
             ]
         };

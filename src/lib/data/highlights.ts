@@ -1,5 +1,5 @@
 import { invalidate } from '$app/navigation';
-import config from '$lib/data/config';
+import { scriptureConfig } from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
 import { writable } from 'svelte/store';
 
@@ -20,13 +20,13 @@ interface Highlights extends DBSchema {
         key: number;
         value: HighlightItem;
         indexes: {
-            'collection, book, chapter, verse': string;
-            'collection, book, chapter': string;
+            'collection, book, chapter, verse': string[];
+            'collection, book, chapter': string[];
         };
     };
 }
 
-let highlightDB = null;
+let highlightDB: Awaited<ReturnType<typeof openDB<Highlights>>> | null = null;
 async function openHighlights() {
     if (!highlightDB) {
         highlightDB = await openDB<Highlights>('highlights', 1, {
@@ -76,9 +76,9 @@ export async function addHighlights(
         }
 
         const date = new Date()[Symbol.toPrimitive]('number');
-        const bookIndex = config.bookCollections
-            .find((x) => x.id === selectedVerse.collection)
-            .books.findIndex((x) => x.id === selectedVerse.book);
+        const bookIndex = scriptureConfig.bookCollections
+            ?.find((x) => x.id === selectedVerse.collection)
+            ?.books.findIndex((x) => x.id === selectedVerse.book);
         const text = await getVerseTextByIndex(i);
 
         const nextItem = { ...selectedVerse, text, date, bookIndex, penColor: numColor };
@@ -87,12 +87,14 @@ export async function addHighlights(
     notifyUpdated();
 }
 
-export async function findHighlight(item: {
+export type HighlighSearch = {
     collection: string;
     book: string;
     chapter: string;
     verse: string;
-}) {
+};
+
+export async function findHighlight(item: HighlighSearch) {
     const highlights = await openHighlights();
     const tx = highlights.transaction('highlights', 'readonly');
     const index = tx.store.index('collection, book, chapter, verse');
@@ -120,7 +122,7 @@ export async function removeHighlight(date: number) {
     notifyUpdated();
 }
 
-export async function removeHighlights(selectedVerses) {
+export async function removeHighlights(selectedVerses: HighlighSearch[]) {
     const verseCount = selectedVerses.length;
     for (let i = 0; i < verseCount; i++) {
         const selectedVerse = selectedVerses[i];

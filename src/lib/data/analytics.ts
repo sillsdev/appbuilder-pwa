@@ -1,12 +1,12 @@
-import config from '$lib/data/config';
+import { scriptureConfig } from '$assets/config';
 import { analytics } from '$lib/data/stores';
 import type { AudioPlayer } from './audio';
 import type { HistoryItem } from './history';
 
 export function getBook(item: { collection?: string; book: string }) {
-    return config.bookCollections
-        .find((x) => x.id === item.collection)
-        .books.find((x) => x.id === item.book);
+    return scriptureConfig.bookCollections
+        ?.find((x) => x.id === item.collection)
+        ?.books.find((x) => x.id === item.book);
 }
 
 function getDamId(item: { book: any; chapter: string }) {
@@ -15,8 +15,8 @@ function getDamId(item: { book: any; chapter: string }) {
         const audio = item.book.audio.find((x) => x.num === Number(item.chapter));
         const source = audio.src;
         if (source) {
-            if (config.audio.sources[source]?.type === 'fcbh') {
-                damId = config.audio.sources[source].damId;
+            if (scriptureConfig.audio?.sources[source]?.type === 'fcbh') {
+                damId = scriptureConfig.audio.sources[source].damId;
             }
         }
     }

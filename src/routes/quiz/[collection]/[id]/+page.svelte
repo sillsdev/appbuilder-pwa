@@ -20,10 +20,10 @@
 
 <script lang="ts">
     import { beforeNavigate } from '$app/navigation';
-    import type { QuizAnswer, QuizQuestion, ScriptureConfig } from '$config';
+    import { scriptureConfig } from '$assets/config';
+    import type { QuizAnswer, QuizQuestion } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import config from '$lib/data/config';
     import { addQuiz } from '$lib/data/quiz';
     import {
         bodyFontSize,
@@ -39,8 +39,6 @@
     import { onDestroy } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
     import type { PageData } from './$types.js';
-
-    const scriptConfig: ScriptureConfig = config;
 
     const illustrations: Record<string, string> = import.meta.glob('./*', {
         import: 'default',
@@ -83,7 +81,7 @@
     let explanation = $state('');
 
     const book = $derived(
-        scriptConfig.bookCollections
+        scriptureConfig.bookCollections
             ?.find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === quizId)
     );
@@ -97,7 +95,7 @@
         shuffle(currentQuestion?.answers.map((a) => ({ ...a, clicked: false })) ?? [])
     );
 
-    const staticAssets = compareVersions(config.programVersion, '12.0') < 0;
+    const staticAssets = compareVersions(scriptureConfig.programVersion, '12.0') < 0;
     function getQuizAssetAudio(file: string) {
         return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].replace(/^\//, '');
     }

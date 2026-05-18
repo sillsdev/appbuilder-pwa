@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, type PathLike } from 'fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, type PathLike } from 'fs';
 import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
@@ -219,6 +219,10 @@ function isDictionaryConfig(data: ScriptureConfig | DictionaryConfig): data is D
 }
 
 function convertConfig(dataDir: string, verbose: number) {
+    const genAssets = path.join('src/gen-assets');
+    if (!existsSync(genAssets)) {
+        mkdirSync(genAssets, { recursive: true });
+    }
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
     });
@@ -1613,7 +1617,7 @@ export interface ConfigTaskOutput extends TaskOutput {
 
 /**
  * Converts appdef.xml into a config object which is passed to other conversion functions
- * and is also written to src/config.js.
+ * and is also written to src/gen-assets/config.ts.
  */
 export class ConvertConfig extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
@@ -1624,8 +1628,14 @@ export class ConvertConfig extends Task {
             data,
             files: [
                 {
-                    path: 'src/lib/data/config.js',
-                    content: `export default ${JSON.stringify(data, null, 2)};`
+                    path: 'src/gen-assets/config.ts',
+                    content: [
+                        `import type { AppConfig, DictionaryConfig, ScriptureConfig } from '$config';`,
+                        `export const config = ${JSON.stringify(data, null, 2)} as Readonly<AppConfig>;`,
+                        `export const dictionaryConfig = config as Readonly<DictionaryConfig>;`,
+                        `export const scriptureConfig = config as Readonly<ScriptureConfig>;`,
+                        `export default config;\n`
+                    ].join('\n')
                 }
             ]
         };

@@ -1,30 +1,33 @@
+import { scriptureConfig } from '$assets/config';
 import { get, writable } from 'svelte/store';
-import config from '../config';
 import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from './view.js';
 
-function findCollection(id) {
-    const ds = config.bookCollections.find((x) => x.id === id);
-    return {
-        id: ds.languageCode + '_' + ds.id,
-        name: ds.collectionName,
-        singlePane:
-            ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
-        description: ds?.collectionDescription,
-        image: ds?.collectionImage
-    };
+function findCollection(id: string): App.CollectionEntry | undefined {
+    const ds = scriptureConfig.bookCollections?.find((x) => x.id === id);
+    return (
+        ds && {
+            id: ds.languageCode + '_' + ds.id,
+            name: ds.collectionName,
+            singlePane:
+                ds.features['bc-allow-single-pane'] ??
+                (ds.features['bc-layout-allow-single-pane'] as boolean),
+            description: ds.collectionDescription,
+            image: ds.collectionImage
+        }
+    );
 }
 
 function createInitCollections(): App.CollectionGroup {
-    const layouts = config.layouts || [];
+    const layouts = scriptureConfig.layouts || [];
     const initCollections: App.CollectionGroup = {};
 
     for (const layout of layouts) {
         if (!layout.enabled) {
             continue;
         }
-        const collections: App.CollectionEntry[] = layout.layoutCollections.map((collectionId) =>
-            findCollection(collectionId)
-        );
+        const collections: App.CollectionEntry[] = layout.layoutCollections
+            .map((collectionId) => findCollection(collectionId))
+            .filter((c) => !!c);
         if (layout.mode === 'single') {
             initCollections.singlePane = collections[0];
         } else if (layout.mode === 'two') {
@@ -39,7 +42,7 @@ function createInitCollections(): App.CollectionGroup {
             // If there is no third VerseByVerse collection
             // and there are greater than 2 project book collections
             // set it to the blank value
-            if (collections.length < 3 && config.bookCollections.length > 2) {
+            if (collections.length < 3 && (scriptureConfig.bookCollections?.length ?? 0) > 2) {
                 initCollections.verseByVerse[2] = {
                     id: '',
                     name: '--------',

@@ -1,5 +1,4 @@
-import type { DictionaryConfig } from '$config';
-import config from '$lib/data/config';
+import config, { dictionaryConfig } from '$assets/config';
 import {
     displayNames,
     initializeDatabase,
@@ -21,10 +20,9 @@ const reversalURLs = import.meta.glob('./**/*.json', {
 }) as Record<string, string>;
 
 export const load: LayoutLoad = async ({ fetch }) => {
-    if (!(config as DictionaryConfig).writingSystems) {
+    if (!dictionaryConfig.writingSystems) {
         throw new Error('Writing systems configuration not found');
     }
-    const dictionaryConfig = config as DictionaryConfig;
 
     const writingSystems = Object.entries(dictionaryConfig.writingSystems);
 

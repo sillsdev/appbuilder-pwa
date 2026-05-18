@@ -4,7 +4,7 @@ Display an HTML Book.
 -->
 <script lang="ts">
     import { base } from '$app/paths';
-    import config from '$lib/data/config';
+    import { scriptureConfig } from '$assets/config';
 
     interface Props {
         references: {
@@ -27,8 +27,8 @@ Display an HTML Book.
     });
 
     async function loadHtml(collectionId: string, bookId: string) {
-        const book = config.bookCollections
-            .find((x) => x.id === collectionId)
+        const book = scriptureConfig.bookCollections
+            ?.find((x) => x.id === collectionId)
             ?.books.find((x) => x.id === bookId);
 
         if (book) {

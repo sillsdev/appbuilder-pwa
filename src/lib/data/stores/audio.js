@@ -1,5 +1,5 @@
+import config from '$assets/config';
 import { derived, get, writable } from 'svelte/store';
-import config from '../config';
 import { setDefaultStorage } from './storage';
 
 /**is audio active in the app*/

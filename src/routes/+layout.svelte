@@ -3,6 +3,7 @@
     import faviconHref from '$assets/icons/favicon.png';
     import manifestHref from '$assets/manifestUrl.json';
     import '$lib/styles/app.css';
+    import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -11,7 +12,6 @@
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import catalog from '$lib/data/catalogData';
-    import config from '$lib/data/config';
     import {
         analytics,
         direction,

@@ -1,6 +1,6 @@
+import { scriptureConfig } from '$assets/config';
 import { derived, get, writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
-import config from '../config';
 import { loadDocSetIfNotLoaded } from '../scripture';
 import { pk } from './pk';
 import { referenceStore } from './reference';
@@ -65,13 +65,12 @@ function getInsertIndex(newVerseNumber, selections) {
 }
 
 export function getReference(item) {
-    const separator = config.bookCollections.find((x) => x.id === item.collection).features[
-        'ref-chapter-verse-separator'
-    ];
+    const separator = scriptureConfig.bookCollections?.find((x) => x.id === item.collection)
+        ?.features['ref-chapter-verse-separator'];
     const bookName =
-        config.bookCollections
-            .find((x) => x.id === item.collection)
-            .books.find((x) => x.id === item.book)?.name || item.book;
+        scriptureConfig.bookCollections
+            ?.find((x) => x.id === item.collection)
+            ?.books.find((x) => x.id === item.book)?.name || item.book;
     return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
@@ -150,16 +149,20 @@ export const glossary = derived(docSet, async ($docSet) => {
 });
 
 function getDefaultCurrentFonts() {
+    /** @type{Record<string, string>} */
     const currentFonts = {};
     // This is for Scripture PWA, not Dictionary
-    if (config?.bookCollections) {
-        for (let collection of config.bookCollections) {
+    if (scriptureConfig.bookCollections) {
+        for (let collection of scriptureConfig.bookCollections) {
             // Sometimes, the collection.style.font doesn't exist in the array of fonts!
-            currentFonts[collection.id] =
-                collection.style.font &&
-                config.fonts.some((font) => font.family === collection.style.font)
+            const font =
+                collection.style?.font &&
+                scriptureConfig.fonts?.some((font) => font.family === collection.style?.font)
                     ? collection.style.font
-                    : config.fonts[0].family;
+                    : scriptureConfig.fonts?.[0].family;
+            if (font) {
+                currentFonts[collection.id] = font;
+            }
         }
     }
     return currentFonts;
@@ -171,7 +174,7 @@ currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fo
 
 export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
     if (!$refs.initialized) {
-        return config.fonts[0].family;
+        return scriptureConfig.fonts?.[0].family;
     }
     return $currentFonts[$refs.collection];
 });
@@ -180,13 +183,17 @@ export const fontChoices = derived(refs, ($refs) => {
     if (!$refs.initialized) {
         return [];
     }
-    const bookFonts = config.bookCollections
-        .find((x) => x.id === $refs.collection)
-        .books.find((x) => x.id === $refs.book)?.fonts;
-    const colFonts = config.bookCollections.find((x) => x.id === $refs.collection).fonts;
-    const allFonts = [...new Set(config.fonts.map((x) => x.family))];
+    const bookFonts = scriptureConfig.bookCollections
+        ?.find((x) => x.id === $refs.collection)
+        ?.books.find((x) => x.id === $refs.book)?.fonts;
+    const colFonts = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.fonts;
+    const allFonts = [...new Set(scriptureConfig.fonts?.map((x) => x.family))];
     const currentFonts =
-        bookFonts?.length > 0 ? bookFonts : colFonts.length > 0 ? colFonts : allFonts;
+        (bookFonts?.length ?? 0) > 0
+            ? bookFonts
+            : (colFonts?.length ?? 0) > 0
+              ? colFonts
+              : allFonts;
     return currentFonts;
 });
 
@@ -274,12 +281,13 @@ function createSelectedVerses() {
             const index = Number(i);
             if (index > -1 && index < selections.length) {
                 const selection = selections[index];
-                const separator = config.bookCollections.find((x) => x.id === selection.collection)
-                    .features['ref-chapter-verse-separator'];
+                const separator = scriptureConfig.bookCollections?.find(
+                    (x) => x.id === selection.collection
+                )?.features['ref-chapter-verse-separator'];
                 const bookName =
-                    config.bookCollections
-                        .find((x) => x.id === selection.collection)
-                        .books.find((x) => x.id === selection.book)?.name || selection.book;
+                    scriptureConfig.bookCollections
+                        ?.find((x) => x.id === selection.collection)
+                        ?.books.find((x) => x.id === selection.book)?.name || selection.book;
                 return bookName + ' ' + selection.chapter + separator + selection.verse;
             } else {
                 return '';
@@ -292,19 +300,19 @@ function createSelectedVerses() {
                 return selectedVerses.getReference(0);
             } else {
                 const selectionStart = selections[0];
-                const verseSeparator = config.bookCollections.find(
+                const verseSeparator = scriptureConfig.bookCollections?.find(
                     (x) => x.id === selectionStart.collection
-                ).features['ref-chapter-verse-separator'];
-                const rangeSeparator = config.bookCollections.find(
+                )?.features['ref-chapter-verse-separator'];
+                const rangeSeparator = scriptureConfig.bookCollections?.find(
                     (x) => x.id === selectionStart.collection
-                ).features['ref-verse-range-separator'];
-                const verseListSeparator = config.bookCollections.find(
+                )?.features['ref-verse-range-separator'];
+                const verseListSeparator = scriptureConfig.bookCollections?.find(
                     (x) => x.id === selectionStart.collection
-                ).features['ref-verse-list-separator'];
+                )?.features['ref-verse-list-separator'];
                 const bookName =
-                    config.bookCollections
-                        .find((x) => x.id === selectionStart.collection)
-                        .books.find((x) => x.id === selectionStart.book)?.name ||
+                    scriptureConfig.bookCollections
+                        ?.find((x) => x.id === selectionStart.collection)
+                        ?.books.find((x) => x.id === selectionStart.book)?.name ||
                     selectionStart.book;
                 let reference =
                     bookName + ' ' + selectionStart.chapter + verseSeparator + selectionStart.verse;

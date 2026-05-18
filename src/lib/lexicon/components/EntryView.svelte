@@ -1,5 +1,5 @@
 <script lang="ts">
-    import config from '$lib/data/config';
+    import config, { dictionaryConfig } from '$assets/config';
     import { bodyFontSize, convertStyle, currentFont } from '$lib/data/stores';
     import {
         currentReversal,
@@ -226,7 +226,7 @@
 
     function applyStyles() {
         // Apply styles from config
-        for (let stl of config.singleEntryStyles) {
+        for (let stl of dictionaryConfig.singleEntryStyles ?? []) {
             for (let elm of document.querySelectorAll(stl.name) as NodeListOf<HTMLElement>) {
                 let styleString = convertStyle(stl.properties);
 

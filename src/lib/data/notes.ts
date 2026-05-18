@@ -1,5 +1,5 @@
 import { invalidate } from '$app/navigation';
-import config from '$lib/data/config';
+import { scriptureConfig } from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
 import { writable } from 'svelte/store';
 
@@ -62,9 +62,9 @@ export async function addNote(item: {
 }) {
     const notes = await openNotes();
     const date = new Date()[Symbol.toPrimitive]('number');
-    const bookIndex = config.bookCollections
-        .find((x) => x.id === item.collection)
-        .books.findIndex((x) => x.id === item.book);
+    const bookIndex = scriptureConfig.bookCollections
+        ?.find((x) => x.id === item.collection)
+        ?.books.findIndex((x) => x.id === item.book);
     const nextItem = { ...item, date: date, bookIndex: bookIndex };
     await notes.add('notes', nextItem);
     notifyUpdated();

@@ -1,5 +1,5 @@
-import type { AppConfig, DictionaryConfig, ScriptureConfig } from '$config';
-import config from '$lib/data/config';
+import config, { scriptureConfig } from '$assets/config';
+import type { AppConfig, DictionaryConfig, FeatureConfig, ScriptureConfig } from '$config';
 import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
 import { derived, get, readable, writable } from 'svelte/store';
@@ -13,7 +13,7 @@ export const SETTINGS_CATEGORY_TEXT_DISPLAY = 'Settings_Category_Text_Display';
 setDefaultStorage('development', 'false');
 export const development = readable(localStorage.development === 'true');
 
-const commonDefaultSettings: { [key: string]: string | boolean } = {
+const commonDefaultSettings: FeatureConfig = {
     'app-layout-direction': config.mainFeatures['app-layout-direction'],
     'keep-screen-on': false,
     'audio-access-method': config.mainFeatures['audio-access-method'],
@@ -53,7 +53,7 @@ export function isDAB(data: AppConfig): data is DictionaryConfig {
     return data.programType === 'DAB';
 }
 
-export const defaultSettings: Record<string, string | boolean> = isSAB(config)
+export const defaultSettings: FeatureConfig = isSAB(config)
     ? { ...commonDefaultSettings, ...sabDefaultSettings }
     : commonDefaultSettings;
 
@@ -73,7 +73,7 @@ export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 })();
 
 export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
-    const hasVerses = config.traits?.['has-verse-numbers'] || false;
+    const hasVerses = scriptureConfig.traits?.['has-verse-numbers'] || false;
     const settings = new Array<App.UserPreferenceSetting>();
     if (isSAB(config)) {
         // "Text Display"
@@ -199,8 +199,8 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     }
 
     const hasAudioSourceWithAccessModeChoice =
-        Object.keys(config.audio?.sources || []).filter(
-            (key) => config.audio.sources[key].accessMethods?.length > 1
+        Object.keys(config.audio?.sources ?? {}).filter(
+            (key) => (config.audio?.sources[key].accessMethods?.length ?? 0) > 1
         ).length > 0;
     if (config.mainFeatures['settings-audio-access-method'] && hasAudioSourceWithAccessModeChoice) {
         settings.push({
@@ -217,8 +217,8 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     }
 
     const hasAudioSourceWitbDownload =
-        Object.keys(config.audio?.sources || []).filter((key) =>
-            config.audio.sources[key].accessMethods?.includes('download')
+        Object.keys(config.audio?.sources ?? {}).filter((key) =>
+            config.audio?.sources[key].accessMethods?.includes('download')
         ).length > 0;
     if (config.mainFeatures['settings-audio-download-mode'] && hasAudioSourceWitbDownload) {
         settings.push({
@@ -339,7 +339,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         });
     }
 
-    const hasAnalytics = config.analytics?.length > 0; // TODO
+    const hasAnalytics = config.analytics?.enabled; // TODO
     if (config.mainFeatures['settings-share-usage-data'] && hasAnalytics) {
         // Share app usage data
         settings.push({
@@ -350,12 +350,12 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         });
     }
 
-    const langCount = Object.keys(config.interfaceLanguages.writingSystems).length;
+    const langCount = Object.keys(config.interfaceLanguages?.writingSystems ?? {}).length;
     if (config.mainFeatures['settings-interface-language'] && langCount > 1) {
         // Interface language
         const entries: string[] = [];
         const values: string[] = [];
-        Object.keys(config.interfaceLanguages.writingSystems).forEach((key) => {
+        Object.keys(config.interfaceLanguages?.writingSystems ?? {}).forEach((key) => {
             entries.push('Language_' + key);
             values.push(key);
         });

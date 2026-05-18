@@ -1,5 +1,5 @@
+import config from '$assets/config';
 import { getBookmarks } from '$lib/data/bookmarks';
-import config from '$lib/data/config';
 
 /** @type {import('./$types').PageLoad} */
 export async function load({ depends }) {

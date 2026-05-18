@@ -1,7 +1,7 @@
 <script>
+    import config from '$assets/config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import config from '$lib/data/config';
     import { getLastPlanState } from '$lib/data/planStates';
     import { convertStyle, language, s, t } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';

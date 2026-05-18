@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import { base } from '$app/paths';
-    import config from '$lib/data/config';
+    import config, { scriptureConfig } from '$assets/config';
     import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 
@@ -27,9 +27,9 @@ TODO:
         href = `${base}/#/text`
     } = $props();
 
-    const bc = config.bookCollections.find((x) => x.id === collection);
-    const textDirection = bc.style.textDirection;
-    const justifyEnd = $derived(textDirection.toLowerCase() === 'rtl' && $direction === 'ltr');
+    const bc = scriptureConfig.bookCollections?.find((x) => x.id === collection);
+    const textDirection = bc?.style?.textDirection;
+    const justifyEnd = $derived(textDirection?.toLowerCase() === 'rtl' && $direction === 'ltr');
 </script>
 
 <div class="annotation-item-block dy-card">

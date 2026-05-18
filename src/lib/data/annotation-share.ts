@@ -1,4 +1,4 @@
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { shareText } from '$lib/data/share';
 
 const SHARE_FILE_NAME = 'annotations.txt';

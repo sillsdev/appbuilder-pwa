@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import config from '$lib/data/config';
+    import config, { scriptureConfig } from '$assets/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
@@ -14,16 +14,16 @@ TODO:
 
     export let history: HistoryItem;
 
-    $: bc = config.bookCollections.find((x) => x.id === history.collection);
-    $: docSet = bc.languageCode + '_' + bc.id;
-    $: bcName = config.bookCollections.length == 1 ? null : bc.collectionName;
-    $: bookName = bc.books.find((x) => x.id === history.book)?.name;
-    $: chapterVerseSeparator = bc.features['ref-chapter-verse-separator'];
+    $: bc = scriptureConfig.bookCollections?.find((x) => x.id === history.collection);
+    $: docSet = bc && bc.languageCode + '_' + bc.id;
+    $: bcName = scriptureConfig.bookCollections?.length == 1 ? null : bc?.collectionName;
+    $: bookName = bc?.books.find((x) => x.id === history.book)?.name;
+    $: chapterVerseSeparator = bc?.features['ref-chapter-verse-separator'];
     $: reference = history.verse
         ? history.chapter + chapterVerseSeparator + history.verse
         : history.chapter;
     $: dateFormat = formatDateAndTime(new Date(history.date));
-    $: textDirection = bc.style.textDirection;
+    $: textDirection = bc?.style?.textDirection;
 
     function onHistoryClick() {
         if (history.url) {
@@ -56,7 +56,7 @@ TODO:
             {/if}
             <div
                 class="history-item-reference justify-self-start"
-                class:justify-self-end={textDirection.toLowerCase() === 'rtl'}
+                class:justify-self-end={textDirection?.toLowerCase() === 'rtl'}
             >
                 {bookName}
                 {reference}

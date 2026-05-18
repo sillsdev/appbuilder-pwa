@@ -1,7 +1,7 @@
 /**
  * Utility functions for UI language settings
  */
-import config from '$lib/data/config';
+import config from '$assets/config';
 
 export function getLanguages() {
     return Object.keys(config.interfaceLanguages.writingSystems);

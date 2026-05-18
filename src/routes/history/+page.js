@@ -1,4 +1,4 @@
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { getHistory } from '$lib/data/history';
 
 /** @type {import('./$types').PageLoad} */

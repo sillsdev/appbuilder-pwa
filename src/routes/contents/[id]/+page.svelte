@@ -1,6 +1,7 @@
 <script>
     import { base } from '$app/paths';
     import { page } from '$app/stores';
+    import config from '$assets/config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import ContentCarousel from '$lib/components/ContentCarousel.svelte';
     import ContentGrid from '$lib/components/ContentGrid.svelte';
@@ -8,7 +9,6 @@
     import ContentSingle from '$lib/components/ContentSingle.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { loadCatalog } from '$lib/data/catalogData';
-    import config from '$lib/data/config';
     import {
         contentsFontSize,
         contentsStack,

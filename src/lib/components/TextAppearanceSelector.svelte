@@ -35,7 +35,7 @@ The navbar component. We have sliders that update reactively to both font size a
 </script>
 
 <script>
-    import config from '$lib/data/config';
+    import config from '$assets/config';
     import {
         bodyFontSize,
         bodyLineHeight,

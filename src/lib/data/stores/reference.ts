@@ -1,4 +1,4 @@
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { NavigationContext } from '$lib/data/navigation';
 import { derived, writable } from 'svelte/store';
 import type { CatalogData } from '../catalogData';

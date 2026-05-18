@@ -1,5 +1,5 @@
+import config, { scriptureConfig } from '$assets/config';
 import { derived } from 'svelte/store';
-import config from '../config';
 import { refs } from './scripture';
 import { userSettings } from './setting';
 
@@ -10,11 +10,11 @@ export const direction = derived([refs, userSettings], ([$refs, $userSettings]) 
     if (direction === 'interface-language') {
         const code = $userSettings['interface-language'];
         if (code) {
-            direction = config.interfaceLanguages.writingSystems[code].textDirection;
+            direction = config.interfaceLanguages?.writingSystems[code].textDirection;
         }
     } else if (direction === 'text') {
-        direction = config.bookCollections.find((x) => x.id === $refs.collection).style
-            .textDirection;
+        direction = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.style
+            ?.textDirection;
     }
     return direction.toLowerCase();
 });

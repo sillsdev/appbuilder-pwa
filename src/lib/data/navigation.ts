@@ -1,6 +1,6 @@
+import { scriptureConfig } from '$assets/config';
 import { isBlank } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
-import configuration from './config';
 
 /**
  *  Maintains the currently active scripture reference.
@@ -25,24 +25,25 @@ export class NavigationContext {
     initialized = false;
 
     protected fetchCatalog = loadCatalog;
-    protected config = configuration;
+    protected config = scriptureConfig;
 
     private docSets: string[];
     private books: string[];
     private versesByChapters: { [chapter: string]: { [verse: string]: string } };
 
     async gotoInitial(start: string = '') {
-        this.docSets = this.config.bookCollections.map((bc) => `${bc.languageCode}_${bc.id}`);
+        this.docSets =
+            this.config.bookCollections?.map((bc) => `${bc.languageCode}_${bc.id}`) ?? [];
         this.initialized = true;
-        start = start || this.config.mainFeatures['start-at-reference'];
+        start = start || (this.config.mainFeatures['start-at-reference'] as string);
         if (start) {
             await this.gotoReference(start);
         } else {
-            const collection = this.config.bookCollections[0];
+            const collection = this.config.bookCollections![0];
             await this.goto(
                 this.docSets[0],
                 collection.books[0].id,
-                collection.books[0].chaptersN.split('-')[0], //TODO: what if chaptersN is undefined?
+                collection.books[0].chaptersN?.split('-')?.[0] ?? '1', //TODO: what if chaptersN is undefined?
                 '1'
             );
         }
@@ -54,9 +55,10 @@ export class NavigationContext {
             // Book and chapter specified but only one collection
             if (isBlank(ref[1])) {
                 // Only book specified
-                const firstChapter = this.config.bookCollections[0].books
-                    .find((b) => b.id === ref[0])
-                    ?.chaptersN.split('-')[0]; //TODO: what if chaptersN is undefined?
+                const firstChapter =
+                    this.config.bookCollections?.[0].books
+                        .find((b) => b.id === ref[0])
+                        ?.chaptersN?.split('-')[0] ?? '1'; //TODO: what if chaptersN is undefined?
                 await this.goto(this.docSets[0], ref[0], firstChapter, '1');
             } else {
                 await this.goto(this.docSets[0], ref[0], ref[1], '1');
@@ -65,7 +67,7 @@ export class NavigationContext {
             let docSet = ref[0];
             if (!ref[0].includes('_')) {
                 // This is a collection id.
-                const collection = this.config.bookCollections.find((c) => c.id === ref[0]);
+                const collection = this.config.bookCollections?.find((c) => c.id === ref[0]);
                 docSet = collection
                     ? `${collection.languageCode}_${collection.id}`
                     : this.docSets[0];
@@ -139,8 +141,8 @@ export class NavigationContext {
         this.audio =
             this.config.traits['has-audio'] &&
             this.config.bookCollections
-                .find((x) => x.id === this.collection)
-                .books.find((x) => x.id === this.book)
+                ?.find((x) => x.id === this.collection)
+                ?.books.find((x) => x.id === this.book)
                 ?.audio.find((x) => String(x.num) === this.chapter);
     }
 
@@ -207,13 +209,13 @@ export class NavigationContext {
     }
 
     async gotoNext() {
-        if (this.next.chapter) {
+        if (this.next.book && this.next.chapter) {
             await this.goto(this.docSet, this.next.book, this.next.chapter);
         }
     }
 
     async gotoPrev() {
-        if (this.prev.chapter) {
+        if (this.prev.book && this.prev.chapter) {
             await this.goto(this.docSet, this.prev.book, this.prev.chapter);
         }
     }

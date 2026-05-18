@@ -1,4 +1,4 @@
-import config from '$lib/data/config';
+import config from '$assets/config';
 import { getNotes } from '$lib/data/notes';
 
 /** @type {import('./$types').PageLoad} */

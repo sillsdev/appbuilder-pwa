@@ -3,8 +3,8 @@
 -->
 <script>
     import { base } from '$app/paths';
-    import config from '$lib/data/config';
-    import contents from '$lib/data/contents';
+    import config from '$assets/config';
+    import contents from '$assets/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
 

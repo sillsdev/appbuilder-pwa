@@ -1,9 +1,9 @@
 <script lang="ts">
     import { base } from '$app/paths';
     import { page } from '$app/state';
+    import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { logShareApp } from '$lib/data/analytics';
-    import config from '$lib/data/config';
     import { shareText } from '$lib/data/share';
     import { language, languageDefault, t } from '$lib/data/stores';
 
