@@ -22,7 +22,6 @@ import {
     getHashedNameFromContents,
     joinUrlPath
 } from './fileUtils';
-import { convertStorybookElements } from './storybook';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
 import { Promisable, Task, TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
