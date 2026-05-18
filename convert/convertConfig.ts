@@ -582,6 +582,7 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
             }
             const audio: BookCollectionAudioConfig[] = [];
             let chaptersLabels: { [key: string]: string } | undefined;
+            let pageIllustrations: { num: number; filename: string }[] = [];
             for (const page of book.getElementsByTagName('page')) {
                 if (verbose >= 2) {
                     console.log(`.. page: ${page.attributes[0].value}`);
@@ -595,6 +596,14 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                     const chapterNum = page.attributes.getNamedItem('num')!.value;
                     chaptersLabels[chapterNum] = char;
                 }
+                const imageFileTag = page.getElementsByTagName('image-filename')[0];
+                if (imageFileTag) {
+                    pageIllustrations.push({
+                        num: Number(page.attributes.getNamedItem('num')?.value),
+                        filename: imageFileTag.innerHTML
+                    });
+                }
+
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) {
                     continue;
@@ -790,7 +799,8 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 style,
                 styles,
                 footer,
-                bookTabs
+                bookTabs,
+                pageIllustrations
             });
             if (verbose >= 3) {
                 console.log(`.... book: `, JSON.stringify(books[0]));
