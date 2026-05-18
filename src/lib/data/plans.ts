@@ -44,7 +44,7 @@ interface Plans extends DBSchema {
     };
 }
 
-let planDB = null;
+let planDB: Awaited<ReturnType<typeof openDB<Plans>>> | null = null;
 
 async function openPlans() {
     if (!planDB) {

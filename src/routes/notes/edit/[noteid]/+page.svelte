@@ -73,9 +73,9 @@
                     {$t[title]}
                 </div>
                 <div
-                    class="hidden grid sm:flex dy-divider dy-divider-horizontal after:bg-white before:bg-white dy-join-item"
+                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-white before:bg-white dy-join-item"
                 ></div>
-                <div class="hidden grid sm:flex h-10 place-items-center dy-join-item">
+                <div class="grid sm:flex h-10 place-items-center dy-join-item">
                     {reference}
                 </div>
             </div>

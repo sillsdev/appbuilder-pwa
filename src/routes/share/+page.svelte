@@ -1,11 +1,10 @@
 <script lang="ts">
-    import { base } from '$app/paths';
-    import { page } from '$app/state';
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { logShareApp } from '$lib/data/analytics';
     import { shareText } from '$lib/data/share';
     import { language, languageDefault, t } from '$lib/data/stores';
+    import type { PageData } from './$types';
 
     const badges = import.meta.glob('./*', {
         import: 'default',
@@ -25,19 +24,29 @@
         googlePlayBadgesRoot + googlePlayStoreLanguage + googlePlayBadgeSuffix
     );
     const appStoreBadge = $derived(badges[`./${$language}_app_store.svg`] ?? '');
-    const badgeLanguages = page.data.languages;
-    const fallbackAppStoreLanguage = badgeLanguages.includes(languageDefault)
-        ? languageDefault
-        : 'en';
-    const fallbackAppStoreBadge = badges[`./${fallbackAppStoreLanguage}_app_store.svg`] ?? '';
 
-    async function updateGooglePlayLanguage(language: string): Promise<string> {
+    interface Props {
+        data: PageData;
+    }
+    let { data }: Props = $props();
+
+    const fallbackAppStoreLanguage = $derived(
+        languageDefault && data.languages.includes(languageDefault) ? languageDefault : 'en'
+    );
+    const fallbackAppStoreBadge = $derived(
+        badges[`./${fallbackAppStoreLanguage}_app_store.svg`] ?? ''
+    );
+
+    async function updateGooglePlayLanguage(language: string) {
         if (await verifyImageUrl(googlePlayBadgesRoot + language + googlePlayBadgeSuffix)) {
             googlePlayStoreLanguage = language;
             return;
         }
 
-        if (await verifyImageUrl(googlePlayBadgesRoot + languageDefault + googlePlayBadgeSuffix)) {
+        if (
+            languageDefault &&
+            (await verifyImageUrl(googlePlayBadgesRoot + languageDefault + googlePlayBadgeSuffix))
+        ) {
             googlePlayStoreLanguage = languageDefault;
             return;
         }
@@ -45,7 +54,7 @@
         googlePlayStoreLanguage = 'en';
     }
 
-    function verifyImageUrl(url) {
+    function verifyImageUrl(url: string) {
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => resolve(true);
@@ -55,7 +64,7 @@
     }
 
     function shareLink(store: string, link: string) {
-        shareText(undefined, link, `${store} Link.txt`);
+        shareText('', link, `${store} Link.txt`);
         const appName = config.name;
         const appVersion = config.version;
         const appType = 'share-link';
@@ -104,14 +113,14 @@
                         )}
                 >
                     {(console.log(
-                        badgeLanguages.includes($language)
+                        data.languages.includes($language)
                             ? `Using ${appStoreBadge}`
                             : `Fallback to ${fallbackAppStoreBadge}`
                     ),
                     '')}
                     <img
                         alt={$t['share-apple-app-link']}
-                        src={badgeLanguages.includes($language)
+                        src={data.languages.includes($language)
                             ? appStoreBadge
                             : fallbackAppStoreBadge}
                         class="w-full h-auto"

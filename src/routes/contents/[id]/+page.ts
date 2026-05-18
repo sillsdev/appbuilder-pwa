@@ -1,6 +1,7 @@
 import contents from '$assets/contents';
+import type { PageLoad } from './$types';
 
-export async function load({ params }) {
+export const load: PageLoad = async ({ params }) => {
     const id = Number(params.id);
     const menu = contents.screens?.find((x) => x.id === id);
     const nestedItems = contents.nestedItems;
@@ -18,4 +19,4 @@ export async function load({ params }) {
     }
 
     return { menu, items, features, title, nestedItems };
-}
+};

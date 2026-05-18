@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { page } from '$app/state';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -11,6 +10,7 @@
     import { gotoRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
+    import type { PageData } from './$types';
 
     async function handleMenuaction(event: MenuActionEvent, highlight: HighlightItem) {
         switch (event.text) {
@@ -50,6 +50,12 @@
     };
 
     let sortOrder = $state(SORT_DATE);
+
+    interface Props {
+        data: PageData;
+    }
+
+    let { data } = $props();
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
@@ -68,7 +74,7 @@
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     onclick={async () =>
-                        await shareAnnotations(toSorted(page.data.highlights, sortOrder))}
+                        await shareAnnotations(toSorted(data.highlights, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
@@ -81,11 +87,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if page.data.highlights.length === 0}
+        {#if data.highlights.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Highlights_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Highlights_None_Info']}</div>
         {:else}
-            {#each toSorted(page.data.highlights, sortOrder) as h}
+            {#each toSorted(data.highlights, sortOrder) as h}
                 {@const colorCard = {
                     docSet: h.docSet,
                     collection: h.collection,

@@ -22,7 +22,7 @@ interface PlanProgressItems extends DBSchema {
     };
 }
 
-let planProgressItemsDB = null;
+let planProgressItemsDB: Awaited<ReturnType<typeof openDB<PlanProgressItems>>> | null = null;
 
 async function openPlanProgressItems() {
     if (!planProgressItemsDB) {
@@ -53,7 +53,7 @@ export async function addPlanProgressItem(item: { id: string; day: number; itemI
         notifyUpdatedPlanStates();
     }
 }
-export async function getAllProgressItemsForPlan(planId: string): Promise<[PlanProgressItem]> {
+export async function getAllProgressItemsForPlan(planId: string): Promise<PlanProgressItem[]> {
     const db = await openPlanProgressItems();
     const tx = db.transaction('planprogressitems');
     const index = tx.store.index('planIndex');
@@ -73,7 +73,7 @@ export async function deleteAllProgressItemsForPlan(planId: string) {
         console.log(`Plan: Deleted ${planProgressRecords.length} records with plan ID "${planId}"`);
     }
 }
-export async function getCompletedRefsForDay(planId: string, planDay: number): Promise<[number]> {
+export async function getCompletedRefsForDay(planId: string, planDay: number): Promise<number[]> {
     const db = await openPlanProgressItems();
     const tx = db.transaction('planprogressitems');
     const index = tx.store.index('dayIndex');
@@ -88,12 +88,12 @@ export async function getFirstIncompleteDay(
     excludeDay: number
 ): Promise<number> {
     let nextIncompleteDay = -1;
-    for (let i = 0; i < planData.items.length; i++) {
-        const completedRefs = await getCompletedRefsForDay(planData.id, planData.items[i].day);
-        if (completedRefs.length !== planData.items[i].refs.length) {
+    for (let i = 0; i < (planData.items?.length ?? 0); i++) {
+        const completedRefs = await getCompletedRefsForDay(planData.id, planData.items![i].day);
+        if (completedRefs.length !== planData.items![i].refs.length) {
             // This day has some items that are not completed
-            if (planData.items[i].day !== excludeDay) {
-                nextIncompleteDay = planData.items[i].day;
+            if (planData.items![i].day !== excludeDay) {
+                nextIncompleteDay = planData.items![i].day;
                 break;
             }
         }
@@ -120,7 +120,7 @@ export async function getNextPlanReference(
 }
 function notifyUpdatedPlanStates() {
     planProgressItemsLastUpdated.set(Date.now());
-    invalidate('planprogressitems');
+    invalidate('note:planprogressitems');
 }
 
 export const planProgressItemsLastUpdated = writable(Date.now());

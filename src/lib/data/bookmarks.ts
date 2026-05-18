@@ -120,7 +120,7 @@ export async function getBookmarks(): Promise<BookmarkItem[]> {
 
 function notifyUpdated() {
     bookmarksLastUpdated.set(Date.now());
-    invalidate('bookmarks');
+    invalidate('note:bookmarks');
 }
 
 export const bookmarksLastUpdated = writable(Date.now());

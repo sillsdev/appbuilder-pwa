@@ -131,7 +131,7 @@ export async function getNotes(): Promise<NoteItem[]> {
 
 function notifyUpdated() {
     notesLastUpdated.set(Date.now());
-    invalidate('notes');
+    invalidate('note:notes');
 }
 
 export const notesLastUpdated = writable(Date.now());
