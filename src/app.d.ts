@@ -1,6 +1,7 @@
 /// <reference types="@sveltejs/kit" />
 /// <reference types="svelte-gestures" />
 /// <reference types="$config" />
+/// <reference types="svelte" />
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -40,14 +41,16 @@ declare namespace App {
         penColor: string;
     }
 
+    type MenuActionHandler = (args: { text: string; url: string }) => void;
+
+    type TabMenuActionHandler = (args: { text: string; url: string; tab: string }) => void;
+
     interface TabMenuOptions {
         [key: string]: {
             tab?: {
-                component: any;
-                props?: any;
+                icon?: Snippet<[string]>;
             };
-            component: any;
-            props: any;
+            snippet?: Snippet<[string, TabMenuActionHandler]>;
             visible: boolean;
         };
     }

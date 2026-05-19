@@ -18,7 +18,7 @@ The navbar component.
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
     const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
-    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']);
+    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']) as boolean;
     const verseCount = $derived(getVerseCount(book, chapter));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
     const chaptersLabels = $derived(
@@ -164,6 +164,31 @@ The navbar component.
     const canSelect = config.mainFeatures['show-chapter-selector'];
 </script>
 
+{#snippet selectGrid(cv: string, menuaction: App.MenuActionHandler)}
+    <SelectGrid
+        cols={5}
+        options={cv === c
+            ? [
+                  {
+                      rows: books.find((x) => x.bookCode === book)?.hasIntroduction
+                          ? [
+                                {
+                                    label: $t['Chapter_Introduction_Title'],
+                                    id: 'i'
+                                }
+                            ]
+                          : undefined,
+                      cells: Object.keys(chapters).map((x) => ({
+                          label: getChapterLabel(x),
+                          id: x
+                      }))
+                  }
+              ]
+            : verseGridGroup(chapter)}
+        {menuaction}
+    />
+{/snippet}
+
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
     <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols={5}>
@@ -182,35 +207,11 @@ The navbar component.
                         bind:this={chapterSelector}
                         options={{
                             [c]: {
-                                component: SelectGrid,
-                                props: {
-                                    cols: 5,
-                                    options: [
-                                        {
-                                            rows: books.find((x) => x.bookCode === book)
-                                                ?.hasIntroduction
-                                                ? [
-                                                      {
-                                                          label: $t['Chapter_Introduction_Title'],
-                                                          id: 'i'
-                                                      }
-                                                  ]
-                                                : null,
-                                            cells: Object.keys(chapters).map((x) => ({
-                                                label: getChapterLabel(x),
-                                                id: x
-                                            }))
-                                        }
-                                    ]
-                                },
+                                snippet: selectGrid,
                                 visible: true
                             },
                             [v]: {
-                                component: SelectGrid,
-                                props: {
-                                    cols: 5,
-                                    options: verseGridGroup(chapter)
-                                },
+                                snippet: selectGrid,
                                 visible: showVerseSelector
                             }
                         }}

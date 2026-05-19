@@ -14,7 +14,6 @@ Book Collection Selector component.
 
     const modalId = 'collectionSelector';
     let modal: Modal;
-    let tabMenu;
     let tabMenuActive = $state(Layout.Single);
 
     // values of selectedLayouts before user makes changes
@@ -60,27 +59,37 @@ Book Collection Selector component.
     }
 </script>
 
+{#snippet layoutOptions(layoutOption: Layout, menuaction: App.MenuActionHandler)}
+    <LayoutOptions {layoutOption} {menuaction} />
+{/snippet}
+
+{#snippet icon(mode: Layout)}
+    {#if mode === Layout.Single}
+        <SinglePaneIcon />
+    {:else if mode === Layout.Two}
+        <SideBySideIcon />
+    {:else}
+        <VerseByVerseIcon />
+    {/if}
+{/snippet}
+
 <Modal bind:this={modal} id={modalId}>
     <TabsMenu
-        bind:this={tabMenu}
         bind:active={tabMenuActive}
         options={{
             [Layout.Single]: {
-                tab: { component: SinglePaneIcon },
-                component: LayoutOptions,
-                props: { layoutOption: Layout.Single },
+                tab: { icon },
+                snippet: layoutOptions,
                 visible: showSinglePane
             },
             [Layout.Two]: {
-                tab: { component: SideBySideIcon },
-                component: LayoutOptions,
-                props: { layoutOption: Layout.Two },
+                tab: { icon },
+                snippet: layoutOptions,
                 visible: showSideBySide
             },
             [Layout.VerseByVerse]: {
-                tab: { component: VerseByVerseIcon },
-                component: LayoutOptions,
-                props: { layoutOption: Layout.VerseByVerse },
+                tab: { icon },
+                snippet: layoutOptions,
                 visible: showVerseByVerse
             }
         }}

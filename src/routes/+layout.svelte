@@ -69,13 +69,13 @@
                         collectionSelector?.showModal();
                         break;
                     case ModalType.Note:
-                        noteDialog?.showModal(
-                            data as Parameters<(typeof noteDialog)['showModal']>[0]
-                        );
+                        noteDialog?.showModal(data as Parameters<NoteDialog['showModal']>[0]);
                         break;
                     case ModalType.TextAppearance:
                         if (textAppearanceSelector) {
-                            textAppearanceSelector.options = data;
+                            textAppearanceSelector.setOptions(
+                                data as Parameters<TextAppearanceSelector['setOptions']>[0]
+                            );
                             textAppearanceSelector.showModal();
                         }
                         break;

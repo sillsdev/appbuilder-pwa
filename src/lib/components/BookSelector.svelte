@@ -31,9 +31,9 @@ The navbar component.
             ?.books.find((x) => book === x.id)?.chaptersLabels ?? {}
     );
 
-    const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
+    const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'] as boolean;
     const listView = $derived($userSettingsOrDefault['book-selection'] === 'list');
-    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']);
+    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection'] as boolean);
     const showSelectors = $derived(config.mainFeatures['book-select'] !== 'none');
 
     // Translated book, chapter, and verse tab labels
@@ -289,7 +289,7 @@ The navbar component.
     };
     const options = $derived({
         [b]: {
-            component: listView ? SelectList : SelectGrid,
+            component: listView ? selectList : selectGrid,
             props: {
                 options: bookGridGroup({
                     colId: $refs.collection,
@@ -299,21 +299,39 @@ The navbar component.
             visible: true
         },
         [c]: {
-            component: SelectGrid,
-            props: {
-                options: chapterGridGroup(chapters)
-            },
+            snippet: selectGrid,
             visible: showChapterSelector
         },
         [v]: {
-            component: SelectGrid,
-            props: {
-                options: verseGridGroup(chapter)
-            },
+            snippet: selectGrid,
             visible: showChapterSelector && showVerseSelector
         }
     });
 </script>
+
+{#snippet selectList(bcv: string, menuaction: App.MenuActionHandler)}
+    <SelectList
+        options={bookGridGroup({
+            colId: $refs.collection,
+            bookLabel: 'name'
+        })}
+        {menuaction}
+    />
+{/snippet}
+
+{#snippet selectGrid(bcv: string, menuaction: App.MenuActionHandler)}
+    <SelectGrid
+        options={bcv === b
+            ? bookGridGroup({
+                  colId: $refs.collection,
+                  bookLabel: 'abbreviation'
+              })
+            : bcv === c
+              ? chapterGridGroup(chapters)
+              : verseGridGroup(chapter)}
+        {menuaction}
+    />
+{/snippet}
 
 {#if showSelectors}
     <!-- Book Selector -->

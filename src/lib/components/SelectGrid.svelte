@@ -11,14 +11,14 @@ A component to display menu options in a grid.
         options = [],
         cols = 6,
         menuaction
-    }: { options: App.GridGroup[]; cols; menuaction } = $props();
+    }: { options: App.GridGroup[]; cols?: number; menuaction: App.MenuActionHandler } = $props();
 
-    let hovered = $state(null);
+    let hovered: string | null = $state(null);
     const hoverColor = $derived($themeColors['ButtonSelectedColor']);
 
     // Function to handle span touch
-    function handleHover(event) {
-        hovered = event.target.id;
+    function handleHover(event: Event) {
+        hovered = (event.target as HTMLElement)?.id || null;
     }
 
     // Function to handle span touch end
@@ -26,17 +26,18 @@ A component to display menu options in a grid.
         hovered = null;
     }
 
-    function handleTouchMove(event) {
+    function handleTouchMove(event: TouchEvent) {
         const touch = event.touches[0];
         const element = document.elementFromPoint(touch.clientX, touch.clientY);
-        const rect = element.getBoundingClientRect();
+        const rect = element?.getBoundingClientRect();
         if (
+            rect &&
             touch.clientX >= rect.left &&
             touch.clientX <= rect.right &&
             touch.clientY >= rect.top &&
             touch.clientY <= rect.bottom
         ) {
-            hovered = element.id;
+            hovered = element?.id || null;
         } else {
             hovered = null;
         }
@@ -45,7 +46,7 @@ A component to display menu options in a grid.
     const cellStyle = $derived(
         convertStyle(
             Object.fromEntries(
-                Object.entries($s['ui.button.book-grid']).filter(
+                Object.entries($s?.['ui.button.book-grid'] ?? {}).filter(
                     ([key]) => key != 'background-color'
                 )
             )
@@ -54,13 +55,13 @@ A component to display menu options in a grid.
     const rowStyle = $derived(
         convertStyle(
             Object.fromEntries(
-                Object.entries($s['ui.button.chapter-intro']).filter(
+                Object.entries($s?.['ui.button.chapter-intro'] ?? '').filter(
                     ([key]) => key != 'background-color'
                 )
             )
         )
     );
-    const headerStyle = $derived(convertStyle($s['ui.text.book-group-title']));
+    const headerStyle = $derived(convertStyle($s?.['ui.text.book-group-title']));
 
     const bookCollectionColor = $derived((id: string, category: string) => {
         const section = scriptureConfig.bookCollections
@@ -69,7 +70,7 @@ A component to display menu options in a grid.
         let color =
             section && Object.keys($themeBookColors).includes(section)
                 ? $themeBookColors[section]
-                : $s[category]['background-color'];
+                : $s?.[category]['background-color'];
         return color;
     });
 
