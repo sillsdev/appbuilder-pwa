@@ -65,7 +65,7 @@ export async function addNote(item: {
     const bookIndex = scriptureConfig.bookCollections
         ?.find((x) => x.id === item.collection)
         ?.books.findIndex((x) => x.id === item.book);
-    if (bookIndex) {
+    if (bookIndex !== undefined && bookIndex >= 0) {
         const nextItem = { ...item, date: date, bookIndex: bookIndex };
         await notes.add('notes', nextItem);
         notifyUpdated();

@@ -289,36 +289,38 @@ async function handlePlayMode() {
 function getCurrentVerseTiming() {
     let end: string = '';
     let start: string = '';
-    for (let i = 0; i < (currentAudioPlayer?.timing?.length ?? 0); i++) {
-        const timing = currentAudioPlayer!.timing![i];
-        if (
-            currentAudioPlayer!.progress >= timing.starttime &&
-            currentAudioPlayer!.progress < timing.endtime
-        ) {
-            const verseNumber = parseInt(timing.tag, 10);
-            for (let k = i + 1; k >= 0; k--) {
-                const startVerseNumber = parseInt(currentAudioPlayer!.timing![k].tag, 10);
-                if (startVerseNumber !== verseNumber) {
-                    start = currentAudioPlayer!.timing![k + 1].tag;
-                    break;
+    if (currentAudioPlayer?.timing?.length) {
+        for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+            const timing = currentAudioPlayer.timing![i];
+            if (
+                currentAudioPlayer.progress >= timing.starttime &&
+                currentAudioPlayer.progress < timing.endtime
+            ) {
+                const verseNumber = parseInt(timing.tag, 10);
+                for (let k = i + 1; k >= 0; k--) {
+                    const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
+                    if (startVerseNumber !== verseNumber) {
+                        start = currentAudioPlayer.timing[k + 1].tag;
+                        break;
+                    }
+                    if (k === 0) {
+                        start = currentAudioPlayer.timing[0].tag;
+                        break;
+                    }
                 }
-                if (k === 0) {
-                    start = currentAudioPlayer!.timing![0].tag;
-                    break;
+                for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
+                    const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
+                    if (endVerseNumber !== verseNumber) {
+                        end = currentAudioPlayer.timing[j - 1].tag;
+                        break;
+                    }
+                    if (j === currentAudioPlayer.timing.length - 1) {
+                        end = currentAudioPlayer.timing[j].tag;
+                        break;
+                    }
                 }
+                break;
             }
-            for (let j = i + 1; j < currentAudioPlayer!.timing!.length; j++) {
-                const endVerseNumber = parseInt(currentAudioPlayer!.timing![j].tag, 10);
-                if (endVerseNumber !== verseNumber) {
-                    end = currentAudioPlayer!.timing![j - 1].tag;
-                    break;
-                }
-                if (j === currentAudioPlayer!.timing!.length - 1) {
-                    end = currentAudioPlayer!.timing![0].tag;
-                    break;
-                }
-            }
-            break;
         }
     }
     return getVerseTimingRange(start, end);
