@@ -13,10 +13,16 @@ A component to display tabbed menus.
         scroll = true,
         height = '50vh',
         menuaction
-    }: { options: App.TabMenuOptions; active; scroll; height; menuaction } = $props();
+    }: {
+        options: App.TabMenuOptions;
+        active: string;
+        scroll: boolean;
+        height: string;
+        menuaction;
+    } = $props();
 
     const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
-    function handleMenuaction({ text, url }) {
+    function handleMenuaction({ text, url }: { text: string; url: string }) {
         menuaction?.({
             text: text,
             url: url,
@@ -35,7 +41,7 @@ A component to display tabbed menus.
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s['ui.selector.tabs'])}>
+    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s?.['ui.selector.tabs'])}>
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y_missing_attribute -->
@@ -62,7 +68,7 @@ A component to display tabbed menus.
     </div>
 {/if}
 <div
-    style={convertStyle($s['ui.background'])}
+    style={convertStyle($s?.['ui.background'])}
     class:p-2={!hasTabs}
     style:overflow-y={scroll ? 'auto' : ''}
     style:max-height={height}

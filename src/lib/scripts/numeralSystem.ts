@@ -71,7 +71,7 @@ export function formatNumberRange(system: NumeralSystem, value: string, directio
         : `${formattedFirst}${separator}${formattedSecond}`;
 }
 
-export function formatNumber(system: NumeralSystem, value: string): any {
+export function formatNumber(system: NumeralSystem, value: string): string {
     let fmt = '';
     for (let i = 0; i < value.length; i++) {
         const digit = Number(value.charAt(i));

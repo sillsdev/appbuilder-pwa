@@ -8,19 +8,26 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 @prop { String }   addCSS  - CSS to inject into the model contents div/form.
 @prop { Function } onclose - Function to run when Modal closes.
 -->
-<script>
+<script lang="ts">
     import { convertStyle, direction, s } from '$lib/data/stores';
+    import type { Snippet } from 'svelte';
 
-    let { id, children, addCSS = '', onclose = null } = $props();
+    interface Props {
+        id: string;
+        children?: Snippet;
+        addCSS?: string;
+        onclose?: () => void;
+        dialog?: HTMLDialogElement;
+    }
 
-    let dialog;
+    let { id, children, addCSS = '', onclose, dialog = $bindable() }: Props = $props();
 
     /**
      * This exported function allows buttons/labels
      * in other divs to trigger the modal popup
      */
     export function showModal() {
-        dialog.showModal();
+        dialog?.showModal();
     }
 </script>
 
@@ -33,7 +40,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 >
     <form
         method="dialog"
-        style={convertStyle($s['ui.dialog']) + addCSS}
+        style={convertStyle($s?.['ui.dialog']) + addCSS}
         class="dy-modal-box overflow-y-visible relative"
     >
         {@render children?.()}

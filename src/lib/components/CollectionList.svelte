@@ -3,7 +3,7 @@
 Custom list of collections for the LayoutOptions menu
 -->
 <script lang="ts">
-    import { convertStyle, s, themeColors } from '$lib/data/stores';
+    import { themeColors } from '$lib/data/stores';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -19,7 +19,7 @@ Custom list of collections for the LayoutOptions menu
         menuaction
     }: {
         docSets: App.CollectionEntry[];
-        selectedLayouts: App.CollectionEntry;
+        selectedLayouts?: App.CollectionEntry;
         menuaction;
     } = $props();
 

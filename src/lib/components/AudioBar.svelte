@@ -25,13 +25,14 @@ TODO:
         refs,
         s,
         t,
-        userSettings
+        userSettings,
+        type PlayModeSettings
     } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import PlayButton from './PlayButton.svelte';
     import RepeatButton from './RepeatButton.svelte';
 
-    function mayResetPlayMode(hasTiming) {
+    function mayResetPlayMode(hasTiming: boolean) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
         if (!hasTiming && $playMode.mode === 'repeatSelection') {
@@ -39,18 +40,19 @@ TODO:
         }
     }
 
-    function seekAudio(event) {
+    function seekAudio(event: MouseEvent) {
         if (!$audioPlayer.loaded) {
             return;
         }
         const progressBar = document.getElementById('progress-bar');
-        const percent = (event.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
+        const percent =
+            (event.clientX - (progressBar?.offsetLeft ?? 0)) / (progressBar?.offsetWidth ?? 1);
         // Set the current time of the audio element to the corresponding time based on the percent
         seek($audioPlayer.duration * percent);
     }
 
     let lastPlayMode = '';
-    function playModeChanged(value) {
+    function playModeChanged(value: PlayModeSettings) {
         let key = '';
 
         switch (value.mode) {
@@ -77,8 +79,8 @@ TODO:
 
     let hintText = $state('');
     let showHint = $state(false);
-    let hintTimeoutId = null;
-    function startShowHint(text) {
+    let hintTimeoutId: NodeJS.Timeout | null = null;
+    function startShowHint(text: string) {
         showHint = true;
         hintText = text;
         if (hintTimeoutId) {
@@ -92,14 +94,14 @@ TODO:
 
     const showSpeed = config.mainFeatures['settings-audio-speed'];
     const showRepeatMode = config.mainFeatures['audio-repeat-mode-button'];
-    const hintStyle = convertStyle($s['ui.bar.audio.hint.text']);
+    const hintStyle = convertStyle($s?.['ui.bar.audio.hint.text']);
     const playButtonState = $derived($audioPlayer.playing ? 'pause' : 'play');
-    const iconColor = $derived($s['ui.bar.audio.icon']['color']);
-    const iconPlayColor = $derived($s['ui.bar.audio.play.icon']['color']);
-    const backgroundColor = $derived($s['ui.bar.audio']['background-color']);
+    const iconColor = $derived($s?.['ui.bar.audio.icon']['color']);
+    const iconPlayColor = $derived($s?.['ui.bar.audio.play.icon']['color']);
+    const backgroundColor = $derived($s?.['ui.bar.audio']['background-color']);
     const audioBarClass = $derived($refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress');
     $effect(() => mayResetPlayMode($refs.hasAudio?.timing));
-    $effect(() => updatePlaybackSpeed($userSettings['audio-speed']));
+    $effect(() => updatePlaybackSpeed($userSettings['audio-speed'] as string));
 </script>
 
 <div class="relative {audioBarClass}" style:background-color={backgroundColor}>

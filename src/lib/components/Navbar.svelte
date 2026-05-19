@@ -8,7 +8,7 @@ The navbar component.
         convertStyle,
         direction,
         layout,
-        LAYOUT_TWO,
+        Layout,
         NAVBAR_HEIGHT,
         s,
         showDesktopSidebar
@@ -27,14 +27,14 @@ The navbar component.
     let { showBackButton = true, start, center, end, backNavigation }: Props = $props();
 
     function handleBackNavigation() {
-        if (backNavigation) {
+        if (backNavigation && page.route.id) {
             backNavigation(page.route.id);
         } else {
             gotoRoute(`/`);
         }
     }
 
-    let actionBarColor = $derived($s['ui.bar.action']['background-color']);
+    let actionBarColor = $derived($s?.['ui.bar.action']['background-color']);
 </script>
 
 <!--
@@ -46,7 +46,7 @@ The navbar component.
             <label
                 for="sidebar"
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
-                class:lg:hidden={$showDesktopSidebar && $layout.mode !== LAYOUT_TWO}
+                class:lg:hidden={$showDesktopSidebar && $layout.mode !== Layout.Two}
             >
                 <HamburgerIcon color="white" />
             </label>
@@ -62,7 +62,7 @@ The navbar component.
         {/if}
         {@render start?.()}
     </div>
-    <div class="dy-navbar-center grow" style={convertStyle($s['ui.screen-title'])}>
+    <div class="dy-navbar-center grow" style={convertStyle($s?.['ui.screen-title'])}>
         {@render center?.()}
     </div>
     <div class="justify-end fill-base-content">

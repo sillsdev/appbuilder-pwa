@@ -4,15 +4,15 @@ Font list component.
 -->
 <svelte:options accessors />
 
-<script>
+<script lang="ts">
     import config from '$assets/config';
     import { fontChoices, monoIconColor, themeColors } from '$lib/data/stores';
     import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();
-    export let selectedFont;
+    export let selectedFont: string;
 
-    function handleClick(font) {
+    function handleClick(font: string) {
         selectedFont = font;
         dispatch('menuaction', {
             font: font
@@ -35,7 +35,7 @@ Font list component.
                 style:font-family={font}
                 role="button"
             >
-                {config.fonts.find((x) => x.family === font)?.name}
+                {config.fonts?.find((x) => x.family === font)?.name}
             </a>
         </li>
     {/each}

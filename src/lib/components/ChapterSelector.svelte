@@ -2,8 +2,8 @@
 @component
 The navbar component.
 -->
-<script>
-    import config from '$assets/config';
+<script lang="ts">
+    import config, { scriptureConfig } from '$assets/config';
     import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText } from '$lib/navigate';
@@ -13,7 +13,7 @@ The navbar component.
     import TabsMenu from './TabsMenu.svelte';
 
     /**reference to chapter selector so code can use TabsMenu.setActive*/
-    let chapterSelector = $state();
+    let chapterSelector: TabsMenu | undefined = $state();
 
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
@@ -22,9 +22,9 @@ The navbar component.
     const verseCount = $derived(getVerseCount(book, chapter));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
     const chaptersLabels = $derived(
-        config.bookCollections
-            .find((x) => $refs.collection === x.id)
-            .books.find((x) => book === x.id).chaptersLabels ?? {}
+        scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.chaptersLabels ?? {}
     );
 
     const c = $derived($t.Selector_Chapter);
@@ -33,14 +33,14 @@ The navbar component.
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
-    async function navigateReference({ text, url, tab }) {
+    async function navigateReference({ text, tab }: { text: string; tab: string }) {
         switch (tab) {
             case c:
                 $nextRef.chapter = text;
                 if (!showVerseSelector || $nextRef.chapter === 'i' || verseCount === 0) {
                     await completeNavigation();
                 } else {
-                    chapterSelector.setActive(v);
+                    chapterSelector?.setActive(v);
                 }
                 break;
             case v:
@@ -70,17 +70,17 @@ The navbar component.
         close();
     }
 
-    let dropdown = $state();
+    let dropdown: Dropdown | undefined = $state();
     function close() {
-        dropdown.close();
+        dropdown?.close();
     }
 
     function resetNavigation() {
-        chapterSelector.setActive(c);
+        chapterSelector?.setActive(c);
         nextRef.reset();
     }
 
-    function getChapterCount(bookId) {
+    function getChapterCount(bookId: string) {
         const book = $refs.catalog.documents.find((x) => x.bookCode === bookId);
         if (book) {
             return Object.keys(book.versesByChapters).length;
@@ -88,7 +88,7 @@ The navbar component.
         return 0;
     }
 
-    function getChapterLabel(chapter) {
+    function getChapterLabel(chapter: string) {
         if (chapter === 'i') {
             return $t['Chapter_Introduction_Symbol'];
         }
@@ -100,7 +100,7 @@ The navbar component.
         return numerals.formatNumber(numeralSystem, chapter);
     }
 
-    function getVerseCount(book, chapter) {
+    function getVerseCount(book: string, chapter: string) {
         if (!chapter || chapter === 'i') {
             return 0;
         }
@@ -114,7 +114,7 @@ The navbar component.
     }
 
     // Needs to be reactive when the chapter changes if there is a nextRef.book
-    let chapterIndicator = (book, chapter) => {
+    let chapterIndicator = (book: string, chapter: string) => {
         let value = '';
         if (chapter === 'i') {
             value = $t['Chapter_Introduction_Symbol'];
@@ -126,8 +126,8 @@ The navbar component.
         return value;
     };
 
-    let verseGridGroup = (chapter) => {
-        let value = [];
+    let verseGridGroup = (chapter: string) => {
+        let value;
         let selectedChapter = chapters[chapter];
         if (chapter === 'i') {
             value = [
@@ -141,7 +141,7 @@ The navbar component.
                 }
             ];
         } else if (verseCount === 0) {
-            value = [];
+            value = [] as { cells: { label: string; id: string }[] }[];
         } else {
             value = [
                 {
@@ -166,9 +166,9 @@ The navbar component.
 
 <!-- Chapter Selector -->
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
-    <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols="5">
+    <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols={5}>
         {#snippet label()}
-            <div class="normal-case" style={convertStyle($s['ui.selector.chapter'])}>
+            <div class="normal-case" style={convertStyle($s?.['ui.selector.chapter'])}>
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}

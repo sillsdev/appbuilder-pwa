@@ -66,7 +66,7 @@
             $modal.forEach(({ modalType, data }) => {
                 switch (modalType) {
                     case ModalType.Collection:
-                        collectionSelector.showModal();
+                        collectionSelector?.showModal();
                         break;
                     case ModalType.Note:
                         noteDialog?.showModal(
@@ -74,18 +74,20 @@
                         );
                         break;
                     case ModalType.TextAppearance:
-                        textAppearanceSelector.options = data;
-                        textAppearanceSelector.showModal();
+                        if (textAppearanceSelector) {
+                            textAppearanceSelector.options = data;
+                            textAppearanceSelector.showModal();
+                        }
                         break;
                     case ModalType.Font:
-                        fontSelector.showModal();
+                        fontSelector?.showModal();
                         break;
                     case ModalType.StopPlan:
                         planStopId = data as string;
                         planStopDialog?.showModal();
                         break;
                     case ModalType.PlaybackSpeed:
-                        audioPlaybackSpeed.showModal();
+                        audioPlaybackSpeed?.showModal();
                         break;
                 }
             });
@@ -103,13 +105,13 @@
         }
     });
 
-    let textAppearanceSelector: TextAppearanceSelector = $state();
-    let collectionSelector: CollectionSelector = $state();
-    let fontSelector: FontSelector = $state();
+    let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
+    let collectionSelector: CollectionSelector | undefined = $state();
+    let fontSelector: FontSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let planStopId: string = $state('');
-    let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
+    let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
 </script>
 
 <svelte:head>

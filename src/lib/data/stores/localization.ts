@@ -6,12 +6,12 @@ import { userSettings } from './setting';
 /** localization */
 
 // If a word can't be translated in the current language, use languageDefault.
-export const languageDefault = config.translationMappings?.defaultLang;
+export const languageDefault = config.translationMappings?.defaultLang ?? '';
 
 export const languages = getLanguages();
 export const language = derived(
     userSettings,
-    ($userSettings) => $userSettings['interface-language'] ?? languageDefault
+    ($userSettings) => ($userSettings['interface-language'] as string) || languageDefault
 );
 
 export const t = derived(

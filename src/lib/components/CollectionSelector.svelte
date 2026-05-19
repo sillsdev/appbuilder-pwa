@@ -2,19 +2,9 @@
 @component
 Book Collection Selector component.
 -->
-<script>
-    import config from '$assets/config';
-    import {
-        convertStyle,
-        layout,
-        LAYOUT_SINGLE,
-        LAYOUT_TWO,
-        LAYOUT_VERSE_BY_VERSE,
-        refs,
-        s,
-        selectedLayouts,
-        t
-    } from '$lib/data/stores';
+<script lang="ts">
+    import { scriptureConfig } from '$assets/config';
+    import { convertStyle, layout, Layout, refs, s, selectedLayouts, t } from '$lib/data/stores';
     import { SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
     import LayoutOptions from './LayoutOptions.svelte';
     import Modal from './Modal.svelte';
@@ -23,17 +13,19 @@ Book Collection Selector component.
     let { vertOffset = '1rem' } = $props();
 
     const modalId = 'collectionSelector';
-    let modal;
+    let modal: Modal;
     let tabMenu;
-    let tabMenuActive = $state(LAYOUT_SINGLE);
+    let tabMenuActive = $state(Layout.Single);
 
     // values of selectedLayouts before user makes changes
     const restoreDocSets = JSON.stringify($selectedLayouts);
 
     // ToDo: If showSinglePane false, provide first availible visible option instead
-    const showSinglePane = config.layouts.find((x) => x.mode === LAYOUT_SINGLE).enabled;
-    const showSideBySide = config.layouts.find((x) => x.mode === LAYOUT_TWO).enabled;
-    const showVerseByVerse = config.layouts.find((x) => x.mode === LAYOUT_VERSE_BY_VERSE).enabled;
+    const showSinglePane = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Single)
+        ?.enabled;
+    const showSideBySide = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled;
+    const showVerseByVerse = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)
+        ?.enabled;
     export function showModal() {
         modal.showModal();
     }
@@ -42,8 +34,11 @@ Book Collection Selector component.
         const collections = selectedLayouts.collections(tabMenuActive);
         return {
             mode: tabMenuActive,
-            primaryDocSet: collections[0].id,
-            auxDocSets: collections.slice(1).map((x) => x.id)
+            primaryDocSet: collections?.[0]?.id ?? '',
+            auxDocSets: collections
+                ?.slice(1)
+                .map((x) => x?.id)
+                .filter((x) => !!x) as string[] | undefined
         };
     }
 
@@ -70,22 +65,22 @@ Book Collection Selector component.
         bind:this={tabMenu}
         bind:active={tabMenuActive}
         options={{
-            [LAYOUT_SINGLE]: {
+            [Layout.Single]: {
                 tab: { component: SinglePaneIcon },
                 component: LayoutOptions,
-                props: { layoutOption: LAYOUT_SINGLE },
+                props: { layoutOption: Layout.Single },
                 visible: showSinglePane
             },
-            [LAYOUT_TWO]: {
+            [Layout.Two]: {
                 tab: { component: SideBySideIcon },
                 component: LayoutOptions,
-                props: { layoutOption: LAYOUT_TWO },
+                props: { layoutOption: Layout.Two },
                 visible: showSideBySide
             },
-            [LAYOUT_VERSE_BY_VERSE]: {
+            [Layout.VerseByVerse]: {
                 tab: { component: VerseByVerseIcon },
                 component: LayoutOptions,
-                props: { layoutOption: LAYOUT_VERSE_BY_VERSE },
+                props: { layoutOption: Layout.VerseByVerse },
                 visible: showVerseByVerse
             }
         }}
@@ -94,13 +89,13 @@ Book Collection Selector component.
     <div class="flex w-full justify-between dy-modal-action">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <button
-            style={convertStyle($s['ui.dialog.button'])}
+            style={convertStyle($s?.['ui.dialog.button'])}
             class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
             onclick={() => handleCancel()}>{$t['Button_Cancel']}</button
         >
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <button
-            style={convertStyle($s['ui.dialog.button'])}
+            style={convertStyle($s?.['ui.dialog.button'])}
             class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
             onclick={() => handleOk()}>{$t['Button_OK']}</button
         >

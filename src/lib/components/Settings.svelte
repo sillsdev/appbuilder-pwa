@@ -1,34 +1,27 @@
 <script lang="ts">
-    import { direction, t, userSettings } from '$lib/data/stores';
-    import * as s from '$lib/data/stores/setting';
+    import { SettingsCategory, t, userSettings } from '$lib/data/stores';
 
     interface Props {
-        settings: Array<App.UserPreferenceSetting>;
+        settings: App.UserPreferenceSetting[];
     }
 
     let { settings }: Props = $props();
 
-    let categories = [];
-    [
-        s.SETTINGS_CATEGORY_TEXT_DISPLAY,
-        s.SETTINGS_CATEGORY_AUDIO,
-        s.SETTINGS_CATEGORY_NOTIFICATIONS,
-        s.SETTINGS_CATEGORY_NAVIGATION,
-        s.SETTINGS_CATEGORY_INTERFACE
-    ].forEach((element) => {
-        const fs = settings.filter((s) => s.category === element);
-        if (fs.length > 0) {
-            categories[element] = fs;
-        }
-    });
+    const categories: Record<SettingsCategory, App.UserPreferenceSetting[]> = $derived(
+        Object.fromEntries(
+            Object.values(SettingsCategory)
+                .map((cat) => [cat, settings.filter((s) => s.category === cat)])
+                .filter(([_, v]) => v.length)
+        )
+    );
 </script>
 
-<!-- loops through the different settings types -->
+<!--Interfacerough the different settings types -->
 {#each Object.keys(categories) as category}
     <div class="settings-category">
         {$t[category]}
     </div>
-    {#each categories[category] as setting, i}
+    {#each categories[category as SettingsCategory] as setting, i}
         {#if setting.type === 'checkbox'}
             <div
                 class="dy-form-control settings-item w-full max-w-lg"
@@ -41,7 +34,7 @@
                     <input
                         type="checkbox"
                         class="dy-checkbox"
-                        bind:checked={$userSettings[setting.key]}
+                        bind:checked={$userSettings[setting.key] as boolean}
                     />
                 </label>
                 {#if setting.summary}
@@ -64,7 +57,7 @@
                     bind:value={$userSettings[setting.key]}
                 >
                     {#each setting.entries ?? [] as entry, i}
-                        <option value={setting.values[i]}>{$t[entry] || entry}</option>
+                        <option value={setting.values![i]}>{$t[entry] || entry}</option>
                     {/each}
                 </select>
                 {#if setting.summary}

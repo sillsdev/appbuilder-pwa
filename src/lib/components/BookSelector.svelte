@@ -2,8 +2,9 @@
 @component
 The navbar component.
 -->
-<script>
-    import config from '$assets/config';
+<script lang="ts">
+    import config, { scriptureConfig } from '$assets/config';
+    import type { BookConfig } from '$config';
     import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { getRoute, navigateToText, navigateToUrl } from '$lib/navigate';
@@ -14,14 +15,20 @@ The navbar component.
     import TabsMenu from './TabsMenu.svelte';
 
     let { displayLabel = undefined } = $props();
+
+    /**list of books, quizzes, and quiz groups in current docSet*/
+    const books = $derived($refs.catalog.documents);
+    /**list of chapters in current book*/
+    const chapters = $derived(books.find((d) => d.bookCode === book)?.versesByChapters ?? {});
+
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
     const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
     const verseCount = $derived(getVerseCount(chapter, chapters));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
     const chaptersLabels = $derived(
-        config.bookCollections
-            .find((x) => $refs.collection === x.id)
-            .books.find((x) => book === x.id).chaptersLabels ?? {}
+        scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.chaptersLabels ?? {}
     );
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'];
@@ -34,26 +41,28 @@ The navbar component.
     const c = $derived($t.Selector_Chapter);
     const v = $derived($t.Selector_Verse);
 
-    let bookSelector = $state();
+    let bookSelector: TabsMenu | undefined = $state();
     const labelDisplayed = $derived(
         displayLabel ??
-            config.bookCollections
-                .find((x) => x.id === $refs.collection)
-                .books.find((x) => x.id === book)?.name
+            scriptureConfig.bookCollections
+                ?.find((x) => x.id === $refs.collection)
+                ?.books.find((x) => x.id === book)?.name
     );
 
-    function isHtmlBook(bookId) {
-        const book = config.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === bookId);
+    function isHtmlBook(bookId: string) {
+        const book = scriptureConfig.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === bookId);
 
-        return book && book.format === 'html';
+        return book?.format === 'html';
     }
-    function chapterCount(book) {
-        let count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+    function chapterCount(book: string) {
+        let count = Object.keys(
+            books.find((x) => x.bookCode === book)?.versesByChapters ?? {}
+        ).length;
         return count;
     }
-    function firstChapter(book) {
+    function firstChapter(book: string) {
         let first = '1';
         const currBook = books.find((x) => x.bookCode === book);
         if (currBook?.versesByChapters) {
@@ -62,7 +71,7 @@ The navbar component.
         }
         return first;
     }
-    function getVerseCount(chapter, chapters) {
+    function getVerseCount(chapter: string, chapters?: Record<string, Record<string, unknown>>) {
         if (!chapter || chapter === 'i' || !chapters || Object.keys(chapters).length === 0) {
             return 0;
         }
@@ -73,7 +82,15 @@ The navbar component.
      * Pushes reference changes to nextRef. Pushes final change to default reference.
      */
 
-    async function navigateReference({ text, url, tab }) {
+    async function navigateReference({
+        text,
+        url,
+        tab
+    }: {
+        text: string;
+        url: string;
+        tab: string;
+    }) {
         // Handle special book navigation first
         if (tab === b && url) {
             navigateToUrl({
@@ -90,7 +107,7 @@ The navbar component.
         } else {
             switch (tab) {
                 case b: {
-                    bookSelector.setActive(c);
+                    bookSelector?.setActive(c);
                     $nextRef.book = text;
                     const count = chapterCount($nextRef.book);
                     if (count === 0) {
@@ -109,7 +126,7 @@ The navbar component.
                     if (!showVerseSelector || $nextRef.chapter === 'i' || verseCount === 0) {
                         await completeNavigation();
                     } else {
-                        bookSelector.setActive(v);
+                        bookSelector?.setActive(v);
                     }
                     break;
                 case v:
@@ -130,9 +147,9 @@ The navbar component.
         }
     }
 
-    let dropdown = $state();
+    let dropdown: Dropdown | undefined = $state();
     function close() {
-        dropdown.close();
+        dropdown?.close();
         //resetNavigation();
         //document.activeElement.blur();
     }
@@ -153,12 +170,7 @@ The navbar component.
         nextRef.reset();
     }
 
-    /**list of books, quizzes, and quiz groups in current docSet*/
-    const books = $derived($refs.catalog.documents);
-    /**list of chapters in current book*/
-    const chapters = $derived(books.find((d) => d.bookCode === book)?.versesByChapters ?? []);
-
-    function getBookUrl(book) {
+    function getBookUrl(book: BookConfig) {
         let url;
         if (book.type === 'quiz') {
             url = getRoute(`/quiz/${$refs.collection}/${book.id}`);
@@ -166,7 +178,7 @@ The navbar component.
         return url;
     }
 
-    function getChapterLabel(chapter) {
+    function getChapterLabel(chapter: string) {
         if (chapter === 'i') {
             return $t['Chapter_Introduction_Symbol'];
         }
@@ -178,13 +190,24 @@ The navbar component.
         return numerals.formatNumber(numeralSystem, chapter);
     }
 
-    let bookGridGroup = ({ colId, bookLabel = 'abbreviation' }) => {
-        let groups = [];
-        var lastGroup = null;
+    type BookLabel = {
+        [K in keyof BookConfig]: BookConfig[K] extends string ? K : never;
+    }[keyof BookConfig];
 
-        config.bookCollections
-            .find((x) => x.id === colId)
-            .books.forEach((book) => {
+    let bookGridGroup = ({
+        colId,
+        bookLabel = 'abbreviation'
+    }: {
+        colId: string;
+        bookLabel?: BookLabel;
+    }) => {
+        let groups: { header?: string; cells: { label: string; id: string; url?: string }[] }[] =
+            [];
+        let lastGroup: string | null = null;
+
+        scriptureConfig.bookCollections
+            ?.find((x) => x.id === colId)
+            ?.books.forEach((book) => {
                 const url = getBookUrl(book);
                 if ($refs.allBookIds.find((x) => x === book.id) || url) {
                     let label = book[bookLabel] || book.name;
@@ -207,8 +230,8 @@ The navbar component.
                     } else {
                         if (groups.length > 0) {
                             // Add Book to last group
-                            let cells = groups.at(-1).cells;
-                            groups.at(-1).cells = [...cells, cell];
+                            let cells = groups.at(-1)?.cells ?? [];
+                            groups[groups.length - 1].cells = [...cells, cell];
                         } else {
                             // Create a group with no header (likely if 'book-group-titles' === fase)
                             groups.push({
@@ -222,7 +245,7 @@ The navbar component.
         return groups;
     };
 
-    let chapterGridGroup = (chapters) => {
+    let chapterGridGroup = (chapters: Record<string, unknown>) => {
         let hasIntroduction = books.find((x) => x.bookCode === book)?.hasIntroduction;
         return [
             {
@@ -236,7 +259,7 @@ The navbar component.
             }
         ];
     };
-    let verseGridGroup = (chapter) => {
+    let verseGridGroup = (chapter: string) => {
         let value;
         let selectedChapter = chapters[chapter];
         if (chapter === 'i') {
@@ -251,7 +274,7 @@ The navbar component.
                 }
             ];
         } else if (verseCount === 0) {
-            value = [];
+            value = [] as { cells: { label: string; id: string }[] }[];
         } else {
             value = [
                 {
@@ -296,7 +319,10 @@ The navbar component.
     <!-- Book Selector -->
     <Dropdown bind:this={dropdown} navEnd={resetNavigation}>
         {#snippet label()}
-            <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
+            <div
+                class="normal-case whitespace-nowrap"
+                style={convertStyle($s?.['ui.selector.book'])}
+            >
                 {labelDisplayed}
             </div>
             <DropdownIcon color="white" />
@@ -309,7 +335,7 @@ The navbar component.
     </Dropdown>
 {:else}
     <!-- Book Label -->
-    <div class="normal-case whitespace-nowrap" style={convertStyle($s['ui.selector.book'])}>
+    <div class="normal-case whitespace-nowrap" style={convertStyle($s?.['ui.selector.book'])}>
         {labelDisplayed}
     </div>
 {/if}

@@ -8,22 +8,22 @@ A simple dropdown menu from DaisyUI.
 
     let { cols = 6, navEnd = function () {}, label, content } = $props();
 
-    let details: HTMLDetailsElement = $state();
-    let container: HTMLDivElement = $state();
+    let details: HTMLDetailsElement | undefined = $state();
+    let container: HTMLDivElement | undefined = $state();
     export function close() {
-        details.removeAttribute('open');
+        details?.removeAttribute('open');
     }
 
     function clickOutside(event: MouseEvent) {
         const path = event.composedPath();
-        const isInside = path.includes(container);
+        const isInside = container && path.includes(container);
         if (!isInside) {
             close();
         }
     }
 
     function onToggle() {
-        if (details.open) {
+        if (details?.open) {
             document.addEventListener('click', clickOutside);
         } else {
             document.removeEventListener('click', clickOutside);
@@ -49,7 +49,7 @@ A simple dropdown menu from DaisyUI.
         class="dy-dropdown-content dy-menu shadow-lg mt-2.5 bg-base-100 z-10 max-sm:absolute max-sm:start-1.5"
         class:min-w-[22rem]={cols == 6}
         class:min-w-[18rem]={cols == 5}
-        style={convertStyle($s['ui.background'])}
+        style={convertStyle($s?.['ui.background'])}
         onblur={() => navEnd()}
     >
         {@render content?.()}

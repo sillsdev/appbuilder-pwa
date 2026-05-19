@@ -15,12 +15,15 @@ export const isFirstLaunch = derived(
 );
 
 /**the current view/layout mode*/
-export const LAYOUT_SINGLE = 'single';
-export const LAYOUT_TWO = 'two';
-export const LAYOUT_VERSE_BY_VERSE = 'verse-by-verse';
+export const Layout = {
+    Single: 'single',
+    Two: 'two',
+    VerseByVerse: 'verse-by-verse'
+} as const;
+export type Layout = (typeof Layout)[keyof typeof Layout];
 
-const singleLayout = { mode: LAYOUT_SINGLE, auxDocSets: [] };
-export const layout = writable(singleLayout);
+const singleLayout = { mode: Layout.Single, auxDocSets: [] };
+export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(singleLayout);
 
 export const ModalType = {
     Collection: 'collection',

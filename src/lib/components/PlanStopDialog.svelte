@@ -3,7 +3,7 @@
 Plan Stop Modal Dialog component.
 -->
 
-<script>
+<script lang="ts">
     import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
     import { addPlanState } from '$lib/data/planStates';
     import { t } from '$lib/data/stores';
@@ -13,10 +13,10 @@ Plan Stop Modal Dialog component.
     let { planId = $bindable(undefined), vertOffset = '1rem' } = $props();
 
     const modalId = 'planStopDialog';
-    let modal = $state(undefined);
+    let modal: Modal | undefined = $state(undefined);
 
     export function showModal() {
-        modal.showModal();
+        modal?.showModal();
     }
     async function stopPlan() {
         await addPlanState({

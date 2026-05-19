@@ -1,6 +1,6 @@
 import { scriptureConfig } from '$assets/config';
 import { get, writable } from 'svelte/store';
-import { LAYOUT_SINGLE, LAYOUT_TWO, LAYOUT_VERSE_BY_VERSE } from './view.js';
+import { Layout } from './view';
 
 function findCollection(id: string): App.CollectionEntry | undefined {
     const ds = scriptureConfig.bookCollections?.find((x) => x.id === id);
@@ -63,20 +63,15 @@ function createSelectedLayouts() {
     return {
         subscribe: external.subscribe,
         set: external.set,
-        collections: (mode) => {
-            let value;
+        collections: (mode: Layout) => {
             switch (mode) {
-                case LAYOUT_SINGLE:
-                    value = [get(external).singlePane];
-                    break;
-                case LAYOUT_TWO:
-                    value = get(external).sideBySide;
-                    break;
-                case LAYOUT_VERSE_BY_VERSE:
-                    value = get(external).verseByVerse;
-                    break;
+                case Layout.Single:
+                    return [get(external).singlePane];
+                case Layout.Two:
+                    return get(external).sideBySide;
+                case Layout.VerseByVerse:
+                    return get(external).verseByVerse;
             }
-            return value;
         },
         reset: () => {
             external.set(initCollections);

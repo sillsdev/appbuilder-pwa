@@ -4,11 +4,14 @@ import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
 import { derived, readable, writable } from 'svelte/store';
 
-export const SETTINGS_CATEGORY_INTERFACE = 'Settings_Category_Interface';
-export const SETTINGS_CATEGORY_NAVIGATION = 'Settings_Category_Navigation';
-export const SETTINGS_CATEGORY_NOTIFICATIONS = 'Settings_Category_Notifications';
-export const SETTINGS_CATEGORY_AUDIO = 'Settings_Category_Audio';
-export const SETTINGS_CATEGORY_TEXT_DISPLAY = 'Settings_Category_Text_Display';
+export const SettingsCategory = {
+    Interface: 'Settings_Category_Interface',
+    Navigation: 'Settings_Category_Navigation',
+    Notifications: 'Settings_Category_Notifications',
+    Audio: 'Settings_Category_Audio',
+    TextDisplay: 'Settings_Category_Text_Display'
+} as const;
+export type SettingsCategory = (typeof SettingsCategory)[keyof typeof SettingsCategory];
 
 setDefaultStorage('development', 'false');
 export const development = readable(localStorage.development === 'true');
@@ -63,7 +66,7 @@ export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     if (isSAB(config)) {
         settings.push({
             type: 'checkbox',
-            category: SETTINGS_CATEGORY_INTERFACE,
+            category: SettingsCategory.Interface,
             title: 'Scripture Logs',
             key: 'scripture-logs'
         });
@@ -81,7 +84,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Verse Numbers
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Verse_Numbers',
                 key: 'verse-numbers'
             });
@@ -91,7 +94,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Verse Layout
             settings.push({
                 type: 'list',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Verse_Layout',
                 key: 'verse-layout',
                 entries: ['Settings_Verse_Layout_Paragraphs', 'Settings_Verse_Layout_One_Per_Line'],
@@ -103,7 +106,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Show Border
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Show_Border',
                 summary: 'Settings_Show_Border_Summary',
                 key: 'show-border'
@@ -114,7 +117,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Red letters
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Red_Letters',
                 summary: 'Settings_Red_Letters_Summary',
                 key: 'red-letters'
@@ -124,7 +127,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         if (config.mainFeatures['settings-glossary-links'] && config.traits['has-glossary']) {
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Glossary_Words',
                 key: 'glossary-words'
             });
@@ -138,7 +141,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Images in Bible Text
             settings.push({
                 type: 'list',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Display_Images_In_Bible_Text',
                 key: 'display-images-in-bible-text',
                 entries: ['Settings_Display_Images_Normal', 'Settings_Display_Images_Hidden'],
@@ -153,7 +156,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Videos in Bible Text
             settings.push({
                 type: 'list',
-                category: SETTINGS_CATEGORY_TEXT_DISPLAY,
+                category: SettingsCategory.TextDisplay,
                 title: 'Settings_Display_Videos_In_Bible_Text',
                 key: 'display-videos-in-bible-text',
                 entries: ['Settings_Display_Videos_Normal', 'Settings_Display_Videos_Hidden'],
@@ -169,7 +172,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Synchronised phrase highlighting
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_AUDIO,
+                category: SettingsCategory.Audio,
                 title: 'Settings_Audio_Highlight_Phrase',
                 summary: 'Settings_Audio_Highlight_Phrase_Summary',
                 key: 'audio-highlight-phrase'
@@ -180,7 +183,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Playback speed
             settings.push({
                 type: 'list',
-                category: SETTINGS_CATEGORY_AUDIO,
+                category: SettingsCategory.Audio,
                 title: 'Settings_Audio_Speed',
                 key: 'audio-speed',
                 entries: [
@@ -205,7 +208,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     if (config.mainFeatures['settings-audio-access-method'] && hasAudioSourceWithAccessModeChoice) {
         settings.push({
             type: 'list',
-            category: SETTINGS_CATEGORY_AUDIO,
+            category: SettingsCategory.Audio,
             title: 'Settings_Audio_Access_Method',
             key: 'audio-access-method',
             entries: [
@@ -223,7 +226,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     if (config.mainFeatures['settings-audio-download-mode'] && hasAudioSourceWitbDownload) {
         settings.push({
             type: 'list',
-            category: SETTINGS_CATEGORY_AUDIO,
+            category: SettingsCategory.Audio,
             title: 'Settings_Audio_Download_Mode',
             key: 'audio-auto-download',
             entries: [
@@ -240,7 +243,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         if (config.mainFeatures['settings-verse-of-the-day'] && hasVerses) {
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                category: SettingsCategory.Notifications,
                 title: 'Settings_Verse_Of_The_Day',
                 key: 'verse-of-the-day'
             });
@@ -250,7 +253,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // "Time for verse of the day
             settings.push({
                 type: 'time',
-                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                category: SettingsCategory.Notifications,
                 title: 'Settings_Verse_Of_The_Day_Time',
                 key: 'verse-of-the-day-time'
             });
@@ -273,7 +276,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 
                 settings.push({
                     type: 'list',
-                    category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                    category: SettingsCategory.Notifications,
                     title: 'Settings_Verse_Of_The_Day_Book_Collection',
                     key: 'verse-of-the-day-book-collection',
                     defaultValue,
@@ -287,7 +290,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // "Daily reminder"
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                category: SettingsCategory.Notifications,
                 title: 'Settings_Daily_Reminder',
                 key: 'daily-reminder'
             });
@@ -297,7 +300,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // "Time for daily reminder"
             settings.push({
                 type: 'time',
-                category: SETTINGS_CATEGORY_NOTIFICATIONS,
+                category: SettingsCategory.Notifications,
                 title: 'Settings_Daily_Reminder_Time',
                 key: 'daily-reminder-time'
             });
@@ -308,7 +311,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Book Selection
             settings.push({
                 type: 'list',
-                category: SETTINGS_CATEGORY_NAVIGATION,
+                category: SettingsCategory.Navigation,
                 title: 'Settings_Book_Selection',
                 key: 'book-selection',
                 entries: ['Settings_Book_Selection_List', 'Settings_Book_Selection_Grid'],
@@ -320,7 +323,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             // Verse Selector
             settings.push({
                 type: 'checkbox',
-                category: SETTINGS_CATEGORY_NAVIGATION,
+                category: SettingsCategory.Navigation,
                 title: 'Settings_Verse_Selection',
                 key: 'verse-selection'
             });
@@ -333,7 +336,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         // Keep Screen on
         settings.push({
             type: 'checkbox',
-            category: SETTINGS_CATEGORY_INTERFACE,
+            category: SettingsCategory.Interface,
             title: 'Settings_Keep_Screen_On',
             key: 'keep-screen-on'
         });
@@ -344,7 +347,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         // Share app usage data
         settings.push({
             type: 'checkbox',
-            category: SETTINGS_CATEGORY_INTERFACE,
+            category: SettingsCategory.Interface,
             title: 'Settings_Share_Usage_Data',
             key: 'share-usage-data'
         });
@@ -362,7 +365,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 
         settings.push({
             type: 'list',
-            category: SETTINGS_CATEGORY_INTERFACE,
+            category: SettingsCategory.Interface,
             title: 'Settings_Interface_Language',
             key: 'interface-language',
             defaultValue: getDefaultLanguage(),
@@ -375,7 +378,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         // App Layout Direction
         settings.push({
             type: 'list',
-            category: SETTINGS_CATEGORY_INTERFACE,
+            category: SettingsCategory.Interface,
             title: 'Settings_Layout_Direction',
             key: 'app-layout-direction',
             entries: [
@@ -401,7 +404,7 @@ function defaultUserSettings() {
     );
 }
 mergeDefaultStorage('userSettings', defaultUserSettings());
-export const userSettings = writable(JSON.parse(localStorage.userSettings));
+export const userSettings = writable(JSON.parse(localStorage.userSettings) as FeatureConfig);
 userSettings.subscribe((value) => (localStorage.userSettings = JSON.stringify(value)));
 
 export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {
