@@ -45,7 +45,7 @@ The navbar component. We have sliders that update reactively to both font size a
         language,
         languages,
         modal,
-        MODAL_FONT,
+        ModalType,
         monoIconColor,
         theme,
         themeColors,
@@ -185,7 +185,7 @@ The navbar component. We have sliders that update reactively to both font size a
                         style:font-family={$currentFont}
                         style:font-size="large"
                         style:color={$monoIconColor}
-                        on:click={() => modal.open(MODAL_FONT)}
+                        on:click={() => modal.open(ModalType.Font)}
                         >{config.fonts.find((x) => x.family === $currentFont)?.name}</button
                     >
                 </div>

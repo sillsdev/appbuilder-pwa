@@ -16,7 +16,7 @@ interface History extends DBSchema {
     };
 }
 
-let historyDB = null;
+let historyDB: Awaited<ReturnType<typeof openDB<History>>> | null = null;
 async function openHistory() {
     if (!historyDB) {
         historyDB = await openDB<History>('history', 1, {
@@ -32,8 +32,8 @@ async function openHistory() {
     return historyDB;
 }
 
-let nextItem: HistoryItem = null;
-let nextTimer: NodeJS.Timeout = null;
+let nextItem: HistoryItem | null = null;
+let nextTimer: NodeJS.Timeout | null = null;
 
 export async function addHistory(
     item: {
@@ -51,16 +51,18 @@ export async function addHistory(
         nextTimer = null;
     }
     const date = new Date()[Symbol.toPrimitive]('number');
-    nextItem = { ...item, date: date };
-    nextTimer = setTimeout(async () => {
-        await history.add('history', nextItem);
+    const itemRef = { ...item, date: date };
+    const timerRef = setTimeout(async () => {
+        await history.add('history', itemRef);
         if (callback) {
-            callback(nextItem);
+            callback(itemRef);
         }
-        clearTimeout(nextTimer);
+        clearTimeout(timerRef);
         nextTimer = null;
         nextItem = null;
     }, 2000);
+    nextItem = itemRef;
+    nextTimer = timerRef;
 }
 
 export async function clearHistory() {

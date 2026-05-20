@@ -6,7 +6,7 @@
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { removeNote, type NoteItem } from '$lib/data/notes';
-    import { bodyFontSize, modal, MODAL_NOTE, monoIconColor, refs, t } from '$lib/data/stores';
+    import { bodyFontSize, monoIconColor, refs, t } from '$lib/data/stores';
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { gotoRoute } from '$lib/navigate';

@@ -1,16 +1,15 @@
-import { base } from '$app/paths';
 import config from '$assets/config';
+import type { PageLoad } from './$types';
 
 const languageJSON = import.meta.glob('./*.json', {
     import: 'default',
     eager: true,
     base: '/src/gen-assets/badges',
     query: '?url'
-});
+}) as Record<string, string>;
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ fetch }) {
-    let languages = [];
+export const load: PageLoad = async ({ fetch }) => {
+    let languages: string[] = [];
     if (config.mainFeatures['share-apple-app-link']) {
         const url = languageJSON['./languages.json'];
         if (url) {
@@ -23,4 +22,4 @@ export async function load({ fetch }) {
     }
 
     return { languages };
-}
+};

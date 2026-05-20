@@ -149,7 +149,7 @@ export async function getHighlights(): Promise<HighlightItem[]> {
 
 function notifyUpdated() {
     highlightsLastUpdated.set(Date.now());
-    invalidate('highlights');
+    invalidate('note:highlights');
 }
 
 export const highlightsLastUpdated = writable(Date.now());

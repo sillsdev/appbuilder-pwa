@@ -1,17 +1,17 @@
 import { scriptureConfig } from '$assets/config';
-import { derived, get, writable } from 'svelte/store';
+import { setDefaultStorage } from '$lib/data/stores/storage';
+import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
 import { pk } from './pk';
 import { referenceStore } from './reference';
-import { setDefaultStorage } from './storage';
 
-function createStack() {
-    const external = writable([]);
+function createStack<T>() {
+    const external = writable([] as T[]);
 
     return {
         subscribe: external.subscribe,
-        push: (content) => {
+        push: (content: T) => {
             external.set([content, ...get(external)]);
         },
         pop: () => {
@@ -23,7 +23,7 @@ function createStack() {
     };
 }
 
-export const footnotes = createStack();
+export const footnotes = createStack<string>();
 
 /** current reference */
 export const refs = referenceStore();
@@ -42,8 +42,8 @@ function createNextRef() {
 export const nextRef = createNextRef();
 
 /**list of selected verses */
-function findIndex(id) {
-    let references = get(selectedVerses);
+function findIndex(id: string | number) {
+    const references = get(selectedVerses);
     for (let i = 0; i < references.length; i++) {
         const entry = references[i];
         if (entry.verse == id) {
@@ -52,7 +52,7 @@ function findIndex(id) {
     }
     return -1;
 }
-function getInsertIndex(newVerseNumber, selections) {
+function getInsertIndex(newVerseNumber: number, selections: Selection[]) {
     let index = 0;
     for (let i = 0; i < selections.length; i++) {
         const verseNumber = Number(selections[i].verse);
@@ -64,7 +64,7 @@ function getInsertIndex(newVerseNumber, selections) {
     return index;
 }
 
-export function getReference(item) {
+export function getReference(item: Omit<Selection, 'reference'>) {
     const separator = scriptureConfig.bookCollections?.find((x) => x.id === item.collection)
         ?.features['ref-chapter-verse-separator'];
     const bookName =
@@ -74,7 +74,7 @@ export function getReference(item) {
     return bookName + ' ' + item.chapter + separator + item.verse;
 }
 
-export async function getVerseText(item, item2 = undefined) {
+export async function getVerseText(item: Selection, item2?: Selection) {
     const proskomma = get(pk);
     const scriptureCV =
         item2 !== undefined
@@ -97,7 +97,7 @@ export async function getVerseText(item, item2 = undefined) {
     //console.log(query);
 
     const { data } = await proskomma.gqlQuery(query);
-    let text = [];
+    const text = [];
     for (const block of data.docSet.document.mainSequence.blocks) {
         if (block.text) {
             text.push(block.text);
@@ -135,9 +135,10 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ' +
         '} ' +
         '} ';
+    type Block = { key: string; tokens: { payload: string }[] };
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
-        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
+        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
             let key = '';
             block.tokens.forEach((token) => {
                 key = key + token.payload;
@@ -145,15 +146,14 @@ export const glossary = derived(docSet, async ($docSet) => {
             block.key = key.trim();
         });
     }
-    return glossaryResults;
+    return glossaryResults as { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
 });
 
 function getDefaultCurrentFonts() {
-    /** @type{Record<string, string>} */
-    const currentFonts = {};
+    const currentFonts: Record<string, string> = {};
     // This is for Scripture PWA, not Dictionary
     if (scriptureConfig.bookCollections) {
-        for (let collection of scriptureConfig.bookCollections) {
+        for (const collection of scriptureConfig.bookCollections) {
             // Sometimes, the collection.style.font doesn't exist in the array of fonts!
             const font =
                 collection.style?.font &&
@@ -169,7 +169,9 @@ function getDefaultCurrentFonts() {
 }
 setDefaultStorage('currentFonts', JSON.stringify(getDefaultCurrentFonts()));
 
-export const currentFonts = writable(JSON.parse(localStorage.currentFonts));
+export const currentFonts: Writable<ReturnType<typeof getDefaultCurrentFonts>> = writable(
+    JSON.parse(localStorage.currentFonts)
+);
 currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fonts)));
 
 export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
@@ -197,30 +199,39 @@ export const fontChoices = derived(refs, ($refs) => {
     return currentFonts;
 });
 
+export type Selection = {
+    docSet: string;
+    collection: string;
+    book: string;
+    chapter: string;
+    reference: string;
+    verse: string;
+};
+
 function createSelectedVerses() {
-    const external = writable([]);
+    const external: Writable<Selection[]> = writable([]);
 
     return {
         subscribe: external.subscribe,
-        addVerse: (id) => {
+        addVerse: (id: string | number) => {
             const currentRefs = get(refs);
-            const reference = getReference({ ...currentRefs, verse: id });
+            const reference = getReference({ ...currentRefs, verse: String(id) });
             const selection = {
                 docSet: currentRefs.docSet,
                 collection: currentRefs.collection,
                 book: currentRefs.book,
                 chapter: currentRefs.chapter,
                 reference: reference,
-                verse: id
+                verse: String(id)
             };
-            let selections = get(external);
+            const selections = get(external);
             const newVerseNumber = Number(id);
             const newIndex = getInsertIndex(newVerseNumber, selections);
             selections.splice(newIndex, 0, selection);
             external.set(selections);
         },
-        removeVerse: (id) => {
-            let selections = get(external);
+        removeVerse: (id: string | number) => {
+            const selections = get(external);
             const index = findIndex(id);
             if (index > -1) {
                 selections.splice(index, 1);
@@ -231,11 +242,11 @@ function createSelectedVerses() {
             external.set([]);
         },
         length: () => {
-            let selections = get(external);
+            const selections = get(external);
             return selections.length;
         },
-        getVerseTextByIndex: async (i) => {
-            let selections = get(external);
+        getVerseTextByIndex: async (i: string | number) => {
+            const selections = get(external);
             let text = '';
             const index = Number(i);
             if (index > -1 && index < selections.length) {
@@ -244,8 +255,8 @@ function createSelectedVerses() {
             }
             return text;
         },
-        getVerseByIndex: (i) => {
-            let selections = get(external);
+        getVerseByIndex: (i: string | number) => {
+            const selections = get(external);
             const index = Number(i);
             if (index > -1 && index < selections.length) {
                 return selections[index];
@@ -260,8 +271,8 @@ function createSelectedVerses() {
                 return selection;
             }
         },
-        getVerseByVerseNumber: (i) => {
-            let selections = get(external);
+        getVerseByVerseNumber: (i: string | number) => {
+            const selections = get(external);
             const index = findIndex(i);
             if (index > -1) {
                 return selections[index];
@@ -276,8 +287,8 @@ function createSelectedVerses() {
                 return selection;
             }
         },
-        getReference: (i) => {
-            let selections = get(external);
+        getReference: (i: string | number) => {
+            const selections = get(external);
             const index = Number(i);
             if (index > -1 && index < selections.length) {
                 const selection = selections[index];
@@ -295,7 +306,7 @@ function createSelectedVerses() {
         },
 
         getCompositeReference: () => {
-            let selections = get(external);
+            const selections = get(external);
             if (selections.length <= 1) {
                 return selectedVerses.getReference(0);
             } else {
@@ -317,11 +328,11 @@ function createSelectedVerses() {
                 let reference =
                     bookName + ' ' + selectionStart.chapter + verseSeparator + selectionStart.verse;
                 let wasConsecutive = false;
-                let lastVerse = selectionStart.verse;
-                let currVerse = selectionStart.verse;
+                let lastVerse = Number(selectionStart.verse);
+                let currVerse = Number(selectionStart.verse);
                 for (let i = 1; i < selections.length; i++) {
                     lastVerse = currVerse;
-                    currVerse = selections[i].verse;
+                    currVerse = Number(selections[i].verse);
                     if (currVerse - lastVerse > 1) {
                         if (wasConsecutive) {
                             reference += lastVerse;
@@ -345,7 +356,7 @@ function createSelectedVerses() {
         getCompositeText: async () => {
             const selections = get(external);
             const verseText = [];
-            for (var i = 0; i < selections.length; i++) {
+            for (let i = 0; i < selections.length; i++) {
                 const t = await getVerseText(selections[i]);
                 verseText.push(t);
             }

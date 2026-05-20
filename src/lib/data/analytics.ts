@@ -1,6 +1,5 @@
 import { scriptureConfig } from '$assets/config';
-import { analytics } from '$lib/data/stores';
-import type { AudioPlayer } from './audio';
+import { analytics, type AudioPlayer } from '$lib/data/stores';
 import type { HistoryItem } from './history';
 
 export function getBook(item: { collection?: string; book: string }) {

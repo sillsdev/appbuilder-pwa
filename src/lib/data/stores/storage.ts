@@ -1,15 +1,15 @@
-export const setDefaultStorage = (name, value) => {
+export const setDefaultStorage = (name: string, value: string) => {
     if (!localStorage.getItem(name) && value) {
         localStorage.setItem(name, value);
     }
 };
 
-export const mergeDefaultStorage = (name, value) => {
+export const mergeDefaultStorage = (name: string, value?: Record<string, unknown>) => {
     const storage = localStorage.getItem(name);
     if (!storage && value) {
         // If it doesn't exist, then just store it
         localStorage.setItem(name, JSON.stringify(value));
-    } else {
+    } else if (storage && value) {
         // If it does exist, then set the keys that don't exist
         const update = JSON.parse(storage);
         Object.keys(value).forEach((key) => {

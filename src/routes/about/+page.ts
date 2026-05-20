@@ -1,3 +1,5 @@
+import type { PageLoad } from './$types';
+
 const illustrations = import.meta.glob('./*', {
     eager: true,
     import: 'default',
@@ -5,7 +7,7 @@ const illustrations = import.meta.glob('./*', {
     base: '/src/gen-assets/illustrations'
 });
 
-function updateImgTags(/** @type {string} */ text) {
+function updateImgTags(text: string) {
     return text.replace(
         /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
         (match, _path, fileName) => {
@@ -19,9 +21,8 @@ function updateImgTags(/** @type {string} */ text) {
     );
 }
 
-/** @type {import('./$types').PageLoad} */
-export async function load() {
+export const load: PageLoad = async () => {
     const url = await import('$assets/about.partial.html?raw');
     // replace a sequence of one or more new-line characters with a <br> element to preserve line breaks
     return { partial: updateImgTags(url.default ?? '').replaceAll(/\n+/g, '<br>') };
-}
+};

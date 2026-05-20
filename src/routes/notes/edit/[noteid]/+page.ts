@@ -1,7 +1,8 @@
 import { error } from '@sveltejs/kit';
 import { getNotes } from '$lib/data/notes';
+import type { PageLoad } from './$types';
 
-export async function load({ params }) {
+export const load: PageLoad = async ({ params }) => {
     const { noteid } = params;
     if (noteid === 'new') {
         return { note: undefined };
@@ -24,4 +25,4 @@ export async function load({ params }) {
         });
     }
     return { note };
-}
+};

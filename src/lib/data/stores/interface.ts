@@ -4,7 +4,7 @@ import { refs } from './scripture';
 import { userSettings } from './setting';
 
 export const direction = derived([refs, userSettings], ([$refs, $userSettings]) => {
-    var direction = config.mainFeatures['settings-app-layout-direction']
+    let direction = config.mainFeatures['settings-app-layout-direction']
         ? $userSettings['app-layout-direction']
         : config.mainFeatures['app-layout-direction'];
     if (direction === 'interface-language') {

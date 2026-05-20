@@ -37,7 +37,7 @@ interface PlanStates extends DBSchema {
     };
 }
 
-let planStateDB = null;
+let planStateDB: Awaited<ReturnType<typeof openDB<PlanStates>>> | null = null;
 
 async function openPlanStates() {
     if (!planStateDB) {
@@ -98,6 +98,6 @@ export async function addPlanState(item: { id: string; state: string }) {
 
 function notifyUpdatedPlanStates() {
     planStatesLastUpdated.set(Date.now());
-    invalidate('planstates');
+    invalidate('note:planstates');
 }
 export const planStatesLastUpdated = writable(Date.now());

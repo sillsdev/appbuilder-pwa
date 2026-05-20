@@ -30,10 +30,8 @@
         glossary,
         highlights,
         isFirstLaunch,
-        mainScroll,
         modal,
-        MODAL_COLLECTION,
-        MODAL_TEXT_APPEARANCE,
+        ModalType,
         NAVBAR_HEIGHT,
         notes,
         refs,
@@ -42,7 +40,6 @@
         showDesktopSidebar,
         t,
         themeColors,
-        themes,
         userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
@@ -360,7 +357,7 @@
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
             if (showCollectionsOnFirstLaunch && enoughCollections) {
-                modal.open(MODAL_COLLECTION);
+                modal.open(ModalType.Collection);
             }
         }
     });
@@ -441,7 +438,7 @@
                         {#if showTextAppearance($fontChoices)}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                onclick={() => modal.open(MODAL_TEXT_APPEARANCE)}
+                                onclick={() => modal.open(ModalType.TextAppearance)}
                             >
                                 <TextAppearanceIcon color="white" />
                             </button>
@@ -451,7 +448,7 @@
                         {#if showCollectionNavbar && enoughCollections}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                onclick={() => modal.open(MODAL_COLLECTION)}
+                                onclick={() => modal.open(ModalType.Collection)}
                             >
                                 <BibleIcon color="white" />
                             </button>
@@ -490,7 +487,7 @@
             style:top={navBarHeight}
             style:background-color={convertStyle($s['ui.pane1'])}
             style={convertStyle($s['ui.pane1.name'])}
-            onclick={() => modal.open(MODAL_COLLECTION)}
+            onclick={() => modal.open(ModalType.Collection)}
         >
             {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
         </div>
