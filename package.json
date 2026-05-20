@@ -77,6 +77,7 @@
         "node": "22.21.1"
     },
     "dependencies": {
-        "sql.js": "^1.13.0"
+        "sql.js": "^1.13.0",
+        "html-to-image": "^1.11.11"
     }
 }
