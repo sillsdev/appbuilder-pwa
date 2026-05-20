@@ -22,9 +22,11 @@ The verse on image component.
     import { base } from '$app/paths';
     import config from '$lib/data/config';
     import { toPng } from 'html-to-image';
+    import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
 
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
+    $: unselectedColor = 'grey';
 
     $: viewportWidth_in_px = Math.max(
         document.documentElement.clientWidth || 0,
@@ -38,8 +40,8 @@ The verse on image component.
     $: reference = selectedVerses.getCompositeReference();
     let verses;
     let voi_parentDiv;
-    $: voi_width = cnvFullScreen ? '100vw' : '50vh';
-    $: voi_height = cnvFullScreen ? '100vw' : '50vh';
+    $: voi_width = cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2;
+    $: voi_height = voi_width;
     $: cnvFullScreen = $windowSize.width < 450;
     let cnv;
 
@@ -49,6 +51,10 @@ The verse on image component.
     let voi_fontSize = 20;
     $: voi_font = voi_fontSize + 'px Comic Sans MS';
     let voi_fontColor = 'white';
+    let voi_bold = true;
+    let voi_italic = false;
+    let voi_letterSpacing = 0;
+    let voi_lineHeight = 1;
     let voi_txtPadding = '0px';
     let voi_textAlign = 'center';
     let voi_textBoxWidth;
@@ -66,7 +72,7 @@ The verse on image component.
         verses = await selectedVerses.getCompositeText();
 
         var background = new Image();
-        background.src = base + '/backgrounds/aaron-burden-6jYoil2GhVk-unsplash-1080.jpg';
+        background.src = base + '/backgrounds/aaron-burden-vKBdY7e7KFk-unsplash-1080.jpg';
 
         // Make sure the image is loaded first otherwise nothing will draw.
         background.onload = function () {
@@ -206,7 +212,7 @@ The verse on image component.
             id="verseOnImgPreview"
             bind:this={voi_parentDiv}
             class="flex flex-col"
-            style="border: 0px solid cyan; width:{voi_width}; height:{voi_height};"
+            style="border: 0px solid cyan; width:{voi_width}px; height:{voi_height}px;"
         >
             <!-- Preview display of the image and text -->
 
@@ -227,11 +233,15 @@ The verse on image component.
                 z-index: 2;
                 width: {voi_textBoxWidth}px;
                 height: auto;
-                max-width: {voi_width};
+                max-width: {voi_width}px;
                 max-height: {voi_textBox_maxHeight};
                 color: {voi_fontColor};
                 font: {voi_font};
                 font-size: {voi_fontSize};
+                {voi_bold ? 'font-weight: bold;' : ''}
+                {voi_italic ? 'font-style: italic;' : ''}
+                letter-spacing: {voi_letterSpacing}px;
+                line-height: {voi_lineHeight};
                 padding: {voi_txtPadding};
                 text-align: {voi_textAlign};
                 overflow: hidden;
@@ -253,21 +263,27 @@ The verse on image component.
             </p>
         </div>
     </div>
-    <div id="editorTabs" class="flex flex-row flex-nowrap" style="overflow-x:scroll;">
+    <div
+        id="editorTabs"
+        class="flex flex-row flex-nowrap"
+        style="overflow-x:scroll; background-color: white;"
+    >
         <!-- NavBar of tab buttons to bring up the different editor panes -->
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(0)}
             class:activeButton={active_editor_index == 0}
         >
-            <ImageIcon.Image color={active_editor_index == 0 ? progressColor : 'grey'} />
+            <ImageIcon.Image color={active_editor_index == 0 ? progressColor : unselectedColor} />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(1)}
             class:activeButton={active_editor_index == 1}
         >
-            <TextAppearanceIcon color={active_editor_index == 1 ? progressColor : 'grey'} />
+            <TextAppearanceIcon
+                color={active_editor_index == 1 ? progressColor : unselectedColor}
+            />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
@@ -275,7 +291,7 @@ The verse on image component.
             class:activeButton={active_editor_index == 2}
         >
             <ImageIcon.FormatAlignCenter
-                color={active_editor_index == 2 ? progressColor : 'grey'}
+                color={active_editor_index == 2 ? progressColor : unselectedColor}
             />
         </button>
         <button
@@ -283,92 +299,225 @@ The verse on image component.
             on:click={() => centerButton(3)}
             class:activeButton={active_editor_index == 3}
         >
-            <ImageIcon.FormatColorFill color={active_editor_index == 3 ? progressColor : 'grey'} />
+            <ImageIcon.FormatColorFill
+                color={active_editor_index == 3 ? progressColor : unselectedColor}
+            />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(4)}
             class:activeButton={active_editor_index == 4}
         >
-            <ImageIcon.TextShadow color={active_editor_index == 4 ? progressColor : 'grey'} />
+            <ImageIcon.TextShadow
+                color={active_editor_index == 4 ? progressColor : unselectedColor}
+            />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(5)}
             class:activeButton={active_editor_index == 5}
         >
-            <ImageIcon.Brightness color={active_editor_index == 5 ? progressColor : 'grey'} />
+            <ImageIcon.Brightness
+                color={active_editor_index == 5 ? progressColor : unselectedColor}
+            />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(6)}
             class:activeButton={active_editor_index == 6}
         >
-            <ImageIcon.Blur color={active_editor_index == 6 ? progressColor : 'grey'} />
+            <ImageIcon.Blur color={active_editor_index == 6 ? progressColor : unselectedColor} />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
             on:click={() => centerButton(7)}
             class:activeButton={active_editor_index == 7}
         >
-            <ImageIcon.TextWidth color={active_editor_index == 7 ? progressColor : 'grey'} />
+            <ImageIcon.TextWidth
+                color={active_editor_index == 7 ? progressColor : unselectedColor}
+            />
         </button>
     </div>
 
     <!-- Pane for the current editor -->
-    <div
-        id="editorsPane"
-        class="dy-w-64 dy-carousel dy-rounded-box"
-        style="background-color:lightgray;"
-    >
-        <div class="dy-carousel-item" style="width:100%;">
-            <h1 style="width:100%;">Editor Content 0</h1>
-        </div>
-
-        <div class="dy-carousel-item" style="width:100%;">
-            <div class="grid gap-4 items-center range-row m-2">
-                <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1.5rem" />
-                <Slider bind:value={voi_fontSize} {barColor} {progressColor} min="10" max="250" />
+    <div id="editorsPane" class="dy-w-64 dy-carousel dy-rounded-box">
+        <div
+            id="image_selector_pane"
+            class="dy-carousel-item editor_pane flex-wrap"
+            style="width:100%;"
+        >
+            <!-- Camera roll button -->
+            <div class="flex items-center justify-center">
+                <button
+                    class="dy-btn-sm dy-btn-ghost"
+                    on:click={() => console.log('Open camera roll')}
+                >
+                    <ImagesIcon color={$monoIconColor} />
+                </button>
             </div>
-            <h1 style="width:100%;">Editor Content 1</h1>
+            <!-- DEBUG: make this automatically pull from the images -->
+            <img src={base + '/backgrounds/aaron-burden-vKBdY7e7KFk-unsplash-1080.jpg'} />
+            <img src={base + '/backgrounds/cross-66700_1920-pixabay-1080.jpg'} />
+            <img src={base + '/backgrounds/damian-patkowski-T-LfvX-7IVg-unsplash-1080.jpg'} />
+            <img src={base + '/backgrounds/desert-1731660-pexels-1080.jpg'} />
+            <img src={base + '/backgrounds/aaron-burden-6jYoil2GhVk-unsplash-1080.jpg'} />
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
-            <h1 style="width:100%;">Editor Content 2</h1>
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+            <div class="flex flex-row items-center">
+                <!-- Bold button -->
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_bold = !voi_bold;
+                    }}
+                >
+                    <ImageIcon.FormatBold color={voi_bold ? progressColor : unselectedColor} />
+                </button>
+
+                <!-- Italic button -->
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_italic = !voi_italic;
+                    }}
+                >
+                    <ImageIcon.FormatItalic color={voi_italic ? progressColor : unselectedColor} />
+                </button>
+            </div>
+
+            <!-- Font size slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <TextAppearanceIcon color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_fontSize}
+                        {barColor}
+                        {progressColor}
+                        min="10"
+                        max="250"
+                    />
+                </div>
+            </div>
+
+            <!-- Letter spacing? slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.LetterSpacing color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_letterSpacing}
+                        {barColor}
+                        {progressColor}
+                        min="0"
+                        max="25"
+                    />
+                </div>
+            </div>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
+            <div class="flex flex-row items-center">
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_textAlign = 'left';
+                    }}
+                >
+                    <ImageIcon.FormatAlignLeft
+                        color={voi_textAlign == 'left' ? progressColor : unselectedColor}
+                    />
+                </button>
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_textAlign = 'center';
+                    }}
+                >
+                    <ImageIcon.FormatAlignCenter
+                        color={voi_textAlign == 'center' ? progressColor : unselectedColor}
+                    />
+                </button>
+                <button
+                    class="dy-btn-sm dy-btn-ghost editorPane_button"
+                    on:click={() => {
+                        voi_textAlign = 'right';
+                    }}
+                >
+                    <ImageIcon.FormatAlignRight
+                        color={voi_textAlign == 'right' ? progressColor : unselectedColor}
+                    />
+                </button>
+            </div>
+
+            <!-- Line height slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.FormatLineSpacing color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_lineHeight}
+                        {barColor}
+                        {progressColor}
+                        min="0"
+                        max="7"
+                    />
+                </div>
+            </div>
+
+            <!-- Width slider -->
+            <div class="flex flex-row flex-nowrap items-center editorPane_slider">
+                <div style="margin-right: 1rem;">
+                    <ImageIcon.TextWidth color={$monoIconColor} size="1.5rem" />
+                </div>
+                <div class="grid grid-cols-1" style="width: 100%;">
+                    <Slider
+                        bind:value={voi_textBoxWidth}
+                        {barColor}
+                        {progressColor}
+                        min="1"
+                        max={voi_width}
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 3</h1>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 4</h1>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 5</h1>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 6</h1>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 7</h1>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 8</h1>
         </div>
 
-        <div class="dy-carousel-item" style="width:100%;">
+        <div class="dy-carousel-item items-center editorPane" style="width:100%;">
             <h1 style="width:100%;">Editor Content 9</h1>
         </div>
     </div>
 </div>
 
 <style>
-    .cnv_Mobile {
+    /* .cnv_Mobile {
         width: 100vw;
         height: 100vw;
     }
@@ -376,7 +525,7 @@ The verse on image component.
     .cnv_Md {
         width: 50vh;
         height: 50vh;
-    }
+    } */
 
     #editorTabs::-webkit-scrollbar {
         display: none;
@@ -403,5 +552,26 @@ The verse on image component.
 
     #editorTabs .activeButton {
         border-bottom: 4px solid var(--SliderProgressColor);
+    }
+
+    .editorPane {
+        flex-direction: column;
+    }
+
+    .editorPane_button {
+        background-color: var(--SliderBarColor);
+        border-radius: 3px;
+        width: fit-content;
+        margin: 1rem 0.25rem 0rem 0.25rem;
+    }
+
+    .editorPane_slider {
+        width: 100%;
+        padding: 1rem 1rem 0rem 1rem;
+    }
+
+    #image_selector_pane > * {
+        width: 25%;
+        padding: 0.125rem;
     }
 </style>
