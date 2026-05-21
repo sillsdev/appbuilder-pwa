@@ -15,6 +15,7 @@ The sidebar/drawer.
         isDAB,
         isSAB,
         language,
+        languageDefault,
         modal,
         ModalType,
         refs,
@@ -268,9 +269,9 @@ The sidebar/drawer.
                                     src={menuIcons[`./${item.images?.[0]?.file}`] ?? ''}
                                     height="24"
                                     width="24"
-                                    alt={item.title[$language]}
+                                    alt={item.title[$language] || item.title[languageDefault]}
                                 />
-                            </picture>{item.title[$language]}
+                            </picture>{item.title[$language] || item.title[languageDefault]}
                         </a>
                     </li>
                 {/each}

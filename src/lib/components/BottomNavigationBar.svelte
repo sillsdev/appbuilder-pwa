@@ -4,7 +4,7 @@
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import { language, refs, s, theme } from '$lib/data/stores';
+    import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
 
     const menuIcons = import.meta.glob('./*', {
@@ -149,7 +149,7 @@
                                     ? barTextSelectedColor
                                     : barTextColor}"
                             >
-                                {item.title[$language]}
+                                {item.title[$language] || item.title[languageDefault]}
                             </span>
                         </button>
                     {/if}
