@@ -20,7 +20,7 @@ Custom list of collections for the LayoutOptions menu
     }: {
         docSets: App.CollectionEntry[];
         selectedLayouts?: App.CollectionEntry;
-        menuaction;
+        menuaction: ({ collection }: { collection: App.CollectionEntry }) => void;
     } = $props();
 
     function handleClick(opt: App.CollectionEntry) {

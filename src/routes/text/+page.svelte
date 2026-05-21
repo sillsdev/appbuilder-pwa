@@ -1,15 +1,19 @@
-<script>
+<script lang="ts">
     import { page } from '$app/state';
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import BookTabs from '$lib/components/BookTabs.svelte';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
-    import HtmlBookView from '$lib/components/HtmlBookView.svelte';
+    import HtmlBookView, {
+        type Props as HtmlBookViewProps
+    } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import ScriptureViewSofria from '$lib/components/ScriptureViewSofria.svelte';
+    import ScriptureViewSofria, {
+        type Props as ScriptureViewSofriaProps
+    } from '$lib/components/ScriptureViewSofria.svelte';
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
@@ -55,7 +59,12 @@
     import { gotoRoute, navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { onDestroy, onMount } from 'svelte';
-    import { pinch, swipe } from 'svelte-gestures';
+    import {
+        pinch,
+        swipe,
+        type PinchPointerEventDetail,
+        type SwipePointerEventDetail
+    } from 'svelte-gestures';
 
     const borders = import.meta.glob('./*', {
         import: 'default',
@@ -92,7 +101,7 @@
         savedScrollPosition = 0;
     });
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
-    async function doSwipe(event) {
+    async function doSwipe(event: CustomEvent<SwipePointerEventDetail>) {
         const swipeDirection = event.detail.direction;
         console.log('SWIPE', swipeDirection);
         if (
@@ -105,9 +114,9 @@
     }
 
     const bookTabs = $derived(
-        config?.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === $refs.book)?.bookTabs
+        scriptureConfig?.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book)?.bookTabs
     ); //This should hopefully be reactive and find the book tabs if the current book has them.
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
@@ -125,14 +134,14 @@
     const hasPrev = $derived($refs.prev.chapter !== null);
     const hasNext = $derived($refs.next.chapter !== null);
     const viewShowVerses = $derived(
-        $userSettings['verse-numbers'] ??
+        ($userSettings['verse-numbers'] as boolean) ??
             getFeatureValueBoolean('show-verse-numbers', $refs.collection, $refs.book)
     );
 
-    const minFontSize = config.mainFeatures['text-size-min'];
-    const maxFontSize = config.mainFeatures['text-size-max'];
+    const minFontSize = config.mainFeatures['text-size-min'] as number;
+    const maxFontSize = config.mainFeatures['text-size-max'] as number;
     let lastPinch = 1.0;
-    function doPinch() {
+    function doPinch(event: CustomEvent<PinchPointerEventDetail>) {
         const currPinch = event.detail.scale;
         bodyFontSize.update((fontSize) => {
             if (Math.abs(currPinch - lastPinch) > 0.1) {
@@ -150,29 +159,32 @@
         getFeatureValueString('audio-phrase-end-chars', $refs.collection, $refs.book)
     );
 
-    const showSearch = config.mainFeatures['search'];
-    const enoughCollections = config.bookCollections.length > 1;
-    const showCollectionNavbar = config.mainFeatures['layout-config-change-toolbar-button'];
-    const showCollectionsOnFirstLaunch = config.mainFeatures['layout-config-first-launch'];
-    const showCollectionViewer = config.mainFeatures['layout-config-change-viewer-button'];
-    const showAudio = config.mainFeatures['audio-allow-turn-on-off'];
+    const showSearch = !!config.mainFeatures['search'];
+    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
+    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
+    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
+    const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const showBorderSetting = $derived(
         getFeatureValueBoolean('show-border', $refs.collection, $refs.book)
     );
     const showBorder = $derived(
-        config.traits['has-borders'] && ($userSettings['show-border'] ?? showBorderSetting)
+        !!(
+            scriptureConfig.traits?.['has-borders'] &&
+            ($userSettings['show-border'] ?? showBorderSetting)
+        )
     );
     const format = $derived(getFormat($refs.collection, $refs.book));
     const viewSettings = $derived(
         format === 'html'
-            ? {
+            ? ({
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
                   fetch: page.data.fetch
-              }
-            : {
+              } satisfies HtmlBookViewProps)
+            : ({
                   audioPhraseEndChars: audioPhraseEndChars,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
@@ -180,25 +192,30 @@
                   notes: $notes,
                   highlights: $highlights,
                   maxSelections: config.mainFeatures['annotation-max-select'],
-                  redLetters: $userSettingsOrDefault['red-letters'],
+                  redLetters: $userSettingsOrDefault['red-letters'] as boolean,
                   references: $refs,
                   glossary: $glossary,
                   selectedVerses: selectedVerses,
                   themeColors: $themeColors,
                   verseLayout: $userSettingsOrDefault['verse-layout'],
-                  viewShowBibleImages: $userSettingsOrDefault['display-images-in-bible-text'],
-                  viewShowBibleVideos: $userSettingsOrDefault['display-videos-in-bible-text'],
-                  viewShowIllustrations: config.mainFeatures['show-illustrations'],
+                  viewShowBibleImages: $userSettingsOrDefault[
+                      'display-images-in-bible-text'
+                  ] as string,
+                  viewShowBibleVideos: $userSettingsOrDefault[
+                      'display-videos-in-bible-text'
+                  ] as string,
+                  viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
                   viewShowVerses,
-                  viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'],
-                  font: $currentFont,
+                  viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
+                  font: $currentFont!,
                   proskomma: page.data?.proskomma
-              }
+              } satisfies ScriptureViewSofriaProps)
     );
 
-    function getFormat(bcId, bookId) {
-        return config.bookCollections.find((x) => x.id === bcId)?.books.find((x) => x.id === bookId)
-            ?.format;
+    function getFormat(bcId: string, bookId: string) {
+        return scriptureConfig.bookCollections
+            ?.find((x) => x.id === bcId)
+            ?.books.find((x) => x.id === bookId)?.format;
     }
 
     const stackSettings = $derived({
@@ -208,15 +225,15 @@
     });
 
     const extraIconsExist = $derived(showSearch || showCollectionNavbar); //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
-    let scrollingDiv = $state();
+    let scrollingDiv: HTMLDivElement | undefined = $state();
 
     let showOverlowMenu = $state(false); //Controls the visibility of the extraButtons div on mobile
-    function handleMenuClick(event) {
+    function handleMenuClick() {
         showOverlowMenu = false;
     }
 
     /**scrolls element with id into view*/
-    const scrollTo = (id) => {
+    const scrollTo = (id: string) => {
         let verseId = id === 'start-none' ? '1-a' : id;
         if (!verseId) {
             return;
@@ -224,14 +241,14 @@
         let el = findVerseElement(verseId);
         makeElementVisible(el);
     };
-    function delayedScroll(id) {
+    function delayedScroll(id: string) {
         let updateTimer;
         clearTimeout(updateTimer);
         updateTimer = setTimeout(() => {
             scrollTo(id);
         }, 100);
     }
-    function delayedSeek(id) {
+    function delayedSeek(id: string) {
         let updateTimer;
         clearTimeout(updateTimer);
         updateTimer = setTimeout(() => {
@@ -240,8 +257,8 @@
     }
     /**Scroll to start of chapter when reference changes*/
     const newRefScroll = (() => {
-        let updateTimer;
-        return () => {
+        let updateTimer: NodeJS.Timeout;
+        return (_: unknown) => {
             clearTimeout(updateTimer);
             updateTimer = setTimeout(() => {
                 let verse = $refs.verse;
@@ -258,29 +275,31 @@
         };
     })();
 
-    function makeElementVisible(el) {
+    function makeElementVisible(el?: Element | null) {
         if (el) {
             if (el.classList.contains('scroll-item')) {
                 const rect = el.getBoundingClientRect();
                 const win = document
                     .getElementsByClassName('container')[0]
                     ?.getBoundingClientRect();
-                const scrollTop = scrollingDiv.scrollTop;
-                const scrollHeight = scrollingDiv.clientHeight;
-                const isVisible =
-                    rect.top - win.top - 30 >= scrollTop &&
-                    rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
-                if (!isVisible) {
-                    let newTop = rect.top - win.top - 30;
-                    scrollingDiv.scrollTo({ top: newTop, behavior: 'smooth' });
-                    if (newTop > 0) {
-                        savedScrollPosition = newTop;
+                if (scrollingDiv) {
+                    const scrollTop = scrollingDiv.scrollTop;
+                    const scrollHeight = scrollingDiv.clientHeight;
+                    const isVisible =
+                        rect.top - win.top - 30 >= scrollTop &&
+                        rect.bottom - win.top + 30 <= scrollHeight + scrollTop;
+                    if (!isVisible) {
+                        let newTop = rect.top - win.top - 30;
+                        scrollingDiv.scrollTo({ top: newTop, behavior: 'smooth' });
+                        if (newTop > 0) {
+                            savedScrollPosition = newTop;
+                        }
                     }
                 }
             }
         }
     }
-    function findVerseElement(verseId) {
+    function findVerseElement(verseId: string) {
         const [verseNumStr, phrase] = verseId.split('-');
         const verseNum = Number(verseNumStr);
 
@@ -313,14 +332,16 @@
     const highlightColor = $derived($themeColors['TextHighlightColor']);
     let currentVerse = '';
     /**updates highlight*/
-    const updateHighlight = (elementIds, color) => {
+    const updateHighlight = (elementIds: string[], color: string) => {
         let container = document.getElementsByClassName('container')[0];
         // Remove highlighting for currently highlighted verses
         const elements = container?.getElementsByClassName('highlighting');
         for (let i = 0; i < elements?.length; i++) {
             const element = elements[i];
             const node = element.getAttributeNode('style');
-            element.removeAttributeNode(node);
+            if (node) {
+                element.removeAttributeNode(node);
+            }
             element.classList.remove('highlighting');
         }
 
@@ -485,11 +506,12 @@
         <div
             class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
             style:top={navBarHeight}
-            style:background-color={convertStyle($s['ui.pane1'])}
-            style={convertStyle($s['ui.pane1.name'])}
+            style:background-color={convertStyle($s?.['ui.pane1'])}
+            style={convertStyle($s?.['ui.pane1.name'])}
             onclick={() => modal.open(ModalType.Collection)}
         >
-            {config.bookCollections.find((x) => x.id === $refs.collection)?.collectionAbbreviation}
+            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
+                ?.collectionAbbreviation}
         </div>
     {/if}
     <div
@@ -527,9 +549,11 @@
                             onswipe={doSwipe}
                         >
                             {#if format === 'html'}
-                                <HtmlBookView {...viewSettings} />
+                                <HtmlBookView {...viewSettings as HtmlBookViewProps} />
                             {:else}
-                                <ScriptureViewSofria {...viewSettings} />
+                                <ScriptureViewSofria
+                                    {...viewSettings as ScriptureViewSofriaProps}
+                                />
                             {/if}
                         </div>
                     </main>
@@ -569,7 +593,7 @@
             </div>
         </div>
     {/if}
-    {#if scrollingUp && bottomNavBarEnabled && !$selectedVerses.length > 0}
+    {#if scrollingUp && bottomNavBarEnabled && !$selectedVerses.length}
         <BottomNavigationBar {barType} />
     {/if}
 </div>

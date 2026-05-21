@@ -18,7 +18,7 @@
 
     let { children, data: _data }: Props = $props();
 
-    const inSearchRoute = $derived(page.route.id.endsWith('/search'));
+    const inSearchRoute = $derived(page.route.id?.endsWith('/search'));
 </script>
 
 <div

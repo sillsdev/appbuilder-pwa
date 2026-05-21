@@ -1,8 +1,8 @@
-<script>
-    import { page } from '$app/stores';
+<script lang="ts">
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
+    import type { PlanDataItem } from '$lib/data/plansData';
     import { getLastPlanStateRecord } from '$lib/data/planStates';
     import { convertStyle, language, modal, ModalType, plan, refs, s, t } from '$lib/data/stores';
     import {
@@ -16,8 +16,15 @@
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import type { PageData } from './$types';
 
-    const imageFolder =
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
+
+    const imageFolder: Record<string, string> =
         compareVersions(config.programVersion, '12.0') < 0
             ? import.meta.glob('./*', {
                   eager: true,
@@ -32,20 +39,20 @@
                   base: '/src/gen-assets/plans'
               });
 
-    const barIconColor = $s['ui.bar.text-select.icon']['color'];
+    const barIconColor = $s?.['ui.bar.text-select.icon']['color'];
     //need some way to know the status of the plan
     //for now assume it's from choose plans
 
-    let selectedTab = 'info';
-    let inUse = false;
+    let selectedTab = $state('info');
+    let inUse = $state(false);
     //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
     checkPlanState();
-    let selectedDay = $page.data.planData.items[0];
-    let planId = $page.data.planData.id;
-    let currentPlanStatus = '';
+    let selectedDay = $state(data.planData.items?.[0]);
+    const planId = $derived(data.planData.id);
+    let currentPlanStatus = $state('');
     let currentStatusDateString = '';
     async function checkPlanState() {
-        const planStateRecord = await getLastPlanStateRecord($page.data.planData.id);
+        const planStateRecord = await getLastPlanStateRecord(data.planData.id);
         if (planStateRecord) {
             const planState = planStateRecord.state;
             currentPlanStatus = planState;
@@ -58,24 +65,24 @@
             if (planState && planState === 'started') {
                 selectedTab = 'calendar';
                 inUse = true;
-                const firstIncompletePlanDay = await getFirstIncompleteDay($page.data.planData, -1);
+                const firstIncompletePlanDay = await getFirstIncompleteDay(data.planData, -1);
                 if (firstIncompletePlanDay !== -1) {
                     // -1 means the plan is complete, which really shouldn't show up here
-                    const dayIndex = $page.data.planData.items.findIndex(
+                    const dayIndex = data.planData.items?.findIndex(
                         (item) => item.day === firstIncompletePlanDay
                     );
                     // Should always be found but
-                    if (dayIndex != -1) {
-                        selectedDay = $page.data.planData.items[dayIndex];
+                    if ((dayIndex ?? -1) !== -1) {
+                        selectedDay = data.planData.items?.[dayIndex!];
                     }
                 }
             }
         }
     }
-    function referenceCompleted(day, refIndex) {
+    function referenceCompleted(day: number, refIndex: number) {
         let completed = false;
         // While there should only be 0 or one match, this will get any present
-        const matchingEntries = $page.data.planCompletionData.filter(
+        const matchingEntries = data.planCompletionData.filter(
             (item) => item.day === day && item.itemIndex === refIndex
         );
         if (matchingEntries.length > 0) {
@@ -84,10 +91,11 @@
         return completed;
     }
 
-    function getReferenceString(ref) {
+    function getReferenceString(ref: string) {
         // Reminder - get book collection id
         let currentBookCollectionId = $refs.collection;
-        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
+        const [_collection, book, _fromChapter, toChapter, verseRanges] =
+            getReferenceFromString(ref);
         const displayString = getDisplayString(
             currentBookCollectionId,
             book,
@@ -97,7 +105,7 @@
         return displayString;
     }
 
-    function checkReference(book, chapter) {
+    function checkReference(book: string, chapter: number) {
         let value = false;
         const books = $refs.catalog.documents;
         const bookInCatalog = books.find((d) => d.bookCode === book);
@@ -108,7 +116,7 @@
         }
         return value;
     }
-    function goToDailyReference(item, ref, index) {
+    function goToDailyReference(item: PlanDataItem, ref: string, index: number) {
         // Only go to reference if in an active plan
         if (inUse) {
             let currentBookCollectionId = $refs.collection;
@@ -117,10 +125,10 @@
             const [fromVerse, toVerse, separator] = verseRanges[0];
             if (checkReference(book, toChapter)) {
                 let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-                getNextPlanReference($page.data.planData.id, item, index).then(
+                getNextPlanReference(data.planData.id, item, index).then(
                     ([nextReference, nextIndex]) => {
                         $plan = {
-                            planId: $page.data.planData.id,
+                            planId: data.planData.id,
                             planDay: item.day,
                             planEntry: index,
                             planBookId: book,
@@ -163,21 +171,26 @@
     let isDragging = false;
     let startX = 0;
     let scrollLeft = 0;
+    let scroller: HTMLDivElement | undefined = $state();
 
-    function handleMouseDown(event) {
+    function handleMouseDown(event: MouseEvent) {
         isDragging = true;
-        startX = event.pageX - scroller.offsetLeft;
-        scrollLeft = scroller.scrollLeft;
+        if (scroller) {
+            startX = event.pageX - scroller.offsetLeft;
+            scrollLeft = scroller.scrollLeft;
+        }
     }
 
-    function handleMouseMove(event) {
+    function handleMouseMove(event: MouseEvent) {
         if (!isDragging) {
             return;
         }
         event.preventDefault();
-        const x = event.pageX - scroller.offsetLeft;
-        const walk = (x - startX) * 2; // Adjust scroll speed
-        scroller.scrollLeft = scrollLeft - walk;
+        if (scroller) {
+            const x = event.pageX - scroller.offsetLeft;
+            const walk = (x - startX) * 2; // Adjust scroll speed
+            scroller.scrollLeft = scrollLeft - walk;
+        }
     }
 
     function handleMouseUp() {
@@ -192,9 +205,7 @@
                 <label for="sidebar">
                     <div class="btn btn-ghost normal-case text-xl">
                         <!--back navigation isn't quite right-->
-                        {$page.data.planConfig.title[$language] ??
-                            $page.data.planConfig.title.default ??
-                            ''}
+                        {data.planConfig?.title[$language] ?? data.planConfig?.title.default ?? ''}
                     </div>
                 </label>
             {/snippet}
@@ -202,60 +213,56 @@
     </div>
 
     <div class="overflow-y-auto mx-auto md:max-w-screen-md w-full">
-        {#if $page.data.planConfig.image}
+        {#if data.planConfig?.image}
             <div>
                 <img
                     class="plan-image"
-                    src={imageFolder[`./${$page.data.planConfig.image.file}`]}
-                    alt={$page.data.planConfig.image.file}
-                    width={$page.data.planConfig.image.width}
-                    height={$page.data.planConfig.image.height}
+                    src={imageFolder[`./${data.planConfig.image.file}`]}
+                    alt={data.planConfig.image.file}
+                    width={data.planConfig.image.width}
+                    height={data.planConfig.image.height}
                 />
             </div>
         {/if}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"
-            style={convertStyle($s['ui.plans.tabs'])}
+            style={convertStyle($s?.['ui.plans.tabs'])}
         >
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
 
             <div
-                name="my_tabs_1"
                 class="dy-tab dy-tab-bordered {selectedTab === 'info' ? 'dy-tab-active' : ''}"
-                on:click={() => (selectedTab = 'info')}
+                onclick={() => (selectedTab = 'info')}
                 aria-label="info icon"
-                style={convertStyle($s['ui.plans.tabs.text'])}
+                style={convertStyle($s?.['ui.plans.tabs.text'])}
             >
-                <InfoIcon color={barIconColor} style={convertStyle($s['ui.plans.tabs.icon'])}
-                ></InfoIcon>
+                <InfoIcon color={barIconColor} style={convertStyle($s?.['ui.plans.tabs.icon'])} />
             </div>
 
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
-                name="my_tabs_1"
                 class="dy-tab {selectedTab === 'calendar' ? 'dy-tab-active' : ''}"
-                on:click={() => (selectedTab = 'calendar')}
+                onclick={() => (selectedTab = 'calendar')}
                 aria-label="calendar logo"
             >
                 <CalendarMonthIcon
                     color={barIconColor}
-                    style={convertStyle($s['ui.plans.tabs.icon'])}
-                ></CalendarMonthIcon>
+                    style={convertStyle($s?.['ui.plans.tabs.icon'])}
+                />
             </div>
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            {#if inUse === true}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            {#if inUse}
                 <div
-                    name="my_tabs_1"
                     class="dy-tab {selectedTab === 'settings' ? 'dy-tab-active' : ''}"
-                    on:click={() => (selectedTab = 'settings')}
+                    onclick={() => (selectedTab = 'settings')}
                     aria-label="settings icon"
                 >
                     <SettingsIcon
                         color={barIconColor}
-                        style={convertStyle($s['ui.plans.tabs.icon'])}
-                    ></SettingsIcon>
+                        style={convertStyle($s?.['ui.plans.tabs.icon'])}
+                    />
                 </div>
             {/if}
         </div>
@@ -264,16 +271,14 @@
             {#if selectedTab === 'info'}
                 <div id="plan-page" class="plan-details">
                     <div class="plan-title">
-                        {$page.data.planData.title[$language] ??
-                            $page.data.planData.title.default ??
-                            ''}
+                        {data.planData.title?.[$language] ?? data.planData.title?.default ?? ''}
                     </div>
                     <div class="plan-days">
-                        {$t['Plans_Number_Days'].replace('%d', $page.data.planConfig.days)}
+                        {$t['Plans_Number_Days'].replace('%d', String(data.planConfig?.days ?? ''))}
                     </div>
                     <div class="plan-description">
-                        {$page.data.planData.description[$language] ??
-                            $page.data.planData.description.default ??
+                        {data.planData.description?.[$language] ??
+                            data.planData.description?.default ??
                             ''}
                     </div>
                     {#if currentPlanStatus === 'started' || currentPlanStatus === 'completed'}
@@ -284,20 +289,19 @@
                     {#if inUse === true}
                         <div class="plan-button-block">
                             <div class="plan-button" id="PLAN-continue">
-                                <button on:click={() => (selectedTab = 'calendar')}>
+                                <button onclick={() => (selectedTab = 'calendar')}>
                                     {$t['Plans_Button_Continue_Reading']}
                                 </button>
                             </div>
                         </div>
                     {:else}
                         <div class="plan-button-block">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <div
                                 class="plan-button"
                                 id="PLAN-start"
-                                on:click={() =>
-                                    gotoRoute(`/plans/${$page.data.planData.id}/settings`)}
+                                onclick={() => gotoRoute(`/plans/${data.planData.id}/settings`)}
                             >
                                 {$t['Plans_Button_Start_Plan']}
                             </div>
@@ -306,30 +310,31 @@
                 </div>
             {/if}
             {#if selectedTab === 'calendar'}
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                     class="plan-days-scroller"
                     id="scroller"
-                    on:mousedown={handleMouseDown}
-                    on:mousemove={handleMouseMove}
-                    on:mouseup={handleMouseUp}
-                    on:mouseleave={handleMouseUp}
+                    bind:this={scroller}
+                    onmousedown={handleMouseDown}
+                    onmousemove={handleMouseMove}
+                    onmouseup={handleMouseUp}
+                    onmouseleave={handleMouseUp}
                 >
                     <ul class="dy-menu-horizontal bg-base-200 rounded-box">
-                        {#each $page.data.planData.items as item}
+                        {#each data.planData.items as item}
                             <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
                          plan-day-box plan-day-box-unselected plan-day-box-uncompleted -->
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <!-- the class plan-day-box in particular does not seem to work-->
                             <li>
                                 <div
-                                    class="plan-day-box plan-day-box-uncompleted {selectedDay.day ===
+                                    class="plan-day-box plan-day-box-uncompleted {selectedDay?.day ===
                                     item.day
                                         ? 'selected plan-day-box-selected'
                                         : 'plan-day-box-unselected'}"
                                     id="D-1"
-                                    on:click={() => (selectedDay = item)}
+                                    onclick={() => (selectedDay = item)}
                                 >
                                     <div class="plan-day-box-content">
                                         <div class="plan-day-box-weekday">{$t['Plans_Day']}</div>
@@ -344,14 +349,15 @@
                 <div class="plan-items" id="container">
                     <table class="plan-items-table">
                         <tbody>
-                            {#each selectedDay.refs as ref, index}
+                            {#each selectedDay?.refs as ref, index}
                                 <tr
                                     class="plan-item"
                                     id={'R-' + index}
-                                    on:click={() => goToDailyReference(selectedDay, ref, index)}
+                                    onclick={() =>
+                                        selectedDay && goToDailyReference(selectedDay, ref, index)}
                                 >
                                     <td class="plan-item-checkbox plan-checkbox-image">
-                                        {#if referenceCompleted(selectedDay.day, index) === true}
+                                        {#if referenceCompleted(selectedDay!.day, index) === true}
                                             <CheckboxIcon color={barIconColor} />
                                         {:else}
                                             <CheckboxOutlineIcon color={barIconColor} />
@@ -373,12 +379,12 @@
                     <div class="plan-config-info">
                         {$t['Plans_Config_Stop_Plan_info']}
                     </div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class="plan-button plan-config-button"
                         id="PLAN-stop"
-                        on:click={() => modal.open(ModalType.StopPlan, planId)}
+                        onclick={() => modal.open(ModalType.StopPlan, planId)}
                     >
                         {$t['Plans_Button_Stop_Plan']}
                     </div>

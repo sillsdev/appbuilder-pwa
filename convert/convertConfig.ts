@@ -337,7 +337,10 @@ function convertConfig(dataDir: string, verbose: number) {
         if (videos.length > 0) {
             data.videos = videos;
         }
-        data.traits['has-video'] = data.videos && data.videos.length > 0;
+        const hasVideo = !!data.videos && data.videos.length > 0;
+        data.traits = data.traits
+            ? { ...data.traits, 'has-video': hasVideo }
+            : { 'has-video': hasVideo };
         data.illustrations = parseIllustrations(document, verbose);
 
         const { layouts, defaultLayout } = parseLayouts(document, data.bookCollections, verbose);

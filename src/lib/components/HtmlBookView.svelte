@@ -2,11 +2,8 @@
 @component
 Display an HTML Book.
 -->
-<script lang="ts">
-    import { base } from '$app/paths';
-    import { scriptureConfig } from '$assets/config';
-
-    interface Props {
+<script module lang="ts">
+    export interface Props {
         references: {
             collection: string;
             book: string;
@@ -15,10 +12,15 @@ Display an HTML Book.
         bodyFontSize: number;
         fetch: any;
     }
+</script>
+
+<script lang="ts">
+    import { base } from '$app/paths';
+    import { scriptureConfig } from '$assets/config';
 
     let { references, bodyLineHeight, bodyFontSize, fetch }: Props = $props();
 
-    let htmlBody: string = $state();
+    let htmlBody: string = $state('');
     let fontSize = $derived(bodyFontSize + 'px');
     let lineHeight = $derived(bodyLineHeight + '%');
 

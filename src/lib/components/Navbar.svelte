@@ -15,20 +15,21 @@ The navbar component.
     } from '$lib/data/stores';
     import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         showBackButton?: boolean;
-        start?: () => any;
-        center?: () => any;
-        end?: () => any;
-        backNavigation?: (routeId: string) => void;
+        start?: Snippet;
+        center?: Snippet;
+        end?: Snippet;
+        backNavigation?: (e: Event, routeId: string) => void;
     }
 
     let { showBackButton = true, start, center, end, backNavigation }: Props = $props();
 
-    function handleBackNavigation() {
+    function handleBackNavigation(e: Event) {
         if (backNavigation && page.route.id) {
-            backNavigation(page.route.id);
+            backNavigation(e, page.route.id);
         } else {
             gotoRoute(`/`);
         }

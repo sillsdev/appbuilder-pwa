@@ -466,7 +466,7 @@ export async function convertBooks(
         //loop through books in collection
         const ignoredBooks = [];
         // If the collection has a glossary, load it
-        if (scriptureConfig.traits['has-glossary']) {
+        if (scriptureConfig.traits?.['has-glossary']) {
             bcGlossary = loadGlossary(collection, dataDir);
         }
         //add empty array of quizzes for book collection
@@ -777,7 +777,7 @@ function convertScriptureBook(
                 '\n' +
                 remainingLines;
         }
-        if (context.scriptureConfig.traits['has-glossary']) {
+        if (context.scriptureConfig.traits?.['has-glossary']) {
             content = verifyGlossaryEntries(content, bcGlossary);
         }
         if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {

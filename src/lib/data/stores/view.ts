@@ -92,16 +92,16 @@ export const windowSize = createWindowSizeStore();
 export const mainScroll = writable({ top: 0, height: 0 });
 /**Font size of body elements */
 setDefaultStorage('bodyFontSize', '17');
-export const bodyFontSize = writable(localStorage.bodyFontSize);
+export const bodyFontSize = writable(Number(localStorage.bodyFontSize));
 bodyFontSize.subscribe((fontSize) => (localStorage.bodyFontSize = fontSize));
 /**line height of body elements */
 setDefaultStorage('bodyLineHeight', '175');
-export const bodyLineHeight = writable(localStorage.bodyLineHeight);
+export const bodyLineHeight = writable(Number(localStorage.bodyLineHeight));
 bodyLineHeight.subscribe((lineHeight) => (localStorage.bodyLineHeight = lineHeight));
 
 /**Font size of contents elements */
 setDefaultStorage('contentsFontSize', '17');
-export const contentsFontSize = writable(localStorage.contentsFontSize);
+export const contentsFontSize = writable(Number(localStorage.contentsFontSize));
 contentsFontSize.subscribe((fontSize) => (localStorage.contentsFontSize = fontSize));
 
 export const showDesktopSidebar = derived(
@@ -139,4 +139,4 @@ function createStackStore<T>() {
     };
 }
 
-export const contentsStack = createStackStore<string>();
+export const contentsStack = createStackStore<number>();

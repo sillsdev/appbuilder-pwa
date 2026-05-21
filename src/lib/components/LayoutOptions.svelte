@@ -22,8 +22,8 @@ Displays the three different layout option menus.
         scriptureConfig.bookCollections?.map((ds) => ({
             id: ds.languageCode + '_' + ds.id,
             name: ds.collectionName,
-            singlePane:
-                ds?.features['bc-allow-single-pane'] ?? ds?.features['bc-layout-allow-single-pane'],
+            singlePane: (ds?.features['bc-allow-single-pane'] ??
+                ds?.features['bc-layout-allow-single-pane']) as boolean,
             description: ds?.collectionDescription,
             image: ds?.collectionImage
         })) ?? [];

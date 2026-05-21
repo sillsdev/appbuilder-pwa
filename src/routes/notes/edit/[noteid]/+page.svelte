@@ -1,30 +1,35 @@
-<script>
+<script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import { addNote, editNote, removeNote } from '$lib/data/notes';
     import { selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
+    import type { PageData } from './$types';
 
-    let { data } = $props();
+    interface Props {
+        data: PageData;
+    }
 
-    let textarea = $state();
-    let note = data.note;
-    let isNew = note ? false : true;
+    let { data }: Props = $props();
+
+    let textarea: HTMLTextAreaElement | undefined = $state();
+    const note = $derived(data.note);
+    const isNew = $derived(note ? false : true);
     let text = $state(note?.text ?? '');
-    let reference = note?.reference ?? $selectedVerses[0]?.reference;
-    const title = isNew ? 'Annotation_Note_Add' : 'Annotation_Note_Edit';
+    const reference = $derived(note?.reference ?? $selectedVerses[0]?.reference);
+    const title = $derived(isNew ? 'Annotation_Note_Add' : 'Annotation_Note_Edit');
 
     function goBack() {
         history.back();
     }
 
-    function onBackNavigate(event) {
+    function onBackNavigate(event: Event) {
         event.preventDefault();
         goBack();
     }
 
     async function deleteNote() {
-        if (!isNew) {
+        if (!isNew && note) {
             await removeNote(note.date);
         }
         goBack();
@@ -62,11 +67,11 @@
         }
     });
 
-    let action = isNew ? createNote : modifyNote;
+    const action = $derived(isNew ? createNote : modifyNote);
 </script>
 
 <div class="fullscreen-editor">
-    <Navbar on:backNavigation={onBackNavigate}>
+    <Navbar backNavigation={onBackNavigate}>
         {#snippet center()}
             <div class="flex dy-join">
                 <div class="grid h-10 place-items-center dy-join-item">

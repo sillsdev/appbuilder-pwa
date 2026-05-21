@@ -7,7 +7,7 @@ export interface Reference {
     docSet: string;
     book: string;
     chapter: string;
-    verse: string;
+    verse?: string;
 }
 
 interface ReferenceStore extends Reference {

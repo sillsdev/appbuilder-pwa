@@ -9,6 +9,31 @@ LOGGING:
 - add logs entry to local storage with this value (and change 1 to 0 to disable topic)
     { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
+<script module lang="ts">
+    export interface Props {
+        audioPhraseEndChars: string;
+        bodyFontSize: any;
+        bodyLineHeight: any;
+        bookmarks: any;
+        notes: any;
+        highlights: any;
+        maxSelections: any;
+        redLetters: boolean;
+        references: any;
+        glossary: any;
+        selectedVerses: any;
+        themeColors: any;
+        verseLayout: any;
+        viewShowBibleImages: string;
+        viewShowBibleVideos: string;
+        viewShowIllustrations: boolean;
+        viewShowVerses: boolean;
+        viewShowGlossaryWords: boolean;
+        font: string;
+        proskomma: SABProskomma;
+    }
+</script>
+
 <script lang="ts">
     /* eslint-disable svelte/no-dom-manipulating */
 
@@ -89,28 +114,7 @@ LOGGING:
         viewShowGlossaryWords,
         font,
         proskomma
-    }: {
-        audioPhraseEndChars: string;
-        bodyFontSize: any;
-        bodyLineHeight: any;
-        bookmarks: any;
-        notes: any;
-        highlights: any;
-        maxSelections: any;
-        redLetters: boolean;
-        references: any;
-        glossary: any;
-        selectedVerses: any;
-        themeColors: any;
-        verseLayout: any;
-        viewShowBibleImages: string;
-        viewShowBibleVideos: string;
-        viewShowIllustrations: boolean;
-        viewShowVerses: boolean;
-        viewShowGlossaryWords: boolean;
-        font: string;
-        proskomma: SABProskomma;
-    } = $props();
+    }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
         $userSettings['scripture-logs']
