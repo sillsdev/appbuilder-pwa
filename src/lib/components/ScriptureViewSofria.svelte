@@ -37,7 +37,6 @@ LOGGING:
 <script lang="ts">
     /* eslint-disable svelte/no-dom-manipulating */
 
-    import { base } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
     import {
@@ -258,6 +257,7 @@ LOGGING:
         }
     });
 
+    // svelte-ignore state_referenced_locally
     const stateSelectedVerses = fromStore(selectedVerses);
     $effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions

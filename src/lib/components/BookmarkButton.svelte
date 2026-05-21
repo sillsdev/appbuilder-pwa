@@ -3,14 +3,14 @@
 
     let { fillColor, emptyColor, onclick, filled } = $props();
 
-    const icons_filled = {
+    const icons_filled = $derived({
         color: fillColor,
         Icon: BookmarkIcon
-    };
-    const icons_empty = {
+    });
+    const icons_empty = $derived({
         color: emptyColor,
         Icon: BookmarkOutlineIcon
-    };
+    });
 
     const { color, Icon } = $derived(filled ? icons_filled : icons_empty);
 </script>

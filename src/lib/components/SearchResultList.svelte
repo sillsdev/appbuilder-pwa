@@ -24,7 +24,7 @@
     // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
-    let displayQueryId = $state(queryId);
+    let displayQueryId = $derived(queryId);
 
     const resultCountText = $derived(formatResultCount(results.length));
 

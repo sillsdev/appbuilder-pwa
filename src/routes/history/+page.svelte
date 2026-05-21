@@ -6,7 +6,7 @@
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
     let { data } = $props();
-    let history = $state([...data.history].reverse());
+    let history = $derived([...data.history].reverse());
 
     async function onClearHistory() {
         await clearHistory();

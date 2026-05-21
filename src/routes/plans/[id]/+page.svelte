@@ -47,7 +47,7 @@
     let inUse = $state(false);
     //could be info or calendar for a plan thats not in use, if the plan is in use, there is a settings tab
     checkPlanState();
-    let selectedDay = $state(data.planData.items?.[0]);
+    let selectedDay = $derived(data.planData.items?.[0]);
     const planId = $derived(data.planData.id);
     let currentPlanStatus = $state('');
     let currentStatusDateString = '';
