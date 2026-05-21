@@ -15,7 +15,6 @@ The sidebar/drawer.
         isDAB,
         isSAB,
         language,
-        languageDefault,
         modal,
         ModalType,
         refs,
@@ -88,7 +87,7 @@ The sidebar/drawer.
     );
 
     function imageSrcSet(images: MenuItemConfig['images']) {
-        const baseSize = Number(images?.[0].width);
+        const baseSize = Number(images?.[0]?.width);
         return images
             ?.map((image) => {
                 const size = Number(image.width);
@@ -266,12 +265,12 @@ The sidebar/drawer.
                                     <source srcset={imageSrcSet(item.images)} />
                                 {/if}
                                 <img
-                                    src={menuIcons[`./${item.images?.[0].file}`] ?? ''}
+                                    src={menuIcons[`./${item.images?.[0]?.file}`] ?? ''}
                                     height="24"
                                     width="24"
-                                    alt={item.title[$language] || item.title[languageDefault]}
+                                    alt={item.title[$language]}
                                 />
-                            </picture>{item.title[$language] || item.title[languageDefault]}
+                            </picture>{item.title[$language]}
                         </a>
                     </li>
                 {/each}

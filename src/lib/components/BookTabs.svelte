@@ -4,15 +4,7 @@ A component that displays the book tabs and allows the user to switch between th
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import {
-        convertStyle,
-        language,
-        languageDefault,
-        monoIconColor,
-        refs,
-        s,
-        theme
-    } from '$lib/data/stores';
+    import { convertStyle, language, monoIconColor, refs, s, theme } from '$lib/data/stores';
 
     const tabIcons = import.meta.glob('./*', {
         import: 'default',
@@ -31,13 +23,10 @@ A component that displays the book tabs and allows the user to switch between th
         refs.setBookTab(newTab);
     }
     function getImageName(tabType?: string) {
-        return (tabType && scriptureConfig.tabTypes?.[tabType]?.images?.[0].file) || '';
+        return (tabType && scriptureConfig.tabTypes?.[tabType]?.images?.[0]?.file) || '';
     }
     function getTabTypeName(tabType?: string) {
-        return (
-            scriptureConfig.tabTypes?.[tabType ?? '']?.name?.[$language] ||
-            scriptureConfig.tabTypes?.[tabType ?? '']?.name?.[$language]
-        );
+        return scriptureConfig.tabTypes?.[tabType ?? '']?.name?.[$language];
     }
 </script>
 

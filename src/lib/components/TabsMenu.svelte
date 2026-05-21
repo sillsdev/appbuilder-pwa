@@ -37,7 +37,7 @@ A component to display tabbed menus.
         }
         active = tab;
     };
-    const ActiveComponent = $derived(options[active].snippet);
+    const ActiveComponent = $derived(options[active]?.snippet);
 </script>
 
 {#if hasTabs}

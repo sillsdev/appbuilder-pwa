@@ -4,7 +4,7 @@
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
+    import { language, refs, s, theme } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
 
     const menuIcons = import.meta.glob('./*', {
@@ -135,7 +135,7 @@
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
                                 <img
-                                    src={menuIcons[`./${item.images?.[0].file}`]}
+                                    src={menuIcons[`./${item.images?.[0]?.file}`]}
                                     alt=""
                                     class={selectedLink(item.type, item.link?.['default'])
                                         ? 'opacity-100'
@@ -149,7 +149,7 @@
                                     ? barTextSelectedColor
                                     : barTextColor}"
                             >
-                                {item.title[$language] || item.title[$language]}
+                                {item.title[$language]}
                             </span>
                         </button>
                     {/if}

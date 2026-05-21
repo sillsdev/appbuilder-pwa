@@ -7,7 +7,7 @@
         item: ContentItem;
         imageFolder: string;
         onClick?: (target: HTMLElement, item: ContentItem) => void;
-        checkImageSize?: (item: ContentItem) => void;
+        checkImageSize?: (item: ContentItem) => string;
         features?: FeatureConfig;
     }
 
@@ -25,6 +25,7 @@
 
     function checkImageSizeFallback(item: ContentItem) {
         console.warn('USING checkImageSizeFallback');
+        return '';
     }
 
     function renderLastTextBox(layout?: FeatureValue): boolean {

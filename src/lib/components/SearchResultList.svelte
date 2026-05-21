@@ -24,7 +24,8 @@
     // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
-    let displayQueryId = $derived(queryId);
+    // svelte-ignore state_referenced_locally
+    let displayQueryId = $state(queryId);
 
     const resultCountText = $derived(formatResultCount(results.length));
 

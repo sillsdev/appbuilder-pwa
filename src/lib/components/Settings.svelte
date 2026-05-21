@@ -16,7 +16,7 @@
     );
 </script>
 
-<!--Interfacerough the different settings types -->
+<!-- loops through the different settings types -->
 {#each Object.keys(categories) as category}
     <div class="settings-category">
         {$t[category]}
