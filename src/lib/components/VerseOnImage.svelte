@@ -423,7 +423,7 @@ The verse on image component.
                     text-align: {voi_textAlign};
                     text-shadow: {voi_textShadow};
                     user-drag: none;
-                    border: 3px solid lightgreen;
+                    border: none;
                     left: {voi_textPosX}px;
                     top: {voi_textPosY}px;
                 "
