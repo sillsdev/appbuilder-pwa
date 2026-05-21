@@ -241,9 +241,11 @@ The verse on image component.
 
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
-
-        voi_imgSrc = backgroundURLs[`./${config.backgroundImages[0].filename}`];
-        //voi_imgSrc = base + '/backgrounds/' + config.backgroundImages[0].filename;
+        if ($voiCustomImage.cropped) {
+            voi_imgSrc = $voiCustomImage.cropped;
+        } else {
+            voi_imgSrc = backgroundURLs[`./${config.backgroundImages[0].filename}`];
+        }
         initFontSizesAndCenterText();
 
         centerButton(0);

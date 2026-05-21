@@ -1,4 +1,5 @@
 <script lang="ts">
+    //TODO: Implement 2-finger resizing
     import Navbar from '$lib/components/Navbar.svelte';
     import { t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
@@ -130,9 +131,44 @@
         window.removeEventListener('pointermove', resize);
         window.removeEventListener('pointerup', stopResize);
     }
+    function getCroppedImage() {
+        const imgRect = getImageRect(image);
 
+        const scaleX = image.naturalWidth / imgRect.width;
+        const scaleY = image.naturalHeight / imgRect.height;
+
+        const cropX = (cropLeft - imgRect.left) * scaleX;
+        const cropY = (cropTop - imgRect.top) * scaleY;
+        const cropImgSize = cropSize * scaleX;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cropImgSize;
+        canvas.height = cropImgSize;
+
+        const ctx = canvas.getContext('2d');
+
+        ctx.drawImage(
+            image,
+            cropX,
+            cropY,
+            cropImgSize,
+            cropImgSize,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        return canvas.toDataURL('image/png');
+    }
     function cropImage() {
         console.log('Crop Image Called');
+        let croppedImgURL = getCroppedImage();
+        voiCustomImage.update((v) => ({
+            ...v,
+            cropped: croppedImgURL
+        }));
+        gotoRoute(`/image`);
     }
     function backNavigation() {
         gotoRoute(`/image`);

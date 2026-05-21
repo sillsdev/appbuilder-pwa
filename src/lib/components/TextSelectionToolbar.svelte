@@ -20,7 +20,15 @@ TODO:
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
-    import { audioActive, refs, s, selectedVerses, theme, themeColors } from '$lib/data/stores';
+    import {
+        audioActive,
+        refs,
+        s,
+        selectedVerses,
+        theme,
+        themeColors,
+        voiCustomImage
+    } from '$lib/data/stores';
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import BookmarkButton from './BookmarkButton.svelte';
@@ -172,13 +180,20 @@ TODO:
                     </button>
                 {/if}
                 {#if isTextOnImageEnabled}
-                    <a
-                        href={resolve(`/image`)}
+                    <button
+                        onclick={() => {
+                            voiCustomImage.update((v) => ({
+                                ...v,
+                                cropped: null,
+                                original: null
+                            }));
+                            gotoRoute(`/image`);
+                        }}
                         class="dy-btn-sm dy-btn-ghost"
                         style="text-decoration:none; display:flex; align-items:center;"
                     >
                         <ImageIcon.Image color={iconColor} />
-                    </a>
+                    </button>
                 {/if}
                 {#if isHighlightEnabled}
                     <button
