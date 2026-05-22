@@ -1,7 +1,7 @@
 <script lang="ts">
     // From app-builders/source/scripture/app-android-scripture/src/main/res/drawable-xxxhdpi/ic_note_black_24dp.png
     // Converted with https://vectorizer.ai/
-    export let color = 'black';
+    let { color = 'black' } = $props();
 </script>
 
 <svg xmlns="http://www.w3.org/2000/svg" version="1.0" height="24" width="24" viewBox="0 0 96 96">
