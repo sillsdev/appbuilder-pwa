@@ -172,9 +172,13 @@ TODO:
                     </button>
                 {/if}
                 {#if isTextOnImageEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                    <a
+                        href="{base}/verse-on-image"
+                        class="dy-btn-sm dy-btn-ghost"
+                        style="text-decoration:none; display:flex; align-items:center;"
+                    >
                         <ImageIcon.Image color={iconColor} />
-                    </button>
+                    </a>
                 {/if}
                 {#if isHighlightEnabled}
                     <button
