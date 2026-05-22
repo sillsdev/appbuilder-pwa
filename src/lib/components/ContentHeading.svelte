@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { base } from '$app/paths';
+    import { asset } from '$app/paths';
     import type { ContentItem, FeatureConfig, FeatureValue } from '$config';
     import { contentsFontSize, convertStyle, language, s } from '$lib/data/stores';
 
@@ -38,7 +38,7 @@
             <img
                 class="contents-image"
                 style={convertStyle($s?.['div.contents-image'])}
-                src="{base}/{imageFolder}/{item.imageFilename}"
+                src={asset(`/${imageFolder}/${item.imageFilename}`)}
                 alt={item.imageFilename}
             />
         </div>

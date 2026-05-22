@@ -33,7 +33,8 @@ TODO:
 
     function onHistoryClick() {
         if (history.url) {
-            // eslint-disable-next-line svelte/no-navigation-without-base, svelte/no-navigation-without-resolve
+            // the url should have the full path??
+            // eslint-disable-next-line svelte/no-navigation-without-resolve
             goto(history.url);
         } else if (docSet) {
             refs.set({

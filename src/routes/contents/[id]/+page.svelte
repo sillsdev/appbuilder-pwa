@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { base } from '$app/paths';
+    import { asset } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -44,7 +44,7 @@
 
         if (filename) {
             let audio = new Audio();
-            audio.src = `${base}/${audioFolder}/${filename}`;
+            audio.src = asset(`/${audioFolder}/${filename}`);
             audio.play();
         }
     }
@@ -346,7 +346,7 @@
                                 >
                                     <img
                                         class="contents-image"
-                                        src="{base}/{imageFolder}/{item.imageFilename}"
+                                        src={asset(`/${imageFolder}/${item.imageFilename}`)}
                                         alt={item.imageFilename}
                                     />
                                 </div>

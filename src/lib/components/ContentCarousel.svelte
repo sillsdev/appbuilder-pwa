@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { base } from '$app/paths';
+    import { asset } from '$app/paths';
     import type { ContentItem, FeatureConfig } from '$config';
     import { contentsFontSize, language } from '$lib/data/stores';
     import { onMount } from 'svelte';
@@ -145,7 +145,7 @@
                 >
                     {#if child.imageFilename}
                         <img
-                            src="{base}/{imageFolder}/{child.imageFilename}"
+                            src={asset(`/${imageFolder}/${child.imageFilename}`)}
                             alt={child.imageFilename}
                             draggable="false"
                         />

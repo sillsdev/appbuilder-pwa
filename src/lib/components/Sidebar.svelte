@@ -137,7 +137,6 @@ The sidebar/drawer.
             style:direction={$direction}
         >
             <!-- Sidebar content here -->
-            <!-- eslint-disable-next-line svelte/no-navigation-without-base -->
             <a class="fill" href={resolve('/')}>
                 <picture>
                     <source srcset="{nav_drawer_2x} 2x" />
@@ -253,14 +252,13 @@ The sidebar/drawer.
             {#if menuItems}
                 {#each menuItems as item}
                     <li>
-                        <!-- eslint-disable svelte/no-navigation-without-base, svelte/no-navigation-without-resolve -->
+                        <!-- eslint-disable svelte/no-navigation-without-resolve (this route should be external) -->
                         <a
                             href={item.link?.['default']}
                             style:color={textColor}
                             target="_blank"
                             rel="noreferrer"
                         >
-                            <!-- eslint-enable svelte/no-navigation-without-base -->
                             <picture class:invert={$theme === 'Dark'}>
                                 {#if (item.images?.length ?? 0) > 1}
                                     <source srcset={imageSrcSet(item.images)} />

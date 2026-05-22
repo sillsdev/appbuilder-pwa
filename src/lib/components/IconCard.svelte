@@ -5,8 +5,8 @@ TODO:
 - handle the book and collection specific styles
 -->
 <script lang="ts">
-    import { base } from '$app/paths';
-    import config, { scriptureConfig } from '$assets/config';
+    import { resolve } from '$app/paths';
+    import { scriptureConfig } from '$assets/config';
     import { direction, refs } from '$lib/data/stores';
     import CardMenu from './CardMenu.svelte';
 
@@ -24,7 +24,7 @@ TODO:
         alt = '',
         icon,
         menuaction,
-        href = `${base}/#/text`
+        href = resolve(`/#/text`)
     } = $props();
 
     const bc = scriptureConfig.bookCollections?.find((x) => x.id === collection);

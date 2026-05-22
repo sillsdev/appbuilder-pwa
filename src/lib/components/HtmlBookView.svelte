@@ -15,7 +15,7 @@ Display an HTML Book.
 </script>
 
 <script lang="ts">
-    import { base } from '$app/paths';
+    import { asset } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
 
     let { references, bodyLineHeight, bodyFontSize, fetch }: Props = $props();
@@ -35,7 +35,7 @@ Display an HTML Book.
 
         if (book) {
             const result = await fetch(
-                `${base}/collections/${references.collection}/${book.hashedFileName ?? book.file}`
+                asset(`/collections/${references.collection}/${book.hashedFileName ?? book.file}`)
             );
 
             if (result.ok) {

@@ -48,7 +48,7 @@ export default ts.config(
         rules: {
             // Override or add rule settings here, such as:
             // 'svelte/rule-name': 'error'
-            'svelte/no-navigation-without-base': 'error', // Necessary since hash-based navigation.
+            // 'svelte/no-navigation-without-base': 'error', // Necessary since hash-based navigation. Edit: removed in favor of resolve
             'svelte/no-dupe-style-properties': 'off', // Height is duplicated with dvh and vh for compatibility.
             'svelte/require-each-key': 'off', // Most each-blocks in this app do not have keys, and do not seem to need them.
             'svelte/no-unused-svelte-ignore': 'off', // Svelte ignores that are unused by eslint may be used by LSP.

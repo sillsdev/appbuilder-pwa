@@ -1,5 +1,3 @@
-import { base } from '$app/paths';
-
 const plans = import.meta.glob('./*', {
     import: 'default',
     eager: true,
