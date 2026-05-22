@@ -37,7 +37,6 @@
     let selectedLetter = $derived(alphabets.vernacular?.[0]);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
 
-    //$: selectedLanguage = currentReversal.selectedLanguage;
     $effect(() => {
         // NOTE: currentReversal is not a dependency of this $effect.
         // Do not make it a dependency, or this will not work.

@@ -45,7 +45,7 @@
             <div
                 class="plan-button"
                 id="plan-continue"
-                on:click={async function () {
+                onclick={async function () {
                     await startPlan($page.data.planConfig.id);
                 }}
             >

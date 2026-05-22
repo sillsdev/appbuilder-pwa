@@ -150,16 +150,16 @@ The navbar component. We have sliders that update reactively to both font size a
                             bind:value={$contentsFontSize}
                             {barColor}
                             {progressColor}
-                            min={config.mainFeatures['text-size-min']}
-                            max={config.mainFeatures['text-size-max']}
+                            min={config.mainFeatures['text-size-min'] as number}
+                            max={config.mainFeatures['text-size-max'] as number}
                         />
                     {:else}
                         <Slider
                             bind:value={$bodyFontSize}
                             {barColor}
                             {progressColor}
-                            min={config.mainFeatures['text-size-min']}
-                            max={config.mainFeatures['text-size-max']}
+                            min={config.mainFeatures['text-size-min'] as number}
+                            max={config.mainFeatures['text-size-max'] as number}
                         />
                     {/if}
                     <div class="text-md text-{$monoIconColor} place-self-end">
@@ -174,8 +174,8 @@ The navbar component. We have sliders that update reactively to both font size a
                         bind:value={$bodyLineHeight}
                         {barColor}
                         {progressColor}
-                        min="100"
-                        max="250"
+                        min={100}
+                        max={250}
                     />
                     <div class="text-md text-{$monoIconColor} place-self-end">
                         {formatLineHeight($bodyLineHeight)}
