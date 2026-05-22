@@ -8,15 +8,21 @@ A component to display tabbed menus.
     import { preventDefault } from '$lib/scripts/event-wrappers';
 
     let {
-        options = { '': { component: '', props: {}, visible: true } },
+        options = { '': { visible: true } },
         active = $bindable(Object.keys(options).filter((x) => options[x].visible)[0]),
         scroll = true,
         height = '50vh',
         menuaction
-    }: { options: App.TabMenuOptions; active; scroll; height; menuaction } = $props();
+    }: {
+        options: App.TabMenuOptions;
+        active?: string;
+        scroll?: boolean;
+        height?: string;
+        menuaction?: App.TabMenuActionHandler;
+    } = $props();
 
-    const hasTabs = Object.keys(options).filter((x) => options[x].visible).length > 1;
-    function handleMenuaction({ text, url }) {
+    const hasTabs = $derived(Object.keys(options).filter((x) => options[x].visible).length > 1);
+    function handleMenuaction({ text, url }: { text: string; url: string }) {
         menuaction?.({
             text: text,
             url: url,
@@ -31,11 +37,11 @@ A component to display tabbed menus.
         }
         active = tab;
     };
-    const ActiveComponent = $derived(options[active].component);
+    const ActiveComponent = $derived(options[active]?.snippet);
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s['ui.selector.tabs'])}>
+    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s?.['ui.selector.tabs'])}>
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y_missing_attribute -->
@@ -50,9 +56,8 @@ A component to display tabbed menus.
                     style:background="none"
                     role="button"
                 >
-                    {#if options[opt].tab}
-                        {@const TabComponent = options[opt].tab?.component}
-                        <TabComponent {...options[opt].tab?.props} />
+                    {#if options[opt].tab?.icon}
+                        {@render options[opt].tab.icon(opt)}
                     {:else}
                         {opt}
                     {/if}
@@ -62,10 +67,10 @@ A component to display tabbed menus.
     </div>
 {/if}
 <div
-    style={convertStyle($s['ui.background'])}
+    style={convertStyle($s?.['ui.background'])}
     class:p-2={!hasTabs}
     style:overflow-y={scroll ? 'auto' : ''}
     style:max-height={height}
 >
-    <ActiveComponent menuaction={handleMenuaction} {...options[active].props} />
+    {@render ActiveComponent?.(active, handleMenuaction)}
 </div>

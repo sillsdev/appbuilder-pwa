@@ -25,16 +25,16 @@
 
     const { data }: Props = $props();
 
-    const { vernacularAlphabet } = data;
+    const { vernacularAlphabet } = $derived(data);
 
-    const alphabets = {
+    const alphabets = $derived({
         reversal: Object.fromEntries(
-            reversals.entries().map(([code, alpha]) => [code, Array.from(alpha.keys())])
+            reversals.entries().map(([code, alpha]) => [code, Array.from(alpha?.keys() ?? [])])
         ),
         vernacular: vernacularAlphabet
-    };
+    });
 
-    let selectedLetter = alphabets.vernacular[0];
+    let selectedLetter = $derived(alphabets.vernacular?.[0]);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
 
     //$: selectedLanguage = currentReversal.selectedLanguage;
@@ -45,7 +45,9 @@
         currentReversal.languageId = vernacularLanguageId.value;
     });
 
-    const validReversal = $derived(reversals.has(currentReversal.languageId));
+    const validReversal = $derived(
+        !!currentReversal.languageId && reversals.has(currentReversal.languageId)
+    );
 
     async function scrollToLetter(letter: string) {
         await tick();
@@ -68,7 +70,7 @@
 
     function switchLanguage(language: string) {
         currentReversal.languageId = language;
-        selectedLetter = currentAlphabet[0];
+        selectedLetter = currentAlphabet?.[0];
         const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
         if (scrollableDiv) {
             scrollableDiv.scrollTop = 0;
@@ -90,16 +92,16 @@
             const threshold = 100;
 
             if (div.scrollHeight - div.scrollTop - div.clientHeight < threshold) {
-                const currentIndex = currentAlphabet.indexOf(selectedLetter);
-                if (!currentReversal.letters.has(currentAlphabet[currentIndex + 1])) {
-                    if (currentIndex < currentAlphabet.length - 1) {
+                const currentIndex = currentAlphabet?.indexOf(selectedLetter ?? '') ?? -1;
+                if (!currentReversal.letters.has(currentAlphabet?.[currentIndex + 1] ?? '')) {
+                    if (currentIndex < (currentAlphabet?.length ?? 0) - 1) {
                         isFetching = true;
 
                         isFetching = false;
                     }
                 }
             } else if (
-                (validReversal && currentReversal.letters.has(selectedLetter)) ||
+                (validReversal && currentReversal.letters.has(selectedLetter ?? '')) ||
                 currentReversal.languageId === vernacularLanguageId.value
             ) {
                 const allLetters = div.querySelectorAll('[id^="letter-"]');
@@ -120,7 +122,9 @@
     }
 
     let currentAlphabet = $derived(
-        validReversal ? alphabets.reversal[currentReversal.languageId] : alphabets.vernacular
+        validReversal && currentReversal.languageId
+            ? alphabets.reversal[currentReversal.languageId]
+            : alphabets.vernacular
     );
 
     onMount(() => {
@@ -136,7 +140,7 @@
     <WordNavigationStrip />
 {:else}
     {@const tabs = [vernacularLanguageId.value, ...reversals.keys()]}
-    {@const indexOfPrevious = tabs.indexOf(previousLanguage)}
+    {@const indexOfPrevious = previousLanguage ? tabs.indexOf(previousLanguage) : 0}
     <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
         {#each tabs as lang, i}
             <button
@@ -168,7 +172,10 @@
                 style="border-color: var(--SettingsSeparatorColor);"
                 disabled={currentReversal.languageId !== vernacularLanguageId.value &&
                     !Array.from(
-                        reversals.get(currentReversal.languageId)?.get(letter)?.values() || []
+                        reversals
+                            .get(currentReversal.languageId ?? '')
+                            ?.get(letter)
+                            ?.values() || []
                     ).find((w) => w.length)}
                 onclick={() => handleLetterChange(letter)}
             >

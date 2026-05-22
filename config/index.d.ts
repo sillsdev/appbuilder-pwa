@@ -22,7 +22,7 @@ export type BookTabConfig = {
     bookTabID: string;
     type: string;
     file: string;
-    features: any;
+    features: FeatureConfig;
     chapters?: number;
     chaptersN?: string;
     style?: StyleConfig;
@@ -78,7 +78,7 @@ export type BookConfig = {
 
 export type BookCollectionConfig = {
     id: string;
-    features: any;
+    features: FeatureConfig;
     books: BookConfig[];
     style?: StyleConfig;
     fonts: string[];
@@ -251,7 +251,7 @@ export type AppConfig = {
 
 export type ScriptureConfig = AppConfig & {
     programType: 'SAB';
-    traits?: any;
+    traits?: FeatureConfig;
     bookCollections?: BookCollectionConfig[];
     videos?: {
         id: string;
@@ -304,20 +304,22 @@ export type ScriptureConfig = AppConfig & {
         features: {
             [key: string]: string;
         };
-        plans: {
-            id: string;
-            days: number;
-            title: {
-                [lang: string]: string;
-            };
-            filename: string;
-            jsonFilename: string;
-            image?: {
-                width: number;
-                height: number;
-                file: string;
-            };
-        }[];
+        plans: PlanItem[];
+    };
+};
+
+export type PlanItem = {
+    id: string;
+    days: number;
+    title: {
+        [lang: string]: string;
+    };
+    filename: string;
+    jsonFilename: string;
+    image?: {
+        width: number;
+        height: number;
+        file: string;
     };
 };
 
@@ -396,7 +398,7 @@ export type LinkMeta = {
 export type ContentItem = {
     id: number;
     heading?: boolean;
-    features?: any;
+    features?: FeatureConfig;
     title: LangContainer;
     subtitle?: LangContainer;
     audioFilename?: LangContainer;
@@ -425,7 +427,7 @@ export type ContentsData = {
     title?: {
         [lang: string]: string;
     };
-    features?: any;
+    features?: FeatureConfig;
     items?: ContentItem[];
     nestedItems?: boolean;
     screens?: ContentScreen[];

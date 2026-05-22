@@ -3,12 +3,12 @@
 A simple slider component.
 -->
 
-<script>
+<script lang="ts">
     import { direction } from '$lib/data/stores';
 
     export let barColor;
     export let progressColor;
-    export let value;
+    export let value: number;
     export let min;
     export let max;
     $: linePercent = ((value - min) * 100) / (max - min) + '% 100%';

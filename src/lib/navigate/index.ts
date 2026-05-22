@@ -28,22 +28,22 @@ export function navigateToUrl(item: { collection: string; book: string; url: str
 export async function navigateToText(item: {
     docSet?: string;
     collection?: string;
-    book: string;
-    chapter: string;
+    book?: string;
+    chapter?: string;
     verse?: string;
 }) {
-    playStop();
-    await refs.set({
-        docSet: item.docSet,
-        book: item.book,
-        chapter: item.chapter,
-        verse: item.verse
-    });
-    addHistory(
-        { collection: item.collection, book: item.book, chapter: item.chapter, verse: item.verse },
-        logHistoryItemAdded
-    );
-    gotoRoute(`/text`);
+    const { docSet, collection, book, chapter, verse } = item;
+    if (docSet && collection && book && chapter) {
+        playStop();
+        await refs.set({
+            docSet,
+            book,
+            chapter,
+            verse
+        });
+        addHistory({ collection, book, chapter, verse }, logHistoryItemAdded);
+        gotoRoute(`/text`);
+    }
 }
 
 export async function navigateToTextReference(reference: string) {

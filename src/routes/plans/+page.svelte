@@ -1,5 +1,6 @@
-<script>
-    import config from '$assets/config';
+<script lang="ts">
+    import config, { scriptureConfig } from '$assets/config';
+    import type { PlanItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getLastPlanState } from '$lib/data/planStates';
@@ -7,7 +8,7 @@
     import { gotoRoute } from '$lib/navigate';
     import { compareVersions } from '$lib/scripts/stringUtils';
 
-    const imageFolder =
+    const imageFolder: Record<string, string> =
         compareVersions(config.programVersion, '12.0') < 0
             ? import.meta.glob('./*', {
                   eager: true,
@@ -23,11 +24,11 @@
               });
 
     let selectedTab = $state('available');
-    let availablePlans = $state([]);
-    let completedPlans = $state([]);
-    let usedPlans = $state([]);
-    let allPlans = config.plans.plans || [];
-    let plansInUse = $state([]);
+    let availablePlans: PlanItem[] = $state([]);
+    let completedPlans: PlanItem[] = $state([]);
+    let usedPlans: PlanItem[] = $state([]);
+    let allPlans = scriptureConfig.plans?.plans || [];
+    let plansInUse: PlanItem[] = $state([]);
 
     $effect(() => {
         const promises = allPlans.map((plan) =>
@@ -74,7 +75,7 @@
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"
-            style={convertStyle($s['ui.plans.tabs'])}
+            style={convertStyle($s?.['ui.plans.tabs'])}
         >
             {#if plansInUse.length > 0}
                 <input
@@ -84,7 +85,7 @@
                     class="dy-tab dy-tab-bordered {selectedTab === 'in-use' ? 'dy-tab-active' : ''}"
                     onclick={() => (selectedTab = 'in-use')}
                     aria-label={$t['Plans_Tab_My_Plans']}
-                    style={convertStyle($s['ui.plans.tabs.text'])}
+                    style={convertStyle($s?.['ui.plans.tabs.text'])}
                 />
             {/if}
             <input
@@ -94,7 +95,7 @@
                 class="dy-tab {selectedTab === 'available' ? 'dy-tab-active' : ''}"
                 onclick={() => (selectedTab = 'available')}
                 aria-label={$t['Plans_Tab_Choose_Plan']}
-                style={convertStyle($s['ui.plans.tabs.text'])}
+                style={convertStyle($s?.['ui.plans.tabs.text'])}
             />
             {#if completedPlans.length > 0}
                 <input
@@ -106,7 +107,7 @@
                         : ''}"
                     onclick={() => (selectedTab = 'completed')}
                     aria-label={$t['Plans_Tab_Completed_Plans']}
-                    style={convertStyle($s['ui.plans.tabs.text'])}
+                    style={convertStyle($s?.['ui.plans.tabs.text'])}
                 />
             {/if}
         </div>
@@ -139,7 +140,7 @@
                                     {plan.title[$language] ?? plan.title.default ?? ''}
                                 </div>
                                 <div class="plan-chooser-days">
-                                    {$t['Plans_Number_Days'].replace('%d', plan.days)}
+                                    {$t['Plans_Number_Days'].replace('%d', String(plan.days))}
                                 </div>
                             </div>
                         </div>
@@ -171,7 +172,7 @@
                                     {plan.title[$language] ?? plan.title.default ?? ''}
                                 </div>
                                 <div class="plan-chooser-days">
-                                    {$t['Plans_Number_Days'].replace('%d', plan.days)}
+                                    {$t['Plans_Number_Days'].replace('%d', String(plan.days))}
                                 </div>
                             </div>
                         </div>
@@ -203,7 +204,7 @@
                                     {plan.title[$language] ?? plan.title.default ?? ''}
                                 </div>
                                 <div class="plan-chooser-days">
-                                    {$t['Plans_Number_Days'].replace('%d', plan.days)}
+                                    {$t['Plans_Number_Days'].replace('%d', String(plan.days))}
                                 </div>
                             </div>
                         </div>

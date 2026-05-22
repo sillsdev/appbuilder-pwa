@@ -2,43 +2,31 @@
 @component
 A component that displays the book tabs and allows the user to switch between them.
 -->
-<script>
-    import { base } from '$app/paths';
-    import config from '$assets/config';
-    import {
-        convertStyle,
-        language,
-        languageDefault,
-        monoIconColor,
-        refs,
-        s,
-        theme
-    } from '$lib/data/stores';
+<script lang="ts">
+    import { scriptureConfig } from '$assets/config';
+    import { convertStyle, language, monoIconColor, refs, s, theme } from '$lib/data/stores';
 
     const tabIcons = import.meta.glob('./*', {
         import: 'default',
         eager: true,
         query: '?url',
         base: '/src/gen-assets/icons/tabs'
-    });
+    }) as Record<string, string>;
 
     const bookTabs = $derived(
-        config?.bookCollections
-            .find((x) => x.id === $refs.collection)
+        scriptureConfig.bookCollections
+            ?.find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === $refs.book)?.bookTabs
     );
 
-    function changeTab(newTab) {
+    function changeTab(newTab: number) {
         refs.setBookTab(newTab);
     }
-    function getImageName(tabType) {
-        return config?.tabTypes[tabType]?.images[0].file;
+    function getImageName(tabType?: string) {
+        return (tabType && scriptureConfig.tabTypes?.[tabType]?.images?.[0]?.file) || '';
     }
-    function getTabTypeName(tabType) {
-        return (
-            config?.tabTypes[tabType]?.name[$language] ||
-            config?.tabTypes[tabType]?.name[languageDefault]
-        );
+    function getTabTypeName(tabType?: string) {
+        return scriptureConfig.tabTypes?.[tabType ?? '']?.name?.[$language];
     }
 </script>
 
@@ -46,23 +34,23 @@ A component that displays the book tabs and allows the user to switch between th
     <button
         class="dy-tab {$refs.bookTab === 0 || $refs.bookTab === undefined ? 'dy-tab-active' : ''}"
         onclick={() => changeTab(0)}
-        style={convertStyle($s['ui.book.tabs'])}
+        style={convertStyle($s?.['ui.book.tabs'])}
     >
         <picture class:invert={$theme === 'Dark'}>
             <img
-                src={tabIcons[`./${getImageName(bookTabs.mainType)}`]}
+                src={tabIcons[`./${getImageName(bookTabs?.mainType)}`]}
                 color={$monoIconColor}
                 height="24"
                 width="24"
-                alt={getTabTypeName(bookTabs.mainType)}
+                alt={getTabTypeName(bookTabs?.mainType)}
             />
         </picture>
     </button>
-    {#each bookTabs.tabs as bookTab, i}
+    {#each bookTabs?.tabs as bookTab, i}
         <button
             class="dy-tab {$refs.bookTab === i + 1 ? 'dy-tab-active' : ''} "
             onclick={() => changeTab(i + 1)}
-            style={convertStyle($s['ui.book.tabs'])}
+            style={convertStyle($s?.['ui.book.tabs'])}
         >
             <picture class:invert={$theme === 'Dark'}>
                 <img

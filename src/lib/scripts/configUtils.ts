@@ -44,7 +44,7 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
     if (bookCollectionFeatures != null) {
         const bookCollectionFeature = bookCollectionFeatures[feature];
         if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
-            value = bookCollectionFeatures[feature];
+            value = bookCollectionFeatures[feature] as string;
         }
     }
     const bookFeatures = scriptureConfig.bookCollections

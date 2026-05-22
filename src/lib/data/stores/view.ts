@@ -15,12 +15,15 @@ export const isFirstLaunch = derived(
 );
 
 /**the current view/layout mode*/
-export const LAYOUT_SINGLE = 'single';
-export const LAYOUT_TWO = 'two';
-export const LAYOUT_VERSE_BY_VERSE = 'verse-by-verse';
+export const Layout = {
+    Single: 'single',
+    Two: 'two',
+    VerseByVerse: 'verse-by-verse'
+} as const;
+export type Layout = (typeof Layout)[keyof typeof Layout];
 
-const singleLayout = { mode: LAYOUT_SINGLE, auxDocSets: [] };
-export const layout = writable(singleLayout);
+const singleLayout = { mode: Layout.Single, auxDocSets: [] };
+export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(singleLayout);
 
 export const ModalType = {
     Collection: 'collection',
@@ -89,16 +92,16 @@ export const windowSize = createWindowSizeStore();
 export const mainScroll = writable({ top: 0, height: 0 });
 /**Font size of body elements */
 setDefaultStorage('bodyFontSize', '17');
-export const bodyFontSize = writable(localStorage.bodyFontSize);
+export const bodyFontSize = writable(Number(localStorage.bodyFontSize));
 bodyFontSize.subscribe((fontSize) => (localStorage.bodyFontSize = fontSize));
 /**line height of body elements */
 setDefaultStorage('bodyLineHeight', '175');
-export const bodyLineHeight = writable(localStorage.bodyLineHeight);
+export const bodyLineHeight = writable(Number(localStorage.bodyLineHeight));
 bodyLineHeight.subscribe((lineHeight) => (localStorage.bodyLineHeight = lineHeight));
 
 /**Font size of contents elements */
 setDefaultStorage('contentsFontSize', '17');
-export const contentsFontSize = writable(localStorage.contentsFontSize);
+export const contentsFontSize = writable(Number(localStorage.contentsFontSize));
 contentsFontSize.subscribe((fontSize) => (localStorage.contentsFontSize = fontSize));
 
 export const showDesktopSidebar = derived(
@@ -136,4 +139,4 @@ function createStackStore<T>() {
     };
 }
 
-export const contentsStack = createStackStore<string>();
+export const contentsStack = createStackStore<number>();

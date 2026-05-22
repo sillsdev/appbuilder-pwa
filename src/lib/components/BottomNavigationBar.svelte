@@ -1,9 +1,8 @@
 <!--
 @component
 -->
-<script>
-    import { base } from '$app/paths';
-    import config from '$assets/config';
+<script lang="ts">
+    import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
@@ -13,21 +12,21 @@
         eager: true,
         query: '?url',
         base: '/src/gen-assets/icons/menu-items'
-    });
+    }) as Record<string, string>;
 
     let { barType = undefined } = $props();
 
     const bottomNavBarItems = config?.bottomNavBarItems;
 
-    const barBackgroundColor = $derived($s['ui.bottom-navigation.']['background-color']);
-    const barTextColor = $derived($s['ui.bottom-navigation.item.text']['color']);
-    const barTextSelectedColor = $derived($s['ui.bottom-navigation.item.text.selected']['color']);
+    const barBackgroundColor = $derived($s?.['ui.bottom-navigation.']['background-color']);
+    const barTextColor = $derived($s?.['ui.bottom-navigation.item.text']['color']);
+    const barTextSelectedColor = $derived($s?.['ui.bottom-navigation.item.text.selected']['color']);
 
-    const showContents = contents.screens?.length > 0;
-    const showSearch = config.mainFeatures['search'];
-    const showPlans = config.plans?.plans.length > 0;
+    const showContents = (contents.screens?.length ?? 0) > 0;
+    const showSearch = config.mainFeatures['search'] as boolean;
+    const showPlans = (scriptureConfig.plans?.plans.length ?? 0) > 0;
 
-    function showButton(buttonType) {
+    function showButton(buttonType: string) {
         let value = true;
         switch (buttonType) {
             case 'contents':
@@ -44,7 +43,7 @@
         }
         return value;
     }
-    function selectedLink(buttonType, link) {
+    function selectedLink(buttonType: string, link?: string) {
         let value = buttonType === barType;
         if (buttonType === 'book') {
             // Don't highlight link for specific book
@@ -73,7 +72,7 @@
         }
         return value;
     }
-    function handleClick(buttonType, link) {
+    function handleClick(buttonType: string, link?: string) {
         switch (buttonType) {
             case 'contents': {
                 let gotoLink = link && link !== '' ? link : '1';
@@ -86,7 +85,7 @@
             case 'book':
                 if (link && link !== '') {
                     const [bc, book] = link.split('|');
-                    const refBc = config.bookCollections.find((x) => x.id === bc);
+                    const refBc = scriptureConfig.bookCollections?.find((x) => x.id === bc);
                     let refDocSet = '';
                     if (refBc) {
                         refDocSet = refBc.languageCode + '_' + refBc.id;
@@ -131,14 +130,14 @@
                     {#if showButton(item.type)}
                         <button
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
-                            onclick={() => handleClick(item.type, item.link['default'])}
+                            onclick={() => handleClick(item.type, item.link?.['default'])}
                         >
                             <picture class:invert={$theme === 'Dark'}>
                                 <!-- Image Icon -->
                                 <img
-                                    src={menuIcons[`./${item.images[0].file}`]}
+                                    src={menuIcons[`./${item.images?.[0]?.file}`]}
                                     alt=""
-                                    class={selectedLink(item.type, item.link['default'])
+                                    class={selectedLink(item.type, item.link?.['default'])
                                         ? 'opacity-100'
                                         : 'opacity-50'}
                                 />
@@ -146,7 +145,7 @@
                             <!-- Text -->
                             <span
                                 class="text-center"
-                                style="color: {selectedLink(item.type, item.link['default'])
+                                style="color: {selectedLink(item.type, item.link?.['default'])
                                     ? barTextSelectedColor
                                     : barTextColor}"
                             >

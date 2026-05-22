@@ -2,12 +2,13 @@
 @component
 The sidebar/drawer.
 -->
-<script>
+<script lang="ts">
     import { resolve } from '$app/paths';
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import nav_drawer_image from '$assets/images/nav_drawer.png';
     import nav_drawer_2x from '$assets/images/nav_drawer@2x.png';
+    import type { MenuItemConfig } from '$config';
     import {
         direction,
         fontChoices,
@@ -48,7 +49,7 @@ The sidebar/drawer.
         eager: true,
         query: '?url',
         base: '/src/gen-assets/icons/menu-items'
-    });
+    }) as Record<string, string>;
 
     let { children } = $props();
 
@@ -58,36 +59,38 @@ The sidebar/drawer.
     function closeDrawer() {
         menuToggle = false;
     }
-    function closeOnEscape(event) {
-        if (event.key === 'Escape') {
+    function closeOnEscape(key: string) {
+        if (key === 'Escape') {
             closeDrawer();
         }
     }
 
     const menuItems = config?.menuItems;
     const showLayouts =
-        config.mainFeatures['layout-config-change-nav-drawer-menu'] &&
-        config.bookCollections.length > 1;
-    const showContents = contents.screens?.length > 0;
-    const showSearch = config.mainFeatures['search'];
-    const showHistory = config.mainFeatures['history'];
-    const showSettings = userPreferenceSettings.length;
-    const showBookmarks = config.mainFeatures['annotation-bookmarks'];
-    const showNotes = config.mainFeatures['annotation-notes'];
-    const showHighlights = config.mainFeatures['annotation-highlights'];
-    const showPlans = config.plans?.plans.length > 0;
-    const showShare =
+        !!config.mainFeatures['layout-config-change-nav-drawer-menu'] &&
+        (scriptureConfig.bookCollections?.length ?? 0) > 1;
+    const showContents = !!contents.screens?.length;
+    const showSearch = !!config.mainFeatures['search'];
+    const showHistory = !!config.mainFeatures['history'];
+    const showSettings = !!userPreferenceSettings.length;
+    const showBookmarks = !!config.mainFeatures['annotation-bookmarks'];
+    const showNotes = !!config.mainFeatures['annotation-notes'];
+    const showHighlights = !!config.mainFeatures['annotation-highlights'];
+    const showPlans = scriptureConfig.plans?.plans.length;
+    const showShare = !!(
         config.mainFeatures['share-app-link'] ||
         config.mainFeatures['share-download-app-link'] ||
         config.mainFeatures['share-apk-file'] ||
-        config.mainFeatures['share-apple-app-link'];
-    const showAccount =
-        config.firebase.features['firebase-database'] && config.mainFeatures['user-accounts'];
+        config.mainFeatures['share-apple-app-link']
+    );
+    const showAccount = !!(
+        config.firebase?.features['firebase-database'] && config.mainFeatures['user-accounts']
+    );
 
-    function imageSrcSet(images) {
-        const baseSize = Number(images[0].width);
+    function imageSrcSet(images: MenuItemConfig['images']) {
+        const baseSize = Number(images?.[0]?.width);
         return images
-            .map((image) => {
+            ?.map((image) => {
                 const size = Number(image.width);
                 const multiplier = size / baseSize;
                 const multiplierString =
@@ -109,15 +112,15 @@ The sidebar/drawer.
         }
     }
 
-    const textColor = $derived($s['ui.drawer.item.text']['color']);
+    const textColor = $derived($s?.['ui.drawer.item.text']['color']);
     const iconColor = $derived(
-        $s['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor']
+        $s?.['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor']
     );
-    const contentBackgroundColor = $derived($s['ui.background']['background-color']);
-    const drawerBackgroundColor = $derived($s['ui.drawer']['background-color']);
+    const contentBackgroundColor = $derived($s?.['ui.background']['background-color']);
+    const drawerBackgroundColor = $derived($s?.['ui.drawer']['background-color']);
 </script>
 
-<svelte:window onkeydown={closeOnEscape} />
+<svelte:window onkeydown={(e) => closeOnEscape(e.key)} />
 
 <div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
@@ -252,18 +255,18 @@ The sidebar/drawer.
                     <li>
                         <!-- eslint-disable svelte/no-navigation-without-base, svelte/no-navigation-without-resolve -->
                         <a
-                            href={item.link['default']}
+                            href={item.link?.['default']}
                             style:color={textColor}
                             target="_blank"
                             rel="noreferrer"
                         >
                             <!-- eslint-enable svelte/no-navigation-without-base -->
                             <picture class:invert={$theme === 'Dark'}>
-                                {#if item.images.length > 1}
+                                {#if (item.images?.length ?? 0) > 1}
                                     <source srcset={imageSrcSet(item.images)} />
                                 {/if}
                                 <img
-                                    src={menuIcons[`./${item.images[0].file}`] ?? ''}
+                                    src={menuIcons[`./${item.images?.[0]?.file}`] ?? ''}
                                     height="24"
                                     width="24"
                                     alt={item.title[$language] || item.title[languageDefault]}

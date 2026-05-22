@@ -8,33 +8,34 @@ The navbar component.
         convertStyle,
         direction,
         layout,
-        LAYOUT_TWO,
+        Layout,
         NAVBAR_HEIGHT,
         s,
         showDesktopSidebar
     } from '$lib/data/stores';
     import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
     import { gotoRoute } from '$lib/navigate';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         showBackButton?: boolean;
-        start?: () => any;
-        center?: () => any;
-        end?: () => any;
-        backNavigation?: (routeId: string) => void;
+        start?: Snippet;
+        center?: Snippet;
+        end?: Snippet;
+        backNavigation?: (e: Event, routeId: string) => void;
     }
 
     let { showBackButton = true, start, center, end, backNavigation }: Props = $props();
 
-    function handleBackNavigation() {
-        if (backNavigation) {
-            backNavigation(page.route.id);
+    function handleBackNavigation(e: Event) {
+        if (backNavigation && page.route.id) {
+            backNavigation(e, page.route.id);
         } else {
             gotoRoute(`/`);
         }
     }
 
-    let actionBarColor = $derived($s['ui.bar.action']['background-color']);
+    let actionBarColor = $derived($s?.['ui.bar.action']['background-color']);
 </script>
 
 <!--
@@ -46,7 +47,7 @@ The navbar component.
             <label
                 for="sidebar"
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
-                class:lg:hidden={$showDesktopSidebar && $layout.mode !== LAYOUT_TWO}
+                class:lg:hidden={$showDesktopSidebar && $layout.mode !== Layout.Two}
             >
                 <HamburgerIcon color="white" />
             </label>
@@ -62,7 +63,7 @@ The navbar component.
         {/if}
         {@render start?.()}
     </div>
-    <div class="dy-navbar-center grow" style={convertStyle($s['ui.screen-title'])}>
+    <div class="dy-navbar-center grow" style={convertStyle($s?.['ui.screen-title'])}>
         {@render center?.()}
     </div>
     <div class="justify-end fill-base-content">

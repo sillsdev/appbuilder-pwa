@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
     import { base } from '$app/paths';
-    import { page } from '$app/stores';
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
+    import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import ContentCarousel from '$lib/components/ContentCarousel.svelte';
     import ContentGrid from '$lib/components/ContentGrid.svelte';
@@ -18,49 +18,57 @@
         ModalType,
         refs,
         s,
-        t,
         themeColors
     } from '$lib/data/stores';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
     import { gotoRoute, navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
-    import { compareVersions, pathJoin } from '$lib/scripts/stringUtils';
+    import { compareVersions } from '$lib/scripts/stringUtils';
     import { SvelteMap } from 'svelte/reactivity';
+    import type { PageData } from './$types';
 
     const imageFolder =
         compareVersions(config.programVersion, '12.0') < 0 ? 'illustrations' : 'contents';
     const audioFolder = compareVersions(config.programVersion, '12.0') < 0 ? 'assets' : 'contents';
 
-    function playAudio(event, item) {
-        event.stopPropagation();
-        //assign/use the proper filename
-        const filename = item.audioFilename[$language] ?? item.audioFilename.default;
-
-        let audio = new Audio();
-        audio.src = `${base}/${audioFolder}/${filename}`;
-        audio.play();
+    interface Props {
+        data: PageData;
     }
 
-    function onClick(event, item) {
-        event.target.style.background = highlightColor;
+    let { data }: Props = $props();
+
+    function playAudio(event: Event, item: ContentItem) {
+        event.stopPropagation();
+        //assign/use the proper filename
+        const filename = item.audioFilename?.[$language] ?? item.audioFilename?.default;
+
+        if (filename) {
+            let audio = new Audio();
+            audio.src = `${base}/${audioFolder}/${filename}`;
+            audio.play();
+        }
+    }
+
+    function onClick(target: HTMLElement, item: ContentItem) {
+        target.style.background = highlightColor;
         setTimeout(() => {
             //navigate
             clicked(item);
         }, 100);
     }
 
-    function checkImageSize(item) {
-        if (item.features['image-width']) {
+    function checkImageSize(item: ContentItem) {
+        if (item.features?.['image-width']) {
             return 'width: ' + item.features['image-width'];
         }
 
-        if (item.features['layout'] === 'image-top-text-bottom') {
+        if (item.features?.['layout'] === 'image-top-text-bottom') {
             return 'width: 100%';
         }
 
         return ''; // Empty result
     }
-    async function clicked(item) {
+    async function clicked(item: ContentItem) {
         if (item.linkType === undefined || item.linkType === 'undefined') {
             if (item.itemType !== 'heading') {
                 console.warn('linkType is undefined');
@@ -71,15 +79,17 @@
         switch (item.linkType) {
             //reference linkType
             case 'reference': {
-                contentsStack.pushItem($page.data.menu.id);
+                contentsStack.pushItem(data.menu!.id);
                 const contentsRef = await getReference(item);
                 console.log('contentsRef', contentsRef);
-                await navigateToText(contentsRef);
+                if (contentsRef.book) {
+                    await navigateToText(contentsRef);
+                }
                 break;
             }
             case 'screen':
                 //goes to another contents page
-                contentsStack.pushItem($page.data.menu.id);
+                contentsStack.pushItem(data.menu!.id);
                 await gotoRoute(`/contents/${item.linkTarget}`);
                 break;
             case 'other':
@@ -108,14 +118,14 @@
         }
     }
 
-    async function getReference(item) {
+    async function getReference(item: ContentItem) {
         let docSet = $refs.docSet;
         let collection = docSet.split('_')[1];
         let book;
         let chapter;
         let verse;
-        const reference = item.linkTarget.split('.');
-        if (item.layoutMode && item.layoutCollection?.length > 0) {
+        const reference = item.linkTarget?.split('.');
+        if (item.layoutMode && item.layoutCollection?.length) {
             /* 
             Note: have not handled layout modes
             layoutMode options:
@@ -125,11 +135,11 @@
             */
             collection = item.layoutCollection[0];
             docSet =
-                config.bookCollections.find((x) => x.id === collection).languageCode +
+                scriptureConfig.bookCollections?.find((x) => x.id === collection)?.languageCode +
                 '_' +
                 collection;
         }
-        switch (reference.length) {
+        switch (reference?.length) {
             case 1:
                 book = reference[0];
                 chapter = await firstChapter(book, docSet);
@@ -154,14 +164,14 @@
             verse
         };
     }
-    let referenceTexts = new SvelteMap();
-    async function loadReferenceText(item) {
-        if (!referenceTexts.has(item)) {
-            referenceTexts.set(item, await getReferenceText(item));
+    const referenceTexts = new SvelteMap<number, string>();
+    async function loadReferenceText(item: ContentItem) {
+        if (!referenceTexts.has(item.id)) {
+            referenceTexts.set(item.id, await getReferenceText(item));
         }
-        return referenceTexts.get(item);
+        return referenceTexts.get(item.id);
     }
-    async function getReferenceText(item) {
+    async function getReferenceText(item: ContentItem) {
         const reference = await getReference(item);
         let currentBookCollectionId = $refs.collection;
         let collection = reference.collection ?? currentBookCollectionId;
@@ -173,24 +183,27 @@
         // reference or -1 if there is no verse number. The -1 indicates that it is a single
         // verse, not a range, and the '-' is a verse range separator which is not used in this
         // case.
-        const referenceText = getDisplayString(collection, reference.book, reference.chapter, [
-            [verse, -1, '-']
-        ]);
+        const referenceText = getDisplayString(
+            collection,
+            reference.book ?? '',
+            Number(reference.chapter ?? ''),
+            [[verse, -1, '-']]
+        );
         return referenceText;
     }
     //set the title for the current contents page
-    function setTitle(page) {
+    function setTitle(data: PageData) {
         //checks title type and returns the appropriate title or lack of title
         let title = '';
-        switch (page.data.features['title-type']) {
+        switch (data.features?.['title-type']) {
             case 'app-name':
-                title = config.name;
+                title = config.name ?? '';
                 break;
             case 'screen':
-                title = page.data.menu.title[$language] ?? page.data.menu.title.default ?? '';
+                title = data.menu?.title?.[$language] ?? data.menu?.title?.default ?? '';
                 break;
             case 'custom':
-                title = page.data.title[$language] ?? page.data.title.default ?? '';
+                title = data.title?.[$language] ?? data.title?.default ?? '';
                 break;
             case 'none':
             default:
@@ -205,7 +218,7 @@
             gotoRoute(`/contents/${menuId}`);
         }
     }
-    async function firstChapter(book, docset) {
+    async function firstChapter(book: string, docset: string) {
         let first = '1';
         if (docset === currentDocSet) {
             const currBook = books.find((x) => x.bookCode === book);
@@ -227,7 +240,7 @@
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'contents';
     let highlightColor = $derived($themeColors['ContentsItemTouchColor']);
-    let title = $derived(setTitle($page));
+    let title = $derived(setTitle(data));
     let books = $derived($refs.catalog.documents);
     let currentDocSet = $derived($refs.docSet);
     let showBackButton = $derived($contentsStack.length > 0);
@@ -236,9 +249,8 @@
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
-            <!-- <div slot="left-buttons" /> -->
             {#snippet center()}
-                <label for="sidebar" slot="center">
+                <label for="sidebar">
                     <div class="btn btn-ghost normal-case text-xl">{title}</div>
                 </label>
             {/snippet}
@@ -246,7 +258,7 @@
             {#snippet end()}
                 <div class="flex items-center">
                     <div class="flex">
-                        {#if $page.data.features['show-text-size-button'] === true}
+                        {#if data.features?.['show-text-size-button']}
                             <!-- svelte-ignore a11y_click_events_have_key_events -->
                             <!-- svelte-ignore a11y_label_has_associated_control -->
                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -265,37 +277,31 @@
     </div>
 
     <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
-        <div id="container" class="contents" style={convertStyle($s['body.contents'])}>
-            {#if $page.data.nestedItems === true}
-                {#each $page.data.items as item}
+        <div id="container" class="contents" style={convertStyle($s?.['body.contents'])}>
+            {#if data.nestedItems === true}
+                {#each data.items as item}
                     {#if item.itemType === 'grid'}
                         <ContentGrid
                             {item}
                             {imageFolder}
                             {onClick}
-                            {checkImageSize}
                             {loadReferenceText}
-                            {contentsFontSize}
-                            features={$page.data.features}
+                            features={data.features}
                         />
                     {:else if item.itemType === 'carousel'}
                         <ContentCarousel
                             {item}
                             {imageFolder}
                             {onClick}
-                            {checkImageSize}
                             {loadReferenceText}
-                            {contentsFontSize}
-                            features={$page.data.features}
+                            features={data.features}
                         />
                     {:else if item.itemType === 'heading'}
                         <ContentHeading
                             {item}
                             {imageFolder}
-                            {onClick}
                             {checkImageSize}
-                            {contentsFontSize}
-                            features={$page.data.features}
+                            features={data.features}
                         />
                     {:else if item.itemType === 'single'}
                         <ContentSingle
@@ -303,25 +309,24 @@
                             {imageFolder}
                             {onClick}
                             {checkImageSize}
-                            {contentsFontSize}
-                            features={$page.data.features}
+                            features={data.features}
                         />
                     {/if}
                 {/each}
             {:else}
-                {#each $page.data.items as item}
+                {#each data.items as item}
                     <!-- iterate through the items, adding html -->
 
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class="contents-item-block-base contents-item-block contents-link-ref"
-                        id={item.id}
-                        onclick={(event) => onClick(event, item)}
+                        id={String(item.id)}
+                        onclick={(event) => onClick(event.currentTarget, item)}
                     >
                         <div class="contents-layout-horizontal">
                             <!--check for the various elements in the item-->
-                            {#if item.audioFilename[$language] || item.audioFilename.default}
+                            {#if item.audioFilename?.[$language] || item.audioFilename?.default}
                                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                                 <div
@@ -336,7 +341,7 @@
                                 <div
                                     class="contents-image-block"
                                     style="{convertStyle(
-                                        $s['div.contents-image-block']
+                                        $s?.['div.contents-image-block']
                                     )}{checkImageSize(item)}"
                                 >
                                     <img
@@ -352,21 +357,21 @@
                                 style:font-size="{$contentsFontSize}px"
                             >
                                 <!-- check for title -->
-                                {#if $page.data.features['show-titles'] === true}
+                                {#if data.features?.['show-titles']}
                                     <div class="contents-title">
-                                        {item.title[$language] ?? item.title.default ?? ''}
+                                        {item.title[$language] ?? item.title.default}
                                     </div>
                                 {/if}
 
                                 <!--Check for subtitle-->
-                                {#if $page.data.features['show-subtitles'] === true}
+                                {#if data.features?.['show-subtitles']}
                                     <div class="contents-subtitle">
-                                        {item.subtitle[$language] ?? item.subtitle.default ?? ''}
+                                        {item.subtitle?.[$language] ?? item.subtitle?.default}
                                     </div>
                                 {/if}
 
                                 <!--check for reference -->
-                                {#if $page.data.features['show-references'] === true}
+                                {#if data.features?.['show-references']}
                                     {#if item.linkType === 'reference'}
                                         {#await loadReferenceText(item)}
                                             <div class="contents-ref"></div>

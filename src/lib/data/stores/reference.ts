@@ -3,12 +3,15 @@ import { NavigationContext } from '$lib/data/navigation';
 import { derived, writable } from 'svelte/store';
 import type { CatalogData } from '../catalogData';
 
-interface ReferenceStore {
+export interface Reference {
     docSet: string;
-    collection: string;
     book: string;
     chapter: string;
-    verse: string;
+    verse?: string;
+}
+
+interface ReferenceStore extends Reference {
+    collection: string;
     chapterVerses: string;
     numVerses: number;
     hasAudio: any;
@@ -49,7 +52,7 @@ export const referenceStore = () => {
         localStorage.package = config.package;
     };
 
-    const set = async ({ docSet, book, chapter, verse }) => {
+    const set = async ({ docSet, book, chapter, verse }: Reference) => {
         await nav.goto(docSet, book, chapter, verse);
         update();
     };

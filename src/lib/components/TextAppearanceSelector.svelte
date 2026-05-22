@@ -3,28 +3,21 @@
 The navbar component. We have sliders that update reactively to both font size and line height.
 3 buttons to change the style from normal, sepia and dark.
 -->
-<svelte:options accessors={true} />
 
-<script module>
-    export function showFonts(
-        /** @type {unknown[]} */ choices,
-        /** @type {boolean} */ contentsMode = false
-    ) {
+<script module lang="ts">
+    export function showFonts(choices: unknown[], contentsMode = false) {
         return !contentsMode && choices.length > 1;
     }
     export function showFontSize() {
         return config.mainFeatures['text-font-size-slider'];
     }
-    export function showLineHeight(/** @type {boolean} */ contentsMode = false) {
+    export function showLineHeight(contentsMode = false) {
         return !contentsMode && config.mainFeatures['text-line-height-slider'];
     }
     export function showThemes() {
         return themes.length > 1;
     }
-    export function showTextAppearance(
-        /** @type {unknown[]} */ choices,
-        /** @type {boolean} */ contentsMode = false
-    ) {
+    export function showTextAppearance(choices: unknown[] = [], contentsMode = false) {
         return (
             showFontSize() ||
             showLineHeight(contentsMode) ||
@@ -34,7 +27,7 @@ The navbar component. We have sliders that update reactively to both font size a
     }
 </script>
 
-<script>
+<script lang="ts">
     import config from '$assets/config';
     import {
         bodyFontSize,
@@ -56,43 +49,55 @@ The navbar component. We have sliders that update reactively to both font size a
     import Slider from './Slider.svelte';
 
     let modalId = 'textAppearanceSelector';
-    let modalThis;
+    let modalThis: HTMLDialogElement | undefined = $state();
     export function showModal() {
-        modalThis.showModal();
+        modalThis?.showModal();
     }
 
-    export let options = {};
-    $: contentsMode = options?.contentsMode ?? false;
-    export let vertOffset = '1rem'; //Prop that will have the navbar's height (in rem) passed in
-    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    $: positioningCSS =
-        'position:absolute; top:' +
-        (Number(vertOffset.replace('rem', '')) + 1) +
-        'rem; inset-inline-end:1rem;';
-    $: barColor = $themeColors['SliderBarColor'];
-    $: progressColor = $themeColors['SliderProgressColor'];
-    const _showFontSize = showFontSize();
-    $: _showFonts = showFonts($fontChoices, contentsMode);
-    const _showThemes = showThemes();
-    $: _showLineHeight = showLineHeight(contentsMode);
+    export function setOptions(val: Props['options']) {
+        options = val;
+    }
 
-    $: _showTextAppearance = showTextAppearance($fontChoices, contentsMode);
+    interface Props {
+        options?: { contentsMode?: boolean } & Record<string, unknown>;
+        vertOffset?: string; //Prop that will have the navbar's height (in rem) passed in
+    }
+
+    let { options, vertOffset = '1rem' }: Props = $props();
+
+    const contentsMode = $derived(options?.contentsMode ?? false);
+    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
+    const positioningCSS = $derived(
+        'position:absolute; top:' +
+            (Number(vertOffset.replace('rem', '')) + 1) +
+            'rem; inset-inline-end:1rem;'
+    );
+    const barColor = $derived($themeColors['SliderBarColor']);
+    const progressColor = $derived($themeColors['SliderProgressColor']);
+    const _showFontSize = showFontSize();
+    const _showFonts = $derived(showFonts($fontChoices ?? [], contentsMode));
+    const _showThemes = showThemes();
+    const _showLineHeight = $derived(showLineHeight(contentsMode));
+
+    const _showTextAppearance = $derived(showTextAppearance($fontChoices ?? [], contentsMode));
 
     // TEMP: Use TextAppearance button to rotate through languages to test i18n
-    const arrayRotate = (arr) => {
-        arr.push(arr.shift());
+    function arrayRotate<T>(arr: T[]) {
+        if (arr.length) {
+            arr.push(arr.shift()!);
+        }
         return arr;
-    };
+    }
 
-    const rotate = (items, current) => {
+    function rotate<T>(items: T[], current: T) {
         let mod = [...items];
-        while (mod[0] != current) {
+        while (mod[0] !== current) {
             mod = arrayRotate(mod);
         }
         return mod[1];
-    };
+    }
 
-    const handleClick = (event) => {
+    const handleClick = (event: KeyboardEvent) => {
         console.log(event);
         if (event.shiftKey) {
             rotateLanguages();
@@ -103,18 +108,19 @@ The navbar component. We have sliders that update reactively to both font size a
         $language = rotate(languages, $language);
     };
 
-    const buttonBackground = (theme) => {
-        const backgroundColor = config.styles.find((x) => x.name === 'ui.background').properties[
+    const buttonBackground = (theme: string) => {
+        const backgroundColor = config.styles?.find((x) => x.name === 'ui.background')?.properties[
             'background-color'
         ];
-        if (backgroundColor.startsWith('#')) {
+        if (backgroundColor?.startsWith('#')) {
             return backgroundColor;
         }
-        return config.themes.find((x) => x.name === theme).colorSets.find((c) => c.type === 'main')
-            .colors[backgroundColor];
+        return config.themes
+            ?.find((x) => x.name === theme)
+            ?.colorSets.find((c) => c.type === 'main')?.colors[backgroundColor ?? ''];
     };
 
-    const buttonBorder = (theme, currentTheme) => {
+    const buttonBorder = (theme: string, currentTheme: string) => {
         return (
             (theme === currentTheme ? '3px' : '1px') +
             ' solid ' +
@@ -122,7 +128,7 @@ The navbar component. We have sliders that update reactively to both font size a
         );
     };
 
-    const formatLineHeight = (lineHeight) => {
+    const formatLineHeight = (lineHeight: number) => {
         const displayValue = (lineHeight / 100).toLocaleString(undefined, {
             minimumFractionDigits: 2
         });
@@ -133,7 +139,7 @@ The navbar component. We have sliders that update reactively to both font size a
 <!-- TextAppearanceSelector -->
 {#if _showTextAppearance}
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <Modal bind:this={modalThis} id={modalId} addCSS={positioningCSS}>
+    <Modal bind:dialog={modalThis} id={modalId} addCSS={positioningCSS}>
         <div class="grid gap-4">
             <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
             {#if _showFontSize}
@@ -185,9 +191,10 @@ The navbar component. We have sliders that update reactively to both font size a
                         style:font-family={$currentFont}
                         style:font-size="large"
                         style:color={$monoIconColor}
-                        on:click={() => modal.open(ModalType.Font)}
-                        >{config.fonts.find((x) => x.family === $currentFont)?.name}</button
+                        onclick={() => modal.open(ModalType.Font)}
                     >
+                        {config.fonts?.find((x) => x.family === $currentFont)?.name}
+                    </button>
                 </div>
             {/if}
             <!-- Theme Selction buttons-->
@@ -202,7 +209,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             class="dy-btn-sm"
                             style:background-color={buttonBackground('Normal')}
                             style:border={buttonBorder('Normal', $theme)}
-                            on:click={() => ($theme = 'Normal')}
+                            onclick={() => ($theme = 'Normal')}
                         ></button>
                     {/if}
                     {#if themes.includes('Sepia')}
@@ -210,7 +217,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             class="dy-btn-sm"
                             style:background-color={buttonBackground('Sepia')}
                             style:border={buttonBorder('Sepia', $theme)}
-                            on:click={() => ($theme = 'Sepia')}
+                            onclick={() => ($theme = 'Sepia')}
                         ></button>
                     {/if}
                     {#if themes.includes('Dark')}
@@ -218,7 +225,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             class="dy-btn-sm"
                             style:background-color={buttonBackground('Dark')}
                             style:border={buttonBorder('Dark', $theme)}
-                            on:click={() => ($theme = 'Dark')}
+                            onclick={() => ($theme = 'Dark')}
                         ></button>
                     {/if}
                 </div>

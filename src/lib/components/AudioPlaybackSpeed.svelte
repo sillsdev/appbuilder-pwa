@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { monoIconColor, t, userSettings } from '$lib/data/stores';
     import Modal from './Modal.svelte';
 
@@ -19,17 +19,17 @@
         { value: '1.6', label: '1.6x' }
     ];
 
-    function setPlaySpeed(event) {
-        $userSettings['audio-speed'] = event.target.value;
+    function setPlaySpeed(value: string) {
+        $userSettings['audio-speed'] = value;
     }
 
-    let modalThis;
+    let modalThis: HTMLDialogElement;
     export function showModal() {
         modalThis.showModal();
     }
 </script>
 
-<Modal bind:this={modalThis} id={modalId}>
+<Modal bind:dialog={modalThis} id={modalId}>
     <div style="color: {$monoIconColor}">
         <h1>
             <b>{$t['Settings_Audio_Speed']}</b>
@@ -41,7 +41,7 @@
                         type="radio"
                         name="speed"
                         {value}
-                        on:click={setPlaySpeed}
+                        on:click={(e) => setPlaySpeed(e.currentTarget.value)}
                         checked={$userSettings['audio-speed'] === value}
                     />
                     {label}

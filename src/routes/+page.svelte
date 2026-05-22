@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { page } from '$app/stores';
     import config from '$assets/config';
     import contents from '$assets/contents';

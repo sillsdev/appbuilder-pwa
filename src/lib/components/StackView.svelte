@@ -3,26 +3,27 @@
   Daisy UI Stack View component
 -->
 
-<script>
+<script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { footnotes, getVerseText, refs, themeColors } from '$lib/data/stores';
+    import { footnotes, refs, themeColors } from '$lib/data/stores';
+    import type { Reference } from '$lib/data/stores/reference';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
-    import { isNotBlank, splitString } from '$lib/scripts/stringUtils';
+    import { splitString } from '$lib/scripts/stringUtils';
 
     export let bodyFontSize;
     export let bodyLineHeight;
     export let font;
-    let stack;
+    let stack: HTMLDivElement;
     let listening = false;
     $: PrimaryColor = $themeColors['PrimaryColor'];
 
-    function clickOutside(event) {
-        if (!stack.contains(event.target)) {
+    function clickOutside(event: Event) {
+        if (event.target && !stack.contains(event.target as HTMLElement)) {
             footnotes.pop();
         }
     }
 
-    function navigate(reference) {
+    function navigate(reference: Reference) {
         refs.set({
             docSet: reference.docSet,
             book: reference.book,
@@ -36,15 +37,15 @@
         return `<svg fill='${PrimaryColor}' xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"/></svg>`;
     };
     // handles clicks on in text markdown reference links
-    function referenceLinkClickHandler(event) {
-        const linkRef = event.target.getAttribute('ref');
+    function referenceLinkClickHandler(target: HTMLElement) {
+        const linkRef = target.getAttribute('ref') ?? '';
         const splitRef = splitString(linkRef, '.');
         const splitSet = splitRef[0];
         const refBook = splitRef[1];
         const splitChapter = splitRef[2];
         const splitVerse = splitRef[3];
 
-        let refDocSet = refs.docSet;
+        let refDocSet = $refs.docSet;
         const refBc = scriptureConfig.bookCollections?.find((x) => x.id === splitSet);
         if (refBc) {
             refDocSet = refBc.languageCode + '_' + refBc.id;
@@ -56,31 +57,32 @@
         footnotes.reset();
         return;
     }
-    async function insideClick(event) {
-        if (event.target.hasAttribute('data-start-ref')) {
-            let start = JSON.parse(event.target.getAttribute('data-start-ref'));
+    async function insideClick(target: HTMLElement) {
+        if (target.hasAttribute('data-start-ref')) {
+            let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =
-                event.target.getAttribute('data-end-ref') === 'undefined'
+                target.getAttribute('data-end-ref') === 'undefined'
                     ? undefined
-                    : JSON.parse(event.target.getAttribute('data-end-ref'));
+                    : JSON.parse(target.getAttribute('data-end-ref') || '{}');
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
                 const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
                 footnotes.push(footnoteHTML);
             }
-        } else if (event.target.classList.contains('ref-link')) {
-            referenceLinkClickHandler(event);
+        } else if (target.classList.contains('ref-link')) {
+            referenceLinkClickHandler(target);
             // will not work since it does not have a reference to the start object...
-        } else if (document.getElementById('icon')?.contains(event.target)) {
+        } else if (document.getElementById('icon')?.contains(target)) {
             let start = JSON.parse(
-                document.getElementById('icon').firstChild.getAttribute('reference')
+                document.getElementById('icon')?.firstElementChild?.getAttribute('reference') ||
+                    '{}'
             );
             navigate(start);
         }
     }
 
-    function toggleListener(footnotes) {
+    function toggleListener(footnotes: string[]) {
         if (listening && footnotes.length === 0) {
             document.removeEventListener('click', clickOutside);
             listening = false;
@@ -107,7 +109,7 @@
         <div
             id="container"
             class="footnote rounded h-40 shadow-lg overflow-y-auto"
-            on:click|stopPropagation={insideClick}
+            on:click|stopPropagation={(e) => insideClick(e.currentTarget)}
         >
             <div
                 id="container"

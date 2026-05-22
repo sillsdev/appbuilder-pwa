@@ -37,10 +37,12 @@ const resolveColor = (colorValue: string, colors: Record<string, string>) => {
 };
 
 // Convert style to string format for inline styling
-export const convertStyle = (style: Record<string, string>) => {
+export const convertStyle = (style?: Record<string, string>) => {
     let result = '';
-    for (const x in style) {
-        result += `${x}:${style[x]};`;
+    if (style) {
+        for (const x in style) {
+            result += `${x}:${style[x]};`;
+        }
     }
     return result;
 };
