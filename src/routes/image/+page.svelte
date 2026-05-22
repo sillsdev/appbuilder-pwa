@@ -3,7 +3,7 @@
     import DownloadSelector from '$lib/components/DownloadSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
-    import { modal, MODAL_DOWNLOAD, NAVBAR_HEIGHT, t } from '$lib/data/stores';
+    import { modal, ModalType, NAVBAR_HEIGHT, t } from '$lib/data/stores';
     import { DownloadIcon, ShareIcon } from '$lib/icons';
     import { fromStore } from 'svelte/store';
 
@@ -32,7 +32,7 @@
         if ($modal.length > 0) {
             $modal.forEach(({ modalType, data }) => {
                 switch (modalType) {
-                    case MODAL_DOWNLOAD:
+                    case ModalType.Download:
                         downloadSelector.showModal();
                         break;
                 }
@@ -58,7 +58,10 @@
                         <ShareIcon color="white" />
                     </button>
                 </div>
-                <button class="dy-btn-sm dy-btn-ghost" onclick={() => modal.open(MODAL_DOWNLOAD)}>
+                <button
+                    class="dy-btn-sm dy-btn-ghost"
+                    onclick={() => modal.open(ModalType.Download)}
+                >
                     <DownloadIcon color="white" />
                 </button>
             {/snippet}
