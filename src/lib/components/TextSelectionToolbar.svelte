@@ -190,7 +190,6 @@ TODO:
                             gotoRoute(`/image`);
                         }}
                         class="dy-btn-sm dy-btn-ghost"
-                        style="text-decoration:none; display:flex; align-items:center;"
                     >
                         <ImageIcon.Image color={iconColor} />
                     </button>

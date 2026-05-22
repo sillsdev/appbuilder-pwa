@@ -1,5 +1,5 @@
 <script lang="ts">
-    //TODO: Implement download button
+    //TODO: Implement video download
     import DownloadSelector from '$lib/components/DownloadSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
