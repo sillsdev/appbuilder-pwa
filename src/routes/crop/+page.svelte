@@ -1,5 +1,4 @@
 <script lang="ts">
-    //TODO: Implement 2-finger resizing
     import Navbar from '$lib/components/Navbar.svelte';
     import { t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
@@ -26,6 +25,9 @@
         width: 0,
         height: 0
     });
+
+    let resizeStartSize = $state(0);
+    let resizeStartDistance = $state(0); //These are variables for the 2-finger resize
 
     onMount(() => {
         //initCropBox();
@@ -66,6 +68,49 @@
             height
         };
     }
+    function getDistance(t1, t2) {
+        const dx = t2.clientX - t1.clientX;
+        const dy = t2.clientY - t1.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function onTouchStart(e) {
+        if (e.touches.length === 2) {
+            const [t1, t2] = e.touches;
+            resizeStartDistance = getDistance(t1, t2);
+            resizeStartSize = cropSize;
+        }
+    } //2-finger resize
+
+    function onTouchMove(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            if (dragging) {
+                stopDrag();
+            }
+            const [t1, t2] = e.touches;
+            const currentDistance = getDistance(t1, t2);
+            const rect = getImageRect(image);
+
+            const scale = currentDistance / resizeStartDistance;
+            let newSize = resizeStartSize * scale;
+            const maxSizeX = rect.right - cropLeft;
+            const maxSizeY = rect.bottom - cropTop;
+            newSize = Math.max(20, Math.min(newSize, maxSizeX, maxSizeY));
+
+            const sizeDifference = -(newSize - cropSize);
+            cropLeft = Math.min(
+                Math.max(cropLeft + sizeDifference / 2, rect.left),
+                rect.right - newSize
+            );
+            cropTop = Math.min(
+                Math.max(cropTop + sizeDifference / 2, rect.top),
+                rect.bottom - newSize
+            );
+            cropSize = newSize;
+        }
+    } //2-finger resize
+
     function startDrag(e) {
         dragging = true;
         dragStartX = e.clientX - cropLeft;
@@ -193,7 +238,13 @@
         </Navbar>
     </div>
 
-    <div class="relative touch-none flex-1 overflow-hidden" bind:this={container}>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+        class="relative touch-none flex-1 overflow-hidden"
+        bind:this={container}
+        ontouchstart={onTouchStart}
+        ontouchmove={onTouchMove}
+    >
         {#if $voiCustomImage.original}
             <!-- svelte-ignore a11y_img_redundant_alt -->
             <img

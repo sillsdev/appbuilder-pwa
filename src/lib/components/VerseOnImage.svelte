@@ -1,7 +1,6 @@
 <!--
 @component
 The verse on image component.
-TODO: Implement 2-finger resizing
 -->
 <script>
     import FontList from '$lib/components/FontList.svelte';
@@ -157,8 +156,57 @@ TODO: Implement 2-finger resizing
             cnv_background = img;
         };
     }
+
+    let resizeStartSize = 0;
+    let resizeStartDistance = 0; //These are variables for the 2-finger resize
+
+    function getDistance(t1, t2) {
+        const dx = t2.clientX - t1.clientX;
+        const dy = t2.clientY - t1.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    function onTouchStart(e) {
+        if (e.touches.length === 2) {
+            const [t1, t2] = e.touches;
+            resizeStartDistance = getDistance(t1, t2);
+            resizeStartSize = voi_textBoxWidth;
+        }
+    } //2-finger resize
+
+    function onTouchMove(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            if (dragging) {
+                dragging = false;
+            }
+            const [t1, t2] = e.touches;
+            const currentDistance = getDistance(t1, t2);
+            const rect = voi_parentDiv.getBoundingClientRect();
+
+            const scale = currentDistance / resizeStartDistance;
+            let newWidth = resizeStartSize * scale;
+            const maxSizeX = rect.right - voi_textPosX;
+            if (newWidth > maxSizeX) {
+                voi_textPosX = Math.max(rect.right - newWidth, rect.left);
+                voi_textBoxWidth = Math.min(newWidth, rect.right - voi_textPosX);
+            } else {
+                newWidth = Math.min(Math.max(50, newWidth), maxSizeX);
+
+                const sizeDifference = voi_textBoxWidth - newWidth;
+                voi_textPosX = Math.max(voi_textPosX + sizeDifference / 2, rect.left);
+                voi_textBoxWidth = newWidth;
+            }
+
+            const childRect = voi_textBox.getBoundingClientRect();
+            voi_textPosY = Math.min(
+                voi_textPosY,
+                Math.max(rect.height - childRect.height, rect.top)
+            );
+        }
+    } //2-finger resize
+
     let resizing = false;
-    let resizeStartX, resizeStartY, resizeStartWidth, resizeStartHeight;
+    let resizeStartX, resizeStartWidth;
     function startResize(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -447,11 +495,14 @@ TODO: Implement 2-finger resizing
 >
     <!-- verseOnImgPreview -->
     <div id="verseOnImgPreviewContainer" class="flex flex-col items-center">
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             id="verseOnImgPreview"
             bind:this={voi_parentDiv}
             class="flex flex-col touch-none"
             style="width:{voi_width}px; height:{voi_height}px;"
+            on:touchstart={onTouchStart}
+            on:touchmove={onTouchMove}
         >
             <!-- Preview display of the image and text -->
 
