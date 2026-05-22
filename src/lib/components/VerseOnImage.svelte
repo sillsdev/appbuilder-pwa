@@ -10,9 +10,6 @@ TODO: Implement 2-finger resizing
     import {
         currentFont,
         direction,
-        fontChoices,
-        language,
-        languages,
         monoIconColor,
         s,
         selectedVerses,
@@ -407,11 +404,6 @@ TODO: Implement 2-finger resizing
     //let initialLeft, initialTop;
     function voiTextBox_handleMouseMove(event) {
         if (dragging) {
-            //const dx = event.clientX - offsetX;
-            //const dy = event.clientY - offsetY;
-
-            //const newX = initialLeft + dx;
-            //const newY = initialTop + dy;
             // Prevent child div from going outside the parent borders
             const parentRect = voi_parentDiv.getBoundingClientRect();
             const childRect = voi_textBox.getBoundingClientRect();
@@ -435,19 +427,15 @@ TODO: Implement 2-finger resizing
         dragging = true;
         offsetX = event.clientX - voi_textPosX; // Update offsetX
         offsetY = event.clientY - voi_textPosY; // Update offsetY
-        //offsetX = event.clientX; // Update offsetX
-        //offsetY = event.clientY; // Update offsetY
-        //initialLeft = voi_textPosX;
-        //initialTop = voi_textPosY;
 
         function handleMouseUp() {
             dragging = false;
-            window.removeEventListener('mousemove', voiTextBox_handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('pointermove', voiTextBox_handleMouseMove);
+            window.removeEventListener('pointerup', handleMouseUp);
         }
 
-        window.addEventListener('mousemove', voiTextBox_handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('pointermove', voiTextBox_handleMouseMove);
+        window.addEventListener('pointerup', handleMouseUp);
     }
 </script>
 
@@ -462,7 +450,7 @@ TODO: Implement 2-finger resizing
         <div
             id="verseOnImgPreview"
             bind:this={voi_parentDiv}
-            class="flex flex-col"
+            class="flex flex-col touch-none"
             style="width:{voi_width}px; height:{voi_height}px;"
         >
             <!-- Preview display of the image and text -->
@@ -503,15 +491,7 @@ TODO: Implement 2-finger resizing
                 "
                 //class="flex flex-col"
                 bind:this={voi_textBox}
-                on:mousedown={voiTextBox_handleMouseDown}
-                on:touchstart={(event) => voiTextBox_handleMouseDown(event.touches[0])}
-                on:touchmove={(event) => {
-                    event.preventDefault();
-                    voiTextBox_handleMouseMove(event.touches[0]);
-                }}
-                on:touchend={() => {
-                    dragging = false;
-                }}
+                on:pointerdown={voiTextBox_handleMouseDown}
             >
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <span
