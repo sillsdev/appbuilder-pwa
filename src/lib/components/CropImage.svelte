@@ -7,7 +7,7 @@ The navbar component. We have sliders that update reactively to both font size a
 -->
 <script>
     import Modal from './Modal.svelte';
-    import { modal, MODAL_FONT } from '$lib/data/stores';
+    import { modal, MODAL_FONT, s, t } from '$lib/data/stores';
     import { onMount } from 'svelte';
     import config from '$lib/data/config';
 
@@ -17,12 +17,20 @@ The navbar component. We have sliders that update reactively to both font size a
         modalThis.showModal();
     }
 
-    export let imgSrc;
-    let crop_image;
-    let canvas;
-    let ctx;
+    export let data = { newImg: undefined, cnv: undefined, selectedSrc: undefined };
+    $: cropped_image = data.newImg;
+    $: main_canvas = data.cnv;
+    $: src = data.selectedSrc;
 
-    export let triggerCrop;
+    $: showD8ta(data);
+
+    function showD8ta(d8ta) {
+        console.log('D8=', d8ta);
+    }
+
+    let temp_img;
+    let temp_canvas;
+    let ctx;
 
     // export let sourceX;
     // export let sourceY;
@@ -33,26 +41,25 @@ The navbar component. We have sliders that update reactively to both font size a
     // export let destWidth;
     // export let destHeight;
 
-    $: render(imgSrc);
+    $: render(src);
 
     function render(i_src) {
-        if (!canvas) return;
-        crop_image = new Image();
-        crop_image.src = i_src;
+        /*DEBUG*/ console.log('Crop render called.');
+        if (!temp_canvas) return;
+        /*DEBUG*/ console.log('Crop temp_canvas == true.');
+        temp_img = new Image();
+        temp_img.src = i_src;
         // Make sure the image is loaded first otherwise nothing will draw.
-        crop_image.onload = function () {
-            ctx = canvas.getContext('2d');
-            ctx.drawImage(crop_image, 0, 0, canvas.width, canvas.height);
+        temp_img.onload = function () {
+            ctx = temp_canvas.getContext('2d');
+
+            ctx.drawImage(temp_canvas, 0, 0, main_canvas.width, main_canvas.height); //TODO: make width canvas.width and height auto
+            /*DEBUG*/ console.log('Crop ctx=', ctx);
+            /*DEBUG*/ console.log('Crop w&h=', main_canvas.width, main_canvas.height);
         };
     }
 
     //Chat-GPT:
-
-    onMount(() => {
-        // Draw the selected image onto the canvas
-        // Use ctx.drawImage() here
-        render(imgSrc);
-    });
 
     let isDragging = false;
     let dragStartX, dragStartY;
@@ -98,6 +105,24 @@ The navbar component. We have sliders that update reactively to both font size a
             cropWidth = cropHeight = distance;
         }
     }
+
+    function cropImage() {
+        /*DBEUG*/ console.log('Crop triggered');
+        const ctx = temp_canvas.getContext('2d');
+        ctx.clearRect(0, 0, main_canvas.width, main_canvas.height);
+        ctx.drawImage(
+            temp_img,
+            crop_sourceX,
+            crop_sourceY,
+            crop_sourceWidth,
+            crop_sourceHeight,
+            0,
+            0,
+            main_canvas.width,
+            main_canvas.height
+        );
+        cropped_image = ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
+    }
 </script>
 
 <!-- Image Cropper -->
@@ -107,12 +132,12 @@ The navbar component. We have sliders that update reactively to both font size a
     useLabel={false}
     addCSS={''}
     on:close={() => {
-        triggerCrop = true;
+        console.log('Crop modal closed.');
     }}
     ><!--addCSS is a prop for injecting CSS into the modal-->
     <svelte:fragment slot="content">
-        <div style="width: 100vw; height: 80vh; border: 5px soild yellow;">
-            <canvas bind:this={canvas} />
+        <div style="width: 100vw; height: 80vh; border: 5px soild green;">
+            <canvas bind:this={temp_canvas} />
 
             <div
                 class="crop-box"
@@ -127,6 +152,17 @@ The navbar component. We have sliders that update reactively to both font size a
                 on:touchmove={isDragging ? drag : pinch}
                 on:touchend={stopDragging}
             />
+        </div>
+        <div class="w-full flex mt-4 justify-between">
+            <button
+                on:click={() => {
+                    console.log('Crop cancel clicked.');
+                }}
+                class="dy-btn dy-btn-sm dy-btn-ghost">{$t['Button_Cancel']}</button
+            >
+            <button on:click={cropImage} class="dy-btn dy-btn-sm dy-btn-ghost"
+                >{$t['Button_OK']}</button
+            >
         </div>
     </svelte:fragment>
 </Modal>

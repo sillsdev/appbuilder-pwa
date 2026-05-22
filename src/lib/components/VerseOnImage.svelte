@@ -141,46 +141,29 @@ The verse on image component.
     }
 
     $: render(
-        voi_imgSrc,
+        cnv_background,
         voi_imageBrightness,
         voi_imageContrast,
         voi_imageSaturation,
         voi_imageBlur
     );
 
-    function render(imgSrc, imgBrightness, imgContrast, imgSaturation, imgBlur) {
+    function render(background, imgBrightness, imgContrast, imgSaturation, imgBlur) {
         if (!cnv) return;
-        cnv_background = new Image();
-        cnv_background.src = imgSrc;
-        // Make sure the image is loaded first otherwise nothing will draw.
-        cnv_background.onload = function () {
-            const context = cnv.getContext('2d');
-            context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
-            context.drawImage(cnv_background, 0, 0, cnv.width, cnv.height);
-        };
+        const context = cnv.getContext('2d');
+        context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
+        context.drawImage(background, 0, 0, cnv.width, cnv.height);
     }
 
-    $: cropImage(crop_trigger);
+    $: updateImgSrc(voi_imgSrc);
 
-    function cropImage(trigger) {
-        if (trigger) {
-            /*DBEUG*/ console.log('Crop triggered');
-            const ctx = cnv.getContext('2d');
-            ctx.clearRect(0, 0, cnv.width, cnv.height);
-            ctx.drawImage(
-                cnv,
-                crop_sourceX,
-                crop_sourceY,
-                crop_sourceWidth,
-                crop_sourceHeight,
-                0,
-                0,
-                cnv.width,
-                cnv.height
-            );
-            crop_trigger = false;
-        }
-        /*DBEUG*/ console.log('Crop trigger off');
+    function updateImgSrc(imgSrc) {
+        const img = new Image();
+        img.src = imgSrc;
+        // Make sure the image is loaded first otherwise nothing will draw.
+        img.onload = function () {
+            cnv_background = img;
+        };
     }
 
     /**
@@ -577,17 +560,15 @@ The verse on image component.
                         on:change={(event) => {
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
-                                const newImg = document.createElement('img');
-                                newImg.src = URL.createObjectURL(selectedFile);
-                                voi_imgSrc = newImg.src;
+                                const newImg = new Image();
+                                newImg.onload = function () {
+                                    cnv_background = newImg;
+                                };
+                                /*DEBUG*/ console.log('Open Crop Modal');
+                                let selectedSrc = URL.createObjectURL(selectedFile);
+                                modal.open(MODAL_CROP, { selectedSrc, newImg, cnv });
+                                // newImg.src = URL.createObjectURL(selectedFile);
                             }
-                            //Prep for cropping image:
-                            crop_sourceX = '0';
-                            crop_sourceY = '0';
-                            crop_sourceWidth = cnv.width;
-                            crop_sourceHeight = cnv.height;
-                            /*DEBUG*/ console.log('Open Crop Modal');
-                            modal.open(MODAL_CROP);
                         }}
                     />
                 </div>
