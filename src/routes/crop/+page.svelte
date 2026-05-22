@@ -1,0 +1,232 @@
+<script lang="ts">
+    import Navbar from '$lib/components/Navbar.svelte';
+    import { t, voiCustomImage } from '$lib/data/stores';
+    import { CheckIcon } from '$lib/icons';
+    import { gotoRoute } from '$lib/navigate';
+    import { onMount } from 'svelte';
+
+    let image;
+    let container;
+
+    let cropTop = $state(0);
+    let cropLeft = $state(0);
+    let cropSize = $state(100);
+
+    let dragging = $state(false);
+    let dragStartX = $state(0);
+    let dragStartY = $state(0);
+    let resizing = $state(false);
+    let dragStartSize = $state(0);
+    let imageRect = $state({
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        width: 0,
+        height: 0
+    });
+
+    onMount(() => {
+        //initCropBox();
+        if (image.complete) {
+            initCropBox();
+        } else {
+            image.addEventListener('load', initCropBox, { once: true });
+        }
+    });
+    function initCropBox() {
+        imageRect = getImageRect(image);
+        cropLeft = imageRect.left;
+        cropTop = imageRect.top;
+    }
+    function getImageRect(img) {
+        const containerRect = container.getBoundingClientRect();
+        const naturalRatio = img.naturalWidth / img.naturalHeight;
+        const containerRatio = containerRect.width / containerRect.height;
+
+        let width, height;
+
+        if (naturalRatio > containerRatio) {
+            width = containerRect.width;
+            height = width / naturalRatio;
+        } else {
+            height = containerRect.height;
+            width = height * naturalRatio;
+        }
+        const left = (containerRect.width - width) / 2;
+        const top = (containerRect.height - height) / 2;
+
+        return {
+            left,
+            top,
+            right: left + width,
+            bottom: top + height,
+            width,
+            height
+        };
+    }
+    function startDrag(e) {
+        dragging = true;
+        dragStartX = e.clientX - cropLeft;
+        dragStartY = e.clientY - cropTop;
+
+        window.addEventListener('pointermove', drag);
+        window.addEventListener('pointerup', stopDrag);
+    }
+
+    function drag(e) {
+        if (!dragging) {
+            return;
+        }
+        if (resizing) {
+            return;
+        }
+
+        const rect = getImageRect(image);
+
+        cropLeft = Math.min(Math.max(e.clientX - dragStartX, rect.left), rect.right - cropSize);
+
+        cropTop = Math.min(Math.max(e.clientY - dragStartY, rect.top), rect.bottom - cropSize);
+    }
+
+    function stopDrag() {
+        dragging = false;
+        window.removeEventListener('pointermove', drag);
+        window.removeEventListener('pointerup', stopDrag);
+    }
+    function startResize(e) {
+        e.preventDefault();
+        resizing = true;
+        dragStartSize = cropSize;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+
+        window.addEventListener('pointermove', resize);
+        window.addEventListener('pointerup', stopResize);
+    }
+    function resize(e) {
+        if (!resizing) {
+            return;
+        }
+        if (dragging) {
+            stopDrag();
+        }
+        const rect = getImageRect(image);
+
+        const containerRect = container.getBoundingClientRect();
+        const pointerX = e.clientX - containerRect.left;
+        const pointerY = e.clientY - containerRect.top;
+        let newSize = Math.max(pointerX - cropLeft, pointerY - cropTop);
+
+        const maxSizeX = rect.right - cropLeft;
+        const maxSizeY = rect.bottom - cropTop;
+        newSize = Math.min(newSize, maxSizeX, maxSizeY);
+
+        cropSize = Math.max(20, newSize);
+    }
+
+    function stopResize() {
+        resizing = false;
+        window.removeEventListener('pointermove', resize);
+        window.removeEventListener('pointerup', stopResize);
+    }
+
+    function cropImage() {
+        console.log('Crop Image Called');
+    }
+    function backNavigation() {
+        gotoRoute(`/image`);
+    }
+</script>
+
+<div class="flex flex-col h-screen">
+    <div class="navbar h-16">
+        <Navbar {backNavigation}>
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">{$t['Crop_Image_Title']}</div>
+                </label>
+            {/snippet}
+            {#snippet end()}
+                <div>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={cropImage}>
+                        <CheckIcon color="white" /><!--This should be a checkmark, not ShareIcon-->
+                    </button>
+                </div>
+            {/snippet}
+        </Navbar>
+    </div>
+
+    <div class="relative touch-none flex-1 overflow-hidden" bind:this={container}>
+        {#if $voiCustomImage.original}
+            <!-- svelte-ignore a11y_img_redundant_alt -->
+            <img
+                src={$voiCustomImage.original}
+                bind:this={image}
+                alt="Selected Image"
+                class="w-full h-full object-contain select-none"
+            />
+        {:else}
+            <div>Error: No image</div>
+        {/if}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="absolute border-4 border-white cursor-move"
+            style="
+                left: {cropLeft}px;
+                top: {cropTop}px;
+                width: {cropSize}px;
+                height: {cropSize}px;
+            "
+            onpointerdown={startDrag}
+        >
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                class="absolute bottom-0 right-0 w-6 h-6 bg-white cursor-se-resize"
+                onpointerdown={startResize}
+            ></div>
+        </div>
+        <div
+            class="absolute bg-black/50 pointer-events-none"
+            style="
+                left:{imageRect.left}px;
+                top:{imageRect.top}px;
+                width:{imageRect.width}px;
+                height:{cropTop - imageRect.top}px;
+            "
+        ></div>
+
+        <!-- BOTTOM overlay -->
+        <div
+            class="absolute bg-black/50 pointer-events-none"
+            style="
+                left:{imageRect.left}px;
+                top:{cropTop + cropSize}px;
+                width:{imageRect.width}px;
+                height:{imageRect.bottom - (cropTop + cropSize)}px;
+            "
+        ></div>
+
+        <!-- LEFT overlay -->
+        <div
+            class="absolute bg-black/50 pointer-events-none"
+            style="
+                left:{imageRect.left}px;
+                top:{cropTop}px;
+                width:{cropLeft - imageRect.left}px;
+                height:{cropSize}px;
+            "
+        ></div>
+
+        <!-- RIGHT overlay -->
+        <div
+            class="absolute bg-black/50 pointer-events-none"
+            style="
+                left:{cropLeft + cropSize}px;
+                top:{cropTop}px;
+                width:{imageRect.right - (cropLeft + cropSize)}px;
+                height:{cropSize}px;
+            "
+        ></div>
+    </div>
+</div>

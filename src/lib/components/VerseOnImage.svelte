@@ -20,11 +20,13 @@ The verse on image component.
         theme,
         themeColors,
         themes,
+        voiCustomImage,
         windowSize
     } from '$lib/data/stores';
     import { TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
+    import { gotoRoute } from '$lib/navigate';
     import { toPng } from 'html-to-image';
     import { onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
@@ -268,7 +270,7 @@ The verse on image component.
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
             });
-    }
+    } //It looks like this doesn't share the text with it, so that'll need to be fixed.
 
     // EditorTabs centering feature:
 
@@ -573,14 +575,13 @@ The verse on image component.
                             console.log('on:change');
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
-                                // newImg.onload = function () {
-                                //     //DEBUG WORKHEREFIRST: this is not getting triggered when the modal is closed.
-                                //     cnv_background = newImg;
-                                //     /*DEBUG*/ console.log('newImg result = ', newImg);
-                                // };
-                                /*DEBUG*/ console.log('Open Crop Modal');
+                                console.log('Open Crop Modal');
                                 let selectedSrc = URL.createObjectURL(selectedFile);
-                                modal.open(MODAL_CROP, { selectedSrc, applyCrop, cnv }); // must not be actually binding the modal-internal references to the {} params being passed in, because $: applyCrop(newImg); is not seeing any change to newImg...
+                                voiCustomImage.update((v) => ({
+                                    ...v,
+                                    original: selectedSrc
+                                }));
+                                gotoRoute('/crop');
                             }
                         }}
                     />

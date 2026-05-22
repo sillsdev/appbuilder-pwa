@@ -141,3 +141,7 @@ function createStackStore<T>() {
 }
 
 export const contentsStack = createStackStore<number>();
+export const voiCustomImage = writable({
+    original: null,
+    cropped: null
+});

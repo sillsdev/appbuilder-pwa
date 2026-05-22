@@ -3,7 +3,10 @@
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
     import { t } from '$lib/data/stores';
     import { ShareIcon } from '$lib/icons';
+
     let verseOnImage_Component;
+    console.log('t:');
+    console.log($t);
     function share() {
         console.log('Share Called');
         if (verseOnImage_Component) {
@@ -16,14 +19,18 @@
     <div class="navbar h-16">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
-            <label for="sidebar" slot="center">
-                <div class="btn btn-ghost normal-case text-xl">{$t['Text_On_Image_Title']}</div>
-            </label>
-            <div slot="right-buttons">
-                <button class="dy-btn-sm dy-btn-ghost" on:click={share}>
-                    <ShareIcon color="white" />
-                </button>
-            </div>
+            {#snippet center()}
+                <label for="sidebar">
+                    <div class="btn btn-ghost normal-case text-xl">{$t['Text_On_Image_Title']}</div>
+                </label>
+            {/snippet}
+            {#snippet end()}
+                <div>
+                    <button class="dy-btn-sm dy-btn-ghost" on:click={share}>
+                        <ShareIcon color="white" />
+                    </button>
+                </div>
+            {/snippet}
         </Navbar>
     </div>
 
