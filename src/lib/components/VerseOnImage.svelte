@@ -1,6 +1,7 @@
 <!--
 @component
 The verse on image component.
+TODO: Implement 2-finger resizing
 -->
 <script>
     import FontList from '$lib/components/FontList.svelte';
@@ -158,7 +159,6 @@ The verse on image component.
         img.onload = function () {
             cnv_background = img;
         };
-        /*DBEUG*/ console.log('src= ', imgSrc);
     }
     let resizing = false;
     let resizeStartX, resizeStartY, resizeStartWidth, resizeStartHeight;
@@ -218,7 +218,6 @@ The verse on image component.
         voi_fontSize = getFontSize(fontSizePercent, voi_height);
 
         const adjustFontSize = () => {
-            console.log('adjustFontSize'); //Here's the problem: This keeps running and updating the textPosX (I think), thus overwriting the one I painstakingly set.
             if (!fontSize) {
                 if (textOverlay.offsetHeight > 0.8 * voi_height && fontSizePercent > 0.5) {
                     fontSizePercent -= 0.5;
@@ -302,6 +301,54 @@ The verse on image component.
                     .then((response) => response.blob())
                     .then((blob) => {
                         shareImage(reference, verses, reference + '.png', blob);
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                    });
+            })
+            .catch(function (error) {
+                console.error('oops, something went wrong!', error);
+            });
+    }
+    export function downloadCanvas() {
+        const original = document.getElementById('verseOnImgPreview');
+
+        const clone = original.cloneNode(true); //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+
+        const origCanvas = original.querySelector('canvas');
+        const cloneCanvas = clone.querySelector('canvas');
+        cloneCanvas.width = origCanvas.width;
+        cloneCanvas.height = origCanvas.height;
+        const ctx = cloneCanvas.getContext('2d');
+        ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+
+        clone.style.position = 'absolute';
+        clone.style.left = '0px';
+        clone.style.top = '0px';
+        clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
+
+        var cloneParagraph = clone.querySelector('p');
+        const parentRect = voi_parentDiv.getBoundingClientRect();
+        cloneParagraph.style.left = voi_textPosX - parentRect.left + 'px';
+        cloneParagraph.style.top = voi_textPosY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+
+        document.body.appendChild(clone);
+        toPng(clone)
+            .then(function (dataUrl) {
+                document.body.removeChild(clone); //Get rid of the clone once we're done
+                fetch(dataUrl)
+                    .then((response) => response.blob())
+                    .then((blob) => {
+                        const filename = reference + '.png';
+                        const file = new File([blob], filename, { type: 'image/png' });
+                        const url = URL.createObjectURL(file);
+
+                        const anchor = document.createElement('a');
+                        anchor.href = url;
+                        anchor.download = filename;
+                        anchor.click();
+
+                        URL.revokeObjectURL(url);
                     })
                     .catch((error) => {
                         console.error('Error fetching data:', error);

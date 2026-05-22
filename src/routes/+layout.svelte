@@ -11,23 +11,12 @@
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
-    import VerseOnImage from '$lib/components/VerseOnImage.svelte';
     import catalog from '$lib/data/catalogData';
     import {
         analytics,
         direction,
         modal,
-<<<<<<< HEAD
         ModalType,
-=======
-        MODAL_COLLECTION,
-        MODAL_FONT,
-        MODAL_NOTE,
-        MODAL_PLAYBACK_SPEED,
-        MODAL_STOP_PLAN,
-        MODAL_TEXT_APPEARANCE,
-        MODAL_VERSE_ON_IMAGE,
->>>>>>> 1040e97 (Fixed share feature)
         NAVBAR_HEIGHT,
         refs,
         s,
@@ -123,7 +112,6 @@
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
-    let verseOnImage: VerseOnImage = $state();
 </script>
 
 <svelte:head>
@@ -160,9 +148,6 @@
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
         <FontSelector bind:this={fontSelector} />
-
-        <!-- VerseOnImage Menu -->
-        <!--<VerseOnImage bind:this={verseOnImage} />-->
 
         <PlanStopDialog
             bind:this={planStopDialog}
