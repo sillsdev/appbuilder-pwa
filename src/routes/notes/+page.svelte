@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { page } from '$app/state';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -12,6 +11,13 @@
     import { gotoRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
+    import type { PageData } from './$types';
+
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
 
     async function handleMenuaction(event: MenuActionEvent, note: NoteItem) {
         switch (event.text) {
@@ -61,8 +67,7 @@
             {#snippet end()}
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
-                    onclick={async () =>
-                        await shareAnnotations(toSorted(page.data.notes, sortOrder))}
+                    onclick={async () => await shareAnnotations(toSorted(data.notes, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
@@ -75,11 +80,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if page.data.notes.length === 0}
+        {#if data.notes.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Notes_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Notes_None_Info']}</div>
         {:else}
-            {#each toSorted(page.data.notes, sortOrder) as n}
+            {#each toSorted(data.notes, sortOrder) as n}
                 {@const iconCard = {
                     docSet: n.docSet,
                     collection: n.collection,

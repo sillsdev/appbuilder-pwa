@@ -13,7 +13,7 @@
     interface Props {
         bodyFontSize: number | string;
         bodyLineHeight: number | string;
-        font: string;
+        font?: string;
     }
 
     let { bodyFontSize, bodyLineHeight, font }: Props = $props();

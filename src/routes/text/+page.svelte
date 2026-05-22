@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { page } from '$app/state';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import AudioBar from '$lib/components/AudioBar.svelte';
@@ -65,6 +64,7 @@
         type PinchPointerEventDetail,
         type SwipePointerEventDetail
     } from 'svelte-gestures';
+    import type { PageData } from './$types';
 
     const borders = import.meta.glob('./*', {
         import: 'default',
@@ -72,6 +72,12 @@
         query: '?url',
         base: '/src/gen-assets/borders'
     });
+
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
 
     let scrollingUp = $state(true);
     let savedScrollPosition = 0;
@@ -182,7 +188,7 @@
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
-                  fetch: page.data.fetch
+                  fetch: data.fetch
               } satisfies HtmlBookViewProps)
             : ({
                   audioPhraseEndChars: audioPhraseEndChars,
@@ -208,7 +214,7 @@
                   viewShowVerses,
                   viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
                   font: $currentFont!,
-                  proskomma: page.data?.proskomma
+                  proskomma: data?.proskomma
               } satisfies ScriptureViewSofriaProps)
     );
 

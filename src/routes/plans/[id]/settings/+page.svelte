@@ -1,11 +1,17 @@
 <script lang="ts">
-    import { page } from '$app/stores';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addPlanState } from '$lib/data/planStates';
     import { language, t } from '$lib/data/stores';
     import { gotoRoute } from '$lib/navigate';
+    import type { PageData } from './$types';
 
-    async function startPlan(id) {
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
+
+    async function startPlan(id: string) {
         await addPlanState({
             id: id,
             state: 'started'
@@ -13,7 +19,7 @@
         gotoRoute(`/plans/${id}`);
     }
     function backNavigation() {
-        const id = $page.data.planConfig.id;
+        const id = data.planConfig?.id;
         gotoRoute(`/plans/${id}`);
     }
 </script>
@@ -24,9 +30,7 @@
             {#snippet center()}
                 <label for="sidebar">
                     <div class="btn btn-ghost normal-case text-xl">
-                        {$page.data.planConfig.title[$language] ??
-                            $page.data.planConfig.title.default ??
-                            ''}
+                        {data.planConfig?.title[$language] ?? data.planConfig?.title.default ?? ''}
                     </div>
                 </label>
             {/snippet}
@@ -40,13 +44,13 @@
             <div class="plan-setup-title">
                 {$t['Plans_Setup_Start_Completed_Message']}
             </div>
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
                 class="plan-button"
                 id="plan-continue"
                 onclick={async function () {
-                    await startPlan($page.data.planConfig.id);
+                    await startPlan(data.planConfig!.id);
                 }}
             >
                 {$t['Button_Continue']}
