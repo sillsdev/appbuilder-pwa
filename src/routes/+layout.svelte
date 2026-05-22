@@ -6,7 +6,6 @@
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
-    import CropImage from '$lib/components/CropImage.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
@@ -18,7 +17,17 @@
         analytics,
         direction,
         modal,
+<<<<<<< HEAD
         ModalType,
+=======
+        MODAL_COLLECTION,
+        MODAL_FONT,
+        MODAL_NOTE,
+        MODAL_PLAYBACK_SPEED,
+        MODAL_STOP_PLAN,
+        MODAL_TEXT_APPEARANCE,
+        MODAL_VERSE_ON_IMAGE,
+>>>>>>> 1040e97 (Fixed share feature)
         NAVBAR_HEIGHT,
         refs,
         s,
@@ -91,10 +100,6 @@
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
                         break;
-                    case ModalType.Crop:
-                        cropImage.data = data;
-                        cropImage.showModal();
-                        break;
                 }
             });
             modal.clear();
@@ -119,7 +124,6 @@
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
     let verseOnImage: VerseOnImage = $state();
-    let cropImage: CropImage = $state();
 </script>
 
 <svelte:head>
@@ -156,8 +160,6 @@
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
         <FontSelector bind:this={fontSelector} />
-
-        <CropImage bind:this={cropImage} />
 
         <!-- VerseOnImage Menu -->
         <!--<VerseOnImage bind:this={verseOnImage} />-->

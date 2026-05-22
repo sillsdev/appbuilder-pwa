@@ -29,10 +29,10 @@ export const ModalType = {
     Collection: 'collection',
     Note: 'note',
     TextAppearance: 'text-appearance',
-    Crop: 'crop',
     Font: 'font',
     StopPlan: 'stop-plan',
-    PlaybackSpeed: 'playback-speed'
+    PlaybackSpeed: 'playback-speed',
+    VerseOnImage: 'verse-on-image'
 } as const;
 export type ModalType = (typeof ModalType)[keyof typeof ModalType];
 

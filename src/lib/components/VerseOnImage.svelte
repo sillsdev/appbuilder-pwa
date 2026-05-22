@@ -12,8 +12,6 @@ The verse on image component.
         fontChoices,
         language,
         languages,
-        modal,
-        MODAL_CROP,
         monoIconColor,
         s,
         selectedVerses,
@@ -30,7 +28,6 @@ The verse on image component.
     import { toPng } from 'html-to-image';
     import { onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
-    import CropImage from './CropImage.svelte';
     import Slider from './Slider.svelte';
 
     const backgroundURLs = import.meta.glob('./*', {
@@ -100,21 +97,6 @@ The verse on image component.
     let voi_imageContrast = 100;
     let voi_imageSaturation = 100;
     let voi_imageBlur = 0;
-
-    export let crop_sourceX,
-        crop_sourceY,
-        crop_sourceWidth,
-        crop_sourceHeight,
-        crop_destX,
-        crop_destY,
-        crop_destWidth,
-        crop_destHeight;
-
-    function applyCrop(img) {
-        /*DEBUG*/ console.log('ApplyCrop triggered.');
-        cnv_background = img;
-        /*DEBUG*/ console.log('newImg result = ', img);
-    }
 
     $: update_voi_textBoxHeight(
         txtFormatted,
@@ -210,6 +192,7 @@ The verse on image component.
         voi_fontSize = getFontSize(fontSizePercent, voi_height);
 
         const adjustFontSize = () => {
+            console.log('adjustFontSize'); //Here's the problem: This keeps running and updating the textPosX (I think), thus overwriting the one I painstakingly set.
             if (!fontSize) {
                 if (textOverlay.offsetHeight > 0.8 * voi_height && fontSizePercent > 0.5) {
                     fontSizePercent -= 0.5;
@@ -229,8 +212,11 @@ The verse on image component.
                     voi_fontSize = fontSize;
                 }
             } else {
-                voi_textPosX = (voi_width - textOverlay.offsetWidth) / 2;
-                voi_textPosY = (voi_height - textOverlay.offsetHeight) / 2;
+                const parentRect = voi_parentDiv.getBoundingClientRect();
+                const childRect = voi_textBox.getBoundingClientRect();
+                voi_textPosX = parentRect.left + (parentRect.width - childRect.width) / 2;
+                voi_textPosY = parentRect.top + (parentRect.height - childRect.height) / 2;
+
                 resizeObserver.unobserve(textOverlay);
                 textOverlay.style.display = textDisplay;
             }
@@ -249,6 +235,10 @@ The verse on image component.
         initFontSizesAndCenterText();
 
         centerButton(0);
+        const parentRect = voi_parentDiv.getBoundingClientRect();
+        const childRect = voi_textBox.getBoundingClientRect();
+        voi_textPosX = parentRect.left + (parentRect.width - childRect.width) / 2;
+        voi_textPosY = parentRect.top + (parentRect.height - childRect.height) / 2;
     });
 
     function handleFontChange(f) {
@@ -257,9 +247,31 @@ The verse on image component.
 
     // Share button feature:
     export function shareCanvas() {
-        var node = document.getElementById('verseOnImgPreview');
-        toPng(node)
+        const original = document.getElementById('verseOnImgPreview');
+
+        const clone = original.cloneNode(true); //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+
+        const origCanvas = original.querySelector('canvas');
+        const cloneCanvas = clone.querySelector('canvas');
+        cloneCanvas.width = origCanvas.width;
+        cloneCanvas.height = origCanvas.height;
+        const ctx = cloneCanvas.getContext('2d');
+        ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+
+        clone.style.position = 'absolute';
+        clone.style.left = '0px';
+        clone.style.top = '0px';
+        clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
+
+        var cloneParagraph = clone.querySelector('p');
+        const parentRect = voi_parentDiv.getBoundingClientRect();
+        cloneParagraph.style.left = voi_textPosX - parentRect.left + 'px';
+        cloneParagraph.style.top = voi_textPosY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+
+        document.body.appendChild(clone);
+        toPng(clone)
             .then(function (dataUrl) {
+                document.body.removeChild(clone); //Get rid of the clone once we're done
                 fetch(dataUrl)
                     .then((response) => response.blob())
                     .then((blob) => {
@@ -272,7 +284,7 @@ The verse on image component.
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
             });
-    } //It looks like this doesn't share the text with it, so that'll need to be fixed.
+    }
 
     // EditorTabs centering feature:
 
@@ -319,18 +331,30 @@ The verse on image component.
     let dragging = false;
     let offsetX, offsetY;
 
+    //let initialLeft, initialTop;
     function voiTextBox_handleMouseMove(event) {
         if (dragging) {
-            voi_textPosX = event.clientX - offsetX;
-            voi_textPosY = event.clientY - offsetY;
-            const newX = event.clientX - offsetX;
-            const newY = event.clientY - offsetY;
+            //const dx = event.clientX - offsetX;
+            //const dy = event.clientY - offsetY;
 
+            //const newX = initialLeft + dx;
+            //const newY = initialTop + dy;
             // Prevent child div from going outside the parent borders
             const parentRect = voi_parentDiv.getBoundingClientRect();
             const childRect = voi_textBox.getBoundingClientRect();
-            voi_textPosX = Math.max(0, Math.min(newX, parentRect.width - childRect.width));
-            voi_textPosY = Math.max(0, Math.min(newY, parentRect.height - childRect.height));
+            voi_textPosX = event.clientX - offsetX;
+            voi_textPosY = event.clientY - offsetY;
+            const newX = event.clientX - offsetX - parentRect.left;
+            const newY = event.clientY - offsetY - parentRect.top;
+
+            voi_textPosX = Math.max(
+                0 + parentRect.left,
+                Math.min(newX, parentRect.width - childRect.width) + parentRect.left
+            );
+            voi_textPosY = Math.max(
+                0 + parentRect.top,
+                Math.min(newY, parentRect.height - childRect.height) + parentRect.top
+            );
         }
     }
 
@@ -338,6 +362,10 @@ The verse on image component.
         dragging = true;
         offsetX = event.clientX - voi_textPosX; // Update offsetX
         offsetY = event.clientY - voi_textPosY; // Update offsetY
+        //offsetX = event.clientX; // Update offsetX
+        //offsetY = event.clientY; // Update offsetY
+        //initialLeft = voi_textPosX;
+        //initialTop = voi_textPosY;
 
         function handleMouseUp() {
             dragging = false;
@@ -394,12 +422,12 @@ The verse on image component.
                     padding: {voi_txtPadding};
                     text-align: {voi_textAlign};
                     text-shadow: {voi_textShadow};
-                    overflow: hidden;
                     user-drag: none;
-                    transform: translate({voi_textPosX}px, {voi_textPosY}px);
                     border: 3px solid lightgreen;
+                    left: {voi_textPosX}px;
+                    top: {voi_textPosY}px;
                 "
-                class="flex flex-col"
+                //class="flex flex-col"
                 bind:this={voi_textBox}
                 on:mousedown={voiTextBox_handleMouseDown}
                 on:touchstart={(event) => voiTextBox_handleMouseDown(event.touches[0])}
@@ -563,7 +591,6 @@ The verse on image component.
                         style="cursor: pointer;"
                         on:click={() => {
                             document.getElementById('fileInput').click();
-                            /*DEBUG*/ console.log('Open camera roll');
                         }}
                     >
                         <ImagesIcon color={$monoIconColor} />
@@ -574,10 +601,8 @@ The verse on image component.
                         id="fileInput"
                         style="display: none; visibility: none;"
                         on:change={(event) => {
-                            console.log('on:change');
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
-                                console.log('Open Crop Modal');
                                 let selectedSrc = URL.createObjectURL(selectedFile);
                                 voiCustomImage.update((v) => ({
                                     ...v,
@@ -594,7 +619,6 @@ The verse on image component.
                         class="image_selector_pane_box"
                         on:click={(event) => {
                             voi_imgSrc = backgroundURLs[`./${imgObj.filename}`];
-                            //voi_imgSrc = base + '/backgrounds/' + imgObj.filename;
                         }}
                     />
                 {/each}
