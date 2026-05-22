@@ -289,13 +289,7 @@ The navbar component.
     };
     const options = $derived({
         [b]: {
-            component: listView ? selectList : selectGrid,
-            props: {
-                options: bookGridGroup({
-                    colId: $refs.collection,
-                    bookLabel: listView ? 'name' : 'abbreviation'
-                })
-            },
+            snippet: listView ? selectList : selectGrid,
             visible: true
         },
         [c]: {
@@ -306,7 +300,7 @@ The navbar component.
             snippet: selectGrid,
             visible: showChapterSelector && showVerseSelector
         }
-    });
+    } satisfies App.TabMenuOptions);
 </script>
 
 {#snippet selectList(bcv: string, menuaction: App.MenuActionHandler)}
