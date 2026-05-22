@@ -6,6 +6,7 @@
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionSelector from '$lib/components/CollectionSelector.svelte';
+    import CropImage from '$lib/components/CropImage.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
@@ -17,17 +18,7 @@
         analytics,
         direction,
         modal,
-<<<<<<< HEAD
         ModalType,
-=======
-        MODAL_COLLECTION,
-        MODAL_FONT,
-        MODAL_NOTE,
-        MODAL_PLAYBACK_SPEED,
-        MODAL_STOP_PLAN,
-        MODAL_TEXT_APPEARANCE,
-        MODAL_VERSE_ON_IMAGE,
->>>>>>> 49c7625 (Roughing out verseOnImage divs - rebased off main)
         NAVBAR_HEIGHT,
         refs,
         s,
@@ -100,6 +91,9 @@
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
                         break;
+                    case ModalType.Crop:
+                        cropImage.showModal();
+                        break;
                 }
             });
             modal.clear();
@@ -122,12 +116,9 @@
     let noteDialog: NoteDialog | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let planStopId: string = $state('');
-<<<<<<< HEAD
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
-=======
-    let audioPlaybackSpeed: AudioPlaybackSpeed = $state();
     let verseOnImage: VerseOnImage = $state();
->>>>>>> 49c7625 (Roughing out verseOnImage divs - rebased off main)
+    let cropImage: CropImage = $state();
 </script>
 
 <svelte:head>
@@ -165,6 +156,16 @@
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
         <FontSelector bind:this={fontSelector} />
+
+        <CropImage
+            bind:this={cropImage}
+            imgSrc={voi_imgSrc}
+            triggerCrop={crop_trigger}
+            cropTop={crop_sourceX}
+            cropLeft={crop_sourceY}
+            cropWidth={crop_sourceWidth}
+            cropHeight={crop_sourceHeight}
+        />
 
         <!-- VerseOnImage Menu -->
         <VerseOnImage bind:this={verseOnImage} />

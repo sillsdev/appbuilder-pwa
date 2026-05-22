@@ -5,6 +5,7 @@ The verse on image component.
 <script>
     import { onMount } from 'svelte';
     import Slider from './Slider.svelte';
+    import CropImage from './CropImage.svelte';
     import { TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import {
@@ -19,6 +20,8 @@ The verse on image component.
         direction,
         fontChoices,
         currentFont,
+        modal,
+        MODAL_CROP,
         s
     } from '$lib/data/stores';
     import { shareImage } from '$lib/data/share';
@@ -90,6 +93,17 @@ The verse on image component.
     let voi_imageSaturation = 100;
     let voi_imageBlur = 0;
 
+    export let crop_sourceX,
+        crop_sourceY,
+        crop_sourceWidth,
+        crop_sourceHeight,
+        crop_destX,
+        crop_destY,
+        crop_destWidth,
+        crop_destHeight;
+
+    export let crop_trigger = false;
+
     $: update_voi_textBoxHeight(
         txtFormatted,
         voi_fontSize,
@@ -144,6 +158,29 @@ The verse on image component.
             context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
             context.drawImage(cnv_background, 0, 0, cnv.width, cnv.height);
         };
+    }
+
+    $: cropImage(crop_trigger);
+
+    function cropImage(trigger) {
+        if (trigger) {
+            /*DBEUG*/ console.log('Crop triggered');
+            const ctx = cnv.getContext('2d');
+            ctx.clearRect(0, 0, cnv.width, cnv.height);
+            ctx.drawImage(
+                cnv,
+                crop_sourceX,
+                crop_sourceY,
+                crop_sourceWidth,
+                crop_sourceHeight,
+                0,
+                0,
+                cnv.width,
+                cnv.height
+            );
+            crop_trigger = false;
+        }
+        /*DBEUG*/ console.log('Crop trigger off');
     }
 
     /**
@@ -544,6 +581,13 @@ The verse on image component.
                                 newImg.src = URL.createObjectURL(selectedFile);
                                 voi_imgSrc = newImg.src;
                             }
+                            //Prep for cropping image:
+                            crop_sourceX = '0';
+                            crop_sourceY = '0';
+                            crop_sourceWidth = cnv.width;
+                            crop_sourceHeight = cnv.height;
+                            /*DEBUG*/ console.log('Open Crop Modal');
+                            modal.open(MODAL_CROP);
                         }}
                     />
                 </div>

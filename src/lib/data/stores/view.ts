@@ -29,6 +29,7 @@ export const ModalType = {
     Collection: 'collection',
     Note: 'note',
     TextAppearance: 'text-appearance',
+    Crop: 'crop',
     Font: 'font',
     StopPlan: 'stop-plan',
     PlaybackSpeed: 'playback-speed'
