@@ -160,6 +160,32 @@ The verse on image component.
         };
         /*DBEUG*/ console.log('src= ', imgSrc);
     }
+    let resizing = false;
+    let resizeStartX, resizeStartY, resizeStartWidth, resizeStartHeight;
+    function startResize(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        resizing = true;
+        resizeStartX = e.clientX;
+        resizeStartWidth = voi_textBoxWidth;
+
+        window.addEventListener('pointermove', resize);
+        window.addEventListener('pointerup', stopResize);
+    } //This is for resizing the textbox
+    function resize(e) {
+        if (!resizing) {
+            return;
+        }
+        const newWidth = resizeStartWidth + e.clientX - resizeStartX;
+        const rect = voi_parentDiv.getBoundingClientRect();
+        const maxSizeX = rect.right - voi_textPosX;
+        voi_textBoxWidth = Math.min(Math.max(50, newWidth), maxSizeX);
+    }
+    function stopResize() {
+        resizing = false;
+        window.removeEventListener('pointermove', resize);
+        window.removeEventListener('pointerup', stopResize);
+    }
 
     /**
      * 1. Start with the inital size of the text being 7% of the height of the image.
@@ -403,6 +429,7 @@ The verse on image component.
                 style="position: relative; z-index: 1;"
             ></canvas>
 
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <p
                 id="verseOnImageTextDiv"
                 style="
@@ -439,6 +466,11 @@ The verse on image component.
                     dragging = false;
                 }}
             >
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <span
+                    class="absolute top-0 right-0 w-3 h-full bg-transparent cursor-e-resize z-50 pointer-events-auto"
+                    on:pointerdown={startResize}
+                ></span>
                 {txtFormatted}
                 <span
                     id="verseOnImageRefDiv"
