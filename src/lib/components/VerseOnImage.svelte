@@ -3,8 +3,8 @@
 The verse on image component.
 -->
 <script>
+    import config from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
-    import config from '$lib/data/config';
     import { shareImage } from '$lib/data/share';
     import {
         currentFont,
@@ -12,9 +12,7 @@ The verse on image component.
         monoIconColor,
         s,
         selectedVerses,
-        theme,
         themeColors,
-        themes,
         voiCustomImage,
         windowSize
     } from '$lib/data/stores';
@@ -34,53 +32,51 @@ The verse on image component.
         base: '/src/gen-assets/backgrounds'
     });
 
-    $: barColor = $themeColors['SliderBarColor'];
-    $: progressColor = $themeColors['SliderProgressColor'];
-    $: unselectedColor = 'grey';
+    const barColor = $derived($themeColors['SliderBarColor']);
+    const progressColor = $derived($themeColors['SliderProgressColor']);
+    const unselectedColor = $derived('grey');
 
-    $: viewportWidth_in_px = Math.max(
-        document.documentElement.clientWidth || 0,
-        window.innerWidth || 0
+    const viewportWidth_in_px = $derived(
+        Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
     );
-    $: viewportHeight_in_px = Math.max(
-        document.documentElement.clientHeight || 0,
-        window.innerHeight || 0
+    const viewportHeight_in_px = $derived(
+        Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
     );
 
-    $: reference = selectedVerses.getCompositeReference();
-    let verses;
-    let voi_imgSrc;
+    const reference = $derived(selectedVerses.getCompositeReference());
+    let verses = $state();
+    let voi_imgSrc = $state();
     let voi_parentDiv;
-    $: voi_width = cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2;
-    $: voi_height = voi_width;
-    $: cnvFullScreen = $windowSize.width < 450;
+    const voi_width = $derived(cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2);
+    const voi_height = $derived(voi_width);
+    const cnvFullScreen = $derived($windowSize.width < 450);
     let cnv;
 
-    let cnv_background;
+    let cnv_background = $state();
     let voi_textBox;
-    $: txtFormatted = verses;
-    let voi_verseBold = $s['ui.text-on-image']['font-weight'] == 'bold';
-    let voi_verseItalic = $s['ui.text-on-image']['font-style'] == 'italic';
-    let voi_fontSize = 13;
-    let voi_fontSizeMin = 10;
-    let voi_fontSizeMax = 60;
-    let voi_font = $currentFont;
-    let voi_refBold = '';
-    let voi_refItalic = $s['ui.text-on-image']['font-style'] == 'italic';
-    let voi_refFontPercent = 80;
-    let voi_fontColor = standardize_color(String($s['ui.text-on-image']['color']));
-    let voi_letterSpacing = 0;
-    let voi_lineHeight_x100 = 0;
-    $: voi_lineHeight = 1 + voi_lineHeight_x100 / 100;
-    let voi_txtPadding = '0px';
-    let voi_textAlign = 'center';
-    let voi_textBoxWidthPercent = 84;
-    $: voi_textBoxWidth = (voi_width * voi_textBoxWidthPercent) / 100;
-    let voi_textBoxHeight;
-    $: voi_textBox_maxHeight = voi_height - voi_textPosY;
-    let voi_textShadow_mode = 'glow';
-    let voi_textShadow_value = 15;
-    $: voi_textShadow =
+    const txtFormatted = $derived(verses);
+    let voi_verseBold = $state($s['ui.text-on-image']['font-weight'] == 'bold');
+    let voi_verseItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
+    let voi_fontSize = $state(13);
+    let voi_fontSizeMin = $state(10);
+    let voi_fontSizeMax = $state(60);
+    let voi_font = $state($currentFont);
+    let voi_refBold = $state('');
+    let voi_refItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
+    let voi_refFontPercent = $state(80);
+    let voi_fontColor = $state(standardize_color(String($s['ui.text-on-image']['color'])));
+    let voi_letterSpacing = $state(0);
+    let voi_lineHeight_x100 = $state(0);
+    const voi_lineHeight = $derived(1 + voi_lineHeight_x100 / 100);
+    let voi_txtPadding = $state('0px');
+    let voi_textAlign = $state('center');
+    let voi_textBoxWidthPercent = $state(84);
+    //const voi_textBoxWidth = $derived((voi_width * voi_textBoxWidthPercent) / 100);
+    let voi_textBoxWidth = $derived((voi_width * voi_textBoxWidthPercent) / 100);
+    const voi_textBox_maxHeight = $derived(voi_height - voi_textPosY);
+    let voi_textShadow_mode = $state('glow');
+    let voi_textShadow_value = $state(15);
+    const voi_textShadow = $derived(
         voi_textShadow_mode == 'none'
             ? ''
             : (voi_textShadow_mode == 'shadow'
@@ -89,41 +85,12 @@ The verse on image component.
                     (voi_fontSize * voi_textShadow_value) / 100 +
                     'px ' +
                     (voi_fontSize * voi_textShadow_value) / 100
-                  : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black';
-    let voi_imageBrightness = 100;
-    let voi_imageContrast = 100;
-    let voi_imageSaturation = 100;
-    let voi_imageBlur = 0;
-
-    $: update_voi_textBoxHeight(
-        txtFormatted,
-        voi_fontSize,
-        voi_font,
-        voi_verseBold,
-        voi_verseItalic,
-        voi_letterSpacing,
-        voi_lineHeight_x100,
-        voi_lineHeight,
-        voi_txtPadding,
-        voi_textAlign,
-        voi_textBoxWidth
+                  : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black'
     );
-
-    function update_voi_textBoxHeight(
-        txtFormatted = '',
-        voi_fontSize = '',
-        voi_font = '',
-        voi_bold = '',
-        voi_italic = '',
-        voi_letterSpacing = '',
-        voi_lineHeight_x100 = '',
-        voi_lineHeight = '',
-        voi_txtPadding = '',
-        voi_textAlign = '',
-        voi_textBoxWidth = ''
-    ) {
-        voi_textBoxHeight = voi_textBox ? voi_textBox.clientHeight : '[voi_textBox = false]';
-    }
+    let voi_imageBrightness = $state(100);
+    let voi_imageContrast = $state(100);
+    let voi_imageSaturation = $state(100);
+    let voi_imageBlur = $state(0);
 
     function standardize_color(str) {
         var ctx = document.createElement('canvas').getContext('2d');
@@ -131,22 +98,31 @@ The verse on image component.
         return ctx.fillStyle;
     }
 
-    $: render(
-        cnv_background,
-        voi_imageBrightness,
-        voi_imageContrast,
-        voi_imageSaturation,
-        voi_imageBlur
-    );
+    $effect(() => {
+        render(
+            cnv_background,
+            voi_imageBrightness,
+            voi_imageContrast,
+            voi_imageSaturation,
+            voi_imageBlur
+        );
+    });
 
     function render(background, imgBrightness, imgContrast, imgSaturation, imgBlur) {
-        if (!cnv) return;
+        if (!cnv) {
+            return;
+        }
+        if (!background) {
+            return;
+        }
         const context = cnv.getContext('2d');
         context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
         context.drawImage(background, 0, 0, cnv.width, cnv.height);
     }
 
-    $: updateImgSrc(voi_imgSrc);
+    $effect(() => {
+        updateImgSrc(voi_imgSrc);
+    });
 
     function updateImgSrc(imgSrc) {
         const img = new Image();
@@ -406,7 +382,7 @@ The verse on image component.
 
     // EditorTabs centering feature:
 
-    let active_editor_index = -1;
+    let active_editor_index = $state(-1);
 
     function centerButton(n) {
         const container = document.getElementById('editorTabs');
@@ -444,8 +420,8 @@ The verse on image component.
 
     // voi_textBox Dragability:
 
-    let voi_textPosX = 0;
-    let voi_textPosY = 0;
+    let voi_textPosX = $state(0);
+    let voi_textPosY = $state(0);
     let dragging = false;
     let offsetX, offsetY;
 
@@ -473,8 +449,8 @@ The verse on image component.
 
     function voiTextBox_handleMouseDown(event) {
         dragging = true;
-        offsetX = event.clientX - voi_textPosX; // Update offsetX
-        offsetY = event.clientY - voi_textPosY; // Update offsetY
+        offsetX = event.clientX - voi_textPosX;
+        offsetY = event.clientY - voi_textPosY;
 
         function handleMouseUp() {
             dragging = false;
@@ -501,8 +477,8 @@ The verse on image component.
             bind:this={voi_parentDiv}
             class="flex flex-col touch-none"
             style="width:{voi_width}px; height:{voi_height}px;"
-            on:touchstart={onTouchStart}
-            on:touchmove={onTouchMove}
+            ontouchstart={onTouchStart}
+            ontouchmove={onTouchMove}
         >
             <!-- Preview display of the image and text -->
 
@@ -542,12 +518,12 @@ The verse on image component.
                 "
                 //class="flex flex-col"
                 bind:this={voi_textBox}
-                on:pointerdown={voiTextBox_handleMouseDown}
+                onpointerdown={voiTextBox_handleMouseDown}
             >
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <span
                     class="absolute top-0 right-0 w-3 h-full bg-transparent cursor-e-resize z-50 pointer-events-auto"
-                    on:pointerdown={startResize}
+                    onpointerdown={startResize}
                 ></span>
                 {txtFormatted}
                 <span
@@ -590,14 +566,14 @@ The verse on image component.
         <!-- NavBar of tab buttons to bring up the different editor panes -->
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(0)}
+            onclick={() => centerButton(0)}
             class:activeButton={active_editor_index == 0}
         >
             <ImageIcon.Image color={active_editor_index == 0 ? progressColor : unselectedColor} />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(1)}
+            onclick={() => centerButton(1)}
             class:activeButton={active_editor_index == 1}
         >
             <ImageIcon.FontChoice
@@ -606,7 +582,7 @@ The verse on image component.
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(2)}
+            onclick={() => centerButton(2)}
             class:activeButton={active_editor_index == 2}
         >
             <TextAppearanceIcon
@@ -615,7 +591,7 @@ The verse on image component.
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(3)}
+            onclick={() => centerButton(3)}
             class:activeButton={active_editor_index == 3}
         >
             <ImageIcon.FormatAlignCenter
@@ -624,7 +600,7 @@ The verse on image component.
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(4)}
+            onclick={() => centerButton(4)}
             class:activeButton={active_editor_index == 4}
         >
             <ImageIcon.FormatColorFill
@@ -633,7 +609,7 @@ The verse on image component.
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(5)}
+            onclick={() => centerButton(5)}
             class:activeButton={active_editor_index == 5}
         >
             <ImageIcon.TextShadow
@@ -642,7 +618,7 @@ The verse on image component.
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(6)}
+            onclick={() => centerButton(6)}
             class:activeButton={active_editor_index == 6}
         >
             <ImageIcon.Brightness
@@ -651,14 +627,14 @@ The verse on image component.
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(7)}
+            onclick={() => centerButton(7)}
             class:activeButton={active_editor_index == 7}
         >
             <ImageIcon.Blur color={active_editor_index == 7 ? progressColor : unselectedColor} />
         </button>
         <button
             class="dy-btn-sm dy-btn-ghost"
-            on:click={() => centerButton(8)}
+            onclick={() => centerButton(8)}
             class:activeButton={active_editor_index == 8}
         >
             <ImageIcon.Reference
@@ -699,7 +675,7 @@ The verse on image component.
                     <button
                         class="dy-btn-sm dy-btn-ghost"
                         style="cursor: pointer;"
-                        on:click={() => {
+                        onclick={() => {
                             document.getElementById('fileInput').click();
                         }}
                     >
@@ -710,7 +686,7 @@ The verse on image component.
                         accept="image/*"
                         id="fileInput"
                         style="display: none; visibility: none;"
-                        on:change={(event) => {
+                        onchange={(event) => {
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
                                 let selectedSrc = URL.createObjectURL(selectedFile);
@@ -727,7 +703,7 @@ The verse on image component.
                     <img
                         src={backgroundURLs[`./${imgObj.filename}`]}
                         class="image_selector_pane_box"
-                        on:click={(event) => {
+                        onclick={(event) => {
                             voi_imgSrc = backgroundURLs[`./${imgObj.filename}`];
                         }}
                     />
@@ -739,7 +715,7 @@ The verse on image component.
         <div class="dy-carousel-item items-center editorPane">
             <FontList
                 bind:selectedFont={voi_font}
-                on:menuaction={(font) => {
+                onmenuaction={(font) => {
                     handleFontChange(font.detail.font);
                 }}
             />
@@ -751,7 +727,7 @@ The verse on image component.
                 <!-- Bold button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_verseBold = !voi_verseBold;
                     }}
                 >
@@ -761,7 +737,7 @@ The verse on image component.
                 <!-- Italic button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_verseItalic = !voi_verseItalic;
                     }}
                 >
@@ -810,7 +786,7 @@ The verse on image component.
                 <!-- Left align button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_textAlign = 'left';
                     }}
                 >
@@ -822,7 +798,7 @@ The verse on image component.
                 <!-- Center align button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_textAlign = 'center';
                     }}
                 >
@@ -834,7 +810,7 @@ The verse on image component.
                 <!-- Right align button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_textAlign = 'right';
                     }}
                 >
@@ -894,7 +870,7 @@ The verse on image component.
                 <!-- Text Shadow None Toggle -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_textShadow_mode = 'none';
                     }}
                 >
@@ -906,7 +882,7 @@ The verse on image component.
                 <!-- Text shadow toggle -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_textShadow_mode = 'shadow';
                     }}
                 >
@@ -918,7 +894,7 @@ The verse on image component.
                 <!-- Text glow toggle -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_textShadow_mode = 'glow';
                     }}
                 >
@@ -1021,7 +997,7 @@ The verse on image component.
                 <!-- Ref bold button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_refBold = !voi_refBold;
                     }}
                 >
@@ -1031,7 +1007,7 @@ The verse on image component.
                 <!-- Ref italic button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
-                    on:click={() => {
+                    onclick={() => {
                         voi_refItalic = !voi_refItalic;
                     }}
                 >
@@ -1063,7 +1039,7 @@ The verse on image component.
         style="background-color: {$themeColors[
             'DialogBackgroundColor'
         ]}; flex: 1 1 auto; z-index: 3;"
-    />
+    ></div>
 </div>
 
 <style>
