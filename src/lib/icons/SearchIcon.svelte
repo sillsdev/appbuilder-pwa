@@ -4,7 +4,7 @@
     // Weight = 400
     // Grade = 0
     // Optical size = 24px
-    export let color = 'black';
+    let { color = 'black' } = $props();
 </script>
 
 <svg fill={color} xmlns="http://www.w3.org/2000/svg" height="24" width="24">

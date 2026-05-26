@@ -2,10 +2,11 @@
 @component
 -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
 
     const menuIcons = import.meta.glob('./*', {
         import: 'default',
@@ -76,11 +77,11 @@
         switch (buttonType) {
             case 'contents': {
                 let gotoLink = link && link !== '' ? link : '1';
-                gotoRoute(`/contents/${gotoLink}`);
+                goto(resolve(`/contents/${gotoLink}`));
                 break;
             }
             case 'about':
-                gotoRoute(`/about`);
+                goto(resolve(`/about`));
                 break;
             case 'book':
                 if (link && link !== '') {
@@ -100,16 +101,16 @@
                         verse: '1'
                     });
                 }
-                gotoRoute(`/text`);
+                goto(resolve(`/text`));
                 break;
             case 'plans':
-                gotoRoute(`/plans`);
+                goto(resolve(`/plans`));
                 break;
             case 'search':
-                gotoRoute(`/search/${$refs.collection}`);
+                goto(resolve(`/search/${$refs.collection}`));
                 break;
             case 'settings':
-                gotoRoute(`/settings`);
+                goto(resolve(`/settings`));
                 break;
             default:
                 console.log(

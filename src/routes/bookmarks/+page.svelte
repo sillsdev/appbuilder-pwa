@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { page } from '$app/state';
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
@@ -9,15 +10,21 @@
     import { bodyFontSize, refs, t } from '$lib/data/stores';
     import { BookmarkIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
-    import { gotoRoute } from '$lib/navigate';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
+    import type { PageData } from './$types';
+
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
 
     async function handleMenuAction(event: MenuActionEvent, bookmark: BookmarkItem) {
         switch (event.text) {
             case $t['Annotation_Menu_View']:
                 refs.set(bookmark);
-                gotoRoute(`/`);
+                goto(resolve(`/`));
                 break;
             case $t['Annotation_Menu_Share']:
                 await shareAnnotation(bookmark);
@@ -61,7 +68,7 @@
                 <button
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     onclick={async () =>
-                        await shareAnnotations(toSorted(page.data.bookmarks, sortOrder))}
+                        await shareAnnotations(toSorted(data.bookmarks, sortOrder))}
                 >
                     <ShareIcon color="white" />
                 </button>
@@ -75,11 +82,11 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
-        {#if page.data.bookmarks.length === 0}
+        {#if data.bookmarks.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Bookmarks_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Bookmarks_None_Info']}</div>
         {:else}
-            {#each toSorted(page.data.bookmarks, sortOrder) as b}
+            {#each toSorted(data.bookmarks, sortOrder) as b}
                 {@const iconCard = {
                     docSet: b.docSet,
                     collection: b.collection,

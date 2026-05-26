@@ -6,12 +6,17 @@ A simple slider component.
 <script lang="ts">
     import { direction } from '$lib/data/stores';
 
-    export let barColor;
-    export let progressColor;
-    export let value: number;
-    export let min;
-    export let max;
-    $: linePercent = ((value - min) * 100) / (max - min) + '% 100%';
+    interface Props {
+        barColor: string;
+        progressColor: string;
+        value: number;
+        min: number;
+        max: number;
+    }
+
+    let { barColor, progressColor, value = $bindable(), min, max }: Props = $props();
+
+    const linePercent = $derived(((value - min) * 100) / (max - min) + '% 100%');
 </script>
 
 <input

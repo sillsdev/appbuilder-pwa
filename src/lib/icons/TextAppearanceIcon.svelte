@@ -1,7 +1,6 @@
 <script lang="ts">
     // Hand drawn by Aidan Jones using InkScape
-    export let color = 'black';
-    export let size = '24';
+    let { color = 'black', size = 24 } = $props();
 </script>
 
 <svg

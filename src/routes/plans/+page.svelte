@@ -1,11 +1,12 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { PlanItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getLastPlanState } from '$lib/data/planStates';
     import { convertStyle, language, s, t } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
     import { compareVersions } from '$lib/scripts/stringUtils';
 
     const imageFolder: Record<string, string> =
@@ -122,7 +123,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            onclick={() => gotoRoute(`/plans/${plan.id}`)}
+                            onclick={() => goto(resolve(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -154,7 +155,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            onclick={() => gotoRoute(`/plans/${plan.id}`)}
+                            onclick={() => goto(resolve(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">
@@ -186,7 +187,7 @@
                         <div
                             class="plan-chooser-plan plan-chooser-link"
                             id={plan.id}
-                            onclick={() => gotoRoute(`/plans/${plan.id}`)}
+                            onclick={() => goto(resolve(`/plans/${plan.id}`))}
                         >
                             {#if plan.image}
                                 <div class="plan-image-block">

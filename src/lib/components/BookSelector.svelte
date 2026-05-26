@@ -3,11 +3,12 @@
 The navbar component.
 -->
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { BookConfig } from '$config';
     import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
-    import { getRoute, navigateToText, navigateToUrl } from '$lib/navigate';
+    import { navigateToText, navigateToUrl } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
@@ -155,6 +156,7 @@ The navbar component.
     }
     async function completeNavigation() {
         await navigateToText({
+            docSet: $refs.docSet,
             collection: $refs.collection,
             book: $nextRef.book,
             chapter: $nextRef.chapter,
@@ -173,7 +175,7 @@ The navbar component.
     function getBookUrl(book: BookConfig) {
         let url;
         if (book.type === 'quiz') {
-            url = getRoute(`/quiz/${$refs.collection}/${book.id}`);
+            url = resolve(`/quiz/${$refs.collection}/${book.id}`);
         }
         return url;
     }

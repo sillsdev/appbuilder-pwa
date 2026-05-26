@@ -62,6 +62,7 @@ The navbar component.
 
     async function completeNavigation() {
         await navigateToText({
+            docSet: $refs.docSet,
             collection: $refs.collection,
             book: $refs.book,
             chapter: $nextRef.chapter,

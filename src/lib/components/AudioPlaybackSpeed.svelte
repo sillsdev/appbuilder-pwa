@@ -41,7 +41,7 @@
                         type="radio"
                         name="speed"
                         {value}
-                        on:click={(e) => setPlaySpeed(e.currentTarget.value)}
+                        onclick={(e) => setPlaySpeed(e.currentTarget.value)}
                         checked={$userSettings['audio-speed'] === value}
                     />
                     {label}

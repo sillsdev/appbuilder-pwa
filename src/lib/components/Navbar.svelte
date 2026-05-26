@@ -3,6 +3,8 @@
 The navbar component.
 -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import {
         convertStyle,
@@ -14,7 +16,6 @@ The navbar component.
         showDesktopSidebar
     } from '$lib/data/stores';
     import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
-    import { gotoRoute } from '$lib/navigate';
     import type { Snippet } from 'svelte';
 
     interface Props {
@@ -31,7 +32,7 @@ The navbar component.
         if (backNavigation && page.route.id) {
             backNavigation(e, page.route.id);
         } else {
-            gotoRoute(`/`);
+            goto(resolve(`/`));
         }
     }
 

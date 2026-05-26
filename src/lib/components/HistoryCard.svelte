@@ -6,46 +6,53 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import config, { scriptureConfig } from '$assets/config';
+    import { resolve } from '$app/paths';
+    import { scriptureConfig } from '$assets/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
 
-    export let history: HistoryItem;
+    interface Props {
+        history: HistoryItem;
+    }
 
-    $: bc = scriptureConfig.bookCollections?.find((x) => x.id === history.collection);
-    $: docSet = bc && bc.languageCode + '_' + bc.id;
-    $: bcName = scriptureConfig.bookCollections?.length == 1 ? null : bc?.collectionName;
-    $: bookName = bc?.books.find((x) => x.id === history.book)?.name;
-    $: chapterVerseSeparator = bc?.features['ref-chapter-verse-separator'];
-    $: reference = history.verse
-        ? history.chapter + chapterVerseSeparator + history.verse
-        : history.chapter;
-    $: dateFormat = formatDateAndTime(new Date(history.date));
-    $: textDirection = bc?.style?.textDirection;
+    let { history }: Props = $props();
+
+    const bc = $derived(scriptureConfig.bookCollections?.find((x) => x.id === history.collection));
+    const docSet = $derived(bc && bc.languageCode + '_' + bc.id);
+    const bcName = $derived(
+        scriptureConfig.bookCollections?.length == 1 ? null : bc?.collectionName
+    );
+    const bookName = $derived(bc?.books.find((x) => x.id === history.book)?.name);
+    const chapterVerseSeparator = $derived(bc?.features['ref-chapter-verse-separator']);
+    const reference = $derived(
+        history.verse ? history.chapter + chapterVerseSeparator + history.verse : history.chapter
+    );
+    const dateFormat = $derived(formatDateAndTime(new Date(history.date)));
+    const textDirection = $derived(bc?.style?.textDirection);
 
     function onHistoryClick() {
         if (history.url) {
-            // eslint-disable-next-line svelte/no-navigation-without-base, svelte/no-navigation-without-resolve
+            // the url should have the full path??
+            // eslint-disable-next-line svelte/no-navigation-without-resolve
             goto(history.url);
-        } else {
+        } else if (docSet) {
             refs.set({
                 docSet,
                 book: history.book,
                 chapter: history.chapter,
                 verse: history.verse
             });
-            gotoRoute(`/`);
+            goto(resolve(`/`));
         }
     }
 </script>
 
 <!-- history cards are alway LTR with the reference following the text direction -->
 <div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div style="text-decoration:none;" on:click={onHistoryClick}>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="text-decoration:none;" onclick={onHistoryClick}>
         <div
             class="history-card grid grid-cols-1"
             class:grid-rows-2={!bcName}

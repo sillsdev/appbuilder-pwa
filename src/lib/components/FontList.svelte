@@ -2,41 +2,32 @@
 @component
 Font list component.
 -->
-<svelte:options accessors />
 
 <script lang="ts">
     import config from '$assets/config';
     import { fontChoices, monoIconColor, themeColors } from '$lib/data/stores';
-    import { createEventDispatcher } from 'svelte';
 
-    const dispatch = createEventDispatcher();
-    export let selectedFont: string;
-
-    function handleClick(font: string) {
-        selectedFont = font;
-        dispatch('menuaction', {
-            font: font
-        });
+    interface Props {
+        selectedFont?: string;
     }
+
+    let { selectedFont = $bindable() }: Props = $props();
 </script>
 
 <ul class="dy-menu">
     {#each $fontChoices as font}
-        <!-- svelte-ignore a11y-missing-attribute -->
         <li style:font-family={font} style:font-size="large">
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-interactive-supports-focus -->
-            <a
-                on:click={() => handleClick(font)}
+            <button
+                onclick={() => (selectedFont = font)}
                 style:background-color={font === selectedFont
                     ? $themeColors['ButtonSelectedColor']
                     : ''}
                 style:color={$monoIconColor}
                 style:font-family={font}
-                role="button"
+                type="button"
             >
                 {config.fonts?.find((x) => x.family === font)?.name}
-            </a>
+            </button>
         </li>
     {/each}
 </ul>

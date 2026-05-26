@@ -2,12 +2,12 @@
 <script lang="ts">
     import { dev } from '$app/environment';
     import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import { onMount } from 'svelte';
 
     // Redirect to home if not in development mode
     if (!dev) {
-        // eslint-disable-next-line svelte/no-navigation-without-base, svelte/no-navigation-without-resolve
-        goto('/');
+        goto(resolve('/'));
     }
 
     // Automatically import all icon components using Vite's import.meta.glob

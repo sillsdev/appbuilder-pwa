@@ -4,8 +4,7 @@
     // 'wght' 400,
     // 'GRAD' 0,
     // 'opsz' 24
-    export let color = 'black';
-    export let size = '24';
+    let { color = 'black', size = 24 } = $props();
 </script>
 
 <svg

@@ -1,7 +1,7 @@
 <script lang="ts">
     // From app-builders/source/scripture/app-android-scripture/src/main/res/drawable-xxxhdpi/ic_repeat_black_24.png
     // Converted with https://vectorizer.ai/
-    export let color = 'black';
+    let { color = 'black' } = $props();
 </script>
 
 <svg

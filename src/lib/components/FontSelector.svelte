@@ -9,25 +9,26 @@ Font Selector component.
 
     const modalId = 'fontSelector';
     let modal: Modal;
-    let fontList: FontList;
 
     export function showModal() {
-        if ($currentFont) {
-            fontList.selectedFont = $currentFont;
-        }
+        selectedFont = $currentFont;
         modal.showModal();
     }
 
     function handleOk() {
         currentFonts.update((fonts) => {
-            fonts[$refs.collection] = fontList.selectedFont;
+            if (selectedFont) {
+                fonts[$refs.collection] = selectedFont;
+            }
             return fonts;
         });
     }
+
+    let selectedFont = $state($currentFont);
 </script>
 
 <Modal bind:this={modal} id={modalId}>
-    <FontList bind:this={fontList} selectedFont={$currentFont ?? ''} />
+    <FontList bind:selectedFont />
     <div class="flex w-full justify-between dy-modal-action">
         <button
             style={convertStyle($s?.['ui.dialog.button'])}
@@ -36,7 +37,7 @@ Font Selector component.
         <button
             style={convertStyle($s?.['ui.dialog.button'])}
             class="dy-btn dy-btn-sm dy-btn-ghost no-animation"
-            on:click={() => handleOk()}>{$t['Button_OK']}</button
+            onclick={() => handleOk()}>{$t['Button_OK']}</button
         >
     </div>
 </Modal>

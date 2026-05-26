@@ -10,12 +10,17 @@
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
 
-    export let bodyFontSize;
-    export let bodyLineHeight;
-    export let font;
+    interface Props {
+        bodyFontSize: number | string;
+        bodyLineHeight: number | string;
+        font?: string;
+    }
+
+    let { bodyFontSize, bodyLineHeight, font }: Props = $props();
+
     let stack: HTMLDivElement;
     let listening = false;
-    $: PrimaryColor = $themeColors['PrimaryColor'];
+    const PrimaryColor = $derived($themeColors['PrimaryColor']);
 
     function clickOutside(event: Event) {
         if (event.target && !stack.contains(event.target as HTMLElement)) {
@@ -91,11 +96,12 @@
             listening = true;
         }
     }
-    $: toggleListener($footnotes);
 
-    $: fontSize = bodyFontSize + 'px';
+    $effect(() => toggleListener($footnotes));
 
-    $: lineHeight = bodyLineHeight + '%';
+    const fontSize = $derived(bodyFontSize + 'px');
+
+    const lineHeight = $derived(bodyLineHeight + '%');
 </script>
 
 <!--
@@ -104,12 +110,15 @@
 -->
 <div bind:this={stack} class="absolute max-w-screen-md w-5/6 bottom-8 dy-stack">
     {#each $footnotes as item}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             id="container"
             class="footnote rounded h-40 shadow-lg overflow-y-auto"
-            on:click|stopPropagation={(e) => insideClick(e.currentTarget)}
+            onclick={(e) => {
+                e.stopPropagation();
+                insideClick(e.currentTarget);
+            }}
         >
             <div
                 id="container"

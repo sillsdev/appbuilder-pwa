@@ -1,4 +1,4 @@
-import { base } from '$app/paths';
+import { asset } from '$app/paths';
 import config from '$assets/config';
 
 const thumbnails = import.meta.glob('./*', {
@@ -224,7 +224,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
     videoLink.setAttribute('href', '#');
     let sourceType = '';
     if (video.src) {
-        sourceType = config.audio.sources[video.src].type;
+        sourceType = config.audio?.sources[video.src].type ?? '';
     }
     if (sourceType === 'assets') {
         videoLink.setAttribute(
@@ -238,7 +238,7 @@ export function createVideoBlock(document: Document, video: any, index: any): HT
         );
     }
     const videoImg = document.createElement('img');
-    videoImg.setAttribute('src', `${base}/video_play_01.svg`);
+    videoImg.setAttribute('src', asset(`/video_play_01.svg`));
     videoLink.appendChild(videoImg);
     videoContainerDiv.appendChild(videoLink);
     videoBlockDiv.appendChild(videoContainerDiv);
@@ -273,7 +273,7 @@ export function addVideoLinks(document: Document, videos: any[]) {
     const script = document.createElement('script');
     script.id = 'js_video';
     script.type = 'text/javascript';
-    script.src = `${base}/js/app-builder-video.js`;
+    script.src = asset(`/js/app-builder-video.js`);
     if (!document.getElementById(script.id)) {
         document.head.appendChild(script);
     }

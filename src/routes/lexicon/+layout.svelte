@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -7,7 +9,6 @@
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';
     import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
-    import { gotoRoute } from '$lib/navigate';
     import type { Snippet } from 'svelte';
     import type { LayoutData } from './$types';
 
@@ -31,7 +32,7 @@
             if (selectedWord.value) {
                 selectWord(null, !inSearchRoute);
             } else {
-                gotoRoute('/lexicon');
+                goto(resolve('/lexicon'));
             }
         }}
     >
@@ -48,7 +49,7 @@
                     <button
                         class="dy-btn dy-btn-ghost dy-btn-circle"
                         onclick={() => {
-                            gotoRoute(`/lexicon/search`).then(() => selectWord(null));
+                            goto(resolve(`/lexicon/search`)).then(() => selectWord(null));
                         }}
                     >
                         <SearchIcon color="white" />

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config from '$assets/config';
     import {
         currentReversal,
@@ -13,7 +15,6 @@
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import HomonymSubscript from '$lib/lexicon/components/HomonymSubscript.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
-    import { gotoRoute } from '$lib/navigate';
     import { onMount, tick } from 'svelte';
     import { expoInOut } from 'svelte/easing';
     import { fly } from 'svelte/transition';
@@ -37,7 +38,6 @@
     let selectedLetter = $derived(alphabets.vernacular?.[0]);
     let scrollContainer: HTMLDivElement | undefined = $state(undefined);
 
-    //$: selectedLanguage = currentReversal.selectedLanguage;
     $effect(() => {
         // NOTE: currentReversal is not a dependency of this $effect.
         // Do not make it a dependency, or this will not work.
@@ -129,7 +129,7 @@
 
     onMount(() => {
         if (config.programType !== 'DAB') {
-            gotoRoute(`/text`);
+            goto(resolve(`/text`));
         }
     });
 
