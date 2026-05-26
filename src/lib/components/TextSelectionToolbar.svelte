@@ -12,6 +12,8 @@ TODO:
 - Add highlight colors
 -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { play, seekToVerse } from '$lib/data/audio';
@@ -21,7 +23,6 @@ TODO:
     import { audioActive, refs, s, selectedVerses, theme, themeColors } from '$lib/data/stores';
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
-    import { gotoRoute } from '$lib/navigate';
     import BookmarkButton from './BookmarkButton.svelte';
 
     const isAudioPlayable = scriptureConfig?.mainFeatures['text-select-play-audio'];
@@ -186,7 +187,7 @@ TODO:
                 {#if isNotesEnabled}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
-                        onclick={() => gotoRoute(`/notes/edit/new`)}
+                        onclick={() => goto(resolve(`/notes/edit/new`))}
                     >
                         <NoteIcon color={iconColor} />
                     </button>

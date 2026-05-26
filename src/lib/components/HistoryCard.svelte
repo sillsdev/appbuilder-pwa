@@ -6,10 +6,10 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
 
     interface Props {
@@ -43,7 +43,7 @@ TODO:
                 chapter: history.chapter,
                 verse: history.verse
             });
-            gotoRoute(`/`);
+            goto(resolve(`/`));
         }
     }
 </script>

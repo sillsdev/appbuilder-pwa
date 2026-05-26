@@ -6,16 +6,6 @@ import { addHistory, type HistoryItem } from '$lib/data/history';
 import { refs } from '$lib/data/stores';
 import { get } from 'svelte/store';
 
-export function gotoRoute(route: string) {
-    // getRoute calls resolve
-    // eslint-disable-next-line svelte/no-navigation-without-resolve
-    return goto(getRoute(route));
-}
-
-export function getRoute(route: string) {
-    return resolve(`/#${route}`);
-}
-
 function logHistoryItemAdded(itemAdded: HistoryItem) {
     logScreenView(itemAdded);
 }
@@ -44,7 +34,7 @@ export async function navigateToText(item: {
             verse
         });
         addHistory({ collection, book, chapter, verse }, logHistoryItemAdded);
-        gotoRoute(`/text`);
+        goto(resolve(`/text`));
     }
 }
 
@@ -52,7 +42,7 @@ export async function navigateToTextReference(reference: string) {
     playStop();
     await refs.setReference(reference);
     const nowRef: any = get(refs);
-    gotoRoute(`/text`);
+    goto(resolve(`/text`));
     addHistory(
         {
             collection: nowRef.collection,

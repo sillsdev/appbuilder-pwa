@@ -35,6 +35,8 @@ LOGGING:
 </script>
 
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { scriptureConfig } from '$assets/config';
@@ -61,7 +63,6 @@ LOGGING:
         t,
         userSettings
     } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
@@ -1023,9 +1024,9 @@ LOGGING:
     function planClicked() {
         if ($plan.planNextReference === '') {
             if ($currentPlanState === 'completed') {
-                gotoRoute(`/plans`);
+                goto(resolve(`/plans`));
             } else {
-                gotoRoute(`/plans/${$plan.planId}`);
+                goto(resolve(`/plans/${$plan.planId}`));
             }
         } else {
             gotoPlanReference();

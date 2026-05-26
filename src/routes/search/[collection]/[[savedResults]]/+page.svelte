@@ -1,9 +1,10 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import SearchResultList from '$lib/components/SearchResultList.svelte';
     import { t, themeColors } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
     import type { SearchResult } from '$lib/search/domain/entities';
     import type {
         SearchPresenter,
@@ -50,7 +51,7 @@
     const session = makeSearchSession(presenter);
 
     function handleSubmit(event: SearchFormSubmitEvent) {
-        gotoRoute(`/search/${data.collection}/saved`);
+        goto(resolve(`/search/${data.collection}/saved`));
         queryId++;
         const options = {
             collection: data.collection,

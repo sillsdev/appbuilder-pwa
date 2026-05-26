@@ -1,7 +1,8 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import { bodyFontSize, currentFont } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
-    import { gotoRoute } from '$lib/navigate';
     import Modal from './Modal.svelte';
 
     let id = $state('note');
@@ -22,7 +23,7 @@
 
     function onEditNote() {
         if (note !== undefined) {
-            gotoRoute(`/notes/edit/${note.date}`);
+            goto(resolve(`/notes/edit/${note.date}`));
         }
     }
 </script>

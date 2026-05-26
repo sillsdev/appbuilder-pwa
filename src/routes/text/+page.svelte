@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import AudioBar from '$lib/components/AudioBar.svelte';
@@ -55,7 +57,7 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { gotoRoute, navigateToTextChapterInDirection } from '$lib/navigate';
+    import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { onDestroy, onMount } from 'svelte';
     import {
@@ -400,7 +402,7 @@
     function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            gotoRoute(`/contents/${menuId}`);
+            goto(resolve(`/contents/${menuId}`));
         }
     }
     const showBackButton = $derived(
@@ -455,7 +457,7 @@
                         {#if showSearch}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                onclick={() => gotoRoute(`/search/${$refs.collection}`)}
+                                onclick={() => goto(resolve(`/search/${$refs.collection}`))}
                             >
                                 <SearchIcon color="white" />
                             </button>

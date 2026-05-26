@@ -1,8 +1,10 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config from '$assets/config';
     import contents from '$assets/contents';
     import { audioActive, isDAB, isFirstLaunch } from '$lib/data/stores';
-    import { gotoRoute, navigateToTextReference } from '$lib/navigate';
+    import { navigateToTextReference } from '$lib/navigate';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
@@ -14,7 +16,7 @@
 
     onMount(async () => {
         if (isDAB(config)) {
-            await gotoRoute(`/lexicon`);
+            await goto(resolve(`/lexicon`));
             return;
         }
 
@@ -25,9 +27,9 @@
         if (data?.ref) {
             await navigateToTextReference(data.ref);
         } else if (launchAction === 'contents' || ($isFirstLaunch && launchAction)) {
-            gotoRoute(`/contents/1`);
+            goto(resolve(`/contents/1`));
         } else {
-            gotoRoute(`/text`);
+            goto(resolve(`/text`));
         }
     });
 </script>

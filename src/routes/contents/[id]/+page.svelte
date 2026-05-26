@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { asset } from '$app/paths';
+    import { goto } from '$app/navigation';
+    import { asset, resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -21,7 +22,7 @@
         themeColors
     } from '$lib/data/stores';
     import { AudioIcon, TextAppearanceIcon } from '$lib/icons';
-    import { gotoRoute, navigateToText } from '$lib/navigate';
+    import { navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { SvelteMap } from 'svelte/reactivity';
@@ -83,21 +84,21 @@
                 const contentsRef = await getReference(item);
                 console.log('contentsRef', contentsRef);
                 if (contentsRef.book) {
-                    await navigateToText({...contentsRef, book: contentsRef.book});
+                    await navigateToText({ ...contentsRef, book: contentsRef.book });
                 }
                 break;
             }
             case 'screen':
                 //goes to another contents page
                 contentsStack.pushItem(data.menu!.id);
-                await gotoRoute(`/contents/${item.linkTarget}`);
+                await goto(resolve(`/contents/${item.linkTarget}`));
                 break;
             case 'other':
                 //switch on item.linkLocation
                 switch (item.linkLocation) {
                     case 'about':
                     case 'settings':
-                        gotoRoute(`/${item.linkLocation}`);
+                        goto(resolve(`/${item.linkLocation}`));
                         break;
                     case 'layout':
                         modal.open(ModalType.Collection);
@@ -113,7 +114,8 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                gotoRoute(`/${item.linkLocation}`);
+                // @ts-expect-error I don't have a good way to fix this for now. -Aidan
+                goto(resolve(`/${item.linkLocation}`));
                 break;
         }
     }
@@ -215,7 +217,7 @@
     function backNavigation() {
         if ($contentsStack.length > 0) {
             const menuId = contentsStack.popItem();
-            gotoRoute(`/contents/${menuId}`);
+            goto(resolve(`/contents/${menuId}`));
         }
     }
     async function firstChapter(book: string, docset: string) {

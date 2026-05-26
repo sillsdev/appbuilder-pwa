@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
@@ -12,7 +14,6 @@
         InfoIcon,
         SettingsIcon
     } from '$lib/icons';
-    import { gotoRoute } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { compareVersions } from '$lib/scripts/stringUtils';
@@ -146,14 +147,14 @@
                             chapter: toChapter.toString(),
                             verse: destinationVerse.toString()
                         });
-                        gotoRoute(`/text`);
+                        goto(resolve(`/text`));
                     }
                 );
             }
         }
     }
     function backNavigation() {
-        gotoRoute(`/plans`);
+        goto(resolve(`/plans`));
     }
 
     function buildStatusDateString() {
@@ -301,7 +302,7 @@
                             <div
                                 class="plan-button"
                                 id="PLAN-start"
-                                onclick={() => gotoRoute(`/plans/${data.planData.id}/settings`)}
+                                onclick={() => goto(resolve(`/plans/${data.planData.id}/settings`))}
                             >
                                 {$t['Plans_Button_Start_Plan']}
                             </div>

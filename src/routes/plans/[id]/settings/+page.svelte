@@ -1,8 +1,9 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addPlanState } from '$lib/data/planStates';
     import { language, t } from '$lib/data/stores';
-    import { gotoRoute } from '$lib/navigate';
     import type { PageData } from './$types';
 
     interface Props {
@@ -16,11 +17,11 @@
             id: id,
             state: 'started'
         });
-        gotoRoute(`/plans/${id}`);
+        goto(resolve(`/plans/${id}`));
     }
     function backNavigation() {
         const id = data.planConfig?.id;
-        gotoRoute(`/plans/${id}`);
+        goto(resolve(`/plans/${id}`));
     }
 </script>
 
