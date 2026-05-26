@@ -83,7 +83,7 @@
                 const contentsRef = await getReference(item);
                 console.log('contentsRef', contentsRef);
                 if (contentsRef.book) {
-                    await navigateToText(contentsRef);
+                    await navigateToText({...contentsRef, book: contentsRef.book});
                 }
                 break;
             }

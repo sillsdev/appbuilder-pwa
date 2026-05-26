@@ -28,14 +28,14 @@ export function navigateToUrl(item: { collection: string; book: string; url: str
 }
 
 export async function navigateToText(item: {
-    docSet?: string;
-    collection?: string;
-    book?: string;
+    docSet: string;
+    collection: string;
+    book: string;
     chapter?: string;
     verse?: string;
 }) {
     const { docSet, collection, book, chapter, verse } = item;
-    if (docSet && collection && book && chapter) {
+    if (chapter) {
         playStop();
         await refs.set({
             docSet,
