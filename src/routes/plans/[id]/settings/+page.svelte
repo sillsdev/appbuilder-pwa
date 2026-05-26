@@ -21,7 +21,9 @@
     }
     function backNavigation() {
         const id = data.planConfig?.id;
-        goto(resolve(`/plans/${id}`));
+        if (id) {
+            goto(resolve(`/plans/${id}`));
+        }
     }
 </script>
 
