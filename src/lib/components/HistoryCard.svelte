@@ -52,7 +52,7 @@ TODO:
 <div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div style="text-decorationnone;" onclick={onHistoryClick}>
+    <div class="text-decoration:none;" onclick={onHistoryClick}>
         <div
             class="history-card grid grid-cols-1"
             class:grid-rows-2={!bcName}
