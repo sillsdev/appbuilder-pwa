@@ -187,7 +187,7 @@ TODO:
                                 cropped: null,
                                 original: null
                             }));
-                            gotoRoute(`/image`);
+                            goto(resolve(`/image`));
                         }}
                         class="dy-btn-sm dy-btn-ghost"
                     >

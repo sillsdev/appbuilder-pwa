@@ -3,6 +3,8 @@
 The verse on image component.
 -->
 <script>
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import config from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
     import { shareImage } from '$lib/data/share';
@@ -19,7 +21,6 @@ The verse on image component.
     import { TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
-    import { gotoRoute } from '$lib/navigate';
     import { toPng } from 'html-to-image';
     import { onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
@@ -71,7 +72,6 @@ The verse on image component.
     let voi_txtPadding = $state('0px');
     let voi_textAlign = $state('center');
     let voi_textBoxWidthPercent = $state(84);
-    //const voi_textBoxWidth = $derived((voi_width * voi_textBoxWidthPercent) / 100);
     let voi_textBoxWidth = $derived((voi_width * voi_textBoxWidthPercent) / 100);
     const voi_textBox_maxHeight = $derived(voi_height - voi_textPosY);
     let voi_textShadow_mode = $state('glow');
@@ -425,7 +425,6 @@ The verse on image component.
     let dragging = false;
     let offsetX, offsetY;
 
-    //let initialLeft, initialTop;
     function voiTextBox_handleMouseMove(event) {
         if (dragging) {
             // Prevent child div from going outside the parent borders
@@ -694,7 +693,7 @@ The verse on image component.
                                     ...v,
                                     original: selectedSrc
                                 }));
-                                gotoRoute('/crop');
+                                goto(resolve('/crop'));
                             }
                         }}
                     />

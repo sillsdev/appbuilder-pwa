@@ -1,8 +1,9 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import { t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
-    import { gotoRoute } from '$lib/navigate';
     import { onMount } from 'svelte';
 
     let image;
@@ -30,8 +31,7 @@
     let resizeStartDistance = $state(0); //These are variables for the 2-finger resize
 
     onMount(() => {
-        //initCropBox();
-        if (image.complete) {
+        if (image?.complete) {
             initCropBox();
         } else {
             image.addEventListener('load', initCropBox, { once: true });
@@ -213,10 +213,10 @@
             ...v,
             cropped: croppedImgURL
         }));
-        gotoRoute(`/image`);
+        goto(resolve('/image'));
     }
     function backNavigation() {
-        gotoRoute(`/image`);
+        goto(resolve('/image'));
     }
 </script>
 
