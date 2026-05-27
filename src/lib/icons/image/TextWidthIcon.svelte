@@ -1,7 +1,7 @@
 <script lang="ts">
     // From app-builders/source/scripture/app-android-scripture/src/main/res/drawable-xhdpi/ic_text_width_black.png
     // Converted with https://vectorizer.ai/
-    let { color = 'black', size = 24 } = $props();
+    let { color = 'black', size = 24 }: { color?: string; size?: number | string } = $props();
 </script>
 
 <svg

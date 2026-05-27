@@ -1,6 +1,6 @@
 <script lang="ts">
     // Hand drawn by Aidan Jones using InkScape
-    let { color = 'black', size = 24 } = $props();
+    let { color = 'black', size = 24 }: { color?: string; size?: number | string } = $props();
 </script>
 
 <svg

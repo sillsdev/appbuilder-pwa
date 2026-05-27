@@ -2,7 +2,7 @@
 @component
 The verse on image component.
 -->
-<script>
+<script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
     import config from '$assets/config';
@@ -26,13 +26,12 @@ The verse on image component.
     import ColorPicker from 'svelte-awesome-color-picker';
     import Slider from './Slider.svelte';
 
-    const backgroundURLs = import.meta.glob('./*', {
+    const backgroundURLs: Record<string, string> = import.meta.glob('./*', {
         eager: true,
         import: 'default',
         query: '?url',
         base: '/src/gen-assets/backgrounds'
     });
-
     const barColor = $derived($themeColors['SliderBarColor']);
     const progressColor = $derived($themeColors['SliderProgressColor']);
     const unselectedColor = $derived('grey');
@@ -45,70 +44,69 @@ The verse on image component.
     );
 
     const reference = $derived(selectedVerses.getCompositeReference());
-    let verses = $state();
-    let voi_imgSrc = $state();
-    let voi_parentDiv;
-    const voi_width = $derived(cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2);
-    const voi_height = $derived(voi_width);
+    let verses: string = $state('');
+    let imgSrc: string = $state('');
+    let parentDiv: HTMLDivElement;
     const cnvFullScreen = $derived($windowSize.width < 450);
-    let cnv;
+    const imageWidth = $derived(cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2);
+    const imageHeight = $derived(imageWidth);
+    let cnv: HTMLCanvasElement;
 
-    let cnv_background = $state();
-    let voi_textBox;
-    const txtFormatted = $derived(verses);
-    let voi_verseBold = $state($s['ui.text-on-image']['font-weight'] == 'bold');
-    let voi_verseItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
-    let voi_fontSize = $state(13);
-    let voi_fontSizeMin = $state(10);
-    let voi_fontSizeMax = $state(60);
-    let voi_font = $state($currentFont);
-    let voi_refBold = $state('');
-    let voi_refItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
-    let voi_refFontPercent = $state(80);
-    let voi_fontColor = $state(standardize_color(String($s['ui.text-on-image']['color'])));
-    let voi_letterSpacing = $state(0);
-    let voi_lineHeight_x100 = $state(0);
-    const voi_lineHeight = $derived(1 + voi_lineHeight_x100 / 100);
-    let voi_txtPadding = $state('0px');
-    let voi_textAlign = $state('center');
-    let voi_textBoxWidthPercent = $state(84);
-    let voi_textBoxWidth = $derived((voi_width * voi_textBoxWidthPercent) / 100);
-    const voi_textBox_maxHeight = $derived(voi_height - voi_textPosY);
-    let voi_textShadow_mode = $state('glow');
-    let voi_textShadow_value = $state(15);
-    const voi_textShadow = $derived(
-        voi_textShadow_mode == 'none'
+    let cnv_background: HTMLImageElement | undefined = $state();
+    let textbox: HTMLParagraphElement;
+    const txtFormatted: string = $derived(verses);
+    let verseBold = $state($s['ui.text-on-image']['font-weight'] == 'bold');
+    let verseItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
+    let textFontSize = $state(13);
+    let textFontSizeMin = $state(10);
+    let textFontSizeMax = $state(60);
+    let textFont = $state($currentFont);
+    let refBold = $state(false);
+    let refItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
+    let refFontPercent = $state(80);
+    let fontColor: string = $state(standardize_color(String($s['ui.text-on-image']['color'])));
+    let letterSpacing = $state(0);
+    let lineHeightPercent = $state(0);
+    const lineHeight = $derived(1 + lineHeightPercent / 100);
+    let txtPadding = $state('0px');
+    let textAlign = $state('center');
+    let textboxWidthPercent = $state(84);
+    let textboxWidth = $derived((imageWidth * textboxWidthPercent) / 100);
+    let textShadowMode = $state('glow');
+    let textShadowValue = $state(15);
+    const textShadow = $derived(
+        textShadowMode == 'none'
             ? ''
-            : (voi_textShadow_mode == 'shadow'
-                  ? (voi_fontSize * voi_textShadow_value) / 100 +
+            : (textShadowMode == 'shadow'
+                  ? (textFontSize * textShadowValue) / 100 +
                     'px ' +
-                    (voi_fontSize * voi_textShadow_value) / 100 +
+                    (textFontSize * textShadowValue) / 100 +
                     'px ' +
-                    (voi_fontSize * voi_textShadow_value) / 100
-                  : '0 0 ' + ((voi_fontSize * voi_textShadow_value) / 100) * 2) + 'px black'
+                    (textFontSize * textShadowValue) / 100
+                  : '0 0 ' + ((textFontSize * textShadowValue) / 100) * 2) + 'px black'
     );
-    let voi_imageBrightness = $state(100);
-    let voi_imageContrast = $state(100);
-    let voi_imageSaturation = $state(100);
-    let voi_imageBlur = $state(0);
+    let imageBrightness = $state(100);
+    let imageContrast = $state(100);
+    let imageSaturation = $state(100);
+    let imageBlur = $state(0);
 
-    function standardize_color(str) {
+    function standardize_color(str: string) {
         var ctx = document.createElement('canvas').getContext('2d');
         ctx.fillStyle = str;
         return ctx.fillStyle;
     }
 
     $effect(() => {
-        render(
-            cnv_background,
-            voi_imageBrightness,
-            voi_imageContrast,
-            voi_imageSaturation,
-            voi_imageBlur
-        );
+        render(cnv_background, imageBrightness, imageContrast, imageSaturation, imageBlur);
     });
 
-    function render(background, imgBrightness, imgContrast, imgSaturation, imgBlur) {
+    function render(
+        background: HTMLImageElement | undefined,
+        imgBrightness: number,
+        imgContrast: number,
+        imgSaturation: number,
+        imgBlur: number
+    ) {
         if (!cnv) {
             return;
         }
@@ -121,10 +119,10 @@ The verse on image component.
     }
 
     $effect(() => {
-        updateImgSrc(voi_imgSrc);
+        updateImgSrc(imgSrc);
     });
 
-    function updateImgSrc(imgSrc) {
+    function updateImgSrc(imgSrc: string) {
         const img = new Image();
         img.src = imgSrc;
         // Make sure the image is loaded first otherwise nothing will draw.
@@ -136,71 +134,68 @@ The verse on image component.
     let resizeStartSize = 0;
     let resizeStartDistance = 0; //These are variables for the 2-finger resize
 
-    function getDistance(t1, t2) {
+    function getDistance(t1: Touch, t2: Touch) {
         const dx = t2.clientX - t1.clientX;
         const dy = t2.clientY - t1.clientY;
         return Math.sqrt(dx * dx + dy * dy);
     }
-    function onTouchStart(e) {
+    function onTouchStart(e: TouchEvent) {
         if (e.touches.length === 2) {
             const [t1, t2] = e.touches;
             resizeStartDistance = getDistance(t1, t2);
-            resizeStartSize = voi_textBoxWidth;
+            resizeStartSize = textboxWidth;
         }
     } //2-finger resize
 
-    function onTouchMove(e) {
+    function onTouchMove(e: TouchEvent) {
         if (e.touches.length === 2) {
             e.preventDefault();
             if (dragging) {
-                dragging = false;
+                stopDrag();
             }
             const [t1, t2] = e.touches;
             const currentDistance = getDistance(t1, t2);
-            const rect = voi_parentDiv.getBoundingClientRect();
+            const rect = parentDiv.getBoundingClientRect();
 
             const scale = currentDistance / resizeStartDistance;
             let newWidth = resizeStartSize * scale;
-            const maxSizeX = rect.right - voi_textPosX;
+            const maxSizeX = rect.right - textX;
             if (newWidth > maxSizeX) {
-                voi_textPosX = Math.max(rect.right - newWidth, rect.left);
-                voi_textBoxWidth = Math.min(newWidth, rect.right - voi_textPosX);
+                textX = Math.max(rect.right - newWidth, rect.left);
+                textboxWidth = Math.min(newWidth, rect.right - textX);
             } else {
                 newWidth = Math.min(Math.max(50, newWidth), maxSizeX);
 
-                const sizeDifference = voi_textBoxWidth - newWidth;
-                voi_textPosX = Math.max(voi_textPosX + sizeDifference / 2, rect.left);
-                voi_textBoxWidth = newWidth;
+                const sizeDifference = textboxWidth - newWidth;
+                textX = Math.max(textX + sizeDifference / 2, rect.left);
+                textboxWidth = newWidth;
             }
 
-            const childRect = voi_textBox.getBoundingClientRect();
-            voi_textPosY = Math.min(
-                voi_textPosY,
-                Math.max(rect.height - childRect.height, rect.top)
-            );
+            const childRect = textbox.getBoundingClientRect();
+            textY = Math.min(textY, Math.max(rect.height - childRect.height, rect.top));
         }
     } //2-finger resize
 
     let resizing = false;
-    let resizeStartX, resizeStartWidth;
-    function startResize(e) {
+    let resizeStartX: number, resizeStartWidth: number;
+    function startResize(e: PointerEvent) {
         e.stopPropagation();
         e.preventDefault();
         resizing = true;
         resizeStartX = e.clientX;
-        resizeStartWidth = voi_textBoxWidth;
+        resizeStartWidth = textboxWidth;
 
         window.addEventListener('pointermove', resize);
         window.addEventListener('pointerup', stopResize);
     } //This is for resizing the textbox
-    function resize(e) {
+    function resize(e: PointerEvent) {
         if (!resizing) {
             return;
         }
         const newWidth = resizeStartWidth + e.clientX - resizeStartX;
-        const rect = voi_parentDiv.getBoundingClientRect();
-        const maxSizeX = rect.right - voi_textPosX;
-        voi_textBoxWidth = Math.min(Math.max(50, newWidth), maxSizeX);
+        const rect = parentDiv.getBoundingClientRect();
+        const maxSizeX = rect.right - textX;
+        textboxWidth = Math.min(Math.max(50, newWidth), maxSizeX);
     }
     function stopResize() {
         resizing = false;
@@ -220,48 +215,48 @@ The verse on image component.
      * The text has to re-render in order to get the text height at the different sizes so we
      * need to use the `ResizeObserver` and there are three passes through the `ResizeObserver`.
      * 1. decrease the percentage by 1/2% until we get to 80%. We will already be there with shorter text. (fontSize = undefined)
-     * 2. increate the percentage by 2% until we get to 90%. (fontSize defined, fontSizeMax = undefined)
+     * 2. increase the percentage by 2% until we get to 90%. (fontSize defined, fontSizeMax = undefined)
      * 3. reset back to the initial text size we figured out in #1 so that we can center the text. (fontsize and fontSizeMax define)
      */
     function initFontSizesAndCenterText() {
         const textOverlay = document.getElementById('verseOnImageTextDiv');
         const textDisplay = textOverlay.style.display;
-        let fontSize;
-        let fontSizeMax;
+        let fontSize: number;
+        let fontSizeMax: number;
         textOverlay.style.display = 'none'; // hide until done calculating sizes
 
-        const getFontSize = (percent, height) => {
-            const px2pt = (px) => (px * 72) / 96;
+        const getFontSize = (percent: number, height: number) => {
+            const px2pt = (px: number) => (px * 72) / 96;
             return px2pt((percent * height) / 100);
         };
 
         let fontSizePercent = 7;
-        voi_fontSize = getFontSize(fontSizePercent, voi_height);
+        textFontSize = getFontSize(fontSizePercent, imageHeight);
 
         const adjustFontSize = () => {
             if (!fontSize) {
-                if (textOverlay.offsetHeight > 0.8 * voi_height && fontSizePercent > 0.5) {
+                if (textOverlay.offsetHeight > 0.8 * imageHeight && fontSizePercent > 0.5) {
                     fontSizePercent -= 0.5;
-                    voi_fontSize = getFontSize(fontSizePercent, voi_height);
+                    textFontSize = getFontSize(fontSizePercent, imageHeight);
                 } else {
-                    fontSize = voi_fontSize;
+                    fontSize = textFontSize;
                     fontSizePercent += 2.0;
-                    voi_fontSize = getFontSize(fontSizePercent, voi_height);
+                    textFontSize = getFontSize(fontSizePercent, imageHeight);
                 }
             } else if (!fontSizeMax) {
-                if (textOverlay.offsetHeight < 0.9 * voi_height) {
+                if (textOverlay.offsetHeight < 0.9 * imageHeight) {
                     fontSizePercent += 2.0;
-                    voi_fontSize = getFontSize(fontSizePercent, voi_height);
+                    textFontSize = getFontSize(fontSizePercent, imageHeight);
                 } else {
-                    fontSizeMax = voi_fontSize;
-                    voi_fontSizeMax = fontSizeMax;
-                    voi_fontSize = fontSize;
+                    fontSizeMax = textFontSize;
+                    textFontSizeMax = fontSizeMax;
+                    textFontSize = fontSize;
                 }
             } else {
-                const parentRect = voi_parentDiv.getBoundingClientRect();
-                const childRect = voi_textBox.getBoundingClientRect();
-                voi_textPosX = parentRect.left + (parentRect.width - childRect.width) / 2;
-                voi_textPosY = parentRect.top + (parentRect.height - childRect.height) / 2;
+                const parentRect = parentDiv.getBoundingClientRect();
+                const childRect = textbox.getBoundingClientRect();
+                textX = parentRect.left + (parentRect.width - childRect.width) / 2;
+                textY = parentRect.top + (parentRect.height - childRect.height) / 2;
 
                 resizeObserver.unobserve(textOverlay);
                 textOverlay.style.display = textDisplay;
@@ -274,28 +269,28 @@ The verse on image component.
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
         if ($voiCustomImage.cropped) {
-            voi_imgSrc = $voiCustomImage.cropped;
+            imgSrc = $voiCustomImage.cropped;
         } else {
-            voi_imgSrc = backgroundURLs[`./${config.backgroundImages[0].filename}`];
+            imgSrc = backgroundURLs[`./${config.backgroundImages[0].filename}`];
         }
         initFontSizesAndCenterText();
 
         centerButton(0);
-        const parentRect = voi_parentDiv.getBoundingClientRect();
-        const childRect = voi_textBox.getBoundingClientRect();
-        voi_textPosX = parentRect.left + (parentRect.width - childRect.width) / 2;
-        voi_textPosY = parentRect.top + (parentRect.height - childRect.height) / 2;
+        const parentRect = parentDiv.getBoundingClientRect();
+        const childRect = textbox.getBoundingClientRect();
+        textX = parentRect.left + (parentRect.width - childRect.width) / 2;
+        textY = parentRect.top + (parentRect.height - childRect.height) / 2;
     });
 
-    function handleFontChange(f) {
-        voi_font = f;
+    function handleFontChange(f: string) {
+        textFont = f;
     }
 
     // Share button feature:
     export function shareCanvas() {
         const original = document.getElementById('verseOnImgPreview');
 
-        const clone = original.cloneNode(true); //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+        const clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
 
         const origCanvas = original.querySelector('canvas');
         const cloneCanvas = clone.querySelector('canvas');
@@ -310,9 +305,9 @@ The verse on image component.
         clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
 
         var cloneParagraph = clone.querySelector('p');
-        const parentRect = voi_parentDiv.getBoundingClientRect();
-        cloneParagraph.style.left = voi_textPosX - parentRect.left + 'px';
-        cloneParagraph.style.top = voi_textPosY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        const parentRect = parentDiv.getBoundingClientRect();
+        cloneParagraph.style.left = textX - parentRect.left + 'px';
+        cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
 
         document.body.appendChild(clone);
         toPng(clone)
@@ -334,7 +329,7 @@ The verse on image component.
     export function downloadCanvas() {
         const original = document.getElementById('verseOnImgPreview');
 
-        const clone = original.cloneNode(true); //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+        const clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
 
         const origCanvas = original.querySelector('canvas');
         const cloneCanvas = clone.querySelector('canvas');
@@ -349,9 +344,9 @@ The verse on image component.
         clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
 
         var cloneParagraph = clone.querySelector('p');
-        const parentRect = voi_parentDiv.getBoundingClientRect();
-        cloneParagraph.style.left = voi_textPosX - parentRect.left + 'px';
-        cloneParagraph.style.top = voi_textPosY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        const parentRect = parentDiv.getBoundingClientRect();
+        cloneParagraph.style.left = textX - parentRect.left + 'px';
+        cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
 
         document.body.appendChild(clone);
         toPng(clone)
@@ -384,7 +379,7 @@ The verse on image component.
 
     let active_editor_index = $state(-1);
 
-    function centerButton(n) {
+    function centerButton(n: number) {
         const container = document.getElementById('editorTabs');
         const containerRect = container.getBoundingClientRect();
         const buttons = document.querySelectorAll('#editorTabs button');
@@ -418,54 +413,54 @@ The verse on image component.
         button.classList.add('activeButton');
     }
 
-    // voi_textBox Dragability:
+    // textbox Draggability:
 
-    let voi_textPosX = $state(0);
-    let voi_textPosY = $state(0);
+    let textX = $state(0);
+    let textY = $state(0);
     let dragging = false;
-    let offsetX, offsetY;
+    let offsetX: number, offsetY: number;
+    const textboxMaxHeight = $derived(imageHeight - textY);
 
-    function voiTextBox_handleMouseMove(event) {
+    function drag(event: PointerEvent) {
         if (dragging) {
             // Prevent child div from going outside the parent borders
-            const parentRect = voi_parentDiv.getBoundingClientRect();
-            const childRect = voi_textBox.getBoundingClientRect();
-            voi_textPosX = event.clientX - offsetX;
-            voi_textPosY = event.clientY - offsetY;
+            const parentRect = parentDiv.getBoundingClientRect();
+            const childRect = textbox.getBoundingClientRect();
+            textX = event.clientX - offsetX;
+            textY = event.clientY - offsetY;
             const newX = event.clientX - offsetX - parentRect.left;
             const newY = event.clientY - offsetY - parentRect.top;
 
-            voi_textPosX = Math.max(
+            textX = Math.max(
                 0 + parentRect.left,
                 Math.min(newX, parentRect.width - childRect.width) + parentRect.left
             );
-            voi_textPosY = Math.max(
+            textY = Math.max(
                 0 + parentRect.top,
                 Math.min(newY, parentRect.height - childRect.height) + parentRect.top
             );
         }
     }
 
-    function voiTextBox_handleMouseDown(event) {
+    function stopDrag() {
+        dragging = false;
+        window.removeEventListener('pointermove', drag);
+        window.removeEventListener('pointerup', stopDrag);
+    }
+    function startDrag(event: PointerEvent) {
         dragging = true;
-        offsetX = event.clientX - voi_textPosX;
-        offsetY = event.clientY - voi_textPosY;
+        offsetX = event.clientX - textX;
+        offsetY = event.clientY - textY;
 
-        function handleMouseUp() {
-            dragging = false;
-            window.removeEventListener('pointermove', voiTextBox_handleMouseMove);
-            window.removeEventListener('pointerup', handleMouseUp);
-        }
-
-        window.addEventListener('pointermove', voiTextBox_handleMouseMove);
-        window.addEventListener('pointerup', handleMouseUp);
+        window.addEventListener('pointermove', drag);
+        window.addEventListener('pointerup', stopDrag);
     }
 </script>
 
 <div
     id="verseOnImageContainer"
     class="flex flex-col flex-nowrap max-w-screen-sm mx-auto"
-    style="height: 100%; max-width: {voi_width}px;"
+    style="height: 100%; max-width: {imageWidth}px;"
     style:direction={$direction}
 >
     <!-- verseOnImgPreview -->
@@ -473,9 +468,9 @@ The verse on image component.
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             id="verseOnImgPreview"
-            bind:this={voi_parentDiv}
+            bind:this={parentDiv}
             class="flex flex-col touch-none"
-            style="width:{voi_width}px; height:{voi_height}px;"
+            style="width:{imageWidth}px; height:{imageHeight}px;"
             ontouchstart={onTouchStart}
             ontouchmove={onTouchMove}
         >
@@ -496,28 +491,28 @@ The verse on image component.
                 style="
                     position: absolute;
                     z-index: 2;
-                    width: {voi_textBoxWidth}px;
+                    width: {textboxWidth}px;
                     height: auto;
-                    max-width: {voi_width}px;
-                    max-height: {voi_textBox_maxHeight};
-                    color: {voi_fontColor};
-                    font-family: {voi_font};
-                    font-size: {voi_fontSize}pt;
-                    {voi_verseBold ? 'font-weight: bold;' : ''}
-                    {voi_verseItalic ? 'font-style: italic;' : ''}
-                    letter-spacing: {voi_letterSpacing / 100}em;
-                    line-height: {voi_lineHeight};
-                    padding: {voi_txtPadding};
-                    text-align: {voi_textAlign};
-                    text-shadow: {voi_textShadow};
+                    max-width: {imageWidth}px;
+                    max-height: {textboxMaxHeight};
+                    color: {fontColor};
+                    font-family: {textFont};
+                    font-size: {textFontSize}pt;
+                    {verseBold ? 'font-weight: bold;' : ''}
+                    {verseItalic ? 'font-style: italic;' : ''}
+                    letter-spacing: {letterSpacing / 100}em;
+                    line-height: {lineHeight};
+                    padding: {txtPadding};
+                    text-align: {textAlign};
+                    text-shadow: {textShadow};
                     user-drag: none;
                     border: none;
-                    left: {voi_textPosX}px;
-                    top: {voi_textPosY}px;
+                    left: {textX}px;
+                    top: {textY}px;
                 "
                 //class="flex flex-col"
-                bind:this={voi_textBox}
-                onpointerdown={voiTextBox_handleMouseDown}
+                bind:this={textbox}
+                onpointerdown={startDrag}
             >
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <span
@@ -528,16 +523,16 @@ The verse on image component.
                 <span
                     id="verseOnImageRefDiv"
                     class="flex flex-col justify-center items-center"
-                    style="height: {voi_fontSize * 1.5}pt;"
+                    style="height: {textFontSize * 1.5}pt;"
                 >
                     <span
                         class="flex flex-col justify-center items-center"
                         style="
-                            font-size: {(voi_fontSize * voi_refFontPercent) / 100}pt;
-                            {voi_refBold ? 'font-weight: bold;' : 'font-weight: normal;'}
-                            {voi_refItalic ? 'font-style: italic;' : 'font-style: normal;'}
-                            height: {voi_fontSize}pt;
-                            width: {voi_textBoxWidth}px;
+                            font-size: {(textFontSize * refFontPercent) / 100}pt;
+                            {refBold ? 'font-weight: bold;' : 'font-weight: normal;'}
+                            {refItalic ? 'font-style: italic;' : 'font-style: normal;'}
+                            height: {textFontSize}pt;
+                            width: {textboxWidth}px;
                             position: absolute;
                             bottom: 0;
                         "
@@ -558,7 +553,7 @@ The verse on image component.
             overflow-y: visible;
             min-height: 2.7rem;
             z-index: 3;
-            --tabWidth: {voi_width / 5}px; 
+            --tabWidth: {imageWidth / 5}px; 
             background-color: {$themeColors['ImageTabsBackgroundColor']};
         "
     >
@@ -661,7 +656,7 @@ The verse on image component.
             style="
                 width:100%;
                 height: auto;
-                --imgWidth: {voi_width / 4}px; 
+                --imgWidth: {imageWidth / 4}px; 
                 overflow-y: auto;
             "
         >
@@ -675,7 +670,7 @@ The verse on image component.
                         class="dy-btn-sm dy-btn-ghost"
                         style="cursor: pointer;"
                         onclick={() => {
-                            document.getElementById('fileInput').click();
+                            document.getElementById('fileInput')?.click();
                         }}
                     >
                         <ImagesIcon color={$monoIconColor} />
@@ -699,11 +694,14 @@ The verse on image component.
                     />
                 </div>
                 {#each config.backgroundImages as imgObj}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                    <!-- svelte-ignore a11y_missing_attribute -->
                     <img
                         src={backgroundURLs[`./${imgObj.filename}`]}
                         class="image_selector_pane_box"
                         onclick={(event) => {
-                            voi_imgSrc = backgroundURLs[`./${imgObj.filename}`];
+                            imgSrc = backgroundURLs[`./${imgObj.filename}`];
                         }}
                     />
                 {/each}
@@ -712,12 +710,7 @@ The verse on image component.
 
         <!-- Font Selector Pane -->
         <div class="dy-carousel-item items-center editorPane">
-            <FontList
-                bind:selectedFont={voi_font}
-                onmenuaction={(font) => {
-                    handleFontChange(font.detail.font);
-                }}
-            />
+            <FontList bind:selectedFont={textFont} />
         </div>
 
         <!-- Font Editor Pane -->
@@ -727,22 +720,20 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_verseBold = !voi_verseBold;
+                        verseBold = !verseBold;
                     }}
                 >
-                    <ImageIcon.FormatBold color={voi_verseBold ? progressColor : unselectedColor} />
+                    <ImageIcon.FormatBold color={verseBold ? progressColor : unselectedColor} />
                 </button>
 
                 <!-- Italic button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_verseItalic = !voi_verseItalic;
+                        verseItalic = !verseItalic;
                     }}
                 >
-                    <ImageIcon.FormatItalic
-                        color={voi_verseItalic ? progressColor : unselectedColor}
-                    />
+                    <ImageIcon.FormatItalic color={verseItalic ? progressColor : unselectedColor} />
                 </button>
             </div>
 
@@ -753,11 +744,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_fontSize}
+                        bind:value={textFontSize}
                         {barColor}
                         {progressColor}
-                        min={voi_fontSizeMin}
-                        max={voi_fontSizeMax}
+                        min={textFontSizeMin}
+                        max={textFontSizeMax}
                     />
                 </div>
             </div>
@@ -769,11 +760,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_letterSpacing}
+                        bind:value={letterSpacing}
                         {barColor}
                         {progressColor}
-                        min="0"
-                        max="20"
+                        min={0}
+                        max={20}
                     />
                 </div>
             </div>
@@ -786,11 +777,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_textAlign = 'left';
+                        textAlign = 'left';
                     }}
                 >
                     <ImageIcon.FormatAlignLeft
-                        color={voi_textAlign == 'left' ? progressColor : unselectedColor}
+                        color={textAlign == 'left' ? progressColor : unselectedColor}
                     />
                 </button>
 
@@ -798,11 +789,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_textAlign = 'center';
+                        textAlign = 'center';
                     }}
                 >
                     <ImageIcon.FormatAlignCenter
-                        color={voi_textAlign == 'center' ? progressColor : unselectedColor}
+                        color={textAlign == 'center' ? progressColor : unselectedColor}
                     />
                 </button>
 
@@ -810,11 +801,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_textAlign = 'right';
+                        textAlign = 'right';
                     }}
                 >
                     <ImageIcon.FormatAlignRight
-                        color={voi_textAlign == 'right' ? progressColor : unselectedColor}
+                        color={textAlign == 'right' ? progressColor : unselectedColor}
                     />
                 </button>
             </div>
@@ -826,11 +817,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_lineHeight_x100}
+                        bind:value={lineHeightPercent}
                         {barColor}
                         {progressColor}
-                        min="-20"
-                        max="100"
+                        min={-20}
+                        max={100}
                     />
                 </div>
             </div>
@@ -842,10 +833,10 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_textBoxWidthPercent}
+                        bind:value={textboxWidthPercent}
                         {barColor}
                         {progressColor}
-                        min="20"
+                        min={20}
                         max={100}
                     />
                 </div>
@@ -859,7 +850,7 @@ The verse on image component.
                 toRight={false}
                 label="Test Label For Now"
                 isInput={false}
-                bind:hex={voi_fontColor}
+                bind:hex={fontColor}
             />
         </div>
 
@@ -870,11 +861,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_textShadow_mode = 'none';
+                        textShadowMode = 'none';
                     }}
                 >
                     <ImageIcon.TextShadowNone
-                        color={voi_textShadow_mode == 'none' ? progressColor : unselectedColor}
+                        color={textShadowMode == 'none' ? progressColor : unselectedColor}
                     />
                 </button>
 
@@ -882,11 +873,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_textShadow_mode = 'shadow';
+                        textShadowMode = 'shadow';
                     }}
                 >
                     <ImageIcon.TextShadow
-                        color={voi_textShadow_mode == 'shadow' ? progressColor : unselectedColor}
+                        color={textShadowMode == 'shadow' ? progressColor : unselectedColor}
                     />
                 </button>
 
@@ -894,11 +885,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_textShadow_mode = 'glow';
+                        textShadowMode = 'glow';
                     }}
                 >
                     <ImageIcon.TextGlow
-                        color={voi_textShadow_mode == 'glow' ? progressColor : unselectedColor}
+                        color={textShadowMode == 'glow' ? progressColor : unselectedColor}
                     />
                 </button>
             </div>
@@ -910,11 +901,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_textShadow_value}
+                        bind:value={textShadowValue}
                         {barColor}
                         {progressColor}
-                        min="0"
-                        max="20"
+                        min={0}
+                        max={20}
                     />
                 </div>
             </div>
@@ -929,11 +920,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_imageBrightness}
+                        bind:value={imageBrightness}
                         {barColor}
                         {progressColor}
-                        min="20"
-                        max="180"
+                        min={20}
+                        max={180}
                     />
                 </div>
             </div>
@@ -945,11 +936,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_imageContrast}
+                        bind:value={imageContrast}
                         {barColor}
                         {progressColor}
-                        min="10"
-                        max="190"
+                        min={10}
+                        max={190}
                     />
                 </div>
             </div>
@@ -961,11 +952,11 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_imageSaturation}
+                        bind:value={imageSaturation}
                         {barColor}
                         {progressColor}
-                        min="0"
-                        max="200"
+                        min={0}
+                        max={200}
                     />
                 </div>
             </div>
@@ -979,13 +970,7 @@ The verse on image component.
                     <ImageIcon.Blur color={$monoIconColor} size="1.5rem" />
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
-                    <Slider
-                        bind:value={voi_imageBlur}
-                        {barColor}
-                        {progressColor}
-                        min="0"
-                        max="15"
-                    />
+                    <Slider bind:value={imageBlur} {barColor} {progressColor} min={0} max={15} />
                 </div>
             </div>
         </div>
@@ -997,37 +982,35 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_refBold = !voi_refBold;
+                        refBold = !refBold;
                     }}
                 >
-                    <ImageIcon.FormatBold color={voi_refBold ? progressColor : unselectedColor} />
+                    <ImageIcon.FormatBold color={refBold ? progressColor : unselectedColor} />
                 </button>
 
                 <!-- Ref italic button -->
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        voi_refItalic = !voi_refItalic;
+                        refItalic = !refItalic;
                     }}
                 >
-                    <ImageIcon.FormatItalic
-                        color={voi_refItalic ? progressColor : unselectedColor}
-                    />
+                    <ImageIcon.FormatItalic color={refItalic ? progressColor : unselectedColor} />
                 </button>
             </div>
 
-            <!-- Refrence font size slider -->
+            <!-- Reference font size slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
                 <div style="margin-right: 1rem;">
                     <TextAppearanceIcon color={$monoIconColor} size="1.5rem" />
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={voi_refFontPercent}
+                        bind:value={refFontPercent}
                         {barColor}
                         {progressColor}
-                        min="50"
-                        max="100"
+                        min={50}
+                        max={100}
                     />
                 </div>
             </div>
