@@ -152,7 +152,6 @@
             <!-- Collection Selector Menu -->
             <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
         {/if}
-
         <!-- Text Appearance Options Menu -->
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
@@ -161,7 +160,7 @@
         <CropImage bind:this={cropImage} />
 
         <!-- VerseOnImage Menu -->
-        <VerseOnImage bind:this={verseOnImage} />
+        <!--<VerseOnImage bind:this={verseOnImage} />-->
 
         <PlanStopDialog
             bind:this={planStopDialog}

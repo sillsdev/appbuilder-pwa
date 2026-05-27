@@ -3,34 +3,40 @@
 The verse on image component.
 -->
 <script>
-    import { onMount } from 'svelte';
-    import Slider from './Slider.svelte';
-    import CropImage from './CropImage.svelte';
-    import { TextAppearanceIcon } from '$lib/icons';
-    import { ImageIcon } from '$lib/icons/image';
+    import FontList from '$lib/components/FontList.svelte';
+    import config from '$lib/data/config';
+    import { shareImage } from '$lib/data/share';
     import {
-        language,
-        languages,
-        theme,
-        themes,
-        monoIconColor,
-        themeColors,
-        selectedVerses,
-        windowSize,
+        currentFont,
         direction,
         fontChoices,
-        currentFont,
+        language,
+        languages,
         modal,
         MODAL_CROP,
-        s
+        monoIconColor,
+        s,
+        selectedVerses,
+        theme,
+        themeColors,
+        themes,
+        windowSize
     } from '$lib/data/stores';
-    import { shareImage } from '$lib/data/share';
-    import { base } from '$app/paths';
-    import config from '$lib/data/config';
-    import { toPng } from 'html-to-image';
+    import { TextAppearanceIcon } from '$lib/icons';
+    import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
-    import FontList from '$lib/components/FontList.svelte';
+    import { toPng } from 'html-to-image';
+    import { onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
+    import CropImage from './CropImage.svelte';
+    import Slider from './Slider.svelte';
+
+    const backgroundURLs = import.meta.glob('./*', {
+        eager: true,
+        import: 'default',
+        query: '?url',
+        base: '/src/gen-assets/backgrounds'
+    });
 
     $: barColor = $themeColors['SliderBarColor'];
     $: progressColor = $themeColors['SliderProgressColor'];
@@ -234,7 +240,8 @@ The verse on image component.
     onMount(async () => {
         verses = await selectedVerses.getCompositeText();
 
-        voi_imgSrc = base + '/backgrounds/' + config.backgroundImages[0].filename;
+        voi_imgSrc = backgroundURLs[`./${config.backgroundImages[0].filename}`];
+        //voi_imgSrc = base + '/backgrounds/' + config.backgroundImages[0].filename;
         initFontSizesAndCenterText();
 
         centerButton(0);
@@ -362,7 +369,7 @@ The verse on image component.
                     ? viewportWidth_in_px + 'px'
                     : viewportHeight_in_px / 2 + 'px'}
                 style="position: relative; z-index: 1;"
-            />
+            ></canvas>
 
             <p
                 id="verseOnImageTextDiv"
@@ -545,7 +552,7 @@ The verse on image component.
                 <!-- Camera roll button -->
                 <div
                     class="flex items-center justify-center image_selector_pane_box"
-                    style="height: {this.width};"
+                    //style="height: {this.width};"
                 >
                     <button
                         class="dy-btn-sm dy-btn-ghost"
@@ -563,6 +570,7 @@ The verse on image component.
                         id="fileInput"
                         style="display: none; visibility: none;"
                         on:change={(event) => {
+                            console.log('on:change');
                             const selectedFile = event.target.files[0];
                             if (selectedFile) {
                                 // newImg.onload = function () {
@@ -579,10 +587,11 @@ The verse on image component.
                 </div>
                 {#each config.backgroundImages as imgObj}
                     <img
-                        src={base + '/backgrounds/' + imgObj.filename}
+                        src={backgroundURLs[`./${imgObj.filename}`]}
                         class="image_selector_pane_box"
                         on:click={(event) => {
-                            voi_imgSrc = base + '/backgrounds/' + imgObj.filename;
+                            voi_imgSrc = backgroundURLs[`./${imgObj.filename}`];
+                            //voi_imgSrc = base + '/backgrounds/' + imgObj.filename;
                         }}
                     />
                 {/each}

@@ -173,7 +173,7 @@ TODO:
                 {/if}
                 {#if isTextOnImageEnabled}
                     <a
-                        href="{base}/image"
+                        href={resolve(`/image`)}
                         class="dy-btn-sm dy-btn-ghost"
                         style="text-decoration:none; display:flex; align-items:center;"
                     >
