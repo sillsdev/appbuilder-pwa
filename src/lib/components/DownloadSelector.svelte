@@ -3,7 +3,7 @@
 A component for verse-on-image providing a dropdown where you can choose to download an image or a video
 -->
 
-<script>
+<script lang="ts">
     import { t } from '$lib/data/stores';
     import { ImageIcon, VideoIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
@@ -11,7 +11,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
     let { vertOffset = '1rem', downloadImage = () => {}, downloadVideo = () => {} } = $props();
 
     let modalId = 'downloadSelector';
-    let modalThis;
+    let modalThis: Modal;
     export function showModal() {
         modalThis.showModal();
     }
@@ -27,14 +27,14 @@ A component for verse-on-image providing a dropdown where you can choose to down
     <div class="grid gap-2 m-2">
         <button
             class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
-            onclick={downloadImage}
+            onclick={() => downloadImage()}
         >
             <ImageIcon.Image />
             {$t['Text_On_Image_Save_Image']}
         </button>
         <button
             class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
-            onclick={downloadVideo}
+            onclick={() => downloadVideo()}
         >
             <VideoIcon />
             {$t['Text_On_Image_Save_Video']}
