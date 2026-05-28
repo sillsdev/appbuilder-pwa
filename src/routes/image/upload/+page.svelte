@@ -195,8 +195,7 @@
         canvas.height = cropImgSize;
 
         const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
+        ctx?.drawImage(
             image,
             cropX,
             cropY,

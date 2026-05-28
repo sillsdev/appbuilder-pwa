@@ -55,16 +55,16 @@ The verse on image component.
     let cnv_background: HTMLImageElement | undefined = $state();
     let textbox: HTMLParagraphElement;
     const txtFormatted: string = $derived(verses);
-    let verseBold = $state($s['ui.text-on-image']['font-weight'] == 'bold');
-    let verseItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
+    let verseBold = $state($s?.['ui.text-on-image']['font-weight'] == 'bold');
+    let verseItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let textFontSize = $state(13);
     let textFontSizeMin = $state(10);
     let textFontSizeMax = $state(60);
     let textFont = $state($currentFont);
     let refBold = $state(false);
-    let refItalic = $state($s['ui.text-on-image']['font-style'] == 'italic');
+    let refItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let refFontPercent = $state(80);
-    let fontColor: string = $state(standardize_color(String($s['ui.text-on-image']['color'])));
+    let fontColor: string = $state(standardize_color(String($s?.['ui.text-on-image']['color'])));
     let letterSpacing = $state(0);
     let lineHeightPercent = $state(0);
     const lineHeight = $derived(1 + lineHeightPercent / 100);
@@ -104,6 +104,9 @@ The verse on image component.
 
     function standardize_color(str: string) {
         var ctx = document.createElement('canvas').getContext('2d');
+        if (!ctx) {
+            return str;
+        }
         ctx.fillStyle = str;
         return ctx.fillStyle;
     }
@@ -126,8 +129,10 @@ The verse on image component.
             return;
         }
         const context = cnv.getContext('2d');
-        context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
-        context.drawImage(background, 0, 0, cnv.width, cnv.height);
+        if (context) {
+            context.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) saturate(${imgSaturation}%) blur(${imgBlur}px)`;
+            context.drawImage(background, 0, 0, cnv.width, cnv.height);
+        }
     }
 
     $effect(() => {
@@ -235,6 +240,9 @@ The verse on image component.
      */
     function initFontSizesAndCenterText() {
         const textOverlay = document.getElementById('verseOnImageTextDiv');
+        if (!textOverlay) {
+            return;
+        }
         const textDisplay = textOverlay.style.display;
         let fontSize: number;
         let fontSizeMax: number;
@@ -286,7 +294,7 @@ The verse on image component.
         if ($voiCustomImage.cropped) {
             imgSrc = $voiCustomImage.cropped;
         } else {
-            imgSrc = backgroundURLs[`./${scriptureConfig.backgroundImages[0].filename}`];
+            imgSrc = backgroundURLs[`./${scriptureConfig.backgroundImages?.[0].filename}`];
         }
         initFontSizesAndCenterText();
 
@@ -297,22 +305,28 @@ The verse on image component.
         textY = parentRect.top + (parentRect.height - childRect.height) / 2;
     });
 
-    function handleFontChange(f: string) {
-        textFont = f;
-    }
-
     // Share button feature:
     export function shareCanvas() {
         const original = document.getElementById('verseOnImgPreview');
+        if (!original) {
+            console.error('Error getting preview to export');
+            return;
+        }
 
         const clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
 
         const origCanvas = original.querySelector('canvas');
         const cloneCanvas = clone.querySelector('canvas');
+        if (!cloneCanvas || !origCanvas) {
+            console.error('Error getting canvas to export');
+            return;
+        }
         cloneCanvas.width = origCanvas.width;
         cloneCanvas.height = origCanvas.height;
         const ctx = cloneCanvas.getContext('2d');
-        ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+        if (ctx) {
+            ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+        }
 
         clone.style.position = 'absolute';
         clone.style.left = '0px';
@@ -321,8 +335,10 @@ The verse on image component.
 
         var cloneParagraph = clone.querySelector('p');
         const parentRect = parentDiv.getBoundingClientRect();
-        cloneParagraph.style.left = textX - parentRect.left + 'px';
-        cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        if (cloneParagraph) {
+            cloneParagraph.style.left = textX - parentRect.left + 'px';
+            cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        }
 
         document.body.appendChild(clone);
         toPng(clone)
@@ -348,15 +364,25 @@ The verse on image component.
     }
     export function downloadCanvas() {
         const original = document.getElementById('verseOnImgPreview');
+        if (!original) {
+            console.error('Error getting preview to export');
+            return;
+        }
 
         const clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
 
         const origCanvas = original.querySelector('canvas');
         const cloneCanvas = clone.querySelector('canvas');
+        if (!cloneCanvas || !origCanvas) {
+            console.error('Error getting canvas to export');
+            return;
+        }
         cloneCanvas.width = origCanvas.width;
         cloneCanvas.height = origCanvas.height;
         const ctx = cloneCanvas.getContext('2d');
-        ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+        if (ctx) {
+            ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+        }
 
         clone.style.position = 'absolute';
         clone.style.left = '0px';
@@ -365,8 +391,10 @@ The verse on image component.
 
         var cloneParagraph = clone.querySelector('p');
         const parentRect = parentDiv.getBoundingClientRect();
-        cloneParagraph.style.left = textX - parentRect.left + 'px';
-        cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        if (cloneParagraph) {
+            cloneParagraph.style.left = textX - parentRect.left + 'px';
+            cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        }
 
         document.body.appendChild(clone);
         toPng(clone)
@@ -406,15 +434,23 @@ The verse on image component.
 
     function centerButton(n: number) {
         const container = document.getElementById('editorTabs');
+        if (!container) {
+            return;
+        }
         const containerRect = container.getBoundingClientRect();
         const buttons = document.querySelectorAll('#editorTabs button');
         const button = n >= 0 && n < buttons.length ? buttons[n] : null;
-        const buttonRect = button.getBoundingClientRect();
+        if (button) {
+            const buttonRect = button.getBoundingClientRect();
 
-        const scrollOffset =
-            buttonRect.left - containerRect.left - containerRect.width / 2 + buttonRect.width / 2;
+            const scrollOffset =
+                buttonRect.left -
+                containerRect.left -
+                containerRect.width / 2 +
+                buttonRect.width / 2;
 
-        container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
+            container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
+        }
 
         let carousel = document.getElementById('editorsPane') as HTMLDivElement;
         const editors = carousel.children as HTMLCollectionOf<HTMLElement>; // document.querySelectorAll('#editorsPane div');// Get the carousel's children.
@@ -435,7 +471,9 @@ The verse on image component.
 
         // Set the clicked button as the activeButton
         active_editor_index = n;
-        button.classList.add('activeButton');
+        if (button) {
+            button.classList.add('activeButton');
+        }
     }
 
     // textbox Draggability:
@@ -641,7 +679,7 @@ The verse on image component.
                         style="display: none; visibility: none;"
                         onchange={(event) => {
                             const input = event.target as HTMLInputElement;
-                            const selectedFile = input?.files[0];
+                            const selectedFile = input.files ? input.files[0] : null;
                             if (selectedFile) {
                                 let selectedSrc = URL.createObjectURL(selectedFile);
                                 voiCustomImage.update((v) => ({
@@ -660,7 +698,7 @@ The verse on image component.
                     <img
                         src={backgroundURLs[`./${imgObj.filename}`]}
                         class="image_selector_pane_box"
-                        onclick={(event) => {
+                        onclick={() => {
                             imgSrc = backgroundURLs[`./${imgObj.filename}`];
                         }}
                     />
