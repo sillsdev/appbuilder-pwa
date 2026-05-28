@@ -5,7 +5,7 @@ The verse on image component.
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import scriptureConfig from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
     import { shareImage } from '$lib/data/share';
     import {
