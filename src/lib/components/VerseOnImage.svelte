@@ -510,7 +510,7 @@ The verse on image component.
                     left: {textX}px;
                     top: {textY}px;
                 "
-                //class="flex flex-col"
+                class="select-none"
                 bind:this={textbox}
                 onpointerdown={startDrag}
             >
