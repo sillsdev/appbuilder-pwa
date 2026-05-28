@@ -392,6 +392,11 @@ The verse on image component.
             })
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
+            })
+            .finally(() => {
+                if (clone.isConnected) {
+                    document.body.removeChild(clone);
+                }
             });
     }
 
@@ -619,10 +624,7 @@ The verse on image component.
         >
             <div id="image_selector_grid" class="grid grid-cols-4" style="height: fit-content;">
                 <!-- Camera roll button -->
-                <div
-                    class="flex items-center justify-center image_selector_pane_box"
-                    //style="height: {this.width};"
-                >
+                <div class="flex items-center justify-center image_selector_pane_box">
                     <button
                         class="dy-btn-sm dy-btn-ghost"
                         style="cursor: pointer;"
@@ -646,7 +648,7 @@ The verse on image component.
                                     ...v,
                                     original: selectedSrc
                                 }));
-                                goto(resolve('/crop'));
+                                goto(resolve('/image/upload'));
                             }
                         }}
                     />
