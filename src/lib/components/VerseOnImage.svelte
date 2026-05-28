@@ -5,7 +5,7 @@ The verse on image component.
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import config from '$assets/config';
+    import scriptureConfig from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
     import { shareImage } from '$lib/data/share';
     import {
@@ -271,7 +271,7 @@ The verse on image component.
         if ($voiCustomImage.cropped) {
             imgSrc = $voiCustomImage.cropped;
         } else {
-            imgSrc = backgroundURLs[`./${config.backgroundImages[0].filename}`];
+            imgSrc = backgroundURLs[`./${scriptureConfig.backgroundImages[0].filename}`];
         }
         initFontSizesAndCenterText();
 
@@ -391,8 +391,8 @@ The verse on image component.
 
         container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
 
-        let carousel = document.getElementById('editorsPane');
-        const editors = carousel.children; // document.querySelectorAll('#editorsPane div');// Get the carousel's children.
+        let carousel = document.getElementById('editorsPane') as HTMLDivElement;
+        const editors = carousel.children as HTMLCollectionOf<HTMLElement>; // document.querySelectorAll('#editorsPane div');// Get the carousel's children.
         if (n < editors.length) {
             const itemWidth = editors[0].offsetWidth; // Calculate the width of each carousel item
 
@@ -681,7 +681,8 @@ The verse on image component.
                         id="fileInput"
                         style="display: none; visibility: none;"
                         onchange={(event) => {
-                            const selectedFile = event.target.files[0];
+                            const input = event.target as HTMLInputElement;
+                            const selectedFile = input?.files[0];
                             if (selectedFile) {
                                 let selectedSrc = URL.createObjectURL(selectedFile);
                                 voiCustomImage.update((v) => ({
@@ -693,7 +694,7 @@ The verse on image component.
                         }}
                     />
                 </div>
-                {#each config.backgroundImages as imgObj}
+                {#each scriptureConfig.backgroundImages as imgObj}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <!-- svelte-ignore a11y_missing_attribute -->

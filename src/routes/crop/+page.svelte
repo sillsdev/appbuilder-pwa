@@ -6,18 +6,17 @@
     import { CheckIcon } from '$lib/icons';
     import { onMount } from 'svelte';
 
-    let image;
-    let container;
+    let image: HTMLImageElement;
+    let container: HTMLDivElement;
 
     let cropTop = $state(0);
     let cropLeft = $state(0);
     let cropSize = $state(100);
 
-    let dragging = $state(false);
-    let dragStartX = $state(0);
-    let dragStartY = $state(0);
-    let resizing = $state(false);
-    let dragStartSize = $state(0);
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let resizing = false;
     let imageRect = $state({
         left: 0,
         top: 0,
@@ -42,7 +41,7 @@
         cropLeft = imageRect.left;
         cropTop = imageRect.top;
     }
-    function getImageRect(img) {
+    function getImageRect(img: HTMLImageElement) {
         const containerRect = container.getBoundingClientRect();
         const naturalRatio = img.naturalWidth / img.naturalHeight;
         const containerRatio = containerRect.width / containerRect.height;
@@ -68,13 +67,13 @@
             height
         };
     }
-    function getDistance(t1, t2) {
+    function getDistance(t1: Touch, t2: Touch) {
         const dx = t2.clientX - t1.clientX;
         const dy = t2.clientY - t1.clientY;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    function onTouchStart(e) {
+    function onTouchStart(e: TouchEvent) {
         if (e.touches.length === 2) {
             const [t1, t2] = e.touches;
             resizeStartDistance = getDistance(t1, t2);
@@ -82,7 +81,7 @@
         }
     } //2-finger resize
 
-    function onTouchMove(e) {
+    function onTouchMove(e: TouchEvent) {
         if (e.touches.length === 2) {
             e.preventDefault();
             if (dragging) {
@@ -111,7 +110,7 @@
         }
     } //2-finger resize
 
-    function startDrag(e) {
+    function startDrag(e: PointerEvent) {
         dragging = true;
         dragStartX = e.clientX - cropLeft;
         dragStartY = e.clientY - cropTop;
@@ -120,7 +119,7 @@
         window.addEventListener('pointerup', stopDrag);
     }
 
-    function drag(e) {
+    function drag(e: PointerEvent) {
         if (!dragging) {
             return;
         }
@@ -140,17 +139,16 @@
         window.removeEventListener('pointermove', drag);
         window.removeEventListener('pointerup', stopDrag);
     }
-    function startResize(e) {
+    function startResize(e: PointerEvent) {
         e.preventDefault();
         resizing = true;
-        dragStartSize = cropSize;
         dragStartX = e.clientX;
         dragStartY = e.clientY;
 
         window.addEventListener('pointermove', resize);
         window.addEventListener('pointerup', stopResize);
     }
-    function resize(e) {
+    function resize(e: PointerEvent) {
         if (!resizing) {
             return;
         }

@@ -40,7 +40,7 @@
             modal.clear();
         }
     }
-    let downloadSelector: DownloadSelector = $state();
+    let downloadSelector: DownloadSelector;
 </script>
 
 <div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
