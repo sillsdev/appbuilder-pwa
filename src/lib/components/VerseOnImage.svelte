@@ -90,6 +90,18 @@ The verse on image component.
     let imageSaturation = $state(100);
     let imageBlur = $state(0);
 
+    const optionIcons = [
+        ImageIcon.Image,
+        ImageIcon.FontChoice,
+        TextAppearanceIcon,
+        ImageIcon.FormatAlignCenter,
+        ImageIcon.FormatColorFill,
+        ImageIcon.TextShadow,
+        ImageIcon.Brightness,
+        ImageIcon.Blur,
+        ImageIcon.Reference
+    ];
+
     function standardize_color(str: string) {
         var ctx = document.createElement('canvas').getContext('2d');
         ctx.fillStyle = str;
@@ -570,83 +582,16 @@ The verse on image component.
         "
     >
         <!-- NavBar of tab buttons to bring up the different editor panes -->
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(0)}
-            class:activeButton={active_editor_index == 0}
-        >
-            <ImageIcon.Image color={active_editor_index == 0 ? progressColor : unselectedColor} />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(1)}
-            class:activeButton={active_editor_index == 1}
-        >
-            <ImageIcon.FontChoice
-                color={active_editor_index == 1 ? progressColor : unselectedColor}
-            />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(2)}
-            class:activeButton={active_editor_index == 2}
-        >
-            <TextAppearanceIcon
-                color={active_editor_index == 2 ? progressColor : unselectedColor}
-            />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(3)}
-            class:activeButton={active_editor_index == 3}
-        >
-            <ImageIcon.FormatAlignCenter
-                color={active_editor_index == 3 ? progressColor : unselectedColor}
-            />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(4)}
-            class:activeButton={active_editor_index == 4}
-        >
-            <ImageIcon.FormatColorFill
-                color={active_editor_index == 4 ? progressColor : unselectedColor}
-            />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(5)}
-            class:activeButton={active_editor_index == 5}
-        >
-            <ImageIcon.TextShadow
-                color={active_editor_index == 5 ? progressColor : unselectedColor}
-            />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(6)}
-            class:activeButton={active_editor_index == 6}
-        >
-            <ImageIcon.Brightness
-                color={active_editor_index == 6 ? progressColor : unselectedColor}
-            />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(7)}
-            class:activeButton={active_editor_index == 7}
-        >
-            <ImageIcon.Blur color={active_editor_index == 7 ? progressColor : unselectedColor} />
-        </button>
-        <button
-            class="dy-btn-sm dy-btn-ghost"
-            onclick={() => centerButton(8)}
-            class:activeButton={active_editor_index == 8}
-        >
-            <ImageIcon.Reference
-                color={active_editor_index == 8 ? progressColor : unselectedColor}
-            />
-        </button>
+        {#each optionIcons as icon, i}
+            {@const Icon = icon}
+            <button
+                class="dy-btn-sm dy-btn-ghost"
+                onclick={() => centerButton(i)}
+                class:activeButton={active_editor_index == i}
+            >
+                <Icon color={active_editor_index == i ? progressColor : unselectedColor}></Icon>
+            </button>
+        {/each}
     </div>
 
     <!-- Pane for the current editor -->
