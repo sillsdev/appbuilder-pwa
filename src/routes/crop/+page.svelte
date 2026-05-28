@@ -4,7 +4,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
 
     let image: HTMLImageElement;
     let container: HTMLDivElement;
@@ -30,14 +30,20 @@
     let resizeStartDistance = $state(0); //These are variables for the 2-finger resize
 
     onMount(() => {
-        if (image?.complete) {
+        if (!image || !$voiCustomImage.original) {
+            goto(resolve('/image'));
+            return;
+        }
+        if (image.complete) {
             initCropBox();
         } else {
             image.addEventListener('load', initCropBox, { once: true });
+            return () => image.removeEventListener('load', initCropBox);
         }
     });
     function initCropBox() {
         imageRect = getImageRect(image);
+        cropSize = Math.max(20, Math.min(100, imageRect.width, imageRect.height));
         cropLeft = imageRect.left;
         cropTop = imageRect.top;
     }
@@ -205,7 +211,9 @@
         return canvas.toDataURL('image/png');
     }
     function cropImage() {
-        console.log('Crop Image Called');
+        if (!image?.complete) {
+            return;
+        }
         let croppedImgURL = getCroppedImage();
         voiCustomImage.update((v) => ({
             ...v,
@@ -216,6 +224,12 @@
     function backNavigation() {
         goto(resolve('/image'));
     }
+    onDestroy(() => {
+        window.removeEventListener('pointermove', drag);
+        window.removeEventListener('pointerup', stopDrag);
+        window.removeEventListener('pointermove', resize);
+        window.removeEventListener('pointerup', stopResize);
+    });
 </script>
 
 <div class="flex flex-col h-screen">
@@ -229,7 +243,7 @@
             {#snippet end()}
                 <div>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={cropImage}>
-                        <CheckIcon color="white" /><!--This should be a checkmark, not ShareIcon-->
+                        <CheckIcon color="white" />
                     </button>
                 </div>
             {/snippet}

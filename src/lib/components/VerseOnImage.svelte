@@ -22,7 +22,7 @@ The verse on image component.
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
     import { toPng } from 'html-to-image';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
     import Slider from './Slider.svelte';
 
@@ -157,6 +157,9 @@ The verse on image component.
             const currentDistance = getDistance(t1, t2);
             const rect = parentDiv.getBoundingClientRect();
 
+            if (resizeStartDistance <= 0) {
+                return;
+            }
             const scale = currentDistance / resizeStartDistance;
             let newWidth = resizeStartSize * scale;
             const maxSizeX = rect.right - textX;
@@ -324,6 +327,11 @@ The verse on image component.
             })
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
+            })
+            .finally(() => {
+                if (clone.isConnected) {
+                    document.body.removeChild(clone);
+                }
             });
     }
     export function downloadCanvas() {
@@ -419,7 +427,6 @@ The verse on image component.
     let textY = $state(0);
     let dragging = false;
     let offsetX: number, offsetY: number;
-    const textboxMaxHeight = $derived(imageHeight - textY);
 
     function drag(event: PointerEvent) {
         if (dragging) {
@@ -436,7 +443,7 @@ The verse on image component.
                 Math.min(newX, parentRect.width - childRect.width) + parentRect.left
             );
             textY = Math.max(
-                0 + parentRect.top,
+                16 + parentRect.top,
                 Math.min(newY, parentRect.height - childRect.height) + parentRect.top
             );
         }
@@ -455,6 +462,12 @@ The verse on image component.
         window.addEventListener('pointermove', drag);
         window.addEventListener('pointerup', stopDrag);
     }
+    onDestroy(() => {
+        window.removeEventListener('pointermove', resize);
+        window.removeEventListener('pointerup', stopResize);
+        window.removeEventListener('pointermove', drag);
+        window.removeEventListener('pointerup', stopDrag);
+    });
 </script>
 
 <div
@@ -494,7 +507,6 @@ The verse on image component.
                     width: {textboxWidth}px;
                     height: auto;
                     max-width: {imageWidth}px;
-                    max-height: {textboxMaxHeight};
                     color: {fontColor};
                     font-family: {textFont};
                     font-size: {textFontSize}pt;
@@ -847,12 +859,7 @@ The verse on image component.
         <!-- Font Color Pane -->
         <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
             <!-- Color Picker -->
-            <ColorPicker
-                toRight={false}
-                label="Test Label For Now"
-                isInput={false}
-                bind:hex={fontColor}
-            />
+            <ColorPicker toRight={false} isInput={false} bind:hex={fontColor} />
         </div>
 
         <!-- Text Shadow/Glow Pane -->
