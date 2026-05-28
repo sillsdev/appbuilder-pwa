@@ -469,7 +469,7 @@ The verse on image component.
         <div
             id="verseOnImgPreview"
             bind:this={parentDiv}
-            class="flex flex-col touch-none"
+            class="flex flex-col touch-none pt-4"
             style="width:{imageWidth}px; height:{imageHeight}px;"
             ontouchstart={onTouchStart}
             ontouchmove={onTouchMove}
