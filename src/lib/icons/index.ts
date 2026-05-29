@@ -16,6 +16,7 @@ import ChevronIcon from './ChevronIcon.svelte';
 import CopyContentIcon from './CopyContentIcon.svelte';
 import DeleteIcon from './DeleteIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
+import DownloadIcon from './DownloadIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
 import EditIcon from './EditIcon.svelte';
 import HamburgerIcon from './HamburgerIcon.svelte';
@@ -36,6 +37,7 @@ import SortIcon from './SortIcon.svelte';
 import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import TriangleLeftIcon from './TriangleLeftIcon.svelte';
 import TriangleRightIcon from './TriangleRightIcon.svelte';
+import VideoIcon from './VideoIcon.svelte';
 
 export {
     AboutIcon,
@@ -54,6 +56,7 @@ export {
     CopyContentIcon,
     DeleteIcon,
     DeleteSweepIcon,
+    DownloadIcon,
     DropdownIcon,
     EditIcon,
     HamburgerIcon,
@@ -74,5 +77,6 @@ export {
     TextAppearanceIcon,
     VerseByVerseIcon,
     TriangleLeftIcon,
-    TriangleRightIcon
+    TriangleRightIcon,
+    VideoIcon
 };

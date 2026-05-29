@@ -60,6 +60,7 @@
         "rimraf": "^6",
         "sharp": "^0.34.5",
         "svelte": "^5.55.5",
+        "svelte-awesome-color-picker": "^2.4.7",
         "svelte-check": "^4.1.1",
         "svelte-eslint-parser": "^0.43",
         "svelte-gestures": "5.0.7",
@@ -77,6 +78,7 @@
         "node": "22.21.1"
     },
     "dependencies": {
+        "html-to-image": "^1.11.11",
         "sql.js": "^1.13.0"
     }
 }

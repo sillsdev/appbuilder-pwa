@@ -1592,7 +1592,7 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
         }
     }
     // Verse on image is not done
-    data.mainFeatures['text-on-image'] = false;
+    //data.mainFeatures['text-on-image'] = false;
 
     // Share only implements links to apps on stores
     data.mainFeatures['share-download-app-link'] = false;

@@ -31,7 +31,9 @@ export const ModalType = {
     TextAppearance: 'text-appearance',
     Font: 'font',
     StopPlan: 'stop-plan',
-    PlaybackSpeed: 'playback-speed'
+    PlaybackSpeed: 'playback-speed',
+    VerseOnImage: 'verse-on-image',
+    Download: 'download'
 } as const;
 export type ModalType = (typeof ModalType)[keyof typeof ModalType];
 
@@ -140,3 +142,7 @@ function createStackStore<T>() {
 }
 
 export const contentsStack = createStackStore<number>();
+export const voiCustomImage = writable<{ original: string | null; cropped: string | null }>({
+    original: null,
+    cropped: null
+});

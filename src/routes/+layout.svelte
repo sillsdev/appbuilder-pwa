@@ -144,7 +144,6 @@
             <!-- Collection Selector Menu -->
             <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
         {/if}
-
         <!-- Text Appearance Options Menu -->
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
