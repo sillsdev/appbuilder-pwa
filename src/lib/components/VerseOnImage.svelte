@@ -38,11 +38,7 @@ Make some sort of popup indicating that the video is downloading
         VideoSampleSource,
         WebMOutputFormat
     } from 'mediabunny';
-    import type {
-        AudioCodec,
-        AudioEncodingAdditionalOptions,
-        AudioEncodingConfig
-    } from 'mediabunny';
+    import type { AudioEncodingConfig } from 'mediabunny';
     import { onDestroy, onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
     import Slider from './Slider.svelte';
