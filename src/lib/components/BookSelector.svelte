@@ -261,7 +261,7 @@ The navbar component.
                         .filter(
                             (y) =>
                                 typeof chapters[y] === 'object' &&
-                                Object.keys(chapters[y]).length > 1
+                                Object.keys(chapters[y]).length > 0
                         )
                         .map((x) => ({
                             label: getChapterLabel(x),
