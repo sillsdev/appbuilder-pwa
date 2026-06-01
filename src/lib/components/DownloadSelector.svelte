@@ -32,12 +32,12 @@ A component for verse-on-image providing a dropdown where you can choose to down
             <ImageIcon.Image />
             {$t['Text_On_Image_Save_Image']}
         </button>
-        <!--<button
+        <button
             class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
             onclick={() => downloadVideo()}
         >
             <VideoIcon />
             {$t['Text_On_Image_Save_Video']}
-        </button>-->
+        </button>
     </div>
 </Modal>

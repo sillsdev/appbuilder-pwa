@@ -1,17 +1,22 @@
 <!--
 @component
 The verse on image component.
+TODO: 
+Make the video download button not show up if there isn't audio or a timing file for that chapter
+Make some sort of popup indicating that the video is downloading
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
+    import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareImage } from '$lib/data/share';
     import {
         currentFont,
         direction,
         monoIconColor,
+        refs,
         s,
         selectedVerses,
         themeColors,
@@ -22,6 +27,22 @@ The verse on image component.
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
     import { toPng } from 'html-to-image';
+    import {
+        AudioBufferSource,
+        BufferTarget,
+        canEncodeAudio,
+        Mp4OutputFormat,
+        Output,
+        QUALITY_HIGH,
+        VideoSample,
+        VideoSampleSource,
+        WebMOutputFormat
+    } from 'mediabunny';
+    import type {
+        AudioCodec,
+        AudioEncodingAdditionalOptions,
+        AudioEncodingConfig
+    } from 'mediabunny';
     import { onDestroy, onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
     import Slider from './Slider.svelte';
@@ -427,6 +448,159 @@ The verse on image component.
                 }
             });
     }
+    async function pickSupportedAudioConfig() {
+        const candidates: AudioEncodingConfig[] = [
+            { codec: 'aac', bitrate: 128000 },
+            { codec: 'aac', bitrate: 96000 },
+            { codec: 'aac', bitrate: 64000 },
+            {
+                codec: 'opus',
+                bitrate: 96000
+            }
+        ];
+
+        for (const cfg of candidates) {
+            if (await canEncodeAudio(cfg.codec, cfg)) {
+                return cfg;
+            }
+        }
+
+        throw new Error('No supported AAC configuration found.');
+    } //This is used to determine a supported audio configuration. It first tries AAC (Which can be used for mp4 files), but then falls back to opus (And thus a webm file) if AAC isn't supported
+
+    export async function downloadVideo() {
+        console.log('Video download started');
+        const original = document.getElementById('verseOnImgPreview');
+        if (!original) {
+            console.error('Error getting preview to export');
+            return;
+        }
+
+        const clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+
+        const origCanvas = original.querySelector('canvas');
+        const cloneCanvas = clone.querySelector('canvas');
+        if (!cloneCanvas || !origCanvas) {
+            console.error('Error getting canvas to export');
+            return;
+        }
+        cloneCanvas.width = origCanvas.width & -1;
+        cloneCanvas.height = origCanvas.height & -1;
+        const ctx = cloneCanvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+        }
+
+        clone.style.position = 'absolute';
+        clone.style.left = '0px';
+        clone.style.top = '0px';
+        clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
+
+        var cloneParagraph = clone.querySelector('p');
+        const parentRect = parentDiv.getBoundingClientRect();
+        if (cloneParagraph) {
+            cloneParagraph.style.left = textX - parentRect.left + 'px';
+            cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+        }
+
+        document.body.appendChild(clone);
+        const pngUrl = await toPng(clone);
+        const img = new Image();
+        img.src = pngUrl;
+        await img.decode();
+        const bitmap = await createImageBitmap(img, {
+            resizeWidth: img.width & ~1, // force even
+            resizeHeight: img.height & ~1, // force even
+            resizeQuality: 'high'
+        });
+
+        const frame = new VideoFrame(bitmap, {
+            timestamp: 0,
+            duration: 1_000_000
+        });
+        const sample = new VideoSample(frame);
+
+        const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
+
+        const output = new Output({
+            format: audioConfig.codec === 'opus' ? new WebMOutputFormat() : new Mp4OutputFormat(),
+            target: new BufferTarget()
+        });
+        const videoSource = new VideoSampleSource({
+            codec: audioConfig.codec === 'opus' ? 'vp9' : 'avc',
+            bitrate: QUALITY_HIGH
+        });
+
+        output.addVideoTrack(videoSource);
+
+        const audioSourceInfo = await getAudioSourceInfo({
+            collection: $refs.collection,
+            book: $refs.book,
+            chapter: $refs.chapter
+        });
+
+        const audioSource = new AudioBufferSource(audioConfig);
+        output.addAudioTrack(audioSource);
+        await output.start();
+        await videoSource.add(sample);
+
+        const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
+        const audioCtx = new AudioContext();
+        const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
+
+        const sampleRate = audioBuffer.sampleRate;
+
+        for (let i = 0; i < $selectedVerses.length; i++) {
+            let startFrame = 0;
+            let endFrame = 0;
+            for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
+                const timing = audioSourceInfo?.timing?.[j];
+                const verse = timing?.tag?.replace(/\D/g, '');
+                if (verse === $selectedVerses[i].verse) {
+                    if (!startFrame) {
+                        startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
+                        endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                    } else {
+                        endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                    }
+                }
+            }
+            const trimmedBuffer = audioCtx.createBuffer(
+                audioBuffer.numberOfChannels,
+                endFrame - startFrame,
+                sampleRate
+            );
+
+            for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+                const src = audioBuffer.getChannelData(ch);
+                const dst = trimmedBuffer.getChannelData(ch);
+                dst.set(src.slice(startFrame, endFrame));
+            }
+
+            await audioSource.add(trimmedBuffer);
+        }
+        await output.finalize();
+
+        const buffer = output.target.buffer as BlobPart;
+        const blob = new Blob([buffer], {
+            type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
+        });
+        const filename = reference + (audioConfig.codec === 'opus' ? '.webm' : '.mp4');
+        const file = new File([blob], filename, {
+            type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
+        });
+        document.body.removeChild(clone);
+        sample.close();
+        const url = URL.createObjectURL(file);
+
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.click();
+
+        URL.revokeObjectURL(url);
+        console.log('Video download done');
+    } //Most of this is AI-generated, so serious testing is needed. I've done a lot of testing, but it would be good to make sure there aren't subtle problems with this code.
 
     // EditorTabs centering feature:
 

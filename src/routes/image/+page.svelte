@@ -1,5 +1,4 @@
 <script lang="ts">
-    //TODO: Implement video download
     import DownloadSelector from '$lib/components/DownloadSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
@@ -19,7 +18,9 @@
         }
     }
     function downloadVideo() {
-        console.log('Download video (Not yet implemented)');
+        if (verseOnImage_Component) {
+            verseOnImage_Component.downloadVideo(); // Call the exported function from the VerseOnImage component
+        }
     }
     const stateModal = fromStore<any[]>(modal);
     $effect(() => {
