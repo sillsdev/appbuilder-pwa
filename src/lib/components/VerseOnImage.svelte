@@ -1,9 +1,6 @@
 <!--
 @component
 The verse on image component.
-TODO: 
-Make the video download button not show up if there isn't audio or a timing file for that chapter
-Make some sort of popup indicating that the video is downloading
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
@@ -59,7 +56,7 @@ Make some sort of popup indicating that the video is downloading
     const viewportHeight_in_px = $derived(
         Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
     );
-
+    let downloadProgress = $state(0);
     const reference = $derived(selectedVerses.getCompositeReference());
     let verses: string = $state('');
     let imgSrc: string = $state('');
@@ -463,9 +460,9 @@ Make some sort of popup indicating that the video is downloading
 
         throw new Error('No supported AAC configuration found.');
     } //This is used to determine a supported audio configuration. It first tries AAC (Which can be used for mp4 files), but then falls back to opus (And thus a webm file) if AAC isn't supported
-
+    let cancelDownload = false;
     export async function downloadVideo() {
-        console.log('Video download started');
+        downloadProgress = 1;
         const original = document.getElementById('verseOnImgPreview');
         if (!original) {
             console.error('Error getting preview to export');
@@ -509,6 +506,13 @@ Make some sort of popup indicating that the video is downloading
             resizeHeight: img.height & ~1, // force even
             resizeQuality: 'high'
         });
+        downloadProgress = 10;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
 
         const frame = new VideoFrame(bitmap, {
             timestamp: 0,
@@ -528,21 +532,69 @@ Make some sort of popup indicating that the video is downloading
         });
 
         output.addVideoTrack(videoSource);
+        downloadProgress = 20;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
 
         const audioSourceInfo = await getAudioSourceInfo({
             collection: $refs.collection,
             book: $refs.book,
             chapter: $refs.chapter
         });
+        downloadProgress = 30;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
 
         const audioSource = new AudioBufferSource(audioConfig);
         output.addAudioTrack(audioSource);
         await output.start();
+        downloadProgress = 40;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
         await videoSource.add(sample);
+        downloadProgress = 50;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
 
         const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
+        downloadProgress = 60;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
         const audioCtx = new AudioContext();
         const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
+        downloadProgress = 70;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
 
         const sampleRate = audioBuffer.sampleRate;
 
@@ -576,6 +628,14 @@ Make some sort of popup indicating that the video is downloading
             await audioSource.add(trimmedBuffer);
         }
         await output.finalize();
+        downloadProgress = 80;
+        if (cancelDownload) {
+            document.body.removeChild(clone);
+            sample.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            return;
+        }
 
         const buffer = output.target.buffer as BlobPart;
         const blob = new Blob([buffer], {
@@ -585,8 +645,10 @@ Make some sort of popup indicating that the video is downloading
         const file = new File([blob], filename, {
             type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
         });
+        downloadProgress = 90;
         document.body.removeChild(clone);
         sample.close();
+        downloadProgress = 0;
         const url = URL.createObjectURL(file);
 
         const anchor = document.createElement('a');
@@ -595,7 +657,6 @@ Make some sort of popup indicating that the video is downloading
         anchor.click();
 
         URL.revokeObjectURL(url);
-        console.log('Video download done');
     } //Most of this is AI-generated, so serious testing is needed. I've done a lot of testing, but it would be good to make sure there aren't subtle problems with this code.
 
     // EditorTabs centering feature:
@@ -1186,6 +1247,32 @@ Make some sort of popup indicating that the video is downloading
         ]}; flex: 1 1 auto; z-index: 3;"
     ></div>
 </div>
+{#if downloadProgress > 0}
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div
+            class="bg-base-100 p-6 shadow-xl w-80
+              flex flex-col justify-between h-64"
+        >
+            <div class="flex flex-col gap-1 text-left">
+                <p class="text-lg font-bold">Save Video</p>
+                <p class="text-sm">Creating video...</p>
+            </div>
+
+            <div class="w-full">
+                <progress class="progress w-full" value={downloadProgress} max="100"></progress>
+            </div>
+
+            <div class="flex justify-end">
+                <button
+                    class="btn btn-sm btn-ghost"
+                    onclick={() => {
+                        cancelDownload = true;
+                    }}>Cancel</button
+                >
+            </div>
+        </div>
+    </div>
+{/if}
 
 <style>
     #editorTabs::-webkit-scrollbar {
