@@ -1247,12 +1247,12 @@ The verse on image component.
             </div>
 
             <div class="w-full">
-                <progress class="progress w-full" value={downloadProgress} max="100"></progress>
+                <progress class="dy-progress w-full" value={downloadProgress} max="100"></progress>
             </div>
 
             <div class="flex justify-end">
                 <button
-                    class="btn btn-sm btn-ghost"
+                    class="dy-btn dy-btn-sm dy-btn-ghost"
                     onclick={() => {
                         cancelDownload = true;
                     }}>Cancel</button
