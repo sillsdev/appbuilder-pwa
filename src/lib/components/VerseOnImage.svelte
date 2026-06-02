@@ -462,201 +462,189 @@ The verse on image component.
     } //This is used to determine a supported audio configuration. It first tries AAC (Which can be used for mp4 files), but then falls back to opus (And thus a webm file) if AAC isn't supported
     let cancelDownload = false;
     export async function downloadVideo() {
+        cancelDownload = false;
+        let clone: HTMLElement | undefined;
+        let sample: VideoSample | undefined;
         downloadProgress = 1;
-        const original = document.getElementById('verseOnImgPreview');
-        if (!original) {
-            console.error('Error getting preview to export');
-            return;
-        }
+        try {
+            const original = document.getElementById('verseOnImgPreview');
+            if (!original) {
+                console.error('Error getting preview to export');
+                return;
+            }
 
-        const clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+            clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
 
-        const origCanvas = original.querySelector('canvas');
-        const cloneCanvas = clone.querySelector('canvas');
-        if (!cloneCanvas || !origCanvas) {
-            console.error('Error getting canvas to export');
-            return;
-        }
-        cloneCanvas.width = origCanvas.width & -1;
-        cloneCanvas.height = origCanvas.height & -1;
-        const ctx = cloneCanvas.getContext('2d');
-        if (ctx) {
-            ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
-        }
+            const origCanvas = original.querySelector('canvas');
+            const cloneCanvas = clone.querySelector('canvas');
+            if (!cloneCanvas || !origCanvas) {
+                console.error('Error getting canvas to export');
+                return;
+            }
+            cloneCanvas.width = origCanvas.width & -1;
+            cloneCanvas.height = origCanvas.height & -1;
+            const ctx = cloneCanvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+            }
 
-        clone.style.position = 'absolute';
-        clone.style.left = '0px';
-        clone.style.top = '0px';
-        clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
+            clone.style.position = 'absolute';
+            clone.style.left = '0px';
+            clone.style.top = '0px';
+            clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
 
-        var cloneParagraph = clone.querySelector('p');
-        const parentRect = parentDiv.getBoundingClientRect();
-        if (cloneParagraph) {
-            cloneParagraph.style.left = textX - parentRect.left + 'px';
-            cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
-        }
+            var cloneParagraph = clone.querySelector('p');
+            const parentRect = parentDiv.getBoundingClientRect();
+            if (cloneParagraph) {
+                cloneParagraph.style.left = textX - parentRect.left + 'px';
+                cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+            }
 
-        document.body.appendChild(clone);
-        const pngUrl = await toPng(clone);
-        const img = new Image();
-        img.src = pngUrl;
-        await img.decode();
-        const bitmap = await createImageBitmap(img, {
-            resizeWidth: img.width & ~1, // force even
-            resizeHeight: img.height & ~1, // force even
-            resizeQuality: 'high'
-        });
-        downloadProgress = 10;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
+            document.body.appendChild(clone);
+            const pngUrl = await toPng(clone);
+            const img = new Image();
+            img.src = pngUrl;
+            await img.decode();
+            const bitmap = await createImageBitmap(img, {
+                resizeWidth: img.width & ~1, // force even
+                resizeHeight: img.height & ~1, // force even
+                resizeQuality: 'high'
+            });
+            downloadProgress = 10;
+            if (cancelDownload) {
+                return;
+            }
 
-        const frame = new VideoFrame(bitmap, {
-            timestamp: 0,
-            duration: 1_000_000
-        });
-        const sample = new VideoSample(frame);
+            const frame = new VideoFrame(bitmap, {
+                timestamp: 0,
+                duration: 1_000_000
+            });
+            sample = new VideoSample(frame);
 
-        const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
+            const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
 
-        const output = new Output({
-            format: audioConfig.codec === 'opus' ? new WebMOutputFormat() : new Mp4OutputFormat(),
-            target: new BufferTarget()
-        });
-        const videoSource = new VideoSampleSource({
-            codec: audioConfig.codec === 'opus' ? 'vp9' : 'avc',
-            bitrate: QUALITY_HIGH
-        });
+            const output = new Output({
+                format:
+                    audioConfig.codec === 'opus' ? new WebMOutputFormat() : new Mp4OutputFormat(),
+                target: new BufferTarget()
+            });
+            const videoSource = new VideoSampleSource({
+                codec: audioConfig.codec === 'opus' ? 'vp9' : 'avc',
+                bitrate: QUALITY_HIGH
+            });
 
-        output.addVideoTrack(videoSource);
-        downloadProgress = 20;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            sample.close();
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
+            output.addVideoTrack(videoSource);
+            downloadProgress = 20;
+            if (cancelDownload) {
+                return;
+            }
 
-        const audioSourceInfo = await getAudioSourceInfo({
-            collection: $refs.collection,
-            book: $refs.book,
-            chapter: $refs.chapter
-        });
-        downloadProgress = 30;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            sample.close();
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
+            const audioSourceInfo = await getAudioSourceInfo({
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: $refs.chapter
+            });
+            downloadProgress = 30;
+            if (cancelDownload) {
+                return;
+            }
 
-        const audioSource = new AudioBufferSource(audioConfig);
-        output.addAudioTrack(audioSource);
-        await output.start();
-        downloadProgress = 40;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            sample.close();
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
-        await videoSource.add(sample);
-        downloadProgress = 50;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            sample.close();
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
+            const audioSource = new AudioBufferSource(audioConfig);
+            output.addAudioTrack(audioSource);
+            await output.start();
+            downloadProgress = 40;
+            if (cancelDownload) {
+                return;
+            }
+            await videoSource.add(sample);
+            downloadProgress = 50;
+            if (cancelDownload) {
+                return;
+            }
 
-        const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
-        downloadProgress = 60;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            sample.close();
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
-        const audioCtx = new AudioContext();
-        const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
-        downloadProgress = 70;
-        if (cancelDownload) {
-            document.body.removeChild(clone);
-            sample.close();
-            cancelDownload = false;
-            downloadProgress = 0;
-            return;
-        }
+            const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
+            downloadProgress = 60;
+            if (cancelDownload) {
+                document.body.removeChild(clone);
+                sample.close();
+                cancelDownload = false;
+                downloadProgress = 0;
+                return;
+            }
+            const audioCtx = new AudioContext();
+            const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
+            downloadProgress = 70;
+            if (cancelDownload) {
+                return;
+            }
 
-        const sampleRate = audioBuffer.sampleRate;
+            const sampleRate = audioBuffer.sampleRate;
 
-        for (let i = 0; i < $selectedVerses.length; i++) {
-            let startFrame = 0;
-            let endFrame = 0;
-            for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
-                const timing = audioSourceInfo?.timing?.[j];
-                const verse = timing?.tag?.replace(/\D/g, '');
-                if (verse === $selectedVerses[i].verse) {
-                    if (!startFrame) {
-                        startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
-                        endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
-                    } else {
-                        endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+            for (let i = 0; i < $selectedVerses.length; i++) {
+                let startFrame = 0;
+                let endFrame = 0;
+                for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
+                    const timing = audioSourceInfo?.timing?.[j];
+                    const verse = timing?.tag?.replace(/\D/g, '');
+                    if (verse === $selectedVerses[i].verse) {
+                        if (!startFrame) {
+                            startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
+                            endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                        } else {
+                            endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                        }
                     }
                 }
-            }
-            const trimmedBuffer = audioCtx.createBuffer(
-                audioBuffer.numberOfChannels,
-                endFrame - startFrame,
-                sampleRate
-            );
+                const trimmedBuffer = audioCtx.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    endFrame - startFrame,
+                    sampleRate
+                );
 
-            for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
-                const src = audioBuffer.getChannelData(ch);
-                const dst = trimmedBuffer.getChannelData(ch);
-                dst.set(src.slice(startFrame, endFrame));
+                for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+                    const src = audioBuffer.getChannelData(ch);
+                    const dst = trimmedBuffer.getChannelData(ch);
+                    dst.set(src.slice(startFrame, endFrame));
+                }
+
+                await audioSource.add(trimmedBuffer);
+            }
+            await output.finalize();
+            downloadProgress = 80;
+            if (cancelDownload) {
+                return;
             }
 
-            await audioSource.add(trimmedBuffer);
-        }
-        await output.finalize();
-        downloadProgress = 80;
-        if (cancelDownload) {
+            const buffer = output.target.buffer as BlobPart;
+            const blob = new Blob([buffer], {
+                type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
+            });
+            const filename = reference + (audioConfig.codec === 'opus' ? '.webm' : '.mp4');
+            const file = new File([blob], filename, {
+                type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
+            });
+            downloadProgress = 90;
             document.body.removeChild(clone);
             sample.close();
+            downloadProgress = 0;
+            const url = URL.createObjectURL(file);
+
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            anchor.click();
+
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error generating video export:', error);
+        } finally {
+            if (clone?.isConnected) {
+                document.body.removeChild(clone);
+            }
+            sample?.close();
             cancelDownload = false;
             downloadProgress = 0;
-            return;
         }
-
-        const buffer = output.target.buffer as BlobPart;
-        const blob = new Blob([buffer], {
-            type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
-        });
-        const filename = reference + (audioConfig.codec === 'opus' ? '.webm' : '.mp4');
-        const file = new File([blob], filename, {
-            type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
-        });
-        downloadProgress = 90;
-        document.body.removeChild(clone);
-        sample.close();
-        downloadProgress = 0;
-        const url = URL.createObjectURL(file);
-
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = filename;
-        anchor.click();
-
-        URL.revokeObjectURL(url);
     } //Most of this is AI-generated, so serious testing is needed. I've done a lot of testing, but it would be good to make sure there aren't subtle problems with this code.
 
     // EditorTabs centering feature:
