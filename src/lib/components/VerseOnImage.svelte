@@ -524,14 +524,14 @@ The verse on image component.
             sample = new VideoSample(frame);
 
             const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
+            const useWebm = audioConfig.codec === 'opus';
 
             const output = new Output({
-                format:
-                    audioConfig.codec === 'opus' ? new WebMOutputFormat() : new Mp4OutputFormat(),
+                format: useWebm ? new WebMOutputFormat() : new Mp4OutputFormat(),
                 target: new BufferTarget()
             });
             const videoSource = new VideoSampleSource({
-                codec: audioConfig.codec === 'opus' ? 'vp9' : 'avc',
+                codec: useWebm ? 'vp9' : 'avc',
                 bitrate: QUALITY_HIGH
             });
 
@@ -621,11 +621,11 @@ The verse on image component.
 
             const buffer = output.target.buffer as BlobPart;
             const blob = new Blob([buffer], {
-                type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
+                type: useWebm ? 'video/webm' : 'video/mp4'
             });
-            const filename = reference + (audioConfig.codec === 'opus' ? '.webm' : '.mp4');
+            const filename = reference + (useWebm ? '.webm' : '.mp4');
             const file = new File([blob], filename, {
-                type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
+                type: useWebm ? 'video/webm' : 'video/mp4'
             });
             downloadProgress = 90;
             const url = URL.createObjectURL(file);
