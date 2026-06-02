@@ -24,7 +24,7 @@
     // while features will be different in the overall layout
 
     const carouselId = $derived(`contents-carousel-${item.id}`);
-    let carouselInnerWidthCSS = 'n2';
+    const carouselInnerWidthCSS = $derived(`n${item.features?.['visible-items'] || 2}`);
 
     function onClickFallback(target: HTMLElement, item: ContentItem) {
         console.warn('USING THE onClickFallback');
@@ -117,10 +117,6 @@
             carouselScroll.scrollLeft = scrollLeft - walk;
         });
     });
-
-    if (item.features?.['visible-items']) {
-        carouselInnerWidthCSS = 'n' + item.features['visible-items'];
-    }
 </script>
 
 <div id={carouselId} class="contents-carousel no-select">
