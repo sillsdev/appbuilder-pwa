@@ -1255,6 +1255,7 @@ The verse on image component.
                 <button
                     class="dy-btn dy-btn-sm dy-btn-ghost"
                     onclick={() => {
+                        downloadProgress = 0;
                         cancelDownload = true;
                     }}>{$t['Button_Cancel']}</button
                 >
