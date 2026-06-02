@@ -1,8 +1,12 @@
 <script lang="ts">
     import { base } from '$app/paths';
     import { page } from '$app/state';
+    import config from '$assets/config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Sbook from '$lib/components/SongBook.svelte';
+    import { convertStyle, refs, s, t, themeColors } from '$lib/data/stores';
+
+    console.log(config);
 
     let { collection, id } = $props();
 
@@ -24,7 +28,7 @@
     <div class="drawer-side">
         <label for="songbook-drawer" class="drawer-overlay"></label>
         <div class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-            <Sbook {bookPath} />
+            <Sbook bookPath={songPath} />
         </div>
     </div>
 </div>

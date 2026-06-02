@@ -186,6 +186,9 @@ The navbar component.
         if (book.type === 'quiz') {
             url = resolve(`/quiz/${$refs.collection}/${book.id}`);
         }
+        if (book.type === 'songs') {
+            url = resolve(`/songs/${$refs.collection}/${book.id}`);
+        }
         return url;
     }
 
