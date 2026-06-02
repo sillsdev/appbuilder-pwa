@@ -16,6 +16,7 @@ The verse on image component.
         refs,
         s,
         selectedVerses,
+        t,
         themeColors,
         voiCustomImage,
         windowSize
@@ -1242,8 +1243,8 @@ The verse on image component.
               flex flex-col justify-between h-64"
         >
             <div class="flex flex-col gap-1 text-left">
-                <p class="text-lg font-bold">Save Video</p>
-                <p class="text-sm">Creating video...</p>
+                <p class="text-lg font-bold">{$t['Text_On_Image_Save_Video']}</p>
+                <p class="text-sm">{$t['Video_Creating_Video']}</p>
             </div>
 
             <div class="w-full">
@@ -1255,7 +1256,7 @@ The verse on image component.
                     class="dy-btn dy-btn-sm dy-btn-ghost"
                     onclick={() => {
                         cancelDownload = true;
-                    }}>Cancel</button
+                    }}>{$t['Button_Cancel']}</button
                 >
             </div>
         </div>
