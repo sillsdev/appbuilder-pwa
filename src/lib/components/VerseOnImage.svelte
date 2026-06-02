@@ -482,8 +482,8 @@ The verse on image component.
                 console.error('Error getting canvas to export');
                 return;
             }
-            cloneCanvas.width = origCanvas.width & -1;
-            cloneCanvas.height = origCanvas.height & -1;
+            cloneCanvas.width = origCanvas.width & ~1;
+            cloneCanvas.height = origCanvas.height & ~1;
             const ctx = cloneCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
@@ -545,6 +545,9 @@ The verse on image component.
                 book: $refs.book,
                 chapter: $refs.chapter
             });
+            if (!audioSourceInfo?.source) {
+                throw new Error('No audio source available for this chapter');
+            }
             downloadProgress = 30;
             if (cancelDownload) {
                 return;
@@ -595,6 +598,10 @@ The verse on image component.
                             endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
                         }
                     }
+                }
+                if (endFrame <= startFrame) {
+                    console.warn(`No timing found for verse ${$selectedVerses[i].verse}, skipping`);
+                    continue;
                 }
                 const trimmedBuffer = audioCtx.createBuffer(
                     audioBuffer.numberOfChannels,
