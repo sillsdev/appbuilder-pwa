@@ -466,6 +466,7 @@ The verse on image component.
         cancelDownload = false;
         let clone: HTMLElement | undefined;
         let sample: VideoSample | undefined;
+        const audioCtx = new AudioContext();
         downloadProgress = 1;
         try {
             const original = document.getElementById('verseOnImgPreview');
@@ -569,13 +570,8 @@ The verse on image component.
             const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
             downloadProgress = 60;
             if (cancelDownload) {
-                document.body.removeChild(clone);
-                sample.close();
-                cancelDownload = false;
-                downloadProgress = 0;
                 return;
             }
-            const audioCtx = new AudioContext();
             const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
             downloadProgress = 70;
             if (cancelDownload) {
@@ -632,9 +628,6 @@ The verse on image component.
                 type: audioConfig.codec === 'opus' ? 'video/webm' : 'video/mp4'
             });
             downloadProgress = 90;
-            document.body.removeChild(clone);
-            sample.close();
-            downloadProgress = 0;
             const url = URL.createObjectURL(file);
 
             const anchor = document.createElement('a');
@@ -652,6 +645,7 @@ The verse on image component.
             sample?.close();
             cancelDownload = false;
             downloadProgress = 0;
+            await audioCtx?.close();
         }
     } //Most of this is AI-generated, so serious testing is needed. I've done a lot of testing, but it would be good to make sure there aren't subtle problems with this code.
 
