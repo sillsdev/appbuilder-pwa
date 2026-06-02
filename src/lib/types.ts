@@ -7,3 +7,9 @@ export interface SearchFormSubmitEvent {
     wholeWords: boolean;
     matchAccents: boolean;
 }
+
+export interface SongBook {
+    id: string;
+    collection: string;
+    name: string;
+}
