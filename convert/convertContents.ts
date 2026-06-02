@@ -134,7 +134,11 @@ export function parseItemTitle(
     return title;
 }
 
-export function parseItemSubtitle(tag: Element | HTMLElement | undefined): LangContainer {
+export function parseItemSubtitle(
+    tag: Element | HTMLElement | undefined,
+    upperLayer: boolean,
+    verbose: number
+): LangContainer {
     const subtitle: LangContainer = {};
     if (tag === undefined) {
         return subtitle;
@@ -143,8 +147,15 @@ export function parseItemSubtitle(tag: Element | HTMLElement | undefined): LangC
     const subtitleTags = tag.getElementsByTagName('subtitle');
     if (subtitleTags?.length > 0) {
         for (const subtitleTag of subtitleTags) {
-            const lang = parseLangAttribute(subtitleTag);
-            subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
+            if (verbose >= 3) {
+                console.log(
+                    `subtitle is nested: ${isTagInnerNestedItem(subtitleTag)} ${subtitleTag.innerHTML} ${subtitleTag.parentElement?.parentElement?.tagName}`
+                );
+            }
+            if ((!isTagInnerNestedItem(subtitleTag) && upperLayer) || !upperLayer) {
+                const lang = parseLangAttribute(subtitleTag);
+                subtitle[lang] = decodeFromXml(subtitleTag.innerHTML);
+            }
         }
     }
     return subtitle;
@@ -395,7 +406,7 @@ export function convertContents(
                 console.warn(`item type is undefined for ${title}`);
             }
 
-            const subtitle = parseItemSubtitle(itemTag);
+            const subtitle = parseItemSubtitle(itemTag, true, verbose);
 
             let audioFilename: { [lang: string]: string } = {};
             let imageFilename: string | undefined = undefined;
@@ -430,7 +441,7 @@ export function convertContents(
                         const cTitle = parseItemTitle(itemChild, false, verbose);
                         const childContentItemContainer = false; // by virtue of being a child item it is not a contentItemContainer
                         const cItemType = itemType; // Technically this is a child of the item
-                        const cSubtitle = parseItemSubtitle(itemChild);
+                        const cSubtitle = parseItemSubtitle(itemChild, false, verbose);
                         if (verbose >= 3) {
                             console.log(`Child Tag: ${itemChild.tagName}`);
                         }
