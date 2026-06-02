@@ -20,7 +20,11 @@
         features
     }: Props = $props();
 
+    // NOTE: Item.features is per specific toward this instance
+    // while features will be different in the overall layout
+
     const carouselId = $derived(`contents-carousel-${item.id}`);
+    let carouselInnerWidthCSS = 'n2';
 
     function onClickFallback(target: HTMLElement, item: ContentItem) {
         console.warn('USING THE onClickFallback');
@@ -113,6 +117,10 @@
             carouselScroll.scrollLeft = scrollLeft - walk;
         });
     });
+
+    if (item.features?.['visible-items']) {
+        carouselInnerWidthCSS = 'n' + item.features['visible-items'];
+    }
 </script>
 
 <div id={carouselId} class="contents-carousel no-select">
@@ -133,7 +141,7 @@
         class="contents-carousel-row"
         style="overscroll-behavior: auto contain; overflow-y: hidden; scrollbar-width:none; -ms-overflow-style:none; -webkit-scrollbar: none;"
     >
-        <div class="contents-carousel-inner n2">
+        <div class="contents-carousel-inner {carouselInnerWidthCSS}">
             {#each item.children as child}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
