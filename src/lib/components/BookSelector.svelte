@@ -103,6 +103,16 @@ The navbar component.
     }) {
         // Handle special book navigation first
         if (tab === b && url) {
+            $nextRef.book = text;
+            $nextRef.chapter = '1';
+            $nextRef.verse = '';
+            await navigateToText({
+                docSet: $refs.docSet,
+                collection: $refs.collection,
+                book: $nextRef.book,
+                chapter: $nextRef.chapter,
+                verse: $nextRef.verse
+            });
             navigateToUrl({
                 collection: $refs.collection,
                 book: text,
