@@ -22,6 +22,8 @@ TODO:
     import { shareText } from '$lib/data/share';
     import {
         audioActive,
+        PlayMode,
+        playMode,
         refs,
         s,
         selectedVerses,
@@ -120,6 +122,19 @@ TODO:
         selectedVerses.reset();
     }
 
+    // Plays selected verses repeatedly, resets verse selection
+    function repeatVerseAudio() {
+        // Need to provide dummy range argument (see /lib/data/audio.ts:46).
+        // The button whose click handler calls this funcion is only present
+        // when there is audio and timing data. When playMode.set is called,
+        // the listener in /lib/data/audio.ts will replace the range with the
+        // correct values from the audio timing data.
+        console.log("Repeat verse audio");
+        // console.log(`timing: ${$refs.hasAudio.timingFile}`)
+        playMode.set({ range: { start: 0, end: 1000 }, mode: PlayMode.RepeatSelection });
+        playVerseAudio();
+    }
+
     async function copy() {
         var copyText =
             (await selectedVerses.getCompositeText()) +
@@ -175,7 +190,7 @@ TODO:
                     </button>
                 {/if}
                 {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => repeatVerseAudio()}>
                         <AudioIcon.PlayRepeat color={iconColor} />
                     </button>
                 {/if}
