@@ -49,8 +49,8 @@ export const load: PageLoad = async ({ params, fetch }) => {
     }
 
     return {
-        titleDate: titleData,
-        numberDate: numberData,
+        titleData: titleData,
+        numberData: numberData,
         collection: params.collection,
         songId: id,
         displayLabel: book?.name || 'Song'

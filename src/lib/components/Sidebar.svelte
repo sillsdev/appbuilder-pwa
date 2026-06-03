@@ -215,11 +215,11 @@ The sidebar/drawer.
                 </li>
             {/if}
             {#if showSongbooks}
-                <li>
+                <!--<li>
                     <button class="btn" style:color={textColor} onclick={() => gotoRoute('/songs')}>
                         <SongBookIcon color={iconColor} />{$t['Menu_Song_Books']}Song Books
                     </button>
-                </li>
+                </li>-->
             {/if}
             {#if showHistory || showBookmarks || showNotes || showHighlights || showSongbooks}
                 <div class="dy-divider m-1"></div>
