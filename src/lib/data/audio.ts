@@ -241,6 +241,7 @@ export function seek(position: number) {
 let warmdown: number | undefined = undefined;
 async function handlePlayMode() {
     if (warmdown) {
+        console.log(`warmdown == ${warmdown}`);
         warmdown--;
         if (warmdown === 0) {
             if (currentPlayMode?.mode === PlayMode.Continue) {
@@ -271,7 +272,7 @@ async function handlePlayMode() {
         play();
     }
     if (currentPlayMode?.mode === PlayMode.RepeatSelection) {
-        // console.log(`warmdown == ${warmdown}`);
+        console.log(`warmdown == ${warmdown}`);
         if (currentPlayMode.range === defaultPlayMode.range) {
             const resultArray = getCurrentVerseTiming();
             if (resultArray?.start === undefined || resultArray.end === undefined) {
@@ -284,6 +285,7 @@ async function handlePlayMode() {
             });
         }
         if ((currentAudioPlayer?.progress ?? 0) + 0.05 > currentPlayMode.range.end) {
+            console.log(`handlePlayMode: pausing since after end (${currentAudioPlayer?.progress ?? 0 + 0.05} > ${currentPlayMode.range.end})`);
             pause();
             warmdown = 5;
         }
@@ -390,7 +392,8 @@ async function updateTime() {
 }
 // calls updateTime() every 100ms
 function toggleTimeRunning() {
-    if (currentAudioPlayer?.audio?.ended || currentAudioPlayer?.playing === false) {
+    if (currentPlayMode?.mode !== PlayMode.RepeatSelection && 
+        (currentAudioPlayer?.audio?.ended || currentAudioPlayer?.playing === false)) {
         clearInterval(currentAudioPlayer?.timer ?? undefined);
         currentAudioPlayer.timer = null;
     } else if (currentAudioPlayer) {
