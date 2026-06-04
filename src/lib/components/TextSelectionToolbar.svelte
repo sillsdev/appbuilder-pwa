@@ -14,17 +14,14 @@ TODO:
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import config, { scriptureConfig } from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
-    import { play, playVerses, seekToVerse } from '$lib/data/audio';
+    import { playVerses } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
     import {
         audioActive,
-        defaultPlayModeRange,
-        PlayMode,
-        playMode,
         refs,
         s,
         selectedVerses,
@@ -113,16 +110,7 @@ TODO:
         selectedVerses.reset();
     }
 
-    // resets underlined verses and plays verse audio
-    function playVerseAudio() {
-        const element = $selectedVerses[0].verse;
-        const tagSelected = element + 'a';
-        seekToVerse(tagSelected);
-        play();
-        $audioActive = true;
-        selectedVerses.reset();
-    }
-
+    // Play from first selected verse, optionally repeating after the last verse
     function playSelectedVerseAudio(repeat: boolean) {
         const startVerse = $selectedVerses[0].verse;
 
@@ -135,19 +123,6 @@ TODO:
 
         $audioActive = true;
         selectedVerses.reset();
-    }
-
-    // Plays selected verses repeatedly, resets verse selection
-    function repeatVerseAudio() {
-        // Need to provide dummy range argument (see /lib/data/audio.ts:46).
-        // The button whose click handler calls this funcion is only present
-        // when there is audio and timing data. When playMode.set is called,
-        // the listener in /lib/data/audio.ts will replace the range with the
-        // correct values from the audio timing data.
-        console.log("Repeat verse audio");
-        // console.log(`timing: ${$refs.hasAudio.timingFile}`)
-        playMode.set({ range: defaultPlayModeRange, mode: PlayMode.RepeatSelection });
-        playVerseAudio();
     }
 
     async function copy() {
@@ -175,8 +150,8 @@ TODO:
         logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
     }
 
-    const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);
-    const iconColor = $derived($s['ui.bar.text-select.icon']['color']);
+    const backgroundColor = $derived($s!['ui.bar.text-select']['background-color']);
+    const iconColor = $derived($s!['ui.bar.text-select.icon']['color']);
 </script>
 
 <div
@@ -199,20 +174,27 @@ TODO:
                     {/each}
                 </div>
             {:else}
-                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button 
-                        class="dy-btn-sm dy-btn-ghost" onclick={() => playSelectedVerseAudio(false)}
-                    >
-                        <AudioIcon.Play color={iconColor} />
-                    </button>
-                {/if}
-                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playSelectedVerseAudio(true)}>
-                        <AudioIcon.PlayRepeat color={iconColor} />
-                    </button>
+                {#if $refs.hasAudio && $refs.hasAudio.timingFile}
+                    {#if isAudioPlayable}
+                        <button 
+                            class="dy-btn-sm dy-btn-ghost" 
+                            onclick={() => playSelectedVerseAudio(false)}
+                        >
+                            <AudioIcon.Play color={iconColor} />
+                        </button>
+                    {/if}
+                    {#if isRepeatableAudio}
+                        <button 
+                            class="dy-btn-sm dy-btn-ghost" 
+                            onclick={() => playSelectedVerseAudio(true)}
+                        >
+                            <AudioIcon.PlayRepeat color={iconColor} />
+                        </button>
+                    {/if}
                 {/if}
                 {#if isTextOnImageEnabled}
-                    <button
+                    <button 
+                        class="dy-btn-sm dy-btn-ghost"
                         onclick={() => {
                             voiCustomImage.update((v) => ({
                                 ...v,
@@ -221,7 +203,6 @@ TODO:
                             }));
                             goto(resolve(`/image`));
                         }}
-                        class="dy-btn-sm dy-btn-ghost"
                     >
                         <ImageIcon.Image color={iconColor} />
                     </button>
