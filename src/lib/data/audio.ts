@@ -12,6 +12,7 @@ import {
     type PlayModeSettings,
     type Timing
 } from '$lib/data/stores';
+import type { PlayModeRange } from '$lib/data/stores';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
@@ -213,26 +214,6 @@ export async function seekOffset(offset: number) {
     }
 }
 export function seek(position: number) {
-    // const playing = currentAudioPlayer?.playing;
-    // pause();
-    // if (currentAudioPlayer?.audio) {
-    //     currentAudioPlayer.audio.currentTime = position;
-    // } else {
-    //     console.log('audio seek: current audio player audio missing ');
-    // }
-    // const timing = getCurrentVerseTiming();
-    // console.log(`seek: position ${position} with timing ${timing?.start}-${timing?.end}`);
-    // if (currentAudioPlayer && timing) {
-    //     currentAudioPlayer.progress = position;
-    //     console.log(`seek: ${currentPlayMode?.mode}`);
-    //     playMode.set({ ...(currentPlayMode ?? { mode: defaultPlayMode.mode }), range: timing });
-    //     audioPlayerStore.set(currentAudioPlayer);
-    // }
-    // if (playing === true) {
-    //     play();
-    // }
-
-
     if (!currentAudioPlayer) {
         console.error("Warning: missing audio player in seek()");
         return;
@@ -241,18 +222,18 @@ export function seek(position: number) {
         return;
     }
 
+    // If the audio is playing, we'll need to resume after the seek
     const wasPlaying = currentAudioPlayer.playing;
     if (wasPlaying) pause();
 
+    // const timing = getCurrentVerseTiming();
+    // console.log(`seek: target position ${position}, verse ${timing?.start}-${timing?.end}`);
+    // if (timing) {
+    //     playMode.set({ ...(currentPlayMode ?? { mode: defaultPlayMode.mode }), range: timing });
+    // }
+
     currentAudioPlayer.audio.currentTime = position;
     currentAudioPlayer.progress = position;
-
-    const timing = getCurrentVerseTiming();
-    console.log(`seek: target position ${position}, verse ${timing?.start}-${timing?.end}`);
-
-    if (timing) {
-        playMode.set({ ...(currentPlayMode ?? { mode: defaultPlayMode.mode }), range: timing });
-    }
     audioPlayerStore.set(currentAudioPlayer);
 
     if (wasPlaying) play();
@@ -348,6 +329,50 @@ function getCurrentVerseTiming() {
     }
     return getVerseTimingRange(start, end);
 }
+
+function getVerseEndTag(verse: string) {
+    if (!currentAudioPlayer?.timing) {
+        // No further detail, so return base tag
+        return verse;
+    }
+
+    let startTag = '', endTag = '', i: number;
+
+    // First find the beginning of the verse
+    for (i = 0; i < currentAudioPlayer.timing.length; i++) {
+        //adapted from seekToVerse() below
+        const tag = currentAudioPlayer.timing[i].tag;
+        const containsAlpha = /[a-z]/.test(tag);
+        const adjustedTag = containsAlpha ? tag : tag + 'a';
+
+        console.log(`Trying tag ${adjustedTag}`);
+
+        if (adjustedTag.slice(0, adjustedTag.length - 1) === verse) {
+            startTag = adjustedTag;
+            break;
+        }
+    }
+
+    // Then find the end of the verse
+    const baseTag = parseInt(startTag, 10);
+    console.log(`getVerseEndTag(${verse}): start tag is (${startTag}), base (${baseTag})`);
+    for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
+        const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
+        if (endVerseNumber !== baseTag) {
+            endTag = currentAudioPlayer.timing[j - 1].tag;
+            break;
+        }
+        if (j === currentAudioPlayer.timing.length - 1) {
+            endTag = currentAudioPlayer.timing[j].tag;
+            break;
+        }
+    }
+
+    console.log(`getVerseEndTag(${verse}): found end tag of ${endTag}`);
+
+    return endTag;
+}
+
 // function get range of current index all labels of the current verse playing
 // calls updatehighlights() to see if highlights need to be change
 async function updateTime() {
@@ -403,6 +428,27 @@ export function play() {
     toggleTimeRunning();
     audioPlayerStore.set(currentAudioPlayer);
 }
+
+export function playVerses(startVerse: string, endVerse?: string) {
+    let mode: PlayMode, range: PlayModeRange;
+
+    if (endVerse) {
+        mode = PlayMode.RepeatSelection;
+        range = getVerseTimingRange(startVerse + 'a', getVerseEndTag(endVerse))
+            || defaultPlayMode.range;
+    } else {
+        mode = currentPlayMode?.mode || defaultPlayMode.mode;
+        range = getVerseTimingRange(startVerse + 'a', getVerseEndTag(startVerse))
+            || defaultPlayMode.range;
+    }
+
+    console.log(`playVerses: setting range ${range.start} - ${range.end}`);
+
+    playMode.set({ mode, range });
+    seekToVerse(startVerse + 'a');
+    play();
+}
+
 // selects the tag to highlight
 function updateHighlights() {
     const highlights = [];
@@ -544,16 +590,16 @@ export function seekToVerse(verseClicked: string) {
     updateTime();
 }
 // takes a start and end tag and returns the range of times
-function getVerseTimingRange(startverse: string, endverse: string) {
+function getVerseTimingRange(startTag: string, endTag: string) {
     const elements = currentAudioPlayer?.timing ?? [];
     let start: number = 0;
     for (let i = 0; i < elements.length; i++) {
         const tag = currentAudioPlayer!.timing![i].tag;
-        if (startverse === tag) {
+        if (startTag === tag) {
             const newstarttime = currentAudioPlayer!.timing![i].starttime;
             start = newstarttime;
         }
-        if (endverse === tag) {
+        if (endTag === tag) {
             const newendtime = currentAudioPlayer!.timing![i].endtime;
             const end = newendtime;
             const range = { start, end };

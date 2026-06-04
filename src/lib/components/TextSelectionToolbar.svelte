@@ -16,7 +16,7 @@ TODO:
     import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
-    import { play, seekToVerse } from '$lib/data/audio';
+    import { play, playVerses, seekToVerse } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
@@ -123,6 +123,20 @@ TODO:
         selectedVerses.reset();
     }
 
+    function playSelectedVerseAudio(repeat: boolean) {
+        const startVerse = $selectedVerses[0].verse;
+
+        if (repeat) {
+            const endVerse = $selectedVerses[$selectedVerses.length - 1].verse;
+            playVerses(startVerse, endVerse);
+        } else {
+            playVerses(startVerse);
+        }
+
+        $audioActive = true;
+        selectedVerses.reset();
+    }
+
     // Plays selected verses repeatedly, resets verse selection
     function repeatVerseAudio() {
         // Need to provide dummy range argument (see /lib/data/audio.ts:46).
@@ -186,12 +200,14 @@ TODO:
                 </div>
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playVerseAudio()}>
+                    <button 
+                        class="dy-btn-sm dy-btn-ghost" onclick={() => playSelectedVerseAudio(false)}
+                    >
                         <AudioIcon.Play color={iconColor} />
                     </button>
                 {/if}
                 {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => repeatVerseAudio()}>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playSelectedVerseAudio(true)}>
                         <AudioIcon.PlayRepeat color={iconColor} />
                     </button>
                 {/if}
