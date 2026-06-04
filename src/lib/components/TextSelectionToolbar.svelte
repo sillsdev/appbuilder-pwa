@@ -22,6 +22,7 @@ TODO:
     import { shareText } from '$lib/data/share';
     import {
         audioActive,
+        defaultPlayModeRange,
         PlayMode,
         playMode,
         refs,
@@ -131,7 +132,7 @@ TODO:
         // correct values from the audio timing data.
         console.log("Repeat verse audio");
         // console.log(`timing: ${$refs.hasAudio.timingFile}`)
-        playMode.set({ range: { start: 0, end: 1000 }, mode: PlayMode.RepeatSelection });
+        playMode.set({ range: defaultPlayModeRange, mode: PlayMode.RepeatSelection });
         playVerseAudio();
     }
 
