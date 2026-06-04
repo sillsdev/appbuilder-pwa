@@ -46,6 +46,7 @@ playMode.subscribe((value) => {
         value.range = timing || value.range;
     }
     currentPlayMode = value;
+    console.log(`playMode listener: ${currentPlayMode.mode}`);
 });
 // produces the cache key for the mru audio cache
 function cacheKey(collection: string, book: string, chapter: string) {
@@ -230,6 +231,7 @@ export function seek(position: number) {
     const timing = getCurrentVerseTiming();
     if (currentAudioPlayer && timing) {
         currentAudioPlayer.progress = position;
+        console.log(`seek: ${currentPlayMode?.mode}`);
         playMode.set({ ...(currentPlayMode ?? { mode: defaultPlayMode.mode }), range: timing });
         audioPlayerStore.set(currentAudioPlayer);
     }

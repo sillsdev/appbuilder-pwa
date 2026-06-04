@@ -36,6 +36,7 @@ TODO:
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
         if (!hasTiming && $playMode.mode === 'repeatSelection') {
+            console.log(`mayResetPlayMode: calling reset()`);
             playMode.reset();
         }
     }
@@ -100,7 +101,11 @@ TODO:
     const iconPlayColor = $derived($s?.['ui.bar.audio.play.icon']['color']);
     const backgroundColor = $derived($s?.['ui.bar.audio']['background-color']);
     const audioBarClass = $derived($refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress');
-    $effect(() => mayResetPlayMode($refs.hasAudio?.timing));
+    $effect(() => mayResetPlayMode($refs.hasAudio?.timingFile));
+    // $effect(() => {
+    //     console.log(`effect: thinks that timing is ${$refs.hasAudio?.timing}`);
+    //     mayResetPlayMode($refs.hasAudio?.timing);
+    // });
     $effect(() => updatePlaybackSpeed($userSettings['audio-speed'] as string));
 </script>
 
