@@ -133,8 +133,10 @@ export function playPause() {
     if (currentAudioPlayer.playing) {
         pause();
     } else {
-        if (currentPlayMode && (currentPlayMode.range !== defaultPlayMode.range) &&
-           (currentAudioPlayer.progress > currentPlayMode.range.end)
+        if (
+            currentPlayMode &&
+            currentPlayMode.range !== defaultPlayMode.range &&
+            currentAudioPlayer.progress > currentPlayMode.range.end
         ) {
             resetVersePlaybackRange();
         }
@@ -153,7 +155,7 @@ export function playStop() {
     if (currentAudioPlayer.playing) {
         pause();
         resetVersePlaybackRange();
-    } 
+    }
 }
 
 // changes chapter
@@ -233,25 +235,29 @@ export async function seekOffset(offset: number) {
 // Move the audio player to the given number of seconds from the start
 export function seek(position: number) {
     if (!currentAudioPlayer) {
-        console.error("Warning: missing audio player in seek()");
+        console.error('Warning: missing audio player in seek()');
         return;
     } else if (!currentAudioPlayer.audio) {
-        console.error("Warning: null audio element in seek()");
+        console.error('Warning: null audio element in seek()');
         return;
     }
 
     // If the audio is playing, we'll need to resume after the seek
     const wasPlaying = currentAudioPlayer.playing;
-    if (wasPlaying) { pause() };
+    if (wasPlaying) {
+        pause();
+    }
 
     currentAudioPlayer.audio.currentTime = position;
     currentAudioPlayer.progress = position;
     audioPlayerStore.set(currentAudioPlayer);
 
-    if (wasPlaying) { play() };
+    if (wasPlaying) {
+        play();
+    }
 }
 
-// Countdown timer for slight delay before repeating the 
+// Countdown timer for slight delay before repeating the
 // current section or continuing to next section
 let warmdown: number | undefined = undefined;
 
@@ -267,7 +273,9 @@ async function handlePlayMode() {
             } else if (currentPlayMode?.mode === PlayMode.RepeatPage) {
                 seek(0);
             } else if (currentPlayMode?.mode === PlayMode.RepeatSelection) {
-                console.log(`handlePlayMode: seeking to start of range ${currentPlayMode.range.start}-${currentPlayMode.range.end}`);
+                console.log(
+                    `handlePlayMode: seeking to start of range ${currentPlayMode.range.start}-${currentPlayMode.range.end}`
+                );
                 seek(currentPlayMode.range.start);
                 play();
             }
@@ -300,9 +308,13 @@ async function handlePlayMode() {
                 range: { start: resultArray.start, end: resultArray.end }
             });
         }
-        if (currentAudioPlayer?.playing && ((currentAudioPlayer?.progress ?? 0) + 0.05 >
-             currentPlayMode.range.end)) {
-            console.log(`handlePlayMode: pausing since after end (${currentAudioPlayer?.progress ?? 0 + 0.05} > ${currentPlayMode.range.end})`);
+        if (
+            currentAudioPlayer?.playing &&
+            (currentAudioPlayer?.progress ?? 0) + 0.05 > currentPlayMode.range.end
+        ) {
+            console.log(
+                `handlePlayMode: pausing since after end (${currentAudioPlayer?.progress ?? 0 + 0.05} > ${currentPlayMode.range.end})`
+            );
             pause({ keepListening: true });
             warmdown = 5;
         }
@@ -312,15 +324,15 @@ async function handlePlayMode() {
 // Get the audio start and end timestamps for the current verse as a range
 function getCurrentVerseTiming() {
     if (!currentAudioPlayer?.timing) {
-        console.error(`Warning in getCurrentVerseTiming(): ` + 
-                      "missing audio timing data");
+        console.error(`Warning in getCurrentVerseTiming(): ` + 'missing audio timing data');
         return defaultPlayMode.range;
     }
 
-    let start = 0, end = 0;
+    let start = 0,
+        end = 0;
 
     // Handle the title segment as a special case.
-    // The loading function for timings always adds a 
+    // The loading function for timings always adds a
     // 'title' tag as the first timing, so the first verse
     // is actually at the second position in the timing array
     const firstVerseTiming = currentAudioPlayer.timing[1];
@@ -348,7 +360,7 @@ function getCurrentVerseTiming() {
                     start = currentAudioPlayer.timing[k + 1].starttime;
                     break;
                 }
-                // If we've gone to the beginning of the section, 
+                // If we've gone to the beginning of the section,
                 // assume we're in the first, "title" tag (or similar)
                 if (k === 0) {
                     start = currentAudioPlayer.timing[0].starttime;
@@ -396,12 +408,12 @@ async function updateTime() {
 // calls updateTime() every 100ms
 function updateAudioHandler() {
     if (!currentAudioPlayer?.audio) {
-        console.error("Warning: tried to update listener for missing audio");
+        console.error('Warning: tried to update listener for missing audio');
         return;
     }
 
     if (currentAudioPlayer.audio.ended || !currentAudioPlayer.playing) {
-        // Separate this condition check since we don't want to call 
+        // Separate this condition check since we don't want to call
         // setInterval (the else case) unless the audio is actually playing
         if (currentAudioPlayer.timer) {
             clearInterval(currentAudioPlayer.timer);
@@ -421,7 +433,7 @@ export function hasAudioPlayed() {
 // Pause audio if currently playing
 function pause(options?: { keepListening: boolean }) {
     if (!currentAudioPlayer?.loaded) {
-        console.error("Warning: tried to pause() audio before it was loaded");
+        console.error('Warning: tried to pause() audio before it was loaded');
         return;
     }
 
@@ -439,7 +451,7 @@ function pause(options?: { keepListening: boolean }) {
 // Play audio if currently paused
 export function play() {
     if (!currentAudioPlayer?.loaded) {
-        console.error("Warning: tried to play() audio before it was loaded");
+        console.error('Warning: tried to play() audio before it was loaded');
         return;
     }
 
@@ -460,12 +472,14 @@ export function playVerses(startVerse: string, endVerse?: string) {
 
     if (endVerse) {
         mode = PlayMode.RepeatSelection;
-        range = getVerseTimingRange(startVerse, endVerse) //
-            || defaultPlayMode.range;
+        range =
+            getVerseTimingRange(startVerse, endVerse) || //
+            defaultPlayMode.range;
     } else {
         mode = currentPlayMode?.mode || defaultPlayMode.mode;
-        range = getVerseTimingRange(startVerse, startVerse) //
-            || defaultPlayMode.range;
+        range =
+            getVerseTimingRange(startVerse, startVerse) || //
+            defaultPlayMode.range;
     }
 
     console.log(`playVerses: setting range ${range.start} - ${range.end}`);
@@ -478,34 +492,35 @@ export function playVerses(startVerse: string, endVerse?: string) {
 // Seek to the start of the first audio tag for the specified verse
 export function seekToVerse(verse: string) {
     if (!currentAudioPlayer?.timing) {
-        console.error(`Warning in seekToVerse(${verse}): ` + 
-                      "missing audio timing data");
-        return; 
+        console.error(`Warning in seekToVerse(${verse}): ` + 'missing audio timing data');
+        return;
     }
 
     for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
         const timing = currentAudioPlayer.timing[i];
         // Handle case where tag has form '9a' for first tag in verse 9
-        if (timing.tag === verse || timing.tag === (verse + 'a')) {
+        if (timing.tag === verse || timing.tag === verse + 'a') {
             seek(timing.starttime);
             // Force text highlighting update
             updateTime();
             return;
         }
     }
-
 }
 
-// Get an audio timing range bounded by the first tag 
+// Get an audio timing range bounded by the first tag
 // of startVerse and the last tag of endVerse
 function getVerseTimingRange(startVerse: string, endVerse: string) {
     if (!currentAudioPlayer?.timing) {
-        console.error(`Warning in getVerseTimingRange(${startVerse}-${endVerse}): ` + 
-                      "missing audio timing data");
+        console.error(
+            `Warning in getVerseTimingRange(${startVerse}-${endVerse}): ` +
+                'missing audio timing data'
+        );
         return defaultPlayMode.range;
     }
 
-    let start = 0, end = 0;
+    let start = 0,
+        end = 0;
     const finalTiming = currentAudioPlayer.timing.at(-1)!;
     const finalVerseNumber = parseInt(finalTiming.tag);
 
@@ -513,7 +528,7 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
         const timing = currentAudioPlayer.timing[i];
 
         // Handle case where tag has form '9a' for first tag in verse 9
-        if (timing.tag === startVerse || timing.tag === (startVerse + 'a')) {
+        if (timing.tag === startVerse || timing.tag === startVerse + 'a') {
             start = timing.starttime;
         }
 
@@ -525,8 +540,8 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
 
         // Otherwise, we need to find the last tag of the end verse
         const verseNumber = parseInt(timing.tag);
-        if (verseNumber === (parseInt(endVerse) + 1)) {
-            // This is the first timing tag in the next verse, so 
+        if (verseNumber === parseInt(endVerse) + 1) {
+            // This is the first timing tag in the next verse, so
             // the previous tag (at i - 1) is the last tag in the current verse
             end = currentAudioPlayer.timing[i - 1].endtime;
             break;
@@ -545,7 +560,7 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
 function resetVersePlaybackRange() {
     const range = getCurrentVerseTiming();
     console.log(`resetVersePlaybackRange: ${range.start}-${range.end}`);
-    playMode.set({...(currentPlayMode || defaultPlayMode), range: getCurrentVerseTiming()}); 
+    playMode.set({ ...(currentPlayMode || defaultPlayMode), range: getCurrentVerseTiming() });
 }
 
 // selects the tag to highlight

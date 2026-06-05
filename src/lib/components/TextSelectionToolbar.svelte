@@ -176,16 +176,16 @@ TODO:
             {:else}
                 {#if $refs.hasAudio && $refs.hasAudio.timingFile}
                     {#if isAudioPlayable}
-                        <button 
-                            class="dy-btn-sm dy-btn-ghost" 
+                        <button
+                            class="dy-btn-sm dy-btn-ghost"
                             onclick={() => playSelectedVerseAudio({ repeat: false })}
                         >
                             <AudioIcon.Play color={iconColor} />
                         </button>
                     {/if}
                     {#if isRepeatableAudio}
-                        <button 
-                            class="dy-btn-sm dy-btn-ghost" 
+                        <button
+                            class="dy-btn-sm dy-btn-ghost"
                             onclick={() => playSelectedVerseAudio({ repeat: true })}
                         >
                             <AudioIcon.PlayRepeat color={iconColor} />
@@ -193,7 +193,7 @@ TODO:
                     {/if}
                 {/if}
                 {#if isTextOnImageEnabled}
-                    <button 
+                    <button
                         class="dy-btn-sm dy-btn-ghost"
                         onclick={() => {
                             voiCustomImage.update((v) => ({
