@@ -36,20 +36,13 @@ audioPlayerStore.subscribe(async (value: AudioPlayer) => {
     currentAudioPlayer = value;
     await getAudio();
 });
+
 let currentPlayMode: PlayModeSettings | undefined = undefined;
 playMode.subscribe((value) => {
-    // if (
-    //     currentPlayMode &&
-    //     currentPlayMode.mode !== value.mode &&
-    //     value.mode === PlayMode.RepeatSelection
-    // ) {
-    //     const timing = getCurrentVerseTiming();
-    //     console.log(`playMode listener: resetting range to ${timing.start}-${timing.end}`);
-    //     value.range = timing || value.range;
-    // }
     currentPlayMode = value;
     console.log(`playMode listener: ${currentPlayMode.mode}`);
 });
+
 // produces the cache key for the mru audio cache
 function cacheKey(collection: string, book: string, chapter: string) {
     return `${collection}-${book}-${chapter}`;
@@ -129,18 +122,23 @@ async function getAudio() {
         updateTime();
     };
 }
+
 // plays or pauses the audio
 export function playPause() {
     if (currentAudioPlayer?.loaded) {
         currentAudioPlayer.playing? pause() : play();
+    } else {
+        console.log("Warning: tried to playPause() audio that wasn't loaded");
     }
 }
+
 // stops playing audio
 export function playStop() {
-    if (currentAudioPlayer?.loaded && currentAudioPlayer.playing) {
-        pause()
-    };
+    // The previous implementation of this function is now equivalent to pause()
+    // Keeping this alias for another PR to refactor to reduce scope
+    pause();
 }
+
 // changes chapter
 export async function skip(direction: number) {
     pause();
@@ -214,6 +212,8 @@ export async function seekOffset(offset: number) {
         play();
     }
 }
+
+// Move the audio player to the given number of seconds from the start
 export function seek(position: number) {
     if (!currentAudioPlayer) {
         console.error("Warning: missing audio player in seek()");
@@ -225,21 +225,20 @@ export function seek(position: number) {
 
     // If the audio is playing, we'll need to resume after the seek
     const wasPlaying = currentAudioPlayer.playing;
-    if (wasPlaying) pause();
-
-    // const timing = getCurrentVerseTiming();
-    // console.log(`seek: target position ${position}, verse ${timing?.start}-${timing?.end}`);
-    // if (timing) {
-    //     playMode.set({ ...(currentPlayMode ?? { mode: defaultPlayMode.mode }), range: timing });
-    // }
+    if (wasPlaying) { pause() };
 
     currentAudioPlayer.audio.currentTime = position;
     currentAudioPlayer.progress = position;
     audioPlayerStore.set(currentAudioPlayer);
 
-    if (wasPlaying) play();
+    if (wasPlaying) { play() };
 }
+
+// Countdown timer for slight delay before repeating the 
+// current section or continuing to next section
 let warmdown: number | undefined = undefined;
+
+// Interval callback for updating the audio state
 async function handlePlayMode() {
     if (warmdown) {
         console.log(`warmdown == ${warmdown}`);
@@ -262,7 +261,6 @@ async function handlePlayMode() {
     if (currentAudioPlayer?.audio?.ended) {
         if (currentPlayMode?.mode === PlayMode.Stop) {
             pause();
-            // audioPlayerStore.set(currentAudioPlayer);
         } else {
             warmdown = 5;
         }
@@ -292,47 +290,8 @@ async function handlePlayMode() {
         }
     }
 }
-// // gets the current verse start and end tag
-// function getCurrentVerseTiming() {
-//     let end: string = '';
-//     let start: string = '';
-//     if (currentAudioPlayer?.timing?.length) {
-//         for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
-//             const timing = currentAudioPlayer.timing![i];
-//             if (
-//                 currentAudioPlayer.progress >= timing.starttime &&
-//                 currentAudioPlayer.progress < timing.endtime
-//             ) {
-//                 const verseNumber = parseInt(timing.tag, 10);
-//                 for (let k = i + 1; k >= 0; k--) {
-//                     const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
-//                     if (startVerseNumber !== verseNumber) {
-//                         start = currentAudioPlayer.timing[k + 1].tag;
-//                         break;
-//                     }
-//                     if (k === 0) {
-//                         start = currentAudioPlayer.timing[0].tag;
-//                         break;
-//                     }
-//                 }
-//                 for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
-//                     const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
-//                     if (endVerseNumber !== verseNumber) {
-//                         end = currentAudioPlayer.timing[j - 1].tag;
-//                         break;
-//                     }
-//                     if (j === currentAudioPlayer.timing.length - 1) {
-//                         end = currentAudioPlayer.timing[j].tag;
-//                         break;
-//                     }
-//                 }
-//                 break;
-//             }
-//         }
-//     }
-//     return getVerseTimingRange(start, end);
-// }
 
+// Get the audio start and end timestamps for the current verse as a range
 function getCurrentVerseTiming() {
     if (!currentAudioPlayer?.timing) {
         console.error(`Warning in getCurrentVerseTiming(): ` + 
@@ -351,7 +310,7 @@ function getCurrentVerseTiming() {
             const verseNumber = parseInt(timing.tag, 10);
 
             // Step backwards until we reach the previous verse
-            for (let k = i; k >= 0; k--) {
+            for (let k = i - 1; k >= 0; k--) {
                 const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
                 // The last tag of the previous verse is the closest
                 // to the current tag to have a different verse number
@@ -388,49 +347,6 @@ function getCurrentVerseTiming() {
     return { start, end } as PlayModeRange;
 }
 
-function getVerseEndTag(verse: string) {
-    if (!currentAudioPlayer?.timing) {
-        // No further detail, so return base tag
-        return verse;
-    }
-
-    let startTag = '', endTag = '', i: number;
-
-    // First find the beginning of the verse
-    for (i = 0; i < currentAudioPlayer.timing.length; i++) {
-        //adapted from seekToVerse() below
-        const tag = currentAudioPlayer.timing[i].tag;
-        const containsAlpha = /[a-z]/.test(tag);
-        const adjustedTag = containsAlpha ? tag : tag + 'a';
-
-        console.log(`Trying tag ${adjustedTag}`);
-
-        if (adjustedTag.slice(0, adjustedTag.length - 1) === verse) {
-            startTag = adjustedTag;
-            break;
-        }
-    }
-
-    // Then find the end of the verse
-    const baseTag = parseInt(startTag, 10);
-    console.log(`getVerseEndTag(${verse}): start tag is (${startTag}), base (${baseTag})`);
-    for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
-        const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
-        if (endVerseNumber !== baseTag) {
-            endTag = currentAudioPlayer.timing[j - 1].tag;
-            break;
-        }
-        if (j === currentAudioPlayer.timing.length - 1) {
-            endTag = currentAudioPlayer.timing[j].tag;
-            break;
-        }
-    }
-
-    console.log(`getVerseEndTag(${verse}): found end tag of ${endTag}`);
-
-    return endTag;
-}
-
 // function get range of current index all labels of the current verse playing
 // calls updatehighlights() to see if highlights need to be change
 async function updateTime() {
@@ -461,33 +377,42 @@ function toggleTimeRunning() {
 export function hasAudioPlayed() {
     return (currentAudioPlayer?.progress ?? 0) > 0;
 }
+
+// Pause audio if currently playing
 function pause() {
     if (!currentAudioPlayer?.loaded) {
+        console.error("Warning: tried to pause() audio before it was loaded");
         return;
     }
+
     if (currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.pause();
         logAudioDuration(currentAudioPlayer);
         currentAudioPlayer.playing = false;
+        toggleTimeRunning();
+        audioPlayerStore.set(currentAudioPlayer);
     }
-    toggleTimeRunning();
-    audioPlayerStore.set(currentAudioPlayer);
 }
 
+// Play audio if currently paused
 export function play() {
     if (!currentAudioPlayer?.loaded) {
+        console.error("Warning: tried to play() audio before it was loaded");
         return;
     }
+
     if (!currentAudioPlayer.playing) {
         currentAudioPlayer.audio?.play();
         currentAudioPlayer.playStart = Date.now();
         logAudioPlay(currentAudioPlayer);
         currentAudioPlayer.playing = true;
+        toggleTimeRunning();
+        audioPlayerStore.set(currentAudioPlayer);
     }
-    toggleTimeRunning();
-    audioPlayerStore.set(currentAudioPlayer);
 }
 
+// Start audio at beginning of startVerse, repeating after
+// endVerse if endVerse is provided
 export function playVerses(startVerse: string, endVerse?: string) {
     let mode: PlayMode, range: PlayModeRange;
 
@@ -504,8 +429,60 @@ export function playVerses(startVerse: string, endVerse?: string) {
     console.log(`playVerses: setting range ${range.start} - ${range.end}`);
 
     playMode.set({ mode, range });
-    seekToVerse(startVerse + 'a');
+    seekToVerse(startVerse);
     play();
+}
+
+// Seek to the start of the first audio tag for the specified verse
+export function seekToVerse(verse: string) {
+    if (!currentAudioPlayer?.timing) {
+        console.error(`Warning in seekToVerse(${verse}): ` + 
+                      "missing audio timing data");
+        return; 
+    }
+
+    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+        const timing = currentAudioPlayer.timing[i];
+        // Handle case where tag has form '9a' for first tag in verse 9
+        if (timing.tag === verse || timing.tag === (verse + 'a')) {
+            seek(timing.starttime);
+            // Force text highlighting update
+            updateTime();
+            return;
+        }
+    }
+
+}
+
+// Get an audio timing range bounded by the first tag 
+// of startVerse and the last tag of endVerse
+function getVerseTimingRange(startVerse: string, endVerse: string) {
+    if (!currentAudioPlayer?.timing) {
+        console.error(`Warning in getVerseTimingRange(${startVerse}-${endVerse}): ` + 
+                      "missing audio timing data");
+        return defaultPlayMode.range;
+    }
+
+    let start = 0, end = 0;
+    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+        const timing = currentAudioPlayer.timing[i];
+
+        // Handle case where tag has form '9a' for first tag in verse 9
+        if (timing.tag === startVerse || timing.tag === (startVerse + 'a')) {
+            start = timing.starttime;
+        }
+        if (timing.tag === endVerse) {
+            end = timing.endtime;
+            break;
+        } else if (parseInt(timing.tag) === (parseInt(endVerse) + 1)) {
+            // This is the first timing tag in the next verse, so 
+            // the previous tag (at i - 1) is the last tag in the current verse
+            end = currentAudioPlayer.timing[i - 1].endtime;
+            break;
+        }
+    }
+
+    return { start, end } as PlayModeRange;
 }
 
 // selects the tag to highlight
@@ -627,73 +604,4 @@ export async function getAudioSourceInfo(
         source: audioPath,
         timing: timing.length > 0 ? timing : null
     };
-}
-// This function can be called when the text selection toolbar play button is clicked on and it changes the audio to the start of the verse clicked on
-export function seekToVerse(verseClicked: string) {
-    if (!currentAudioPlayer?.timing) {
-        return;
-    }
-    const elements = currentAudioPlayer.timing;
-    for (let i = 0; i < elements.length; i++) {
-        const tag = currentAudioPlayer.timing[i].tag;
-        // Handle timing tags that are just the verse number
-        const containsAlpha = /[a-z]/.test(tag);
-        const adjustedTag = containsAlpha ? tag : tag + 'a';
-        if (verseClicked === adjustedTag) {
-            const newtime = currentAudioPlayer.timing[i].starttime;
-            seek(newtime);
-            break;
-        }
-    }
-    //forces highlighting change
-    updateTime();
-}
-// takes a start and end tag and returns the range of times
-// function getVerseTimingRange(startTag: string, endTag: string) {
-//     const elements = currentAudioPlayer?.timing ?? [];
-//     let start: number = 0;
-//     for (let i = 0; i < elements.length; i++) {
-//         const tag = currentAudioPlayer!.timing![i].tag;
-//         if (startTag === tag) {
-//             const newstarttime = currentAudioPlayer!.timing![i].starttime;
-//             start = newstarttime;
-//         }
-//         if (endTag === tag) {
-//             const newendtime = currentAudioPlayer!.timing![i].endtime;
-//             const end = newendtime;
-//             const range = { start, end };
-//             return range;
-//         }
-//     }
-// }
-
-// Get an audio timing range bounded by the first tag 
-// of startVerse and the last tag of endVerse
-function getVerseTimingRange(startVerse: string, endVerse: string) {
-    if (!currentAudioPlayer?.timing) {
-        console.error(`Warning in getVerseTimingRange(${startVerse}-${endVerse}): ` + 
-                      "missing audio timing data");
-        return defaultPlayMode.range;
-    }
-
-    let start = 0, end = 0;
-    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
-        const timing = currentAudioPlayer.timing[i];
-
-        // Handle case where tag has form '9a' for first phrase in verse 9
-        if (timing.tag === startVerse || timing.tag === (startVerse + 'a')) {
-            start = timing.starttime;
-        }
-        if (timing.tag === endVerse) {
-            end = timing.endtime;
-            break;
-        } else if (parseInt(timing.tag) === (parseInt(endVerse) + 1)) {
-            // This is the first timing tag in the next verse, so 
-            // the previous tag (at i - 1) is the last tag in the current verse
-            end = currentAudioPlayer.timing[i - 1].endtime;
-            break;
-        }
-    }
-
-    return { start, end } as PlayModeRange;
 }
