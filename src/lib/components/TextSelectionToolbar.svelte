@@ -111,10 +111,10 @@ TODO:
     }
 
     // Play from first selected verse, optionally repeating after the last verse
-    function playSelectedVerseAudio(repeat: boolean) {
+    function playSelectedVerseAudio(options: { repeat: boolean }) {
         const startVerse = $selectedVerses[0].verse;
 
-        if (repeat) {
+        if (options.repeat) {
             const endVerse = $selectedVerses[$selectedVerses.length - 1].verse;
             playVerses(startVerse, endVerse);
         } else {
@@ -178,7 +178,7 @@ TODO:
                     {#if isAudioPlayable}
                         <button 
                             class="dy-btn-sm dy-btn-ghost" 
-                            onclick={() => playSelectedVerseAudio(false)}
+                            onclick={() => playSelectedVerseAudio({ repeat: false })}
                         >
                             <AudioIcon.Play color={iconColor} />
                         </button>
@@ -186,7 +186,7 @@ TODO:
                     {#if isRepeatableAudio}
                         <button 
                             class="dy-btn-sm dy-btn-ghost" 
-                            onclick={() => playSelectedVerseAudio(true)}
+                            onclick={() => playSelectedVerseAudio({ repeat: true })}
                         >
                             <AudioIcon.PlayRepeat color={iconColor} />
                         </button>
