@@ -9,8 +9,8 @@ import {
     PlayMode,
     refs,
     type AudioPlayer,
-    type PlayModeSettings,
     type PlayModeRange,
+    type PlayModeSettings,
     type Timing
 } from '$lib/data/stores';
 import { pathJoin } from '$lib/scripts/stringUtils';
@@ -130,8 +130,9 @@ export function playPause() {
         pause();
     } else {
         if (
-            currentPlayMode && (currentPlayMode.range !== defaultPlayMode.range) &&
-            (currentAudioPlayer.progress > currentPlayMode.range.end)
+            currentPlayMode &&
+            currentPlayMode.range !== defaultPlayMode.range &&
+            currentAudioPlayer.progress > currentPlayMode.range.end
         ) {
             resetVersePlaybackRange();
         }
@@ -155,6 +156,8 @@ export function playStop() {
 export async function skip(direction: number) {
     pause();
     await refs.skip(direction);
+    playMode.reset();
+    // resetVersePlaybackRange();
 }
 // formats timing information
 export function format(seconds: number) {
@@ -167,24 +170,23 @@ export function format(seconds: number) {
     const sPrefix = seconds < 10 ? '0' : '';
     return `${minutes}:${sPrefix}${seconds}`;
 }
+
 // changes the phrase of the audio
 export async function changeVerse(direction: number) {
     if (!currentAudioPlayer?.loaded) {
+        console.error('Warning: tried to change audio verse before audio was loaded');
         return;
     }
-    const playing = currentAudioPlayer.playing;
+
+    const wasPlaying = currentAudioPlayer.playing;
     pause();
+
     if (direction >= 0) {
         if (
             currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex] !=
             currentAudioPlayer.timing?.at(-1)
         ) {
             currentAudioPlayer.timeIndex++;
-            const newtime = currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex].starttime;
-            if (newtime && currentAudioPlayer.audio) {
-                currentAudioPlayer.audio.currentTime = newtime;
-                updateTime();
-            }
         } else {
             await skip(1);
         }
@@ -192,16 +194,17 @@ export async function changeVerse(direction: number) {
         if (currentAudioPlayer.timeIndex > 0) {
             currentAudioPlayer.timeIndex--;
         }
-        if (currentAudioPlayer.audio && currentAudioPlayer.timing) {
-            currentAudioPlayer.audio.currentTime =
-                currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex].starttime;
-        }
-        updateTime();
     }
-    if (playing) {
+
+    const newtime = currentAudioPlayer.timing?.[currentAudioPlayer.timeIndex].starttime;
+    if (newtime && currentAudioPlayer.audio) {
+        seek(newtime);
+    }
+    if (wasPlaying) {
         play();
     }
 }
+
 export async function seekOffset(offset: number) {
     const playing = currentAudioPlayer?.playing;
     pause();
@@ -244,6 +247,7 @@ export function seek(position: number) {
     currentAudioPlayer.audio.currentTime = position;
     currentAudioPlayer.progress = position;
     audioPlayerStore.set(currentAudioPlayer);
+    updateHighlights();
 
     if (wasPlaying) {
         play();
@@ -382,6 +386,7 @@ function resetVersePlaybackRange() {
 // calls updatehighlights() to see if highlights need to be change
 async function updateTime() {
     if (!currentAudioPlayer?.loaded) {
+        console.error('Warning: tried to updateTime() for audio before it was loaded');
         return;
     }
     currentAudioPlayer.progress = currentAudioPlayer.audio?.currentTime ?? 0;
@@ -470,8 +475,6 @@ export function playVerses(startVerse: string, endVerse?: string) {
             getVerseTimingRange(startVerse, startVerse) || //
             defaultPlayMode.range;
     }
-
-    console.log(`playVerses: setting range ${range.start} - ${range.end}`);
 
     playMode.set({ mode, range });
     seekToVerse(startVerse);
@@ -611,8 +614,6 @@ export function seekToVerse(verse: string) {
         // Handle case where tag has form '9a' for first tag in verse 9
         if (timing.tag === verse || timing.tag === verse + 'a') {
             seek(timing.starttime);
-            // Force text highlighting update
-            updateTime();
             return;
         }
     }
