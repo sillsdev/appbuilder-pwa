@@ -285,7 +285,7 @@ async function handlePlayMode() {
         }
         if ((currentAudioPlayer?.progress ?? 0) + 0.05 > currentPlayMode.range.end) {
             console.log(`handlePlayMode: pausing since after end (${currentAudioPlayer?.progress ?? 0 + 0.05} > ${currentPlayMode.range.end})`);
-            pause();
+            pause({ keepListening: true });
             warmdown = 5;
         }
     }
@@ -362,24 +362,34 @@ async function updateTime() {
     }
     await handlePlayMode();
 }
+
 // calls updateTime() every 100ms
-function toggleTimeRunning() {
-    if (currentPlayMode?.mode !== PlayMode.RepeatSelection && 
-        (currentAudioPlayer?.audio?.ended || currentAudioPlayer?.playing === false)) {
-        clearInterval(currentAudioPlayer?.timer ?? undefined);
-        currentAudioPlayer.timer = null;
-    } else if (currentAudioPlayer) {
+function updateAudioListener() {
+    if (!currentAudioPlayer?.audio) {
+        console.error("Warning: tried to update listener for missing audio");
+        return;
+    }
+
+    if (currentAudioPlayer.audio.ended || !currentAudioPlayer.playing) {
+        // Separate this condition check since we don't want to call 
+        // setInterval (the else case) unless the audio is actually playing
+        if (currentAudioPlayer.timer) {
+            clearInterval(currentAudioPlayer.timer);
+            currentAudioPlayer.timer = null;
+        }
+    } else if (!currentAudioPlayer.timer) {
         currentAudioPlayer.timer = setInterval(() => updateTime(), 100);
     }
     return;
 }
+
 // checks if audio has played
 export function hasAudioPlayed() {
     return (currentAudioPlayer?.progress ?? 0) > 0;
 }
 
 // Pause audio if currently playing
-function pause() {
+function pause(options?: { keepListening: boolean }) {
     if (!currentAudioPlayer?.loaded) {
         console.error("Warning: tried to pause() audio before it was loaded");
         return;
@@ -389,7 +399,9 @@ function pause() {
         currentAudioPlayer.audio?.pause();
         logAudioDuration(currentAudioPlayer);
         currentAudioPlayer.playing = false;
-        toggleTimeRunning();
+        if (!options?.keepListening) {
+            updateAudioListener();
+        }
         audioPlayerStore.set(currentAudioPlayer);
     }
 }
@@ -406,7 +418,7 @@ export function play() {
         currentAudioPlayer.playStart = Date.now();
         logAudioPlay(currentAudioPlayer);
         currentAudioPlayer.playing = true;
-        toggleTimeRunning();
+        updateAudioListener();
         audioPlayerStore.set(currentAudioPlayer);
     }
 }
