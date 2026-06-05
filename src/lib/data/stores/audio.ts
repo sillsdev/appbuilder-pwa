@@ -105,11 +105,9 @@ function createPlayMode() {
                     nextMode = PlayMode.Continue;
                     break;
             }
-            console.log(`playMode.next(): changing mode to ${nextMode}`);
             external.set({ mode: nextMode, range: nextRange });
         },
         reset: () => {
-            console.log(`playMode.reset(): changing mode to ${defaultPlayMode.mode}`);
             external.set(defaultPlayMode);
         }
     };

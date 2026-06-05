@@ -150,8 +150,8 @@ TODO:
         logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
     }
 
-    const backgroundColor = $derived($s!['ui.bar.text-select']['background-color']);
-    const iconColor = $derived($s!['ui.bar.text-select.icon']['color']);
+    const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);
+    const iconColor = $derived($s['ui.bar.text-select.icon']['color']);
 </script>
 
 <div
@@ -174,27 +174,24 @@ TODO:
                     {/each}
                 </div>
             {:else}
-                {#if $refs.hasAudio && $refs.hasAudio.timingFile}
-                    {#if isAudioPlayable}
-                        <button
-                            class="dy-btn-sm dy-btn-ghost"
-                            onclick={() => playSelectedVerseAudio({ repeat: false })}
-                        >
-                            <AudioIcon.Play color={iconColor} />
-                        </button>
-                    {/if}
-                    {#if isRepeatableAudio}
-                        <button
-                            class="dy-btn-sm dy-btn-ghost"
-                            onclick={() => playSelectedVerseAudio({ repeat: true })}
-                        >
-                            <AudioIcon.PlayRepeat color={iconColor} />
-                        </button>
-                    {/if}
+                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        onclick={() => playSelectedVerseAudio({ repeat: false })}
+                    >
+                        <AudioIcon.Play color={iconColor} />
+                    </button>
+                {/if}
+                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        onclick={() => playSelectedVerseAudio({ repeat: true })}
+                    >
+                        <AudioIcon.PlayRepeat color={iconColor} />
+                    </button>
                 {/if}
                 {#if isTextOnImageEnabled}
                     <button
-                        class="dy-btn-sm dy-btn-ghost"
                         onclick={() => {
                             voiCustomImage.update((v) => ({
                                 ...v,
@@ -203,6 +200,7 @@ TODO:
                             }));
                             goto(resolve(`/image`));
                         }}
+                        class="dy-btn-sm dy-btn-ghost"
                     >
                         <ImageIcon.Image color={iconColor} />
                     </button>
