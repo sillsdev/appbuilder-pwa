@@ -38,14 +38,15 @@ audioPlayerStore.subscribe(async (value: AudioPlayer) => {
 });
 let currentPlayMode: PlayModeSettings | undefined = undefined;
 playMode.subscribe((value) => {
-    if (
-        currentPlayMode &&
-        currentPlayMode.mode !== value.mode &&
-        value.mode === PlayMode.RepeatSelection
-    ) {
-        const timing = getCurrentVerseTiming();
-        value.range = timing || value.range;
-    }
+    // if (
+    //     currentPlayMode &&
+    //     currentPlayMode.mode !== value.mode &&
+    //     value.mode === PlayMode.RepeatSelection
+    // ) {
+    //     const timing = getCurrentVerseTiming();
+    //     console.log(`playMode listener: resetting range to ${timing.start}-${timing.end}`);
+    //     value.range = timing || value.range;
+    // }
     currentPlayMode = value;
     console.log(`playMode listener: ${currentPlayMode.mode}`);
 });
@@ -291,45 +292,100 @@ async function handlePlayMode() {
         }
     }
 }
-// gets the current verse start and end tag
+// // gets the current verse start and end tag
+// function getCurrentVerseTiming() {
+//     let end: string = '';
+//     let start: string = '';
+//     if (currentAudioPlayer?.timing?.length) {
+//         for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+//             const timing = currentAudioPlayer.timing![i];
+//             if (
+//                 currentAudioPlayer.progress >= timing.starttime &&
+//                 currentAudioPlayer.progress < timing.endtime
+//             ) {
+//                 const verseNumber = parseInt(timing.tag, 10);
+//                 for (let k = i + 1; k >= 0; k--) {
+//                     const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
+//                     if (startVerseNumber !== verseNumber) {
+//                         start = currentAudioPlayer.timing[k + 1].tag;
+//                         break;
+//                     }
+//                     if (k === 0) {
+//                         start = currentAudioPlayer.timing[0].tag;
+//                         break;
+//                     }
+//                 }
+//                 for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
+//                     const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
+//                     if (endVerseNumber !== verseNumber) {
+//                         end = currentAudioPlayer.timing[j - 1].tag;
+//                         break;
+//                     }
+//                     if (j === currentAudioPlayer.timing.length - 1) {
+//                         end = currentAudioPlayer.timing[j].tag;
+//                         break;
+//                     }
+//                 }
+//                 break;
+//             }
+//         }
+//     }
+//     return getVerseTimingRange(start, end);
+// }
+
 function getCurrentVerseTiming() {
-    let end: string = '';
-    let start: string = '';
-    if (currentAudioPlayer?.timing?.length) {
-        for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
-            const timing = currentAudioPlayer.timing![i];
-            if (
-                currentAudioPlayer.progress >= timing.starttime &&
-                currentAudioPlayer.progress < timing.endtime
-            ) {
-                const verseNumber = parseInt(timing.tag, 10);
-                for (let k = i + 1; k >= 0; k--) {
-                    const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
-                    if (startVerseNumber !== verseNumber) {
-                        start = currentAudioPlayer.timing[k + 1].tag;
-                        break;
-                    }
-                    if (k === 0) {
-                        start = currentAudioPlayer.timing[0].tag;
-                        break;
-                    }
+    if (!currentAudioPlayer?.timing) {
+        console.error(`Warning in getCurrentVerseTiming(): ` + 
+                      "missing audio timing data");
+        return defaultPlayMode.range;
+    }
+    
+    let start = 0, end = 0;
+    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+        const timing = currentAudioPlayer.timing[i];
+        if (
+            currentAudioPlayer.progress >= timing.starttime &&
+            currentAudioPlayer.progress < timing.endtime
+        ) {
+            // The verse number of tag '9a' is 9
+            const verseNumber = parseInt(timing.tag, 10);
+
+            // Step backwards until we reach the previous verse
+            for (let k = i; k >= 0; k--) {
+                const startVerseNumber = parseInt(currentAudioPlayer.timing[k].tag, 10);
+                // The last tag of the previous verse is the closest
+                // to the current tag to have a different verse number
+                if (startVerseNumber !== verseNumber) {
+                    start = currentAudioPlayer.timing[k + 1].starttime;
+                    break;
                 }
-                for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
-                    const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
-                    if (endVerseNumber !== verseNumber) {
-                        end = currentAudioPlayer.timing[j - 1].tag;
-                        break;
-                    }
-                    if (j === currentAudioPlayer.timing.length - 1) {
-                        end = currentAudioPlayer.timing[j].tag;
-                        break;
-                    }
+                // If we've gone to the beginning of the section, 
+                // assume we're in the first, "title" tag (or similar)
+                if (k === 0) {
+                    start = currentAudioPlayer.timing[0].starttime;
+                    break;
                 }
-                break;
             }
+
+            // Step forwards until we reach the next verse
+            for (let j = i + 1; j < currentAudioPlayer.timing.length; j++) {
+                const endVerseNumber = parseInt(currentAudioPlayer.timing[j].tag, 10);
+                if (endVerseNumber !== verseNumber) {
+                    end = currentAudioPlayer.timing[j - 1].endtime;
+                    break;
+                }
+                // If we've gone to the end of the section without
+                // progressing to the next verse, assume we're at the last tag
+                if (j === currentAudioPlayer.timing.length - 1) {
+                    end = currentAudioPlayer.timing[j].endtime;
+                    break;
+                }
+            }
+            break;
         }
     }
-    return getVerseTimingRange(start, end);
+
+    return { start, end } as PlayModeRange;
 }
 
 function getVerseEndTag(verse: string) {
@@ -437,11 +493,11 @@ export function playVerses(startVerse: string, endVerse?: string) {
 
     if (endVerse) {
         mode = PlayMode.RepeatSelection;
-        range = getVerseTimingRange(startVerse + 'a', getVerseEndTag(endVerse))
+        range = getVerseTimingRange(startVerse, endVerse) //
             || defaultPlayMode.range;
     } else {
         mode = currentPlayMode?.mode || defaultPlayMode.mode;
-        range = getVerseTimingRange(startVerse + 'a', getVerseEndTag(startVerse))
+        range = getVerseTimingRange(startVerse, startVerse) //
             || defaultPlayMode.range;
     }
 
@@ -593,20 +649,51 @@ export function seekToVerse(verseClicked: string) {
     updateTime();
 }
 // takes a start and end tag and returns the range of times
-function getVerseTimingRange(startTag: string, endTag: string) {
-    const elements = currentAudioPlayer?.timing ?? [];
-    let start: number = 0;
-    for (let i = 0; i < elements.length; i++) {
-        const tag = currentAudioPlayer!.timing![i].tag;
-        if (startTag === tag) {
-            const newstarttime = currentAudioPlayer!.timing![i].starttime;
-            start = newstarttime;
+// function getVerseTimingRange(startTag: string, endTag: string) {
+//     const elements = currentAudioPlayer?.timing ?? [];
+//     let start: number = 0;
+//     for (let i = 0; i < elements.length; i++) {
+//         const tag = currentAudioPlayer!.timing![i].tag;
+//         if (startTag === tag) {
+//             const newstarttime = currentAudioPlayer!.timing![i].starttime;
+//             start = newstarttime;
+//         }
+//         if (endTag === tag) {
+//             const newendtime = currentAudioPlayer!.timing![i].endtime;
+//             const end = newendtime;
+//             const range = { start, end };
+//             return range;
+//         }
+//     }
+// }
+
+// Get an audio timing range bounded by the first tag 
+// of startVerse and the last tag of endVerse
+function getVerseTimingRange(startVerse: string, endVerse: string) {
+    if (!currentAudioPlayer?.timing) {
+        console.error(`Warning in getVerseTimingRange(${startVerse}-${endVerse}): ` + 
+                      "missing audio timing data");
+        return defaultPlayMode.range;
+    }
+
+    let start = 0, end = 0;
+    for (let i = 0; i < currentAudioPlayer.timing.length; i++) {
+        const timing = currentAudioPlayer.timing[i];
+
+        // Handle case where tag has form '9a' for first phrase in verse 9
+        if (timing.tag === startVerse || timing.tag === (startVerse + 'a')) {
+            start = timing.starttime;
         }
-        if (endTag === tag) {
-            const newendtime = currentAudioPlayer!.timing![i].endtime;
-            const end = newendtime;
-            const range = { start, end };
-            return range;
+        if (timing.tag === endVerse) {
+            end = timing.endtime;
+            break;
+        } else if (parseInt(timing.tag) === (parseInt(endVerse) + 1)) {
+            // This is the first timing tag in the next verse, so 
+            // the previous tag (at i - 1) is the last tag in the current verse
+            end = currentAudioPlayer.timing[i - 1].endtime;
+            break;
         }
     }
+
+    return { start, end } as PlayModeRange;
 }
