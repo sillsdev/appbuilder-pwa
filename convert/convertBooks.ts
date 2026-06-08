@@ -637,9 +637,6 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
 
     let content = fs.readFileSync(srcFile, 'utf-8');
     const before = getHashedNameFromContents(content, book.file);
-    if (book.type === 'songs') {
-        content = content.replace(/^\\s.*$/m, '$&\n\\v 1');
-    }
     content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id, context);
     // file name already in config from before filtration
     // don't want to modify config to account for filtration
@@ -794,6 +791,10 @@ function convertScriptureBook(
         //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
         if (err) {
             throw err;
+        }
+
+        if (book.type === 'songs') {
+            content = content.replace(/^\\s.*$/gm, '$&\n\\v 1');
         }
         content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
         if (bookTab) {
