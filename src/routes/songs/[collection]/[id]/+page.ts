@@ -32,7 +32,11 @@ export const load: PageLoad = async ({ params, fetch }) => {
         }
 
         titleData = await titleResponse.text();
+    } catch (error) {
+        console.error('Error fetching song title text file:', error);
+    }
 
+    try {
         const numberKey = `./${collection}-${id}-songs-by-number.txt`;
         const numberUrl = songs[numberKey];
         if (!numberUrl) {
@@ -45,7 +49,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
 
         numberData = await numberResponse.text();
     } catch (error) {
-        console.error('Error fetching song text file:', error);
+        console.error('Error fetching song number text file:', error);
     }
 
     return {
