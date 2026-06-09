@@ -19,7 +19,7 @@
     let songsByNumber = $derived(data.songsByNumber);
 
     const showSearch = !!config.mainFeatures['search'];
-    let tabs = [$t['Song_List_By_Number'], $t['Song_List_By_Title']];
+    let tabs = $derived([$t['Song_List_By_Number'], $t['Song_List_By_Title']]);
     let curTab = $state(0);
     function changeTab(newTab: number) {
         curTab = newTab;
