@@ -16,19 +16,21 @@
     let { data }: Props = $props();
 
     let songsByTitle: { number: string; title: string }[] = [];
-    data.titleData.split('\r\n').forEach((value) => {
-        let separatedValue = value.split('\t');
-        if (separatedValue.length === 2) {
-            songsByTitle.push({ number: separatedValue[0], title: separatedValue[1] });
-        }
-    });
     let songsByNumber: { number: string; title: string }[] = [];
-    data.numberData.split('\r\n').forEach((value) => {
-        let separatedValue = value.split('\t');
-        if (separatedValue.length === 2) {
-            songsByNumber.push({ number: separatedValue[0], title: separatedValue[1] });
-        }
-    });
+    (() => {
+        data.titleData.split('\r\n').forEach((value) => {
+            let separatedValue = value.split('\t');
+            if (separatedValue.length === 2) {
+                songsByTitle.push({ number: separatedValue[0], title: separatedValue[1] });
+            }
+        });
+        data.numberData.split('\r\n').forEach((value) => {
+            let separatedValue = value.split('\t');
+            if (separatedValue.length === 2) {
+                songsByNumber.push({ number: separatedValue[0], title: separatedValue[1] });
+            }
+        });
+    })();
 
     const showSearch = !!config.mainFeatures['search'];
     let tabs = [$t['Song_List_By_Number'], $t['Song_List_By_Title']];
