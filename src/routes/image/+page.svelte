@@ -1,9 +1,8 @@
 <script lang="ts">
-    //TODO: Implement video download
     import DownloadSelector from '$lib/components/DownloadSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
-    import { modal, ModalType, NAVBAR_HEIGHT, t } from '$lib/data/stores';
+    import { modal, ModalType, NAVBAR_HEIGHT, refs, t } from '$lib/data/stores';
     import { DownloadIcon, ShareIcon } from '$lib/icons';
     import { fromStore } from 'svelte/store';
 
@@ -19,7 +18,9 @@
         }
     }
     function downloadVideo() {
-        console.log('Download video (Not yet implemented)');
+        if (verseOnImage_Component) {
+            verseOnImage_Component.downloadVideo(); // Call the exported function from the VerseOnImage component
+        }
     }
     const stateModal = fromStore<any[]>(modal);
     $effect(() => {
@@ -40,6 +41,13 @@
             modal.clear();
         }
     }
+    function downloadClicked() {
+        if ($refs.hasAudio?.timingFile) {
+            modal.open(ModalType.Download);
+        } else {
+            downloadImage();
+        }
+    }
     let downloadSelector: DownloadSelector;
 </script>
 
@@ -58,10 +66,7 @@
                         <ShareIcon color="white" />
                     </button>
                 </div>
-                <button
-                    class="dy-btn-sm dy-btn-ghost"
-                    onclick={() => modal.open(ModalType.Download)}
-                >
+                <button class="dy-btn-sm dy-btn-ghost" onclick={downloadClicked}>
                     <DownloadIcon color="white" />
                 </button>
             {/snippet}
