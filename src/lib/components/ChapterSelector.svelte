@@ -26,12 +26,15 @@ The navbar component.
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
     const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
-    const showVerseSelector = $derived(
-        $userSettingsOrDefault['verse-selection'] &&
-            scriptureConfig.bookCollections
-                ?.find((x) => $refs.collection === x.id)
-                ?.books.find((x) => book === x.id)?.type !== 'songs'
-    ) as boolean;
+    const showVerseSelector = $derived.by(() => {
+        const bookType = scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.type;
+        if (!bookType) {
+            return true;
+        }
+        return $userSettingsOrDefault['verse-selection'] && bookType && bookType !== 'songs';
+    }) as boolean;
     const hideEmptyChapters = $derived(config.mainFeatures['hide-empty-chapters'] as boolean);
     const verseCount = $derived(getVerseCount(book, chapter));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
