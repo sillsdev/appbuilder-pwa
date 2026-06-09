@@ -68,9 +68,16 @@
     } from 'svelte-gestures';
     import type { PageData } from './$types';
 
-    const illustrationURLs = import.meta.glob('$assets/illustrations/*', { eager: true });
-    console.log('Illustrations: ');
-    console.log(illustrationURLs);
+    /*const illustrationURLs: Record<string, { default: string }> = import.meta.glob(
+        '$assets/illustrations/*',
+        { eager: true }
+    );*/
+    const illustrationURLs = import.meta.glob('./*', {
+        eager: true,
+        import: 'default', // makes it so that you don't have to use .default
+        query: '?url', // makes sure it's a src, rather than an image blob
+        base: '/src/gen-assets/illustrations' // allows shorter path for lookup
+    }) as Record<string, string>;
 
     const borders = import.meta.glob('./*', {
         import: 'default',
@@ -131,9 +138,9 @@
             ?.books.find((x) => x.id === $refs.book)?.bookTabs
     ); //This should hopefully be reactive and find the book tabs if the current book has them.
     const bookType = $derived(
-        config?.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === $refs.book)?.type
+        scriptureConfig?.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book)?.type
     );
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
@@ -423,14 +430,17 @@
         playStop();
     });
     function getCurrentIllustrationFile() {
-        let illustrations = config?.bookCollections
-            .find((x) => x.id === $refs.collection)
-            .books.find((x) => x.id === $refs.book)?.pageIllustrations;
-        for (let i = 0; i < illustrations.length; i++) {
-            if (illustrations[i].num === Number($refs.chapter)) {
-                return illustrationURLs[
-                    '/src/gen-assets/illustrations/' + illustrations[i].filename
-                ].default; //This works for both npm run dev and npm run build/preview, but it does have the hardcoded '/src/gen-assets/illustrations/'. Is there a better way to do this?
+        let illustrations = scriptureConfig?.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book)?.pageIllustrations;
+        if (illustrations) {
+            for (let i = 0; i < illustrations.length; i++) {
+                if (illustrations[i].num === Number($refs.chapter)) {
+                    /*return illustrationURLs[
+                        '/src/gen-assets/illustrations/' + illustrations[i].filename
+                    ]; //This works for both npm run dev and npm run build/preview, but it does have the hardcoded '/src/gen-assets/illustrations/'. Is there a better way to do this?*/
+                    return illustrationURLs[`./${illustrations[i].filename}`];
+                }
             }
         }
     }
@@ -545,17 +555,20 @@
     {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
-            <!-- svelte-ignore a11y_missing_attribute -->
-            <img
-                src={getCurrentIllustrationFile()}
-                class="w-screen object-cover"
-                use:swipe={{
-                    timeframe: 300,
-                    minSwipeDistance: 60,
-                    touchAction: 'pan-y'
-                }}
-                onswipe={doSwipe}
-            />
+            {@const illustrationFile = getCurrentIllustrationFile()}
+            {#if illustrationFile}
+                <!-- svelte-ignore a11y_missing_attribute -->
+                <img
+                    src={illustrationFile}
+                    class="w-screen object-cover"
+                    use:swipe={{
+                        timeframe: 300,
+                        minSwipeDistance: 60,
+                        touchAction: 'pan-y'
+                    }}
+                    onswipe={doSwipe}
+                />
+            {/if}
         {/if}
         <div
             style="--borderImageSource=url({borders['./border.png']});"
@@ -590,7 +603,6 @@
                                     touchAction: 'pan-y'
                                 }}
                                 onswipe={doSwipe}
-                                div
                             >
                                 {#if format === 'html'}
                                     <HtmlBookView {...viewSettings as HtmlBookViewProps} />
