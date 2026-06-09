@@ -51,10 +51,26 @@ export const load: PageLoad = async ({ params, fetch }) => {
     } catch (error) {
         console.error('Error fetching song number text file:', error);
     }
+    const songsByTitle: { number: string; title: string }[] = [];
+    const songsByNumber: { number: string; title: string }[] = [];
+    titleData.split(/\r?\n/).forEach((value) => {
+        const separatedValue = value.split('\t');
+        if (separatedValue.length === 2) {
+            songsByTitle.push({ number: separatedValue[0], title: separatedValue[1] });
+        }
+    });
+    numberData.split(/\r?\n/).forEach((value) => {
+        const separatedValue = value.split('\t');
+        if (separatedValue.length === 2) {
+            songsByNumber.push({ number: separatedValue[0], title: separatedValue[1] });
+        }
+    });
 
     return {
         titleData: titleData,
         numberData: numberData,
+        songsByTitle: songsByTitle,
+        songsByNumber: songsByNumber,
         collection: params.collection,
         songId: id,
         displayLabel: book?.name || 'Song'
