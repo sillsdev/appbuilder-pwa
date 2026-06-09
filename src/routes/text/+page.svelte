@@ -68,15 +68,11 @@
     } from 'svelte-gestures';
     import type { PageData } from './$types';
 
-    /*const illustrationURLs: Record<string, { default: string }> = import.meta.glob(
-        '$assets/illustrations/*',
-        { eager: true }
-    );*/
     const illustrationURLs = import.meta.glob('./*', {
         eager: true,
-        import: 'default', // makes it so that you don't have to use .default
-        query: '?url', // makes sure it's a src, rather than an image blob
-        base: '/src/gen-assets/illustrations' // allows shorter path for lookup
+        import: 'default',
+        query: '?url',
+        base: '/src/gen-assets/illustrations'
     }) as Record<string, string>;
 
     const borders = import.meta.glob('./*', {
@@ -436,9 +432,6 @@
         if (illustrations) {
             for (let i = 0; i < illustrations.length; i++) {
                 if (illustrations[i].num === Number($refs.chapter)) {
-                    /*return illustrationURLs[
-                        '/src/gen-assets/illustrations/' + illustrations[i].filename
-                    ]; //This works for both npm run dev and npm run build/preview, but it does have the hardcoded '/src/gen-assets/illustrations/'. Is there a better way to do this?*/
                     return illustrationURLs[`./${illustrations[i].filename}`];
                 }
             }
@@ -560,7 +553,7 @@
                 <!-- svelte-ignore a11y_missing_attribute -->
                 <img
                     src={illustrationFile}
-                    class="w-screen object-cover"
+                    class="w-screen md:max-w-2xl mx-auto object-cover"
                     use:swipe={{
                         timeframe: 300,
                         minSwipeDistance: 60,
