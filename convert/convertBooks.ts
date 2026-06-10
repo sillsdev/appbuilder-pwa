@@ -502,11 +502,6 @@ export async function convertBooks(
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
-<<<<<<< HEAD
-                case 'songs':
-=======
-                case 'story':
->>>>>>> f2db8b4 (Feature- Songbooks)
                 case 'audio-only':
                 case 'bloom-player':
                 case 'undefined':
@@ -526,6 +521,7 @@ export async function convertBooks(
                     });
                     displayBookId(context.bcId, book.id);
                     break;
+                case 'songs':
                 case 'story':
                 default:
                     bookConverted = true;
