@@ -2035,9 +2035,9 @@ LOGGING:
                                             numeralSystem,
                                             element.atts['number']
                                         );
-                                        const book = $refs.book;
+                                        const book = references.book;
                                         const bookType = scriptureConfig.bookCollections
-                                            ?.find((x) => $refs.collection === x.id)
+                                            ?.find((x) => references.collection === x.id)
                                             ?.books.find((x) => book === x.id)?.type;
                                         if (
                                             bookType === 'songs' &&
