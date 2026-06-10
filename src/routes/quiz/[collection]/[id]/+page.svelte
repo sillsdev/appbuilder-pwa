@@ -26,6 +26,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { addQuiz } from '$lib/data/quiz';
     import {
+        actionBarColor,
         bodyFontSize,
         bodyLineHeight,
         modal,
@@ -259,9 +260,9 @@
                             }}
                         >
                             {#if $quizAudioActive}
-                                <AudioIcon.Volume color="white" />
+                                <AudioIcon.Volume color={$actionBarColor} />
                             {:else}
-                                <AudioIcon.Mute color="white" />
+                                <AudioIcon.Mute color={$actionBarColor} />
                             {/if}
                         </button>
                     </div>
@@ -272,7 +273,7 @@
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
                         onclick={() => modal.open(ModalType.TextAppearance)}
                     >
-                        <TextAppearanceIcon color="white" />
+                        <TextAppearanceIcon color={$actionBarColor} />
                     </label>
                 </div>
             {/snippet}

@@ -4,7 +4,7 @@ A component to display tabbed menus.
 -->
 
 <script lang="ts">
-    import { convertStyle, s } from '$lib/data/stores';
+    import { actionBarColor, convertStyle, s } from '$lib/data/stores';
     import { preventDefault } from '$lib/scripts/event-wrappers';
 
     let {
@@ -38,6 +38,7 @@ A component to display tabbed menus.
         active = tab;
     };
     const ActiveComponent = $derived(options[active]?.snippet);
+    let borderColor = $derived($s?.['ui.selector.tabs']['border-color']);
 </script>
 
 {#if hasTabs}
@@ -49,11 +50,10 @@ A component to display tabbed menus.
                 <!-- svelte-ignore a11y_interactive_supports_focus -->
                 <a
                     onclick={preventDefault(() => setActive(opt))}
-                    style:border-color={active === opt ? '#FFFFFF' : ''}
-                    class="dy-tab text-white normal-case {active === opt
-                        ? 'dy-tab-active font-bold'
-                        : ''}"
+                    style:border-color={active === opt ? borderColor : ''}
+                    class="dy-tab normal-case {active === opt ? 'dy-tab-active font-bold' : ''}"
                     style:background="none"
+                    style:color={actionBarColor}
                     role="button"
                 >
                     {#if options[opt].tab?.icon}

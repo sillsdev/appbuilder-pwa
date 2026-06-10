@@ -4,7 +4,15 @@ The navbar component.
 -->
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t,
+        userSettingsOrDefault
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -198,7 +206,7 @@ The navbar component.
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
-                <DropdownIcon color="white" />
+                <DropdownIcon color={actionBarColor} />
             {/if}
         {/snippet}
         {#snippet content()}

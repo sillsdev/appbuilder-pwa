@@ -4,6 +4,7 @@ A drop-down menu for use in ColorCard, HistoryCard, and IconCard.
 Dispatches a menuaction event when an option is selected from the menu.
 -->
 <script lang="ts">
+    import { actionBarColor } from '$lib/data/stores';
     import { SortIcon } from '$lib/icons';
 
     let { menuaction, actions = [''] } = $props();
@@ -20,7 +21,7 @@ Dispatches a menuaction event when an option is selected from the menu.
 <div class="dy-dropdown dy-dropdown-bottom dy-dropdown-end">
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div tabindex="0" class="dy-btn dy-btn-ghost p-1">
-        <SortIcon color="white" />
+        <SortIcon color={$actionBarColor} />
     </div>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <ul tabindex="0" class="dy-dropdown-content dy-menu shadow bg-base-100 z-10">

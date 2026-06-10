@@ -67,3 +67,5 @@ export const s = derived(themeColors, ($themeColors) => {
         {} as Record<string, Record<string, string>>
     );
 });
+
+export const actionBarColor = derived(s, ($s) => $s?.['ui.bar.action']['color'] ?? 'inherit');

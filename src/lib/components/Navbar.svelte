@@ -36,13 +36,18 @@ The navbar component.
         }
     }
 
-    let actionBarColor = $derived($s?.['ui.bar.action']['background-color']);
+    let actionBarBackgroundColor = $derived($s?.['ui.bar.action']['background-color']);
+    let actionBarColor = $derived($s?.['ui.bar.action']['color']);
 </script>
 
 <!--
   see Dynamic values in https://v2.tailwindcss.com/docs/just-in-time-mode#arbitrary-value-support
 -->
-<div class="dy-navbar" style:height={NAVBAR_HEIGHT} style:background-color={actionBarColor}>
+<div
+    class="dy-navbar"
+    style:height={NAVBAR_HEIGHT}
+    style:background-color={actionBarBackgroundColor}
+>
     <div class="justify-start grow">
         {#if !showBackButton}
             <label
@@ -50,15 +55,15 @@ The navbar component.
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
                 class:lg:hidden={$showDesktopSidebar && $layout.mode !== Layout.Two}
             >
-                <HamburgerIcon color="white" />
+                <HamburgerIcon color={actionBarColor} />
             </label>
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <button onclick={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
                 {#if $direction === 'ltr'}
-                    <ArrowBackIcon color="white" />
+                    <ArrowBackIcon color={actionBarColor} />
                 {:else}
-                    <ArrowForwardIcon color="white" />
+                    <ArrowForwardIcon color={actionBarColor} />
                 {/if}
             </button>
         {/if}

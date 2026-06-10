@@ -2,7 +2,7 @@
     import HistoryCard from '$lib/components/HistoryCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { clearHistory } from '$lib/data/history';
-    import { bodyFontSize, t } from '$lib/data/stores';
+    import { actionBarColor, bodyFontSize, t } from '$lib/data/stores';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
     let { data } = $props();
@@ -25,7 +25,7 @@
 
             {#snippet end()}
                 <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onClearHistory}>
-                    <DeleteSweepIcon color="white" />
+                    <DeleteSweepIcon color={$actionBarColor} />
                 </button>
             {/snippet}
         </Navbar>

@@ -6,7 +6,15 @@ The navbar component.
     import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { BookConfig } from '$config';
-    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t,
+        userSettingsOrDefault
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText, navigateToUrl } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -339,7 +347,7 @@ The navbar component.
             >
                 {labelDisplayed}
             </div>
-            <DropdownIcon color="white" />
+            <DropdownIcon color={actionBarColor} />
         {/snippet}
         {#snippet content()}
             <div>

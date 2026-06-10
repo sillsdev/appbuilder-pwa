@@ -7,7 +7,7 @@
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { removeNote, type NoteItem } from '$lib/data/notes';
-    import { bodyFontSize, monoIconColor, refs, t } from '$lib/data/stores';
+    import { actionBarColor, bodyFontSize, monoIconColor, refs, t } from '$lib/data/stores';
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { formatDate } from '$lib/scripts/dateUtils';
@@ -70,7 +70,7 @@
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     onclick={async () => await shareAnnotations(toSorted(data.notes, sortOrder))}
                 >
-                    <ShareIcon color="white" />
+                    <ShareIcon color={$actionBarColor} />
                 </button>
                 <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}

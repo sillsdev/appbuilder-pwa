@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import { addNote, editNote, removeNote } from '$lib/data/notes';
-    import { selectedVerses, t } from '$lib/data/stores';
+    import { actionBarColor, selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
@@ -90,10 +90,10 @@
         {#snippet end()}
             <div class="dy-join">
                 <button onclick={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
-                    ><DeleteIcon color="white" /></button
+                    ><DeleteIcon color={$actionBarColor} /></button
                 >
                 <button onclick={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
-                    ><CheckIcon color="white" /></button
+                    ><CheckIcon color={$actionBarColor} /></button
                 >
             </div>
         {/snippet}
