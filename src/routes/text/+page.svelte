@@ -707,7 +707,7 @@
                     <div
                         class="p-2 w-full"
                         style="position: absolute; left: {-draggableWidth}px; clip-path: inset(0 0 0 {draggableWidth -
-                            x.current}px);"
+                            x.current}px"
                     >
                         <main>
                             <div class="max-w-screen-md mx-auto">
@@ -788,6 +788,7 @@
 
     <!-- Display pop-ups for cross-references, footnotes, etc. -->
     <StackView {...stackSettings} />
+    <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
 
     {#if textCopied}
         <div
