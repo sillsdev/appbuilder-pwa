@@ -969,11 +969,10 @@
                 </div>
             </div>
         </div>
+        <!-- Display pop-ups for cross-references, footnotes, etc. -->
+        <StackView {...stackSettings} />
+        <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
     </div>
-
-    <!-- Display pop-ups for cross-references, footnotes, etc. -->
-    <StackView {...stackSettings} />
-    <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
 
     {#if showCollectionViewer && enoughCollections}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
