@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { fly } from 'svelte/transition';
     import { Tween } from 'svelte/motion';
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
@@ -59,14 +58,13 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { navigateToTextChapterInDirection, navigateToTextReference } from '$lib/navigate';
+    import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { onDestroy, onMount } from 'svelte';
     import {
         pinch,
         swipe,
         type PinchPointerEventDetail,
-        type SwipePointerEventDetail
     } from 'svelte-gestures';
     import type { PageData } from './$types';
 
