@@ -189,9 +189,16 @@ export async function skip(direction: number) {
             audioPlayerStore.set(currentAudioPlayer);
         }
 
+        let finalIntermediateMarker;
+        if (headingMarkers.length > 1) {
+            finalIntermediateMarker = headingMarkers.at(-2);
+        }
+
         if (
             (direction < 0 && currentAudioPlayer.progress < AUDIO_SEEK_THRESHOLD) ||
-            (direction >= 0 && currentAudioPlayer.progress >= headingMarkers?.at(-2)!)
+            (direction >= 0 &&
+                finalIntermediateMarker &&
+                currentAudioPlayer.progress >= finalIntermediateMarker)
         ) {
             console.log(
                 `skipping at chapter bookend: ${currentAudioPlayer.progress} >= ${headingMarkers?.at(-2)!}`
@@ -207,7 +214,10 @@ export async function skip(direction: number) {
             if (currentAudioPlayer.progress < marker + AUDIO_SEEK_THRESHOLD) {
                 if (direction < 0) {
                     seek(currentAudioPlayer.headingMarkers[i - 1]);
-                } else if (currentAudioPlayer.progress > marker) {
+                } else if (
+                    i < currentAudioPlayer.headingMarkers.length - 1 &&
+                    currentAudioPlayer.progress > marker
+                ) {
                     seek(currentAudioPlayer.headingMarkers[i + 1]);
                 } else {
                     seek(marker);
@@ -228,7 +238,7 @@ function getHeadingMarkers() {
         return currentAudioPlayer.headingMarkers;
     }
 
-    let headingMarkers = [0.0];
+    const headingMarkers = [0.0];
 
     const headings = document.querySelectorAll('div.s');
     headings.forEach((h) => {
@@ -252,9 +262,10 @@ function getHeadingMarkers() {
         }
     });
 
-    headingMarkers.push(
-        currentAudioPlayer?.timing?.at(-1)?.endtime || currentAudioPlayer?.duration!
-    );
+    const endMarker = currentAudioPlayer?.timing?.at(-1)?.endtime || currentAudioPlayer?.duration;
+    if (typeof endMarker === 'number') {
+        headingMarkers.push(endMarker);
+    }
 
     console.log(`final heading markers: ${headingMarkers}`);
 
