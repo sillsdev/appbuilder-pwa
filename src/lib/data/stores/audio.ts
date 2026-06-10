@@ -37,6 +37,7 @@ export interface AudioPlayer {
     playing: boolean;
     timeIndex: number;
     timing: Timing[] | null;
+    headingMarkers?: number[];
     collection?: string;
     book?: string;
     chapter?: string;

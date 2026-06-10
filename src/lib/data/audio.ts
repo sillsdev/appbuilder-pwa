@@ -30,6 +30,8 @@ const timings = import.meta.glob('./*', {
     base: '/src/gen-assets/timings'
 }) as Record<string, string>;
 
+const AUDIO_SEEK_THRESHOLD = 0.1;
+
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer: AudioPlayer | undefined = undefined;
 audioPlayerStore.subscribe(async (value: AudioPlayer) => {
@@ -94,6 +96,7 @@ function createAudio(audioSource: string): HTMLAudioElement {
     }
     return audio;
 }
+
 //gets the current audio
 async function getAudio() {
     if (!currentAudioPlayer || currentAudioPlayer.loaded) {
@@ -160,10 +163,86 @@ export function playStop() {
 
 // changes chapter
 export async function skip(direction: number) {
+    console.log('skip');
+    const wasPlaying = currentAudioPlayer?.playing;
     pause();
-    await refs.skip(direction);
-    playMode.reset();
+
+    if (!currentAudioPlayer?.loaded || !currentAudioPlayer.timing) {
+        await refs.skip(direction);
+        playMode.reset();
+        return;
+    }
+
+    if (!currentAudioPlayer?.headingMarkers) {
+        currentAudioPlayer.headingMarkers = getHeadingMarkers();
+        audioPlayerStore.set(currentAudioPlayer);
+    }
+
+    if ((direction < 0 && currentAudioPlayer.progress < AUDIO_SEEK_THRESHOLD) ||
+         (direction >= 0 && (currentAudioPlayer.timing?.at(-1)?.endtime! -
+          currentAudioPlayer.progress) < AUDIO_SEEK_THRESHOLD)
+    ) {
+        await refs.skip(direction);
+        playMode.reset();
+        return;
+    }
+
+    for (let i = 1; i < currentAudioPlayer.headingMarkers.length - 1; i++) {
+        const marker = currentAudioPlayer.headingMarkers[i];
+        if (currentAudioPlayer.progress < (marker + AUDIO_SEEK_THRESHOLD)) {
+            if (direction < 0) {
+                seek(currentAudioPlayer.headingMarkers[i - 1]);
+                break;
+            } else if (currentAudioPlayer.progress > marker) {
+                seek(currentAudioPlayer.headingMarkers[i + 1]);
+                break;
+            } else {
+                seek(marker);
+                break;
+            }
+        }
+    }
+
+    updateHighlights();
+    if (wasPlaying) { play(); }
 }
+
+function getHeadingMarkers() {
+    let headingMarkers = [0.0];
+
+    const headings = document.querySelectorAll('div.s');
+    headings.forEach((h) => {
+        console.log(`found heading ${h.getHTML()}`);
+        let next = nextElementDFS(h);
+        while (next && !next?.getAttribute('data-verse')) {
+            next = nextElementDFS(next);
+        }
+
+        // If defined this is the first verse immediately after the heading
+        const verse = next?.getAttribute('data-verse');
+        console.log(`candidate verse from ${next?.getHTML()}: (${verse})`);
+        if (verse === null || verse === undefined) { return; }
+
+
+        const marker = currentAudioPlayer?.timing?.find((v) => v.tag.includes(verse))?.starttime;
+        console.log(marker);
+        if (marker) {
+            headingMarkers.push(marker);
+        }
+    });
+
+    headingMarkers.push(currentAudioPlayer?.timing?.at(-1)?.endtime ||
+     currentAudioPlayer?.duration!);
+
+    console.log(`final heading markers: ${headingMarkers}`);
+
+    return headingMarkers;
+}
+
+function nextElementDFS(e: Element) {
+    return e.firstElementChild || e.nextElementSibling || e.parentElement?.nextElementSibling;
+}
+
 // formats timing information
 export function format(seconds: number) {
     if (isNaN(seconds)) {
