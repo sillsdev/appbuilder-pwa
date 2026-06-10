@@ -30,7 +30,7 @@ const timings = import.meta.glob('./*', {
     base: '/src/gen-assets/timings'
 }) as Record<string, string>;
 
-const AUDIO_SEEK_THRESHOLD = 0.1;
+const AUDIO_SEEK_THRESHOLD = 0.25;
 
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer: AudioPlayer | undefined = undefined;
@@ -168,46 +168,66 @@ export async function skip(direction: number) {
     pause();
 
     if (!currentAudioPlayer?.loaded || !currentAudioPlayer.timing) {
-        await refs.skip(direction);
-        playMode.reset();
-        return;
-    }
+        if (
+            direction < 0 &&
+            currentAudioPlayer?.progress &&
+            currentAudioPlayer.progress >= AUDIO_SEEK_THRESHOLD
+        ) {
+            seek(0);
+            if (wasPlaying) {
+                play();
+            }
+        } else {
+            await refs.skip(direction);
+            playMode.reset();
+        }
+    } else {
+        const headingMarkers = getHeadingMarkers();
 
-    if (!currentAudioPlayer?.headingMarkers) {
-        currentAudioPlayer.headingMarkers = getHeadingMarkers();
-        audioPlayerStore.set(currentAudioPlayer);
-    }
+        if (!currentAudioPlayer?.headingMarkers) {
+            currentAudioPlayer.headingMarkers = headingMarkers;
+            audioPlayerStore.set(currentAudioPlayer);
+        }
 
-    if ((direction < 0 && currentAudioPlayer.progress < AUDIO_SEEK_THRESHOLD) ||
-         (direction >= 0 && (currentAudioPlayer.timing?.at(-1)?.endtime! -
-          currentAudioPlayer.progress) < AUDIO_SEEK_THRESHOLD)
-    ) {
-        await refs.skip(direction);
-        playMode.reset();
-        return;
-    }
+        if (
+            (direction < 0 && currentAudioPlayer.progress < AUDIO_SEEK_THRESHOLD) ||
+            (direction >= 0 && currentAudioPlayer.progress >= headingMarkers?.at(-2)!)
+        ) {
+            console.log(
+                `skipping at chapter bookend: ${currentAudioPlayer.progress} >= ${headingMarkers?.at(-2)!}`
+            );
+            await refs.skip(direction);
+            playMode.reset();
+            return;
+        }
 
-    for (let i = 1; i < currentAudioPlayer.headingMarkers.length - 1; i++) {
-        const marker = currentAudioPlayer.headingMarkers[i];
-        if (currentAudioPlayer.progress < (marker + AUDIO_SEEK_THRESHOLD)) {
-            if (direction < 0) {
-                seek(currentAudioPlayer.headingMarkers[i - 1]);
-                break;
-            } else if (currentAudioPlayer.progress > marker) {
-                seek(currentAudioPlayer.headingMarkers[i + 1]);
-                break;
-            } else {
-                seek(marker);
+        for (let i = 1; i < currentAudioPlayer.headingMarkers.length; i++) {
+            const marker = currentAudioPlayer.headingMarkers[i];
+            console.log(`checking marker ${marker}`);
+            if (currentAudioPlayer.progress < marker + AUDIO_SEEK_THRESHOLD) {
+                if (direction < 0) {
+                    seek(currentAudioPlayer.headingMarkers[i - 1]);
+                } else if (currentAudioPlayer.progress > marker) {
+                    seek(currentAudioPlayer.headingMarkers[i + 1]);
+                } else {
+                    seek(marker);
+                }
+                if (wasPlaying) {
+                    play();
+                }
                 break;
             }
         }
     }
 
-    updateHighlights();
-    if (wasPlaying) { play(); }
+    updateTime();
 }
 
 function getHeadingMarkers() {
+    if (currentAudioPlayer?.headingMarkers) {
+        return currentAudioPlayer.headingMarkers;
+    }
+
     let headingMarkers = [0.0];
 
     const headings = document.querySelectorAll('div.s');
@@ -221,8 +241,9 @@ function getHeadingMarkers() {
         // If defined this is the first verse immediately after the heading
         const verse = next?.getAttribute('data-verse');
         console.log(`candidate verse from ${next?.getHTML()}: (${verse})`);
-        if (verse === null || verse === undefined) { return; }
-
+        if (verse === null || verse === undefined) {
+            return;
+        }
 
         const marker = currentAudioPlayer?.timing?.find((v) => v.tag.includes(verse))?.starttime;
         console.log(marker);
@@ -231,8 +252,9 @@ function getHeadingMarkers() {
         }
     });
 
-    headingMarkers.push(currentAudioPlayer?.timing?.at(-1)?.endtime ||
-     currentAudioPlayer?.duration!);
+    headingMarkers.push(
+        currentAudioPlayer?.timing?.at(-1)?.endtime || currentAudioPlayer?.duration!
+    );
 
     console.log(`final heading markers: ${headingMarkers}`);
 
