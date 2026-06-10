@@ -59,16 +59,34 @@ function replaceVideoTags(
 ): string {
     return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
-
-// This is the start of supporting story books, but it still fails if there is no chapter.
-function replacePageTags(
-    text: string,
-    _bcId: string,
-    _bookId: string,
-    _ctx: ConvertBookContext
-): string {
-    return text.replace(/\\page (.*)/g, '\\zpage-s |id="$1"\\*\\zpage-e\\*');
+function replacePStyleTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
 }
+function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string {
+    return text.replace(/\\(c_[^\s]+)(.*?)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
+}
+/**
+ * Convert list tags to milestones
+ */
+export function transformLists(text: string, _bcId: string, _bookId: string): string {
+    text = transformZuliTags(text);
+    text = transformZoliTags(text);
+    text = transformZonTags(text);
+    return text;
+}
+
+function transformZuliTags(usfm: string): string {
+    return usfm.replace(/(\\zuli\d+)/g, '\\nb $1\\*');
+}
+
+function transformZoliTags(usfm: string): string {
+    return usfm.replace(/(\\zoli\d+)/g, '\\nb $1\\*');
+}
+
+function transformZonTags(usfm: string): string {
+    return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
+}
+
 function loadGlossary(collection: any, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
@@ -354,7 +372,9 @@ type FilterFunction = (
 const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
-    replacePageTags,
+    replacePStyleTags,
+    replaceCStyleTags,
+    transformLists,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
     handleNoCaptionFigures,
@@ -371,7 +391,8 @@ function applyFilters(
     filterFunctions: FilterFunction[],
     bcId: string,
     bookId: string,
-    context: ConvertBookContext
+    context: ConvertBookContext,
+    bookType?: string
 ): string {
     let filteredText = text;
     for (const filterFn of filterFunctions) {
@@ -402,7 +423,7 @@ type ConvertBookContext = {
     bcId: string;
 };
 
-const unsupportedBookTypes = ['story', 'songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     scriptureConfig: ScriptureConfig,
@@ -481,7 +502,6 @@ export async function convertBooks(
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
-                case 'story':
                 case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
@@ -502,6 +522,7 @@ export async function convertBooks(
                     });
                     displayBookId(context.bcId, book.id);
                     break;
+                case 'story':
                 default:
                     bookConverted = true;
                     if (book.format === 'html') {
@@ -856,8 +877,22 @@ function convertScriptureBook(
                     const filePath = path.join(context.dataDir, 'books', context.bcId, file);
                     fileContents.push(fs.readFileSync(filePath, 'utf-8'));
                 });
+                // Collect the file contents into a single document
+                let usfm: string;
 
-                processBookContent(resolve, null, fileContents.join(''));
+                if (book.type === 'story') {
+                    // The first file contains meta-content (id, title, etc)
+                    usfm = fileContents[0];
+
+                    // Subsequent files represent storybook pages.
+                    // SAB deletes the \page tags. Replace them with chapter tags.
+                    for (let i = 1; i < fileContents.length; i++) {
+                        usfm += `\\c ${i} ${fileContents[i]}`;
+                    }
+                } else {
+                    usfm = fileContents.join('');
+                }
+                processBookContent(resolve, null, usfm);
             }
         })
     );

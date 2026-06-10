@@ -480,6 +480,16 @@ LOGGING:
                 } else {
                     workspace.phraseDiv = div.cloneNode(true);
                 }
+                if (workspace.encloseInSpanTag) {
+                    const textNode = workspace.phraseDiv.firstChild;
+                    workspace.encloseInSpanTag.appendChild(textNode);
+                    workspace.phraseDiv.innerHTML = workspace.encloseInSpanTag;
+                    workspace.phraseDiv.replaceChild(
+                        workspace.encloseInSpanTag,
+                        workspace.phraseDiv.firstChild
+                    );
+                    workspace.encloseInSpanTag = undefined;
+                } //Enclose the text in a previously-created span tag
             }
             workspace.lastPhraseTerminated =
                 phrases.length > 0 ? phraseTerminated(phrases[phrases.length - 1]) : false;
@@ -2432,6 +2442,46 @@ LOGGING:
                             }
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
+                            let match;
+                            if ((match = element.subType.match(/^usfm:zon(\d+)$/))) {
+                                workspace['level' + match[1] + 'ListNum'] =
+                                    element.atts['start'][0];
+                            } else if ((match = element.subType.match(/^usfm:zoli(\d+)$/))) {
+                                workspace.paragraphDiv.classList.add('list-item');
+                                workspace.paragraphDiv.classList.add('list-decimal');
+                                workspace.paragraphDiv.classList.add('list-inside');
+                                if (!workspace['level' + match[1] + 'ListNum']) {
+                                    workspace['level' + match[1] + 'ListNum'] = 1;
+                                }
+                                workspace.paragraphDiv.style.counterSet =
+                                    'list-item ' + workspace['level' + match[1] + 'ListNum'];
+                                workspace['level' + match[1] + 'ListNum']++;
+
+                                workspace.paragraphDiv.style.paddingInlineStart =
+                                    2 * match[1] - 1 + 'rem';
+                                for (
+                                    let i = Number(match[1]) + 1;
+                                    workspace['level' + i + 'ListNum'];
+                                    i++
+                                ) {
+                                    workspace['level' + i + 'ListNum'] = undefined;
+                                } //This resets all lower-level list numbering so future lower-level lists don't continue from previous ones.
+                            } else if ((match = element.subType.match(/^usfm:zuli(\d+)$/))) {
+                                workspace.paragraphDiv.classList.add('list-item');
+                                workspace.paragraphDiv.classList.add('list-inside');
+
+                                workspace.paragraphDiv.style.paddingInlineStart =
+                                    2 * match[1] - 1 + 'rem';
+                                if (Number(match[1]) === 2) {
+                                    workspace.paragraphDiv.classList.add(
+                                        '[list-style-type:circle]'
+                                    );
+                                } else if (Number(match[1]) >= 3) {
+                                    workspace.paragraphDiv.classList.add(
+                                        '[list-style-type:square]'
+                                    );
+                                }
+                            }
                             switch (element.subType) {
                                 case 'usfm:zvideo': {
                                     const id = element.atts['id'][0];
@@ -2459,6 +2509,17 @@ LOGGING:
                                         element.atts['link'][0]
                                     );
                                     workspace.audioClips.push(workspace.milestoneLink);
+                                    break;
+                                }
+                                case 'usfm:zstyle': {
+                                    const style = element.atts['id'][0];
+                                    workspace.paragraphDiv.classList.add(style);
+                                    break;
+                                }
+                                case 'usfm:zcstyle': {
+                                    const style = element.atts['id'][0];
+                                    workspace.encloseInSpanTag = document.createElement('span');
+                                    workspace.encloseInSpanTag.classList.add(style);
                                     break;
                                 }
                                 case 'usfm:zreflink': {
