@@ -2035,6 +2035,39 @@ LOGGING:
                                             numeralSystem,
                                             element.atts['number']
                                         );
+                                        const book = $refs.book;
+                                        const bookType = scriptureConfig.bookCollections
+                                            ?.find((x) => $refs.collection === x.id)
+                                            ?.books.find((x) => book === x.id)?.type;
+                                        if (
+                                            bookType === 'songs' &&
+                                            workspace.chapterNumText !== ''
+                                        ) {
+                                            const div = document.createElement('div');
+                                            const chapterNumberFormatSetting =
+                                                getFeatureValueString(
+                                                    'chapter-number-format',
+                                                    references.collection,
+                                                    references.book
+                                                );
+                                            if (chapterNumberFormatSetting === 'drop-cap') {
+                                                workspace.paragraphDiv.className = 'm';
+                                                div.classList.add('c-drop');
+                                                // SAB is statically generating div.c-drop: { float: left|right; } based on settings than can change
+                                                // So override that style based on the current directin of the text
+                                                div.style.float =
+                                                    direction.toLowerCase() === 'ltr'
+                                                        ? 'left'
+                                                        : 'right';
+                                                div.innerText = workspace.chapterNumText;
+                                                workspace.paragraphDiv.appendChild(div);
+                                            } else {
+                                                // chapter at top of page
+                                                div.classList.add('c');
+                                                div.innerText = workspace.chapterNumText;
+                                                workspace.root.appendChild(div);
+                                            }
+                                        }
                                     } else {
                                         workspace.chapterNumText = '';
                                     }

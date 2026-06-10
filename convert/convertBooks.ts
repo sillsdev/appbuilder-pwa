@@ -793,9 +793,6 @@ function convertScriptureBook(
             throw err;
         }
 
-        if (book.type === 'songs') {
-            content = content.replace(/^\\s.*$/gm, '$&\n\\v 1');
-        }
         content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
         if (bookTab) {
             //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
