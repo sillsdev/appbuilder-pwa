@@ -677,8 +677,7 @@
                 >
                     <div
                         class="p-2 w-full"
-                        style="position: absolute; left: {-draggableWidth}px; clip-path: inset(0 0 0 {draggableWidth -
-                            x.current}px);"
+                        style="position: absolute; left: {-draggableWidth}px; clip-path: inset(0 0 0 {draggableWidth - x.current}px"
                     >
                         <main>
                             <div class="max-w-screen-md mx-auto">
@@ -755,8 +754,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="flex justify-center">
         <StackView {...stackSettings} />
     </div>
     {#if textCopied}
