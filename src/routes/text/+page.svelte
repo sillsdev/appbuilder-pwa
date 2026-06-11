@@ -353,6 +353,7 @@
     const barType = 'book';
 
     async function prevChapter() {
+        await x.set(draggableWidth);
         await navigateToTextChapterInDirection(-1);
         await adjustSettingsCache(-1);
         await x.set(-draggableWidth, { duration: 0 });
@@ -360,6 +361,7 @@
         await x.set(0);
     }
     async function nextChapter() {
+        await x.set(-draggableWidth);
         await navigateToTextChapterInDirection(1);
         await adjustSettingsCache(1);
         await x.set(draggableWidth, { duration: 0 });
@@ -407,7 +409,7 @@
         )
     );
 
-    const showSearch = !!config.mainFeatures['search'];
+    const showSearch = !!config.mainFeatures['search']; // Why are there double negations on these??
     const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
     const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
     const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
@@ -930,6 +932,24 @@
                                 {:else if book?.testament !== 'quiz'}
                                     <ScriptureViewSofria
                                         {...settingsCache[2] as ScriptureViewSofriaProps}
+                                    />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+
+                    <div
+                        class="p-2 w-full"
+                        style="position: absolute; left: {draggableWidth}px; clip-path: inset(0 {draggableWidth +
+                            x.current}px 0 0);"
+                    >
+                        <main>
+                            <div class="max-w-screen-md mx-auto">
+                                {#if format === 'html'}
+                                    <HtmlBookView {...nextSettings as HtmlBookViewProps} />
+                                {:else}
+                                    <ScriptureViewSofria
+                                        {...nextSettings as ScriptureViewSofriaProps}
                                     />
                                 {/if}
                             </div>
