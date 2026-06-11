@@ -28,11 +28,11 @@ const getExecutionCommand = (program: string): string => {
             return `${javaPath} -jar "${appPath}/Resources/Java/bin/${jarName}"`;
         }
         case 'win32': {
-            const programFilesX86 = process.env['ProgramFiles(x86)'];
-            if (!programFilesX86) {
-                throw new Error('Environment variable "ProgramFiles(x86)" is not set on Windows');
+            const programFiles = process.env['ProgramFiles'];
+            if (!programFiles) {
+                throw new Error('Environment variable "ProgramFiles" is not set on Windows');
             }
-            const appPath = path.join(programFilesX86, 'SIL', appName);
+            const appPath = path.join(programFiles, 'SIL', appName);
             javaPath = path.join(appPath, 'runtime', 'bin', 'java');
             const jarPath = path.join(appPath, 'bin', jarName);
             if (javaPath.endsWith('java')) {
