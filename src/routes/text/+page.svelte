@@ -938,7 +938,6 @@
                         </main>
                     </div>
                 </div>
-
                 <div class="hidden basis-1/12 md:flex justify-center">
                     <button
                         onclick={nextChapter}
