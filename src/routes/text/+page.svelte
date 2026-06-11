@@ -847,7 +847,10 @@
                 />
             {/if}
         {/if}
+        <!-- <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}> -->
         <div
+            style="--borderImageSource: url({borders['./border.png']});"
+            class:borderimg={showBorder}
             class="overflow-y-auto grow overflow-x-hidden"
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
