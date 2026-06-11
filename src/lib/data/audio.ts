@@ -238,8 +238,10 @@ function getHeadingMarkers() {
     headings.forEach((h) => {
         let next = nextElementDFS(h);
         while (next && !next?.getAttribute('data-verse')) {
+            console.log(`searching ${next.outerHTML}...`);
             next = nextElementDFS(next);
         }
+        console.log(`found ${next}`);
 
         // If defined this is the first verse immediately after the heading
         const verse = next?.getAttribute('data-verse');
@@ -260,11 +262,22 @@ function getHeadingMarkers() {
         headingMarkers.push(endMarker);
     }
 
+    console.log(`headingMarkers: ${headingMarkers}`);
+
     return headingMarkers;
 }
 
 function nextElementDFS(e: Element) {
-    return e.firstElementChild || e.nextElementSibling || e.parentElement?.nextElementSibling;
+    let next = e.firstElementChild || e.nextElementSibling;
+    if ((next instanceof Element)) {
+        return next;
+    }
+
+    let ancestor = e.parentElement;
+    while (ancestor instanceof Element && !ancestor.nextElementSibling) {
+        ancestor = ancestor.parentElement;
+    }
+    return ancestor?.nextElementSibling || null;
 }
 
 // formats timing information
