@@ -12,6 +12,7 @@
     import NoConnectionModal from '$lib/components/NoConnectionModal.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
+    import ShareSelector from '$lib/components/ShareSelector.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import catalog from '$lib/data/catalogData';
@@ -132,6 +133,7 @@
 
     let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
     let fontSelector: FontSelector | undefined = $state();
+    let shareSelector: ShareSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
     let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
