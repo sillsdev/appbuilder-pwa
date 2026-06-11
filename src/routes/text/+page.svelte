@@ -468,9 +468,9 @@
                                 }}
                             >
                                 {#if $audioActive}
-                                    <AudioIcon.Volume color={actionBarColor} />
+                                    <AudioIcon.Volume color={$actionBarColor} />
                                 {:else}
-                                    <AudioIcon.Mute color={actionBarColor} />
+                                    <AudioIcon.Mute color={$actionBarColor} />
                                 {/if}
                             </button>
                         {/if}
@@ -484,7 +484,7 @@
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => goto(resolve(`/search/${$refs.collection}`))}
                             >
-                                <SearchIcon color={actionBarColor} />
+                                <SearchIcon color={$actionBarColor} />
                             </button>
                         {/if}
 
@@ -494,7 +494,7 @@
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => modal.open(ModalType.TextAppearance)}
                             >
-                                <TextAppearanceIcon color={actionBarColor} />
+                                <TextAppearanceIcon color={$actionBarColor} />
                             </button>
                         {/if}
 
@@ -504,7 +504,7 @@
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => modal.open(ModalType.Collection)}
                             >
-                                <BibleIcon color={actionBarColor} />
+                                <BibleIcon color={$actionBarColor} />
                             </button>
                         {/if}
                     </div>
@@ -519,9 +519,9 @@
                         >
                             <!-- tricky logic: this causes the direction of the arrows to switch when rtl -->
                             {#if showOverlowMenu === ($direction === 'ltr')}
-                                <TriangleRightIcon color={actionBarColor} scale={1.25} />
+                                <TriangleRightIcon color={$actionBarColor} scale={1.25} />
                             {:else}
-                                <TriangleLeftIcon color={actionBarColor} scale={1.25} />
+                                <TriangleLeftIcon color={$actionBarColor} scale={1.25} />
                             {/if}
                         </button>
                     {/if}

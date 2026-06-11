@@ -7,6 +7,7 @@ The navbar component.
     import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import {
+        actionBarColor,
         convertStyle,
         direction,
         layout,
@@ -37,7 +38,6 @@ The navbar component.
     }
 
     let actionBarBackgroundColor = $derived($s?.['ui.bar.action']['background-color']);
-    let actionBarColor = $derived($s?.['ui.bar.action']['color']);
 </script>
 
 <!--
@@ -55,15 +55,15 @@ The navbar component.
                 class="dy-btn dy-btn-ghost dy-btn-circle p-1 dy-drawer-button"
                 class:lg:hidden={$showDesktopSidebar && $layout.mode !== Layout.Two}
             >
-                <HamburgerIcon color={actionBarColor} />
+                <HamburgerIcon color={$actionBarColor} />
             </label>
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <button onclick={handleBackNavigation} class="dy-btn dy-btn-ghost dy-btn-circle">
                 {#if $direction === 'ltr'}
-                    <ArrowBackIcon color={actionBarColor} />
+                    <ArrowBackIcon color={$actionBarColor} />
                 {:else}
-                    <ArrowForwardIcon color={actionBarColor} />
+                    <ArrowForwardIcon color={$actionBarColor} />
                 {/if}
             </button>
         {/if}

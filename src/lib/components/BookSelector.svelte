@@ -347,7 +347,7 @@ The navbar component.
             >
                 {labelDisplayed}
             </div>
-            <DropdownIcon color={actionBarColor} />
+            <DropdownIcon color={$actionBarColor} />
         {/snippet}
         {#snippet content()}
             <div>

@@ -53,7 +53,7 @@ A component to display tabbed menus.
                     style:border-color={active === opt ? borderColor : ''}
                     class="dy-tab normal-case {active === opt ? 'dy-tab-active font-bold' : ''}"
                     style:background="none"
-                    style:color={actionBarColor}
+                    style:color={$actionBarColor}
                     role="button"
                 >
                     {#if options[opt].tab?.icon}

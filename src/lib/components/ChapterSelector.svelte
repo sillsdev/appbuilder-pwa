@@ -206,7 +206,7 @@ The navbar component.
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
-                <DropdownIcon color={actionBarColor} />
+                <DropdownIcon color={$actionBarColor} />
             {/if}
         {/snippet}
         {#snippet content()}

@@ -38,7 +38,10 @@
     >
         {#snippet start()}
             <label for="sidebar">
-                <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
+                <div
+                    class="dy-btn dy-btn-ghost normal-case text-xl font-bold pl-1"
+                    style:color={$actionBarColor}
+                >
                     {inSearchRoute ? $t['Menu_Search'] : config.name}
                 </div>
             </label>
