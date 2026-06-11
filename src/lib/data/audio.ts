@@ -30,7 +30,7 @@ const timings = import.meta.glob('./*', {
     base: '/src/gen-assets/timings'
 }) as Record<string, string>;
 
-const AUDIO_SEEK_THRESHOLD = 0.25;
+const AUDIO_SEEK_THRESHOLD = 2.0;
 
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer: AudioPlayer | undefined = undefined;
@@ -96,7 +96,6 @@ function createAudio(audioSource: string): HTMLAudioElement {
     }
     return audio;
 }
-
 //gets the current audio
 async function getAudio() {
     if (!currentAudioPlayer || currentAudioPlayer.loaded) {
@@ -163,7 +162,6 @@ export function playStop() {
 
 // changes chapter
 export async function skip(direction: number) {
-    console.log('skip');
     const wasPlaying = currentAudioPlayer?.playing;
     pause();
 
@@ -200,9 +198,6 @@ export async function skip(direction: number) {
                 finalIntermediateMarker &&
                 currentAudioPlayer.progress >= finalIntermediateMarker)
         ) {
-            console.log(
-                `skipping at chapter bookend: ${currentAudioPlayer.progress} >= ${headingMarkers?.at(-2)!}`
-            );
             await refs.skip(direction);
             playMode.reset();
             return;
@@ -210,7 +205,6 @@ export async function skip(direction: number) {
 
         for (let i = 1; i < currentAudioPlayer.headingMarkers.length; i++) {
             const marker = currentAudioPlayer.headingMarkers[i];
-            console.log(`checking marker ${marker}`);
             if (currentAudioPlayer.progress < marker + AUDIO_SEEK_THRESHOLD) {
                 if (direction < 0) {
                     seek(currentAudioPlayer.headingMarkers[i - 1]);
@@ -242,7 +236,6 @@ function getHeadingMarkers() {
 
     const headings = document.querySelectorAll('div.s');
     headings.forEach((h) => {
-        console.log(`found heading ${h.getHTML()}`);
         let next = nextElementDFS(h);
         while (next && !next?.getAttribute('data-verse')) {
             next = nextElementDFS(next);
@@ -250,13 +243,13 @@ function getHeadingMarkers() {
 
         // If defined this is the first verse immediately after the heading
         const verse = next?.getAttribute('data-verse');
-        console.log(`candidate verse from ${next?.getHTML()}: (${verse})`);
         if (verse === null || verse === undefined) {
             return;
         }
 
+        // find() always returns the first element it matches, so
+        // this will locate the beginning of the first phrase of the verse
         const marker = currentAudioPlayer?.timing?.find((v) => v.tag.includes(verse))?.starttime;
-        console.log(marker);
         if (marker) {
             headingMarkers.push(marker);
         }
@@ -266,8 +259,6 @@ function getHeadingMarkers() {
     if (typeof endMarker === 'number') {
         headingMarkers.push(endMarker);
     }
-
-    console.log(`final heading markers: ${headingMarkers}`);
 
     return headingMarkers;
 }
