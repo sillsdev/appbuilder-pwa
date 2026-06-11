@@ -67,6 +67,7 @@
         type PinchPointerEventDetail,
         type SwipePointerEventDetail
     } from 'svelte-gestures';
+    import { Tween } from 'svelte/motion';
     import type { PageData } from './$types';
 
     const illustrationURLs = import.meta.glob('./*', {
@@ -116,6 +117,9 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
+
+    let innerWidth = $state(0);
+    let innerHeight = $state(0);
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     async function doSwipe(event: CustomEvent<SwipePointerEventDetail>) {
         const swipeDirection = event.detail.direction;
@@ -127,6 +131,63 @@
         ) {
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
+    }
+
+    let x = new Tween(0);
+    let startX = 0;
+    let isDragging = $state(false);
+    let draggableWidth = $state(0);
+    let minSlideDistance = () => draggableWidth / 3; // use to determine how far a user has to slide to move to the next chapter
+
+    async function handleMouseUp(_event: any) {
+        console.log('MOUSE UP');
+        isDragging = false;
+        if (Math.abs(x.current) < minSlideDistance()) {
+            x.set(0);
+            return;
+        } else if (x.current < 0) {
+            await x.set(-draggableWidth);
+            navigateToTextChapterInDirection(1);
+            x.set(0, { duration: 0 });
+        } else {
+            await x.set(draggableWidth);
+            navigateToTextChapterInDirection(-1);
+            x.set(0, { duration: 0 });
+        }
+    }
+
+    function handleMouseDown(event: { clientX: number }) {
+        console.log('MOUSE DOWN');
+        if (swipeBetweenBooks) {
+            isDragging = true;
+            startX = event.clientX - x.current;
+        }
+    }
+
+    function handleMouseMove(event: { clientX: number }) {
+        if (isDragging) {
+            x.set(event.clientX - startX, { duration: 0 });
+            if (x.current > draggableWidth) {
+                x.set(draggableWidth, { duration: 0 });
+            } else if (x.current < -draggableWidth) {
+                x.set(-draggableWidth, { duration: 0 });
+            }
+        }
+    }
+
+    function measure(node: Element) {
+        const observer = new ResizeObserver(([entry]) => {
+            draggableWidth = entry.contentRect.width;
+            console.log(draggableWidth);
+        });
+
+        observer.observe(node);
+
+        return {
+            destroy() {
+                observer.disconnect();
+            }
+        };
     }
 
     const bookTabs = $derived(
@@ -144,10 +205,14 @@
     const barType = 'book';
 
     async function prevChapter() {
+        await x.set(draggableWidth);
         await navigateToTextChapterInDirection(-1);
+        x.set(0, { duration: 0 });
     }
     async function nextChapter() {
+        await x.set(-draggableWidth);
         await navigateToTextChapterInDirection(1);
+        x.set(0, { duration: 0 });
     }
 
     const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
@@ -180,7 +245,7 @@
         getFeatureValueString('audio-phrase-end-chars', $refs.collection, $refs.book)
     );
 
-    const showSearch = !!config.mainFeatures['search'];
+    const showSearch = !!config.mainFeatures['search']; // Why are there double negations on these??
     const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
     const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
     const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
@@ -232,6 +297,26 @@
                   proskomma: data?.proskomma
               } satisfies ScriptureViewSofriaProps)
     );
+
+    const prevSettings = $derived({
+        // save the info to load in the previous page settings
+        ...viewSettings,
+        references: {
+            ...viewSettings.references,
+            book: viewSettings.references.prev.book,
+            chapter: viewSettings.references.prev.chapter
+        }
+    });
+
+    const nextSettings = $derived({
+        // save the info to load in the next page settings
+        ...viewSettings,
+        references: {
+            ...viewSettings.references,
+            book: viewSettings.references.next.book,
+            chapter: viewSettings.references.next.chapter
+        }
+    });
 
     function getFormat(bcId: string, bookId: string) {
         return scriptureConfig.bookCollections
@@ -440,7 +525,14 @@
     }
 </script>
 
-<div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
+<svelte:window
+    bind:innerWidth
+    bind:innerHeight
+    onpointermove={handleMouseMove}
+    onpointerup={handleMouseUp}
+/>
+
+<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet start()}
@@ -457,7 +549,7 @@
                     class="flex flex-nowrap"
                     onclick={showOverlowMenu ? handleMenuClick : () => ({})}
                 >
-                    <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
+                    <!-- (mobile) handleMenuClick() is called to collapse the extraButtons menu when any button inside right-buttons is clicked. -->
                     <div class="flex">
                         {#if $refs.hasAudio && showAudio}
                             <!-- Mute/Volume Button -->
@@ -578,13 +670,41 @@
                         <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
                     </button>
                 </div>
-                <div class="basis-5/6 max-w-breakpoint-md">
-                    <div class="p-2 w-full">
+                <div
+                    class="basis-5/6 max-w-screen-md"
+                    style="position: relative; left: {x.current}px"
+                    use:measure
+                >
+                    <div
+                        class="p-2 w-full"
+                        style="position: absolute; left: {-draggableWidth}px; clip-path: inset(0 0 0 {draggableWidth -
+                            x.current}px);"
+                    >
+                        <main>
+                            <div class="max-w-screen-md mx-auto">
+                                {#if format === 'html'}
+                                    <HtmlBookView {...prevSettings as HtmlBookViewProps} />
+                                {:else}
+                                    <ScriptureViewSofria
+                                        {...prevSettings as ScriptureViewSofriaProps}
+                                    />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+
+                    <div
+                        class="p-2 w-full"
+                        style="position: absolute; clip-path: inset(0 {x.current}px 0 {0 -
+                            x.current}px);"
+                    >
                         <main>
                             <div
                                 style="--borderImageSource: url({borders['./border.png']});"
                                 class:borderimg={showBorder}
-                                class="max-w-breakpoint-md mx-auto"
+                                aria-hidden="true"
+                                class="max-w-screen-md mx-auto"
+                                onpointerdown={handleMouseDown}
                                 use:pinch
                                 onpinch={doPinch}
                                 use:swipe={{
@@ -592,13 +712,30 @@
                                     minSwipeDistance: 60,
                                     touchAction: 'pan-y'
                                 }}
-                                onswipe={doSwipe}
                             >
                                 {#if format === 'html'}
                                     <HtmlBookView {...viewSettings as HtmlBookViewProps} />
                                 {:else}
                                     <ScriptureViewSofria
                                         {...viewSettings as ScriptureViewSofriaProps}
+                                    />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+
+                    <div
+                        class="p-2 w-full"
+                        style="position: absolute; left: {draggableWidth}px; clip-path: inset(0 {draggableWidth +
+                            x.current}px 0 0);"
+                    >
+                        <main>
+                            <div class="max-w-screen-md mx-auto">
+                                {#if format === 'html'}
+                                    <HtmlBookView {...nextSettings as HtmlBookViewProps} />
+                                {:else}
+                                    <ScriptureViewSofria
+                                        {...nextSettings as ScriptureViewSofriaProps}
                                     />
                                 {/if}
                             </div>
