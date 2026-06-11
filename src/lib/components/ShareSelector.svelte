@@ -109,6 +109,23 @@ A component for verse-on-image providing a dropdown where you can choose to down
             const file = new File([blob], filename, {
                 type: useWebm ? 'audio/webm' : 'audio/mp4'
             });
+            try {
+                if (
+                    navigator.share &&
+                    navigator.canShare &&
+                    navigator.canShare({ files: [file] })
+                ) {
+                    let verses = await selectedVerses.getCompositeText();
+                    const shareData: ShareData = { title: reference, text: verses, files: [file] };
+
+                    await navigator.share(shareData);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error sharing: ', error);
+            }
+
+            // if we're here, we failed to share, so we'll try to use the download link
             const url = URL.createObjectURL(file);
 
             const anchor = document.createElement('a');
