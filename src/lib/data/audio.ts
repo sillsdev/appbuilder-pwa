@@ -503,10 +503,10 @@ async function updateTime() {
         return;
     }
     currentAudioPlayer.progress = currentAudioPlayer.audio?.currentTime ?? 0;
-    if (!currentAudioPlayer.timing && currentAudioPlayer.progress) {
+    if (!currentAudioPlayer.timing) {
         audioPlayerStore.set(currentAudioPlayer);
     }
-    if (currentAudioPlayer.timing && currentAudioPlayer.progress) {
+    if (currentAudioPlayer.timing) {
         updateHighlights();
     }
     await handlePlayMode();
