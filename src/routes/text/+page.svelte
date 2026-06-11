@@ -742,24 +742,6 @@
                         </main>
                     </div>
                 </div>
-
-                <div
-                    class="p-2 w-full"
-                    style="position: absolute; left: {draggableWidth}px; clip-path: inset(0 {draggableWidth +
-                        x.current}px 0 0);"
-                >
-                    <main>
-                        <div class="max-w-screen-md mx-auto">
-                            {#if format === 'html'}
-                                <HtmlBookView {...nextSettings as HtmlBookViewProps} />
-                            {:else}
-                                <ScriptureViewSofria
-                                    {...nextSettings as ScriptureViewSofriaProps}
-                                />
-                            {/if}
-                        </div>
-                    </main>
-                </div>
                 <div class="hidden basis-1/12 md:flex justify-center">
                     <button
                         onclick={nextChapter}
