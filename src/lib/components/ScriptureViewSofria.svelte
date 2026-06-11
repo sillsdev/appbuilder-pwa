@@ -2067,6 +2067,7 @@ LOGGING:
                                                 div.innerText = workspace.chapterNumText;
                                                 workspace.root.appendChild(div);
                                             }
+                                            workspace.chapterNumText = '';
                                         }
                                     } else {
                                         workspace.chapterNumText = '';
