@@ -33,7 +33,6 @@ import SettingsIcon from './SettingsIcon.svelte';
 import ShareIcon from './ShareIcon.svelte';
 import SideBySideIcon from './SideBySideIcon.svelte';
 import SinglePaneIcon from './SinglePaneIcon.svelte';
-import SongBookIcon from './SongBookIcon.svelte';
 import SortIcon from './SortIcon.svelte';
 import TextAppearanceIcon from './TextAppearanceIcon.svelte';
 import TriangleLeftIcon from './TriangleLeftIcon.svelte';
@@ -79,6 +78,5 @@ export {
     VerseByVerseIcon,
     TriangleLeftIcon,
     TriangleRightIcon,
-    VideoIcon,
-    SongBookIcon
+    VideoIcon
 };

@@ -39,7 +39,6 @@ The sidebar/drawer.
         SearchIcon,
         SettingsIcon,
         ShareIcon,
-        SongBookIcon,
         TextAppearanceIcon
     } from '$lib/icons';
     import { resolve } from '$lib/utils/paths';
@@ -78,7 +77,6 @@ The sidebar/drawer.
     const showNotes = !!config.mainFeatures['annotation-notes'];
     const showHighlights = !!config.mainFeatures['annotation-highlights'];
     const showPlans = scriptureConfig.plans?.plans.length;
-    const showSongbooks = true;
     const showShare = !!(
         config.mainFeatures['share-app-link'] ||
         config.mainFeatures['share-download-app-link'] ||
@@ -214,14 +212,7 @@ The sidebar/drawer.
                     </button>
                 </li>
             {/if}
-            {#if showSongbooks}
-                <!--<li>
-                    <button class="btn" style:color={textColor} onclick={() => gotoRoute('/songs')}>
-                        <SongBookIcon color={iconColor} />{$t['Menu_Song_Books']}Song Books
-                    </button>
-                </li>-->
-            {/if}
-            {#if showHistory || showBookmarks || showNotes || showHighlights || showSongbooks}
+            {#if showHistory || showBookmarks || showNotes || showHighlights}
                 <div class="dy-divider m-1"></div>
             {/if}
             {#if showShare}
