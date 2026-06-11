@@ -283,6 +283,26 @@
             await x.set(0, { duration: Math.abs(x.current) });
         }
     }
+    //         if (!(hasNext && navigateBetweenBooksNext)) {
+    //             x.set(0);
+    //             return;
+    //         }
+    //         await x.set(-draggableWidth);
+    //         await navigateToTextChapterInDirection(1);
+    //         x.set(0, { duration: 0 });
+    //     } else {
+    //         if (!(hasPrev && navigateBetweenBooksPrev)) {
+    //             x.set(0);
+    //             return;
+    //         }
+    //         await x.set(draggableWidth);
+    //         await navigateToTextChapterInDirection(-1);
+    //         x.set(0, { duration: 0 });
+    //     }
+    // }
+
+    // function handleMouseDown(event: { clientX: number }) {
+    //     console.log('MOUSE DOWN');
 
     function handleMouseDown(event: PointerEvent) {
         if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
@@ -294,8 +314,7 @@
 
     function handleMouseMove(event: PointerEvent) {
         if (isDragging) {
-            let delta = event.clientX - startX;
-            x.set(delta, { duration: 0 });
+            x.set(event.clientX - startX, { duration: 0 });
             if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: 0 });
                 return;
