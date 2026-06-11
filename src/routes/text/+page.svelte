@@ -146,19 +146,27 @@
             x.set(0);
             return;
         } else if (x.current < 0) {
+            if (!(hasNext && navigateBetweenBooksNext)) {
+                x.set(0);
+                return;
+            }
             await x.set(-draggableWidth);
-            navigateToTextChapterInDirection(1);
+            await navigateToTextChapterInDirection(1);
             x.set(0, { duration: 0 });
         } else {
+            if (!(hasPrev && navigateBetweenBooksPrev)) {
+                x.set(0);
+                return;
+            }
             await x.set(draggableWidth);
-            navigateToTextChapterInDirection(-1);
+            await navigateToTextChapterInDirection(-1);
             x.set(0, { duration: 0 });
         }
     }
 
     function handleMouseDown(event: { clientX: number }) {
         console.log('MOUSE DOWN');
-        if (swipeBetweenBooks) {
+        if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
             isDragging = true;
             startX = event.clientX - x.current;
         }
@@ -167,7 +175,11 @@
     function handleMouseMove(event: { clientX: number }) {
         if (isDragging) {
             x.set(event.clientX - startX, { duration: 0 });
-            if (x.current > draggableWidth) {
+            if (x.current > 0 && !hasPrev) {
+                x.set(0, { duration: 0 });
+            } else if (x.current < 0 && !hasNext) {
+                x.set(0, { duration: 0 });
+            } else if (x.current > draggableWidth) {
                 x.set(draggableWidth, { duration: 0 });
             } else if (x.current < -draggableWidth) {
                 x.set(-draggableWidth, { duration: 0 });
