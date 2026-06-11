@@ -122,6 +122,9 @@ A component for verse-on-image providing a dropdown where you can choose to down
                     return;
                 }
             } catch (error) {
+                if ((error as { name?: string })?.name === 'AbortError') {
+                    return; // user intentionally dismissed native share UI
+                }
                 console.error('Error sharing: ', error);
             }
 
