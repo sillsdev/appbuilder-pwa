@@ -250,7 +250,6 @@ The navbar component.
 
     let chapterGridGroup = () => {
         let hasIntroduction = books.find((x) => x.bookCode === book)?.hasIntroduction;
-        console.log(chapters);
         if (hideEmptyChapters) {
             return [
                 {
