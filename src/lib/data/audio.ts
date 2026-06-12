@@ -203,7 +203,6 @@ export async function skip(direction: number) {
             return;
         }
 
-
         for (let i = 1; i < currentAudioPlayer.headingMarkers.length; i++) {
             const marker = currentAudioPlayer.headingMarkers[i];
             if (currentAudioPlayer.progress < marker + AUDIO_SEEK_THRESHOLD) {
@@ -266,7 +265,7 @@ function getHeadingMarkers() {
 
 function nextElementDFS(e: Element) {
     let next = e.firstElementChild || e.nextElementSibling;
-    if ((next instanceof Element)) {
+    if (next instanceof Element) {
         return next;
     }
 
