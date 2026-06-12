@@ -341,7 +341,7 @@ The navbar component.
                   bookLabel: 'abbreviation'
               })
             : bcv === c
-              ? chapterGridGroup(chapters)
+              ? chapterGridGroup()
               : verseGridGroup(chapter)}
         {menuaction}
     />

@@ -181,7 +181,7 @@ The navbar component.
                             ]
                           : undefined,
                       cells: Object.keys(chapters)
-                          .filter((y) => Object.keys(chapters[y]).length > 0 && hideEmptyChapters)
+                          .filter((y) => !hideEmptyChapters || Object.keys(chapters[y]).length > 0)
                           .map((x) => ({
                               label: getChapterLabel(x),
                               id: x
