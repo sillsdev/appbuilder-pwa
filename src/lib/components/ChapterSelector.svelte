@@ -180,18 +180,12 @@ The navbar component.
                                 }
                             ]
                           : undefined,
-                      cells: hideEmptyChapters
-                          ? Object.keys(chapters)
-                                .filter(
-                                    (y) =>
-                                        typeof chapters[y] === 'object' &&
-                                        Object.keys(chapters[y]).length > 0
-                                )
-                                .map((x) => ({
-                                    label: getChapterLabel(x),
-                                    id: x
-                                }))
-                          : Object.keys(chapters).map((x) => ({ label: getChapterLabel(x), id: x }))
+                      cells: Object.keys(chapters)
+                          .filter((y) => Object.keys(chapters[y]).length > 0 && hideEmptyChapters)
+                          .map((x) => ({
+                              label: getChapterLabel(x),
+                              id: x
+                          }))
                   }
               ]
             : verseGridGroup(chapter)}

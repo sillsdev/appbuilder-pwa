@@ -248,9 +248,9 @@ The navbar component.
         return groups;
     };
 
-    let chapterGridGroup = (chapters: Record<string, unknown>) => {
+    let chapterGridGroup = () => {
         let hasIntroduction = books.find((x) => x.bookCode === book)?.hasIntroduction;
-
+        console.log(chapters);
         if (hideEmptyChapters) {
             return [
                 {
@@ -258,11 +258,7 @@ The navbar component.
                         ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
                         : null,
                     cells: Object.keys(chapters)
-                        .filter(
-                            (y) =>
-                                typeof chapters[y] === 'object' &&
-                                Object.keys(chapters[y]).length > 0
-                        )
+                        .filter((y) => Object.keys(chapters[y]).length > 0)
                         .map((x) => ({
                             label: getChapterLabel(x),
                             id: x
