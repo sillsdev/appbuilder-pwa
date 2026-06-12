@@ -187,16 +187,17 @@ export async function skip(direction: number) {
             audioPlayerStore.set(currentAudioPlayer);
         }
 
-        let finalIntermediateMarker;
+        let finalIntermediateMarker: number | undefined;
         if (headingMarkers.length > 1) {
-            finalIntermediateMarker = headingMarkers.at(-2);
+            // Don't treat the initial marker at 0 as intermediate
+            finalIntermediateMarker = headingMarkers.at(-2) || undefined;
         }
 
         if (
             (direction < 0 && currentAudioPlayer.progress < AUDIO_SEEK_THRESHOLD) ||
             (direction >= 0 &&
-                finalIntermediateMarker &&
-                currentAudioPlayer.progress >= finalIntermediateMarker)
+                (!finalIntermediateMarker ||
+                    currentAudioPlayer.progress >= finalIntermediateMarker))
         ) {
             await refs.skip(direction);
             playMode.reset();
@@ -264,7 +265,7 @@ function getHeadingMarkers() {
 }
 
 function nextElementDFS(e: Element) {
-    let next = e.firstElementChild || e.nextElementSibling;
+    const next = e.firstElementChild || e.nextElementSibling;
     if (next instanceof Element) {
         return next;
     }
@@ -512,10 +513,10 @@ async function updateTime() {
         return;
     }
     currentAudioPlayer.progress = currentAudioPlayer.audio?.currentTime ?? 0;
-    if (!currentAudioPlayer.timing) {
+    if (!currentAudioPlayer.timing && currentAudioPlayer.hasPlayed) {
         audioPlayerStore.set(currentAudioPlayer);
     }
-    if (currentAudioPlayer.hasPlayed && currentAudioPlayer.timing) {
+    if (currentAudioPlayer.timing && currentAudioPlayer.hasPlayed) {
         updateHighlights();
     }
     await handlePlayMode();
