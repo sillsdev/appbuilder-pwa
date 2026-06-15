@@ -78,7 +78,7 @@ Displays the three different layout option menus.
 <div>
     <!-- Single Pane -->
     {#if layoutOption === Layout.Single}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Single_Pane']}
         </p>
         <CollectionList
@@ -88,7 +88,7 @@ Displays the three different layout option menus.
         />
         <!-- Two Pane -->
     {:else if layoutOption === Layout.Two}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Two_Pane']}
         </p>
         <div class="flex flex-col">
@@ -131,7 +131,7 @@ Displays the three different layout option menus.
         </div>
         <!-- Verse By Verse -->
     {:else if layoutOption === Layout.VerseByVerse}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Interlinear']}
         </p>
         {#each $selectedLayouts.verseByVerse as collection, i}
