@@ -22,7 +22,7 @@ export function planItemInfo(entry: PlanStore) {
     const allPlans = scriptureConfig.plans?.plans ?? [];
     const planConfig = allPlans.find((x) => x.id === entry.planId);
 }
-const defaultPlanStore = {
+export const defaultPlanStore = {
     planId: '',
     planDay: 0,
     planEntry: -1,
@@ -34,9 +34,9 @@ const defaultPlanStore = {
     planNextReference: '',
     planNextReferenceIndex: -1,
     completed: false
-};
+} as const;
 setDefaultStorage('plan', JSON.stringify(defaultPlanStore));
-export const plan = writable(JSON.parse(localStorage.plan));
+export const plan = writable<PlanStore>(JSON.parse(localStorage.plan));
 plan.subscribe((value) => (localStorage.plan = JSON.stringify(value)));
 
 export const currentPlanState = writable('');
@@ -57,7 +57,9 @@ planStatesLastUpdated.subscribe(() => {
 async function updatePlanState(planId: string) {
     if (planId) {
         const result = await getLastPlanState(planId);
-        currentPlanState.set(result);
+        if (result) {
+            currentPlanState.set(result);
+        }
     }
 }
 async function updatePlanData(planId: string) {

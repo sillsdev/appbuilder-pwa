@@ -135,7 +135,7 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ' +
         '} ' +
         '} ';
-    type Block = { key: string; tokens: { payload: string }[] };
+    type Block = { key: string; text: string; tokens: { payload: string }[] };
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
         glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
@@ -208,6 +208,7 @@ export type Selection = {
     verse: string;
 };
 
+export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 function createSelectedVerses() {
     const external: Writable<Selection[]> = writable([]);
 
