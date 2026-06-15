@@ -175,7 +175,7 @@ export function isDigit(c: string): boolean {
 export function nullToEmpty(str: string | null): string {
     return str && isDefined(str) ? str : '';
 }
-export function isDefined(input: any): boolean {
+export function isDefined<T>(input: T | null | undefined): input is T {
     let value = true;
     if (input === null || input === undefined) {
         value = false;

@@ -12,18 +12,8 @@ LOGGING:
 <script module lang="ts">
     export interface Props {
         audioPhraseEndChars: string;
-        bodyFontSize: any;
-        bodyLineHeight: any;
-        bookmarks: any;
-        notes: any;
-        highlights: any;
-        maxSelections: any;
+        maxSelections: number;
         redLetters: boolean;
-        references: any;
-        glossary: any;
-        selectedVerses: any;
-        themeColors: any;
-        verseLayout: any;
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
@@ -40,6 +30,7 @@ LOGGING:
 
     import { scriptureConfig } from '$assets/config';
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
+    import type { NoteItem } from '$lib/data/notes';
     import {
         addPlanProgressItem,
         deleteAllProgressItemsForPlan,
@@ -50,19 +41,31 @@ LOGGING:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import {
         audioPlayer,
+        bodyFontSize,
+        bodyLineHeight,
+        bookmarks,
         currentPlanData,
         currentPlanState,
+        defaultPlanStore,
         footnotes,
+        glossary,
+        highlights,
         language,
         logs,
         modal,
         ModalType,
         monoIconColor,
+        notes,
         plan,
         refs,
+        selectedVerses,
         t,
-        userSettings
+        themeColors,
+        userSettings,
+        userSettingsOrDefault
     } from '$lib/data/stores';
+    import type { Reference } from '$lib/data/stores/reference';
+    import NoteIcon from '$lib/icons/NoteIcon.svelte';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
@@ -96,18 +99,8 @@ LOGGING:
 
     let {
         audioPhraseEndChars,
-        bodyFontSize,
-        bodyLineHeight,
-        bookmarks,
-        notes,
-        highlights,
         maxSelections,
         redLetters,
-        references,
-        glossary,
-        selectedVerses,
-        themeColors,
-        verseLayout,
         viewShowBibleImages,
         viewShowBibleVideos,
         viewShowIllustrations,
@@ -141,7 +134,7 @@ LOGGING:
             : $logs['scripture']
     );
 
-    let container: HTMLElement = $state();
+    let container: HTMLElement | undefined = $state();
     let displayingIntroduction = $state(false);
 
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
@@ -155,7 +148,7 @@ LOGGING:
             fnc.charAt(index % fnc.length)
         );
     }
-    let planDivObserver = $state(null); // To store the observer instance
+    let planDivObserver: IntersectionObserver | null = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
     // Function to observe the visibility of the plan div
     function observeVisibility() {
@@ -173,7 +166,7 @@ LOGGING:
                             if (entry.isIntersecting && !planObservationCompleted) {
                                 $plan.completed = true;
                                 planObservationCompleted = true;
-                                planDivObserver.disconnect(); // Stop observing after it becomes visible
+                                planDivObserver?.disconnect(); // Stop observing after it becomes visible
                                 planDivObserver = null; // Clear the observer reference after disconnecting
                                 addPlanProgressItem({
                                     id: $plan.planId,
@@ -200,7 +193,7 @@ LOGGING:
         }
     }
     onMount(() => {
-        if (planDivInChapter) {
+        if (planDivInChapter()) {
             observeVisibility();
         }
     });
@@ -215,7 +208,7 @@ LOGGING:
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
     }
-    const seprgx2 = (inputChars: string) => {
+    function seprgx2(inputChars: string) {
         let separators = prepareAudioPhraseEndChars(inputChars);
         let result = '(';
         for (let i = 0; i < separators.length; i++) {
@@ -227,14 +220,14 @@ LOGGING:
         result += ')';
         const regEx = new RegExp(result, 'g');
         return regEx;
-    };
+    }
     const seprgx = $derived(seprgx2(audioPhraseEndChars));
 
-    const onlySpaces = (str) => {
+    function onlySpaces(str: string) {
         return str.trim().length === 0;
-    };
+    }
 
-    let nextPlanDay = $state(null);
+    let nextPlanDay: number | null = $state(null);
     let lastPlanReference = $state();
     $effect(() => {
         if ($currentPlanData && $plan.planDay) {
@@ -264,10 +257,10 @@ LOGGING:
     $effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         stateSelectedVerses.current;
-        updateSelections(selectedVerses);
+        updateSelections();
     });
 
-    const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
+    function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
         let result = 0;
         for (let i in subHeadings) {
             if (subHeadings[i] === labelPrefix) {
@@ -275,15 +268,15 @@ LOGGING:
             }
         }
         return result;
-    };
+    }
 
-    const phraseTerminated = (phrase) => {
+    function phraseTerminated(phrase: string) {
         return phrase.match(seprgx) != null;
-    };
-    const currentTextType = (workspace) => {
+    }
+    function currentTextType(workspace: Workspace) {
         return workspace.textType[workspace.textType.length - 1];
-    };
-    const startPhrase = (workspace, indexOption = 'advance') => {
+    }
+    function startPhrase(workspace: Workspace, indexOption = 'advance') {
         if (scriptureLogs?.phrase) {
             console.log('Start phrase!!!');
         }
@@ -316,13 +309,13 @@ LOGGING:
             div.setAttribute('data-phrase', phraseIndex);
             div.classList.add('txs', 'seltxt', 'scroll-item');
         } else {
-            div.id = '+' + parseInt(workspace.introductionIndex);
+            div.id = '+' + workspace.introductionIndex;
             div.classList.add('txs');
             workspace.introductionIndex++;
         }
-        return div.cloneNode(true);
-    };
-    const addTableText = (workspace, text) => {
+        return div.cloneNode(true) as HTMLDivElement;
+    }
+    function addTableText(workspace: Workspace, text: string) {
         if (workspace.inRow) {
             if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
                 const references = text.split('; ');
@@ -332,56 +325,56 @@ LOGGING:
                     const refText = generateHTML(text, 'header-ref');
                     spanV.innerHTML = refText;
                     spanV.addEventListener('click', onClick, false);
-                    workspace.tableCellElement.appendChild(spanV);
-                    if (i < references.length - 1) {
+                    workspace.tableCellElement?.appendChild(spanV);
+                    if (i < references.length - 1 && workspace.tableCellElement) {
                         appendTextToElement(workspace.tableCellElement, '; ');
                     }
                 }
-            } else {
+            } else if (workspace.tableCellElement) {
                 const div = addTextNode(workspace.tableCellElement, text, workspace);
-                workspace.tableCellElement = div.cloneNode(true);
+                workspace.tableCellElement = div.cloneNode(true) as HTMLTableCellElement;
             }
         }
-    };
-    const getFootnoteCallerCharacter = (workspace, text, textType) => {
+    }
+    function getFootnoteCallerCharacter(workspace: Workspace, text: string, textType: string) {
         let callerType = 'default';
-        let callerSymbol = text;
+        let callerSymbol: string | null = text;
         let callerCustomSymbol = '';
         let callerNoCallerToAuto = false;
         switch (textType) {
             case 'xref':
                 callerType = getFeatureValueString(
                     'crossref-caller-type',
-                    references.collection,
-                    references.book
+                    $refs.collection,
+                    $refs.book
                 );
                 callerCustomSymbol = getFeatureValueString(
                     'crossref-caller-symbol',
-                    references.collection,
-                    references.book
+                    $refs.collection,
+                    $refs.book
                 );
                 callerNoCallerToAuto = getFeatureValueBoolean(
                     'crossref-caller-no-caller-to-auto',
-                    references.collection,
-                    references.book
+                    $refs.collection,
+                    $refs.book
                 );
                 break;
 
             default:
                 callerType = getFeatureValueString(
                     'footnote-caller-type',
-                    references.collection,
-                    references.book
+                    $refs.collection,
+                    $refs.book
                 );
                 callerCustomSymbol = getFeatureValueString(
                     'footnote-caller-symbol',
-                    references.collection,
-                    references.book
+                    $refs.collection,
+                    $refs.book
                 );
                 callerNoCallerToAuto = getFeatureValueBoolean(
                     'footnote-caller-no-caller-to-auto',
-                    references.collection,
-                    references.book
+                    $refs.collection,
+                    $refs.book
                 );
                 break;
         }
@@ -406,50 +399,50 @@ LOGGING:
         }
 
         return callerSymbol;
-    };
-    const appendTextToElement = (element: HTMLElement, text: string) => {
+    }
+    function appendTextToElement(element: HTMLElement, text: string) {
         element.innerHTML = element.innerHTML + text;
-    };
-    const addGraftText = (workspace, text, textType, usfmType) => {
+    }
+    function addGraftText(workspace: Workspace, text: string, textType: string, usfmType: string) {
         if (workspace.textType.includes(textType)) {
             if (isDefined(workspace.footnoteDiv)) {
                 if (workspace.textType.includes('note_caller')) {
                     const caller = getFootnoteCallerCharacter(workspace, text, textType);
                     if (!caller) {
                         // Do not include the footnote
-                        workspace.foootnoteSpan = null;
+                        workspace.footnoteSpan = null;
                     } else {
                         // Assign the caller to the footnote sup
-                        const elements = workspace.footnoteSpan.querySelectorAll('sup.footnote');
+                        const elements = workspace.footnoteSpan?.querySelectorAll('sup.footnote');
                         if (elements && elements.length > 0) {
                             elements[0].innerHTML = caller;
                         }
                     }
                 } else {
                     const div = addTextNode(workspace.footnoteDiv, text, workspace);
-                    workspace.footnoteDiv = div.cloneNode(true);
+                    workspace.footnoteDiv = div.cloneNode(true) as HTMLDivElement;
                 }
             }
         } else {
             console.warn('%s ignored: %s', usfmType, text);
         }
-    };
-    const fixText = (text) => {
+    }
+    function fixText(text: string) {
         if (text === '| default=""') {
             // HACK: Proskomma adds default="" to anonymous bars in text
             // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
             text = '| ';
         }
         return text;
-    };
-    const addText = (workspace, text) => {
+    }
+    function addText(workspace: Workspace, text: string) {
         text = fixText(text);
         if (scriptureLogs?.text) {
             console.log('Adding text:', text);
         }
         if (!onlySpaces(text)) {
             let phrases = [];
-            if (!workspace.introductionGraft && references.hasAudio) {
+            if (!workspace.introductionGraft && $refs.hasAudio) {
                 phrases = parsePhrase(text, seprgx);
             } else {
                 // Don't parse introduction or if there is no audio.
@@ -469,22 +462,22 @@ LOGGING:
                     }
                     workspace.phraseDiv = startPhrase(workspace, 'keep');
                 }
-                let div = workspace.phraseDiv.cloneNode(true);
+                let div = workspace.phraseDiv.cloneNode(true) as HTMLDivElement;
                 const phrase = phrases[i];
                 div = addTextNode(div, phrase, workspace);
                 if (i < phrases.length - 1) {
-                    workspace.phraseDiv = div.cloneNode(true);
+                    workspace.phraseDiv = div.cloneNode(true) as HTMLDivElement;
                     if (scriptureLogs?.text) {
                         console.log('Add text start phrase');
                     }
                     workspace.phraseDiv = startPhrase(workspace);
                 } else {
-                    workspace.phraseDiv = div.cloneNode(true);
+                    workspace.phraseDiv = div.cloneNode(true) as HTMLDivElement;
                 }
-                if (workspace.encloseInSpanTag) {
+                if (workspace.encloseInSpanTag && workspace.phraseDiv.firstChild) {
                     const textNode = workspace.phraseDiv.firstChild;
                     workspace.encloseInSpanTag.appendChild(textNode);
-                    workspace.phraseDiv.innerHTML = workspace.encloseInSpanTag;
+                    workspace.phraseDiv.innerHTML = workspace.encloseInSpanTag.outerHTML;
                     workspace.phraseDiv.replaceChild(
                         workspace.encloseInSpanTag,
                         workspace.phraseDiv.firstChild
@@ -496,10 +489,14 @@ LOGGING:
                 phrases.length > 0 ? phraseTerminated(phrases[phrases.length - 1]) : false;
         }
         return;
-    };
-    const usfmSpan = (parent: any, spanClass: string, phrase: string, lemma: string = '') => {
+    }
+    function usfmSpan<E extends HTMLElement>(
+        parent: E,
+        spanClass: string,
+        phrase: string,
+        lemma: string = ''
+    ) {
         const spanElement = document.createElement('span');
-        let child;
         spanElement.classList.add(spanClass);
         switch (spanClass) {
             case 'xt': {
@@ -526,8 +523,8 @@ LOGGING:
         }
         parent.appendChild(spanElement);
         return parent;
-    };
-    const addTextNode = (div: any, phrase: string, workspace: any) => {
+    }
+    function addTextNode<E extends HTMLElement>(div: E, phrase: string, workspace: Workspace) {
         const usfmWrapperType = workspace.usfmWrapperType;
         if (usfmWrapperType) {
             switch (usfmWrapperType) {
@@ -557,23 +554,29 @@ LOGGING:
             appendTextToElement(div, phrase);
         }
         return div;
-    };
-    const processText = (introductionGraft, showIntroduction, titleGraft) => {
+    }
+    function processText(
+        introductionGraft: boolean,
+        showIntroduction: boolean,
+        titleGraft: boolean
+    ) {
         let returnValue = false;
         if (introductionGraft == showIntroduction || (titleGraft && showIntroduction)) {
             returnValue = true;
         }
         return returnValue;
-    };
-    function appendPhrase(workspace) {
-        workspace.lastPhrase = workspace.phraseDiv.getAttribute('data-phrase');
-        if (versePerLine) {
-            workspace.verseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
-        } else {
-            workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+    }
+    function appendPhrase(workspace: Workspace) {
+        if (workspace.phraseDiv) {
+            workspace.lastPhrase = workspace.phraseDiv.getAttribute('data-phrase') ?? '';
+            if (versePerLine) {
+                workspace.verseDiv?.appendChild(workspace.phraseDiv.cloneNode(true));
+            } else {
+                workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+            }
         }
     }
-    function addVerseNumber(workspace: any, element: any, showVerseNumbers: boolean) {
+    function addVerseNumber(workspace: Workspace, element: Element, showVerseNumbers: boolean) {
         if (showVerseNumbers === true) {
             const spanV = document.createElement('span');
             spanV.classList.add('v');
@@ -587,17 +590,17 @@ LOGGING:
             const spanVsp = document.createElement('span');
             spanVsp.classList.add('vsp');
             spanVsp.innerText = '\u00A0'; // &nbsp
-            workspace.phraseDiv.appendChild(spanV);
-            workspace.phraseDiv.appendChild(spanVsp);
+            workspace.phraseDiv?.appendChild(spanV);
+            workspace.phraseDiv?.appendChild(spanVsp);
         }
     }
-    function handleVerseLabel(element, showVerseNumbers, workspace) {
+    function handleVerseLabel(element: Element, showVerseNumbers: boolean, workspace: Workspace) {
         if (workspace.firstVerse === true && workspace.chapterNumText !== '') {
             const div = document.createElement('div');
             const chapterNumberFormatSetting = getFeatureValueString(
                 'chapter-number-format',
-                references.collection,
-                references.book
+                $refs.collection,
+                $refs.book
             );
             if (chapterNumberFormatSetting === 'drop-cap') {
                 workspace.paragraphDiv.className = 'm';
@@ -623,34 +626,36 @@ LOGGING:
         workspace.firstVerse = false;
     }
     // handles clicks on verse numbers
-    function audioClickHandler(click) {
+    function audioClickHandler(target: HTMLElement) {
         if (!hasAudioPlayed()) {
             return;
         }
-        const element = click.target.textContent;
+        const element = target.textContent;
         const verseSelection = document.querySelector('[data-verse="' + element + '"]');
-        const verseId = verseSelection.getAttribute('id');
-        seekToVerse(verseId);
+        const verseId = verseSelection?.getAttribute('id');
+        if (verseId) {
+            seekToVerse(verseId);
+        }
     }
     // handles clicks on in-text notation superscripts
-    function footnoteClickHandler(event) {
+    function footnoteClickHandler(event: MouseEvent, target: HTMLElement) {
         if ($footnotes.length === 0) {
             event.stopPropagation();
-            const root = event.target.parentNode.parentNode;
-            const footnote = root.querySelector(`div#${root.getAttribute('data-graft')}`);
-            const workingSpan = footnote.cloneNode(true);
-            const spans = workingSpan.querySelectorAll('span.xt');
+            const root = target.parentNode?.parentNode as HTMLElement;
+            const footnote = root?.querySelector(`div#${root.getAttribute('data-graft')}`);
+            const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
+            const spans = workingSpan?.querySelectorAll('span.xt');
             // Loop through each span and modify its inner HTML
             spans.forEach((span) => {
                 span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
-            const parsed = workingSpan.innerHTML;
+            const parsed = workingSpan?.innerHTML;
             footnotes.push(parsed);
         }
     }
     // handles clicks on in text markdown reference links
-    function referenceLinkClickHandler(event: any) {
-        const linkRef = event.target.getAttribute('ref');
+    function referenceLinkClickHandler(target: HTMLElement) {
+        const linkRef = target.getAttribute('ref') ?? '';
         const splitRef = splitString(linkRef, '.');
         const splitSet = splitRef[0];
         const refBook = splitRef[1];
@@ -668,25 +673,25 @@ LOGGING:
         refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
         return;
     }
-    async function headerLinkClickReference(event: any) {
+    async function headerLinkClickReference(event: MouseEvent, target: HTMLElement) {
         event.stopPropagation();
-        let start = JSON.parse(event.target.getAttribute('data-start-ref'));
+        let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
         let end =
-            event.target.getAttribute('data-end-ref') === 'undefined'
+            target.getAttribute('data-end-ref') === 'undefined'
                 ? undefined
-                : JSON.parse(event.target.getAttribute('data-end-ref'));
+                : JSON.parse(target.getAttribute('data-end-ref') || '{}');
         if (scriptureConfig.mainFeatures['scripture-refs-display'] === 'viewer') {
             navigate(start);
         } else {
-            const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
+            const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
             footnotes.push(footnoteHTML);
         }
     }
-    function glossaryClickHandler(event: any) {
+    function glossaryClickHandler(event: MouseEvent, target: HTMLElement) {
         event.stopPropagation();
         event.preventDefault();
-        const glossaryLink = event.target.getAttribute('match');
-        glossary.then((glossaryResults) => {
+        const glossaryLink = target.getAttribute('match');
+        $glossary.then((glossaryResults) => {
             if (isDefined(glossaryResults.data.docSets[0].document)) {
                 glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
                     if (ciEquals(block.key, glossaryLink)) {
@@ -695,10 +700,10 @@ LOGGING:
                             glossaryDiv.classList.add('txs');
                             const glossarySpan = document.createElement('span');
                             glossarySpan.classList.add('k');
-                            const titleText = document.createTextNode(glossaryLink);
+                            //const titleText = document.createTextNode(glossaryLink);
                             glossarySpan.append(block.key);
                             glossaryDiv.append(glossarySpan);
-                            const blockText = block.text.slice(glossaryLink.length);
+                            const blockText = block.text.slice(glossaryLink?.length);
                             appendTextToElement(glossaryDiv, blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
                             footnotes.push(glossaryHTML);
@@ -708,17 +713,19 @@ LOGGING:
             }
         });
     }
-    function remoteAudioClipHandler(event: any) {
+    function remoteAudioClipHandler(event: MouseEvent, target: HTMLElement) {
         event.stopPropagation();
-        const address = event.target.getAttribute('filelink');
+        const address = target.getAttribute('filelink');
         const el = document.querySelector(`audio[id="${address}" ]`);
         if (el) {
             const urlString = el.getAttribute('src');
-            const audio = new Audio(urlString);
-            audio.play();
+            if (urlString) {
+                const audio = new Audio(urlString);
+                audio.play();
+            }
         }
     }
-    function navigate(reference) {
+    function navigate(reference: Reference) {
         refs.set({
             docSet: reference.docSet,
             book: reference.book,
@@ -727,7 +734,7 @@ LOGGING:
         });
         footnotes.reset();
     }
-    function addNotesDiv(workspace) {
+    function addNotesDiv(workspace: Workspace) {
         const notesSpan = document.createElement('span');
         notesSpan.id = 'notes' + workspace.currentVerse;
         let el = workspace.paragraphDiv?.querySelector(
@@ -739,17 +746,17 @@ LOGGING:
                 `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
             );
         }
-        el?.parentNode.insertBefore(notesSpan, el.nextSibling);
+        el?.parentNode?.insertBefore(notesSpan, el.nextSibling);
     }
     const noteSvg = () => {
-        const noteIconColor: string = themeColors?.TextColor || $monoIconColor;
+        const noteIconColor: string = $themeColors?.TextColor || $monoIconColor;
         return `<svg fill="${noteIconColor}" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>`;
     };
-    function editNote(note) {
+    function editNote(note: NoteItem) {
         modal.open(ModalType.Note, note);
     }
-    function addNotedVerses(notesInChapter) {
-        notesInChapter.then((notes) => {
+    function addNotedVerses() {
+        $notes.then((notes) => {
             for (var k = 0; k < notes.length; k++) {
                 const note = notes[k];
                 const bookmarksSpan = document.getElementById('bookmarks' + note.verse);
@@ -769,7 +776,7 @@ LOGGING:
             }
         });
     }
-    function addBookmarksDiv(workspace) {
+    function addBookmarksDiv(workspace: Workspace) {
         const bookmarksSpan = document.createElement('span');
         bookmarksSpan.id = 'bookmarks' + workspace.currentVerse;
         let el = workspace.paragraphDiv?.querySelector(
@@ -781,13 +788,13 @@ LOGGING:
                 `div[data-verse="${workspace.currentVerse}"][data-phrase=${workspace.lastPhrase}]`
             );
         }
-        el?.parentNode.insertBefore(bookmarksSpan, el.nextSibling);
+        el?.parentNode?.insertBefore(bookmarksSpan, el.nextSibling);
     }
-    const bookmarkSvg = () => {
+    function bookmarkSvg() {
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
-    };
-    function addBookmarkedVerses(bookmarksInChapter) {
-        bookmarksInChapter.then((bookmarks) => {
+    }
+    function addBookmarkedVerses() {
+        $bookmarks.then((bookmarks) => {
             for (var j = 0; j < bookmarks.length; j++) {
                 const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
                 if (!bookmarksSpan) {
@@ -805,8 +812,8 @@ LOGGING:
             }
         });
     }
-    function addHighlightedVerses(highlightsInChapter) {
-        highlightsInChapter.then((highlights) => {
+    function addHighlightedVerses() {
+        $highlights.then((highlights) => {
             for (let i = 0; i < highlights.length; i++) {
                 //Skip this entry if the the next is a highlight for the same verse
                 if (i < highlights.length - 1) {
@@ -817,14 +824,14 @@ LOGGING:
                 let elements = container?.querySelectorAll(
                     `div[data-verse="${highlights[i].verse}"]`
                 );
-                for (const element of elements) {
+                for (const element of elements ?? []) {
                     const penClass = 'hlp' + highlights[i].penColor;
                     element.classList.add(penClass);
                 }
             }
         });
     }
-    function createFootnoteDiv(workspace, element) {
+    function createFootnoteDiv(workspace: Workspace, element: Element) {
         let footnoteSpan = null;
         let footnoteId = `X-${workspace.footnoteIdIndex + 1}`;
         workspace.footnoteIdIndex++;
@@ -847,20 +854,17 @@ LOGGING:
         return [footnoteSpan, footnoteDiv];
     }
 
-    const planDivInChapter = () => {
+    function planDivInChapter() {
         let planEntryInChapter = false;
         // If plan entry is -1, there is no active entry
         if ($plan.planEntry !== -1) {
-            if (
-                $plan.planBookId === references.book &&
-                $plan.planChapter.toString() === references.chapter
-            ) {
+            if ($plan.planBookId === $refs.book && $plan.planChapter.toString() === $refs.chapter) {
                 planEntryInChapter = true;
             }
         }
         return planEntryInChapter;
-    };
-    function addPlanDiv(workspace, verseNumber) {
+    }
+    function addPlanDiv(workspace: Workspace, verseNumber: string) {
         if (planDivInChapter() && matchesVerse($plan.planToVerse, verseNumber)) {
             const planDiv = document.createElement('div');
             planDiv.id = 'plan-progress';
@@ -885,7 +889,7 @@ LOGGING:
                     planDiv,
                     'plan-progress-info',
                     '',
-                    $currentPlanData.title[$language] ?? $currentPlanData.title.default ?? '',
+                    $currentPlanData?.title?.[$language] ?? $currentPlanData?.title?.default ?? '',
                     false
                 );
                 appendPlanProgressTextDiv(
@@ -953,18 +957,7 @@ LOGGING:
             // If we are no longer in the plan chapter and the plan section
             // has been read, clear plan so that the plan item will not
             // appear if you go back to that chapter
-            $plan = {
-                planId: '',
-                planDay: 0,
-                planEntry: -1,
-                planBookId: '',
-                planChapter: 0,
-                planFromVerse: 0,
-                planToVerse: 0,
-                planReference: '',
-                planNextReference: '',
-                completed: false
-            };
+            $plan = { ...defaultPlanStore };
         }
     }
     function appendPlanProgressTextDiv(
@@ -985,9 +978,10 @@ LOGGING:
         appendTextToElement(textDiv, stringId);
         progressDiv.append(textDiv);
     }
-    function getPlanReferenceString(ref) {
-        let currentBookCollectionId = references.collection;
-        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
+    function getPlanReferenceString(ref: string) {
+        let currentBookCollectionId = $refs.collection;
+        const [_collection, book, _fromChapter, toChapter, verseRanges] =
+            getReferenceFromString(ref);
         const displayString = getDisplayString(
             currentBookCollectionId,
             book,
@@ -997,13 +991,13 @@ LOGGING:
         return displayString;
     }
     async function gotoPlanReference() {
-        let currentBookCollectionId = references.collection;
-        const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(
+        let currentBookCollectionId = $refs.collection;
+        const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
             $plan.planNextReference
         );
-        const [fromVerse, toVerse, separator] = verseRanges[0];
+        const [fromVerse, toVerse, _separator] = verseRanges[0];
         let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
-        if ($currentPlanData) {
+        if ($currentPlanData?.items) {
             const item = $currentPlanData.items[$plan.planDay - 1];
             const [nextReference, nextIndex] = await getNextPlanReference(
                 $plan.planId,
@@ -1064,7 +1058,7 @@ LOGGING:
         // If verseNumber is something unexpected, return false
         return false;
     }
-    function findBookmarkElementForVerse(verse, verseRangeSeparator) {
+    function findBookmarkElementForVerse(verse: number, verseRangeSeparator: string) {
         const elements = document.querySelectorAll('[id^="bookmarks"]');
 
         for (const element of elements) {
@@ -1084,13 +1078,13 @@ LOGGING:
 
         return null; // No matching element found
     }
-    function findDataElementForVerse(verse, verseRangeSeparator) {
+    function findDataElementForVerse(verse: number, verseRangeSeparator: string) {
         const elements = document.querySelectorAll('[data-verse][data-phrase="a"]');
 
         for (const element of elements) {
             const verseData = element.getAttribute('data-verse');
             const separatorRegex = verseRangeSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex characters
-            const rangeMatch = verseData.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
+            const rangeMatch = verseData?.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
 
             if (rangeMatch) {
                 const start = parseInt(rangeMatch[1], 10);
@@ -1116,7 +1110,7 @@ LOGGING:
         }
         if (pos === 'after') {
             // Place after the bookmark element for the verse
-            const el = findBookmarkElementForVerse(verse, verseRangeSeparator);
+            const el = findBookmarkElementForVerse(parseInt(verse), verseRangeSeparator);
             if (el) {
                 if (scriptureLogs?.placement) {
                     console.log(`Found bookmark element for verse ${verse} at ${el.id}`);
@@ -1126,7 +1120,7 @@ LOGGING:
                 console.log('Could not find bookmark element for verse', verse);
             }
         } else if (pos === 'before') {
-            var el = findDataElementForVerse(verse, verseRangeSeparator);
+            var el = findDataElementForVerse(parseInt(verse), verseRangeSeparator);
             if (el) {
                 if (el.previousElementSibling?.classList.contains('c-drop')) {
                     el = el.previousElementSibling;
@@ -1144,13 +1138,23 @@ LOGGING:
             el.insertAdjacentElement('afterend', element);
         }
     }
-    function addVideos(videos) {
-        if (videos) {
+    function addVideos(videos: Videos) {
+        if (videos && container) {
             videos.forEach((video, index) => {
-                // ref can be MAT 1:1 or MAT.1.1
-                let verse = video.placement.ref.split(/[:.]/).at(-1);
-                const videoBlockDiv = createVideoBlock(document, video, index);
-                placeElement(document, container, videoBlockDiv, video.placement.pos, verse);
+                if (video.placement) {
+                    // ref can be MAT 1:1 or MAT.1.1
+                    let verse = video.placement.ref.split(/[:.]/).at(-1);
+                    if (verse) {
+                        const videoBlockDiv = createVideoBlock(document, video, index);
+                        placeElement(
+                            document,
+                            container!,
+                            videoBlockDiv,
+                            video.placement.pos,
+                            verse
+                        );
+                    }
+                }
             });
             addVideoLinks(document, videos);
         }
@@ -1196,21 +1200,25 @@ LOGGING:
     `;
     document.head.appendChild(style);
 
-    function addIllustrations(illustrations) {
-        if (illustrations) {
+    function addIllustrations(illustrations: Illustrations) {
+        if (illustrations && container) {
             illustrations.forEach((illustration, index) => {
-                let verse = illustration.placement.ref.split(/[:.]/).at(-1);
-                const { block: illustrationBlockDiv } = createIllustrationBlock(
-                    illustration.filename,
-                    illustration.placement.caption
-                );
-                placeElement(
-                    document,
-                    container,
-                    illustrationBlockDiv,
-                    illustration.placement.pos,
-                    verse
-                );
+                if (illustration.placement) {
+                    let verse = illustration.placement.ref.split(/[:.]/).at(-1);
+                    if (verse) {
+                        const { block: illustrationBlockDiv } = createIllustrationBlock(
+                            illustration.filename,
+                            illustration.placement.caption
+                        );
+                        placeElement(
+                            document,
+                            container!,
+                            illustrationBlockDiv,
+                            illustration.placement.pos,
+                            verse
+                        );
+                    }
+                }
             });
         }
     }
@@ -1236,7 +1244,7 @@ LOGGING:
         return { block: divFigure, source: imageSource };
     }
 
-    function createIllustrationCaptionBlock(caption) {
+    function createIllustrationCaptionBlock(caption: string) {
         const divFigureText = document.createElement('div');
         divFigureText.classList.add('caption');
         const spanFigureText = document.createElement('span');
@@ -1246,7 +1254,7 @@ LOGGING:
         return divFigureText;
     }
 
-    function showFullscreenPopup(imageSource) {
+    function showFullscreenPopup(imageSource: string) {
         // Create the fullscreen popup div
         const fullscreenDiv = document.createElement('div');
         fullscreenDiv.classList.add('fullscreen-popup');
@@ -1291,8 +1299,8 @@ LOGGING:
             container.appendChild(divFooter);
         }
     }
-    function figureSource(element: any) {
-        let source: any;
+    function figureSource(element: Element) {
+        let source;
         if ('src' in element.atts) {
             source = element.atts['src'][0];
         } else if ('unknownDefault_fig' in element.atts) {
@@ -1313,7 +1321,7 @@ LOGGING:
         const showVideos = !currentIsBibleBook || showBibleVideo;
         return showVideos;
     }
-    function addFigureDiv(source: string, workspace: any) {
+    function addFigureDiv(source: string, workspace: Workspace) {
         if (workspace.phraseDiv != null && workspace.phraseDiv.innerText !== '') {
             appendPhrase(workspace);
         }
@@ -1324,7 +1332,7 @@ LOGGING:
             checkImageExists(imageSource, divFigure);
         }
     }
-    function prepareJmpLink(workspace: any, element: any) {
+    function prepareJmpLink(workspace: Workspace, element: Element) {
         if (isDefined(element.atts['href'])) {
             const rawHref = element.atts['href'][0];
             try {
@@ -1353,7 +1361,7 @@ LOGGING:
         }
         workspace.jmpText = '';
     }
-    function addJmpLink(workspace: any) {
+    function addJmpLink(workspace: Workspace) {
         let parentDiv: HTMLElement | null;
         if (workspace.textType.includes('heading')) {
             parentDiv = workspace.headerInnerDiv;
@@ -1419,27 +1427,28 @@ LOGGING:
             console.error('Error checking image existence:', error);
         }
     }
-    function preprocessAction(action: string, workspace: any) {
+    function preprocessAction(action: string, workspace: Workspace) {
         // Table ends if row ended and anything other than start row follows it
-        if (!workspace.inRow && workspace.insideTable && !(action === 'startRow')) {
+        if (!workspace.inRow && workspace.insideTable && action !== 'startRow') {
             workspace.insideTable = false;
-            workspace.root.appendChild(workspace.tableElement);
+            workspace.root.appendChild(workspace.tableElement!);
         }
     }
     // handles on click when interacting with the scripture view
-    function onClick(e: any) {
-        switch (e.target.getAttribute('class')) {
+    function onClick(e: MouseEvent) {
+        const target = e.target as HTMLElement;
+        switch (target.getAttribute('class')) {
             case 'v':
-                audioClickHandler(e);
+                audioClickHandler(target);
                 break;
             case 'footnote':
-                footnoteClickHandler(e);
+                footnoteClickHandler(e, target);
                 break;
             case 'glossary':
-                glossaryClickHandler(e);
+                glossaryClickHandler(e, target);
                 break;
             case 'audioclip':
-                remoteAudioClipHandler(e);
+                remoteAudioClipHandler(e, target);
                 break;
             case 'web-link':
             case 'email-link':
@@ -1448,28 +1457,30 @@ LOGGING:
                 e.stopPropagation();
                 break;
             default:
-                if (e.target.classList.contains('ref-link')) {
-                    referenceLinkClickHandler(e);
+                if (target.classList.contains('ref-link')) {
+                    referenceLinkClickHandler(target);
                     break;
                 }
-                if (e.target.classList.contains('header-ref')) {
-                    headerLinkClickReference(e);
+                if (target.classList.contains('header-ref')) {
+                    headerLinkClickReference(e, target);
                 }
                 if (!$audioPlayer.playing) {
-                    onClickText(e, selectedVerses, maxSelections);
+                    onClickText(e, maxSelections);
                 }
                 break;
         }
     }
-    function chapterCount(book) {
-        if (bookTabSelected && bookTabs.tabs[references.bookTab - 1].chapters === 1) {
+    function chapterCount(book: string) {
+        if (bookTabSelected && bookTabs?.tabs[$refs.bookTab - 1].chapters === 1) {
             return 0;
         }
-        const count = Object.keys(books.find((x) => x.bookCode === book).versesByChapters).length;
+        const count = Object.keys(
+            books.find((x) => x.bookCode === book)?.versesByChapters ?? {}
+        ).length;
         return count;
     }
 
-    const clickableClasses = ['seltext', 'r', 's', 'mt', 'imt2', 'ip', 'is', 'io', 'io2'];
+    const clickableClasses = ['seltext', 'r', 's', 'mt', 'imt2', 'ip', 'is', 'io', 'io2'] as const;
     function hasClickableClass(divElement: HTMLDivElement) {
         if (divElement.classList.contains('seltxt') && divElement.id != '') {
             return true;
@@ -1494,21 +1505,90 @@ LOGGING:
 
     let loading = $state(true);
 
+    type Block = { type: string; subType?: string; sequence: Partial<Sequence> };
+
+    type Element = {
+        type: string;
+        subType: string;
+        text: string;
+        atts: Record<string, string>;
+        sequence: Partial<Sequence>;
+    };
+
+    type Sequence = {
+        id: string;
+        type: string;
+        block: Block;
+        element: Element;
+    };
+
+    type Context = {
+        document: { metadata: { document: unknown } };
+        sequences: Sequence[];
+        renderer: {
+            renderSequence: (env: Action) => void;
+        };
+    };
+
+    type Workspace = {
+        root: HTMLDivElement;
+        footnoteIndex: number;
+        footnoteIdIndex: number;
+        introductionIndex: number;
+        firstVerse: boolean;
+        currentVerse: string;
+        currentPhraseIndex: number;
+        currentSequence: Partial<Sequence>;
+        milestoneLink: string;
+        milestoneText: string;
+        milestoneTitle: string;
+        lastPhrase: string;
+        introductionGraft: boolean;
+        titleGraft: boolean;
+        paragraphDiv: HTMLDivElement;
+        titleBlockDiv: HTMLDivElement;
+        titleSpan: HTMLSpanElement | null;
+        verseDiv: HTMLDivElement | null;
+        phraseDiv: HTMLDivElement | null;
+        videoDiv: HTMLDivElement | null;
+        footnoteDiv: HTMLDivElement | null;
+        footnoteSpan: HTMLSpanElement | null;
+        figureDiv: HTMLDivElement | null;
+        encloseInSpanTag?: HTMLSpanElement;
+        subheaders: string[];
+        textType: string[];
+        headerDiv: HTMLDivElement | null;
+        headerInnerDiv: HTMLDivElement | null;
+        audioClips: string[];
+        usfmWrapperType: string;
+        showWordsOfJesus: boolean;
+        lastPhraseTerminated: boolean;
+        currentVideoIndex: number;
+        chapterNumText: string;
+        insideTable: boolean;
+        inRow: boolean;
+        tableElement: HTMLTableElement | null;
+        tableRowElement: HTMLTableRowElement | null;
+        tableCellElement: HTMLTableCellElement | null;
+        rowCellNumber: number;
+        lemma: string;
+        jmpLink: string;
+        jmpTitle: string;
+        jmpText: string;
+    } & Record<`level${number}ListNum`, number>;
+
+    type Action = { context: Context; workspace: Workspace };
+
     const output = {};
     const query = async (
         docSet: string,
         bookCode: string,
         chapter: string,
         showVerses: boolean,
-        showGlossaryLinks: boolean,
         showRedLetters: boolean,
         versePerLine: boolean,
-        bookmarks: any[],
-        notes: any[],
-        highlights: any[],
-        videos: any[],
-        illustrations: any[],
-        nextPlanDay: number
+        videos: Videos,
+        illustrations: Illustrations
     ) => {
         // Is it possible that this could be called and proskomma is not set yet?
         if (!proskomma) {
@@ -1522,7 +1602,7 @@ LOGGING:
                     {
                         description: 'Set up; Book heading',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.document) {
                                 console.log(
                                     'Start Document: %o, %o',
@@ -1573,7 +1653,7 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements(selectedVerses);
+                            deselectAllElements();
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
@@ -1586,16 +1666,15 @@ LOGGING:
                     {
                         description: 'Set up',
                         test: () => true,
-                        action: ({ context, workspace, output }) => {
+                        action: ({ workspace }: Action) => {
                             if (scriptureLogs?.document) {
                                 console.log('End Document');
                             }
                             preprocessAction('endDocument', workspace);
                             addOnClickDivs();
                             if (!displayingIntroduction) {
-                                addNotedVerses(notes);
-                                addBookmarkedVerses(bookmarks);
-                                addHighlightedVerses(highlights);
+                                addNotedVerses();
+                                addHighlightedVerses();
                                 if (showVideo()) {
                                     addVideos(videos);
                                 }
@@ -1605,7 +1684,7 @@ LOGGING:
                                 addPlanDiv(workspace, '-1');
                             }
                             addFooter(document, workspace.root, docSet);
-                            if (references) {
+                            if ($refs) {
                                 observeVisibility();
                             }
                         }
@@ -1615,7 +1694,7 @@ LOGGING:
                     {
                         description: 'Start HTML para with appropriate class',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.paragraph) {
                                 console.log(
                                     'Start Paragraph %o %o',
@@ -1633,8 +1712,9 @@ LOGGING:
                                 )
                             ) {
                                 var paraClass =
-                                    context.sequences[0].block.subType.split(':')[1] ||
-                                    context.sequences[0].block.subType;
+                                    context.sequences[0].block.subType?.split(':')[1] ||
+                                    context.sequences[0].block.subType ||
+                                    '';
                                 switch (sequenceType) {
                                     case 'main': {
                                         if (!displayingIntroduction) {
@@ -1669,8 +1749,9 @@ LOGGING:
                                     case 'heading': {
                                         workspace.headerDiv = document.createElement('div');
                                         var headingParaClass =
-                                            context.sequences[0].block.subType.split(':')[1] ||
-                                            context.sequences[0].block.subType;
+                                            context.sequences[0].block.subType?.split(':')[1] ||
+                                            context.sequences[0].block.subType ||
+                                            '';
                                         workspace.headerDiv.classList.add(headingParaClass);
                                         const prefix = headingParaClass.replaceAll(/[0-9]/g, '');
                                         workspace.subheaders.push(prefix);
@@ -1699,7 +1780,7 @@ LOGGING:
                     {
                         description: 'End HTML para',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             const sequenceType = context.sequences[0].type;
                             if (scriptureLogs?.paragraph) {
                                 console.log('End paragraph: Sequence type ' + sequenceType);
@@ -1778,15 +1859,16 @@ LOGGING:
                                 } else if (sequenceType == 'title') {
                                     const div = document.createElement('div');
                                     var paraClass =
-                                        context.sequences[0].block.subType.split(':')[1] ||
-                                        context.sequences[0].block.subType;
+                                        context.sequences[0].block.subType?.split(':')[1] ||
+                                        context.sequences[0].block.subType ||
+                                        '';
                                     div.classList.add(paraClass);
-                                    div.appendChild(workspace.titleSpan);
+                                    div.appendChild(workspace.titleSpan!);
                                     workspace.titleBlockDiv.appendChild(div);
                                     workspace.titleSpan = null;
                                 } else if (sequenceType == 'heading') {
-                                    workspace.headerDiv.appendChild(workspace.headerInnerDiv);
-                                    workspace.root.appendChild(workspace.headerDiv);
+                                    workspace.headerDiv?.appendChild(workspace.headerInnerDiv!);
+                                    workspace.root.appendChild(workspace.headerDiv!);
                                     workspace.headerInnerDiv = null;
                                     workspace.headerDiv = null;
                                 } else if (sequenceType == 'introduction') {
@@ -1807,7 +1889,7 @@ LOGGING:
                     {
                         description: 'Start Verses',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             const element = context.sequences[0].element;
                             if (scriptureLogs?.verses) {
                                 console.log('Start Verses %o %o', element.atts['number'], element);
@@ -1836,7 +1918,7 @@ LOGGING:
                     {
                         description: 'End Verses',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             const element = context.sequences[0].element;
                             if (scriptureLogs?.verses) {
                                 console.log('End Verses %o %o', element.atts['number'], element);
@@ -1856,7 +1938,7 @@ LOGGING:
                                 }
                                 if (versePerLine) {
                                     workspace.paragraphDiv.appendChild(
-                                        workspace.verseDiv.cloneNode(true)
+                                        workspace.verseDiv!.cloneNode(true)
                                     );
                                     workspace.verseDiv = null;
                                 }
@@ -1873,7 +1955,7 @@ LOGGING:
                     {
                         description: 'Start Chapter',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.chapter) {
                                 const element = context.sequences[0].element;
                                 console.log('Start Chapter %o %o', element.atts['number'], element);
@@ -1886,7 +1968,7 @@ LOGGING:
                     {
                         description: 'End Chapter',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.chapter) {
                                 const element = context.sequences[0].element;
                                 console.log('End Chapter %o %o', element.atts['number'], element);
@@ -1899,7 +1981,7 @@ LOGGING:
                     {
                         description: 'Output text',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.text) {
                                 console.log(
                                     'Text element: %o %o %o',
@@ -1920,18 +2002,18 @@ LOGGING:
                                 const text = context.sequences[0].element.text;
                                 switch (currentTextType(workspace)) {
                                     case 'title': {
-                                        appendTextToElement(workspace.titleSpan, text);
+                                        appendTextToElement(workspace.titleSpan!, text);
                                         break;
                                     }
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
-                                        if (blockType.includes('usfm:r')) {
+                                        if (blockType?.includes('usfm:r')) {
                                             const refText = generateHTML(text, 'header-ref');
                                             // This is for usfm:r like you will find in CUK Headers
                                             // which contain references inline
-                                            workspace.headerInnerDiv.innerHTML = refText;
+                                            workspace.headerInnerDiv!.innerHTML = refText;
                                         } else {
-                                            appendTextToElement(workspace.headerInnerDiv, text);
+                                            appendTextToElement(workspace.headerInnerDiv!, text);
                                         }
                                         break;
                                     }
@@ -1941,7 +2023,7 @@ LOGGING:
                                         if (text !== 'NO_CAPTION') {
                                             const divFigureText =
                                                 createIllustrationCaptionBlock(text);
-                                            workspace.figureDiv.append(divFigureText);
+                                            workspace.figureDiv!.append(divFigureText);
                                         }
                                         break;
                                     }
@@ -1957,10 +2039,10 @@ LOGGING:
                                     default: {
                                         const blockType = context.sequences[0].block.subType;
 
-                                        if (blockType.includes('usfm:x')) {
+                                        if (blockType?.includes('usfm:x')) {
                                             addGraftText(workspace, text, 'xref', 'usfm:x');
                                             // Footnote Text
-                                        } else if (blockType.includes('usfm:f')) {
+                                        } else if (blockType?.includes('usfm:f')) {
                                             addGraftText(workspace, text, 'footnote', 'usfm:f');
                                         } else if (blockType === 'usfm:ip') {
                                             // Introduction
@@ -1998,7 +2080,7 @@ LOGGING:
                     {
                         description: 'Meta Content',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.meta) {
                                 console.log('Meta Content %o', context.sequences[0].element);
                             }
@@ -2010,7 +2092,7 @@ LOGGING:
                     {
                         description: 'Mark',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             const element = context.sequences[0].element;
                             if (scriptureLogs?.mark) {
                                 console.log(
@@ -2031,17 +2113,17 @@ LOGGING:
                                     if (
                                         getFeatureValueBoolean(
                                             'show-chapter-numbers',
-                                            references.collection,
-                                            references.book
+                                            $refs.collection,
+                                            $refs.book
                                         )
                                     ) {
                                         workspace.chapterNumText = numerals.formatNumber(
                                             numeralSystem,
                                             element.atts['number']
                                         );
-                                        const book = references.book;
+                                        const book = $refs.book;
                                         const bookType = scriptureConfig.bookCollections
-                                            ?.find((x) => references.collection === x.id)
+                                            ?.find((x) => $refs.collection === x.id)
                                             ?.books.find((x) => book === x.id)?.type;
                                         if (
                                             bookType === 'songs' &&
@@ -2051,8 +2133,8 @@ LOGGING:
                                             const chapterNumberFormatSetting =
                                                 getFeatureValueString(
                                                     'chapter-number-format',
-                                                    references.collection,
-                                                    references.book
+                                                    $refs.collection,
+                                                    $refs.book
                                                 );
                                             if (chapterNumberFormatSetting === 'drop-cap') {
                                                 workspace.paragraphDiv.className = 'm';
@@ -2087,7 +2169,7 @@ LOGGING:
                     {
                         description: 'Start Sequence',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             const sequenceType = context.sequences[0].type;
                             if (scriptureLogs?.sequence) {
                                 console.log('start sequence %o', sequenceType);
@@ -2149,7 +2231,7 @@ LOGGING:
                     {
                         description: 'End Sequence',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             const sequenceType = context.sequences[0].type;
                             if (scriptureLogs?.sequence) {
                                 console.log('End sequence |%o|', sequenceType);
@@ -2236,7 +2318,7 @@ LOGGING:
                     {
                         description: 'Block Graft',
                         test: () => true,
-                        action: (environment) => {
+                        action: (environment: Action) => {
                             if (scriptureLogs?.blockGraft) {
                                 console.log(
                                     'Block Graft %o',
@@ -2245,7 +2327,7 @@ LOGGING:
                             }
                             preprocessAction('blockGraft', environment.workspace);
                             const currentBlock = environment.context.sequences[0].block;
-                            const graftRecord = {
+                            const graftRecord: Block = {
                                 type: currentBlock.type,
                                 sequence: {}
                             };
@@ -2283,7 +2365,7 @@ LOGGING:
                     {
                         description: 'Inline graft',
                         test: () => true,
-                        action: (environment) => {
+                        action: (environment: Action) => {
                             const element = environment.context.sequences[0].element;
                             const workspace = environment.workspace;
                             if (scriptureLogs?.inlineGraft) {
@@ -2297,15 +2379,19 @@ LOGGING:
                             }
                             preprocessAction('inlineGraft', workspace);
                             let footnoteSpan = null;
-                            const graftRecord = {
+                            const graftRecord: Element = {
                                 type: element.type,
-                                subtype: element.subType,
-                                sequence: {}
+                                subType: element.subType,
+                                sequence: {},
+                                atts: {},
+                                text: ''
                             };
                             if (element.subType === 'xref' || element.subType === 'footnote') {
                                 workspace.textType.push('footnote');
                                 const [span, footnoteDiv] = createFootnoteDiv(workspace, element);
-                                workspace.footnoteDiv = footnoteDiv.cloneNode(true);
+                                workspace.footnoteDiv = footnoteDiv.cloneNode(
+                                    true
+                                ) as HTMLDivElement;
                                 workspace.footnoteSpan = footnoteSpan = span;
                             } else if (element.subType === 'note_caller') {
                                 workspace.textType.push(element.subType);
@@ -2319,7 +2405,7 @@ LOGGING:
                                 if (footnoteSpan) {
                                     // Add space after footnote if there are multiple footnotes.
                                     const spaceNode = document.createTextNode('\u00A0\u00A0');
-                                    footnoteSpan.appendChild(workspace.footnoteDiv);
+                                    footnoteSpan.appendChild(workspace.footnoteDiv!);
                                     let parentDiv;
                                     if (workspace.textType.includes('heading')) {
                                         parentDiv = workspace.headerInnerDiv;
@@ -2356,7 +2442,7 @@ LOGGING:
                     {
                         description: 'Start Wrapper',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.wrapper) {
                                 console.log('Start Wrapper %o', context.sequences[0].element);
                             }
@@ -2428,7 +2514,7 @@ LOGGING:
                     {
                         description: 'End Wrapper',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.wrapper) {
                                 console.log('End Wrapper %o', context.sequences[0].element);
                             }
@@ -2446,7 +2532,9 @@ LOGGING:
                                     let usfmType = element.subType.split(':')[1];
                                     if (usfmType === 'fig') {
                                         if (showImage()) {
-                                            workspace.paragraphDiv.appendChild(workspace.figureDiv);
+                                            workspace.paragraphDiv.appendChild(
+                                                workspace.figureDiv!
+                                            );
                                         }
                                     } else if (usfmType === 'jmp') {
                                         workspace.textType.pop();
@@ -2461,7 +2549,7 @@ LOGGING:
                                     workspace.textType.pop();
                                     if (workspace.tableRowElement != null) {
                                         workspace.tableRowElement.appendChild(
-                                            workspace.tableCellElement
+                                            workspace.tableCellElement!
                                         );
                                     }
                                     break;
@@ -2477,7 +2565,7 @@ LOGGING:
                     {
                         description: 'Start Milestone',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.milestone) {
                                 console.log('Start Milestone %o', context.sequences[0].element);
                             }
@@ -2485,37 +2573,36 @@ LOGGING:
                             const element = context.sequences[0].element;
                             let match;
                             if ((match = element.subType.match(/^usfm:zon(\d+)$/))) {
-                                workspace['level' + match[1] + 'ListNum'] =
-                                    element.atts['start'][0];
+                                workspace[`level${parseInt(match[1])}ListNum`] = parseInt(
+                                    element.atts['start'][0]
+                                );
                             } else if ((match = element.subType.match(/^usfm:zoli(\d+)$/))) {
+                                const matchNum = parseInt(match[1]);
                                 workspace.paragraphDiv.classList.add('list-item');
                                 workspace.paragraphDiv.classList.add('list-decimal');
                                 workspace.paragraphDiv.classList.add('list-inside');
-                                if (!workspace['level' + match[1] + 'ListNum']) {
-                                    workspace['level' + match[1] + 'ListNum'] = 1;
+                                if (!workspace[`level${matchNum}ListNum`]) {
+                                    workspace[`level${matchNum}ListNum`] = 1;
                                 }
                                 workspace.paragraphDiv.style.counterSet =
-                                    'list-item ' + workspace['level' + match[1] + 'ListNum'];
-                                workspace['level' + match[1] + 'ListNum']++;
+                                    'list-item ' + workspace[`level${matchNum}ListNum`];
+                                workspace[`level${matchNum}ListNum`]++;
 
                                 workspace.paragraphDiv.style.paddingInlineStart =
-                                    2 * match[1] - 1 + 'rem';
-                                for (
-                                    let i = Number(match[1]) + 1;
-                                    workspace['level' + i + 'ListNum'];
-                                    i++
-                                ) {
-                                    workspace['level' + i + 'ListNum'] = undefined;
+                                    2 * parseInt(match[1]) - 1 + 'rem';
+                                for (let i = matchNum + 1; workspace[`level${i}ListNum`]; i++) {
+                                    delete workspace[`level${i}ListNum`];
                                 } //This resets all lower-level list numbering so future lower-level lists don't continue from previous ones.
                             } else if ((match = element.subType.match(/^usfm:zuli(\d+)$/))) {
+                                const matchNum = parseInt(match[1]);
                                 workspace.paragraphDiv.classList.add('list-item');
                                 workspace.paragraphDiv.classList.add('list-inside');
 
                                 workspace.paragraphDiv.style.paddingInlineStart =
-                                    2 * match[1] - 1 + 'rem';
-                                if (Number(match[1]) === 2) {
+                                    2 * matchNum - 1 + 'rem';
+                                if (matchNum === 2) {
                                     workspace.paragraphDiv.classList.add('list-[circle]');
-                                } else if (Number(match[1]) >= 3) {
+                                } else if (matchNum >= 3) {
                                     workspace.paragraphDiv.classList.add('list-[square]');
                                 }
                             }
@@ -2582,7 +2669,7 @@ LOGGING:
                     {
                         description: 'End Milestone',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.milestone) {
                                 console.log('End Milestone %o', context.sequences[0].element);
                             }
@@ -2590,14 +2677,14 @@ LOGGING:
                             const element = context.sequences[0].element;
                             checkForMilestoneLinks(
                                 workspace.textType,
-                                workspace.footnoteDiv,
+                                workspace.footnoteDiv!,
                                 workspace.phraseDiv ?? workspace.paragraphDiv,
                                 workspace.milestoneText,
                                 workspace.milestoneLink,
                                 workspace.milestoneTitle,
                                 workspace.audioClips.length,
                                 element.subType,
-                                scriptureConfig.audio,
+                                scriptureConfig.audio!,
                                 onClick
                             );
                             workspace.milestoneLink = '';
@@ -2609,7 +2696,7 @@ LOGGING:
                     {
                         description: 'Start Row',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.row) {
                                 console.log('Start Row %o', context.sequences[0].element);
                             }
@@ -2628,12 +2715,12 @@ LOGGING:
                     {
                         description: 'End Row',
                         test: () => true,
-                        action: ({ context, workspace }) => {
+                        action: ({ context, workspace }: Action) => {
                             if (scriptureLogs?.row) {
                                 console.log('End Row %o', context.sequences[0].element);
                             }
                             preprocessAction('endRow', workspace);
-                            workspace.tableElement.appendChild(workspace.tableRowElement);
+                            workspace.tableElement?.appendChild(workspace.tableRowElement!);
                             workspace.rowCellNumber = 0;
                             workspace.inRow = false;
                         }
@@ -2656,7 +2743,7 @@ LOGGING:
         if (scriptureLogs?.docResult) {
             console.log('docsResult %o', docsResult);
         }
-        const bookLookup = {};
+        const bookLookup: Record<string, string> = {};
         for (const docRecord of docsResult.data.documents) {
             if (docRecord.docSetId === docSet) {
                 bookLookup[docRecord.bookCode] = docRecord.id;
@@ -2679,6 +2766,7 @@ LOGGING:
         }
     };
 
+    type Videos = ReturnType<typeof videosForChapter>;
     function videosForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
         let videos = scriptureConfig.videos?.filter(
@@ -2691,6 +2779,7 @@ LOGGING:
         return videos;
     }
 
+    type Illustrations = ReturnType<typeof illustrationsForChapter>;
     function illustrationsForChapter(docSet: string, bookCode: string, chapter: string) {
         let collection = docSet.split('_')[1];
         let illustrations = scriptureConfig.illustrations?.filter(
@@ -2702,23 +2791,23 @@ LOGGING:
         );
         return illustrations;
     }
-    const fontSize = $derived(bodyFontSize + 'px');
+    const fontSize = $derived($bodyFontSize + 'px');
 
-    const lineHeight = $derived(bodyLineHeight + '%');
+    const lineHeight = $derived($bodyLineHeight + '%');
 
-    const currentChapter = $derived(references.chapter);
+    const currentChapter = $derived($refs.chapter);
 
-    const currentBook = $derived(references.book);
+    const currentBook = $derived($refs.book);
 
-    const currentDocSet = $derived(references.docSet);
+    const currentDocSet = $derived($refs.docSet);
 
     const bookTabs = $derived(
         scriptureConfig.bookCollections
-            ?.find((x) => x.id === references.collection)
-            ?.books.find((x) => x.id === references.book)?.bookTabs
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book)?.bookTabs
     );
 
-    const bookTabSelected = $derived(bookTabs && references.bookTab > 0);
+    const bookTabSelected = $derived(bookTabs && $refs.bookTab > 0);
 
     $effect(() => {
         if (!bookTabSelected) {
@@ -2726,23 +2815,23 @@ LOGGING:
         }
     });
 
-    const currentIsBibleBook = $derived(isBibleBook(references));
+    const currentIsBibleBook = $derived(isBibleBook($refs));
 
     const numeralSystem = $derived(
-        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
+        numerals.systemForBook(scriptureConfig, $refs.collection, currentBook)
     );
 
-    const versePerLine = $derived(verseLayout === 'one-per-line');
+    const versePerLine = $derived($userSettingsOrDefault['verse-layout'] === 'one-per-line');
     /**list of books in current docSet*/
     const books = $derived($refs.catalog.documents);
     const direction = $derived(
-        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
-            ?.textDirection
+        scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.style
+            ?.textDirection || 'ltr'
     );
     const verseRangeSeparator = $derived(
-        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.features[
+        scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.features[
             'ref-verse-range-separator'
-        ]
+        ] as string
     );
     $effect(() => {
         performance.mark('query-start');
@@ -2762,18 +2851,13 @@ LOGGING:
         if (bookTabSelected) {
             query(
                 docSet,
-                bookCode + bookTabs.tabs[references.bookTab - 1].bookTabID,
+                bookCode + bookTabs?.tabs[$refs.bookTab - 1].bookTabID,
                 chapter,
                 viewShowVerses,
-                viewShowGlossaryWords,
                 redLetters,
                 versePerLine,
-                bookmarks,
-                notes,
-                highlights,
                 videos,
-                illustrations,
-                nextPlanDay
+                illustrations
             );
         } else {
             query(
@@ -2781,15 +2865,10 @@ LOGGING:
                 bookCode,
                 chapter,
                 viewShowVerses,
-                viewShowGlossaryWords,
                 redLetters,
                 versePerLine,
-                bookmarks,
-                notes,
-                highlights,
                 videos,
-                illustrations,
-                nextPlanDay
+                illustrations
             );
         }
         performance.mark('query-end');
