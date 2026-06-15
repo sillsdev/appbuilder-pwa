@@ -4,7 +4,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
-    import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { Sort, toSorted } from '$lib/data/annotation-sort';
     import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
     import { actionBarColor, bodyFontSize, refs, t } from '$lib/data/stores';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
@@ -31,13 +31,13 @@
     function handleSortAction(event: MenuActionEvent) {
         switch (event.text) {
             case $t['Annotation_Sort_Order_Reference']:
-                sortOrder = SORT_REFERENCE;
+                sortOrder = Sort.Reference;
                 break;
             case $t['Annotation_Sort_Order_Date']:
-                sortOrder = SORT_DATE;
+                sortOrder = Sort.Date;
                 break;
             case $t['Annotation_Sort_Order_Color']:
-                sortOrder = SORT_COLOR;
+                sortOrder = Sort.Color;
                 break;
         }
     }
@@ -50,7 +50,7 @@
         ]
     };
 
-    let sortOrder = $state(SORT_DATE);
+    let sortOrder: Sort = $state(Sort.Date);
 
     interface Props {
         data: PageData;

@@ -4,7 +4,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
-    import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import { Sort, toSorted } from '$lib/data/annotation-sort';
     import { removeBookmark, type BookmarkItem } from '$lib/data/bookmarks';
     import { actionBarColor, bodyFontSize, refs, t } from '$lib/data/stores';
     import { BookmarkIcon } from '$lib/icons';
@@ -38,10 +38,10 @@
     function handleSortAction(event: MenuActionEvent) {
         switch (event.text) {
             case $t['Annotation_Sort_Order_Reference']:
-                sortOrder = SORT_REFERENCE;
+                sortOrder = Sort.Reference;
                 break;
             case $t['Annotation_Sort_Order_Date']:
-                sortOrder = SORT_DATE;
+                sortOrder = Sort.Date;
                 break;
         }
     }
@@ -50,7 +50,7 @@
         actions: [$t['Annotation_Sort_Order_Reference'], $t['Annotation_Sort_Order_Date']]
     };
 
-    let sortOrder = $state(SORT_DATE);
+    let sortOrder: Sort = $state(Sort.Date);
 </script>
 
 <div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
