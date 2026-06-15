@@ -564,7 +564,7 @@
             {/if}
         {/if}
         <div
-            style="--borderImageSource=url({borders['./border.png']});"
+            style="--borderImageSource: url({borders['./border.png']});"
             class:borderimg={showBorder}
             class="overflow-y-auto grow"
             bind:this={scrollingDiv}
