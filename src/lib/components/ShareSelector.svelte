@@ -17,6 +17,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
         canEncodeAudio,
         Mp4OutputFormat,
         Output,
+        WavOutputFormat,
         WebMOutputFormat
     } from 'mediabunny';
     import type { AudioEncodingConfig } from 'mediabunny';
@@ -42,9 +43,14 @@ A component for verse-on-image providing a dropdown where you can choose to down
         const audioCtx = new AudioContext();
         try {
             const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
-            const useWebm = audioConfig.codec === 'opus';
+            const outputFormat =
+                audioConfig.codec === 'aac'
+                    ? { name: 'mp4', format: new Mp4OutputFormat() }
+                    : audioConfig.codec === 'opus'
+                      ? { name: 'webm', format: new WebMOutputFormat() }
+                      : { name: 'wav', format: new WavOutputFormat() };
             const output = new Output({
-                format: useWebm ? new WebMOutputFormat() : new Mp4OutputFormat(),
+                format: outputFormat.format,
                 target: new BufferTarget()
             });
 
@@ -103,11 +109,11 @@ A component for verse-on-image providing a dropdown where you can choose to down
 
             const buffer = output.target.buffer as BlobPart;
             const blob = new Blob([buffer], {
-                type: useWebm ? 'audio/webm' : 'audio/mp4'
+                type: 'audio/' + outputFormat.name
             });
-            const filename = reference + (useWebm ? '.webm' : '.mp4');
+            const filename = reference + '.' + outputFormat.name;
             const file = new File([blob], filename, {
-                type: useWebm ? 'audio/webm' : 'audio/mp4'
+                type: 'audio/' + outputFormat.name
             });
             try {
                 if (
@@ -151,7 +157,10 @@ A component for verse-on-image providing a dropdown where you can choose to down
             {
                 codec: 'opus',
                 bitrate: 96000
-            }
+            },
+            { codec: 'pcm-f32' },
+            { codec: 'pcm-s24' },
+            { codec: 'pcm-s16' }
         ];
 
         for (const cfg of candidates) {
@@ -160,7 +169,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
             }
         }
 
-        throw new Error('No supported AAC configuration found.');
+        throw new Error('No supported audio configuration found.');
     } //This is used to determine a supported audio configuration. It first tries AAC, but then falls back to opus if AAC isn't supported. This is a duplicate of the function with the same name in VerseOnImage.svelte, so maybe it should be moved to somewhere that exports it for any place that needs it to use it?
     let modalId = 'shareSelector';
     let modalThis: Modal;
