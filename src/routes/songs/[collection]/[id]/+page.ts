@@ -1,5 +1,3 @@
-import config from '$assets/config';
-import type { ScriptureConfig } from '$config';
 import type { PageLoad } from './$types';
 
 const songs: Record<string, string> = import.meta.glob('./*.txt', {
@@ -12,11 +10,6 @@ const songs: Record<string, string> = import.meta.glob('./*.txt', {
 export const load: PageLoad = async ({ params, fetch }) => {
     const id = params.id;
     const collection = params.collection;
-
-    const scriptConfig = config as ScriptureConfig;
-
-    const bookCollection = scriptConfig.bookCollections?.find((x) => x.id === collection);
-    const book = bookCollection?.books.find((x) => x.id === id);
 
     let titleData = '';
     let numberData = '';
@@ -51,28 +44,25 @@ export const load: PageLoad = async ({ params, fetch }) => {
     } catch (error) {
         console.error('Error fetching song number text file:', error);
     }
-    const songsByTitle: { number: string; title: string }[] = [];
-    const songsByNumber: { number: string; title: string }[] = [];
-    titleData.split(/\r?\n/).forEach((value) => {
-        const separatedValue = value.split('\t');
-        if (separatedValue.length === 2) {
-            songsByTitle.push({ number: separatedValue[0], title: separatedValue[1] });
-        }
-    });
-    numberData.split(/\r?\n/).forEach((value) => {
-        const separatedValue = value.split('\t');
-        if (separatedValue.length === 2) {
-            songsByNumber.push({ number: separatedValue[0], title: separatedValue[1] });
-        }
-    });
 
     return {
-        titleData: titleData,
-        numberData: numberData,
-        songsByTitle: songsByTitle,
-        songsByNumber: songsByNumber,
-        collection: params.collection,
-        songId: id,
-        displayLabel: book?.name || 'Song'
+        songsByTitle: titleData
+            .split(/\r?\n/)
+            .filter((value) => {
+                return value.split('\t').length === 2;
+            })
+            .map((value) => {
+                const separatedValue = value.split('\t');
+                return { number: separatedValue[0], title: separatedValue[1] };
+            }),
+        songsByNumber: numberData
+            .split(/\r?\n/)
+            .filter((value) => {
+                return value.split('\t').length === 2;
+            })
+            .map((value) => {
+                const separatedValue = value.split('\t');
+                return { number: separatedValue[0], title: separatedValue[1] };
+            })
     };
 };

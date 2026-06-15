@@ -15,9 +15,6 @@
     }
     let { data }: Props = $props();
 
-    let songsByTitle = $derived(data.songsByTitle);
-    let songsByNumber = $derived(data.songsByNumber);
-
     const showSearch = !!config.mainFeatures['search'];
     let tabs = $derived([$t['Song_List_By_Number'], $t['Song_List_By_Title']]);
     let curTab = $state(0);
@@ -27,7 +24,7 @@
     let actionBarColor = $derived($s?.['ui.bar.action']['background-color']);
     let tabUnderlineColor = $derived($s?.['ui.song.tabs']['color']);
     let borderColor = $derived($s?.['ui.song.border']['background-color']);
-    const songArray = $derived(curTab === 0 ? songsByNumber : songsByTitle);
+    const songArray = $derived(curTab === 0 ? data.songsByNumber : data.songsByTitle);
 
     async function completeNavigation(songNumber: string) {
         await navigateToText({
@@ -82,10 +79,10 @@
                 class="w-full block justify-start text-left pl-10 border"
                 style:border-color={borderColor}
                 onclick={() => completeNavigation(song.number)}
-                ><span style={convertStyle($s?.['ui.song.number'])}>{song.number}</span>
-                <span class="pl-2" style={convertStyle($s?.['ui.song.title'])}>{song.title}</span
-                ></button
             >
+                <span style={convertStyle($s?.['ui.song.number'])}>{song.number}</span>
+                <span class="pl-2" style={convertStyle($s?.['ui.song.title'])}>{song.title}</span>
+            </button>
         {/each}
     </div>
 </div>

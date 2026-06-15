@@ -33,7 +33,7 @@ The navbar component.
         if (!bookType) {
             return true;
         }
-        return $userSettingsOrDefault['verse-selection'] && bookType && bookType !== 'songs';
+        return $userSettingsOrDefault['verse-selection'] && bookType !== 'songs';
     }) as boolean;
     const hideEmptyChapters = $derived(config.mainFeatures['hide-empty-chapters'] as boolean);
     const verseCount = $derived(getVerseCount(book, chapter));
