@@ -24,7 +24,6 @@ A component for verse-on-image providing a dropdown where you can choose to down
     import Modal from './Modal.svelte';
 
     let { vertOffset = '1rem' } = $props();
-    const reference = $derived(selectedVerses.getCompositeReference());
     async function shareSelectedText() {
         const book = $selectedVerses[0].book;
         const reference = selectedVerses.getCompositeReference();
@@ -40,6 +39,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
         logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
     }
     async function shareAudio() {
+        const reference = selectedVerses.getCompositeReference();
         const audioCtx = new AudioContext();
         try {
             const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
@@ -148,7 +148,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
         } finally {
             await audioCtx?.close();
         }
-    } //I'll need to have it share it rather than downloading it.
+    }
     async function pickSupportedAudioConfig() {
         const candidates: AudioEncodingConfig[] = [
             { codec: 'aac', bitrate: 128000 },
