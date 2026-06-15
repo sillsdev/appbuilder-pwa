@@ -1647,6 +1647,9 @@ LOGGING:
                                             }
                                             workspace.paragraphDiv = document.createElement('div');
                                             workspace.paragraphDiv.classList.add(paraClass);
+                                            if (paraClass === 'b') {
+                                                workspace.paragraphDiv.innerHTML += '&nbsp;';
+                                            }
                                         }
                                         break;
                                     }
