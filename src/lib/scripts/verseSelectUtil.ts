@@ -1,8 +1,10 @@
-export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
-    let target = e.target;
+import { selectedVerses } from '$lib/data/stores';
+
+export function onClickText(e: MouseEvent, maxSelections: number) {
+    let target = e.target as HTMLElement;
 
     while (!isSelectableText(target) && !isClickableText(target) && !isMain(target)) {
-        target = target.parentNode;
+        target = target.parentNode as HTMLElement;
     }
     if (isSelectableText(target)) {
         const id = removeIdSuffixes(target.id);
@@ -20,7 +22,7 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
         }
     }
 }
-export function updateSelections(selections: any) {
+export function updateSelections() {
     const items = Array.from(document.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
@@ -28,33 +30,33 @@ export function updateSelections(selections: any) {
         const id = removeIdSuffixes(items[i].id);
         if (id !== lastId) {
             lastId = id;
-            const verse = selections.getVerseByVerseNumber(id);
+            const verse = selectedVerses.getVerseByVerseNumber(id);
             if (verse.verse === '') {
                 modifyClassOfElements(id, 'selected', false);
             }
         }
     }
     // Select items in list
-    for (let i = 0; i < selections.length(); i++) {
-        const selectedVerse = selections.getVerseByIndex(i).verse;
+    for (let i = 0; i < selectedVerses.length(); i++) {
+        const selectedVerse = selectedVerses.getVerseByIndex(i).verse;
         modifyClassOfElements(selectedVerse, 'selected', true);
     }
 }
 // Deselect all elements
-export function deselectAllElements(selections: any) {
+export function deselectAllElements() {
     const els = document.getElementsByTagName('div');
     for (let i = 0; i < els.length; i++) {
         if (els[i].id != '') {
             els[i].classList.remove('selected');
         }
     }
-    selections.reset();
+    selectedVerses.reset();
 }
 
 // Deselect elements
-export function deselectElements(id: string, selections: any) {
+export function deselectElements(id: string) {
     modifyClassOfElements(id, 'selected', false);
-    selections.removeVerse(id);
+    selectedVerses.removeVerse(id);
 }
 
 function removeIdSuffixes(id: string) {
@@ -64,26 +66,26 @@ function removeIdSuffixes(id: string) {
     }
     // Remove a/b/c suffix of id if after a verse number
     // or after a verse range, e.g. 2-3
-    const num = id.match(/[0-9]+(-[0-9]+)?/)[0];
+    const num = id.match(/[0-9]+(-[0-9]+)?/)?.[0];
     if (num) {
         id = id.substring(0, id.indexOf(num) + num.length);
     }
 
     return id;
 }
-export function isSelectableText(target) {
+export function isSelectableText(target: HTMLElement) {
     return target.classList.contains('seltxt');
 }
 
-function isClickableText(target) {
+function isClickableText(target: HTMLElement) {
     return target.tagName === 'A';
 }
 
-function isMain(target) {
+function isMain(target: HTMLElement) {
     return target.tagName === 'MAIN';
 }
 // Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function modifyClassOfElements(id, clsName, select) {
+function modifyClassOfElements(id: string, clsName: string, select: boolean) {
     let success = modifyClassOfElement(id, clsName, select);
     for (let i = 97; i <= 122; i++) {
         const letter = String.fromCharCode(i);

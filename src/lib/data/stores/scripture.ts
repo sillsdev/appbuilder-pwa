@@ -1,10 +1,11 @@
 import { scriptureConfig } from '$assets/config';
-import { setDefaultStorage } from '$lib/data/stores/storage';
+import { updateSelections } from '$lib/scripts/verseSelectUtil';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
 import { pk } from './pk';
 import { referenceStore } from './reference';
+import { setDefaultStorage } from './storage';
 
 function createStack<T>() {
     const external = writable([] as T[]);
@@ -108,6 +109,9 @@ export async function getVerseText(item: Selection, item2?: Selection) {
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
 
+type Block = { key: string; text: string; tokens: { payload: string }[] };
+export type GlossaryQueryResult = { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+
 /*
  *  glossary is returning a Promise
  */
@@ -135,7 +139,6 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ' +
         '} ' +
         '} ';
-    type Block = { key: string; tokens: { payload: string }[] };
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
         glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
@@ -146,7 +149,7 @@ export const glossary = derived(docSet, async ($docSet) => {
             block.key = key.trim();
         });
     }
-    return glossaryResults as { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+    return glossaryResults as GlossaryQueryResult;
 });
 
 function getDefaultCurrentFonts() {
@@ -205,7 +208,10 @@ export type Selection = {
     reference: string;
     verse: string;
 };
+
 setDefaultStorage('selectedVerses', JSON.stringify([]));
+
+export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 function createSelectedVerses() {
     const external: Writable<Selection[]> = writable(JSON.parse(localStorage.selectedVerses));
     external.subscribe(
@@ -229,6 +235,7 @@ function createSelectedVerses() {
             const newIndex = getInsertIndex(newVerseNumber, selections);
             selections.splice(newIndex, 0, selection);
             external.set(selections);
+            updateSelections();
         },
         removeVerse: (id: string | number) => {
             const selections = get(external);
@@ -237,9 +244,11 @@ function createSelectedVerses() {
                 selections.splice(index, 1);
                 external.set(selections);
             }
+            updateSelections();
         },
         reset: () => {
             external.set([]);
+            updateSelections();
         },
         length: () => {
             const selections = get(external);

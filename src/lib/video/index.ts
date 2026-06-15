@@ -159,7 +159,7 @@ export function createVideoBlockFromUrl(
     document: Document,
     videoUrl: string,
     features: { [key: string]: any }
-): HTMLElement {
+): HTMLDivElement {
     const url = getEmbeddedVideoUrl(videoUrl, false, features);
 
     const videoBlockDiv = document.createElement('div');
@@ -181,7 +181,7 @@ export function createVideoBlockFromUrl(
     return videoBlockDiv;
 }
 
-export function createVideoBlock(document: Document, video: any, index: any): HTMLElement {
+export function createVideoBlock(document: Document, video: any, index: any): HTMLDivElement {
     const type = getVideoType(video.onlineUrl);
     const videoBlockDiv = document.createElement('div');
     videoBlockDiv.classList.add('video-block');
