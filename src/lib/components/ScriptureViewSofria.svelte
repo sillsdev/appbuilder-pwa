@@ -1648,8 +1648,7 @@ LOGGING:
                                             workspace.paragraphDiv = document.createElement('div');
                                             workspace.paragraphDiv.classList.add(paraClass);
                                             if (paraClass === 'b') {
-                                                workspace.paragraphDiv.innerHTML += '<br>';
-                                                workspace.paragraphDiv.classList.add('txs');
+                                                workspace.paragraphDiv.innerHTML += '&nbsp;';
                                             }
                                         }
                                         break;
