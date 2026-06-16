@@ -1,4 +1,5 @@
 import { scriptureConfig } from '$assets/config';
+import type { BookCollectionAudioConfig } from '$config';
 import { isBlank } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
 
@@ -14,7 +15,7 @@ export class NavigationContext {
     chapterLength: number;
     chapterVerses: string;
     verse: string;
-    audio: any;
+    audio: BookCollectionAudioConfig | undefined;
     title: string;
     bookTab: number;
     name: string;
@@ -138,12 +139,12 @@ export class NavigationContext {
     }
 
     private updateAudio() {
-        this.audio =
-            this.config.traits['has-audio'] &&
-            this.config.bookCollections
-                ?.find((x) => x.id === this.collection)
-                ?.books.find((x) => x.id === this.book)
-                ?.audio.find((x) => String(x.num) === this.chapter);
+        this.audio = this.config?.traits?.['has-audio']
+            ? (this.config.bookCollections
+                  ?.find((x) => x.id === this.collection)
+                  ?.books.find((x) => x.id === this.book)
+                  ?.audio.find((x) => String(x.num) === this.chapter) as BookCollectionAudioConfig)
+            : undefined;
     }
 
     private updateHeadings() {

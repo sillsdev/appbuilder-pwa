@@ -14,9 +14,9 @@ TODO:
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import config, { scriptureConfig } from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
-    import { play, seekToVerse } from '$lib/data/audio';
+    import { playVerses } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
@@ -110,12 +110,17 @@ TODO:
         selectedVerses.reset();
     }
 
-    // resets underlined verses and plays verse audio
-    function playVerseAudio() {
-        const element = $selectedVerses[0].verse;
-        const tagSelected = element + 'a';
-        seekToVerse(tagSelected);
-        play();
+    // Play from first selected verse, optionally repeating after the last verse
+    function playSelectedVerseAudio(options: { repeat: boolean }) {
+        const startVerse = $selectedVerses[0].verse;
+
+        if (options.repeat) {
+            const endVerse = $selectedVerses[$selectedVerses.length - 1].verse;
+            playVerses(startVerse, endVerse);
+        } else {
+            playVerses(startVerse);
+        }
+
         $audioActive = true;
         selectedVerses.reset();
     }
@@ -169,13 +174,19 @@ TODO:
                     {/each}
                 </div>
             {:else}
-                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playVerseAudio()}>
+                {#if isAudioPlayable && $refs.hasAudio?.timingFile}
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        onclick={() => playSelectedVerseAudio({ repeat: false })}
+                    >
                         <AudioIcon.Play color={iconColor} />
                     </button>
                 {/if}
-                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                {#if isRepeatableAudio && $refs.hasAudio?.timingFile}
+                    <button
+                        class="dy-btn-sm dy-btn-ghost"
+                        onclick={() => playSelectedVerseAudio({ repeat: true })}
+                    >
                         <AudioIcon.PlayRepeat color={iconColor} />
                     </button>
                 {/if}
