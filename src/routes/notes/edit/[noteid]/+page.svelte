@@ -78,8 +78,14 @@
                 <div class="grid h-10 place-items-center dy-join-item">
                     {$t[title]}
                 </div>
+
+                <!-- CSS variable indirection: Tailwind JIT scans at build time and won't generate
+                     classes for runtime-interpolated values like after:bg-[{$actionBarColor}].
+                     Setting a CSS var in style= lets the browser resolve the color at runtime
+                     while Tailwind sees the static string var(--divider-color) at build time. -->
                 <div
-                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-white before:bg-white dy-join-item"
+                    style="--divider-color: {$actionBarColor}"
+                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-[var(--divider-color)] before:bg-[var(--divider-color)] dy-join-item"
                 ></div>
                 <div class="grid sm:flex h-10 place-items-center dy-join-item">
                     {reference}
