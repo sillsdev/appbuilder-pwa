@@ -6,6 +6,7 @@
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
+    import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
     import { removeNote, type NoteItem } from '$lib/data/notes';
     import { bodyFontSize, monoIconColor, refs, t } from '$lib/data/stores';
     import { NoteIcon } from '$lib/icons';
@@ -81,6 +82,7 @@
         class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
+        <SafariAnnotationWarning />
         {#if data.notes.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Notes_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Notes_None_Info']}</div>
