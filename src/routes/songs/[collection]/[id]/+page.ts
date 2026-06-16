@@ -48,21 +48,13 @@ export const load: PageLoad = async ({ params, fetch }) => {
     return {
         songsByTitle: titleData
             .split(/\r?\n/)
-            .filter((value) => {
-                return value.split('\t').length === 2;
-            })
-            .map((value) => {
-                const separatedValue = value.split('\t');
-                return { number: separatedValue[0], title: separatedValue[1] };
-            }),
+            .map((line) => line.split('\t'))
+            .filter((parts) => parts.length === 2)
+            .map((parts) => ({ number: parts[0], title: parts[1] })),
         songsByNumber: numberData
             .split(/\r?\n/)
-            .filter((value) => {
-                return value.split('\t').length === 2;
-            })
-            .map((value) => {
-                const separatedValue = value.split('\t');
-                return { number: separatedValue[0], title: separatedValue[1] };
-            })
+            .map((line) => line.split('\t'))
+            .filter((parts) => parts.length === 2)
+            .map((parts) => ({ number: parts[0], title: parts[1] }))
     };
 };

@@ -27,6 +27,7 @@
     const songArray = $derived(curTab === 0 ? data.songsByNumber : data.songsByTitle);
 
     async function completeNavigation(songNumber: string) {
+        nextRef.reset();
         await navigateToText({
             docSet: $refs.docSet,
             collection: $refs.collection,

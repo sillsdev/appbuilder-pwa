@@ -31,11 +31,20 @@ The navbar component.
             ?.find((x) => $refs.collection === x.id)
             ?.books.find((x) => book === x.id)?.type;
         if (!bookType) {
-            return true;
+            return $userSettingsOrDefault['verse-selection'];
         }
         return $userSettingsOrDefault['verse-selection'] && bookType !== 'songs';
     }) as boolean;
-    const hideEmptyChapters = $derived(config.mainFeatures['hide-empty-chapters'] as boolean);
+    const hideEmptyChapters = $derived.by(() => {
+        const bookType = scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.type;
+        if (!bookType) {
+            return $userSettingsOrDefault['hide-empty-chapters'];
+        }
+        return $userSettingsOrDefault['hide-empty-chapters'] && bookType !== 'songs';
+    }) as boolean;
+
     const verseCount = $derived(getVerseCount(book, chapter));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
     const chaptersLabels = $derived(
