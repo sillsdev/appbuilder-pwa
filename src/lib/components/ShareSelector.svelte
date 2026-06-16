@@ -1,6 +1,6 @@
 <!--
 @component
-A component for verse-on-image providing a dropdown where you can choose to download an image or a video
+A component providing a dropdown where you can choose to download audio or video for selected text
 -->
 
 <script lang="ts">
