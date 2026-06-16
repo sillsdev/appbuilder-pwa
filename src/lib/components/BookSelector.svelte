@@ -311,6 +311,7 @@ The navbar component.
             visible: showChapterSelector && showVerseSelector
         }
     } satisfies App.TabMenuOptions);
+    let tabColor = $derived($s?.['ui.selector.tabs']['color']);
 </script>
 
 {#snippet selectList(bcv: string, menuaction: App.MenuActionHandler)}
@@ -352,7 +353,12 @@ The navbar component.
         {/snippet}
         {#snippet content()}
             <div>
-                <TabsMenu bind:this={bookSelector} {options} menuaction={navigateReference} />
+                <TabsMenu
+                    bind:this={bookSelector}
+                    {options}
+                    menuaction={navigateReference}
+                    color={tabColor}
+                />
             </div>
         {/snippet}
     </Dropdown>

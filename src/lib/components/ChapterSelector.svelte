@@ -171,6 +171,7 @@ The navbar component.
         config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0
     );
     const canSelect = config.mainFeatures['show-chapter-selector'];
+    let tabColor = $derived($s?.['ui.selector.tabs']['color']);
 </script>
 
 {#snippet selectGrid(cv: string, menuaction: App.MenuActionHandler)}
@@ -229,6 +230,7 @@ The navbar component.
                             }
                         }}
                         menuaction={navigateReference}
+                        color={tabColor}
                     />
                 </div>
             {/if}

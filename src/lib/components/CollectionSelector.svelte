@@ -4,7 +4,16 @@ Book Collection Selector component.
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { convertStyle, layout, Layout, refs, s, selectedLayouts, t } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        layout,
+        Layout,
+        refs,
+        s,
+        selectedLayouts,
+        t
+    } from '$lib/data/stores';
     import { SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
     import LayoutOptions from './LayoutOptions.svelte';
     import Modal from './Modal.svelte';
@@ -57,6 +66,8 @@ Book Collection Selector component.
     function handleCancel() {
         $selectedLayouts = JSON.parse(restoreDocSets);
     }
+
+    let tabColor = $derived($s?.['ui.layouts.tabs']['color']);
 </script>
 
 {#snippet layoutOptions(layoutOption: Layout, menuaction: App.MenuActionHandler)}
@@ -65,11 +76,11 @@ Book Collection Selector component.
 
 {#snippet icon(mode: Layout)}
     {#if mode === Layout.Single}
-        <SinglePaneIcon />
+        <SinglePaneIcon color={$actionBarColor} />
     {:else if mode === Layout.Two}
-        <SideBySideIcon />
+        <SideBySideIcon color={$actionBarColor} />
     {:else}
-        <VerseByVerseIcon />
+        <VerseByVerseIcon color={$actionBarColor} />
     {/if}
 {/snippet}
 
@@ -94,6 +105,7 @@ Book Collection Selector component.
             }
         }}
         scroll={true}
+        color={tabColor}
     />
     <div class="flex w-full justify-between dy-modal-action">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
