@@ -19,6 +19,7 @@ The navbar component.
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
     const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
     const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']) as boolean;
+    const hideEmptyChapters = $derived(config.mainFeatures['hide-empty-chapters'] as boolean);
     const verseCount = $derived(getVerseCount(book, chapter));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
     const chaptersLabels = $derived(
@@ -179,10 +180,12 @@ The navbar component.
                                 }
                             ]
                           : undefined,
-                      cells: Object.keys(chapters).map((x) => ({
-                          label: getChapterLabel(x),
-                          id: x
-                      }))
+                      cells: Object.keys(chapters)
+                          .filter((y) => !hideEmptyChapters || Object.keys(chapters[y]).length > 0)
+                          .map((x) => ({
+                              label: getChapterLabel(x),
+                              id: x
+                          }))
                   }
               ]
             : verseGridGroup(chapter)}

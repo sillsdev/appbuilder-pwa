@@ -36,6 +36,7 @@ The navbar component.
     const listView = $derived($userSettingsOrDefault['book-selection'] === 'list');
     const showVerseSelector = $derived($userSettingsOrDefault['verse-selection'] as boolean);
     const showSelectors = $derived(config.mainFeatures['book-select'] !== 'none');
+    const hideEmptyChapters = $derived(config.mainFeatures['hide-empty-chapters'] as boolean);
 
     // Translated book, chapter, and verse tab labels
     const b = $derived($t.Selector_Book);
@@ -247,19 +248,35 @@ The navbar component.
         return groups;
     };
 
-    let chapterGridGroup = (chapters: Record<string, unknown>) => {
+    let chapterGridGroup = () => {
         let hasIntroduction = books.find((x) => x.bookCode === book)?.hasIntroduction;
-        return [
-            {
-                rows: hasIntroduction
-                    ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
-                    : null,
-                cells: Object.keys(chapters).map((x) => ({
-                    label: getChapterLabel(x),
-                    id: x
-                }))
-            }
-        ];
+        if (hideEmptyChapters) {
+            return [
+                {
+                    rows: hasIntroduction
+                        ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                        : null,
+                    cells: Object.keys(chapters)
+                        .filter((y) => Object.keys(chapters[y]).length > 0)
+                        .map((x) => ({
+                            label: getChapterLabel(x),
+                            id: x
+                        }))
+                }
+            ];
+        } else {
+            return [
+                {
+                    rows: hasIntroduction
+                        ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                        : null,
+                    cells: Object.keys(chapters).map((x) => ({
+                        label: getChapterLabel(x),
+                        id: x
+                    }))
+                }
+            ];
+        }
     };
     let verseGridGroup = (chapter: string) => {
         let value;
@@ -323,7 +340,7 @@ The navbar component.
                   bookLabel: 'abbreviation'
               })
             : bcv === c
-              ? chapterGridGroup(chapters)
+              ? chapterGridGroup()
               : verseGridGroup(chapter)}
         {menuaction}
     />
