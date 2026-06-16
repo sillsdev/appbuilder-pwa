@@ -66,83 +66,119 @@ A component providing a dropdown where you can choose to download audio or video
             const audioSource = new AudioBufferSource(audioConfig);
             output.addAudioTrack(audioSource);
             await output.start();
+            console.log(audioSourceInfo?.source);
+            let isRemote;
 
-            const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
-            const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
+            try {
+                let url = new URL(audioSourceInfo.source);
+                isRemote = url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                isRemote = false;
+            }
+            if (isRemote) {
+                try {
+                    let verses = await selectedVerses.getCompositeText();
+                    navigator.share({
+                        title: reference,
+                        text: verses,
+                        url: audioSourceInfo.source
+                    });
+                } catch (error) {
+                    if ((error as { name?: string })?.name === 'AbortError') {
+                        return; // user intentionally dismissed native share UI
+                    }
+                    console.error('Error sharing: ', error);
+                }
 
-            const sampleRate = audioBuffer.sampleRate;
+                // if we're here, we failed to share, so we'll try to use the download link. This generally is just going to open the URL rather than downloading it.
+                const anchor = document.createElement('a');
+                anchor.href = audioSourceInfo.source;
+                anchor.download = '';
+                anchor.click();
+            } else {
+                const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
+                const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
 
-            for (let i = 0; i < $selectedVerses.length; i++) {
-                let startFrame = 0;
-                let endFrame = 0;
-                for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
-                    const timing = audioSourceInfo?.timing?.[j];
-                    const verse = timing?.tag?.replace(/\D/g, '');
-                    if (verse === $selectedVerses[i].verse) {
-                        if (!startFrame) {
-                            startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
-                            endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
-                        } else {
-                            endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                const sampleRate = audioBuffer.sampleRate;
+
+                for (let i = 0; i < $selectedVerses.length; i++) {
+                    let startFrame = 0;
+                    let endFrame = 0;
+                    for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
+                        const timing = audioSourceInfo?.timing?.[j];
+                        const verse = timing?.tag?.replace(/\D/g, '');
+                        if (verse === $selectedVerses[i].verse) {
+                            if (!startFrame) {
+                                startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
+                                endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                            } else {
+                                endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                            }
                         }
                     }
-                }
-                if (endFrame <= startFrame) {
-                    console.warn(`No timing found for verse ${$selectedVerses[i].verse}, skipping`);
-                    continue;
-                }
-                const trimmedBuffer = audioCtx.createBuffer(
-                    audioBuffer.numberOfChannels,
-                    endFrame - startFrame,
-                    sampleRate
-                );
+                    if (endFrame <= startFrame) {
+                        console.warn(
+                            `No timing found for verse ${$selectedVerses[i].verse}, skipping`
+                        );
+                        continue;
+                    }
+                    const trimmedBuffer = audioCtx.createBuffer(
+                        audioBuffer.numberOfChannels,
+                        endFrame - startFrame,
+                        sampleRate
+                    );
 
-                for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
-                    const src = audioBuffer.getChannelData(ch);
-                    const dst = trimmedBuffer.getChannelData(ch);
-                    dst.set(src.slice(startFrame, endFrame));
+                    for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+                        const src = audioBuffer.getChannelData(ch);
+                        const dst = trimmedBuffer.getChannelData(ch);
+                        dst.set(src.slice(startFrame, endFrame));
+                    }
+
+                    await audioSource.add(trimmedBuffer);
+                }
+                await output.finalize();
+
+                const buffer = output.target.buffer as BlobPart;
+                const blob = new Blob([buffer], {
+                    type: 'audio/' + outputFormat.name
+                });
+                const filename = reference + '.' + outputFormat.name;
+                const file = new File([blob], filename, {
+                    type: 'audio/' + outputFormat.name
+                });
+                try {
+                    if (
+                        navigator.share &&
+                        navigator.canShare &&
+                        navigator.canShare({ files: [file] })
+                    ) {
+                        let verses = await selectedVerses.getCompositeText();
+                        const shareData: ShareData = {
+                            title: reference,
+                            text: verses,
+                            files: [file]
+                        };
+
+                        await navigator.share(shareData);
+                        return;
+                    }
+                } catch (error) {
+                    if ((error as { name?: string })?.name === 'AbortError') {
+                        return; // user intentionally dismissed native share UI
+                    }
+                    console.error('Error sharing: ', error);
                 }
 
-                await audioSource.add(trimmedBuffer);
+                // if we're here, we failed to share, so we'll try to use the download link
+                const url = URL.createObjectURL(file);
+
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = filename;
+                anchor.click();
+
+                URL.revokeObjectURL(url);
             }
-            await output.finalize();
-
-            const buffer = output.target.buffer as BlobPart;
-            const blob = new Blob([buffer], {
-                type: 'audio/' + outputFormat.name
-            });
-            const filename = reference + '.' + outputFormat.name;
-            const file = new File([blob], filename, {
-                type: 'audio/' + outputFormat.name
-            });
-            try {
-                if (
-                    navigator.share &&
-                    navigator.canShare &&
-                    navigator.canShare({ files: [file] })
-                ) {
-                    let verses = await selectedVerses.getCompositeText();
-                    const shareData: ShareData = { title: reference, text: verses, files: [file] };
-
-                    await navigator.share(shareData);
-                    return;
-                }
-            } catch (error) {
-                if ((error as { name?: string })?.name === 'AbortError') {
-                    return; // user intentionally dismissed native share UI
-                }
-                console.error('Error sharing: ', error);
-            }
-
-            // if we're here, we failed to share, so we'll try to use the download link
-            const url = URL.createObjectURL(file);
-
-            const anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.download = filename;
-            anchor.click();
-
-            URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error generating audio export:', error);
         } finally {
