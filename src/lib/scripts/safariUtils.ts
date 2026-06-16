@@ -11,15 +11,26 @@ function isSafariWithoutStandalone(): boolean {
 
 export function shouldShowSafariWarning(): boolean {
     if (typeof window === 'undefined') return false;
-    // Debug override: add ?debug_safari=true to any URL to force-show the warning
+    // Debug override: because the app uses hash routing, append ?debug_safari=true
+    // inside the hash, e.g. /#/bookmarks?debug_safari=true
     const hashQuery = window.location.hash.split('?')[1] ?? '';
     if (new URLSearchParams(hashQuery).get('debug_safari') === 'true') return true;
     if (!isSafariWithoutStandalone()) return false;
-    const dismissed = localStorage.getItem(DISMISSED_KEY);
-    if (!dismissed) return true;
-    return Date.now() - parseInt(dismissed, 10) > DISMISS_DURATION_MS;
+    try {
+        const dismissed = localStorage.getItem(DISMISSED_KEY);
+        if (!dismissed) return true;
+        const dismissedAt = parseInt(dismissed, 10);
+        if (isNaN(dismissedAt)) return true;
+        return Date.now() - dismissedAt > DISMISS_DURATION_MS;
+    } catch {
+        return true;
+    }
 }
 
 export function dismissSafariWarning(): void {
-    localStorage.setItem(DISMISSED_KEY, Date.now().toString());
+    try {
+        localStorage.setItem(DISMISSED_KEY, Date.now().toString());
+    } catch {
+        // If storage is unavailable, silently ignore — the warning will reappear next visit
+    }
 }
