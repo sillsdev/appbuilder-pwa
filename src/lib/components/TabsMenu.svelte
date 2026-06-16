@@ -40,10 +40,11 @@ A component to display tabbed menus.
         active = tab;
     };
     const ActiveComponent = $derived(options[active]?.snippet);
+    //When used for collection selector, this needs to use the ui.dialog style rather than the ui.selector.tabs style.
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs dy-tabs-bordered mb-1" /* style={convertStyle($s?.['ui.selector.tabs'])}*/>
+    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s?.['ui.selector.tabs'])}>
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y_missing_attribute -->

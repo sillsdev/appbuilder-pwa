@@ -15,8 +15,8 @@
     const showSinglePane = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Single)
         ?.enabled;
     const showSideBySide = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
-    const showVerseByVerse =
-        !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)?.enabled || true;
+    const showVerseByVerse = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)
+        ?.enabled; //Not yet implemented
     function getSelectedLayout() {
         const collections = selectedLayouts.collections(tabMenuActive);
         return {
