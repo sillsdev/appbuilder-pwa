@@ -66,7 +66,6 @@ A component providing a dropdown where you can choose to download audio or video
             const audioSource = new AudioBufferSource(audioConfig);
             output.addAudioTrack(audioSource);
             await output.start();
-            console.log(audioSourceInfo?.source);
             let isRemote;
 
             try {
@@ -78,11 +77,12 @@ A component providing a dropdown where you can choose to download audio or video
             if (isRemote) {
                 try {
                     let verses = await selectedVerses.getCompositeText();
-                    navigator.share({
+                    await navigator.share({
                         title: reference,
                         text: verses,
                         url: audioSourceInfo.source
                     });
+                    return;
                 } catch (error) {
                     if ((error as { name?: string })?.name === 'AbortError') {
                         return; // user intentionally dismissed native share UI
