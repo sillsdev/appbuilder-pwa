@@ -69,7 +69,7 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
-    import { onDestroy, onMount, tick, untrack } from 'svelte';
+    import { onDestroy, onMount, tick } from 'svelte';
     import {
         pinch,
         swipe,
@@ -143,6 +143,7 @@
 
     let x = new Tween(0);
     let startX = 0;
+    let directNavigation = false;
     let isDragging = $state(false);
     let draggableWidth = $state(0);
     let panels_X = $state([0, 0, 0]);
@@ -181,7 +182,6 @@
         settingsCache[2] = {
             // Initial settings for right panel
             ...viewSettings,
-            highlights: Promise.resolve([]),
             references: {
                 ...viewSettings.references,
                 book: viewSettings.references.next.book,
@@ -203,7 +203,6 @@
             idx = panels_X.indexOf(Math.min(...panels_X));
             settingsCache[idx] = {
                 ...viewSettings, // load in the page before
-                highlights: Promise.resolve([]),
                 references: {
                     ...viewSettings.references,
                     book: viewSettings.references.prev.book,
@@ -215,7 +214,6 @@
             idx = panels_X.indexOf(Math.max(...panels_X));
             settingsCache[idx] = {
                 ...viewSettings, // load in the next page
-                highlights: Promise.resolve([]),
                 references: {
                     ...viewSettings.references,
                     book: viewSettings.references.next.book,
@@ -223,21 +221,7 @@
                 }
             };
         }
-        idx = panels_X.indexOf(0);
-        settingsCache[idx].highlights = viewSettings.highlights;
     }
-
-    $effect(() => {
-        const highlights = viewSettings.highlights;
-
-        // untrack prevents these reads from becoming dependencies
-        untrack(() => {
-            if (x.current === 0) {
-                const idx = panels_X.indexOf(0);
-                settingsCache[idx].highlights = highlights;
-            }
-        });
-    });
 
     async function adjustPanelX(panelX: number, direction: number) {
         if (Math.abs(panels_X[panelX]) > draggableWidth) {
@@ -250,16 +234,13 @@
         }
     }
 
-    async function handleMouseUp(_event: PointerEvent) {
+    async function handleMouseUp(_event: any) {
         isDragging = false;
-        if (Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) {
-            momentum = 0;
-            maxMomentum = 0;
+        if (Math.abs(x.current) < minSlideDistance()) {
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
-            momentum = 0;
-            maxMomentum = 0;
+            directNavigation = true;
             if (!(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: Math.abs(x.current) });
                 return;
@@ -270,8 +251,7 @@
             await tick();
             await x.set(0, { duration: Math.abs(x.current) });
         } else {
-            momentum = 0;
-            maxMomentum = 0;
+            directNavigation = true;
             if (!(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: Math.abs(x.current) });
                 return;
@@ -283,28 +263,8 @@
             await x.set(0, { duration: Math.abs(x.current) });
         }
     }
-    //         if (!(hasNext && navigateBetweenBooksNext)) {
-    //             x.set(0);
-    //             return;
-    //         }
-    //         await x.set(-draggableWidth);
-    //         await navigateToTextChapterInDirection(1);
-    //         x.set(0, { duration: 0 });
-    //     } else {
-    //         if (!(hasPrev && navigateBetweenBooksPrev)) {
-    //             x.set(0);
-    //             return;
-    //         }
-    //         await x.set(draggableWidth);
-    //         await navigateToTextChapterInDirection(-1);
-    //         x.set(0, { duration: 0 });
-    //     }
-    // }
 
-    // function handleMouseDown(event: { clientX: number }) {
-    //     console.log('MOUSE DOWN');
-
-    function handleMouseDown(event: PointerEvent) {
+    function handleMouseDown(event: { clientX: number }) {
         if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
             isDragging = true;
             startX = event.clientX - x.current;
@@ -317,7 +277,6 @@
             x.set(event.clientX - startX, { duration: 0 });
             if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: 0 });
-                return;
             } else if (x.current < 0 && !(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: 0 });
                 return;
@@ -372,7 +331,7 @@
     const barType = 'book';
 
     async function prevChapter() {
-        await x.set(draggableWidth);
+        directNavigation = true;
         await navigateToTextChapterInDirection(-1);
         await adjustSettingsCache(-1);
         await x.set(-draggableWidth, { duration: 0 });
@@ -380,7 +339,7 @@
         await x.set(0);
     }
     async function nextChapter() {
-        await x.set(-draggableWidth);
+        directNavigation = true;
         await navigateToTextChapterInDirection(1);
         await adjustSettingsCache(1);
         await x.set(draggableWidth, { duration: 0 });
@@ -428,7 +387,7 @@
         )
     );
 
-    const showSearch = !!config.mainFeatures['search']; // Why are there double negations on these??
+    const showSearch = !!config.mainFeatures['search'];
     const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
     const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
     const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
