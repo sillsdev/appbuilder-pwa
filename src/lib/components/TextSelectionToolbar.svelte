@@ -174,7 +174,7 @@ TODO:
                     {/each}
                 </div>
             {:else}
-                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
+                {#if isAudioPlayable && $refs.hasAudio?.timingFile}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
                         onclick={() => playSelectedVerseAudio({ repeat: false })}
@@ -182,7 +182,7 @@ TODO:
                         <AudioIcon.Play color={iconColor} />
                     </button>
                 {/if}
-                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
+                {#if isRepeatableAudio && $refs.hasAudio?.timingFile}
                     <button
                         class="dy-btn-sm dy-btn-ghost"
                         onclick={() => playSelectedVerseAudio({ repeat: true })}
