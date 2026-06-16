@@ -30,7 +30,7 @@ Custom list of collections for the LayoutOptions menu
     }
 </script>
 
-<ul class="dy-menu dy-menu-compact">
+<ul class="dy-menu dy-menu-compact max-w-screen-md mx-auto">
     {#each docSets as d}
         <!-- svelte-ignore a11y_missing_attribute -->
         <li>
@@ -46,7 +46,7 @@ Custom list of collections for the LayoutOptions menu
                 role="button"
             >
                 {#if d.image}
-                    <div class="layout-image-block">
+                    <div class="layout-image-block self-start">
                         <img class="layout-image" src={illustrations['./' + d.image]} />
                     </div>
                 {/if}

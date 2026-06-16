@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import LayoutOptions from '$lib/components/LayoutOptions.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -32,10 +34,12 @@
         const selectedLayout = getSelectedLayout();
         $refs.docSet = selectedLayout.primaryDocSet;
         $layout = selectedLayout;
+        goto(resolve(`/`));
     }
 
-    function handleCancel() {
+    function backNavigation() {
         $selectedLayouts = JSON.parse(restoreDocSets);
+        goto(resolve(`/`));
     }
 </script>
 
@@ -54,7 +58,7 @@
 {/snippet}
 <div class="flex flex-col h-screen">
     <div class="navbar h-16">
-        <Navbar>
+        <Navbar {backNavigation}>
             {#snippet center()}
                 <label for="sidebar">
                     <div class="btn btn-ghost normal-case text-xl">{$t['Layout_Screen_Title']}</div>
@@ -62,7 +66,7 @@
             {/snippet}
             {#snippet end()}
                 <div>
-                    <button class="dy-btn-sm dy-btn-ghost" /* onclick={handleOk}*/>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={handleOk}>
                         <CheckIcon color="white" />
                     </button>
                 </div>
