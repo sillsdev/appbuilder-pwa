@@ -3,12 +3,12 @@
     import { resolve } from '$app/paths';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { removeBookmark, type BookmarkItem } from '$lib/data/bookmarks';
     import { bodyFontSize, refs, t } from '$lib/data/stores';
-    import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
     import { BookmarkIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { formatDate } from '$lib/scripts/dateUtils';

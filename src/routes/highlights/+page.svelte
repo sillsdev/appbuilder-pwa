@@ -3,10 +3,10 @@
     import { resolve } from '$app/paths';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
-    import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
     import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
     import { bodyFontSize, refs, t } from '$lib/data/stores';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
