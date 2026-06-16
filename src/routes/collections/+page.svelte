@@ -42,7 +42,7 @@
 {#snippet layoutOptions(layoutOption: Layout, menuaction: App.MenuActionHandler)}
     <LayoutOptions {layoutOption} {menuaction} />
 {/snippet}
-
+<!--The background color of the icons should be the DialogBackgroundColor color.-->
 {#snippet icon(mode: Layout)}
     {#if mode === Layout.Single}
         <SinglePaneIcon
@@ -50,9 +50,7 @@
         /><!--From what I can tell, the icons seem to be hardcoded to black in the native app, although I might just be missing the correct color setting to change-->
     {:else if mode === Layout.Two}
         <SideBySideIcon color="black" />
-    {:else}
-        <VerseByVerseIcon color="black" />
-    {/if}
+    {:else}<VerseByVerseIcon color="black" />{/if}
 {/snippet}
 <div class="flex flex-col h-screen">
     <div class="navbar h-16">
