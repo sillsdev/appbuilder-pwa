@@ -37,32 +37,30 @@ Custom list of collections for the LayoutOptions menu
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_interactive_supports_focus -->
 
-            <a
+            <div
                 onclick={() => handleClick(d)}
                 style:background-color={selectedLayouts?.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}
-                class="flex justify-between"
+                class="flex justify-between layout-item-block rounded-none"
                 role="button"
             >
-                <div class="layout-item-block">
-                    {#if d.image}
-                        <div class="layout-image-block" style="width:15%">
-                            <img class="layout-image" src={illustrations['./' + d.image]} />
+                {#if d.image}
+                    <div class="layout-image-block">
+                        <img class="layout-image" src={illustrations['./' + d.image]} />
+                    </div>
+                {/if}
+                <div class="layout-text-block">
+                    <div class="layout-item-name">
+                        {d.name}
+                    </div>
+                    {#if d.description}
+                        <div class="layout-item-description">
+                            {d.description}
                         </div>
                     {/if}
-                    <div class="layout-text-block">
-                        <div class="layout-item-name">
-                            {d.name}
-                        </div>
-                        {#if d.description}
-                            <div class="layout-item-description">
-                                {d.description}
-                            </div>
-                        {/if}
-                    </div>
                 </div>
-            </a>
+            </div>
         </li>
     {/each}
 </ul>
