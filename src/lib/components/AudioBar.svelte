@@ -100,7 +100,7 @@ TODO:
     const iconPlayColor = $derived($s?.['ui.bar.audio.play.icon']['color']);
     const backgroundColor = $derived($s?.['ui.bar.audio']['background-color']);
     const audioBarClass = $derived($refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress');
-    $effect(() => mayResetPlayMode($refs.hasAudio?.timingFile));
+    $effect(() => mayResetPlayMode(!!$refs.hasAudio?.timingFile));
     $effect(() => updatePlaybackSpeed($userSettings['audio-speed'] as string));
 </script>
 
@@ -116,8 +116,8 @@ TODO:
     {#if showRepeatMode}
         <div class="audio-control-buttons">
             <RepeatButton
-                color={iconColor}
-                onclick={() => playMode.next($refs.hasAudio?.timingFile)}
+                color="{iconColor},"
+                onclick={() => playMode.next(!!$refs.hasAudio?.timingFile)}
                 state={$playMode.mode}
             />
         </div>
