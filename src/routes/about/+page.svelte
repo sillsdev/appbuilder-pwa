@@ -2,7 +2,7 @@
     import config from '$assets/config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t } from '$lib/data/stores';
+    import { actionBarColor, t } from '$lib/data/stores';
 
     let { data } = $props();
 
@@ -15,7 +15,10 @@
         <Navbar>
             {#snippet start()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl text-white font-bold pl-1">
+                    <div
+                        class="btn btn-ghost normal-case text-xl font-bold pl-1"
+                        style:color={$actionBarColor}
+                    >
                         {$t['Menu_About']}
                     </div>
                 </label>

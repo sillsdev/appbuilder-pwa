@@ -4,7 +4,15 @@ The navbar component.
 -->
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t,
+        userSettingsOrDefault
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -164,6 +172,7 @@ The navbar component.
         config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0
     );
     const canSelect = config.mainFeatures['show-chapter-selector'];
+    let tabColor = $derived($s?.['ui.selector.tabs']['color']);
 </script>
 
 {#snippet selectGrid(cv: string, menuaction: App.MenuActionHandler)}
@@ -197,11 +206,15 @@ The navbar component.
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
     <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols={5}>
         {#snippet label()}
-            <div class="normal-case" style={convertStyle($s?.['ui.selector.chapter'])}>
+            <div
+                class="normal-case"
+                style:color={$actionBarColor}
+                style={convertStyle($s?.['ui.selector.chapter'])}
+            >
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
-                <DropdownIcon color="white" />
+                <DropdownIcon color={$actionBarColor} />
             {/if}
         {/snippet}
         {#snippet content()}
@@ -220,6 +233,7 @@ The navbar component.
                             }
                         }}
                         menuaction={navigateReference}
+                        color={tabColor}
                     />
                 </div>
             {/if}

@@ -11,6 +11,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { loadCatalog } from '$lib/data/catalogData';
     import {
+        actionBarColor,
         contentsFontSize,
         contentsStack,
         convertStyle,
@@ -269,7 +270,7 @@
                                 onclick={() =>
                                     modal.open(ModalType.TextAppearance, { contentsMode: true })}
                             >
-                                <TextAppearanceIcon color="white" />
+                                <TextAppearanceIcon color={$actionBarColor} />
                             </label>
                         {/if}
                     </div>

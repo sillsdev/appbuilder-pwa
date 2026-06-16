@@ -7,7 +7,7 @@
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_COLOR, SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { removeHighlight, type HighlightItem } from '$lib/data/highlights';
-    import { bodyFontSize, refs, t } from '$lib/data/stores';
+    import { actionBarColor, bodyFontSize, refs, t } from '$lib/data/stores';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
@@ -77,7 +77,7 @@
                     onclick={async () =>
                         await shareAnnotations(toSorted(data.highlights, sortOrder))}
                 >
-                    <ShareIcon color="white" />
+                    <ShareIcon color={$actionBarColor} />
                 </button>
                 <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}

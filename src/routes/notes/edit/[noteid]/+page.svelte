@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import { addNote, editNote, removeNote } from '$lib/data/notes';
-    import { selectedVerses, t } from '$lib/data/stores';
+    import { actionBarColor, selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
@@ -78,8 +78,14 @@
                 <div class="grid h-10 place-items-center dy-join-item">
                     {$t[title]}
                 </div>
+
+                <!-- CSS variable indirection: Tailwind JIT scans at build time and won't generate
+                     classes for runtime-interpolated values like after:bg-[{$actionBarColor}].
+                     Setting a CSS var in style= lets the browser resolve the color at runtime
+                     while Tailwind sees the static string var(--divider-color) at build time. -->
                 <div
-                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-white before:bg-white dy-join-item"
+                    style="--divider-color: {$actionBarColor}"
+                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-[var(--divider-color)] before:bg-[var(--divider-color)] dy-join-item"
                 ></div>
                 <div class="grid sm:flex h-10 place-items-center dy-join-item">
                     {reference}
@@ -90,10 +96,10 @@
         {#snippet end()}
             <div class="dy-join">
                 <button onclick={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
-                    ><DeleteIcon color="white" /></button
+                    ><DeleteIcon color={$actionBarColor} /></button
                 >
                 <button onclick={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
-                    ><CheckIcon color="white" /></button
+                    ><CheckIcon color={$actionBarColor} /></button
                 >
             </div>
         {/snippet}

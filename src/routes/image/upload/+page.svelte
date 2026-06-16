@@ -2,7 +2,7 @@
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, voiCustomImage } from '$lib/data/stores';
+    import { actionBarColor, t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
     import { onDestroy, onMount } from 'svelte';
 
@@ -242,7 +242,7 @@
             {#snippet end()}
                 <div>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={cropImage}>
-                        <CheckIcon color="white" />
+                        <CheckIcon color={$actionBarColor} />
                     </button>
                 </div>
             {/snippet}

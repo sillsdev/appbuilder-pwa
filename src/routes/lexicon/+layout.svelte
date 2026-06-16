@@ -5,7 +5,7 @@
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
-    import { fontChoices, modal, ModalType, t } from '$lib/data/stores';
+    import { actionBarColor, fontChoices, modal, ModalType, t } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';
     import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
@@ -38,7 +38,10 @@
     >
         {#snippet start()}
             <label for="sidebar">
-                <div class="dy-btn dy-btn-ghost normal-case text-xl text-white font-bold pl-1">
+                <div
+                    class="dy-btn dy-btn-ghost normal-case text-xl font-bold pl-1"
+                    style:color={$actionBarColor}
+                >
                     {inSearchRoute ? $t['Menu_Search'] : config.name}
                 </div>
             </label>
@@ -52,14 +55,14 @@
                             goto(resolve(`/lexicon/search`)).then(() => selectWord(null));
                         }}
                     >
-                        <SearchIcon color="white" />
+                        <SearchIcon color={$actionBarColor} />
                     </button>
                     {#if showTextAppearance($fontChoices)}
                         <button
                             class="dy-btn dy-btn-ghost dy-btn-circle"
                             onclick={() => modal.open(ModalType.TextAppearance)}
                         >
-                            <TextAppearanceIcon color="white" />
+                            <TextAppearanceIcon color={$actionBarColor} />
                         </button>
                     {/if}
                 </div>

@@ -4,7 +4,7 @@ A component to display tabbed menus.
 -->
 
 <script lang="ts">
-    import { convertStyle, s } from '$lib/data/stores';
+    import { actionBarColor, convertStyle, s } from '$lib/data/stores';
     import { preventDefault } from '$lib/scripts/event-wrappers';
 
     let {
@@ -12,13 +12,15 @@ A component to display tabbed menus.
         active = $bindable(Object.keys(options).filter((x) => options[x].visible)[0]),
         scroll = true,
         height = '50vh',
-        menuaction
+        menuaction,
+        color
     }: {
         options: App.TabMenuOptions;
         active?: string;
         scroll?: boolean;
         height?: string;
         menuaction?: App.TabMenuActionHandler;
+        color?: string;
     } = $props();
 
     const hasTabs = $derived(Object.keys(options).filter((x) => options[x].visible).length > 1);
@@ -49,11 +51,10 @@ A component to display tabbed menus.
                 <!-- svelte-ignore a11y_interactive_supports_focus -->
                 <a
                     onclick={preventDefault(() => setActive(opt))}
-                    style:border-color={active === opt ? '#FFFFFF' : ''}
-                    class="dy-tab text-white normal-case {active === opt
-                        ? 'dy-tab-active font-bold'
-                        : ''}"
+                    style:border-color={active === opt ? color : ''}
+                    class="dy-tab normal-case {active === opt ? 'dy-tab-active font-bold' : ''}"
                     style:background="none"
+                    style:color={$actionBarColor}
                     role="button"
                 >
                     {#if options[opt].tab?.icon}

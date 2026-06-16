@@ -6,7 +6,15 @@ The navbar component.
     import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { BookConfig } from '$config';
-    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t,
+        userSettingsOrDefault
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText, navigateToUrl } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -320,6 +328,7 @@ The navbar component.
             visible: showChapterSelector && showVerseSelector
         }
     } satisfies App.TabMenuOptions);
+    let tabColor = $derived($s?.['ui.selector.tabs']['color']);
 </script>
 
 {#snippet selectList(bcv: string, menuaction: App.MenuActionHandler)}
@@ -352,21 +361,31 @@ The navbar component.
         {#snippet label()}
             <div
                 class="normal-case whitespace-nowrap"
+                style:color={$actionBarColor}
                 style={convertStyle($s?.['ui.selector.book'])}
             >
                 {labelDisplayed}
             </div>
-            <DropdownIcon color="white" />
+            <DropdownIcon color={$actionBarColor} />
         {/snippet}
         {#snippet content()}
             <div>
-                <TabsMenu bind:this={bookSelector} {options} menuaction={navigateReference} />
+                <TabsMenu
+                    bind:this={bookSelector}
+                    {options}
+                    menuaction={navigateReference}
+                    color={tabColor}
+                />
             </div>
         {/snippet}
     </Dropdown>
 {:else}
     <!-- Book Label -->
-    <div class="normal-case whitespace-nowrap" style={convertStyle($s?.['ui.selector.book'])}>
+    <div
+        class="normal-case whitespace-nowrap"
+        style:color={$actionBarColor}
+        style={convertStyle($s?.['ui.selector.book'])}
+    >
         {labelDisplayed}
     </div>
 {/if}
