@@ -5,7 +5,6 @@
     import '$lib/styles/app.css';
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
@@ -65,9 +64,6 @@
         if ($modal.length > 0) {
             $modal.forEach(({ modalType, data }) => {
                 switch (modalType) {
-                    case ModalType.Collection:
-                        collectionSelector?.showModal();
-                        break;
                     case ModalType.Note:
                         noteDialog?.showModal(data as Parameters<NoteDialog['showModal']>[0]);
                         break;
@@ -106,7 +102,6 @@
     });
 
     let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
-    let collectionSelector: CollectionSelector | undefined = $state();
     let fontSelector: FontSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
@@ -140,9 +135,6 @@
         {#if isSAB}
             <!-- Add Note Menu -->
             <NoteDialog bind:this={noteDialog} />
-
-            <!-- Collection Selector Menu -->
-            <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
         {/if}
         <!-- Text Appearance Options Menu -->
         <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />

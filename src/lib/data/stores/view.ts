@@ -26,7 +26,6 @@ const singleLayout = { mode: Layout.Single, auxDocSets: [] };
 export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(singleLayout);
 
 export const ModalType = {
-    Collection: 'collection',
     Note: 'note',
     TextAppearance: 'text-appearance',
     Font: 'font',

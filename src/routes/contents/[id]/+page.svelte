@@ -103,7 +103,7 @@
                         goto(resolve(`/${item.linkLocation}`));
                         break;
                     case 'layout':
-                        modal.open(ModalType.Collection);
+                        goto(resolve(`/collections`));
                         break;
                     case 'website':
                         //opens in a separate tab

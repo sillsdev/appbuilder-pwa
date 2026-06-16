@@ -173,10 +173,7 @@ The sidebar/drawer.
             {#if showLayouts}
                 <li>
                     <!-- svelte-ignore a11y_missing_attribute -->
-                    <button
-                        style:color={textColor}
-                        onclick={() => modal.open(ModalType.Collection)}
-                    >
+                    <button style:color={textColor} onclick={() => goto(resolve(`/collections`))}>
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>
