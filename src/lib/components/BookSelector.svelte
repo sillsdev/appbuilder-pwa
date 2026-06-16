@@ -343,6 +343,7 @@ The navbar component.
         {#snippet label()}
             <div
                 class="normal-case whitespace-nowrap"
+                style:color={$actionBarColor}
                 style={convertStyle($s?.['ui.selector.book'])}
             >
                 {labelDisplayed}
@@ -357,7 +358,11 @@ The navbar component.
     </Dropdown>
 {:else}
     <!-- Book Label -->
-    <div class="normal-case whitespace-nowrap" style={convertStyle($s?.['ui.selector.book'])}>
+    <div
+        class="normal-case whitespace-nowrap"
+        style:color={$actionBarColor}
+        style={convertStyle($s?.['ui.selector.book'])}
+    >
         {labelDisplayed}
     </div>
 {/if}

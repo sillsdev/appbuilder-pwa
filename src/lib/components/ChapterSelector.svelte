@@ -202,7 +202,11 @@ The navbar component.
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
     <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols={5}>
         {#snippet label()}
-            <div class="normal-case" style={convertStyle($s?.['ui.selector.chapter'])}>
+            <div
+                class="normal-case"
+                style:color={$actionBarColor}
+                style={convertStyle($s?.['ui.selector.chapter'])}
+            >
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
