@@ -109,5 +109,6 @@
             }
         }}
         scroll={false}
+        styleType="ui.dialog"
     />
 </div>

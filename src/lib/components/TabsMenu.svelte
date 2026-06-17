@@ -13,7 +13,8 @@ A component to display tabbed menus.
         scroll = true,
         height = '50vh',
         menuaction,
-        color
+        color,
+        styleType = 'ui.selector.tabs'
     }: {
         options: App.TabMenuOptions;
         active?: string;
@@ -21,6 +22,7 @@ A component to display tabbed menus.
         height?: string;
         menuaction?: App.TabMenuActionHandler;
         color?: string;
+        styleType?: string;
     } = $props();
 
     const hasTabs = $derived(Object.keys(options).filter((x) => options[x].visible).length > 1);
@@ -40,11 +42,10 @@ A component to display tabbed menus.
         active = tab;
     };
     const ActiveComponent = $derived(options[active]?.snippet);
-    //When used for collection selector, this needs to use the ui.dialog style rather than the ui.selector.tabs style.
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s?.['ui.selector.tabs'])}>
+    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s?.[styleType])}>
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y_missing_attribute -->
@@ -74,5 +75,6 @@ A component to display tabbed menus.
     style:overflow-y={scroll ? 'auto' : ''}
     style:max-height={height}
 >
+    Hello
     {@render ActiveComponent?.(active, handleMenuaction)}
 </div>
