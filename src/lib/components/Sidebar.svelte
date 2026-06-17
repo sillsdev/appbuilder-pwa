@@ -86,6 +86,10 @@ The sidebar/drawer.
     const showAccount = !!(
         config.firebase?.features['firebase-database'] && config.mainFeatures['user-accounts']
     );
+    const fontRelativeSize = $derived(
+        config.interfaceLanguages?.writingSystems[$language]?.fontRelativeSize
+    );
+    const fontSize = $derived(fontRelativeSize ? fontRelativeSize : '100');
 
     function imageSrcSet(images: MenuItemConfig['images']) {
         const baseSize = Number(images?.[0]?.width);
@@ -135,6 +139,7 @@ The sidebar/drawer.
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
             style:background-color={drawerBackgroundColor}
             style:direction={$direction}
+            style:font-size="{fontSize}%"
         >
             <!-- Sidebar content here -->
             <a class="fill" href={resolve('/')}>

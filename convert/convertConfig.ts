@@ -940,6 +940,7 @@ export function parseInterfaceLanguages(document: Document, data: AppConfig, ver
 export function parseWritingSystem(element: Element, verbose: number): WritingSystemConfig {
     const type = element.attributes.getNamedItem('type')!.value;
     const fontFamily = element.getElementsByTagName('font-family')[0].innerHTML;
+    const fontRelativeSize = parseTrait(element, 'font-relative-size');
     const textDirection = parseTrait(element, 'text-direction');
     const displaynamesTag = element.getElementsByTagName('display-names')[0];
     const displayNames: Record<string, string> = {};
@@ -950,6 +951,7 @@ export function parseWritingSystem(element: Element, verbose: number): WritingSy
         type,
         fontFamily,
         textDirection,
+        fontRelativeSize,
         displayNames
     };
 
@@ -1607,8 +1609,6 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
             });
         }
     }
-    // Verse on image is not done
-    //data.mainFeatures['text-on-image'] = false;
 
     // Share only implements links to apps on stores
     data.mainFeatures['share-download-app-link'] = false;
