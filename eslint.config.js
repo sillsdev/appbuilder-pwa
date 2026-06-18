@@ -22,7 +22,7 @@ export default ts.config(
         }
     },
     {
-        files: ['**/*.ts'],
+        files: ['src/**/*.ts'],
         languageOptions: {
             parserOptions: {
                 projectService: true
