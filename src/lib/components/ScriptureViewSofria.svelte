@@ -1279,11 +1279,13 @@ LOGGING:
         if (footer && container.getElementsByClassName('footer').length == 0) {
             const divFooter = document.createElement('div');
             divFooter.classList.add('footer');
+            divFooter.classList.add('md:footer-horizontal');
             const divFooterLine = document.createElement('div');
             divFooterLine.classList.add('footer-line');
             divFooter.appendChild(divFooterLine);
             const spanFooter = document.createElement('span');
             spanFooter.classList.add('footer');
+            spanFooter.classList.add('md:footer-horizontal');
             spanFooter.innerHTML = footer;
             divFooterLine.appendChild(spanFooter);
             container.appendChild(divFooter);
