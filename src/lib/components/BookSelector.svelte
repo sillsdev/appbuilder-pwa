@@ -3,7 +3,6 @@
 The navbar component.
 -->
 <script lang="ts">
-    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { BookConfig } from '$config';
     import {
@@ -18,6 +17,7 @@ The navbar component.
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText, navigateToUrl } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { resolve } from '$lib/utils/paths';
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import SelectList from './SelectList.svelte';
