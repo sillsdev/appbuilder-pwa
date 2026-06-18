@@ -116,7 +116,6 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                // @ts-expect-error I don't have a good way to fix this for now. -Aidan
                 goto(resolve(`/${item.linkLocation}`));
                 break;
         }
