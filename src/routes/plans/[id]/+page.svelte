@@ -228,7 +228,7 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
             role="tablist"
-            class="dy-tabs dy-tabs-bordered"
+            class="dy-tabs dy-tabs-border"
             style={convertStyle($s?.['ui.plans.tabs'])}
         >
             <!-- svelte-ignore a11y_no_static_element_interactions -->

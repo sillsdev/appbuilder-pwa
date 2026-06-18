@@ -75,7 +75,7 @@
     <div class="overflow-y-auto mx-auto max-w-(--breakpoint-md) w-full">
         <div
             role="tablist"
-            class="dy-tabs dy-tabs-bordered"
+            class="dy-tabs dy-tabs-border"
             style={convertStyle($s?.['ui.plans.tabs'])}
         >
             {#if plansInUse.length > 0}

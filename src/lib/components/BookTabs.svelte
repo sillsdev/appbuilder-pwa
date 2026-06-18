@@ -30,7 +30,7 @@ A component that displays the book tabs and allows the user to switch between th
     }
 </script>
 
-<div class="dy-tabs dy-tabs-bordered mx-auto max-w-(--breakpoint-md) w-full">
+<div class="dy-tabs dy-tabs-border mx-auto max-w-(--breakpoint-md) w-full">
     <button
         class="dy-tab {$refs.bookTab === 0 || $refs.bookTab === undefined ? 'dy-tab-active' : ''}"
         onclick={() => changeTab(0)}

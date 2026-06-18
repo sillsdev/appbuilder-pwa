@@ -109,7 +109,7 @@
         <textarea
             bind:this={textarea}
             bind:value={text}
-            class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md"
+            class="dy-textarea w-full h-5/6 shadow-md"
         >
         </textarea>
     </div>

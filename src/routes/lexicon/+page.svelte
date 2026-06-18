@@ -149,7 +149,7 @@
                     previousLanguage = currentReversal.languageId;
                     switchLanguage(lang);
                 }}
-                class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
+                class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-border mb-1"
             >
                 {displayNames.value[lang]}
                 {#if currentReversal.languageId === lang}
