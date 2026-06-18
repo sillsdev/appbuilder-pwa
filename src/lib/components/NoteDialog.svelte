@@ -1,8 +1,8 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import { bodyFontSize, currentFont } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
+    import { resolve } from '$lib/utils/paths';
     import Modal from './Modal.svelte';
 
     let id = $state('note');

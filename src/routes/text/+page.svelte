@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import AudioBar from '$lib/components/AudioBar.svelte';
@@ -60,6 +59,7 @@
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
     import {
         pinch,

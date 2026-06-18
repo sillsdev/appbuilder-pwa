@@ -5,9 +5,9 @@ TODO:
 - handle the book and collection specific styles
 -->
 <script lang="ts">
-    import { resolve } from '$lib/utils/paths';
     import { scriptureConfig } from '$assets/config';
     import { direction, refs } from '$lib/data/stores';
+    import { resolve } from '$lib/utils/paths';
     import CardMenu from './CardMenu.svelte';
 
     let {

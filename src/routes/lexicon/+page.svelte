@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import config from '$assets/config';
     import {
         currentReversal,
@@ -15,6 +14,7 @@
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import HomonymSubscript from '$lib/lexicon/components/HomonymSubscript.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
+    import { resolve } from '$lib/utils/paths';
     import { onMount, tick } from 'svelte';
     import { expoInOut } from 'svelte/easing';
     import { fly } from 'svelte/transition';

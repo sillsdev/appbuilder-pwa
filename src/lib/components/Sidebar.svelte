@@ -4,7 +4,6 @@ The sidebar/drawer.
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import nav_drawer_image from '$assets/images/nav_drawer.png';
@@ -42,6 +41,7 @@ The sidebar/drawer.
         ShareIcon,
         TextAppearanceIcon
     } from '$lib/icons';
+    import { resolve } from '$lib/utils/paths';
     import { showTextAppearance } from './TextAppearanceSelector.svelte';
 
     const menuIcons = import.meta.glob('./*', {

@@ -1,7 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { asset } from '$app/paths';
-    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -27,6 +26,7 @@
     import { navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { resolve } from '$lib/utils/paths';
     import { SvelteMap } from 'svelte/reactivity';
     import type { PageData } from './$types';
 

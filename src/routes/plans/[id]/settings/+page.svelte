@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addPlanState } from '$lib/data/planStates';
     import { language, t } from '$lib/data/stores';
+    import { resolve } from '$lib/utils/paths';
     import type { PageData } from './$types';
 
     interface Props {

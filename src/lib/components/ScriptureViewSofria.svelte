@@ -36,7 +36,6 @@ LOGGING:
 
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { scriptureConfig } from '$assets/config';
@@ -81,6 +80,7 @@ LOGGING:
         onClickText,
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
+    import { resolve } from '$lib/utils/paths';
     import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, onMount } from 'svelte';

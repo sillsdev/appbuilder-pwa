@@ -4,7 +4,6 @@ The navbar component.
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import { page } from '$app/state';
     import {
         actionBarColor,
@@ -17,6 +16,7 @@ The navbar component.
         showDesktopSidebar
     } from '$lib/data/stores';
     import { ArrowBackIcon, ArrowForwardIcon, HamburgerIcon } from '$lib/icons';
+    import { resolve } from '$lib/utils/paths';
     import type { Snippet } from 'svelte';
 
     interface Props {

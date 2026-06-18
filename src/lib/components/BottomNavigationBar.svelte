@@ -3,10 +3,10 @@
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
+    import { resolve } from '$lib/utils/paths';
 
     const menuIcons = import.meta.glob('./*', {
         import: 'default',

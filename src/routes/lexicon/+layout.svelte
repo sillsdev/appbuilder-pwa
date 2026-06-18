@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import { page } from '$app/state';
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -9,6 +8,7 @@
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';
     import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
+    import { resolve } from '$lib/utils/paths';
     import type { Snippet } from 'svelte';
     import type { LayoutData } from './$types';
 

@@ -1,9 +1,9 @@
 import { goto } from '$app/navigation';
-import { resolve } from '$lib/utils/paths';
 import { logScreenView } from '$lib/data/analytics';
 import { playStop } from '$lib/data/audio';
 import { addHistory, type HistoryItem } from '$lib/data/history';
 import { refs } from '$lib/data/stores';
+import { resolve } from '$lib/utils/paths';
 import { get } from 'svelte/store';
 
 function logHistoryItemAdded(itemAdded: HistoryItem) {

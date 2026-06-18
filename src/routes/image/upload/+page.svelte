@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$lib/utils/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import { actionBarColor, t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
+    import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
 
     let image: HTMLImageElement;
