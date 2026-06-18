@@ -14,9 +14,9 @@ jobs:
             appbuilder_version: ${{ steps.get_version.outputs.appbuilder_version }}
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
-            - uses: volta-cli/action@v4
+            - uses: volta-cli/action@v5
 
             - name: Get environment info
               run: |
@@ -25,7 +25,7 @@ jobs:
 
             - name: Restore node_modules cache
               id: restore-node-cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
@@ -38,7 +38,7 @@ jobs:
 
             - name: Cache node_modules
               if: steps.restore-node-cache.outputs.cache-hit != 'true'
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
@@ -50,14 +50,14 @@ jobs:
 
             - name: Restore Projects cache
               id: restore-projects-cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: project_data
                   key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ steps.get_version.outputs.appbuilder_version }}
 
             - name: Setup Java
               if: steps.restore-projects-cache.outputs.cache-hit != 'true'
-              uses: actions/setup-java@v4
+              uses: actions/setup-java@v5
               with:
                   distribution: 'zulu'
                   java-version: '17'
@@ -123,7 +123,7 @@ jobs:
 
             - name: Cache Extracted Projects
               if: steps.restore-projects-cache.outputs.cache-hit != 'true'
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: project_data
                   key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ steps.get_version.outputs.appbuilder_version }}
@@ -134,18 +134,18 @@ jobs:
         needs: setup
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
-            - uses: volta-cli/action@v4
+            - uses: volta-cli/action@v5
 
             - name: Restore node_modules cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
 
             - name: Restore Projects cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: project_data
                   key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ needs.setup.outputs.appbuilder_version }}
@@ -174,18 +174,18 @@ jobs:
         needs: setup
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
-            - uses: volta-cli/action@v4
+            - uses: volta-cli/action@v5
 
             - name: Restore node_modules cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
 
             - name: Restore Projects cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: project_data
                   key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ needs.setup.outputs.appbuilder_version }}
