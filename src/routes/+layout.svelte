@@ -5,6 +5,7 @@
     import '$lib/styles/app.css';
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
+    import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
@@ -85,6 +86,11 @@
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
                         break;
+                    case ModalType.Collection:
+                        collectionModal?.showModal(
+                            data as Parameters<CollectionModal['showModal']>[0]
+                        );
+                        break;
                 }
             });
             modal.clear();
@@ -104,6 +110,7 @@
     let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
     let fontSelector: FontSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
+    let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
@@ -157,6 +164,7 @@
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
         >
+            <CollectionModal bind:this={collectionModal} />
             {@render children()}
         </div>
     </Sidebar>

@@ -4,19 +4,28 @@ Displays the three different layout option menus.
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { convertStyle, Layout, s, selectedLayouts, t, themeColors } from '$lib/data/stores';
+    import {
+        convertStyle,
+        Layout,
+        modal,
+        ModalType,
+        s,
+        selectedLayouts,
+        t,
+        themeColors
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import CollectionList from './CollectionList.svelte';
     import Dropdown from './Dropdown.svelte';
 
-    let { layoutOption, menuaction } = $props();
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        query: '?url',
+        base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
 
-    const blank = {
-        id: '',
-        name: '--------',
-        singlePane: false,
-        description: ''
-    };
+    let { layoutOption, menuaction } = $props();
 
     const allDocSets =
         scriptureConfig.bookCollections?.map((ds) => ({
@@ -136,20 +145,38 @@ Displays the three different layout option menus.
         </p>
         {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
-                <Dropdown>
-                    {#snippet label()}
-                        <div class="px-3" style={convertStyle($s?.['ui.layouts.number'])}>
-                            {i + 1}.
-                        </div>
-                        <div class="dy-relative font-normal normal-case text-left">
-                            <div style={convertStyle($s?.['ui.layouts.title'])}>
+                <div class="max-w-screen-md mx-auto">
+                    <div class="px-3 layout-subtitle">
+                        {i + 1}
+                    </div>
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="flex justify-between layout-item-block rounded-none cursor-pointer"
+                        onclick={() => {
+                            console.log(collection);
+                            modal.open(ModalType.Collection, {
+                                type: 'verse-by-verse',
+                                showBlank: i === 2,
+                                number: i
+                            });
+                        }}
+                    >
+                        {#if collection.image}
+                            <div class="layout-image-block self-start">
+                                <!-- svelte-ignore a11y_missing_attribute -->
+                                <img
+                                    class="layout-image"
+                                    src={illustrations['./' + collection.image]}
+                                />
+                            </div>
+                        {/if}
+                        <div class="layout-text-block">
+                            <div class="layout-item-name">
                                 {collection.name}
                             </div>
                             {#if collection.description}
-                                <div
-                                    class="text-sm"
-                                    style={convertStyle($s?.['ui.layouts.selector'])}
-                                >
+                                <div class="layout-item-description">
                                     {collection.description}
                                 </div>
                             {/if}
@@ -157,15 +184,8 @@ Displays the three different layout option menus.
                         <div class="px-3">
                             <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
                         </div>
-                    {/snippet}
-                    {#snippet content()}
-                        <CollectionList
-                            docSets={i === 2 ? [blank, ...allDocSets] : allDocSets}
-                            selectedLayouts={collection}
-                            menuaction={(event) => handleClick(event, i)}
-                        />
-                    {/snippet}
-                </Dropdown>
+                    </div>
+                </div>
             </div>
         {/each}
     {/if}
