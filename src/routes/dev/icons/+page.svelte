@@ -2,7 +2,7 @@
 <script lang="ts">
     import { dev } from '$app/environment';
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import { onMount } from 'svelte';
 
     // Redirect to home if not in development mode

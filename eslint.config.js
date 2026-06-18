@@ -22,6 +22,18 @@ export default ts.config(
         }
     },
     {
+        // Enable project-wide type information for TypeScript files.
+        // This allows rules that require type information to work correctly.
+        // Specifically, non-svelte files (like src/lib/navigate/index.ts) needed
+        // for svelte/no-navigation-without-resolve
+        files: ['src/**/*.ts'],
+        languageOptions: {
+            parserOptions: {
+                projectService: true
+            }
+        }
+    },
+    {
         files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
         // See more details at: https://typescript-eslint.io/packages/parser/
         languageOptions: {

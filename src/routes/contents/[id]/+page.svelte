@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { asset, resolve } from '$app/paths';
+    import { asset } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -26,6 +26,7 @@
     import { navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { resolve } from '$lib/utils/paths';
     import { SvelteMap } from 'svelte/reactivity';
     import type { PageData } from './$types';
 
@@ -115,7 +116,6 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                // @ts-expect-error I don't have a good way to fix this for now. -Aidan
                 goto(resolve(`/${item.linkLocation}`));
                 break;
         }

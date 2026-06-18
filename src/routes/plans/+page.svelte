@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { PlanItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -8,6 +7,7 @@
     import { getLastPlanState } from '$lib/data/planStates';
     import { convertStyle, language, s, t } from '$lib/data/stores';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { resolve } from '$lib/utils/paths';
 
     const imageFolder: Record<string, string> =
         compareVersions(config.programVersion, '12.0') < 0

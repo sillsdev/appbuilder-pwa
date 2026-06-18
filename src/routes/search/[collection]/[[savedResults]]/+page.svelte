@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import SearchResultList from '$lib/components/SearchResultList.svelte';
@@ -12,6 +11,7 @@
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
     import type { SearchFormSubmitEvent } from '$lib/types';
+    import { resolve } from '$lib/utils/paths';
     import { onMount } from 'svelte';
 
     let { data } = $props();

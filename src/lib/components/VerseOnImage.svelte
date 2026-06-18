@@ -4,7 +4,6 @@ The verse on image component.
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
     import { getAudioSourceInfo } from '$lib/data/audio';
@@ -24,6 +23,7 @@ The verse on image component.
     import { TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
+    import { resolve } from '$lib/utils/paths';
     import { toPng } from 'html-to-image';
     import {
         AudioBufferSource,
