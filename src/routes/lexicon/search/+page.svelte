@@ -84,7 +84,9 @@
         {/if}
 
         <div class="flex justify-center">
-            <div class="flex-1 overflow-auto justify-center px-4 w-full max-w-(--breakpoint-md) p-4">
+            <div
+                class="flex-1 overflow-auto justify-center px-4 w-full max-w-(--breakpoint-md) p-4"
+            >
                 {#if searchIDs.length > 0}
                     <EntryView
                         removeNewLines

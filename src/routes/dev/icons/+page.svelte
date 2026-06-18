@@ -65,7 +65,11 @@
         <div class="mb-6 flex gap-4 items-center flex-wrap">
             <div class="flex items-center gap-2">
                 <label for="size-select" class="font-medium">Size:</label>
-                <select id="size-select" bind:value={selectedSize} class="border rounded-sm px-2 py-1">
+                <select
+                    id="size-select"
+                    bind:value={selectedSize}
+                    class="border rounded-sm px-2 py-1"
+                >
                     {#each sizes as size}
                         <option value={size}>{size}px</option>
                     {/each}
