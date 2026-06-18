@@ -13,7 +13,7 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { playVerses } from '$lib/data/audio';

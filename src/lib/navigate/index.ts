@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { resolve } from '$app/paths';
+import { resolve } from '$lib/utils/paths';
 import { logScreenView } from '$lib/data/analytics';
 import { playStop } from '$lib/data/audio';
 import { addHistory, type HistoryItem } from '$lib/data/history';

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';

@@ -4,7 +4,7 @@ The sidebar/drawer.
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import nav_drawer_image from '$assets/images/nav_drawer.png';

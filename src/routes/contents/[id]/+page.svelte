@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { asset, resolve } from '$app/paths';
+    import { asset } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';

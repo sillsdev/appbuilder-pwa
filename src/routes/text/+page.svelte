@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import AudioBar from '$lib/components/AudioBar.svelte';

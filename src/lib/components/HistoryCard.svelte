@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import { scriptureConfig } from '$assets/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';

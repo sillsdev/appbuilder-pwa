@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addPlanState } from '$lib/data/planStates';
     import { language, t } from '$lib/data/stores';

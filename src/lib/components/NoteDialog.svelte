@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import { bodyFontSize, currentFont } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import Modal from './Modal.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     import config from '$assets/config';
     import contents from '$assets/contents';
     import { audioActive, isDAB, isFirstLaunch } from '$lib/data/stores';

@@ -36,7 +36,7 @@ LOGGING:
 
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+    import { resolve } from '$lib/utils/paths';
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { scriptureConfig } from '$assets/config';
