@@ -17,6 +17,9 @@ import type { ResolvedPathname } from '$app/types';
  * Returning `ResolvedPathname` satisfies `eslint-plugin-svelte`'s `no-navigation-without-resolve`
  * rule via its TypeScript type-check path, since this function serves the same role as the original.
  */
-export function resolve(path: string): ResolvedPathname {
+// Rejects paths that already include a hash prefix — resolve() adds it internally.
+type HashFreePath<T extends string> = T extends `#${string}` | `/#${string}` ? never : T;
+
+export function resolve<T extends string>(path: HashFreePath<T>): ResolvedPathname {
     return (svelteKitResolve(path as any) as string).replace(/#/, '/#') as ResolvedPathname;
 }
