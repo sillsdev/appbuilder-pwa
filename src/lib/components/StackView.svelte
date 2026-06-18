@@ -108,13 +108,13 @@
   ToDo: 
   - make width of scripture view
 -->
-<div bind:this={stack} class="absolute max-w-screen-md w-5/6 bottom-8 dy-stack">
+<div bind:this={stack} class="absolute max-w-(--breakpoint-md) w-5/6 bottom-8 dy-stack">
     {#each $footnotes as item}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             id="container"
-            class="footnote rounded h-40 shadow-lg overflow-y-auto"
+            class="footnote rounded-sm h-40 shadow-lg overflow-y-auto"
             onclick={(e) => {
                 e.stopPropagation();
                 insideClick(e.currentTarget);

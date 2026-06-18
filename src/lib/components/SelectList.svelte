@@ -51,7 +51,7 @@ A component to display menu options in a list.
             <div
                 onclick={() => handleClick(cell)}
                 id={cell.id}
-                class="menu ps-2 cursor-pointer min-w-[16rem] flex-grow flex items-center"
+                class="menu ps-2 cursor-pointer min-w-[16rem] grow flex items-center"
                 style={rowStyle}
                 style:background-color={hovered == cell.id ? hoverColor : backgroundColor}
                 role="button"

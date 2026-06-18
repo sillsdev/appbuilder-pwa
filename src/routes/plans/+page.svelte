@@ -61,7 +61,7 @@
     const barType = 'plans';
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
@@ -72,7 +72,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
+    <div class="overflow-y-auto mx-auto max-w-(--breakpoint-md) w-full">
         <div
             role="tablist"
             class="dy-tabs dy-tabs-bordered"

@@ -73,7 +73,7 @@
 </script>
 
 <!-- TODO: make share functional -->
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
@@ -90,7 +90,7 @@
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                     id="google-play"
-                    class="w-48 md:w-72 lg:w-[25rem]"
+                    class="w-48 md:w-72 lg:w-100"
                     onclick={() =>
                         shareLink(
                             'Google Play',

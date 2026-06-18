@@ -158,7 +158,7 @@ TODO:
     class="h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={backgroundColor}
 >
-    <div class="flex flex-col justify-center w-11/12 flex-grow">
+    <div class="flex flex-col justify-center w-11/12 grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">
             {#if showHighlightPens}

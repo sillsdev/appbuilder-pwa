@@ -2513,11 +2513,11 @@ LOGGING:
                                     2 * match[1] - 1 + 'rem';
                                 if (Number(match[1]) === 2) {
                                     workspace.paragraphDiv.classList.add(
-                                        '[list-style-type:circle]'
+                                        'list-[circle]'
                                     );
                                 } else if (Number(match[1]) >= 3) {
                                     workspace.paragraphDiv.classList.add(
-                                        '[list-style-type:square]'
+                                        'list-[square]'
                                     );
                                 }
                             }

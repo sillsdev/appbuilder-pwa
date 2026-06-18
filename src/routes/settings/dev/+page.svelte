@@ -9,7 +9,7 @@
 </script>
 
 <div
-    class="grid grid-rows-[auto,1fr]"
+    class="grid grid-rows-[auto_1fr]"
     style="height:100vh;height:100dvh; font-family: initial;"
     dir={$direction}
 >

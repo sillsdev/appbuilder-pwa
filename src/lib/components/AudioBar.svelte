@@ -108,7 +108,7 @@ TODO:
     {#if showHint}
         <div
             style={hintStyle}
-            class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md"
+            class="absolute flex flex-row justify-center -top-12 p-2 w-full left-1/2 -translate-x-1/2 max-w-(--breakpoint-md) shadow-md"
         >
             {hintText}
         </div>

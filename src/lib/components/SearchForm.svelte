@@ -58,7 +58,7 @@
     }
 </script>
 
-<form class="w-full max-w-screen-md p-4" style="background-color: var(--BackgroundColor);">
+<form class="w-full max-w-(--breakpoint-md) p-4" style="background-color: var(--BackgroundColor);">
     <div class="dy-form-control mb-4">
         <label class="dy-input-group w-full flex">
             <input
@@ -67,7 +67,7 @@
                 readonly={dismissSearchBar}
                 type="text"
                 placeholder={$t['Search_Text_Hint']}
-                class="flex-grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
+                class="grow px-4 py-2 mx-2 dy-input min-w-0 dy-input-bordered"
                 style:min-width="0"
                 style={convertStyle($s['ui.search.entry-text'])}
                 style:background-color="var(--PopupBackgroundColor)"
@@ -95,7 +95,7 @@
             <div class="special-characters flex flex-wrap">
                 {#each specialCharacters as character}
                     <button
-                        class="m-0.5 rounded w-8 h-10"
+                        class="m-0.5 rounded-sm w-8 h-10"
                         style={convertStyle($s['ui.search.buttons'])}
                         style:background-color="var(--TabBackgroundColor)"
                         style:color="var(--TextColor)"

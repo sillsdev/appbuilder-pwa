@@ -85,7 +85,7 @@
                      while Tailwind sees the static string var(--divider-color) at build time. -->
                 <div
                     style="--divider-color: {$actionBarColor}"
-                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-[var(--divider-color)] before:bg-[var(--divider-color)] dy-join-item"
+                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-(--divider-color) before:bg-(--divider-color) dy-join-item"
                 ></div>
                 <div class="grid sm:flex h-10 place-items-center dy-join-item">
                     {reference}
@@ -105,7 +105,7 @@
         {/snippet}
     </Navbar>
 
-    <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
+    <div class="flex justify-center mt-7 h-full max-w-(--breakpoint-md) mx-auto">
         <textarea
             bind:this={textarea}
             bind:value={text}
