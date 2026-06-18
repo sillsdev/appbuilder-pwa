@@ -75,6 +75,5 @@ A component to display tabbed menus.
     style:overflow-y={scroll ? 'auto' : ''}
     style:max-height={height}
 >
-    Hello
     {@render ActiveComponent?.(active, handleMenuaction)}
 </div>

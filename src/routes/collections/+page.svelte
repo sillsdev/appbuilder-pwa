@@ -5,7 +5,7 @@
     import LayoutOptions from '$lib/components/LayoutOptions.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import TabsMenu from '$lib/components/TabsMenu.svelte';
-    import { layout, Layout, refs, s, selectedLayouts, t } from '$lib/data/stores';
+    import { actionBarColor, layout, Layout, refs, s, selectedLayouts, t } from '$lib/data/stores';
     import { CheckIcon, SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
 
     const matchingDocSets =
@@ -83,7 +83,7 @@
             {#snippet end()}
                 <div>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={handleOk}>
-                        <CheckIcon color="white" />
+                        <CheckIcon color={$actionBarColor} />
                     </button>
                 </div>
             {/snippet}
