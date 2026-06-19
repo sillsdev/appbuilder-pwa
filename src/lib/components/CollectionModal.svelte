@@ -46,28 +46,18 @@
     function handleClick(opt: any) {
         if (viewType === 'verse-by-verse' && $selectedLayouts.verseByVerse) {
             $selectedLayouts.verseByVerse[selectionNumber] = opt.collection;
-            for (let i in $selectedLayouts.verseByVerse) {
-                if (
-                    selectionNumber !== Number(i) &&
-                    $selectedLayouts.verseByVerse[i].id === opt.collection.id
-                ) {
-                    const docSets = allDocSets.filter((x) => {
-                        return x.verseByVerse === true && x !== blank;
-                    });
-                    for (let j in docSets) {
-                        let docSetUsed = false;
-                        for (let k in $selectedLayouts.verseByVerse) {
-                            if (docSets[j].id === $selectedLayouts.verseByVerse[k].id) {
-                                docSetUsed = true;
-                                break;
-                            }
-                        }
-                        if (!docSetUsed) {
-                            $selectedLayouts.verseByVerse[i] = docSets[j];
-                            break;
-                        }
-                    }
-                    break;
+            const docSets = allDocSets.filter((x) => {
+                return x.verseByVerse === true && x !== blank;
+            });
+            for (let i = 0; i < $selectedLayouts.verseByVerse.length; i++) {
+                if (i === selectionNumber) {
+                    // if found self
+                    continue;
+                } else if ($selectedLayouts.verseByVerse[i].id === opt.collection.id) {
+                    // if this is a repeat value of self
+                    $selectedLayouts.verseByVerse[i] = docSets.filter(
+                        (x) => $selectedLayouts.verseByVerse?.includes(x) === false
+                    )[0];
                 }
             }
         }
