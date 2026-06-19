@@ -67,7 +67,7 @@
     {#if mode === Layout.Single}
         <SinglePaneIcon
             color="black"
-        /><!--From what I can tell, the icons seem to be hardcoded to black in the native app, although I might just be missing the correct color setting to change-->
+        /><!--The icons are not hardcoded to black in the native app, but I can't figure out what style/color to use.-->
     {:else if mode === Layout.Two}
         <SideBySideIcon color="black" />
     {:else}<VerseByVerseIcon color="black" />{/if}

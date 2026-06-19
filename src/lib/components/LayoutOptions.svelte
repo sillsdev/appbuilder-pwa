@@ -154,7 +154,6 @@ Displays the three different layout option menus.
                     <div
                         class="flex justify-between layout-item-block rounded-none cursor-pointer"
                         onclick={() => {
-                            console.log(collection);
                             modal.open(ModalType.Collection, {
                                 type: 'verse-by-verse',
                                 showBlank: i === 2,

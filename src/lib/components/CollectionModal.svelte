@@ -44,9 +44,33 @@
     };
     allDocSets.unshift(blank);
     function handleClick(opt: any) {
-        if ($selectedLayouts.verseByVerse) {
+        if (viewType === 'verse-by-verse' && $selectedLayouts.verseByVerse) {
             $selectedLayouts.verseByVerse[selectionNumber] = opt.collection;
-        } //TODO: If it was just set to a collection that was already selected, then change the other entry with that book collection to the first unselected book collection
+            for (let i in $selectedLayouts.verseByVerse) {
+                if (
+                    selectionNumber !== Number(i) &&
+                    $selectedLayouts.verseByVerse[i].id === opt.collection.id
+                ) {
+                    const docSets = allDocSets.filter((x) => {
+                        return x.verseByVerse === true && x !== blank;
+                    });
+                    for (let j in docSets) {
+                        let docSetUsed = false;
+                        for (let k in $selectedLayouts.verseByVerse) {
+                            if (docSets[j].id === $selectedLayouts.verseByVerse[k].id) {
+                                docSetUsed = true;
+                                break;
+                            }
+                        }
+                        if (!docSetUsed) {
+                            $selectedLayouts.verseByVerse[i] = docSets[j];
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         closeButton.click();
     }
 
