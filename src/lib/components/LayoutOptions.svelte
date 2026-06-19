@@ -100,44 +100,49 @@ Displays the three different layout option menus.
         <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Two_Pane']}
         </p>
-        <div class="flex flex-col">
-            {#each $selectedLayouts.sideBySide as collection, i}
-                <div>
-                    <Dropdown>
-                        {#snippet label()}
-                            <div class="px-3" style={convertStyle($s?.['ui.layouts.number'])}>
-                                {i + 1}.
+        {#each $selectedLayouts.sideBySide as collection, i}
+            <div>
+                <div class="max-w-screen-md mx-auto">
+                    <div class="px-3 layout-subtitle">
+                        {i + 1}
+                    </div>
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="flex justify-between layout-item-block rounded-none cursor-pointer"
+                        onclick={() => {
+                            modal.open(ModalType.Collection, {
+                                type: 'double-pane',
+                                number: i
+                            });
+                        }}
+                    >
+                        {#if collection.image}
+                            <div class="layout-image-block self-start">
+                                <!-- svelte-ignore a11y_missing_attribute -->
+                                <img
+                                    class="layout-image"
+                                    src={illustrations['./' + collection.image]}
+                                />
                             </div>
-                            <div class="dy-relative font-normal normal-case text-left">
-                                <div style={convertStyle($s?.['ui.layouts.title'])}>
-                                    {collection.name}
+                        {/if}
+                        <div class="layout-text-block">
+                            <div class="layout-item-name">
+                                {collection.name}
+                            </div>
+                            {#if collection.description}
+                                <div class="layout-item-description">
+                                    {collection.description}
                                 </div>
-                                {#if collection.description}
-                                    <div
-                                        class="text-sm"
-                                        style={convertStyle($s?.['ui.layouts.selector'])}
-                                    >
-                                        {collection.description}
-                                    </div>
-                                {/if}
-                            </div>
-                            <div class="px-3">
-                                <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
-                            </div>
-                        {/snippet}
-                        {#snippet content()}
-                            <CollectionList
-                                docSets={allDocSets}
-                                selectedLayouts={collection}
-                                menuaction={(event) => {
-                                    handleClick(event, i);
-                                }}
-                            />
-                        {/snippet}
-                    </Dropdown>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
+                        </div>
+                    </div>
                 </div>
-            {/each}
-        </div>
+            </div>
+        {/each}
         <!-- Verse By Verse -->
     {:else if layoutOption === Layout.VerseByVerse}
         <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>

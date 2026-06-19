@@ -44,6 +44,23 @@
     };
     allDocSets.unshift(blank);
     function handleClick(opt: any) {
+        if (viewType === 'double-pane' && $selectedLayouts.sideBySide) {
+            $selectedLayouts.sideBySide[selectionNumber] = opt.collection;
+            const docSets = allDocSets.filter((x) => {
+                return x.doublePane === true && x !== blank;
+            });
+            for (let i = 0; i < $selectedLayouts.sideBySide.length; i++) {
+                if (i === selectionNumber) {
+                    // if found self
+                    continue;
+                } else if ($selectedLayouts.sideBySide[i].id === opt.collection.id) {
+                    // if this is a repeat value of self
+                    $selectedLayouts.sideBySide[i] = docSets.filter(
+                        (x) => $selectedLayouts.sideBySide?.includes(x) === false
+                    )[0];
+                }
+            }
+        }
         if (viewType === 'verse-by-verse' && $selectedLayouts.verseByVerse) {
             $selectedLayouts.verseByVerse[selectionNumber] = opt.collection;
             const docSets = allDocSets.filter((x) => {
