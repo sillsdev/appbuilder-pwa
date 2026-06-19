@@ -113,6 +113,7 @@ Displays the three different layout option menus.
                         onclick={() => {
                             modal.open(ModalType.Collection, {
                                 type: 'double-pane',
+                                showBlank: false,
                                 number: i
                             });
                         }}

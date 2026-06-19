@@ -55,9 +55,12 @@
                     continue;
                 } else if ($selectedLayouts.sideBySide[i].id === opt.collection.id) {
                     // if this is a repeat value of self
-                    $selectedLayouts.sideBySide[i] = docSets.filter(
+                    const replacement = docSets.filter(
                         (x) => $selectedLayouts.sideBySide?.includes(x) === false
                     )[0];
+                    if (replacement) {
+                        $selectedLayouts.sideBySide[i] = replacement;
+                    }
                 }
             }
         }
@@ -72,9 +75,12 @@
                     continue;
                 } else if ($selectedLayouts.verseByVerse[i].id === opt.collection.id) {
                     // if this is a repeat value of self
-                    $selectedLayouts.verseByVerse[i] = docSets.filter(
+                    const replacement = docSets.filter(
                         (x) => $selectedLayouts.verseByVerse?.includes(x) === false
                     )[0];
+                    if (replacement) {
+                        $selectedLayouts.verseByVerse[i] = replacement;
+                    }
                 }
             }
         }
@@ -97,7 +103,7 @@
                 docSets={allDocSets.filter((x) => {
                     switch (viewType) {
                         case 'double-pane':
-                            return x.doublePane === true;
+                            return x.doublePane === true && (x !== blank || showBlankCollection);
                         case 'verse-by-verse':
                             return x.verseByVerse === true && (x !== blank || showBlankCollection);
                         default:
