@@ -236,7 +236,7 @@
 
     async function handleMouseUp(_event: any) {
         isDragging = false;
-        if (Math.abs(x.current) < minSlideDistance()) {
+        if (Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) {
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
@@ -264,7 +264,7 @@
         }
     }
 
-    function handleMouseDown(event: { clientX: number }) {
+    function handleMouseDown(event: PointerEvent) {
         if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
             isDragging = true;
             startX = event.clientX - x.current;
@@ -274,9 +274,11 @@
 
     function handleMouseMove(event: PointerEvent) {
         if (isDragging) {
-            x.set(event.clientX - startX, { duration: 0 });
+            let delta = event.clientX - startX;
+            x.set(delta, { duration: 0 });
             if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: 0 });
+                return;
             } else if (x.current < 0 && !(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: 0 });
                 return;
