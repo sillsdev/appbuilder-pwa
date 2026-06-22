@@ -50,10 +50,11 @@ The navbar component.
     const c = $derived($t.Selector_Chapter);
     const v = $derived($t.Selector_Verse);
 
-    let { onCustomEvent } = $props<{ onCustomEvent: (message: string) => void }>();
+    let { onChapterSelection } = $props<{ onChapterSelection: () => void }>();
 
     function handleChange() {
-        onCustomEvent('Updated');
+        // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
+        onChapterSelection();
     }
 
     /**

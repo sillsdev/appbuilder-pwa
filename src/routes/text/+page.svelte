@@ -138,13 +138,12 @@
     let isDragging = $state(false);
     let draggableWidth = $state(0);
     let panels_X = $state([0, 0, 0]);
-    let minSlideDistance = () => draggableWidth / 3; // use to determine how far a user has to slide to move to the next chapter
+    let minSlideDistance = () => draggableWidth / 2; // use to determine how far a user has to slide to move to the next chapter
+    let minSlideMomentum = .6; // measured in pixels per millisecond
+    let lastX = 0;
+    let lastTime = 0;
+    let momentum = 0;
 
-
-    /** 
-     * Turn page previous <-  l - c - r =>              c - r - l(new page)
-     * Turn page next     ->  l - c - r =>    (new page)r - l - c
-     */
 
     async function setupSettingsCache() {
         settingsCache[0] = {
@@ -214,9 +213,10 @@
     }
 
 
-    async function handleMouseUp(_event: any) {
+    async function handleMouseUp(_event: PointerEvent) {
+        console.log(momentum);
         isDragging = false;
-        if (Math.abs(x.current) < minSlideDistance()) {
+        if (Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) {
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
@@ -245,26 +245,39 @@
         }
     }
 
-    function handleMouseDown(event: { clientX: number }) {
+    function handleMouseDown(event: PointerEvent) {
         if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
             isDragging = true;
             startX = event.clientX - x.current;
+            lastTime = performance.now();
         }
     }
 
-    function handleMouseMove(event: { clientX: number }) {
+    function handleMouseMove(event: PointerEvent) {
         if (isDragging) {
-            x.set(event.clientX - startX, { duration: 0 });
+            let delta = event.clientX - startX;
+            x.set(delta, { duration: 0 });
             if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: 0 });
+                return;
             } else if (x.current < 0 && !(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: 0 });
+                return;
             } else if (x.current > draggableWidth) {
                 x.set(draggableWidth, { duration: 0 });
             } else if (x.current < -draggableWidth) {
                 x.set(-draggableWidth, { duration: 0 });
             }
-        }
+            const currentTime = performance.now();
+
+            const deltaX = x.current - lastX;
+            const deltaT = currentTime - lastTime;
+
+            momentum = deltaX / deltaT;
+
+            lastTime = currentTime;
+            lastX = x.current;
+        }   
     }
 
     function measure(node: Element) {
@@ -645,7 +658,7 @@
             {#snippet start()}
                 <div class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}>
                     <BookSelector />
-                    <ChapterSelector onCustomEvent={setupSettingsCache}/>
+                    <ChapterSelector onChapterSelection={setupSettingsCache}/>
                 </div>
             {/snippet}
 
