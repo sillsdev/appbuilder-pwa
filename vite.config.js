@@ -6,7 +6,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 // yarn add --dev @esbuild-plugins/node-modules-polyfill
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 import { sveltekit } from '@sveltejs/kit/vite';
-import tailwindcss from '@tailwindcss/vite';
+// import tailwindcss from '@tailwindcss/vite';
 // You don't need to add this to deps, it's included by @esbuild-plugins/node-modules-polyfill
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -71,7 +71,8 @@ export default defineConfig(({ mode }) => {
     }
 
     return {
-        plugins: [sveltekit(), tailwindcss()],
+        // plugins: [sveltekit(), tailwindcss()],
+        plugins: [sveltekit()],
         worker: {
             format: 'es',
             plugins: () => []

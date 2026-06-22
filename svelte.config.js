@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import adapter from '@sveltejs/adapter-static';
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+// import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { sveltePreprocess } from 'svelte-preprocess';
 
 // Read template version from package.json
 const packageJson = JSON.parse(readFileSync('package.json', 'utf-8'));
@@ -20,8 +21,8 @@ const config = {
     // Consult https://github.com/sveltejs/svelte-preprocess
     // for more information about preprocessors
     preprocess: [
-        vitePreprocess({
-            script: true
+        sveltePreprocess({
+            postcss: true
         })
     ],
 
