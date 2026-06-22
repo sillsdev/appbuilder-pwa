@@ -564,11 +564,7 @@
                 />
             {/if}
         {/if}
-        <div
-            class="overflow-y-auto grow"
-            bind:this={scrollingDiv}
-            onscroll={saveScrollPosition}
-        >
+        <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}>
             <!-- flex causes the imported html to display outside of the view port. Use md: -->
             <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
                 <div class="hidden md:flex basis-1/12 justify-center">
