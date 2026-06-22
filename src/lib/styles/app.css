@@ -1,5 +1,7 @@
 @import 'tailwindcss';
-@plugin 'daisyui';
+@plugin 'daisyui' {
+    prefix: 'dy-';
+}
 
 @config "../../../tailwind.config.cjs";
 
