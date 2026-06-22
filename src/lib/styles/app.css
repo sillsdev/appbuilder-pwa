@@ -27,6 +27,35 @@
 @layer base {
 }
 
+/* Fix sizing to match pre-v5 DaisyUI */
+@theme {
+    /* Size of components in navbar, etc.  */
+    --size-field: 0.2rem;
+}
+.dy-btn {
+    /* Size of buttons in navbar */
+    --size-field: 0.3rem;
+}
+.dy-navbar > div {
+    /* Remediate navbar contents not vertically aligning */
+    display: flex;
+}
+.dy-btn-ghost {
+    /* Adjust border on text pane selctors */
+    border-width: 1px;
+}
+@utility dy-tab {
+    /* Match padding on text pane selectors */
+    --dy-tab-p: 1rem;
+
+    /* Make text pane selectors horizontally stacked */
+    grid-row-start: 1;
+}
+@utility dy-tabs {
+    /* Make text pane selectors horizontally stacked */
+    display: grid;
+}
+
 /* https://stackoverflow.com/a/58236787/35577 */
 /* On Chrome Mobile, there is a whitespace along the right side that */
 /* can't figure out where it is coming from.  This will hide it. */
