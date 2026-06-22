@@ -23,8 +23,6 @@ The navbar component.
     import SelectList from './SelectList.svelte';
     import TabsMenu from './TabsMenu.svelte';
 
-    console.log($userSettingsOrDefault);
-
     let { displayLabel = undefined } = $props();
 
     /**list of books, quizzes, and quiz groups in current docSet*/
