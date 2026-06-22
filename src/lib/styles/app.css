@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @plugin 'daisyui' {
     prefix: 'dy-';
+    themes: light;
 }
 
 @config "../../../tailwind.config.cjs";
