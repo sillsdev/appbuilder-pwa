@@ -17,30 +17,21 @@ export const load: PageLoad = async ({ params, fetch }) => {
         const titleKey = `./${collection}-${id}-songs-by-title.txt`;
         const titleUrl = songs[titleKey];
         if (!titleUrl) {
-            throw new Error(`Song text asset not found for key ${titleKey}`);
+            console.error(`Song text asset not found for key ${titleKey}`);
+        } else {
+            titleData = await fetch(titleUrl).then((r) => r.text());
         }
-        const titleResponse = await fetch(titleUrl);
-        if (!titleResponse.ok) {
-            throw new Error('Failed to fetch song text file');
-        }
-
-        titleData = await titleResponse.text();
     } catch (error) {
         console.error('Error fetching song title text file:', error);
     }
-
     try {
         const numberKey = `./${collection}-${id}-songs-by-number.txt`;
         const numberUrl = songs[numberKey];
         if (!numberUrl) {
-            throw new Error(`Song text asset not found for key ${numberKey}`);
+            console.error(`Song text asset not found for key ${numberKey}`);
+        } else {
+            numberData = await fetch(numberUrl).then((r) => r.text());
         }
-        const numberResponse = await fetch(numberUrl);
-        if (!numberResponse.ok) {
-            throw new Error('Failed to fetch song text file');
-        }
-
-        numberData = await numberResponse.text();
     } catch (error) {
         console.error('Error fetching song number text file:', error);
     }

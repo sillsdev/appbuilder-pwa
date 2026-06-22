@@ -30,19 +30,13 @@ The navbar component.
         const bookType = scriptureConfig.bookCollections
             ?.find((x) => $refs.collection === x.id)
             ?.books.find((x) => book === x.id)?.type;
-        if (!bookType) {
-            return $userSettingsOrDefault['verse-selection'];
-        }
-        return $userSettingsOrDefault['verse-selection'] && bookType !== 'songs';
+        return $userSettingsOrDefault['verse-selection'] && (!bookType || bookType !== 'songs');
     }) as boolean;
     const hideEmptyChapters = $derived.by(() => {
         const bookType = scriptureConfig.bookCollections
             ?.find((x) => $refs.collection === x.id)
             ?.books.find((x) => book === x.id)?.type;
-        if (!bookType) {
-            return $userSettingsOrDefault['hide-empty-chapters'];
-        }
-        return $userSettingsOrDefault['hide-empty-chapters'] && bookType !== 'songs';
+        return $userSettingsOrDefault['hide-empty-chapters'] && (!bookType || bookType !== 'songs');
     }) as boolean;
 
     const verseCount = $derived(getVerseCount(book, chapter));

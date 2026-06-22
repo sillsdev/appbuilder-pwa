@@ -23,6 +23,8 @@ The navbar component.
     import SelectList from './SelectList.svelte';
     import TabsMenu from './TabsMenu.svelte';
 
+    console.log($userSettingsOrDefault);
+
     let { displayLabel = undefined } = $props();
 
     /**list of books, quizzes, and quiz groups in current docSet*/
@@ -46,20 +48,14 @@ The navbar component.
         const bookType = scriptureConfig.bookCollections
             ?.find((x) => $refs.collection === x.id)
             ?.books.find((x) => book === x.id)?.type;
-        if (!bookType) {
-            return $userSettingsOrDefault['verse-selection'];
-        }
-        return $userSettingsOrDefault['verse-selection'] && bookType !== 'songs';
+        return $userSettingsOrDefault['verse-selection'] && (!bookType || bookType !== 'songs');
     }) as boolean;
     const showSelectors = $derived(config.mainFeatures['book-select'] !== 'none');
     const hideEmptyChapters = $derived.by(() => {
         const bookType = scriptureConfig.bookCollections
             ?.find((x) => $refs.collection === x.id)
             ?.books.find((x) => book === x.id)?.type;
-        if (!bookType) {
-            return $userSettingsOrDefault['hide-empty-chapters'];
-        }
-        return $userSettingsOrDefault['hide-empty-chapters'] && bookType !== 'songs';
+        return $userSettingsOrDefault['hide-empty-chapters'] && (!bookType || bookType !== 'songs');
     }) as boolean;
 
     // Translated book, chapter, and verse tab labels
