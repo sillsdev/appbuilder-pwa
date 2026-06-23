@@ -30,6 +30,8 @@ const timings = import.meta.glob('./*', {
     base: '/src/gen-assets/timings'
 }) as Record<string, string>;
 
+const AUDIO_SEEK_THRESHOLD = 2.0;
+
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer: AudioPlayer | undefined = undefined;
 audioPlayerStore.subscribe(async (value: AudioPlayer) => {
@@ -158,12 +160,147 @@ export function playStop() {
     }
 }
 
-// changes chapter
+/**
+ * If there are headings and timing data in the current chapter,
+ * advances the audio to the nearest heading in the given direction.
+ * Otherwise, moves to the nearest chapter start time in the
+ * given direction (including the start of the current chapter)
+ *
+ * @param direction the direction in which to skip (backwards if negative,
+ *                  forwards otherwise)
+ */
 export async function skip(direction: number) {
+    const wasPlaying = currentAudioPlayer?.playing;
     pause();
-    await refs.skip(direction);
-    playMode.reset();
+
+    if (!currentAudioPlayer?.loaded || !currentAudioPlayer.timing) {
+        if (
+            direction < 0 &&
+            currentAudioPlayer?.progress &&
+            currentAudioPlayer.progress >= AUDIO_SEEK_THRESHOLD
+        ) {
+            // If there are no timings, and we are seeking backwards, and the
+            // audio has advanced beyond the threshold, then go to beginning
+            seek(0);
+            if (wasPlaying) {
+                play();
+            }
+        } else {
+            await refs.skip(direction);
+            playMode.reset();
+        }
+    } else {
+        const headingMarkers = getHeadingMarkers();
+
+        if (!currentAudioPlayer?.headingMarkers) {
+            currentAudioPlayer.headingMarkers = headingMarkers;
+            audioPlayerStore.set(currentAudioPlayer);
+        }
+
+        // Locate the last marker before the end of the track
+        let finalIntermediateMarker: number | undefined;
+        if (headingMarkers.length > 1) {
+            // Don't treat the initial marker at 0 as intermediate
+            finalIntermediateMarker = headingMarkers.at(-2) || undefined;
+        }
+
+        if (
+            (direction < 0 && currentAudioPlayer.progress < AUDIO_SEEK_THRESHOLD) ||
+            (direction >= 0 &&
+                (!finalIntermediateMarker ||
+                    currentAudioPlayer.progress >= finalIntermediateMarker))
+        ) {
+            await refs.skip(direction);
+            playMode.reset();
+            return;
+        }
+
+        for (let i = 1; i < currentAudioPlayer.headingMarkers.length; i++) {
+            const marker = currentAudioPlayer.headingMarkers[i];
+            if (currentAudioPlayer.progress < marker + AUDIO_SEEK_THRESHOLD) {
+                if (direction < 0) {
+                    seek(currentAudioPlayer.headingMarkers[i - 1]);
+                } else if (
+                    i < currentAudioPlayer.headingMarkers.length - 1 &&
+                    currentAudioPlayer.progress >= marker
+                ) {
+                    seek(currentAudioPlayer.headingMarkers[i + 1]);
+                } else {
+                    seek(marker);
+                }
+                if (wasPlaying) {
+                    play();
+                }
+                break;
+            }
+        }
+    }
+
+    updateTime();
 }
+
+/**
+ * Returns an array of numbers. The first number is the beginning of the current
+ * audio track (always at 0.0), the last number is the end of the
+ * last verse of the track, and any intermediate numbers are the start times
+ * of each verse immediately after a heading corresponding to a `\s` tag
+ * in the source UFSM.
+ */
+function getHeadingMarkers() {
+    if (currentAudioPlayer?.headingMarkers) {
+        return currentAudioPlayer.headingMarkers;
+    }
+
+    const headingMarkers = [0.0];
+
+    const headings = document.querySelectorAll('div.s');
+    headings.forEach((h) => {
+        let next = nextElementDFS(h);
+        while (next && !next?.getAttribute('data-verse')) {
+            next = nextElementDFS(next);
+        }
+
+        // If present this is the first verse immediately after the heading
+        const verse = next?.getAttribute('data-verse');
+        if (verse === null || verse === undefined) {
+            return;
+        }
+
+        // find() always returns the first element it matches, so
+        // this will locate the beginning of the first phrase of the verse
+        const marker = currentAudioPlayer?.timing?.find((v) => v.tag.includes(verse))?.starttime;
+        if (marker) {
+            headingMarkers.push(marker);
+        }
+    });
+
+    const endMarker = currentAudioPlayer?.timing?.at(-1)?.endtime || currentAudioPlayer?.duration;
+    if (typeof endMarker === 'number') {
+        headingMarkers.push(endMarker);
+    } else {
+        console.error('getHeadingMarkers: failed to locate end of current audio track');
+    }
+
+    return headingMarkers;
+}
+
+/**
+ * Returns the next Element after `e` in a pre-order DFS traversal of the DOM.
+ * @param e the element from which to perform the traversal step
+ */
+function nextElementDFS(e: Element) {
+    const next = e.firstElementChild || e.nextElementSibling;
+    if (next instanceof Element) {
+        return next;
+    }
+
+    let ancestor = e.parentElement;
+    while (ancestor instanceof Element && !ancestor.nextElementSibling) {
+        ancestor = ancestor.parentElement;
+    }
+    return ancestor?.nextElementSibling || null;
+}
+
 // formats timing information
 export function format(seconds: number) {
     if (isNaN(seconds)) {
@@ -400,10 +537,10 @@ async function updateTime() {
         return;
     }
     currentAudioPlayer.progress = currentAudioPlayer.audio?.currentTime ?? 0;
-    if (!currentAudioPlayer.timing && currentAudioPlayer.progress) {
+    if (!currentAudioPlayer.timing && currentAudioPlayer.hasPlayed) {
         audioPlayerStore.set(currentAudioPlayer);
     }
-    if (currentAudioPlayer.timing && currentAudioPlayer.progress) {
+    if (currentAudioPlayer.timing && currentAudioPlayer.hasPlayed) {
         updateHighlights();
     }
     await handlePlayMode();
@@ -467,6 +604,9 @@ export function play() {
     }
 
     if (!currentAudioPlayer.playing) {
+        if (!currentAudioPlayer.hasPlayed) {
+            currentAudioPlayer.hasPlayed = true;
+        }
         currentAudioPlayer.audio?.play();
         currentAudioPlayer.playStart = Date.now();
         logAudioPlay(currentAudioPlayer);
