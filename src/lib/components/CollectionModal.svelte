@@ -1,6 +1,6 @@
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { convertStyle, s, selectedLayouts, t } from '$lib/data/stores';
+    import { selectedLayouts, t } from '$lib/data/stores';
     import CollectionList from './CollectionList.svelte';
     import Modal from './Modal.svelte';
 
@@ -98,7 +98,7 @@
 
 <Modal bind:this={modal} {id}>
     <div class="text-center">
-        <div class="overflow-y-auto max-h-[80vh] p-1">
+        <div class="overflow-y-auto max-h-[80vh] p-1 text-left">
             <CollectionList
                 docSets={allDocSets.filter((x) => {
                     switch (viewType) {

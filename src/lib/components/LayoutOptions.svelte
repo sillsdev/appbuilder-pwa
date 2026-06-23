@@ -4,19 +4,9 @@ Displays the three different layout option menus.
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import {
-        convertStyle,
-        Layout,
-        modal,
-        ModalType,
-        s,
-        selectedLayouts,
-        t,
-        themeColors
-    } from '$lib/data/stores';
+    import { Layout, modal, ModalType, s, selectedLayouts, t, themeColors } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import CollectionList from './CollectionList.svelte';
-    import Dropdown from './Dropdown.svelte';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -84,7 +74,7 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div>
+<div class="max-w-screen-md mx-auto">
     <!-- Single Pane -->
     {#if layoutOption === Layout.Single}
         <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>

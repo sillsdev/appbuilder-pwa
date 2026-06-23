@@ -30,7 +30,7 @@ Custom list of collections for the LayoutOptions menu
     }
 </script>
 
-<ul class="max-w-screen-md mx-auto">
+<ul class="w-full mx-auto">
     {#each docSets as d}
         <!-- svelte-ignore a11y_missing_attribute -->
         <li>
