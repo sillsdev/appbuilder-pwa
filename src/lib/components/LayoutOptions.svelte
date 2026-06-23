@@ -74,7 +74,7 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div class="max-w-screen-md mx-auto">
+<div class="max-w-screen-md mx-auto px-2">
     <!-- Single Pane -->
     {#if layoutOption === Layout.Single}
         <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
