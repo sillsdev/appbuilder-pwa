@@ -564,13 +564,7 @@
                 />
             {/if}
         {/if}
-        <div
-            style="--borderImageSource: url({borders['./border.png']});"
-            class:borderimg={showBorder}
-            class="overflow-y-auto grow"
-            bind:this={scrollingDiv}
-            onscroll={saveScrollPosition}
-        >
+        <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}>
             <!-- flex causes the imported html to display outside of the view port. Use md: -->
             <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
                 <div class="hidden md:flex basis-1/12 justify-center">
@@ -588,6 +582,8 @@
                     <div class="p-2 w-full">
                         <main>
                             <div
+                                style="--borderImageSource: url({borders['./border.png']});"
+                                class:borderimg={showBorder}
                                 class="max-w-screen-md mx-auto"
                                 use:pinch
                                 onpinch={doPinch}
