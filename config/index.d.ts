@@ -129,6 +129,7 @@ export type WritingSystemConfig = {
         [key: string]: string;
     };
     fontFamily: string;
+    fontRelativeSize?: string;
     textDirection: string;
 };
 
