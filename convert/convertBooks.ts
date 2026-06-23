@@ -423,7 +423,7 @@ type ConvertBookContext = {
     bcId: string;
 };
 
-const unsupportedBookTypes = ['songs', 'audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['audio-only', 'bloom-player', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     scriptureConfig: ScriptureConfig,
@@ -502,7 +502,6 @@ export async function convertBooks(
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
-                case 'songs':
                 case 'audio-only':
                 case 'bloom-player':
                 case 'undefined':
@@ -522,6 +521,7 @@ export async function convertBooks(
                     });
                     displayBookId(context.bcId, book.id);
                     break;
+                case 'songs':
                 case 'story':
                 default:
                     bookConverted = true;
@@ -788,6 +788,7 @@ function convertScriptureBook(
         if (err) {
             throw err;
         }
+
         content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
         if (bookTab) {
             //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
