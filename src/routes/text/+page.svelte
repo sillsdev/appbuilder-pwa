@@ -648,6 +648,7 @@
 <svelte:window
     bind:innerWidth
     bind:innerHeight
+    // bind:visualViewport?.height={}
     onpointermove={handleMouseMove}
     onpointerup={handleMouseUp}
 />
@@ -776,10 +777,7 @@
                 />
             {/if}
         {/if}
-        <!-- <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}> -->
         <div
-            // style="--borderImageSource: url({borders['./border.png']});"
-            // class:borderimg={showBorder}
             class="overflow-y-auto grow overflow-x-hidden"
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
@@ -803,8 +801,8 @@
                     use:measure
                 >
                     <div
-                        class="p-2 w-full"
-                        style="position: absolute; left: {panels_X[0]}px; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 * panels_X[0] -
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[0]}px;  height: {Math.abs(panels_X[0] + x.current) === draggableWidth ? window.screen.height : 'auto'}px; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 * panels_X[0] -
                             x.current}px);"
                     >
                         <main>
@@ -834,8 +832,8 @@
                     </div>
 
                     <div
-                        class="p-2 w-full"
-                        style="position: absolute; left: {panels_X[1]}px;clip-path: inset(0 {1 * panels_X[1] +
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[1]}px;  height: {Math.abs(panels_X[1] + x.current) === draggableWidth ? window.screen.height : 'auto'}px; clip-path: inset(0 {1 * panels_X[1] +
                             x.current}px 0 {-1 * panels_X[1] -
                             x.current}px);">
                         <main>
@@ -865,8 +863,8 @@
                     </div>
 
                     <div
-                        class="p-2 w-full"
-                        style="position: absolute; left: {panels_X[2]}px; clip-path: inset(0 {1 * panels_X[2] +
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[2]}px; height: {Math.abs(panels_X[2] + x.current) === draggableWidth ? window.screen.height : 'auto'}px; clip-path: inset(0 {1 * panels_X[2] +
                             x.current}px 0 {-1 * panels_X[2] -
                             x.current}px);"
                     >
