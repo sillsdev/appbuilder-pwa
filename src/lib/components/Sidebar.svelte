@@ -178,7 +178,7 @@ The sidebar/drawer.
             {#if showLayouts}
                 <li>
                     <!-- svelte-ignore a11y_missing_attribute -->
-                    <button style:color={textColor} onclick={() => goto(resolve(`/collections`))}>
+                    <button style:color={textColor} onclick={() => goto(resolve(`/layout`))}>
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>

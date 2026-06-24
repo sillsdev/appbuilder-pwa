@@ -15,7 +15,7 @@ Displays the three different layout option menus.
         base: '/src/gen-assets/illustrations'
     }) as Record<string, string>;
 
-    let { layoutOption, menuaction } = $props();
+    let { layoutOption, menuaction, showTitle = true } = $props();
 
     const allDocSets =
         scriptureConfig.bookCollections?.map((ds) => ({
@@ -74,12 +74,14 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div class="max-w-screen-md mx-auto px-2">
+<div>
     <!-- Single Pane -->
     {#if layoutOption === Layout.Single}
-        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Single_Pane']}
-        </p>
+        {#if showTitle}
+            <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+                {$t['Layout_Single_Pane']}
+            </p>
+        {/if}
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
             selectedLayouts={$selectedLayouts.singlePane}
@@ -87,9 +89,11 @@ Displays the three different layout option menus.
         />
         <!-- Two Pane -->
     {:else if layoutOption === Layout.Two}
-        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Two_Pane']}
-        </p>
+        {#if showTitle}
+            <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+                {$t['Layout_Two_Pane']}
+            </p>
+        {/if}
         {#each $selectedLayouts.sideBySide as collection, i}
             <div>
                 <div class="max-w-screen-md mx-auto">
@@ -136,9 +140,11 @@ Displays the three different layout option menus.
         {/each}
         <!-- Verse By Verse -->
     {:else if layoutOption === Layout.VerseByVerse}
-        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Interlinear']}
-        </p>
+        {#if showTitle}
+            <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+                {$t['Layout_Interlinear']}
+            </p>
+        {/if}
         {#each $selectedLayouts.verseByVerse as collection, i}
             <div>
                 <div class="max-w-screen-md mx-auto">

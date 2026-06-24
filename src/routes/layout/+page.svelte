@@ -35,6 +35,7 @@
     const showSideBySide = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
     const showVerseByVerse = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)
         ?.enabled; //Not yet implemented
+    const multipleLayouts = showSideBySide || showVerseByVerse;
     function getSelectedLayout() {
         const collections = selectedLayouts.collections(tabMenuActive);
         return {
@@ -60,7 +61,7 @@
 </script>
 
 {#snippet layoutOptions(layoutOption: Layout, menuaction: App.MenuActionHandler)}
-    <LayoutOptions {layoutOption} {menuaction} />
+    <LayoutOptions {layoutOption} {menuaction} showTitle={multipleLayouts} />
 {/snippet}
 <!--The background color of the icons should be the DialogBackgroundColor color.-->
 {#snippet icon(mode: Layout)}
@@ -89,26 +90,28 @@
             {/snippet}
         </Navbar>
     </div>
-    <TabsMenu
-        bind:active={tabMenuActive}
-        options={{
-            [Layout.Single]: {
-                tab: { icon },
-                snippet: layoutOptions,
-                visible: showSinglePane
-            },
-            [Layout.Two]: {
-                tab: { icon },
-                snippet: layoutOptions,
-                visible: showSideBySide
-            },
-            [Layout.VerseByVerse]: {
-                tab: { icon },
-                snippet: layoutOptions,
-                visible: showVerseByVerse
-            }
-        }}
-        scroll={false}
-        styleType="ui.dialog"
-    />
+    <div class="overflow-y-auto p-2 max-w-screen-md mx-auto w-full">
+        <TabsMenu
+            bind:active={tabMenuActive}
+            options={{
+                [Layout.Single]: {
+                    tab: { icon },
+                    snippet: layoutOptions,
+                    visible: showSinglePane
+                },
+                [Layout.Two]: {
+                    tab: { icon },
+                    snippet: layoutOptions,
+                    visible: showSideBySide
+                },
+                [Layout.VerseByVerse]: {
+                    tab: { icon },
+                    snippet: layoutOptions,
+                    visible: showVerseByVerse
+                }
+            }}
+            scroll={false}
+            styleType="ui.dialog"
+        />
+    </div>
 </div>
