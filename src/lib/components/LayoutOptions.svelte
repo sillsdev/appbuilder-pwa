@@ -4,19 +4,18 @@ Displays the three different layout option menus.
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { convertStyle, Layout, s, selectedLayouts, t, themeColors } from '$lib/data/stores';
+    import { Layout, modal, ModalType, s, selectedLayouts, t, themeColors } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import CollectionList from './CollectionList.svelte';
-    import Dropdown from './Dropdown.svelte';
+
+    const illustrations = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        query: '?url',
+        base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
 
     let { layoutOption, menuaction } = $props();
-
-    const blank = {
-        id: '',
-        name: '--------',
-        singlePane: false,
-        description: ''
-    };
 
     const allDocSets =
         scriptureConfig.bookCollections?.map((ds) => ({
@@ -75,10 +74,10 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div>
+<div class="max-w-screen-md mx-auto px-2">
     <!-- Single Pane -->
     {#if layoutOption === Layout.Single}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Single_Pane']}
         </p>
         <CollectionList
@@ -88,68 +87,42 @@ Displays the three different layout option menus.
         />
         <!-- Two Pane -->
     {:else if layoutOption === Layout.Two}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
+        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
             {$t['Layout_Two_Pane']}
         </p>
-        <div class="flex flex-col">
-            {#each $selectedLayouts.sideBySide as collection, i}
-                <div>
-                    <Dropdown>
-                        {#snippet label()}
-                            <div class="px-3" style={convertStyle($s?.['ui.layouts.number'])}>
-                                {i + 1}.
-                            </div>
-                            <div class="dy-relative font-normal normal-case text-left">
-                                <div style={convertStyle($s?.['ui.layouts.title'])}>
-                                    {collection.name}
-                                </div>
-                                {#if collection.description}
-                                    <div
-                                        class="text-sm"
-                                        style={convertStyle($s?.['ui.layouts.selector'])}
-                                    >
-                                        {collection.description}
-                                    </div>
-                                {/if}
-                            </div>
-                            <div class="px-3">
-                                <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
-                            </div>
-                        {/snippet}
-                        {#snippet content()}
-                            <CollectionList
-                                docSets={allDocSets}
-                                selectedLayouts={collection}
-                                menuaction={(event) => {
-                                    handleClick(event, i);
-                                }}
-                            />
-                        {/snippet}
-                    </Dropdown>
-                </div>
-            {/each}
-        </div>
-        <!-- Verse By Verse -->
-    {:else if layoutOption === Layout.VerseByVerse}
-        <p class="py-2" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Interlinear']}
-        </p>
-        {#each $selectedLayouts.verseByVerse as collection, i}
+        {#each $selectedLayouts.sideBySide as collection, i}
             <div>
-                <Dropdown>
-                    {#snippet label()}
-                        <div class="px-3" style={convertStyle($s?.['ui.layouts.number'])}>
-                            {i + 1}.
-                        </div>
-                        <div class="dy-relative font-normal normal-case text-left">
-                            <div style={convertStyle($s?.['ui.layouts.title'])}>
+                <div class="max-w-screen-md mx-auto">
+                    <div class="px-3 layout-subtitle">
+                        {i + 1}
+                    </div>
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="flex justify-between layout-item-block rounded-none cursor-pointer"
+                        onclick={() => {
+                            modal.open(ModalType.Collection, {
+                                type: 'double-pane',
+                                showBlank: false,
+                                number: i
+                            });
+                        }}
+                    >
+                        {#if collection.image}
+                            <div class="layout-image-block self-start">
+                                <!-- svelte-ignore a11y_missing_attribute -->
+                                <img
+                                    class="layout-image"
+                                    src={illustrations['./' + collection.image]}
+                                />
+                            </div>
+                        {/if}
+                        <div class="layout-text-block">
+                            <div class="layout-item-name">
                                 {collection.name}
                             </div>
                             {#if collection.description}
-                                <div
-                                    class="text-sm"
-                                    style={convertStyle($s?.['ui.layouts.selector'])}
-                                >
+                                <div class="layout-item-description">
                                     {collection.description}
                                 </div>
                             {/if}
@@ -157,15 +130,57 @@ Displays the three different layout option menus.
                         <div class="px-3">
                             <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
                         </div>
-                    {/snippet}
-                    {#snippet content()}
-                        <CollectionList
-                            docSets={i === 2 ? [blank, ...allDocSets] : allDocSets}
-                            selectedLayouts={collection}
-                            menuaction={(event) => handleClick(event, i)}
-                        />
-                    {/snippet}
-                </Dropdown>
+                    </div>
+                </div>
+            </div>
+        {/each}
+        <!-- Verse By Verse -->
+    {:else if layoutOption === Layout.VerseByVerse}
+        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+            {$t['Layout_Interlinear']}
+        </p>
+        {#each $selectedLayouts.verseByVerse as collection, i}
+            <div>
+                <div class="max-w-screen-md mx-auto">
+                    <div class="px-3 layout-subtitle">
+                        {i + 1}
+                    </div>
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="flex justify-between layout-item-block rounded-none cursor-pointer"
+                        onclick={() => {
+                            modal.open(ModalType.Collection, {
+                                type: 'verse-by-verse',
+                                showBlank: i === 2,
+                                number: i
+                            });
+                        }}
+                    >
+                        {#if collection.image}
+                            <div class="layout-image-block self-start">
+                                <!-- svelte-ignore a11y_missing_attribute -->
+                                <img
+                                    class="layout-image"
+                                    src={illustrations['./' + collection.image]}
+                                />
+                            </div>
+                        {/if}
+                        <div class="layout-text-block">
+                            <div class="layout-item-name">
+                                {collection.name}
+                            </div>
+                            {#if collection.description}
+                                <div class="layout-item-description">
+                                    {collection.description}
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="px-3">
+                            <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
+                        </div>
+                    </div>
+                </div>
             </div>
         {/each}
     {/if}

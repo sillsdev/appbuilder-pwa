@@ -26,14 +26,14 @@ const singleLayout = { mode: Layout.Single, auxDocSets: [] };
 export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(singleLayout);
 
 export const ModalType = {
-    Collection: 'collection',
     Note: 'note',
     TextAppearance: 'text-appearance',
     Font: 'font',
     StopPlan: 'stop-plan',
     PlaybackSpeed: 'playback-speed',
     VerseOnImage: 'verse-on-image',
-    Download: 'download'
+    Download: 'download',
+    Collection: 'collection'
 } as const;
 export type ModalType = (typeof ModalType)[keyof typeof ModalType];
 

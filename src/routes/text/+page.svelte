@@ -399,7 +399,7 @@
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
             if (showCollectionsOnFirstLaunch && enoughCollections) {
-                modal.open(ModalType.Collection);
+                goto(resolve(`/collections`));
             }
         }
     });
@@ -502,7 +502,7 @@
                         {#if showCollectionNavbar && enoughCollections}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                onclick={() => modal.open(ModalType.Collection)}
+                                onclick={() => goto(resolve(`/collections`))}
                             >
                                 <BibleIcon color={$actionBarColor} />
                             </button>
@@ -541,7 +541,7 @@
             style:top={navBarHeight}
             style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => modal.open(ModalType.Collection)}
+            onclick={() => goto(resolve(`/collections`))}
         >
             {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
                 ?.collectionAbbreviation}
