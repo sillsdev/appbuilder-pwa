@@ -35,7 +35,10 @@
     const showSideBySide = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
     const showVerseByVerse = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)
         ?.enabled; //Not yet implemented
-    const multipleLayouts = showSideBySide || showVerseByVerse;
+
+    // In the native app, if only showing the single pane, then don't show the title.
+    // If showing one of the other two, then show the title.
+    const showTitle = showSideBySide || showVerseByVerse;
     function getSelectedLayout() {
         const collections = selectedLayouts.collections(tabMenuActive);
         return {
@@ -61,7 +64,7 @@
 </script>
 
 {#snippet layoutOptions(layoutOption: Layout, menuaction: App.MenuActionHandler)}
-    <LayoutOptions {layoutOption} {menuaction} showTitle={multipleLayouts} />
+    <LayoutOptions {layoutOption} {menuaction} {showTitle} />
 {/snippet}
 <!--The background color of the icons should be the DialogBackgroundColor color.-->
 {#snippet icon(mode: Layout)}
