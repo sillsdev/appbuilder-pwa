@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @plugin 'daisyui' {
     prefix: 'dy-';
-    themes: light;
+    themes: light --default;
 }
 
 @config "../../../tailwind.config.cjs";
@@ -24,37 +24,111 @@
     }
 }
 
-@layer base {
-}
+/*
 
-/* Fix sizing to match pre-v5 DaisyUI */
-@theme {
-    /* Size of components in navbar, etc.  */
+  Text on version pane is wrong color
+  side-by-side pane is not full width and is ~~slightly too tall~~
+  ~~`display` style is incorrectly `flex`, not  '`grid`'~~
+  border color is not picking up the custom variable
+  same with header on Choose Plan
+  Bible header: 
+  book/chapter text is not centered
+  ~~`display` is block, not flex~~
+  (still two pixels off??)
+  search pane: 
+  search box styles differ (compare Android?)
+  check boxes positioned correctly, but transition differs (esp. checked color)
+  menu sidebar:
+  groupings correct, but slightly too close
+  horizontal dividers missing
+  Keyman logo not loaded?
+  font settings: 
+  number has wrong color
+  color buttons have minimal height
+  playback speed menu: buttons have wrong color
+
+*/
+
+/* 
+  Problem: 
+  Element: 
+  Property:
+  Source: 
+*/
+
+/* 
+  Problem: footer formatting is subtly different on home screen
+  Element: 
+  Property:
+  Source: 
+*/
+
+/* Fix styling to match pre-v5 DaisyUI */
+
+/* 
+  Problem: Text selection pane is too tall
+  Element: button.dy-tab
+  Property: height (40px, should be 32px)
+  Source: --size-field via --dy-tab-height
+*/
+@utility dy-tabs {
     --size-field: 0.2rem;
 }
-.dy-btn {
-    /* Size of buttons in navbar */
+
+/* 
+  Problem: Buttons in navbar have too small bounding box
+  Element: *.dy-btn.dy-btn-ghost.dy-btn-circle
+  Property: height, width
+  Source: --size-field via --dy-size via .dy-btn
+*/
+@utility dy-btn {
     --size-field: 0.3rem;
 }
-.dy-navbar > div {
-    /* Remediate navbar contents not vertically aligning */
-    display: flex;
+
+/* 
+  Problem: Navbar items do not align on horiz. axis
+  Element: dy-navbar > div
+  Property: display
+  Source: 
+*/
+:where(.dy-navbar>*:not(script,style)) {
+    display: inline-flex;
+    align-items: center;
 }
+
+/* 
+  Problem: 
+  Element: 
+  Property:
+  Source: 
+*/
 .dy-btn-ghost {
     /* Adjust border on text pane selctors */
-    border-width: 1px;
+    /* border-width: 1px; */
 }
-@utility dy-tab {
-    /* Match padding on text pane selectors */
-    --dy-tab-p: 1rem;
+/* 
+  Problem: 
+  Element: 
+  Property:
+  Source: 
+*/
+/* @utility dy-tab { */
+/* Match padding on text pane selectors */
+/* --dy-tab-p: 1rem; */
 
-    /* Make text pane selectors horizontally stacked */
-    grid-row-start: 1;
-}
-@utility dy-tabs {
-    /* Make text pane selectors horizontally stacked */
-    display: grid;
-}
+/* 
+  Problem: 
+  Element: 
+  Property:
+  Source: 
+*/
+/* Make text pane selectors horizontally stacked */
+/* grid-row-start: 1; */
+/* } */
+/* @utility dy-tabs { */
+/* Make text pane selectors horizontally stacked */
+/* display: grid; */
+/* } */
 
 /* https://stackoverflow.com/a/58236787/35577 */
 /* On Chrome Mobile, there is a whitespace along the right side that */
