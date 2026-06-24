@@ -808,10 +808,7 @@
                 />
             {/if}
         {/if}
-        <!-- <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}> -->
         <div
-            // style="--borderImageSource: url({borders['./border.png']});"
-            // class:borderimg={showBorder}
             class="overflow-y-auto grow overflow-x-hidden"
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
@@ -897,10 +894,14 @@
                     </div>
 
                     <div
-                        class="p-2 w-full"
-                        style="position: absolute; left: {panels_X[2]}px; clip-path: inset(0 {1 *
-                            panels_X[2] +
-                            x.current}px 0 {-1 * panels_X[2] - x.current}px);"
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[2]}px; height: {Math.abs(
+                            panels_X[2] + x.current
+                        ) === draggableWidth
+                            ? window.screen.height
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[2] + x.current}px 0 {-1 *
+                            panels_X[2] -
+                            x.current}px);"
                     >
                         <main>
                             <div
