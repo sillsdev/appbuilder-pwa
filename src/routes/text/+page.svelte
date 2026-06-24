@@ -148,7 +148,7 @@
     let draggableWidth = $state(0);
     let panels_X = $state([0, 0, 0]);
     let minSlideDistance = () => draggableWidth / 2; // use to determine how far a user has to slide to move to the next chapter
-    let minSlideMomentum = 1; // measured in pixels per millisecond
+    let minSlideMomentum = 0.6; // measured in pixels per millisecond
     let lastX = 0;
     let lastTime = 0;
     let momentum = 0;
@@ -156,10 +156,8 @@
     let previous: string | null = null;
 
     $effect(() => {
-        if (previous !== viewSettings.references.collection) {
-            setupSettingsCache();
-        }
-        previous = viewSettings.references.collection;
+        viewSettings.references.collection;
+        setupSettingsCache();
     });
 
     async function setupSettingsCache() {
@@ -240,6 +238,7 @@
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
+            momentum = 0;
             directNavigation = true;
             if (!(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: Math.abs(x.current) });
@@ -251,6 +250,7 @@
             await tick();
             await x.set(0, { duration: Math.abs(x.current) });
         } else {
+            momentum = 0;
             directNavigation = true;
             if (!(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: Math.abs(x.current) });
