@@ -83,6 +83,21 @@
 }
 
 /*
+  Problem: Button hover shadow is too light
+  Element: dy.btn
+  Property: background-color, various
+  Source: --dy-btn-color, --dy-btn-shadow, border-color
+  Reason: v5 changed hover style calculation
+*/
+@utility dy-btn {
+    --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
+    --dy-btn-shadow: '';
+}
+@utility dy-btn-ghost {
+    --dy-btn-border: transparent;
+}
+
+/*
   Problem: Navbar items do not align on horiz. axis
   Where: dy-navbar > div
   Property: display
