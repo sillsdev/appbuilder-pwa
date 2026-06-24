@@ -88,6 +88,21 @@
     }
 
     let { data }: Props = $props();
+    $effect(() => {
+        const book = scriptureConfig?.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book);
+        if (!book) {
+            console.log('No book!');
+            const books = scriptureConfig?.bookCollections?.find(
+                (x) => x.id === $refs.collection
+            )?.books;
+            console.log(books);
+            if (books && books.length > 0) {
+                $refs.book = books[0].id;
+            }
+        }
+    });
 
     let scrollingUp = $state(true);
     let savedScrollPosition = 0;
