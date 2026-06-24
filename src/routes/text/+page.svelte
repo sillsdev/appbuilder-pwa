@@ -139,11 +139,15 @@
     let draggableWidth = $state(0);
     let panels_X = $state([0, 0, 0]);
     let minSlideDistance = () => draggableWidth / 2; // use to determine how far a user has to slide to move to the next chapter
-    let minSlideMomentum = .6; // measured in pixels per millisecond
+    let minSlideMomentum = 0.6; // measured in pixels per millisecond
     let lastX = 0;
     let lastTime = 0;
     let momentum = 0;
 
+    $effect(() => {
+        viewSettings.references.collection;
+        setupSettingsCache();
+    });
 
     async function setupSettingsCache() {
         settingsCache[0] = {
@@ -183,21 +187,25 @@
         if (direction === -1) {
             panels_X = [panels_X[1], panels_X[2], panels_X[0]];
             idx = panels_X.indexOf(Math.min(...panels_X));
-            settingsCache[idx] = { ...viewSettings,     // load in the page before
-                                references: {
-                                    ...viewSettings.references,
-                                    book: viewSettings.references.prev.book,
-                                    chapter: viewSettings.references.prev.chapter
-                                }};
-        } else if (direction === 1) {;
+            settingsCache[idx] = {
+                ...viewSettings, // load in the page before
+                references: {
+                    ...viewSettings.references,
+                    book: viewSettings.references.prev.book,
+                    chapter: viewSettings.references.prev.chapter
+                }
+            };
+        } else if (direction === 1) {
             panels_X = [panels_X[2], panels_X[0], panels_X[1]];
             idx = panels_X.indexOf(Math.max(...panels_X));
-            settingsCache[idx] = { ...viewSettings,     // load in the next page
-                                references: {
-                                    ...viewSettings.references,
-                                    book: viewSettings.references.next.book,
-                                    chapter: viewSettings.references.next.chapter
-                                }};
+            settingsCache[idx] = {
+                ...viewSettings, // load in the next page
+                references: {
+                    ...viewSettings.references,
+                    book: viewSettings.references.next.book,
+                    chapter: viewSettings.references.next.chapter
+                }
+            };
         }
     }
 
@@ -212,7 +220,6 @@
         }
     }
 
-
     async function handleMouseUp(_event: PointerEvent) {
         console.log(momentum);
         isDragging = false;
@@ -220,6 +227,7 @@
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
+            momentum = 0;
             directNavigation = true;
             if (!(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: Math.abs(x.current) });
@@ -230,8 +238,8 @@
             await x.set(draggableWidth + x.current, { duration: 1 });
             await tick();
             await x.set(0, { duration: Math.abs(x.current) });
-
         } else {
+            momentum = 0;
             directNavigation = true;
             if (!(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: Math.abs(x.current) });
@@ -277,7 +285,7 @@
 
             lastTime = currentTime;
             lastX = x.current;
-        }   
+        }
     }
 
     function measure(node: Element) {
@@ -322,7 +330,7 @@
         directNavigation = true;
         await navigateToTextChapterInDirection(1);
         await adjustSettingsCache(1);
-        await x.set(draggableWidth, { duration: 0 });//, { duration: 0 });
+        await x.set(draggableWidth, { duration: 0 }); //, { duration: 0 });
         await tick();
         await x.set(0);
     }
@@ -659,7 +667,7 @@
             {#snippet start()}
                 <div class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}>
                     <BookSelector />
-                    <ChapterSelector onChapterSelection={setupSettingsCache}/>
+                    <ChapterSelector onChapterSelection={setupSettingsCache} />
                 </div>
             {/snippet}
 
@@ -746,20 +754,6 @@
         {/if}
     </div>
 
-    {#if showCollectionViewer && enoughCollections}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
-            style:top={navBarHeight}
-            style:background-color={convertStyle($s?.['ui.pane1'])}
-            style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => goto(resolve(`/layout`))}
-        >
-            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
-                ?.collectionAbbreviation}
-        </div>
-    {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
             {@const illustrationFile = getCurrentIllustrationFile()}
@@ -802,7 +796,12 @@
                 >
                     <div
                         class="p-2 w-full overflow-y-hidden"
-                        style="position: absolute; left: {panels_X[0]}px;  height: {Math.abs(panels_X[0] + x.current) === draggableWidth ? window.screen.height : 'auto'}px; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 * panels_X[0] -
+                        style="position: absolute; left: {panels_X[0]}px;  height: {Math.abs(
+                            panels_X[0] + x.current
+                        ) === draggableWidth
+                            ? window.screen.height
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 *
+                            panels_X[0] -
                             x.current}px);"
                     >
                         <main>
@@ -833,9 +832,14 @@
 
                     <div
                         class="p-2 w-full overflow-y-hidden"
-                        style="position: absolute; left: {panels_X[1]}px;  height: {Math.abs(panels_X[1] + x.current) === draggableWidth ? window.screen.height : 'auto'}px; clip-path: inset(0 {1 * panels_X[1] +
-                            x.current}px 0 {-1 * panels_X[1] -
-                            x.current}px);">
+                        style="position: absolute; left: {panels_X[1]}px;  height: {Math.abs(
+                            panels_X[1] + x.current
+                        ) === draggableWidth
+                            ? window.screen.height
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[1] + x.current}px 0 {-1 *
+                            panels_X[1] -
+                            x.current}px);"
+                    >
                         <main>
                             <div
                                 style="--borderImageSource: url({borders['./border.png']});"
@@ -864,8 +868,12 @@
 
                     <div
                         class="p-2 w-full overflow-y-hidden"
-                        style="position: absolute; left: {panels_X[2]}px; height: {Math.abs(panels_X[2] + x.current) === draggableWidth ? window.screen.height : 'auto'}px; clip-path: inset(0 {1 * panels_X[2] +
-                            x.current}px 0 {-1 * panels_X[2] -
+                        style="position: absolute; left: {panels_X[2]}px; height: {Math.abs(
+                            panels_X[2] + x.current
+                        ) === draggableWidth
+                            ? window.screen.height
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[2] + x.current}px 0 {-1 *
+                            panels_X[2] -
                             x.current}px);"
                     >
                         <main>
@@ -909,6 +917,21 @@
         </div>
         <StackView {...stackSettings} />
     </div>
+
+    {#if showCollectionViewer && enoughCollections}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
+            style:top={navBarHeight}
+            style:background-color={convertStyle($s?.['ui.pane1'])}
+            style={convertStyle($s?.['ui.pane1.name'])}
+            onclick={() => modal.open(ModalType.Collection)}
+        >
+            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
+                ?.collectionAbbreviation}
+        </div>
+    {/if}
     {#if textCopied}
         <div
             class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
