@@ -1,6 +1,6 @@
 import { scriptureConfig } from '$assets/config';
-import type { BookCollectionAudioConfig } from '$config';
-import { isBlank } from '$lib/scripts/stringUtils';
+import type { BookCollectionAudioConfig, BookCollectionConfig } from '$config';
+import { isBlank, isNotBlank } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
 
 /**
@@ -32,49 +32,66 @@ export class NavigationContext {
     private books: string[];
     private versesByChapters: { [chapter: string]: { [verse: string]: string } };
 
+    private docSetFromCollection(coll: Pick<BookCollectionConfig, 'id' | 'languageCode'>) {
+        return `${coll.languageCode}_${coll.id}`;
+    }
+
+    private parseReference(ref: string = '') {
+        const parts = ref.split('.');
+        const hasCollection = parts.length !== 2;
+
+        const parsedDocSet = hasCollection ? parts[0] : this.docSets[0];
+
+        const collection = this.config.bookCollections?.find(
+            (c) => parsedDocSet === c.id || parsedDocSet === this.docSetFromCollection(c)
+        );
+
+        let docSet = this.docSets[0];
+
+        if (!collection || parsedDocSet !== this.docSetFromCollection(collection)) {
+            console.error(
+                `docSet '${parsedDocSet}' not found in collections. Defaulting to '${docSet}'`
+            );
+        } else {
+            docSet = this.docSetFromCollection(collection);
+        }
+
+        let bookId = parts[hasCollection ? 1 : 0];
+
+        const book = collection?.books.find((b) => b.id === bookId) ?? collection?.books[0];
+        if (!book || bookId !== book.id) {
+            console.error(
+                `book '${bookId}' not found in '${docSet}'. Defaulting to '${collection?.books[0]?.id ?? ''}'`
+            );
+            bookId = collection?.books[0]?.id ?? '';
+        }
+
+        return {
+            docSet,
+            book: bookId,
+            // TODO: handle bad chapter??
+            chapter:
+                parts[hasCollection ? 2 : 1] ||
+                this.config.bookCollections?.[0].books
+                    .find((b) => b.id === ref[0])
+                    ?.chaptersN?.split('-')[0] ||
+                '1',
+            verse: parts[3] || '1'
+        };
+    }
+
     async gotoInitial(start: string = '') {
         this.docSets =
             this.config.bookCollections?.map((bc) => `${bc.languageCode}_${bc.id}`) ?? [];
         this.initialized = true;
         start = start || (this.config.mainFeatures['start-at-reference'] as string);
-        if (start) {
-            await this.gotoReference(start);
-        } else {
-            const collection = this.config.bookCollections![0];
-            await this.goto(
-                this.docSets[0],
-                collection.books[0].id,
-                collection.books[0].chaptersN?.split('-')?.[0] ?? '1', //TODO: what if chaptersN is undefined?
-                '1'
-            );
-        }
+        // validation handled in gotoReference
+        await this.gotoReference(start);
     }
 
     async gotoReference(reference: string) {
-        const ref = reference.split('.');
-        if (ref.length === 2) {
-            // Book and chapter specified but only one collection
-            if (isBlank(ref[1])) {
-                // Only book specified
-                const firstChapter =
-                    this.config.bookCollections?.[0].books
-                        .find((b) => b.id === ref[0])
-                        ?.chaptersN?.split('-')[0] ?? '1'; //TODO: what if chaptersN is undefined?
-                await this.goto(this.docSets[0], ref[0], firstChapter, '1');
-            } else {
-                await this.goto(this.docSets[0], ref[0], ref[1], '1');
-            }
-        } else {
-            let docSet = ref[0];
-            if (!ref[0].includes('_')) {
-                // This is a collection id.
-                const collection = this.config.bookCollections?.find((c) => c.id === ref[0]);
-                docSet = collection
-                    ? `${collection.languageCode}_${collection.id}`
-                    : this.docSets[0];
-            }
-            await this.goto(docSet, ref[1], ref[2], '1');
-        }
+        const ref = this.parseReference(reference);
+        await this.goto(ref.docSet, ref.book, ref.chapter, ref.verse);
     }
 
     async goto(docSet: string, book: string, chapter: string, verse: string = '') {
