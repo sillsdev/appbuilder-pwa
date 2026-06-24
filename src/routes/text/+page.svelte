@@ -153,6 +153,11 @@
     let lastTime = 0;
     let momentum = 0;
 
+    $effect(() => {
+        viewSettings.references.collection;
+        setupSettingsCache();
+    });
+
     async function setupSettingsCache() {
         settingsCache[0] = {
             // Initial settings for left panel
@@ -231,6 +236,7 @@
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
+            momentum = 0;
             directNavigation = true;
             if (!(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: Math.abs(x.current) });
@@ -242,6 +248,7 @@
             await tick();
             await x.set(0, { duration: Math.abs(x.current) });
         } else {
+            momentum = 0;
             directNavigation = true;
             if (!(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: Math.abs(x.current) });
@@ -779,17 +786,6 @@
         {/if}
     </div>
 
-    {#if showCollection.viewer && moreThanOneCollection}
-        <button
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
-            style:top={navBarHeight}
-            style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => goto(resolve(`/layout`))}
-        >
-            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
-                ?.collectionAbbreviation}
-        </button>
-    {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
             {@const illustrationFile = getCurrentIllustrationFile()}
@@ -951,6 +947,20 @@
     <StackView {...stackSettings} />
     <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
 
+    {#if showCollectionViewer && enoughCollections}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
+            style:top={navBarHeight}
+            style:background-color={convertStyle($s?.['ui.pane1'])}
+            style={convertStyle($s?.['ui.pane1.name'])}
+            onclick={() => modal.open(ModalType.Collection)}
+        >
+            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
+                ?.collectionAbbreviation}
+        </div>
+    {/if}
     {#if textCopied}
         <div
             class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
