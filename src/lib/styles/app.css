@@ -7,6 +7,8 @@
 @config "../../../tailwind.config.cjs";
 
 /*
+  (The following was added automatically by the Tailwind v4 upgrade script)
+
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.
@@ -25,110 +27,120 @@
 }
 
 /*
-
   Text on version pane is wrong color
   side-by-side pane is not full width and is ~~slightly too tall~~
   ~~`display` style is incorrectly `flex`, not  '`grid`'~~
   border color is not picking up the custom variable
   same with header on Choose Plan
-  Bible header: 
+  Bible header:
   book/chapter text is not centered
   ~~`display` is block, not flex~~
   (still two pixels off??)
-  search pane: 
+  search pane:
   search box styles differ (compare Android?)
   check boxes positioned correctly, but transition differs (esp. checked color)
   menu sidebar:
   groupings correct, but slightly too close
   horizontal dividers missing
   Keyman logo not loaded?
-  font settings: 
+  font settings:
   number has wrong color
   color buttons have minimal height
   playback speed menu: buttons have wrong color
-
 */
 
-/* 
-  Problem: 
-  Element: 
+/*
+  Problem:
+  Element:
   Property:
-  Source: 
-*/
-
-/* 
-  Problem: footer formatting is subtly different on home screen
-  Element: 
-  Property:
-  Source: 
+  Source:
 */
 
 /* Fix styling to match pre-v5 DaisyUI */
 
-/* 
+/*
   Problem: Text selection pane is too tall
-  Element: button.dy-tab
+  Where: button.dy-tab
   Property: height (40px, should be 32px)
   Source: --size-field via --dy-tab-height
+  Reason: v5 changed default sizing vars
 */
 @utility dy-tabs {
     --size-field: 0.2rem;
 }
 
-/* 
-  Problem: Buttons in navbar have too small bounding box
-  Element: *.dy-btn.dy-btn-ghost.dy-btn-circle
-  Property: height, width
-  Source: --size-field via --dy-size via .dy-btn
+/*
+  Problem: Buttons in navbar have too small buffers
+  Where: *.dy-btn
+  Property: various
+  Source: --size-field and --radius-field via .dy-btn
+  Reason: v5 changed default sizing vars
 */
 @utility dy-btn {
     --size-field: 0.3rem;
+    --radius-field: 0.5rem;
+    gap: 0.5rem;
 }
 
-/* 
+/*
   Problem: Navbar items do not align on horiz. axis
-  Element: dy-navbar > div
+  Where: dy-navbar > div
   Property: display
-  Source: 
+  Source: user agent stylesheet (i.e. browser default)
+  Reason: navbar no longer sets children to `inline-flex`
 */
-:where(.dy-navbar>*:not(script,style)) {
+/* This fix is copied from the DaisyUI v4 generated styles. */
+:where(.dy-navbar > *:not(script, style)) {
     display: inline-flex;
     align-items: center;
 }
 
-/* 
-  Problem: 
-  Element: 
-  Property:
-  Source: 
+/*
+  Problem: Text selection tabs don't occupy full text width
+  Where: dy-tabs.dy-tab
+  Property: display
+  Source: DaisyUI utility layer
+  Reason: v5 default `dy-tabs` style
 */
-.dy-btn-ghost {
-    /* Adjust border on text pane selctors */
-    /* border-width: 1px; */
+@utility dy-tabs {
+    display: grid;
+    align-items: flex-end;
 }
-/* 
-  Problem: 
-  Element: 
-  Property:
-  Source: 
-*/
-/* @utility dy-tab { */
-/* Match padding on text pane selectors */
-/* --dy-tab-p: 1rem; */
 
-/* 
-  Problem: 
-  Element: 
+/*
+  Problem: Text selection tabs don't match style
+  Where: dy-tabs.dy-tab
   Property:
-  Source: 
+  Source: DaisyUI utility layer
+  Reason: v5 default `dy-tabs` style
 */
-/* Make text pane selectors horizontally stacked */
-/* grid-row-start: 1; */
-/* } */
-/* @utility dy-tabs { */
-/* Make text pane selectors horizontally stacked */
-/* display: grid; */
-/* } */
+@utility dy-tab {
+    grid-row-start: 1;
+    --dy-tab-p: 1rem;
+}
+
+/*
+  Problem: Text selection tabs have too-soft corners
+  Where: .dy-tabs-border > .dy-tab
+  Property: border-radius
+  Source: --radius-field (new default var)
+*/
+@utility dy-tabs {
+    --radius-field: 0px;
+}
+
+/*
+  Problem: Text selection tab highlight doesn't match v4
+  Element: dy-tabs-border > .dy-tab
+  Property: various
+  Source: v5 default `dy-tabs-border` style
+*/
+/* The highlight is now taller vertically, but more closely matches Android. */
+.dy-tabs-border > .dy-tab::before {
+    width: 100%;
+    height: 2.6px;
+    left: 0%;
+}
 
 /* https://stackoverflow.com/a/58236787/35577 */
 /* On Chrome Mobile, there is a whitespace along the right side that */
