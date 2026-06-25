@@ -97,7 +97,7 @@
             {/snippet}
             {#snippet end()}
                 <div>
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={handleOk}>
+                    <button class="dy-btn dy-btn-circle dy-btn-ghost" onclick={handleOk}>
                         <CheckIcon color={$actionBarColor} />
                     </button>
                 </div>
