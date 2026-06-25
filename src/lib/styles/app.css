@@ -149,6 +149,10 @@
     --dy-btn-border: transparent;
 }
 
+button.message-button:hover {
+    background-color: oklab(0.28 -0.01 -0.03 / 0.15);
+}
+
 /*
   Problem: Navbar items do not align on horiz. axis
   Where: dy-navbar > div
