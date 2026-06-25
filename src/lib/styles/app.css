@@ -122,6 +122,17 @@
 @utility dy-checkbox-accent {
     --color-accent-content: green;
 }
+
+/* fix settings menu formatting */
+@utility dy-label {
+    display: flex;
+    justify-content: space-between;
+}
+@utility dy-form-control {
+    display: flex;
+    flex-direction: column;
+}
+
 /*
   Problem: Button hover shadow is too light
   Element: dy.btn
