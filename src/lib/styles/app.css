@@ -36,7 +36,6 @@
 }
 
 /*
-  menu sidebar:
   groupings correct, but slightly too close
   horizontal dividers missing
   Keyman logo not loaded?
@@ -54,6 +53,12 @@
 */
 
 /* Fix styling to match pre-v5 DaisyUI */
+
+:where(li:not(.dy-menu-title) > *:not(ul, details, .dy-menu-title, .dy-btn)),
+:where(li:not(.dy-menu-title) > details > summary:not(.dy-menu-title)) {
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+}
 
 /*
   Problem: Text selection pane is too tall
