@@ -74,6 +74,7 @@ body {
     --size-field: 0.3rem;
     --radius-field: 0.5rem;
     gap: 0.5rem;
+    line-height: 1em;
 }
 
 @utility dy-btn-active {
