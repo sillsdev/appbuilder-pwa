@@ -39,7 +39,8 @@ export class NavigationContext {
     private parseReference(ref: string = '') {
         const parts = ref.split('.');
         const hasCollection =
-            parts.length !== 2 || !(isPositiveInteger(parts[1]) && isPositiveInteger(parts[2]));
+            parts.length !== 2 &&
+            !(parts.length === 3 && isPositiveInteger(parts[1]) && isPositiveInteger(parts[2]));
 
         const docSet = hasCollection ? parts[0] : this.docSets[0];
 
