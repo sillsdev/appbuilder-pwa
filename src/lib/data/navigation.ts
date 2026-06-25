@@ -90,7 +90,7 @@ export class NavigationContext {
             (isNaN(chapterNum) && chapter !== 'i') ||
             !chapterRange ||
             chapterNum < chapterRange[0] ||
-            chapterNum > chapterRange[1]
+            chapterNum > (chapterRange[1] || chapterRange[0])
         ) {
             console.error(
                 `chapter '${chapter}' falls outside of chapter range '${book?.chaptersN}'. Defaulting to '${fallbackChapter}'.`
