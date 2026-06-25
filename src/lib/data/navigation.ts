@@ -1,6 +1,6 @@
 import { scriptureConfig } from '$assets/config';
 import type { BookCollectionAudioConfig, BookCollectionConfig } from '$config';
-import { isBlank, isNotBlank } from '$lib/scripts/stringUtils';
+import { isBlank, isNotBlank, isPositiveInteger } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
 
 /**
@@ -38,7 +38,8 @@ export class NavigationContext {
 
     private parseReference(ref: string = '') {
         const parts = ref.split('.');
-        const hasCollection = parts.length !== 2;
+        const hasCollection =
+            parts.length !== 2 || !(isPositiveInteger(parts[1]) && isPositiveInteger(parts[2]));
 
         const docSet = hasCollection ? parts[0] : this.docSets[0];
 
@@ -52,7 +53,7 @@ export class NavigationContext {
             docSet: collection ? this.docSetFromCollection(collection) : docSet,
             book: book,
             chapter: parts[hasCollection ? 2 : 1],
-            verse: parts[3] || '1'
+            verse: parts[hasCollection ? 3 : 2] || '1'
         };
     }
 
