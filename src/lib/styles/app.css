@@ -112,19 +112,16 @@
     --dy-size: 1.25rem;
 }
 
+/* search bar components don't align */
 @utility dy-input {
     --size-field: 0.3rem;
     --radius-field: 0.5rem;
 }
 
-.dy-join-item.dy-btn {
-    padding-block: 10px;
+/* make v5 search bar checkboxes more readable */
+@utility dy-checkbox-accent {
+    --color-accent-content: green;
 }
-
-/*@utility dy-join-item {*/
-/*--border-radius: 0.5rem;*/
-/*}*/
-
 /*
   Problem: Button hover shadow is too light
   Element: dy.btn
