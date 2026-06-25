@@ -2,7 +2,7 @@
 @component
 Taken from modifying a copy of the AudioBar.svelte file
 Enables users to copy, highlight, bookmark, share, and annotate selected verses.
-TODO: 
+TODO:
 - Implement functionality for
  -> Share
  -> Play
@@ -160,12 +160,12 @@ TODO:
 >
     <div class="flex flex-col justify-center w-11/12 grow">
         <!-- Controls -->
-        <div class="dy-join place-self-center">
+        <div class="place-self-center">
             {#if showHighlightPens}
                 <div class="pen-grid grid grid-rows-1 gap-2 my-2">
                     {#each highlight_colors as { color, number }}
                         <button
-                            class="dy-btn-sm dy-join-item"
+                            class="dy-btn dy-btn-sm"
                             style:background-color={color}
                             style:border={buttonBorder}
                             onclick={() => modifyHighlight(number)}
@@ -176,7 +176,7 @@ TODO:
             {:else}
                 {#if isAudioPlayable && $refs.hasAudio?.timingFile}
                     <button
-                        class="dy-btn-sm dy-btn-ghost dy-join-item"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() => playSelectedVerseAudio({ repeat: false })}
                     >
                         <AudioIcon.Play color={iconColor} />
@@ -184,7 +184,7 @@ TODO:
                 {/if}
                 {#if isRepeatableAudio && $refs.hasAudio?.timingFile}
                     <button
-                        class="dy-btn-sm dy-btn-ghost dy-join-item"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() => playSelectedVerseAudio({ repeat: true })}
                     >
                         <AudioIcon.PlayRepeat color={iconColor} />
@@ -200,14 +200,14 @@ TODO:
                             }));
                             goto(resolve(`/image`));
                         }}
-                        class="dy-btn-sm dy-btn-ghost dy-join-item"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                     >
                         <ImageIcon.Image color={iconColor} />
                     </button>
                 {/if}
                 {#if isHighlightEnabled}
                     <button
-                        class="dy-btn-sm dy-btn-ghost dy-join-item"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() => (showHighlightPens = true)}
                     >
                         <HighlightIcon color={iconColor} />
@@ -215,7 +215,7 @@ TODO:
                 {/if}
                 {#if isNotesEnabled}
                     <button
-                        class="dy-btn-sm dy-btn-ghost dy-join-item"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() => goto(resolve(`/notes/edit/new`))}
                     >
                         <NoteIcon color={iconColor} />
@@ -232,12 +232,12 @@ TODO:
                     />
                 {/if}
                 {#if isCopyEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost dy-join-item" onclick={copy}>
+                    <button class="dy-btn dy-btn-sm dy-btn-ghost" onclick={copy}>
                         <CopyContentIcon color={iconColor} />
                     </button>
                 {/if}
                 {#if isShareEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost dy-join-item" onclick={shareSelectedText}>
+                    <button class="dy-btn dy-btn-sm dy-btn-ghost" onclick={shareSelectedText}>
                         <ShareIcon color={iconColor} />
                     </button>
                 {/if}

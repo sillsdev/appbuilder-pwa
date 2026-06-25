@@ -144,6 +144,10 @@
     --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
     --dy-btn-shadow: '';
 }
+@utility dy-btn-sm {
+    --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
+    --dy-btn-shadow: '';
+}
 @utility dy-btn-ghost {
     --dy-btn-border: transparent;
 }
