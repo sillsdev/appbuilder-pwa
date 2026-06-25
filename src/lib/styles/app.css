@@ -100,6 +100,11 @@ button.message-button:hover {
     background-color: oklab(0.28 -0.01 -0.03 / 0.15);
 }
 
+/* Fix text color for modal close button */
+.close-btn > .dy-btn-ghost {
+    color: var(--currentColor);
+}
+
 /* Make v5 search bar checkboxes more readable */
 @utility dy-checkbox-accent {
     --color-accent-content: green;
