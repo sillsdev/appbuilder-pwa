@@ -24,6 +24,7 @@
         "clean:all": "npm run clean && npm run clean:data",
         "test": "vitest",
         "test:ui": "vitest --ui",
+        "version": "npm version --no-git-tag-version",
         "enforce-version": "ts-node convert/checkVersion.ts"
     },
     "devDependencies": {
