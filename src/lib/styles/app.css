@@ -15,6 +15,23 @@
     --container-breakpoint-2xl: var(--breakpoint-2xl);
 }
 
+/* https://stackoverflow.com/a/58236787/35577 */
+/* On Chrome Mobile, there is a whitespace along the right side that */
+/* can't figure out where it is coming from.  This will hide it. */
+html,
+body {
+    overflow-x: hidden;
+}
+
+/* https://github.com/saadeghi/daisyui/issues/1450 */
+/* When tapping on the appbar buttons, the hover state sticks sometimes */
+/*@media (hover: none) {
+    .btn.btn-outline:hover {
+        background-color: transparent;
+        color: inherit;
+    }
+}*/
+
 /*
   (The following was added automatically by the Tailwind v4 upgrade script)
 
@@ -36,48 +53,22 @@
 }
 
 /*
-  groupings correct, but slightly too close
-  horizontal dividers missing
-  Keyman logo not loaded?
-  font settings:
-  number has wrong color
-  color buttons have minimal height
-  playback speed menu: buttons have wrong color
+  After the DaisyUI v5 upgrade, several buttons lost the ability to
+  change the pointer, due to the absence of this default rule.
 */
-
-/*
-  Problem:
-  Element:
-  Property:
-  Source:
-*/
-
-/* Fix styling to match pre-v5 DaisyUI */
-
-:where(li:not(.dy-menu-title) > *:not(ul, details, .dy-menu-title, .dy-btn)),
-:where(li:not(.dy-menu-title) > details > summary:not(.dy-menu-title)) {
-    padding-inline: 1rem;
-    padding-block: 0.5rem;
+@layer base {
+    button,
+    [role='button'] {
+        cursor: pointer;
+    }
 }
 
-/*
-  Problem: Text selection pane is too tall
-  Where: button.dy-tab
-  Property: height (40px, should be 32px)
-  Source: --size-field via --dy-tab-height
-  Reason: v5 changed default sizing vars
-*/
-@utility dy-tabs {
-    --size-field: 0.2rem;
+/* Fix styling to acceptably match pre-v5 DaisyUI */
+
+@utility dy-badge {
+    --dy-size: 1.25rem;
 }
 
-/*
-  Problem: Buttons in navbar have too small buffers
-  Where: *.dy-btn
-  Property: various
-  Source: --size-field and --radius-field via .dy-btn
-  Reason: v5 changed default sizing vars
-*/
 @utility dy-btn {
     --dy-btn-shadow: '';
     --size-field: 0.3rem;
@@ -85,43 +76,41 @@
     gap: 0.5rem;
 }
 
-@utility dy-menu {
-    --radius-field: 0.5rem;
+@utility dy-btn-active {
+    &:hover {
+        background-color: #d2d2d2;
+        border-color: #d2d2d2;
+    }
 }
 
-/*
-  Problem: User theme selector buttons are squashed
-  Where: *.dy-btn-sm
-  Property: various
-  Source: not present
-  Reason: v5 changed default sizing vars
-*/
+@utility dy-btn-ghost {
+    --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
+    --dy-btn-shadow: '';
+    --dy-btn-border: transparent;
+}
+
 @utility dy-btn-sm {
     min-height: var(--dy-size);
     padding-inline: var(--dy-btn-p);
 }
 
-/*Modals have sharper corners*/
-@utility dy-modal-box {
-    --radius-box: 1rem;
+/* Re-add hover shading to plan stop button */
+button.message-button:hover {
+    background-color: oklab(0.28 -0.01 -0.03 / 0.15);
 }
 
-@utility dy-badge {
-    --dy-size: 1.25rem;
+/* Make v5 search bar checkboxes more readable */
+@utility dy-checkbox-accent {
+    --color-accent-content: green;
 }
 
-/* search bar components don't align */
+/* Make sure search bar components align */
 @utility dy-input {
     --size-field: 0.3rem;
     --radius-field: 0.5rem;
 }
 
-/* make v5 search bar checkboxes more readable */
-@utility dy-checkbox-accent {
-    --color-accent-content: green;
-}
-
-/* fix settings menu formatting */
+/* Fix settings menu formatting to match v4 */
 @utility dy-label {
     display: flex;
     justify-content: space-between;
@@ -131,115 +120,45 @@
     flex-direction: column;
 }
 
-/* fix button styling on quiz page */
-@utility dy-btn-active {
-    &:hover {
-        background-color: #d2d2d2;
-        border-color: #d2d2d2;
-    }
+/* Patch the v5 generated styles to match v4 menu spacing */
+:where(li:not(.dy-menu-title) > *:not(ul, details, .dy-menu-title, .dy-btn)),
+:where(li:not(.dy-menu-title) > details > summary:not(.dy-menu-title)) {
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
 }
 
-/*
-  Problem: Button hover shadow is too light
-  Element: dy-btn-ghost
-  Property: background-color, various
-  Source: --dy-btn-color, --dy-btn-shadow, border-color
-  Reason: v5 changed hover style calculation
-*/
-@utility dy-btn-ghost {
-    --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
-    --dy-btn-shadow: '';
+/* Round modal corners to match v4 */
+@utility dy-menu {
+    --radius-field: 0.5rem;
 }
-@utility dy-btn-ghost {
-    --dy-btn-border: transparent;
+@utility dy-modal-box {
+    --radius-box: 1rem;
 }
 
-button.message-button:hover {
-    background-color: oklab(0.28 -0.01 -0.03 / 0.15);
-}
-
-/*
-  Problem: Navbar items do not align on horiz. axis
-  Where: dy-navbar > div
-  Property: display
-  Source: user agent stylesheet (i.e. browser default)
-  Reason: navbar no longer sets children to `inline-flex`
-*/
 /* This fix is copied from the DaisyUI v4 generated styles. */
 :where(.dy-navbar > *:not(script, style)) {
     display: inline-flex;
     align-items: center;
 }
 
-/*
-  Problem: Text selection tabs don't occupy full text width
-  Where: dy-tabs.dy-tab
-  Property: display
-  Source: DaisyUI utility layer
-  Reason: v5 default `dy-tabs` style
-*/
+/* The following fixes the layout and styling of the text pane header. */
 @utility dy-tabs {
+    --size-field: 0.2rem;
+    --radius-field: 0px;
     display: grid;
     align-items: flex-end;
 }
-
-/*
-  Problem: Text selection tabs don't match style
-  Where: dy-tabs.dy-tab
-  Property:
-  Source: DaisyUI utility layer
-  Reason: v5 default `dy-tabs` style
-*/
 @utility dy-tab {
     grid-row-start: 1;
     --dy-tab-p: 1rem;
 }
 
 /*
-  Problem: Text selection tabs have too-soft corners
-  Where: .dy-tabs-border > .dy-tab
-  Property: border-radius
-  Source: --radius-field (new default var)
+  The text pane selection highlight is now slightly taller vertically,
+  but more closely matches Android and now follows theme color.
 */
-@utility dy-tabs {
-    --radius-field: 0px;
-}
-
-/*
-  Problem: Text selection tab highlight doesn't match v4
-  Element: dy-tabs-border > .dy-tab
-  Property: various
-  Source: v5 default `dy-tabs-border` style
-*/
-/* The highlight is now taller vertically, but more closely matches Android. */
 .dy-tabs-border > .dy-tab::before {
     width: 100%;
     height: 2.6px;
     left: 0%;
 }
-
-/* Several buttons have lost the ability to change the pointer,
-   due to the absence of this default rule */
-@layer base {
-    button,
-    [role='button'] {
-        cursor: pointer;
-    }
-}
-
-/* https://stackoverflow.com/a/58236787/35577 */
-/* On Chrome Mobile, there is a whitespace along the right side that */
-/* can't figure out where it is coming from.  This will hide it. */
-html,
-body {
-    overflow-x: hidden;
-}
-
-/* https://github.com/saadeghi/daisyui/issues/1450 */
-/* When tapping on the appbar buttons, the hover state sticks sometimes */
-/*@media (hover: none) {
-    .btn.btn-outline:hover {
-        background-color: transparent;
-        color: inherit;
-    }
-}*/
