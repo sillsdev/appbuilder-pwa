@@ -36,9 +36,6 @@
 }
 
 /*
-  search pane:
-  search box styles differ (compare Android?)
-  check boxes positioned correctly, but transition differs (esp. checked color)
   menu sidebar:
   groupings correct, but slightly too close
   horizontal dividers missing
@@ -81,6 +78,10 @@
     --size-field: 0.3rem;
     --radius-field: 0.5rem;
     gap: 0.5rem;
+}
+
+@utility dy-menu {
+    --radius-field: 0.5rem;
 }
 
 /*
