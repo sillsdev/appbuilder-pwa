@@ -39,7 +39,7 @@
             {/snippet}
         </Navbar>
     </div>
-    <div class="overflow-y-auto mx-auto max-w-(--breakpoint-md)">
+    <div class="overflow-y-auto mx-auto max-w-breakpoint-md">
         <div class="plan-setup">
             <div class="plan-setup-title">
                 {$t['Plans_Setup_Start_Completed_Title']}

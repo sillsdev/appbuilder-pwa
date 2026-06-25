@@ -213,7 +213,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto md:max-w-(--breakpoint-md) w-full">
+    <div class="overflow-y-auto mx-auto md:max-w-breakpoint-md w-full">
         {#if data.planConfig?.image}
             <div>
                 <img

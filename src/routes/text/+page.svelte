@@ -578,13 +578,13 @@
                         <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
                     </button>
                 </div>
-                <div class="basis-5/6 max-w-(--breakpoint-md)">
+                <div class="basis-5/6 max-w-breakpoint-md">
                     <div class="p-2 w-full">
                         <main>
                             <div
                                 style="--borderImageSource: url({borders['./border.png']});"
                                 class:borderimg={showBorder}
-                                class="max-w-(--breakpoint-md) mx-auto"
+                                class="max-w-breakpoint-md mx-auto"
                                 use:pinch
                                 onpinch={doPinch}
                                 use:swipe={{

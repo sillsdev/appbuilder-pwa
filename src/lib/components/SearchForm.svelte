@@ -58,7 +58,7 @@
     }
 </script>
 
-<form class="w-full max-w-(--breakpoint-md) p-4" style="background-color: var(--BackgroundColor);">
+<form class="w-full max-w-breakpoint-md p-4" style="background-color: var(--BackgroundColor);">
     <div class="dy-form-control mb-4">
         <label class="dy-join w-full flex">
             <input

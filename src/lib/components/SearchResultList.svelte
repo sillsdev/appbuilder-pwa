@@ -128,7 +128,7 @@
     });
 </script>
 
-<div id="container" class="search-result p-2 max-w-(--breakpoint-md) w-full">
+<div id="container" class="search-result p-2 max-w-breakpoint-md w-full">
     {#if queryDone && results.length === 0}
         <div class="py-4 flex justify-center">
             <p style:font-family={$currentFont} style:font-size="{$bodyFontSize}px">
@@ -151,7 +151,7 @@
 
 {#if results.length}
     <div
-        class="fixed bottom-0 w-full max-w-(--breakpoint-md) flex justify-between shadow-lg"
+        class="fixed bottom-0 w-full max-w-breakpoint-md flex justify-between shadow-lg"
         style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -2px rgba(0, 0, 0, 0.1);"
         style:background-color={$themeColors.BackgroundColor}
     >

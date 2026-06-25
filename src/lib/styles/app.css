@@ -6,6 +6,15 @@
 
 @config "../../../tailwind.config.cjs";
 
+/* Allow post-(Tailwind v4) styling to use sensible class names for breakpoints */
+@theme {
+    --container-breakpoint-sm: var(--breakpoint-sm);
+    --container-breakpoint-md: var(--breakpoint-md);
+    --container-breakpoint-lg: var(--breakpoint-lg);
+    --container-breakpoint-xl: var(--breakpoint-xl);
+    --container-breakpoint-1xl: var(--breakpoint-2xl);
+}
+
 /*
   (The following was added automatically by the Tailwind v4 upgrade script)
 

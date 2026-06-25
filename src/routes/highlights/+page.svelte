@@ -85,7 +85,7 @@
     </div>
 
     <div
-        class="overflow-y-auto p-2.5 max-w-(--breakpoint-md) mx-auto w-full"
+        class="overflow-y-auto p-2.5 max-w-breakpoint-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
         {#if data.highlights.length === 0}

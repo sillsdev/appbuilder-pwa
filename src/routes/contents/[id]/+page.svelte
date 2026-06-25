@@ -129,7 +129,7 @@
         let verse;
         const reference = item.linkTarget?.split('.');
         if (item.layoutMode && item.layoutCollection?.length) {
-            /* 
+            /*
             Note: have not handled layout modes
             layoutMode options:
                 single
@@ -279,7 +279,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-(--breakpoint-md) w-full">
+    <div class="overflow-y-auto mx-auto max-w-breakpoint-md w-full">
         <div id="container" class="contents" style={convertStyle($s?.['body.contents'])}>
             {#if data.nestedItems === true}
                 {#each data.items as item}

@@ -124,10 +124,7 @@
         </div>
 
         <div class="flex justify-center px-4">
-            <hr
-                class="max-w-(--breakpoint-md) w-full"
-                style:border-color={$themeColors.DividerColor}
-            />
+            <hr class="max-w-breakpoint-md w-full" style:border-color={$themeColors.DividerColor} />
         </div>
 
         <div class="flex justify-center">

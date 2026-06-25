@@ -72,7 +72,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-(--breakpoint-md) w-full">
+    <div class="overflow-y-auto mx-auto max-w-breakpoint-md w-full">
         <div
             role="tablist"
             class="dy-tabs dy-tabs-border"
