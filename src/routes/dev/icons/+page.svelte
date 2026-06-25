@@ -143,4 +143,7 @@
     :global(body) {
         background-color: #f9fafb;
     }
+    select {
+        background-color: #ffffff;
+    }
 </style>
