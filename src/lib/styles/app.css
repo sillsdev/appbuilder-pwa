@@ -133,18 +133,22 @@
     flex-direction: column;
 }
 
+/* fix button styling on quiz page */
+@utility dy-btn-active {
+    &:hover {
+        background-color: #d2d2d2;
+        border-color: #d2d2d2;
+    }
+}
+
 /*
   Problem: Button hover shadow is too light
-  Element: dy.btn
+  Element: dy-btn-ghost
   Property: background-color, various
   Source: --dy-btn-color, --dy-btn-shadow, border-color
   Reason: v5 changed hover style calculation
 */
-@utility dy-btn {
-    --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
-    --dy-btn-shadow: '';
-}
-@utility dy-btn-sm {
+@utility dy-btn-ghost {
     --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
     --dy-btn-shadow: '';
 }
@@ -231,9 +235,9 @@ body {
 
 /* https://github.com/saadeghi/daisyui/issues/1450 */
 /* When tapping on the appbar buttons, the hover state sticks sometimes */
-@media (hover: none) {
+/*@media (hover: none) {
     .btn.btn-outline:hover {
         background-color: transparent;
         color: inherit;
     }
-}
+}*/
