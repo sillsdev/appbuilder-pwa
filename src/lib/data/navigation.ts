@@ -40,43 +40,62 @@ export class NavigationContext {
         const parts = ref.split('.');
         const hasCollection = parts.length !== 2;
 
-        const parsedDocSet = hasCollection ? parts[0] : this.docSets[0];
+        const docSet = hasCollection ? parts[0] : this.docSets[0];
 
         const collection = this.config.bookCollections?.find(
-            (c) => parsedDocSet === c.id || parsedDocSet === this.docSetFromCollection(c)
+            (c) => docSet === c.id || docSet === this.docSetFromCollection(c)
         );
 
-        let docSet = this.docSets[0];
+        const book = parts[hasCollection ? 1 : 0];
 
-        if (!collection || parsedDocSet !== this.docSetFromCollection(collection)) {
-            console.error(
-                `docSet '${parsedDocSet}' not found in collections. Defaulting to '${docSet}'`
+        return {
+            docSet: collection ? this.docSetFromCollection(collection) : docSet,
+            book: book,
+            chapter: parts[hasCollection ? 2 : 1],
+            verse: parts[3] || '1'
+        };
+    }
+
+    private handleFallbacks(docSet: string, bookId: string, chapter: string) {
+        let useFallbackDocSet = false;
+        const fallbackDocSet = this.docSets[0];
+        const collection =
+            this.config.bookCollections?.find((c) => docSet === this.docSetFromCollection(c)) ??
+            this.config.bookCollections?.find(
+                (c) => fallbackDocSet === this.docSetFromCollection(c)
             );
-        } else {
-            docSet = this.docSetFromCollection(collection);
+        if (!collection || docSet !== this.docSetFromCollection(collection)) {
+            console.error(
+                `docSet '${docSet}' not found in collections. Defaulting to '${fallbackDocSet}'.`
+            );
+            useFallbackDocSet = true;
         }
 
-        let bookId = parts[hasCollection ? 1 : 0];
-
+        let useFallbackBookId = false;
+        const fallbackBookId = collection?.books[0]?.id ?? '';
         const book = collection?.books.find((b) => b.id === bookId) ?? collection?.books[0];
         if (!book || bookId !== book.id) {
             console.error(
-                `book '${bookId}' not found in '${docSet}'. Defaulting to '${collection?.books[0]?.id ?? ''}'`
+                `book '${bookId}' not found in '${docSet}'. Defaulting to '${fallbackBookId}'.`
             );
-            bookId = collection?.books[0]?.id ?? '';
+            useFallbackBookId = true;
+        }
+
+        let useFallbackChapter = false;
+        const chapterNum = parseInt(chapter, 10);
+        const chapterRange = book?.chaptersN?.split('-').map((n) => parseInt(n, 10));
+        const fallbackChapter = String(chapterRange?.[0] || 1);
+        if (!chapterRange || chapterNum < chapterRange[0] || chapterNum > chapterRange[1]) {
+            console.error(
+                `chapter '${chapter}' falls outside of chapter range '${book?.chaptersN}'. Defaulting to '${fallbackChapter}'.`
+            );
+            useFallbackChapter = true;
         }
 
         return {
-            docSet,
-            book: bookId,
-            // TODO: handle bad chapter??
-            chapter:
-                parts[hasCollection ? 2 : 1] ||
-                this.config.bookCollections?.[0].books
-                    .find((b) => b.id === ref[0])
-                    ?.chaptersN?.split('-')[0] ||
-                '1',
-            verse: parts[3] || '1'
+            docSet: useFallbackDocSet ? fallbackDocSet : docSet,
+            book: useFallbackBookId ? fallbackBookId : bookId,
+            chapter: useFallbackChapter ? fallbackChapter : chapter
         };
     }
 
@@ -98,7 +117,13 @@ export class NavigationContext {
         if (!this.initialized) {
             throw new Error('NavigationContext is not initialized; please call gotoInitial()');
         }
-        await this.updateLocation(docSet, book, chapter, verse);
+        const withFallbacks = this.handleFallbacks(docSet, book, chapter);
+        await this.updateLocation(
+            withFallbacks.docSet,
+            withFallbacks.book,
+            withFallbacks.chapter,
+            verse
+        );
         this.updateAudio();
         this.updateHeadings();
         this.updateNextPrev();
