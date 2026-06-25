@@ -59,7 +59,7 @@
 </svelte:head>
 
 {#if dev}
-    <div class="p-6 max-w-(--breakpoint-lg) mx-auto">
+    <div class="p-6 max-w-breakpoint-lg mx-auto">
         <h1 class="text-3xl font-bold mb-6">SVG Icon Gallery</h1>
 
         <div class="mb-6 flex gap-4 items-center flex-wrap">

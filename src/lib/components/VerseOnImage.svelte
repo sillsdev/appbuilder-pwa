@@ -748,7 +748,7 @@ The verse on image component.
 
 <div
     id="verseOnImageContainer"
-    class="flex flex-col flex-nowrap max-w-(--breakpoint-sm) mx-auto"
+    class="flex flex-col flex-nowrap max-w-breakpoint-sm mx-auto"
     style="height: 100%; max-width: {imageWidth}px;"
     style:direction={$direction}
 >
@@ -841,7 +841,7 @@ The verse on image component.
             overflow-y: visible;
             min-height: 2.7rem;
             z-index: 3;
-            --tabWidth: {imageWidth / 5}px; 
+            --tabWidth: {imageWidth / 5}px;
             background-color: {$themeColors['ImageTabsBackgroundColor']};
         "
     >
@@ -863,9 +863,9 @@ The verse on image component.
         id="editorsPane"
         class="dy-w-64 dy-carousel dy-rounded-box"
         style="
-            background-color: {$themeColors['DialogBackgroundColor']}; 
+            background-color: {$themeColors['DialogBackgroundColor']};
             z-index: 3;
-            overflow-x: hidden; 
+            overflow-x: hidden;
             overflow-y: auto;
             touch-action: none;
         "
@@ -877,7 +877,7 @@ The verse on image component.
             style="
                 width:100%;
                 height: auto;
-                --imgWidth: {imageWidth / 4}px; 
+                --imgWidth: {imageWidth / 4}px;
                 overflow-y: auto;
             "
         >
