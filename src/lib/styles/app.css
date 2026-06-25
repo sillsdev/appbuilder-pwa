@@ -112,11 +112,13 @@
     --dy-size: 1.25rem;
 }
 
-/* Fix search bar styling, migrate to join element per DaisyUI 5 defaults*/
-@utility dy-join-item {
+@utility dy-input {
     --size-field: 0.3rem;
     --radius-field: 0.5rem;
-    /*--border-radius: 0.5rem;*/
+}
+
+.dy-join-item.dy-btn {
+    padding-block: 10px;
 }
 
 /*@utility dy-join-item {*/

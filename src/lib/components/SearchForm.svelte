@@ -60,14 +60,14 @@
 
 <form class="w-full max-w-breakpoint-md p-4" style="background-color: var(--BackgroundColor);">
     <div class="dy-form-control mb-4">
-        <label class="dy-join w-full flex">
+        <label class="w-full flex">
             <input
                 id="searchbar"
                 bind:this={searchbar}
                 readonly={dismissSearchBar}
                 type="text"
                 placeholder={$t['Search_Text_Hint']}
-                class="grow px-4 py-2 dy-input dy-join-item min-w-0"
+                class="grow px-4 py-2 mx-2 dy-input min-w-0"
                 style:min-width="0"
                 style={convertStyle($s['ui.search.entry-text'])}
                 style:background-color="var(--PopupBackgroundColor)"
@@ -80,7 +80,7 @@
             />
             <button
                 onclick={doSubmit}
-                class="dy-btn dy-join-item mx-2 flex-none"
+                class="dy-btn mx-2 flex-none"
                 style={convertStyle($s['ui.search.button'])}
                 style:background-color="var(--SearchButtonColor)"
                 style:color="var(--SearchButtonTextColor)"
