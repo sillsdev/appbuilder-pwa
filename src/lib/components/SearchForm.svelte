@@ -67,7 +67,7 @@
                 readonly={dismissSearchBar}
                 type="text"
                 placeholder={$t['Search_Text_Hint']}
-                class="grow px-4 py-2 mx-2 dy-input dy-join-item min-w-0"
+                class="grow px-4 py-2 dy-input dy-join-item min-w-0"
                 style:min-width="0"
                 style={convertStyle($s['ui.search.entry-text'])}
                 style:background-color="var(--PopupBackgroundColor)"

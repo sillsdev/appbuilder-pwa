@@ -92,6 +92,38 @@
 }
 
 /*
+  Problem: User theme selector buttons are squashed
+  Where: *.dy-btn-sm
+  Property: various
+  Source: not present
+  Reason: v5 changed default sizing vars
+*/
+@utility dy-btn-sm {
+    min-height: var(--dy-size);
+    padding-inline: var(--dy-btn-p);
+}
+
+/*Modals have sharper corners*/
+@utility dy-modal-box {
+    --radius-box: 1rem;
+}
+
+@utility dy-badge {
+    --dy-size: 1.25rem;
+}
+
+/* Fix search bar styling, migrate to join element per DaisyUI 5 defaults*/
+@utility dy-join-item {
+    --size-field: 0.3rem;
+    --radius-field: 0.5rem;
+    /*--border-radius: 0.5rem;*/
+}
+
+/*@utility dy-join-item {*/
+/*--border-radius: 0.5rem;*/
+/*}*/
+
+/*
   Problem: Button hover shadow is too light
   Element: dy.btn
   Property: background-color, various
