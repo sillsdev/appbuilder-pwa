@@ -1,10 +1,11 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source('../../../src');
+@plugin '@tailwindcss/typography';
 @plugin 'daisyui' {
     prefix: 'dy-';
     themes: light --default;
 }
 
-@config "../../../tailwind.config.cjs";
+@source inline("grid-cols-{{1..12..1},none,subgrid}");
 
 /* Allow post-(Tailwind v4) styling to use sensible class names for breakpoints */
 @theme {
