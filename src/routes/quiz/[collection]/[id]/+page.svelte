@@ -19,12 +19,13 @@
 </script>
 
 <script lang="ts">
-    import { beforeNavigate } from '$app/navigation';
+    import { beforeNavigate, invalidateAll } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
     import type { QuizAnswer, QuizQuestion } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addQuiz } from '$lib/data/quiz';
+    import { addQuizUnlocked } from '$lib/data/quizUnlocked.js';
     import {
         actionBarColor,
         bodyFontSize,
@@ -258,9 +259,10 @@
     }
     function attemptUnlock() {
         if (accessCode?.toString() === passwordInput) {
-            console.log('Matches');
-        } else {
-            console.log("Doesn't match");
+            if (book?.quizFeatures) {
+                locked = false;
+                addQuizUnlocked({ collection, book: quizId }).then(() => invalidateAll());
+            }
         }
     }
 </script>

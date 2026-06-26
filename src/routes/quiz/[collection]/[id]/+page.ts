@@ -1,6 +1,7 @@
 import config from '$assets/config';
 import type { Quiz, ScriptureConfig } from '$config';
 import { checkQuizAccess } from '$lib/data/quiz';
+import { checkQuizUnlocked } from '$lib/data/quizUnlocked';
 import type { PageLoad } from './$types';
 
 const quizzes: Record<string, string> = import.meta.glob('./**/quizzes/*.json', {
@@ -30,8 +31,11 @@ export const load: PageLoad = async ({ params, fetch }) => {
         locked = !accessGranted;
     }
     if (book?.quizFeatures?.['access-type'] === 'code' && book.quizFeatures['access-code']) {
-        locked = true; //It'll need to check to see if it's already been unlocked, but that hasn't been implemented yet
-        accessCode = book.quizFeatures['access-code'] as number;
+        const quizUnlocked = await checkQuizUnlocked(id);
+        if (!quizUnlocked) {
+            locked = true;
+            accessCode = book.quizFeatures['access-code'] as number;
+        }
     }
 
     if (locked && dependentQuizId) {
