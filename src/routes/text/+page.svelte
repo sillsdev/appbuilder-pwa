@@ -143,8 +143,9 @@
 
     let x = new Tween(0);
     let startX = 0;
-    let directNavigation = false;
     let isDragging = $state(false);
+    let preventingDragging = false;
+    let lockDragging = false;
     let draggableWidth = $state(0);
     let panels_X = $state([0, 0, 0]);
     let minSlideDistance = () => draggableWidth / 2; // use to determine how far a user has to slide to move to the next chapter
@@ -156,8 +157,10 @@
     let previous: string | null = null;
 
     $effect(() => {
-        viewSettings.references.collection;
-        setupSettingsCache();
+        if (previous !== viewSettings.references.collection) {
+            setupSettingsCache();
+        }
+        previous = viewSettings.references.collection;
     });
 
     async function setupSettingsCache() {
@@ -180,6 +183,7 @@
         settingsCache[2] = {
             // Initial settings for right panel
             ...viewSettings,
+            highlights: Promise.resolve([]),
             references: {
                 ...viewSettings.references,
                 book: viewSettings.references.next.book,
@@ -201,6 +205,7 @@
             idx = panels_X.indexOf(Math.min(...panels_X));
             settingsCache[idx] = {
                 ...viewSettings, // load in the page before
+                highlights: Promise.resolve([]),
                 references: {
                     ...viewSettings.references,
                     book: viewSettings.references.prev.book,
@@ -212,6 +217,7 @@
             idx = panels_X.indexOf(Math.max(...panels_X));
             settingsCache[idx] = {
                 ...viewSettings, // load in the next page
+                highlights: Promise.resolve([]),
                 references: {
                     ...viewSettings.references,
                     book: viewSettings.references.next.book,
@@ -219,6 +225,8 @@
                 }
             };
         }
+        idx = panels_X.indexOf(0);
+        settingsCache[idx].highlights = viewSettings.highlights;
     }
 
     async function adjustPanelX(panelX: number, direction: number) {
@@ -232,14 +240,18 @@
         }
     }
 
-    async function handleMouseUp(_event: any) {
+    async function handleMouseUp(_event: PointerEvent) {
         isDragging = false;
+        preventingDragging = false;
+        lockDragging = false;
         if (Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) {
+            momentum = 0;
+            maxMomentum = 0;
             x.set(0, { duration: Math.abs(x.current) });
             return;
         } else if (x.current < 0) {
             momentum = 0;
-            directNavigation = true;
+            maxMomentum = 0;
             if (!(hasNext && navigateBetweenBooksNext)) {
                 x.set(0, { duration: Math.abs(x.current) });
                 return;
@@ -251,7 +263,7 @@
             await x.set(0, { duration: Math.abs(x.current) });
         } else {
             momentum = 0;
-            directNavigation = true;
+            maxMomentum = 0;
             if (!(hasPrev && navigateBetweenBooksPrev)) {
                 x.set(0, { duration: Math.abs(x.current) });
                 return;
@@ -273,7 +285,7 @@
     }
 
     function handleMouseMove(event: PointerEvent) {
-        if (isDragging) {
+        if (isDragging && !preventingDragging) {
             let delta = event.clientX - startX;
             x.set(delta, { duration: 0 });
             if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
@@ -333,7 +345,6 @@
     const barType = 'book';
 
     async function prevChapter() {
-        directNavigation = true;
         await navigateToTextChapterInDirection(-1);
         await adjustSettingsCache(-1);
         await x.set(-draggableWidth, { duration: 0 });
@@ -341,7 +352,6 @@
         await x.set(0);
     }
     async function nextChapter() {
-        directNavigation = true;
         await navigateToTextChapterInDirection(1);
         await adjustSettingsCache(1);
         await x.set(draggableWidth, { duration: 0 });
