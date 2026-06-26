@@ -143,8 +143,6 @@
             <!-- Add Note Menu -->
             <NoteDialog bind:this={noteDialog} />
         {/if}
-        <!-- Text Appearance Options Menu -->
-        <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
 
         <FontSelector bind:this={fontSelector} />
 
@@ -164,6 +162,8 @@
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
         >
+            <!-- Text Appearance Options Menu -->
+            <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
             <CollectionModal bind:this={collectionModal} />
             {@render children()}
         </div>

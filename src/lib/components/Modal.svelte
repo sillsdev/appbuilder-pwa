@@ -15,13 +15,18 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     interface Props {
         id: string;
         children?: Snippet;
-        addCSS?: string;
+        styling?: string;
         onclose?: () => void;
         dialog?: HTMLDialogElement;
     }
 
-    let { id, children, addCSS = '', onclose, dialog = $bindable() }: Props = $props();
-
+    let {
+        id,
+        children,
+        styling = convertStyle($s?.['ui.dialog']),
+        onclose,
+        dialog = $bindable()
+    }: Props = $props();
     /**
      * This exported function allows buttons/labels
      * in other divs to trigger the modal popup
@@ -38,11 +43,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     class="dy-modal cursor-pointer"
     style:direction={$direction}
 >
-    <form
-        method="dialog"
-        style={convertStyle($s?.['ui.dialog']) + addCSS}
-        class="dy-modal-box overflow-y-visible relative"
-    >
+    <form method="dialog" style={styling} class="dy-modal-box overflow-y-visible relative">
         {@render children?.()}
         <!--This is the snippet for the popup's actual contents-->
     </form>
