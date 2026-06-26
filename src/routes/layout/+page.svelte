@@ -104,7 +104,7 @@
             {/snippet}
         </Navbar>
     </div>
-    <div class="overflow-y-auto p-2 max-w-screen-md mx-auto w-full">
+    <div class="overflow-y-auto p-2 max-w-breakpoint-md mx-auto w-full">
         <TabsMenu
             bind:active={tabMenuActive}
             options={{
