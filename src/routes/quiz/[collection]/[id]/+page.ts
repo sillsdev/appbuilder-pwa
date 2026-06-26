@@ -22,11 +22,16 @@ export const load: PageLoad = async ({ params, fetch }) => {
     let locked = false;
     let dependentQuizId: string | null = null;
     let dependentQuizName: string | null = null;
+    let accessCode: number | null = null;
 
     if (book?.quizFeatures?.['access-type'] === 'after' && book.quizFeatures['access-after']) {
         dependentQuizId = book.quizFeatures['access-after'] as string;
         const accessGranted = await checkQuizAccess(dependentQuizId);
         locked = !accessGranted;
+    }
+    if (book?.quizFeatures?.['access-type'] === 'code' && book.quizFeatures['access-code']) {
+        locked = true; //It'll need to check to see if it's already been unlocked, but that hasn't been implemented yet
+        accessCode = book.quizFeatures['access-code'] as number;
     }
 
     if (locked && dependentQuizId) {
@@ -56,6 +61,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     return {
         quiz: quizData,
         locked,
+        accessCode,
         collection: params.collection,
         quizId: id,
         displayLabel: book?.name || 'Quiz',
