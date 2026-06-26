@@ -103,7 +103,7 @@ button.message-button:hover {
 
 /* Fix text color for modal close button */
 .close-btn > .dy-btn-ghost {
-    color: var(--currentColor);
+    color: inherit;
 }
 
 /* Make v5 search bar checkboxes more readable */
