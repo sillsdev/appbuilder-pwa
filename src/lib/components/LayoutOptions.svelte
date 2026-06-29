@@ -15,7 +15,7 @@ Displays the three different layout option menus.
         base: '/src/gen-assets/illustrations'
     }) as Record<string, string>;
 
-    let { layoutOption, menuaction } = $props();
+    let { layoutOption, menuaction, showTitle = true } = $props();
 
     const allDocSets =
         scriptureConfig.bookCollections?.map((ds) => ({
@@ -74,12 +74,14 @@ Displays the three different layout option menus.
     }
 </script>
 
-<div class="max-w-screen-md mx-auto px-2">
+<div>
     <!-- Single Pane -->
     {#if layoutOption === Layout.Single}
-        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Single_Pane']}
-        </p>
+        {#if showTitle}
+            <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+                {$t['Layout_Single_Pane']}
+            </p>
+        {/if}
         <CollectionList
             docSets={allDocSets.filter((x) => x.singlePane === true)}
             selectedLayouts={$selectedLayouts.singlePane}
@@ -87,99 +89,89 @@ Displays the three different layout option menus.
         />
         <!-- Two Pane -->
     {:else if layoutOption === Layout.Two}
-        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Two_Pane']}
-        </p>
+        {#if showTitle}
+            <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+                {$t['Layout_Two_Pane']}
+            </p>
+        {/if}
         {#each $selectedLayouts.sideBySide as collection, i}
-            <div>
-                <div class="max-w-screen-md mx-auto">
-                    <div class="px-3 layout-subtitle">
-                        {i + 1}
+            <div class="px-3 layout-subtitle">
+                {i + 1}
+            </div>
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                class="flex justify-between layout-item-block rounded-none cursor-pointer"
+                onclick={() => {
+                    modal.open(ModalType.Collection, {
+                        type: 'double-pane',
+                        showBlank: false,
+                        number: i
+                    });
+                }}
+            >
+                {#if collection.image}
+                    <div class="layout-image-block self-start">
+                        <!-- svelte-ignore a11y_missing_attribute -->
+                        <img class="layout-image" src={illustrations['./' + collection.image]} />
                     </div>
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class="flex justify-between layout-item-block rounded-none cursor-pointer"
-                        onclick={() => {
-                            modal.open(ModalType.Collection, {
-                                type: 'double-pane',
-                                showBlank: false,
-                                number: i
-                            });
-                        }}
-                    >
-                        {#if collection.image}
-                            <div class="layout-image-block self-start">
-                                <!-- svelte-ignore a11y_missing_attribute -->
-                                <img
-                                    class="layout-image"
-                                    src={illustrations['./' + collection.image]}
-                                />
-                            </div>
-                        {/if}
-                        <div class="layout-text-block">
-                            <div class="layout-item-name">
-                                {collection.name}
-                            </div>
-                            {#if collection.description}
-                                <div class="layout-item-description">
-                                    {collection.description}
-                                </div>
-                            {/if}
-                        </div>
-                        <div class="px-3">
-                            <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
-                        </div>
+                {/if}
+                <div class="layout-text-block">
+                    <div class="layout-item-name">
+                        {collection.name}
                     </div>
+                    {#if collection.description}
+                        <div class="layout-item-description">
+                            {collection.description}
+                        </div>
+                    {/if}
+                </div>
+                <div class="px-3">
+                    <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
                 </div>
             </div>
         {/each}
         <!-- Verse By Verse -->
     {:else if layoutOption === Layout.VerseByVerse}
-        <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
-            {$t['Layout_Interlinear']}
-        </p>
+        {#if showTitle}
+            <p class="py-2 font-bold" style:color={$themeColors['LayoutTitleColor']}>
+                {$t['Layout_Interlinear']}
+            </p>
+        {/if}
         {#each $selectedLayouts.verseByVerse as collection, i}
-            <div>
-                <div class="max-w-screen-md mx-auto">
-                    <div class="px-3 layout-subtitle">
-                        {i + 1}
+            <div class="px-3 layout-subtitle">
+                {i + 1}
+            </div>
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                class="flex justify-between layout-item-block rounded-none cursor-pointer"
+                onclick={() => {
+                    modal.open(ModalType.Collection, {
+                        type: 'verse-by-verse',
+                        showBlank: i === 2,
+                        number: i
+                    });
+                }}
+            >
+                {#if collection.image}
+                    <div class="layout-image-block self-start">
+                        <!-- svelte-ignore a11y_missing_attribute -->
+                        <img class="layout-image" src={illustrations['./' + collection.image]} />
                     </div>
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class="flex justify-between layout-item-block rounded-none cursor-pointer"
-                        onclick={() => {
-                            modal.open(ModalType.Collection, {
-                                type: 'verse-by-verse',
-                                showBlank: i === 2,
-                                number: i
-                            });
-                        }}
-                    >
-                        {#if collection.image}
-                            <div class="layout-image-block self-start">
-                                <!-- svelte-ignore a11y_missing_attribute -->
-                                <img
-                                    class="layout-image"
-                                    src={illustrations['./' + collection.image]}
-                                />
-                            </div>
-                        {/if}
-                        <div class="layout-text-block">
-                            <div class="layout-item-name">
-                                {collection.name}
-                            </div>
-                            {#if collection.description}
-                                <div class="layout-item-description">
-                                    {collection.description}
-                                </div>
-                            {/if}
-                        </div>
-                        <div class="px-3">
-                            <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
-                        </div>
+                {/if}
+                <div class="layout-text-block">
+                    <div class="layout-item-name">
+                        {collection.name}
                     </div>
+                    {#if collection.description}
+                        <div class="layout-item-description">
+                            {collection.description}
+                        </div>
+                    {/if}
+                </div>
+                <div class="px-3">
+                    <DropdownIcon color={$s?.['ui.layouts.selector'].color} />
                 </div>
             </div>
         {/each}

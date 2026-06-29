@@ -103,7 +103,7 @@
                         goto(resolve(`/${item.linkLocation}`));
                         break;
                     case 'layout':
-                        goto(resolve(`/collections`));
+                        goto(resolve(`/layout`));
                         break;
                     case 'website':
                         //opens in a separate tab

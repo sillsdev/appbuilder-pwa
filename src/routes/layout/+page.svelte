@@ -5,7 +5,16 @@
     import LayoutOptions from '$lib/components/LayoutOptions.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import TabsMenu from '$lib/components/TabsMenu.svelte';
-    import { actionBarColor, layout, Layout, refs, s, selectedLayouts, t } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        layout,
+        Layout,
+        monoIconColor,
+        refs,
+        selectedLayouts,
+        t,
+        testLayouts
+    } from '$lib/data/stores';
     import { CheckIcon, SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
 
     const matchingDocSets =
@@ -32,9 +41,15 @@
     // ToDo: If showSinglePane false, provide first availible visible option instead
     const showSinglePane = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Single)
         ?.enabled;
-    const showSideBySide = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
-    const showVerseByVerse = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)
-        ?.enabled; //Not yet implemented
+    const showSideBySide =
+        testLayouts || !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
+    const showVerseByVerse =
+        testLayouts ||
+        !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)?.enabled; //Not yet implemented
+
+    // In the native app, if only showing the single pane, then don't show the title.
+    // If showing one of the other two, then show the title.
+    const showTitle = showSideBySide || showVerseByVerse;
     function getSelectedLayout() {
         const collections = selectedLayouts.collections(tabMenuActive);
         return {
@@ -60,19 +75,19 @@
 </script>
 
 {#snippet layoutOptions(layoutOption: Layout, menuaction: App.MenuActionHandler)}
-    <LayoutOptions {layoutOption} {menuaction} />
+    <LayoutOptions {layoutOption} {menuaction} {showTitle} />
 {/snippet}
 <!--The background color of the icons should be the DialogBackgroundColor color.-->
 {#snippet icon(mode: Layout)}
     {#if mode === Layout.Single}
-        <SinglePaneIcon
-            color="black"
-        /><!--The icons are not hardcoded to black in the native app, but I can't figure out what style/color to use.-->
+        <SinglePaneIcon color={$monoIconColor} />
     {:else if mode === Layout.Two}
-        <SideBySideIcon color="black" />
-    {:else}<VerseByVerseIcon color="black" />{/if}
+        <SideBySideIcon color={$monoIconColor} />
+    {:else}
+        <VerseByVerseIcon color={$monoIconColor} />
+    {/if}
 {/snippet}
-<div class="flex flex-col h-screen">
+<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar h-16">
         <Navbar {backNavigation}>
             {#snippet center()}
@@ -89,26 +104,28 @@
             {/snippet}
         </Navbar>
     </div>
-    <TabsMenu
-        bind:active={tabMenuActive}
-        options={{
-            [Layout.Single]: {
-                tab: { icon },
-                snippet: layoutOptions,
-                visible: showSinglePane
-            },
-            [Layout.Two]: {
-                tab: { icon },
-                snippet: layoutOptions,
-                visible: showSideBySide
-            },
-            [Layout.VerseByVerse]: {
-                tab: { icon },
-                snippet: layoutOptions,
-                visible: showVerseByVerse
-            }
-        }}
-        scroll={false}
-        styleType="ui.dialog"
-    />
+    <div class="overflow-y-auto p-2 max-w-screen-md mx-auto w-full">
+        <TabsMenu
+            bind:active={tabMenuActive}
+            options={{
+                [Layout.Single]: {
+                    tab: { icon },
+                    snippet: layoutOptions,
+                    visible: showSinglePane
+                },
+                [Layout.Two]: {
+                    tab: { icon },
+                    snippet: layoutOptions,
+                    visible: showSideBySide
+                },
+                [Layout.VerseByVerse]: {
+                    tab: { icon },
+                    snippet: layoutOptions,
+                    visible: showVerseByVerse
+                }
+            }}
+            scroll={false}
+            styleType="ui.dialog"
+        />
+    </div>
 </div>
