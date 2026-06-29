@@ -32,7 +32,7 @@
     bind:this={modal}
     {id}
     onclose={reset}
-    styling={'background-color:var(--PopupBackgroundColor);'}
+    styling="background-color:var(--PopupBackgroundColor);"
 >
     <div class="flex flex-col justify-evenly">
         <div class="w-full flex justify-between items-center">
