@@ -54,12 +54,14 @@ LOGGING:
         currentPlanState,
         footnotes,
         language,
+        layout,
         logs,
         modal,
         ModalType,
         monoIconColor,
         plan,
         refs,
+        selectedLayouts,
         t,
         userSettings
     } from '$lib/data/stores';
@@ -143,6 +145,12 @@ LOGGING:
 
     let container: HTMLElement = $state();
     let displayingIntroduction = $state(false);
+    let timesRendered = $state(0);
+    $effect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        $refs;
+        timesRendered = 0;
+    });
 
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
     /** calculate letter index from number
@@ -155,6 +163,8 @@ LOGGING:
             fnc.charAt(index % fnc.length)
         );
     }
+    const layoutMode = $derived($layout.mode);
+    const verseByVerseMode = $derived(layoutMode === 'verse-by-verse');
     let planDivObserver = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
     // Function to observe the visibility of the plan div
@@ -567,7 +577,9 @@ LOGGING:
     };
     function appendPhrase(workspace) {
         workspace.lastPhrase = workspace.phraseDiv.getAttribute('data-phrase');
-        if (versePerLine) {
+        if (verseByVerseMode) {
+            workspace.currentVerseByVerseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+        } else if (versePerLine) {
             workspace.verseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
         } else {
             workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
@@ -614,11 +626,15 @@ LOGGING:
                 // chapter at top of page
                 div.classList.add('c');
                 div.innerText = workspace.chapterNumText;
-                workspace.root.appendChild(div);
-                addVerseNumber(workspace, element, showVerseNumbers);
+                if (timesRendered === 1) {
+                    workspace.root.appendChild(div);
+                    addVerseNumber(workspace, element, showVerseNumbers);
+                }
             }
         } else {
-            addVerseNumber(workspace, element, showVerseNumbers);
+            if (timesRendered === 1) {
+                addVerseNumber(workspace, element, showVerseNumbers);
+            }
         }
         workspace.firstVerse = false;
     }
@@ -1513,6 +1529,13 @@ LOGGING:
             return;
         }
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
+        if (verseByVerseMode) {
+            if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
+                for (const i in $layout.auxDocSets) {
+                    await loadDocSetIfNotLoaded(proskomma, $layout?.auxDocSets?.[i], fetch);
+                }
+            }
+        }
         const cl = new SofriaRenderFromProskomma({
             proskomma,
             actions: {
@@ -1528,8 +1551,11 @@ LOGGING:
                                     context.document.metadata.document
                                 );
                             }
+                            timesRendered = timesRendered + 1;
                             preprocessAction('startDocument', workspace);
-                            bookRoot.replaceChildren();
+                            if (timesRendered <= 1) {
+                                bookRoot.replaceChildren();
+                            }
                             workspace.root = bookRoot;
                             workspace.footnoteIndex = 0;
                             workspace.footnoteIdIndex = 0;
@@ -1715,37 +1741,6 @@ LOGGING:
                                     workspace.titleGraft
                                 )
                             ) {
-                                switch (sequenceType) {
-                                    case 'main': {
-                                        if (scriptureLogs?.paragraph) {
-                                            console.log('End main paragraph');
-                                        }
-                                        if (
-                                            workspace.phraseDiv != null &&
-                                            workspace.phraseDiv.innerText !== ''
-                                        ) {
-                                            appendPhrase(workspace);
-                                            workspace.phraseDiv = null;
-                                        }
-                                        if (versePerLine) {
-                                            if (workspace.verseDiv !== null) {
-                                                workspace.paragraphDiv.appendChild(
-                                                    workspace.verseDiv.cloneNode(true)
-                                                );
-                                                workspace.verseDiv = document.createElement('div');
-                                            }
-                                        }
-                                        // Build div
-                                        if (workspace.paragraphDiv.innerHTML !== '') {
-                                            workspace.root.appendChild(workspace.paragraphDiv);
-                                        }
-                                        if (workspace.videoDiv) {
-                                            workspace.root.appendChild(workspace.videoDiv);
-                                            workspace.videoDiv = null;
-                                        }
-                                        break;
-                                    }
-                                }
                                 if (sequenceType == 'main') {
                                     if (scriptureLogs?.paragraph) {
                                         console.log('End main paragraph');
@@ -1767,10 +1762,14 @@ LOGGING:
                                     }
                                     // Build div
                                     if (workspace.paragraphDiv.innerHTML !== '') {
-                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                        if (timesRendered === 1) {
+                                            workspace.root.appendChild(workspace.paragraphDiv);
+                                        }
                                     }
                                     if (workspace.videoDiv) {
-                                        workspace.root.appendChild(workspace.videoDiv);
+                                        if (timesRendered === 1) {
+                                            workspace.root.appendChild(workspace.videoDiv);
+                                        }
                                         workspace.videoDiv = null;
                                     }
                                 } else if (sequenceType == 'title') {
@@ -1784,7 +1783,9 @@ LOGGING:
                                     workspace.titleSpan = null;
                                 } else if (sequenceType == 'heading') {
                                     workspace.headerDiv.appendChild(workspace.headerInnerDiv);
-                                    workspace.root.appendChild(workspace.headerDiv);
+                                    if (timesRendered === 1) {
+                                        workspace.root.appendChild(workspace.headerDiv);
+                                    }
                                     workspace.headerInnerDiv = null;
                                     workspace.headerDiv = null;
                                 } else if (sequenceType == 'introduction') {
@@ -1795,7 +1796,9 @@ LOGGING:
                                         appendPhrase(workspace);
                                         workspace.phraseDiv = null;
                                     }
-                                    workspace.root.appendChild(workspace.paragraphDiv);
+                                    if (timesRendered === 1) {
+                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                    }
                                 }
                             }
                         }
@@ -1822,6 +1825,34 @@ LOGGING:
                                 if (versePerLine) {
                                     workspace.verseDiv = document.createElement('div');
                                     workspace.verseDiv.classList.add('verse-block');
+                                }
+                                if (verseByVerseMode) {
+                                    if (timesRendered > 1) {
+                                        workspace.verseByVerseDivRoot = document.getElementById(
+                                            'verseblock-' + element.atts['number']
+                                        );
+                                        workspace.currentVerseByVerseDiv =
+                                            document.createElement('div');
+                                        workspace.currentVerseByVerseDiv.classList.add(
+                                            'verse-by-verse-verse'
+                                        );
+                                        workspace.currentVerseByVerseDiv.classList.add(
+                                            'verse-by-verse-block'
+                                        );
+                                        workspace.currentVerseByVerseDiv.classList.add(
+                                            'verse-by-verse-' + (timesRendered - 1)
+                                        );
+                                        workspace.verseByVerseDivRoot.appendChild(
+                                            workspace.currentVerseByVerseDiv
+                                        );
+                                    } else {
+                                        workspace.verseByVerseDivRoot =
+                                            document.createElement('div');
+                                        workspace.verseByVerseDivRoot.id =
+                                            'verseblock-' + element.atts['number'];
+                                        workspace.currentVerseByVerseDiv =
+                                            workspace.verseByVerseDivRoot;
+                                    }
                                 }
                                 if (scriptureLogs?.verses) {
                                     console.log('IN: %o', workspace.phraseDiv);
@@ -1858,6 +1889,14 @@ LOGGING:
                                     );
                                     workspace.verseDiv = null;
                                 }
+
+                                if (verseByVerseMode) {
+                                    workspace.paragraphDiv.appendChild(
+                                        workspace.verseByVerseDivRoot.cloneNode(true)
+                                    );
+                                    workspace.verseByVerseDivRoot = null;
+                                }
+
                                 workspace.phraseDiv = null;
                                 addBookmarksDiv(workspace);
                                 addNotesDiv(workspace);
@@ -2067,7 +2106,9 @@ LOGGING:
                                                 // chapter at top of page
                                                 div.classList.add('c');
                                                 div.innerText = workspace.chapterNumText;
-                                                workspace.root.appendChild(div);
+                                                if (timesRendered === 1) {
+                                                    workspace.root.appendChild(div);
+                                                }
                                             }
                                             workspace.chapterNumText = '';
                                         }
@@ -2672,6 +2713,20 @@ LOGGING:
             cl.renderDocument({ docId, config: {}, output });
         } else {
             cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+            if (verseByVerseMode) {
+                if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
+                    for (const i in $layout.auxDocSets) {
+                        const bookLookup = {};
+                        for (const docRecord of docsResult.data.documents) {
+                            if (docRecord.docSetId === $layout.auxDocSets[i]) {
+                                bookLookup[docRecord.bookCode] = docRecord.id;
+                            }
+                        }
+                        const docId = bookLookup[bookCode];
+                        cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+                    }
+                }
+            }
         }
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
