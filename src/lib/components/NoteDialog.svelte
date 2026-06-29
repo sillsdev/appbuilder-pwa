@@ -28,7 +28,12 @@
     }
 </script>
 
-<Modal bind:this={modal} {id} onclose={reset}>
+<Modal
+    bind:this={modal}
+    {id}
+    onclose={reset}
+    styling={'background-color:var(--PopupBackgroundColor);'}
+>
     <div class="flex flex-col justify-evenly">
         <div class="w-full flex justify-between items-center">
             <div class="w-full pb-3" style:font-weight="bold">

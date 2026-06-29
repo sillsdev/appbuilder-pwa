@@ -23,7 +23,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     let {
         id,
         children,
-        styling = convertStyle($s?.['ui.dialog']),
+        styling = 'background-color:var(--DialogBackgroundColor);',
         onclose,
         dialog = $bindable()
     }: Props = $props();

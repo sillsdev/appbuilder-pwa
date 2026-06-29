@@ -96,7 +96,7 @@
     function handleOk() {}
 </script>
 
-<Modal bind:this={modal} {id}>
+<Modal bind:this={modal} {id} styling={'background-color:var(--BackgroundColor);'}>
     <div class="text-center">
         <div class="overflow-y-auto max-h-[80vh] p-1 text-left">
             <CollectionList
