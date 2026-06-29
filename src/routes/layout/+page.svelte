@@ -5,7 +5,15 @@
     import LayoutOptions from '$lib/components/LayoutOptions.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import TabsMenu from '$lib/components/TabsMenu.svelte';
-    import { actionBarColor, layout, Layout, refs, s, selectedLayouts, t } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        layout,
+        Layout,
+        monoIconColor,
+        refs,
+        selectedLayouts,
+        t
+    } from '$lib/data/stores';
     import { CheckIcon, SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
 
     const matchingDocSets =
@@ -69,12 +77,12 @@
 <!--The background color of the icons should be the DialogBackgroundColor color.-->
 {#snippet icon(mode: Layout)}
     {#if mode === Layout.Single}
-        <SinglePaneIcon
-            color="black"
-        /><!--The icons are not hardcoded to black in the native app, but I can't figure out what style/color to use.-->
+        <SinglePaneIcon color={$monoIconColor} />
     {:else if mode === Layout.Two}
-        <SideBySideIcon color="black" />
-    {:else}<VerseByVerseIcon color="black" />{/if}
+        <SideBySideIcon color={$monoIconColor} />
+    {:else}
+        <VerseByVerseIcon color={$monoIconColor} />
+    {/if}
 {/snippet}
 <div class="flex flex-col h-screen">
     <div class="navbar h-16">
