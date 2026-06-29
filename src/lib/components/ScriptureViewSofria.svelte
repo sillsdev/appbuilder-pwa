@@ -577,7 +577,7 @@ LOGGING:
     };
     function appendPhrase(workspace) {
         workspace.lastPhrase = workspace.phraseDiv.getAttribute('data-phrase');
-        if (verseByVerseMode) {
+        if (verseByVerseMode && workspace.currentVerseByVerseDiv) {
             workspace.currentVerseByVerseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
         } else if (versePerLine) {
             workspace.verseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
@@ -618,9 +618,11 @@ LOGGING:
                 // So override that style based on the current directin of the text
                 div.style.float = direction.toLowerCase() === 'ltr' ? 'left' : 'right';
                 div.innerText = workspace.chapterNumText;
-                workspace.paragraphDiv.appendChild(div);
-                if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
-                    addVerseNumber(workspace, element, showVerseNumbers);
+                if (timesRendered === 1) {
+                    workspace.paragraphDiv.appendChild(div);
+                    if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
+                        addVerseNumber(workspace, element, showVerseNumbers);
+                    }
                 }
             } else {
                 // chapter at top of page
@@ -1530,6 +1532,7 @@ LOGGING:
         if (!proskomma) {
             return;
         }
+        timesRendered = 0;
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         if (verseByVerseMode) {
             if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
@@ -1617,22 +1620,24 @@ LOGGING:
                                 console.log('End Document');
                             }
                             preprocessAction('endDocument', workspace);
-                            addOnClickDivs();
-                            if (!displayingIntroduction) {
-                                addNotedVerses(notes);
-                                addBookmarkedVerses(bookmarks);
-                                addHighlightedVerses(highlights);
-                                if (showVideo()) {
-                                    addVideos(videos);
+                            if (timesRendered === 1) {
+                                addOnClickDivs();
+                                if (!displayingIntroduction) {
+                                    addNotedVerses(notes);
+                                    addBookmarkedVerses(bookmarks);
+                                    addHighlightedVerses(highlights);
+                                    if (showVideo()) {
+                                        addVideos(videos);
+                                    }
+                                    if (showImage()) {
+                                        addIllustrations(illustrations);
+                                    }
+                                    addPlanDiv(workspace, '-1');
                                 }
-                                if (showImage()) {
-                                    addIllustrations(illustrations);
+                                addFooter(document, workspace.root, docSet);
+                                if (references) {
+                                    observeVisibility();
                                 }
-                                addPlanDiv(workspace, '-1');
-                            }
-                            addFooter(document, workspace.root, docSet);
-                            if (references) {
-                                observeVisibility();
                             }
                         }
                     }
@@ -1844,7 +1849,7 @@ LOGGING:
                                         workspace.currentVerseByVerseDiv.classList.add(
                                             'verse-by-verse-' + (timesRendered - 1)
                                         );
-                                        workspace.verseByVerseDivRoot.appendChild(
+                                        workspace.verseByVerseDivRoot?.appendChild(
                                             workspace.currentVerseByVerseDiv
                                         );
                                     } else {
@@ -2709,6 +2714,22 @@ LOGGING:
         // Parse whole book if no chapters
         if (chapterCount(currentBook) === 0) {
             cl.renderDocument({ docId, config: {}, output });
+            if (verseByVerseMode) {
+                if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
+                    for (const i in $layout.auxDocSets) {
+                        const bookLookup = {};
+                        for (const docRecord of docsResult.data.documents) {
+                            if (docRecord.docSetId === $layout.auxDocSets[i]) {
+                                bookLookup[docRecord.bookCode] = docRecord.id;
+                            }
+                        }
+                        const docId = bookLookup[bookCode];
+                        if (docId) {
+                            cl.renderDocument({ docId, config: {}, output });
+                        }
+                    }
+                }
+            }
         } else {
             cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
             if (verseByVerseMode) {
@@ -2721,7 +2742,9 @@ LOGGING:
                             }
                         }
                         const docId = bookLookup[bookCode];
-                        cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+                        if (docId) {
+                            cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+                        }
                     }
                 }
             }
