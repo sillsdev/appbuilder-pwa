@@ -12,7 +12,8 @@
         monoIconColor,
         refs,
         selectedLayouts,
-        t
+        t,
+        testLayouts
     } from '$lib/data/stores';
     import { CheckIcon, SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
 
@@ -40,9 +41,11 @@
     // ToDo: If showSinglePane false, provide first availible visible option instead
     const showSinglePane = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Single)
         ?.enabled;
-    const showSideBySide = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
-    const showVerseByVerse = !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)
-        ?.enabled; //Not yet implemented
+    const showSideBySide =
+        testLayouts || !!scriptureConfig.layouts?.find((x) => x.mode === Layout.Two)?.enabled; //Not yet implemented
+    const showVerseByVerse =
+        testLayouts ||
+        !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)?.enabled; //Not yet implemented
 
     // In the native app, if only showing the single pane, then don't show the title.
     // If showing one of the other two, then show the title.
