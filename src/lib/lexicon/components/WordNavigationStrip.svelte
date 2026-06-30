@@ -71,8 +71,7 @@
         class="text-center font-bold text-lg px-4 truncate max-w-xs"
         style="color: var(--TextColor);"
     >
-        {selectedWord.value?.name || ''}
-        <HomonymSubscript word={selectedWord.value} />
+        {selectedWord.value?.name || ''}<HomonymSubscript word={selectedWord.value} />
     </div>
 
     <button
