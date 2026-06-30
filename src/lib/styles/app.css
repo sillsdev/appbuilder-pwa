@@ -49,8 +49,8 @@ body {
   change the pointer, due to the absence of this default rule.
 */
 @layer base {
-    button,
-    [role='button'] {
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']) {
         cursor: pointer;
     }
 }
