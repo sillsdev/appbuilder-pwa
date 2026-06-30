@@ -50,26 +50,11 @@ The navbar component.
     const c = $derived($t.Selector_Chapter);
     const v = $derived($t.Selector_Verse);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     let { onChapterSelection } = $props<{ onChapterSelection?: () => void }>();
 
     function handleChange() {
         // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
         onChapterSelection();
-=======
-    let { onCustomEvent } = $props<{ onCustomEvent: (message: string) => void }>();
-
-    function handleChange() {
-        onCustomEvent('Updated');
->>>>>>> 97d308f (Fixed swipe issues)
-=======
-    let { onChapterSelection } = $props<{ onChapterSelection: () => void }>();
-
-    function handleChange() {
-        // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
-        onChapterSelection();
->>>>>>> a486868 (Updated swipe transition activation)
     }
 
     /**
