@@ -4,7 +4,14 @@
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
-    import { actionBarColor, fontChoices, modal, ModalType, t } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        fontChoices,
+        modal,
+        ModalType,
+        t,
+        themeColors
+    } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import SearchIcon from '$lib/icons/SearchIcon.svelte';
     import TextAppearanceIcon from '$lib/icons/TextAppearanceIcon.svelte';
@@ -24,7 +31,7 @@
 
 <div
     class="flex flex-col fixed bg-base-100 h-screen w-screen"
-    style="background-color: var(--BackgroundColor); color: var(--TextColor);"
+    style="background-color: {$themeColors['BackgroundColor']}; color: {$themeColors['TextColor']};"
 >
     <Navbar
         showBackButton={inSearchRoute || !!selectedWord.value}

@@ -1,6 +1,6 @@
 <script lang="ts">
     import config, { dictionaryConfig } from '$assets/config';
-    import { bodyFontSize, convertStyle, currentFont } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle, currentFont, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
@@ -184,8 +184,8 @@
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
                 .map((v) => formatXmlByClass(v[1] as string))
-                .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
-            '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
+                .join(`\n<hr style="border-color: ${$themeColors['SettingsSeparatorColor']};">\n`) +
+            `\n<hr style="border-color: ${$themeColors['SettingsSeparatorColor']};">\n`;
     }
 
     function attachEventListeners() {
@@ -283,7 +283,9 @@
 
 <pre
     class="p-4 whitespace-pre-wrap wrap-break-word"
-    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">
+    style="background-color: {$themeColors[
+        'BackgroundColor'
+    ]}; font-size: {$bodyFontSize}px; font-family: {$currentFont};">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html xmlData}
 </pre>

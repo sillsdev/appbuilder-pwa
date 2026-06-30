@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import config from '$assets/config';
+    import { themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         displayNames,
@@ -141,7 +142,7 @@
 {:else}
     {@const tabs = [vernacularLanguageId.value, ...reversals.keys()]}
     {@const indexOfPrevious = previousLanguage ? tabs.indexOf(previousLanguage) : 0}
-    <div class="flex w-full" style="background-color: var(--TabBackgroundColor);">
+    <div class="flex w-full" style="background-color: {$themeColors['TabBackgroundColor']};">
         {#each tabs as lang, i}
             <button
                 aria-pressed={currentReversal.languageId === lang}
@@ -169,7 +170,7 @@
         {#each currentAlphabet as letter}
             <button
                 class="dy-btn dy-btn-square dy-btn-sm rounded-xs font-bold snap-start sm:text-base lg:text-lg"
-                style="border-color: var(--SettingsSeparatorColor);"
+                style="border-color: {$themeColors['SettingsSeparatorColor']};"
                 disabled={currentReversal.languageId !== vernacularLanguageId.value &&
                     !Array.from(
                         reversals
@@ -195,14 +196,14 @@
     {:else}
         {@const usingVernacular = currentReversal.languageId === vernacularLanguageId.value}
         {@const words = usingVernacular ? vernacularWords.value : currentReversal.words}
-        <ul class="space-y-3 px-4 pb-4" style="color: var(--TextColor);">
+        <ul class="space-y-3 px-4 pb-4" style="color: {$themeColors['TextColor']};">
             {#each words as word}
                 <li class="cursor-pointer text-lg mb-3 scroll-mt-16" id="letter-{word.letter}">
                     <button
                         type="button"
                         class="w-full text-left py-1"
                         aria-label={`Select word ${word.name}`}
-                        style="border-bottom: 1px solid var(--SettingsSeparatorColor);"
+                        style="border-bottom: 1px solid {$themeColors['SettingsSeparatorColor']};"
                         onclick={() => selectWord(word)}
                     >
                         <span class="font-bold wrap-break-word" lang={currentReversal.languageId}>
