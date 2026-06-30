@@ -1835,10 +1835,15 @@ LOGGING:
                                     workspace.verseDiv.classList.add('verse-block');
                                 }
                                 if (verseByVerseMode) {
-                                    const collectionDirection =
+                                    const collectionBeingUsed =
                                         scriptureConfig.bookCollections?.find(
                                             (x) => x.languageCode + '_' + x.id === currentCollection
-                                        )?.style?.textDirection;
+                                        );
+                                    const collectionDirection =
+                                        collectionBeingUsed?.style?.textDirection;
+                                    const font = collectionBeingUsed?.style?.font;
+                                    const fontSize = collectionBeingUsed?.style?.textSize;
+                                    const lineHeight = collectionBeingUsed?.style?.lineHeight;
                                     if (timesRendered > 1) {
                                         workspace.verseByVerseDivRoot = document.getElementById(
                                             'verseblock-' + element.atts['number']
@@ -1857,6 +1862,18 @@ LOGGING:
                                         if (collectionDirection) {
                                             workspace.currentVerseByVerseDiv.style.direction =
                                                 collectionDirection.toLowerCase();
+                                        }
+                                        if (font) {
+                                            workspace.currentVerseByVerseDiv.style.fontFamily =
+                                                font;
+                                        }
+                                        if (fontSize) {
+                                            workspace.currentVerseByVerseDiv.style.fontSize =
+                                                fontSize + 'px';
+                                        }
+                                        if (lineHeight) {
+                                            workspace.currentVerseByVerseDiv.style.lineHeight =
+                                                lineHeight + '%';
                                         }
                                         workspace.verseByVerseDivRoot?.appendChild(
                                             workspace.currentVerseByVerseDiv
