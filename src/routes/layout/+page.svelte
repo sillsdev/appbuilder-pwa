@@ -32,8 +32,7 @@
     if (matchingDocSets[0]) {
         $selectedLayouts.singlePane = matchingDocSets[0];
     }
-
-    let tabMenuActive = $state(Layout.Single);
+    let tabMenuActive = $state($layout.mode);
 
     // values of selectedLayouts before user makes changes
     const restoreDocSets = JSON.stringify($selectedLayouts);

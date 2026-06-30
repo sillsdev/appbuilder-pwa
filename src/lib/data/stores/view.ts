@@ -1,4 +1,4 @@
-import { derived, get, readable, writable } from 'svelte/store';
+import { derived, get, readable, writable, type Writable } from 'svelte/store';
 import { defaultSettings, userSettings } from './setting';
 import { setDefaultStorage } from './storage';
 
@@ -23,7 +23,10 @@ export const Layout = {
 export type Layout = (typeof Layout)[keyof typeof Layout];
 
 const singleLayout = { mode: Layout.Single, auxDocSets: [] };
-export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(singleLayout);
+export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(
+    localStorage.layout ? JSON.parse(localStorage.layout) : singleLayout
+);
+layout.subscribe((value) => (localStorage.layout = JSON.stringify(value)));
 
 export const ModalType = {
     Note: 'note',
