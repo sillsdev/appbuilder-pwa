@@ -265,6 +265,17 @@
             }
         }
     }
+    function handleKeyInput(e: KeyboardEvent) {
+        if (e.key >= '0' && e.key <= '9') {
+            addNumber(parseInt(e.key));
+        }
+        if (e.key === 'Backspace') {
+            backspaceInput();
+        }
+        if (e.key === 'Enter') {
+            attemptUnlock();
+        }
+    }
 </script>
 
 <div class="grid grid-rows-[auto_1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
@@ -323,6 +334,7 @@
                     class="text-black w-[90%] text-[30px] text-center p-[10px] border bg-white mx-auto block"
                     bind:value={passwordInput}
                     readonly
+                    onkeydown={handleKeyInput}
                 />
             </div>
             <div class="grid grid-cols-3 gap-4 text-center p-10 text-[30px]">
