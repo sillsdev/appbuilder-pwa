@@ -136,12 +136,10 @@
     let x = new Tween(0);
     let startX = 0;
     let isDragging = $state(false);
-    let preventingDragging = false;
-    let lockDragging = false;
     let draggableWidth = $state(0);
     let panels_X = $state([0, 0, 0]);
     let minSlideDistance = () => draggableWidth / 2; // use to determine how far a user has to slide to move to the next chapter
-    let minSlideMomentum = 0.6; // measured in pixels per millisecond
+    let minSlideMomentum = 1; // measured in pixels per millisecond
     let lastX = 0;
     let lastTime = 0;
     let momentum = 0;
@@ -234,8 +232,6 @@
 
     async function handleMouseUp(_event: PointerEvent) {
         isDragging = false;
-        preventingDragging = false;
-        lockDragging = false;
         if (Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) {
             momentum = 0;
             maxMomentum = 0;
@@ -277,7 +273,7 @@
     }
 
     function handleMouseMove(event: PointerEvent) {
-        if (isDragging && !preventingDragging) {
+        if (isDragging) {
             let delta = event.clientX - startX;
             x.set(delta, { duration: 0 });
             if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
@@ -344,7 +340,7 @@
     async function nextChapter() {
         await navigateToTextChapterInDirection(1);
         await adjustSettingsCache(1);
-        await x.set(draggableWidth, { duration: 0 }); //, { duration: 0 });
+        await x.set(draggableWidth, { duration: 0 });
         await tick();
         await x.set(0);
     }
