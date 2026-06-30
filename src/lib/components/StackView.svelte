@@ -43,6 +43,7 @@
     };
     // handles clicks on in text markdown reference links
     function referenceLinkClickHandler(target: HTMLElement) {
+        console.warn(`Reference link clicked -> ${target}`);
         const linkRef = target.getAttribute('ref') ?? '';
         const splitRef = splitString(linkRef, '.');
         const splitSet = splitRef[0];
@@ -63,6 +64,8 @@
         return;
     }
     async function insideClick(target: HTMLElement) {
+        console.log(`inside click registered on ${target}`);
+        console.log(`target has classes ${target.classList.toString()}`);
         if (target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =
@@ -72,6 +75,7 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
+                console.log('Creating inner footer?');
                 const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
                 footnotes.push(footnoteHTML);
             }
@@ -105,7 +109,7 @@
 </script>
 
 <!--
-  ToDo: 
+  ToDo:
   - make width of scripture view
 -->
 <div bind:this={stack} class="absolute max-w-screen-md w-5/6 bottom-8 dy-stack">
@@ -117,7 +121,7 @@
             class="footnote rounded h-40 shadow-lg overflow-y-auto"
             onclick={(e) => {
                 e.stopPropagation();
-                insideClick(e.currentTarget);
+                insideClick((e.target || e.currentTarget) as HTMLElement);
             }}
         >
             <div
