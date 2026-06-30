@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { bodyFontSize, currentFont } from '$lib/data/stores';
+    import { bodyFontSize, currentFont, themeColors } from '$lib/data/stores';
     import { EditIcon } from '$lib/icons';
     import { resolve } from '$lib/utils/paths';
     import Modal from './Modal.svelte';
@@ -32,7 +32,7 @@
     bind:this={modal}
     {id}
     onclose={reset}
-    styling="background-color:var(--PopupBackgroundColor);"
+    styling="background-color:{$themeColors['PopupBackgroundColor']};"
 >
     <div class="flex flex-col justify-evenly">
         <div class="w-full flex justify-between items-center">

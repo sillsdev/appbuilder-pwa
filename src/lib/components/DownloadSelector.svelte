@@ -4,7 +4,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
 -->
 
 <script lang="ts">
-    import { convertStyle, s, t } from '$lib/data/stores';
+    import { convertStyle, s, t, themeColors } from '$lib/data/stores';
     import { ImageIcon, VideoIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
@@ -26,7 +26,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
 <Modal
     bind:this={modalThis}
     id={modalId}
-    styling={'background-color:var(--PopupBackgroundColor);' + positioningCSS}
+    styling="background-color:{$themeColors['PopupBackgroundColor']}; {positioningCSS}"
 >
     <div class="grid gap-2 m-2">
         <button

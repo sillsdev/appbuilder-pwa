@@ -142,7 +142,7 @@ The navbar component. We have sliders that update reactively to both font size a
     <Modal
         bind:dialog={modalThis}
         id={modalId}
-        styling={'background-color:var(--PopupBackgroundColor);' + positioningCSS}
+        styling="background-color:{$themeColors['PopupBackgroundColor']}; {positioningCSS}"
     >
         <div class="grid gap-4">
             <!-- Sliders for when text appearence text size is implemented place holder no functionality-->

@@ -9,7 +9,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
 @prop { Function } onclose - Function to run when Modal closes.
 -->
 <script lang="ts">
-    import { convertStyle, direction, s } from '$lib/data/stores';
+    import { direction, themeColors } from '$lib/data/stores';
     import type { Snippet } from 'svelte';
 
     interface Props {
@@ -23,7 +23,7 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     let {
         id,
         children,
-        styling = 'background-color:var(--DialogBackgroundColor);',
+        styling = `background-color:${$themeColors['DialogBackgroundColor']};`,
         onclose,
         dialog = $bindable()
     }: Props = $props();
