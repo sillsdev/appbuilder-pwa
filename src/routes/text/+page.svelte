@@ -209,6 +209,7 @@
                   audioPhraseEndChars: audioPhraseEndChars,
                   maxSelections: config.mainFeatures['annotation-max-select'] as number,
                   redLetters: $userSettingsOrDefault['red-letters'] as boolean,
+                  references: $refs,
                   viewShowBibleImages: $userSettingsOrDefault[
                       'display-images-in-bible-text'
                   ] as string,

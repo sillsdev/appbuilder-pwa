@@ -14,6 +14,7 @@ LOGGING:
         audioPhraseEndChars: string;
         maxSelections: number;
         redLetters: boolean;
+        references: ReferenceStore;
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
@@ -57,6 +58,7 @@ LOGGING:
         monoIconColor,
         notes,
         plan,
+        // refs is only used for set
         refs,
         selectedVerses,
         t,
@@ -64,8 +66,7 @@ LOGGING:
         userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
-    import type { Reference } from '$lib/data/stores/reference';
-    import NoteIcon from '$lib/icons/NoteIcon.svelte';
+    import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { checkForMilestoneLinks } from '$lib/scripts/milestoneLinks';
@@ -101,6 +102,7 @@ LOGGING:
         audioPhraseEndChars,
         maxSelections,
         redLetters,
+        references,
         viewShowBibleImages,
         viewShowBibleVideos,
         viewShowIllustrations,
@@ -345,36 +347,36 @@ LOGGING:
             case 'xref':
                 callerType = getFeatureValueString(
                     'crossref-caller-type',
-                    $refs.collection,
-                    $refs.book
+                    references.collection,
+                    references.book
                 );
                 callerCustomSymbol = getFeatureValueString(
                     'crossref-caller-symbol',
-                    $refs.collection,
-                    $refs.book
+                    references.collection,
+                    references.book
                 );
                 callerNoCallerToAuto = getFeatureValueBoolean(
                     'crossref-caller-no-caller-to-auto',
-                    $refs.collection,
-                    $refs.book
+                    references.collection,
+                    references.book
                 );
                 break;
 
             default:
                 callerType = getFeatureValueString(
                     'footnote-caller-type',
-                    $refs.collection,
-                    $refs.book
+                    references.collection,
+                    references.book
                 );
                 callerCustomSymbol = getFeatureValueString(
                     'footnote-caller-symbol',
-                    $refs.collection,
-                    $refs.book
+                    references.collection,
+                    references.book
                 );
                 callerNoCallerToAuto = getFeatureValueBoolean(
                     'footnote-caller-no-caller-to-auto',
-                    $refs.collection,
-                    $refs.book
+                    references.collection,
+                    references.book
                 );
                 break;
         }
@@ -442,7 +444,7 @@ LOGGING:
         }
         if (!onlySpaces(text)) {
             let phrases = [];
-            if (!workspace.introductionGraft && $refs.hasAudio) {
+            if (!workspace.introductionGraft && references.hasAudio) {
                 phrases = parsePhrase(text, seprgx);
             } else {
                 // Don't parse introduction or if there is no audio.
@@ -599,8 +601,8 @@ LOGGING:
             const div = document.createElement('div');
             const chapterNumberFormatSetting = getFeatureValueString(
                 'chapter-number-format',
-                $refs.collection,
-                $refs.book
+                references.collection,
+                references.book
             );
             if (chapterNumberFormatSetting === 'drop-cap') {
                 workspace.paragraphDiv.className = 'm';
@@ -858,7 +860,10 @@ LOGGING:
         let planEntryInChapter = false;
         // If plan entry is -1, there is no active entry
         if ($plan.planEntry !== -1) {
-            if ($plan.planBookId === $refs.book && $plan.planChapter.toString() === $refs.chapter) {
+            if (
+                $plan.planBookId === references.book &&
+                $plan.planChapter.toString() === references.chapter
+            ) {
                 planEntryInChapter = true;
             }
         }
@@ -979,7 +984,7 @@ LOGGING:
         progressDiv.append(textDiv);
     }
     function getPlanReferenceString(ref: string) {
-        let currentBookCollectionId = $refs.collection;
+        let currentBookCollectionId = references.collection;
         const [_collection, book, _fromChapter, toChapter, verseRanges] =
             getReferenceFromString(ref);
         const displayString = getDisplayString(
@@ -991,7 +996,7 @@ LOGGING:
         return displayString;
     }
     async function gotoPlanReference() {
-        let currentBookCollectionId = $refs.collection;
+        let currentBookCollectionId = references.collection;
         const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
             $plan.planNextReference
         );
@@ -1471,7 +1476,7 @@ LOGGING:
         }
     }
     function chapterCount(book: string) {
-        if (bookTabSelected && bookTabs?.tabs[$refs.bookTab - 1].chapters === 1) {
+        if (bookTabSelected && bookTabs?.tabs[references.bookTab - 1].chapters === 1) {
             return 0;
         }
         const count = Object.keys(
@@ -1684,7 +1689,7 @@ LOGGING:
                                 addPlanDiv(workspace, '-1');
                             }
                             addFooter(document, workspace.root, docSet);
-                            if ($refs) {
+                            if (references) {
                                 observeVisibility();
                             }
                         }
@@ -2113,17 +2118,17 @@ LOGGING:
                                     if (
                                         getFeatureValueBoolean(
                                             'show-chapter-numbers',
-                                            $refs.collection,
-                                            $refs.book
+                                            references.collection,
+                                            references.book
                                         )
                                     ) {
                                         workspace.chapterNumText = numerals.formatNumber(
                                             numeralSystem,
                                             element.atts['number']
                                         );
-                                        const book = $refs.book;
+                                        const book = references.book;
                                         const bookType = scriptureConfig.bookCollections
-                                            ?.find((x) => $refs.collection === x.id)
+                                            ?.find((x) => references.collection === x.id)
                                             ?.books.find((x) => book === x.id)?.type;
                                         if (
                                             bookType === 'songs' &&
@@ -2133,8 +2138,8 @@ LOGGING:
                                             const chapterNumberFormatSetting =
                                                 getFeatureValueString(
                                                     'chapter-number-format',
-                                                    $refs.collection,
-                                                    $refs.book
+                                                    references.collection,
+                                                    references.book
                                                 );
                                             if (chapterNumberFormatSetting === 'drop-cap') {
                                                 workspace.paragraphDiv.className = 'm';
@@ -2795,19 +2800,19 @@ LOGGING:
 
     const lineHeight = $derived($bodyLineHeight + '%');
 
-    const currentChapter = $derived($refs.chapter);
+    const currentChapter = $derived(references.chapter);
 
-    const currentBook = $derived($refs.book);
+    const currentBook = $derived(references.book);
 
-    const currentDocSet = $derived($refs.docSet);
+    const currentDocSet = $derived(references.docSet);
 
     const bookTabs = $derived(
         scriptureConfig.bookCollections
-            ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.bookTabs
+            ?.find((x) => x.id === references.collection)
+            ?.books.find((x) => x.id === references.book)?.bookTabs
     );
 
-    const bookTabSelected = $derived(bookTabs && $refs.bookTab > 0);
+    const bookTabSelected = $derived(bookTabs && references.bookTab > 0);
 
     $effect(() => {
         if (!bookTabSelected) {
@@ -2815,21 +2820,21 @@ LOGGING:
         }
     });
 
-    const currentIsBibleBook = $derived(isBibleBook($refs));
+    const currentIsBibleBook = $derived(isBibleBook(references));
 
     const numeralSystem = $derived(
-        numerals.systemForBook(scriptureConfig, $refs.collection, currentBook)
+        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
     );
 
     const versePerLine = $derived($userSettingsOrDefault['verse-layout'] === 'one-per-line');
     /**list of books in current docSet*/
-    const books = $derived($refs.catalog.documents);
+    const books = $derived(references.catalog.documents);
     const direction = $derived(
-        scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.style
+        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
             ?.textDirection || 'ltr'
     );
     const verseRangeSeparator = $derived(
-        scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.features[
+        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.features[
             'ref-verse-range-separator'
         ] as string
     );
@@ -2851,7 +2856,7 @@ LOGGING:
         if (bookTabSelected) {
             query(
                 docSet,
-                bookCode + bookTabs?.tabs[$refs.bookTab - 1].bookTabID,
+                bookCode + bookTabs?.tabs[references.bookTab - 1].bookTabID,
                 chapter,
                 viewShowVerses,
                 redLetters,
