@@ -165,6 +165,7 @@ LOGGING:
     }
     const layoutMode = $derived($layout.mode);
     const verseByVerseMode = $derived(layoutMode === 'verse-by-verse');
+    let currentCollection: string;
     let planDivObserver = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
     // Function to observe the visibility of the plan div
@@ -1834,6 +1835,10 @@ LOGGING:
                                     workspace.verseDiv.classList.add('verse-block');
                                 }
                                 if (verseByVerseMode) {
+                                    const collectionDirection =
+                                        scriptureConfig.bookCollections?.find(
+                                            (x) => x.languageCode + '_' + x.id === currentCollection
+                                        )?.style?.textDirection;
                                     if (timesRendered > 1) {
                                         workspace.verseByVerseDivRoot = document.getElementById(
                                             'verseblock-' + element.atts['number']
@@ -1849,6 +1854,10 @@ LOGGING:
                                         workspace.currentVerseByVerseDiv.classList.add(
                                             'verse-by-verse-' + (timesRendered - 1)
                                         );
+                                        if (collectionDirection) {
+                                            workspace.currentVerseByVerseDiv.style.direction =
+                                                collectionDirection.toLowerCase();
+                                        }
                                         workspace.verseByVerseDivRoot?.appendChild(
                                             workspace.currentVerseByVerseDiv
                                         );
@@ -2713,6 +2722,7 @@ LOGGING:
         performance.mark('cl-render-start');
         // Parse whole book if no chapters
         if (chapterCount(currentBook) === 0) {
+            currentCollection = docSet;
             cl.renderDocument({ docId, config: {}, output });
             if (verseByVerseMode) {
                 if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
@@ -2725,12 +2735,14 @@ LOGGING:
                         }
                         const docId = bookLookup[bookCode];
                         if (docId) {
+                            currentCollection = $layout.auxDocSets[i];
                             cl.renderDocument({ docId, config: {}, output });
                         }
                     }
                 }
             }
         } else {
+            currentCollection = docSet;
             cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
             if (verseByVerseMode) {
                 if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
@@ -2743,6 +2755,7 @@ LOGGING:
                         }
                         const docId = bookLookup[bookCode];
                         if (docId) {
+                            currentCollection = $layout.auxDocSets[i];
                             cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
                         }
                     }
