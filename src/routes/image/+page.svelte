@@ -57,7 +57,9 @@
             <!-- <div slot="left-buttons" /> -->
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Text_On_Image_Title']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Text_On_Image_Title']}
+                    </div>
                 </label>
             {/snippet}
             {#snippet end()}

@@ -160,3 +160,7 @@ button.message-button:hover {
     height: 2.6px;
     left: 0%;
 }
+
+label:where([for='sidebar']) > div {
+    color: inherit;
+}

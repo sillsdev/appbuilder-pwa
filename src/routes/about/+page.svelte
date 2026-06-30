@@ -16,7 +16,7 @@
             {#snippet start()}
                 <label for="sidebar">
                     <div
-                        class="btn btn-ghost normal-case text-xl font-bold pl-1"
+                        class="dy-btn dy-btn-ghost normal-case text-xl font-bold pl-1"
                         style:color={$actionBarColor}
                     >
                         {$t['Menu_About']}

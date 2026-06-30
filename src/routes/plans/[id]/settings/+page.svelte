@@ -32,7 +32,7 @@
         <Navbar {backNavigation}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
                         {data.planConfig?.title[$language] ?? data.planConfig?.title.default ?? ''}
                     </div>
                 </label>

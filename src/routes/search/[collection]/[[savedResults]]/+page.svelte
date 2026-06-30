@@ -112,7 +112,7 @@
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{$t['Search']}</div>
                 </label>
             {/snippet}
         </Navbar>

@@ -78,7 +78,9 @@
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Share_App']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Menu_Share_App']}
+                    </div>
                 </label>
             {/snippet}
         </Navbar>
