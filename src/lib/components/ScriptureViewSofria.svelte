@@ -1428,6 +1428,8 @@ LOGGING:
     }
     // handles on click when interacting with the scripture view
     function onClick(e: any) {
+        const t = e.target as HTMLElement;
+        console.log(`clicked <${t.nodeName.toLowerCase()} ${t.className}>`);
         switch (e.target.getAttribute('class')) {
             case 'v':
                 audioClickHandler(e);
