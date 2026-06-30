@@ -87,7 +87,7 @@
         <VerseByVerseIcon color={$monoIconColor} />
     {/if}
 {/snippet}
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar h-16">
         <Navbar {backNavigation}>
             {#snippet center()}
