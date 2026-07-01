@@ -321,9 +321,9 @@
                 <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
             </div>
         {:else if accessCode}
-            <div class="quiz-locked">
-                <div class="quiz-locked-title">{displayLabel}</div>
-                <div class="quiz-locked-message">
+            <div class="quiz-keypad max-w-breakpoint-md mx-auto">
+                <div class="quiz-keypad-title">{displayLabel}</div>
+                <div class="quiz-keypad-message">
                     {$t['Quiz_Access_Code_Message']}
                 </div>
                 <input
@@ -333,41 +333,41 @@
                     readonly
                     onkeydown={handleKeyInput}
                 />
-            </div>
-            <div class="grid grid-cols-3 gap-4 text-center p-10 text-[30px]">
-                {#each Array(9) as _, i}
+                <div class="grid grid-cols-3 gap-4 text-center p-10 text-[30px]">
+                    {#each Array(9) as _, i}
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <div
+                            class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
+                            onclick={() => addNumber(i + 1)}
+                        >
+                            {i + 1}
+                        </div>
+                    {/each}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
+                        onclick={backspaceInput}
+                    >
+                        <BackspaceIcon />
+                    </div>
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
-                        onclick={() => addNumber(i + 1)}
+                        onclick={() => addNumber(0)}
                     >
-                        {i + 1}
+                        0
                     </div>
-                {/each}
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div
-                    class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
-                    onclick={backspaceInput}
-                >
-                    <BackspaceIcon />
-                </div>
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div
-                    class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
-                    onclick={() => addNumber(0)}
-                >
-                    0
-                </div>
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div
-                    class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
-                    onclick={attemptUnlock}
-                >
-                    <LockOpenIcon />
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
+                        onclick={attemptUnlock}
+                    >
+                        <LockOpenIcon />
+                    </div>
                 </div>
             </div>
         {/if}
