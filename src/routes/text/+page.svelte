@@ -207,9 +207,18 @@
               } satisfies HtmlBookViewProps)
             : ({
                   audioPhraseEndChars: audioPhraseEndChars,
+                  bodyFontSize: $bodyFontSize,
+                  bodyLineHeight: $bodyLineHeight,
+                  bookmarks: $bookmarks,
+                  notes: $notes,
+                  highlights: $highlights,
                   maxSelections: config.mainFeatures['annotation-max-select'] as number,
                   redLetters: $userSettingsOrDefault['red-letters'] as boolean,
                   references: $refs,
+                  glossary: $glossary,
+                  selectedVerses,
+                  themeColors: $themeColors,
+                  verseLayout: $userSettingsOrDefault['verse-layout'] as string,
                   viewShowBibleImages: $userSettingsOrDefault[
                       'display-images-in-bible-text'
                   ] as string,

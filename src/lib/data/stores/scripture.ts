@@ -108,6 +108,9 @@ export async function getVerseText(item: Selection, item2?: Selection) {
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
 
+type Block = { key: string; text: string; tokens: { payload: string }[] };
+export type GlossaryQueryResult = { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+
 /*
  *  glossary is returning a Promise
  */
@@ -135,7 +138,6 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ' +
         '} ' +
         '} ';
-    type Block = { key: string; text: string; tokens: { payload: string }[] };
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
         glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
@@ -146,7 +148,7 @@ export const glossary = derived(docSet, async ($docSet) => {
             block.key = key.trim();
         });
     }
-    return glossaryResults as { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+    return glossaryResults as GlossaryQueryResult;
 });
 
 function getDefaultCurrentFonts() {
