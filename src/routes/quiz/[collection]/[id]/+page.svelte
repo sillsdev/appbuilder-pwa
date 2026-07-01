@@ -19,12 +19,13 @@
 </script>
 
 <script lang="ts">
-    import { beforeNavigate } from '$app/navigation';
+    import { beforeNavigate, invalidateAll } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
     import type { QuizAnswer, QuizQuestion } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addQuiz } from '$lib/data/quiz';
+    import { addQuizUnlocked } from '$lib/data/quizUnlocked.js';
     import {
         actionBarColor,
         bodyFontSize,
@@ -35,7 +36,13 @@
         t
     } from '$lib/data/stores';
     import { refs } from '$lib/data/stores/scripture';
-    import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
+    import {
+        ArrowForwardIcon,
+        AudioIcon,
+        BackspaceIcon,
+        LockOpenIcon,
+        TextAppearanceIcon
+    } from '$lib/icons';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { onDestroy } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
@@ -61,13 +68,12 @@
         query: '?url',
         base: '/src/gen-assets/quiz'
     });
-
     interface Props {
         data: PageData;
     }
     let { data }: Props = $props();
 
-    let { locked, quiz, quizId, displayLabel, passScore, collection } = $derived(data);
+    let { locked, accessCode, quiz, quizId, displayLabel, passScore, collection } = $derived(data);
 
     let highlightIdx = $state(-1);
     let score = $state(0);
@@ -78,6 +84,7 @@
     let showCorrectAnswer = $state(false);
 
     let currentAudio: HTMLAudioElement | null = null;
+    let passwordInput = $state('');
 
     let explanation = $state('');
 
@@ -242,6 +249,30 @@
             reset();
         }
     });
+    function addNumber(number: number) {
+        passwordInput += number;
+    }
+    function backspaceInput() {
+        if (passwordInput.length > 0) {
+            passwordInput = passwordInput.slice(0, -1);
+        }
+    }
+    function attemptUnlock() {
+        if (accessCode === passwordInput) {
+            addQuizUnlocked({ collection, book: quizId }).then(() => invalidateAll());
+        }
+    }
+    function handleKeyInput(e: KeyboardEvent) {
+        if (e.key >= '0' && e.key <= '9') {
+            addNumber(parseInt(e.key));
+        }
+        if (e.key === 'Backspace') {
+            backspaceInput();
+        }
+        if (e.key === 'Enter') {
+            attemptUnlock();
+        }
+    }
 </script>
 
 <div class="grid grid-rows-[auto_1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
@@ -281,13 +312,65 @@
     </div>
 
     {#if locked}
-        <div class="quiz-locked">
-            <div class="quiz-locked-title">{quizId}</div>
-            <div class="quiz-locked-message">
-                {$t['Quiz_Access_After_Message']}
+        {#if data.dependentQuizName || data.dependentQuizId}
+            <div class="quiz-locked">
+                <div class="quiz-locked-title">{displayLabel}</div>
+                <div class="quiz-locked-message">
+                    {$t['Quiz_Access_After_Message']}
+                </div>
+                <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
             </div>
-            <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
-        </div>
+        {:else if accessCode}
+            <div class="quiz-keypad max-w-breakpoint-md mx-auto">
+                <div class="quiz-keypad-title">{displayLabel}</div>
+                <div class="quiz-keypad-message">
+                    {$t['Quiz_Access_Code_Message']}
+                </div>
+                <input
+                    id="input-box"
+                    class="text-black w-[90%] text-[30px] text-center p-[10px] border bg-white mx-auto block"
+                    bind:value={passwordInput}
+                    readonly
+                    onkeydown={handleKeyInput}
+                />
+                <div class="grid grid-cols-3 gap-4 text-center p-10 text-[30px]">
+                    {#each Array(9) as _, i}
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <div
+                            class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
+                            onclick={() => addNumber(i + 1)}
+                        >
+                            {i + 1}
+                        </div>
+                    {/each}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
+                        onclick={backspaceInput}
+                    >
+                        <BackspaceIcon />
+                    </div>
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
+                        onclick={() => addNumber(0)}
+                    >
+                        0
+                    </div>
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
+                        onclick={attemptUnlock}
+                    >
+                        <LockOpenIcon />
+                    </div>
+                </div>
+            </div>
+        {/if}
     {:else if currentQuestionIdx === questions.length}
         <div class="score">
             <div id="content" class="text-center">

@@ -4,6 +4,7 @@ import AccountIcon from './AccountIcon.svelte';
 import ArrowBackIcon from './ArrowBackIcon.svelte';
 import ArrowForwardIcon from './ArrowForwardIcon.svelte';
 import { AudioIcon } from './audio';
+import BackspaceIcon from './BackspaceIcon.svelte';
 import BibleIcon from './BibleIcon.svelte';
 import BookmarkIcon from './BookmarkIcon.svelte';
 import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
@@ -26,6 +27,7 @@ import HomeIcon from './HomeIcon.svelte';
 import { ImageIcon } from './image';
 import InfoIcon from './InfoIcon.svelte';
 import LaunchIcon from './LaunchIcon.svelte';
+import LockOpenIcon from './LockOpenIcon.svelte';
 import MoreVertIcon from './MoreVertIcon.svelte';
 import NoteIcon from './NoteIcon.svelte';
 import SearchIcon from './SearchIcon.svelte';
@@ -45,6 +47,7 @@ export {
     ArrowBackIcon,
     ArrowForwardIcon,
     AudioIcon,
+    BackspaceIcon,
     BibleIcon,
     BookmarkIcon,
     BookmarkOutlineIcon,
@@ -66,6 +69,7 @@ export {
     ImageIcon,
     InfoIcon,
     LaunchIcon,
+    LockOpenIcon,
     MoreVertIcon,
     NoteIcon,
     SearchIcon,
