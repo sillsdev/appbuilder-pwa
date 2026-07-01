@@ -47,8 +47,7 @@ test('convertConfig: parse fonts', () => {
 });
 
 test('convertConfig: parse color themes', () => {
-    // Use arbitrary "development" version; see `convertConfig()` in convertConfig.ts
-    const result = parseColorThemes(document, '100.0', 1);
+    const result = parseColorThemes(document, 1);
     expect(result.defaultTheme).not.toSatisfy((r) => r === '' || r === undefined);
     for (const theme of result.themes) {
         expect(theme.name).not.toSatisfy((r) => r === '' || r === undefined);

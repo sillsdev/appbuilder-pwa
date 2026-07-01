@@ -15,7 +15,7 @@ import type {
 import jsdom from 'jsdom';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
-import { compareVersions, splitVersion } from './stringUtils';
+import { splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
@@ -262,7 +262,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     data.fonts = parseFonts(document, verbose);
 
-    const { themes, defaultTheme } = parseColorThemes(document, data.programVersion, verbose);
+    const { themes, defaultTheme } = parseColorThemes(document, verbose);
     data.themes = themes;
     if (defaultTheme !== '') {
         data.defaultTheme = defaultTheme;
@@ -453,7 +453,7 @@ export function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
-export function parseColorThemes(document: Document, programVersion: string, verbose: number) {
+export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
@@ -480,19 +480,14 @@ export function parseColorThemes(document: Document, programVersion: string, ver
                     const value = cm?.getAttribute('value');
                     if (name && value) {
                         colors[name] = value;
-                    } else if (
-                        name &&
-                        !value &&
-                        defaultColors[name] &&
-                        compareVersions(programVersion, '14.3') < 0
-                    ) {
-                        if (verbose >= 2) {
-                            console.log(
-                                `.. colors[${name}] had no specified value; ` +
-                                    `falling back to color ${defaultColors[name]} from default theme`
-                            );
-                        }
-                        colors[name] = defaultColors[name];
+                    } else if (name && !value) {
+                        const colorMissingError = new Error(
+                            `No color value found for "${name}" in the "${theme}" theme.` +
+                                `\nIt is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.` +
+                                `\nPlease select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
+                        );
+                        colorMissingError.stack = `Error in ${__filename}:parseColorThemes(): ${colorMissingError.message}`;
+                        throw colorMissingError;
                     }
                     if (verbose >= 3) {
                         console.log(`.. colors[${name}]=${colors[name]}`);
