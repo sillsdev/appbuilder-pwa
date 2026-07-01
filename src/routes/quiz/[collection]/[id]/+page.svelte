@@ -259,10 +259,7 @@
     }
     function attemptUnlock() {
         if (accessCode?.toString() === passwordInput) {
-            if (book?.quizFeatures) {
-                locked = false;
-                addQuizUnlocked({ collection, book: quizId }).then(() => invalidateAll());
-            }
+            addQuizUnlocked({ collection, book: quizId }).then(() => invalidateAll());
         }
     }
     function handleKeyInput(e: KeyboardEvent) {
@@ -317,7 +314,7 @@
     {#if locked}
         {#if data.dependentQuizName || data.dependentQuizId}
             <div class="quiz-locked">
-                <div class="quiz-locked-title">{quizId}</div>
+                <div class="quiz-locked-title">{displayLabel}</div>
                 <div class="quiz-locked-message">
                     {$t['Quiz_Access_After_Message']}
                 </div>
@@ -325,7 +322,7 @@
             </div>
         {:else if accessCode}
             <div class="quiz-locked">
-                <div class="quiz-locked-title">{quizId}</div>
+                <div class="quiz-locked-title">{displayLabel}</div>
                 <div class="quiz-locked-message">
                     {$t['Quiz_Access_Code_Message']}
                 </div>
