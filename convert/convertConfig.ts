@@ -1627,6 +1627,19 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
     data.mainFeatures['settings-audio-access-method'] = false;
     data.mainFeatures['settings-video-access-method'] = false;
     data.mainFeatures['settings-audio-download-mode'] = false;
+
+    /**
+     * Keyboards are not supported (documentation links were added in 14.2)
+     *
+     * See [Issue #1041](https://github.com/sillsdev/appbuilder-pwa/issues/1041)
+     */
+    if (data.menuItems?.length) {
+        data.menuItems = data.menuItems.filter(
+            (it) =>
+                it.type !== 'website' ||
+                !Object.values(it.link ?? {}).some((l) => /android_asset\/keyboard/.test(l))
+        );
+    }
     return data;
 }
 
