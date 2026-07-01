@@ -1,5 +1,5 @@
 import { scriptureConfig } from '$assets/config';
-import { setDefaultStorage } from '$lib/data/stores/storage';
+import { persistedLocal } from '$lib/data/stores/storage';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
@@ -108,6 +108,9 @@ export async function getVerseText(item: Selection, item2?: Selection) {
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
 
+type Block = { key: string; text: string; tokens: { payload: string }[] };
+export type GlossaryQueryResult = { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+
 /*
  *  glossary is returning a Promise
  */
@@ -135,7 +138,6 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ' +
         '} ' +
         '} ';
-    type Block = { key: string; tokens: { payload: string }[] };
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
         glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
@@ -146,7 +148,7 @@ export const glossary = derived(docSet, async ($docSet) => {
             block.key = key.trim();
         });
     }
-    return glossaryResults as { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+    return glossaryResults as GlossaryQueryResult;
 });
 
 function getDefaultCurrentFonts() {
@@ -167,12 +169,8 @@ function getDefaultCurrentFonts() {
     }
     return currentFonts;
 }
-setDefaultStorage('currentFonts', JSON.stringify(getDefaultCurrentFonts()));
 
-export const currentFonts: Writable<ReturnType<typeof getDefaultCurrentFonts>> = writable(
-    JSON.parse(localStorage.currentFonts)
-);
-currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fonts)));
+export const currentFonts = persistedLocal('currentFonts', getDefaultCurrentFonts());
 
 export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
     if (!$refs.initialized) {
@@ -208,6 +206,7 @@ export type Selection = {
     verse: string;
 };
 
+export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 function createSelectedVerses() {
     const external: Writable<Selection[]> = writable([]);
 

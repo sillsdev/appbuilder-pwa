@@ -1,14 +1,17 @@
 import { derived, get, readable, writable } from 'svelte/store';
 import { defaultSettings, userSettings } from './setting';
-import { setDefaultStorage } from './storage';
+import { persistedLocal } from './storage';
 
 export const NAVBAR_HEIGHT = '4rem';
 
 /** a local storage flag that keeps track of if the page is at its very first launch */
 const nowTime = String(Date.now());
 export const launchTime = readable(nowTime);
-setDefaultStorage('firstLaunchTime', nowTime);
-export const firstLaunchTime = readable(localStorage.firstLaunchTime);
+export const firstLaunchTime = persistedLocal<string, typeof readable<string>>(
+    'firstLaunchTime',
+    nowTime,
+    readable
+);
 export const isFirstLaunch = derived(
     [firstLaunchTime, launchTime],
     ([$firstLaunchTime, $launchTime]) => $firstLaunchTime === $launchTime
@@ -93,18 +96,12 @@ export const windowSize = createWindowSizeStore();
 /**scrollTop of main window*/
 export const mainScroll = writable({ top: 0, height: 0 });
 /**Font size of body elements */
-setDefaultStorage('bodyFontSize', '17');
-export const bodyFontSize = writable(Number(localStorage.bodyFontSize));
-bodyFontSize.subscribe((fontSize) => (localStorage.bodyFontSize = fontSize));
+export const bodyFontSize = persistedLocal('bodyFontSize', 17);
 /**line height of body elements */
-setDefaultStorage('bodyLineHeight', '175');
-export const bodyLineHeight = writable(Number(localStorage.bodyLineHeight));
-bodyLineHeight.subscribe((lineHeight) => (localStorage.bodyLineHeight = lineHeight));
+export const bodyLineHeight = persistedLocal('bodyLineHeight', 175);
 
 /**Font size of contents elements */
-setDefaultStorage('contentsFontSize', '17');
-export const contentsFontSize = writable(Number(localStorage.contentsFontSize));
-contentsFontSize.subscribe((fontSize) => (localStorage.contentsFontSize = fontSize));
+export const contentsFontSize = persistedLocal('contentsFontSize', 17);
 
 export const showDesktopSidebar = derived(
     userSettings,

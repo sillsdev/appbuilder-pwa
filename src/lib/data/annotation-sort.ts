@@ -1,8 +1,17 @@
-export const SORT_DATE = 1;
-export const SORT_REFERENCE = 2;
-export const SORT_COLOR = 3;
+import type { BookmarkItem } from './bookmarks';
+import type { HighlightItem } from './highlights';
+import type { NoteItem } from './notes';
 
-export function compareReference(a, b) {
+export const Sort = {
+    Date: 1,
+    Reference: 2,
+    Color: 3
+} as const;
+export type Sort = (typeof Sort)[keyof typeof Sort];
+
+type Annotation = BookmarkItem | HighlightItem | NoteItem;
+
+export function compareReference(a: Annotation, b: Annotation) {
     if (a.bookIndex > b.bookIndex) {
         return 1;
     } else if (a.bookIndex < b.bookIndex) {
@@ -18,7 +27,7 @@ export function compareReference(a, b) {
     }
 }
 
-export function compareDate(a, b) {
+export function compareDate(a: Annotation, b: Annotation) {
     if (a.date < b.date) {
         return 1;
     } else {
@@ -26,7 +35,7 @@ export function compareDate(a, b) {
     }
 }
 
-export function compareColor(a, b) {
+export function compareColor(a: HighlightItem, b: HighlightItem) {
     if (a.penColor > b.penColor) {
         return 1;
     } else if (a.penColor < b.penColor) {
@@ -38,12 +47,13 @@ export function compareColor(a, b) {
     }
 }
 
-export function toSorted(items, sortType) {
-    if (sortType === SORT_REFERENCE) {
+export function toSorted<T extends Annotation>(items: T[], sortType: Sort) {
+    if (sortType === Sort.Reference) {
         return items.toSorted(compareReference);
-    } else if (sortType === SORT_DATE) {
+    } else if (sortType === Sort.Date) {
         return items.toSorted(compareDate);
-    } else if (sortType === SORT_COLOR) {
+    } else if (sortType === Sort.Color) {
+        //@ts-expect-error I don't know how to specify that this only be for Highlights - Aidan
         return items.toSorted(compareColor);
     }
     return items;

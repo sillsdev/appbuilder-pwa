@@ -11,7 +11,7 @@ export interface Reference {
     verse?: string;
 }
 
-interface ReferenceStore extends Reference {
+export interface ReferenceStore extends Reference {
     collection: string;
     chapterVerses: string;
     numVerses: number;

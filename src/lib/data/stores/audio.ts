@@ -1,15 +1,14 @@
 import config from '$assets/config';
 import { get, writable } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { persistedLocal } from './storage';
 
 /**is audio active in the app*/
-setDefaultStorage('audioActive', config.mainFeatures['audio-turn-on-at-startup'] as string);
-export const audioActive = writable(localStorage.audioActive === 'true');
-audioActive.subscribe((value) => (localStorage.audioActive = value));
+export const audioActive = persistedLocal(
+    'audioActive',
+    config.mainFeatures['audio-turn-on-at-startup'] as boolean
+);
 
-setDefaultStorage('quizAudioActive', 'true');
-export const quizAudioActive = writable(localStorage.quizAudioActive === 'true');
-quizAudioActive.subscribe((value) => (localStorage.quizAudioActive = value));
+export const quizAudioActive = persistedLocal('quizAudioActive', true);
 
 /**which element should be highlighted as the audio is playing*/
 function createaudioHighlightElements() {

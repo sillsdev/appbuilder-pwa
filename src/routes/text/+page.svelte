@@ -212,13 +212,13 @@
                   bookmarks: $bookmarks,
                   notes: $notes,
                   highlights: $highlights,
-                  maxSelections: config.mainFeatures['annotation-max-select'],
+                  maxSelections: config.mainFeatures['annotation-max-select'] as number,
                   redLetters: $userSettingsOrDefault['red-letters'] as boolean,
                   references: $refs,
                   glossary: $glossary,
-                  selectedVerses: selectedVerses,
+                  selectedVerses,
                   themeColors: $themeColors,
-                  verseLayout: $userSettingsOrDefault['verse-layout'],
+                  verseLayout: $userSettingsOrDefault['verse-layout'] as string,
                   viewShowBibleImages: $userSettingsOrDefault[
                       'display-images-in-bible-text'
                   ] as string,
