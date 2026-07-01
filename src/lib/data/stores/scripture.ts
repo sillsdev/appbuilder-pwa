@@ -1,5 +1,9 @@
 import { scriptureConfig } from '$assets/config';
 import { persistedLocal } from '$lib/data/stores/storage';
+<<<<<<< HEAD
+=======
+import { updateSelections } from '$lib/scripts/verseSelectUtil';
+>>>>>>> fd54039 (refactor: use persistedLocal function from Scriptoria)
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';

@@ -2,6 +2,8 @@
 
 // polyfill code sourced from: https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
 // yarn add --dev @esbuild-plugins/node-globals-polyfill
+import fs from 'node:fs';
+import path from 'node:path';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 // yarn add --dev @esbuild-plugins/node-modules-polyfill
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
@@ -11,6 +13,46 @@ import tailwindcss from '@tailwindcss/vite';
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { createLogger, defineConfig } from 'vite';
+
+// SvelteKit's dev middleware intercepts requests for .html/.htm files to run
+// its own page-rendering pipeline (for client-side routing), which breaks
+// when the request is actually for a plain static HTML file living under
+// src/ (e.g. a bloom-player activity's index.html), producing a
+// "TypeError: next is not a function" from vite's internal static
+// middleware. Files under static/ don't hit this because sirv serves them
+// before SvelteKit's page pipeline is reached. Since our gen-assets output
+// intentionally lives under src/ (not static/), serve matching extensions
+// raw here so they never reach SvelteKit's transform/page middleware.
+const GEN_ASSETS_RAW_CONTENT_TYPES = {
+    '.css': 'text/css',
+    '.html': 'text/html',
+    '.htm': 'text/html'
+};
+
+function serveGenAssetsRaw() {
+    return {
+        name: 'serve-gen-assets-raw',
+        configureServer(server) {
+            server.middlewares.use((req, res, next) => {
+                const url = req.url ?? '';
+                const ext = Object.keys(GEN_ASSETS_RAW_CONTENT_TYPES).find((e) => url.endsWith(e));
+                if (url.includes('?') || !url.includes('/gen-assets/') || !ext) {
+                    next();
+                    return;
+                }
+                const filePath = path.join(process.cwd(), decodeURIComponent(url));
+                fs.readFile(filePath, (err, data) => {
+                    if (err) {
+                        next();
+                        return;
+                    }
+                    res.setHeader('Content-Type', GEN_ASSETS_RAW_CONTENT_TYPES[ext]);
+                    res.end(data);
+                });
+            });
+        }
+    };
+}
 
 const logger = createLogger();
 const loggerWarn = logger.warn;
@@ -71,7 +113,7 @@ export default defineConfig(({ mode }) => {
     }
 
     return {
-        plugins: [sveltekit(), tailwindcss()],
+        plugins: [serveGenAssetsRaw(), sveltekit(), tailwindcss()],
         worker: {
             format: 'es',
             plugins: () => []

@@ -226,7 +226,8 @@ export function parseItemAudio(
 export function parseItemLink(
     tag: Element | HTMLElement | undefined,
     scriptureConfig: ScriptureConfig,
-    verbose: number
+    verbose: number,
+    layoutCollection?: Array<string>
 ): LinkMeta {
     const link: LinkMeta = {};
     if (tag === undefined) {
@@ -248,12 +249,22 @@ export function parseItemLink(
     link.linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
 
     if (link.linkType === 'reference') {
-        // In the native app, app of the books are handled by the BookFragment.
-        // In the PWA, we have different routes for different book types since
-        // Proskomma can only handle USFM and the other book types include non-
-        // standard SFM tags.
+        const preferredCollections = layoutCollection?.length
+            ? scriptureConfig.bookCollections?.filter((collection) =>
+                  layoutCollection.includes(collection.id)
+              )
+            : undefined;
 
-        scriptureConfig.bookCollections?.some((collection) => {
+        const searchOrder = preferredCollections?.length
+            ? [
+                  ...preferredCollections,
+                  ...(scriptureConfig.bookCollections?.filter(
+                      (collection) => !layoutCollection!.includes(collection.id)
+                  ) ?? [])
+              ]
+            : scriptureConfig.bookCollections;
+
+        searchOrder?.some((collection) => {
             if (verbose) {
                 console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
             }
@@ -421,13 +432,18 @@ export function convertContents(
                 imageFilename = parseItemImage(itemTag, contentsDir, verbose, hasContentsDir);
             }
 
-            const link: LinkMeta = parseItemLink(itemTag, scriptureConfig, verbose);
+            const layoutCollection = parseItemLayoutCollection(itemTag);
+
+            const link: LinkMeta = parseItemLink(
+                itemTag,
+                scriptureConfig,
+                verbose,
+                layoutCollection
+            );
 
             const features: any = parseItemFeatures(itemTag);
 
             const layoutMode = parseItemLayoutMode(itemTag); //= layoutTags[0]?.attributes.getNamedItem('mode')?.value;
-
-            const layoutCollection = parseItemLayoutCollection(itemTag);
 
             // Children items
             const children: ContentItem[] = [];
@@ -458,10 +474,15 @@ export function convertContents(
                             verbose,
                             hasContentsDir
                         );
-                        const cLink: LinkMeta = parseItemLink(itemChild, scriptureConfig, verbose);
+                        const cLayoutCollection = parseItemLayoutCollection(itemChild);
+                        const cLink: LinkMeta = parseItemLink(
+                            itemChild,
+                            scriptureConfig,
+                            verbose,
+                            cLayoutCollection
+                        );
                         const cFeatures: any = parseItemFeatures(itemChild);
                         const cLayoutMode = parseItemLayoutMode(itemChild);
-                        const cLayoutCollection = parseItemLayoutCollection(itemChild);
 
                         children.push({
                             id: cId,

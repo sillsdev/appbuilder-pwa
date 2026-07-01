@@ -43,6 +43,21 @@ export type BookTabsConfig = {
     tabs: BookTabConfig[];
 };
 
+export type BloomLang = {
+    lang: string;
+    name: string;
+};
+
+export type BloomTitle = {
+    lang: string;
+    name: string;
+};
+
+export type BloomMetaData = {
+    titles?: BloomTitle[];
+    languages?: BloomLang[];
+};
+
 export type BookConfig = {
     id: string;
     type?: string;
@@ -61,6 +76,7 @@ export type BookConfig = {
     fonts: string[];
     file: string;
     hashedFileName?: string; // currently just for HTML books
+    bloomMeta?: BloomMetaData;
     audio: BookCollectionAudioConfig[];
     features: FeatureConfig;
     quizFeatures?: FeatureConfig;
@@ -104,6 +120,16 @@ export type BookCollectionConfig = {
     collectionName?: string;
     collectionAbbreviation?: string;
     collectionDescription?: string;
+};
+
+export type BloomBook = {
+    id: string;
+    bloomId?: string;
+    format?: string;
+    name?: string;
+    file?: string;
+    fontChoice?: string;
+    features?: Map<string, string>;
 };
 
 export type AudioSource = {
