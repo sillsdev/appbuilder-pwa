@@ -23,10 +23,8 @@ self.addEventListener('activate', (event) => {
     // Remove previous cached data from disk
     async function deleteOldCaches() {
         const cachePath = CACHE.split(';')[2];
-        console.log(`current path: ${cachePath}`);
         for (const key of await caches.keys()) {
             const keyPath = key.split(';')[2];
-            console.log(keyPath); // TODO: this console log is here for debugging purposes and should be removed before merging
             /**
              * we want to delete the cache if it is missing the path (backwards-compatible), or if its path is the same as the current app (the fix)
              */
