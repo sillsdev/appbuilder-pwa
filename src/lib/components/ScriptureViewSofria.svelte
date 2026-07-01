@@ -12,9 +12,19 @@ LOGGING:
 <script module lang="ts">
     export interface Props {
         audioPhraseEndChars: string;
+        bodyFontSize: number;
+        bodyLineHeight: number;
+        bookmarks: Promise<BookmarkItem[]>;
+        notes: Promise<NoteItem[]>;
+        highlights: Promise<HighlightItem[]>;
         maxSelections: number;
         redLetters: boolean;
         references: ReferenceStore;
+        glossary: Promise<GlossaryQueryResult>;
+        // we don't actually care about this value, we just care if it changes
+        selectedVerses: Readable<unknown>;
+        themeColors: Record<string, string>;
+        verseLayout: string;
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
@@ -31,6 +41,8 @@ LOGGING:
 
     import { scriptureConfig } from '$assets/config';
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
+    import type { BookmarkItem } from '$lib/data/bookmarks';
+    import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
     import {
         addPlanProgressItem,
@@ -42,29 +54,21 @@ LOGGING:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import {
         audioPlayer,
-        bodyFontSize,
-        bodyLineHeight,
-        bookmarks,
         currentPlanData,
         currentPlanState,
         defaultPlanStore,
         footnotes,
-        glossary,
-        highlights,
         language,
         logs,
         modal,
         ModalType,
         monoIconColor,
-        notes,
         plan,
         // refs is only used for set
         refs,
-        selectedVerses,
         t,
-        themeColors,
         userSettings,
-        userSettingsOrDefault
+        type GlossaryQueryResult
     } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import type { SABProskomma } from '$lib/sab-proskomma';
@@ -89,7 +93,7 @@ LOGGING:
     import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, onMount } from 'svelte';
-    import { fromStore } from 'svelte/store';
+    import { fromStore, type Readable } from 'svelte/store';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -100,9 +104,18 @@ LOGGING:
 
     let {
         audioPhraseEndChars,
+        bodyFontSize,
+        bodyLineHeight,
+        bookmarks,
+        notes,
+        highlights,
         maxSelections,
         redLetters,
         references,
+        glossary,
+        selectedVerses,
+        themeColors,
+        verseLayout,
         viewShowBibleImages,
         viewShowBibleVideos,
         viewShowIllustrations,
@@ -685,7 +698,7 @@ LOGGING:
         if (scriptureConfig.mainFeatures['scripture-refs-display'] === 'viewer') {
             navigate(start);
         } else {
-            const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
+            const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
             footnotes.push(footnoteHTML);
         }
     }
@@ -693,7 +706,7 @@ LOGGING:
         event.stopPropagation();
         event.preventDefault();
         const glossaryLink = target.getAttribute('match');
-        $glossary.then((glossaryResults) => {
+        glossary.then((glossaryResults) => {
             if (isDefined(glossaryResults.data.docSets[0].document)) {
                 glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
                     if (ciEquals(block.key, glossaryLink)) {
@@ -751,14 +764,14 @@ LOGGING:
         el?.parentNode?.insertBefore(notesSpan, el.nextSibling);
     }
     const noteSvg = () => {
-        const noteIconColor: string = $themeColors?.TextColor || $monoIconColor;
+        const noteIconColor: string = themeColors?.TextColor || $monoIconColor;
         return `<svg fill="${noteIconColor}" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>`;
     };
     function editNote(note: NoteItem) {
         modal.open(ModalType.Note, note);
     }
     function addNotedVerses() {
-        $notes.then((notes) => {
+        notes.then((notes) => {
             for (var k = 0; k < notes.length; k++) {
                 const note = notes[k];
                 const bookmarksSpan = document.getElementById('bookmarks' + note.verse);
@@ -796,7 +809,7 @@ LOGGING:
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     }
     function addBookmarkedVerses() {
-        $bookmarks.then((bookmarks) => {
+        bookmarks.then((bookmarks) => {
             for (var j = 0; j < bookmarks.length; j++) {
                 const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
                 if (!bookmarksSpan) {
@@ -815,7 +828,7 @@ LOGGING:
         });
     }
     function addHighlightedVerses() {
-        $highlights.then((highlights) => {
+        highlights.then((highlights) => {
             for (let i = 0; i < highlights.length; i++) {
                 //Skip this entry if the the next is a highlight for the same verse
                 if (i < highlights.length - 1) {
@@ -2796,9 +2809,9 @@ LOGGING:
         );
         return illustrations;
     }
-    const fontSize = $derived($bodyFontSize + 'px');
+    const fontSize = $derived(bodyFontSize + 'px');
 
-    const lineHeight = $derived($bodyLineHeight + '%');
+    const lineHeight = $derived(bodyLineHeight + '%');
 
     const currentChapter = $derived(references.chapter);
 
@@ -2826,7 +2839,7 @@ LOGGING:
         numerals.systemForBook(scriptureConfig, references.collection, currentBook)
     );
 
-    const versePerLine = $derived($userSettingsOrDefault['verse-layout'] === 'one-per-line');
+    const versePerLine = $derived(verseLayout === 'one-per-line');
     /**list of books in current docSet*/
     const books = $derived(references.catalog.documents);
     const direction = $derived(
