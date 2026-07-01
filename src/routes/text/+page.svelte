@@ -69,7 +69,7 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
-    import { onDestroy, onMount, tick } from 'svelte';
+    import { onDestroy, onMount, tick, untrack } from 'svelte';
     import {
         pinch,
         swipe,
@@ -226,6 +226,18 @@
         idx = panels_X.indexOf(0);
         settingsCache[idx].highlights = viewSettings.highlights;
     }
+
+    $effect(() => {
+        const highlights = viewSettings.highlights;
+
+        // untrack prevents these reads from becoming dependencies
+        untrack(() => {
+            if (x.current === 0) {
+                const idx = panels_X.indexOf(0);
+                settingsCache[idx].highlights = highlights;
+            }
+        });
+    });
 
     async function adjustPanelX(panelX: number, direction: number) {
         if (Math.abs(panels_X[panelX]) > draggableWidth) {
@@ -856,11 +868,6 @@
                                 onpointerdown={handleMouseDown}
                                 use:pinch
                                 onpinch={doPinch}
-                                use:swipe={{
-                                    timeframe: 300,
-                                    minSwipeDistance: 60,
-                                    touchAction: 'pan-y'
-                                }}
                             >
                                 {#if book?.format === 'html'}
                                     <HtmlBookView {...settingsCache[0] as HtmlBookViewProps} />
@@ -892,11 +899,6 @@
                                 onpointerdown={handleMouseDown}
                                 use:pinch
                                 onpinch={doPinch}
-                                use:swipe={{
-                                    timeframe: 300,
-                                    minSwipeDistance: 60,
-                                    touchAction: 'pan-y'
-                                }}
                             >
                                 {#if book?.format === 'html'}
                                     <HtmlBookView {...settingsCache[1] as HtmlBookViewProps} />
@@ -922,11 +924,6 @@
                                 onpointerdown={handleMouseDown}
                                 use:pinch
                                 onpinch={doPinch}
-                                use:swipe={{
-                                    timeframe: 300,
-                                    minSwipeDistance: 60,
-                                    touchAction: 'pan-y'
-                                }}
                             >
                                 {#if book?.format === 'html'}
                                     <HtmlBookView {...settingsCache[2] as HtmlBookViewProps} />
