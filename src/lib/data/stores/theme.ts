@@ -1,6 +1,6 @@
 import config from '$assets/config';
-import { derived, writable } from 'svelte/store';
-import { setDefaultStorage } from './storage';
+import { derived } from 'svelte/store';
+import { persistedLocal } from './storage';
 
 //** themes */
 // rough port of AppConfig.java:getColorThemeDisplayOrder
@@ -16,9 +16,7 @@ export const themes =
         ?.map((theme) => theme.name)
         .sort((a, b) => orderThemes(a) - orderThemes(b)) ?? [];
 export const themeDefault = config.defaultTheme ?? '';
-setDefaultStorage('theme', themeDefault);
-export const theme = writable(localStorage.theme);
-theme.subscribe((value) => (localStorage.theme = value));
+export const theme = persistedLocal('theme', themeDefault);
 
 export const themeColors = derived(theme, ($theme) => {
     const theme = config.themes?.find((x) => x.name == $theme);
