@@ -1,8 +1,8 @@
 import { scriptureConfig } from '$assets/config';
-import { derived, get, writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { getPlanData, type PlansData } from '../plansData';
 import { getLastPlanState, planStatesLastUpdated } from '../planStates';
-import { setDefaultStorage } from './storage';
+import { persistedLocal } from './storage';
 
 interface PlanStore {
     planId: string;
@@ -18,10 +18,6 @@ interface PlanStore {
     completed: boolean;
 }
 
-export function planItemInfo(entry: PlanStore) {
-    const allPlans = scriptureConfig.plans?.plans ?? [];
-    const planConfig = allPlans.find((x) => x.id === entry.planId);
-}
 export const defaultPlanStore = {
     planId: '',
     planDay: 0,
@@ -35,9 +31,7 @@ export const defaultPlanStore = {
     planNextReferenceIndex: -1,
     completed: false
 } as const;
-setDefaultStorage('plan', JSON.stringify(defaultPlanStore));
-export const plan = writable<PlanStore>(JSON.parse(localStorage.plan));
-plan.subscribe((value) => (localStorage.plan = JSON.stringify(value)));
+export const plan = persistedLocal('plan', defaultPlanStore as PlanStore);
 
 export const currentPlanState = writable('');
 export const currentPlanData: Writable<PlansData | null> = writable(null);
