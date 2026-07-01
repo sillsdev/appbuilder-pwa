@@ -1,6 +1,6 @@
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { selectedLayouts, t } from '$lib/data/stores';
+    import { selectedLayouts, t, themeColors } from '$lib/data/stores';
     import CollectionList from './CollectionList.svelte';
     import Modal from './Modal.svelte';
 
@@ -96,7 +96,7 @@
     function handleOk() {}
 </script>
 
-<Modal bind:this={modal} {id}>
+<Modal bind:this={modal} {id} styling="background-color:{$themeColors['BackgroundColor']};">
     <div class="text-center">
         <div class="overflow-y-auto max-h-[80vh] p-1 text-left">
             <CollectionList
