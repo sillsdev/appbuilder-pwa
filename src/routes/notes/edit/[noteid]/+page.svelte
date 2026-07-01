@@ -74,8 +74,8 @@
 <div class="fullscreen-editor">
     <Navbar backNavigation={onBackNavigate}>
         {#snippet center()}
-            <div class="flex dy-join">
-                <div class="grid h-10 place-items-center dy-join-item">
+            <div class="flex">
+                <div class="grid h-10 place-items-center">
                     {$t[title]}
                 </div>
 
@@ -85,32 +85,28 @@
                      while Tailwind sees the static string var(--divider-color) at build time. -->
                 <div
                     style="--divider-color: {$actionBarColor}"
-                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-[var(--divider-color)] before:bg-[var(--divider-color)] dy-join-item"
+                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-(--divider-color) before:bg-(--divider-color)"
                 ></div>
-                <div class="grid sm:flex h-10 place-items-center dy-join-item">
+                <div class="grid sm:flex h-10 place-items-center">
                     {reference}
                 </div>
             </div>
         {/snippet}
 
         {#snippet end()}
-            <div class="dy-join">
-                <button onclick={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
+            <div>
+                <button onclick={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"
                     ><DeleteIcon color={$actionBarColor} /></button
                 >
-                <button onclick={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
+                <button onclick={action} class="dy-btn dy-btn-ghost p-1"
                     ><CheckIcon color={$actionBarColor} /></button
                 >
             </div>
         {/snippet}
     </Navbar>
 
-    <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
-        <textarea
-            bind:this={textarea}
-            bind:value={text}
-            class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md"
-        >
+    <div class="flex justify-center mt-7 h-full max-w-breakpoint-md mx-auto">
+        <textarea bind:this={textarea} bind:value={text} class="dy-textarea w-full h-5/6 shadow-md">
         </textarea>
     </div>
 </div>

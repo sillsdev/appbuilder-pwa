@@ -190,7 +190,7 @@ The navbar component. We have sliders that update reactively to both font size a
                 <div class="grid gap-4 items-center range-row m-2">
                     <ImageIcon.FontChoice color={$monoIconColor} />
                     <button
-                        class="dy-btn-sm col-span-2 rounded"
+                        class="dy-btn-sm col-span-2 rounded-sm"
                         style:border="1px dotted"
                         style:font-family={$currentFont}
                         style:font-size="large"

@@ -56,12 +56,14 @@
     let sortOrder = $state(SORT_DATE);
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Notes']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Annotation_Notes']}
+                    </div>
                 </label>
             {/snippet}
 
@@ -78,7 +80,7 @@
     </div>
 
     <div
-        class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
+        class="overflow-y-auto p-2.5 max-w-breakpoint-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
         {#if data.notes.length === 0}

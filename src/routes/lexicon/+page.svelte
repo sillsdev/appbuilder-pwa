@@ -149,7 +149,7 @@
                     previousLanguage = currentReversal.languageId;
                     switchLanguage(lang);
                 }}
-                class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-bordered mb-1"
+                class="py-2.5 px-3.5 text-sm uppercase text-center relative dy-tabs dy-tabs-border mb-1"
             >
                 {displayNames.value[lang]}
                 {#if currentReversal.languageId === lang}
@@ -168,7 +168,7 @@
     >
         {#each currentAlphabet as letter}
             <button
-                class="dy-btn dy-btn-square dy-btn-sm rounded-sm font-bold snap-start sm:text-base lg:text-lg"
+                class="dy-btn dy-btn-square dy-btn-sm rounded-xs font-bold snap-start sm:text-base lg:text-lg"
                 style="border-color: var(--SettingsSeparatorColor);"
                 disabled={currentReversal.languageId !== vernacularLanguageId.value &&
                     !Array.from(
@@ -205,7 +205,7 @@
                         style="border-bottom: 1px solid var(--SettingsSeparatorColor);"
                         onclick={() => selectWord(word)}
                     >
-                        <span class="font-bold break-words" lang={currentReversal.languageId}>
+                        <span class="font-bold wrap-break-word" lang={currentReversal.languageId}>
                             {word.name}<HomonymSubscript {word} />
                         </span>
                         {#if usingVernacular && isVernacular(word) && word.summary}

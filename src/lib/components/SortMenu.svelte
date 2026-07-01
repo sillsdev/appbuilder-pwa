@@ -24,7 +24,7 @@ Dispatches a menuaction event when an option is selected from the menu.
         <SortIcon color={$actionBarColor} />
     </div>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-    <ul tabindex="0" class="dy-dropdown-content dy-menu shadow bg-base-100 z-10">
+    <ul tabindex="0" class="dy-dropdown-content dy-menu shadow-sm bg-base-100 z-10">
         {#each actions as a}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_missing_attribute -->

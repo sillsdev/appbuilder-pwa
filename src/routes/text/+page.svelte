@@ -440,7 +440,7 @@
     }
 </script>
 
-<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet start()}
@@ -537,7 +537,7 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1 cursor-pointer"
             style:top={navBarHeight}
             style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
@@ -578,13 +578,13 @@
                         <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
                     </button>
                 </div>
-                <div class="basis-5/6 max-w-screen-md">
+                <div class="basis-5/6 max-w-breakpoint-md">
                     <div class="p-2 w-full">
                         <main>
                             <div
                                 style="--borderImageSource: url({borders['./border.png']});"
                                 class:borderimg={showBorder}
-                                class="max-w-screen-md mx-auto"
+                                class="max-w-breakpoint-md mx-auto"
                                 use:pinch
                                 onpinch={doPinch}
                                 use:swipe={{

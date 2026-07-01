@@ -62,7 +62,7 @@
         aria-label="Previous word"
     >
         <div
-            class="w-0 h-0 border-y-[12px] border-y-transparent border-r-[20px]"
+            class="w-0 h-0 border-y-12 border-y-transparent border-r-20"
             style="border-right-color: var(--PrimaryColor);"
         ></div>
     </button>
@@ -83,7 +83,7 @@
         aria-label="Next word"
     >
         <div
-            class="w-0 h-0 border-y-[12px] border-y-transparent border-l-[20px]"
+            class="w-0 h-0 border-y-12 border-y-transparent border-l-20"
             style="border-left-color: var(--PrimaryColor);"
         ></div>
     </button>

@@ -107,12 +107,12 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{$t['Search']}</div>
                 </label>
             {/snippet}
         </Navbar>
@@ -124,7 +124,7 @@
         </div>
 
         <div class="flex justify-center px-4">
-            <hr class="max-w-screen-md w-full" style:border-color={$themeColors.DividerColor} />
+            <hr class="max-w-breakpoint-md w-full" style:border-color={$themeColors.DividerColor} />
         </div>
 
         <div class="flex justify-center">

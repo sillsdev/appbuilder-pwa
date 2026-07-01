@@ -15,6 +15,6 @@
     const { color, Icon } = $derived(filled ? icons_filled : icons_empty);
 </script>
 
-<button class="dy-btn-sm dy-btn-ghost" {onclick}>
+<button class="dy-btn dy-btn-sm dy-btn-ghost" {onclick}>
     <Icon {color} />
 </button>

@@ -244,7 +244,7 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
+<div class="grid grid-rows-[auto_1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
     <div class="navbar">
         <Navbar>
             {#snippet start()}

@@ -92,7 +92,7 @@ The verse on image component.
     const textShadow = $derived(
         textShadowMode == 'none'
             ? ''
-            : (textShadowMode == 'shadow'
+            : (textShadowMode == 'shadow-sm'
                   ? (textFontSize * textShadowValue) / 100 +
                     'px ' +
                     (textFontSize * textShadowValue) / 100 +
@@ -748,7 +748,7 @@ The verse on image component.
 
 <div
     id="verseOnImageContainer"
-    class="flex flex-col flex-nowrap max-w-screen-sm mx-auto"
+    class="flex flex-col flex-nowrap max-w-breakpoint-sm mx-auto"
     style="height: 100%; max-width: {imageWidth}px;"
     style:direction={$direction}
 >
@@ -841,7 +841,7 @@ The verse on image component.
             overflow-y: visible;
             min-height: 2.7rem;
             z-index: 3;
-            --tabWidth: {imageWidth / 5}px; 
+            --tabWidth: {imageWidth / 5}px;
             background-color: {$themeColors['ImageTabsBackgroundColor']};
         "
     >
@@ -863,9 +863,9 @@ The verse on image component.
         id="editorsPane"
         class="dy-w-64 dy-carousel dy-rounded-box"
         style="
-            background-color: {$themeColors['DialogBackgroundColor']}; 
+            background-color: {$themeColors['DialogBackgroundColor']};
             z-index: 3;
-            overflow-x: hidden; 
+            overflow-x: hidden;
             overflow-y: auto;
             touch-action: none;
         "
@@ -877,7 +877,7 @@ The verse on image component.
             style="
                 width:100%;
                 height: auto;
-                --imgWidth: {imageWidth / 4}px; 
+                --imgWidth: {imageWidth / 4}px;
                 overflow-y: auto;
             "
         >
@@ -1087,11 +1087,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        textShadowMode = 'shadow';
+                        textShadowMode = 'shadow-sm';
                     }}
                 >
                     <ImageIcon.TextShadow
-                        color={textShadowMode == 'shadow' ? progressColor : unselectedColor}
+                        color={textShadowMode == 'shadow-sm' ? progressColor : unselectedColor}
                     />
                 </button>
 
@@ -1238,7 +1238,7 @@ The verse on image component.
     ></div>
 </div>
 {#if downloadProgress > 0}
-    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
         <div
             class="bg-base-100 p-6 shadow-xl w-80
               flex flex-col justify-between h-64"

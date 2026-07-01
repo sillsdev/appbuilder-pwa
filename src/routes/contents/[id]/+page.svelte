@@ -129,7 +129,7 @@
         let verse;
         const reference = item.linkTarget?.split('.');
         if (item.layoutMode && item.layoutCollection?.length) {
-            /* 
+            /*
             Note: have not handled layout modes
             layoutMode options:
                 single
@@ -249,12 +249,12 @@
     let showBackButton = $derived($contentsStack.length > 0);
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{title}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{title}</div>
                 </label>
             {/snippet}
 
@@ -279,7 +279,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
+    <div class="overflow-y-auto mx-auto max-w-breakpoint-md w-full">
         <div id="container" class="contents" style={convertStyle($s?.['body.contents'])}>
             {#if data.nestedItems === true}
                 {#each data.items as item}

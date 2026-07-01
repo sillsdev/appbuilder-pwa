@@ -123,7 +123,7 @@
 </script>
 
 <div class="h-16" style:background-color={barBackgroundColor}>
-    <div class="mx-auto max-w-screen-md">
+    <div class="mx-auto max-w-breakpoint-md">
         <div class="grid {gridColumns()} justify-items-center">
             <!-- Controls -->
             {#if bottomNavBarItems}

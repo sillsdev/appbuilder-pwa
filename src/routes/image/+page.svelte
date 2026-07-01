@@ -51,13 +51,15 @@
     let downloadSelector: DownloadSelector;
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar h-16">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Text_On_Image_Title']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Text_On_Image_Title']}
+                    </div>
                 </label>
             {/snippet}
             {#snippet end()}

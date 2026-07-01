@@ -1,6 +1,6 @@
 <!--
 @component
-Displays the three different layout option menus.  
+Displays the three different layout option menus.
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';

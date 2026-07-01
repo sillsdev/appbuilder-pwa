@@ -15,7 +15,7 @@ import type {
 import jsdom from 'jsdom';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
-import { splitVersion } from './stringUtils';
+import { compareVersions, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
@@ -262,7 +262,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     data.fonts = parseFonts(document, verbose);
 
-    const { themes, defaultTheme } = parseColorThemes(document, verbose);
+    const { themes, defaultTheme } = parseColorThemes(document, data.programVersion, verbose);
     data.themes = themes;
     if (defaultTheme !== '') {
         data.defaultTheme = defaultTheme;
@@ -453,13 +453,14 @@ export function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
-export function parseColorThemes(document: Document, verbose: number) {
+export function parseColorThemes(document: Document, programVersion: string, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
     const colorSetTags = document.getElementsByTagName('colors');
     const themes = [];
     let defaultTheme = '';
+    let defaultColors: { [key: string]: string } = {};
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
@@ -475,13 +476,26 @@ export function parseColorThemes(document: Document, verbose: number) {
                 const colors: { [key: string]: string } = {};
                 for (const color of colorTags) {
                     const cm = color.querySelector(`cm[theme="${theme}"]`);
-                    const name = color.getAttribute('name');
+                    const name = color.getAttribute('name') || '';
                     const value = cm?.getAttribute('value');
                     if (name && value) {
                         colors[name] = value;
+                    } else if (
+                        name &&
+                        !value &&
+                        defaultColors[name] &&
+                        compareVersions(programVersion, '14.3') < 0
+                    ) {
+                        if (verbose >= 2) {
+                            console.log(
+                                `.. colors[${name}] had no specified value; ` +
+                                    `falling back to color ${defaultColors[name]} from default theme`
+                            );
+                        }
+                        colors[name] = defaultColors[name];
                     }
                     if (verbose >= 3) {
-                        console.log(`.. colors[${name}]=${value} `);
+                        console.log(`.. colors[${name}]=${colors[name]}`);
                     }
                 }
                 if (verbose >= 3) {
@@ -521,6 +535,8 @@ export function parseColorThemes(document: Document, verbose: number) {
 
         if (tag.attributes.getNamedItem('default')?.value === 'true') {
             defaultTheme = themes[themes.length - 1].name;
+            defaultColors =
+                themes[themes.length - 1].colorSets.find((c) => c.type === 'main')?.colors || {};
         }
     }
 

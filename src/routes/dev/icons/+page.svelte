@@ -59,13 +59,17 @@
 </svelte:head>
 
 {#if dev}
-    <div class="p-6 max-w-screen-lg mx-auto">
+    <div class="p-6 max-w-breakpoint-lg mx-auto">
         <h1 class="text-3xl font-bold mb-6">SVG Icon Gallery</h1>
 
         <div class="mb-6 flex gap-4 items-center flex-wrap">
             <div class="flex items-center gap-2">
                 <label for="size-select" class="font-medium">Size:</label>
-                <select id="size-select" bind:value={selectedSize} class="border rounded px-2 py-1">
+                <select
+                    id="size-select"
+                    bind:value={selectedSize}
+                    class="border rounded-sm px-2 py-1"
+                >
                     {#each sizes as size}
                         <option value={size}>{size}px</option>
                     {/each}
@@ -78,7 +82,7 @@
                     id="color-input"
                     type="color"
                     bind:value={selectedColor}
-                    class="w-8 h-8 border rounded cursor-pointer"
+                    class="w-8 h-8 border rounded-sm cursor-pointer"
                 />
                 <span class="text-sm text-gray-600">{selectedColor}</span>
             </div>
@@ -99,7 +103,7 @@
                             class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors min-w-[250px]"
                         >
                             <div
-                                class="flex items-center justify-center w-16 h-16 mb-2 bg-white border rounded"
+                                class="flex items-center justify-center w-16 h-16 mb-2 bg-white border rounded-sm"
                             >
                                 <svelte:component
                                     this={icon.component}
@@ -117,7 +121,7 @@
 
         <div class="mt-8 p-4 bg-gray-100 rounded-lg">
             <h3 class="font-bold mb-2">Usage Example:</h3>
-            <pre class="text-sm bg-white p-2 rounded border"><code
+            <pre class="text-sm bg-white p-2 rounded-sm border"><code
                     >&lt;PlayIcon size="{selectedSize}" color="{selectedColor}" /&gt;</code
                 ></pre>
             <div class="mt-2 text-sm text-gray-600">
@@ -138,5 +142,8 @@
 <style>
     :global(body) {
         background-color: #f9fafb;
+    }
+    select {
+        background-color: #ffffff;
     }
 </style>

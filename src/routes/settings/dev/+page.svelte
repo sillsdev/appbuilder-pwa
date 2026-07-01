@@ -9,7 +9,7 @@
 </script>
 
 <div
-    class="grid grid-rows-[auto,1fr]"
+    class="grid grid-rows-[auto_1fr]"
     style="height:100vh;height:100dvh; font-family: initial;"
     dir={$direction}
 >
@@ -17,7 +17,7 @@
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{$t['Menu_Settings']}</div>
                 </label>
             {/snippet}
         </Navbar>

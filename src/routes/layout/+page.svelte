@@ -87,24 +87,26 @@
         <VerseByVerseIcon color={$monoIconColor} />
     {/if}
 {/snippet}
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar h-16">
         <Navbar {backNavigation}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Layout_Screen_Title']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Layout_Screen_Title']}
+                    </div>
                 </label>
             {/snippet}
             {#snippet end()}
                 <div>
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={handleOk}>
+                    <button class="dy-btn dy-btn-circle dy-btn-ghost" onclick={handleOk}>
                         <CheckIcon color={$actionBarColor} />
                     </button>
                 </div>
             {/snippet}
         </Navbar>
     </div>
-    <div class="overflow-y-auto p-2 max-w-screen-md mx-auto w-full">
+    <div class="overflow-y-auto p-2 max-w-breakpoint-md mx-auto w-full">
         <TabsMenu
             bind:active={tabMenuActive}
             options={{

@@ -45,7 +45,7 @@ A component to display tabbed menus.
 </script>
 
 {#if hasTabs}
-    <div class="dy-tabs dy-tabs-bordered mb-1" style={convertStyle($s?.[styleType])}>
+    <div class="dy-tabs dy-tabs-border mb-1" style={convertStyle($s?.[styleType])}>
         {#each Object.keys(options) as opt}
             {#if options[opt].visible}
                 <!-- svelte-ignore a11y_missing_attribute -->

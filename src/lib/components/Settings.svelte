@@ -40,7 +40,7 @@
                     </div>
                     <input
                         type="checkbox"
-                        class="dy-checkbox"
+                        class="dy-checkbox dy-checkbox-neutral"
                         bind:checked={$userSettings[setting.key] as boolean}
                     />
                 </label>
@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <select
-                    class="dy-select dy-select-ghost dy-select-sm px-0"
+                    class="dy-select dy-select-ghost dy-select-sm appearance-none px-0 w-full"
                     style:font-size="{fontSize}%"
                     bind:value={$userSettings[setting.key]}
                 >
