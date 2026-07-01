@@ -4,12 +4,11 @@ import { openDB, type DBSchema } from 'idb';
 export interface QuizSpecification {
     collection: string;
     book: string;
-    bookIndex: number;
 }
 
 interface QuizUnlocked extends DBSchema {
     quizUnlocked: {
-        key: number;
+        key: [string, string];
         value: QuizSpecification;
         indexes: {
             'collection, book': [string, string];
@@ -23,9 +22,9 @@ async function openQuizUnlocked() {
         quizDB = await openDB<QuizUnlocked>('quizUnlocked', 1, {
             upgrade(db) {
                 const quizStore = db.createObjectStore('quizUnlocked', {
-                    keyPath: 'bookIndex'
+                    keyPath: ['collection', 'book']
                 });
-                quizStore.createIndex('collection, book', ['collection', 'book']);
+                quizStore.createIndex('collection, book', ['collection', 'book'], { unique: true });
             }
         });
     }
@@ -39,28 +38,13 @@ export async function addQuizUnlocked(item: { collection: string; book: string }
             console.error('Failed to open quiz unlocked database');
             return;
         }
-        const bookCollection = scriptureConfig.bookCollections?.find(
-            (x) => x.id === item.collection
-        );
-        const bookIndex = bookCollection?.books.findIndex((x) => x.id === item.book);
-
-        if (bookIndex !== undefined && bookIndex >= 0) {
-            const nextItem = {
-                ...item,
-                bookIndex: bookIndex
-            };
-            await quiz.add('quizUnlocked', nextItem);
-        }
+        await quiz.add('quizUnlocked', item);
     } catch (error) {
         console.error('Error adding quiz unlock:', error);
     }
 }
 
-export async function checkQuizUnlocked(quizId: string) {
+export async function checkQuizUnlocked(item: { collection: string; book: string }) {
     const quiz = await openQuizUnlocked();
-    const result: QuizSpecification[] = await quiz.getAllFromIndex(
-        'quizUnlocked',
-        'collection, book'
-    );
-    return result.some((item) => item.book === quizId);
+    return Boolean(await quiz.get('quizUnlocked', [item.collection, item.book]));
 }

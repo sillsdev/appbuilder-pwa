@@ -31,7 +31,10 @@ export const load: PageLoad = async ({ params, fetch }) => {
         locked = !accessGranted;
     }
     if (book?.quizFeatures?.['access-type'] === 'code' && book.quizFeatures['access-code']) {
-        const quizUnlocked = await checkQuizUnlocked(id);
+        const quizUnlocked =
+            bookCollection && book
+                ? await checkQuizUnlocked({ collection: bookCollection?.id, book: book?.id })
+                : false;
         if (!quizUnlocked) {
             locked = true;
             accessCode = book.quizFeatures['access-code'] as number;
