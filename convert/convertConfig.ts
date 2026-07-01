@@ -480,19 +480,14 @@ export function parseColorThemes(document: Document, programVersion: string, ver
                     const value = cm?.getAttribute('value');
                     if (name && value) {
                         colors[name] = value;
-                    } else if (
-                        name &&
-                        !value &&
-                        defaultColors[name] &&
-                        compareVersions(programVersion, '14.3') < 0
-                    ) {
-                        if (verbose >= 2) {
-                            console.log(
-                                `.. colors[${name}] had no specified value; ` +
-                                    `falling back to color ${defaultColors[name]} from default theme`
-                            );
-                        }
-                        colors[name] = defaultColors[name];
+                    } else if (name && !value) {
+                        const colorMissingError = new Error(
+                            `No color value found for "${name}" in the "${theme}" theme.` +
+                                `\nIt is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.` +
+                                `\nPlease select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
+                        );
+                        colorMissingError.stack = `Error in ${__filename}:parseColorThemes(): ${colorMissingError.message}`;
+                        throw colorMissingError;
                     }
                     if (verbose >= 3) {
                         console.log(`.. colors[${name}]=${colors[name]}`);
