@@ -8,7 +8,7 @@ A component providing a dropdown where you can choose to download audio or video
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareText } from '$lib/data/share';
-    import { refs, selectedVerses, t } from '$lib/data/stores';
+    import { refs, selectedVerses, t, themeColors } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import FormatAlignLeftIcon from '$lib/icons/image/FormatAlignLeftIcon.svelte';
     import {
@@ -220,7 +220,11 @@ A component providing a dropdown where you can choose to download audio or video
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
-<Modal bind:this={modalThis} id={modalId} addCSS={positioningCSS}>
+<Modal
+    bind:this={modalThis}
+    id={modalId}
+    styling="background-color:{$themeColors['PopupBackgroundColor']}; {positioningCSS}"
+>
     <div class="grid gap-2 m-2">
         <button
             class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
