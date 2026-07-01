@@ -46,7 +46,7 @@ const config = {
             }
         },
         version: {
-            name: `${templateVersion}-${buildTimestamp}`
+            name: `${templateVersion};${buildTimestamp};${serviceWorkerScope}`
         }
     }
 };
