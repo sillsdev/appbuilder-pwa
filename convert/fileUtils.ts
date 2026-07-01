@@ -10,13 +10,19 @@ import {
 } from 'fs';
 import { basename, extname, join, posix } from 'path';
 
+export type FileSrcDest = {
+    dir: boolean;
+    src: string;
+    dest: string;
+};
+
 export function getHashedName(dataDir: string, src: string) {
     const fullPath = join(dataDir, src);
     try {
         if (existsSync(fullPath)) {
             return getHashedNameFromContents(String(readFileSync(fullPath)), src);
         } else {
-            console.warn(`Could not locate ${src}`);
+            console.warn(`Could not locate ${fullPath}`);
             return '';
         }
     } catch (e) {

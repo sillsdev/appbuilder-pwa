@@ -2,6 +2,7 @@
 ///<reference path="./proskomma.d.ts"/>
 
 import * as fs from 'fs';
+import { existsSync, readdirSync, statSync } from 'fs';
 import path, { basename, extname, join } from 'path';
 import type {
     BookConfig,
@@ -16,9 +17,11 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
+import type { FileSrcDest } from './fileUtils';
 import {
     createHashedFile,
     createOutputDir,
+    getHashedName,
     getHashedNameFromContents,
     joinUrlPath
 } from './fileUtils';
@@ -405,12 +408,14 @@ function applyFilters(
 // 1. compress the chapter/verse map, if it exists
 // 2. add quizzes to entry, if defined for docset
 // 3. add htmlBooks to entry, if defined for docset
-function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
+// 4. add bloomBooks to entry, if defined for docset
+function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any, bloomBooks: any): any {
     const ds = postQueries.parseChapterVerseMapInDocSets({
         docSets: [entry.data.docSets[0]]
     })[0];
     ds.quizzes = quizzes[ds.id];
     ds.htmlBooks = htmlBooks[ds.id];
+    ds.bloomBooks = bloomBooks[ds.id];
     return ds;
 }
 
@@ -423,7 +428,7 @@ type ConvertBookContext = {
     bcId: string;
 };
 
-const unsupportedBookTypes = ['audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['audio-only', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     scriptureConfig: ScriptureConfig,
@@ -439,11 +444,13 @@ export async function convertBooks(
     const quizzes: any = {};
     /**htmlBooks by book collection*/
     const htmlBooks: any = {};
+    /**bloomBooks by book collection*/
+    const bloomBooks: any = {};
     /**array of files to be written*/
     const files: any[] = [];
 
     // copy book-related folder resources
-    ['quiz', 'songs'].forEach((folder) => {
+    ['quiz', 'songs', 'bloom-player'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
         const folderDstDir = path.join('src/gen-assets', folder);
         if (fs.existsSync(folderSrcDir)) {
@@ -493,18 +500,51 @@ export async function convertBooks(
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
         htmlBooks[context.docSet] = [];
+        bloomBooks[context.docSet] = [];
         if (collection.books.find((b) => b.format === 'html')) {
             const illPath = join('static', 'illustrations');
             createOutputDir(illPath);
             const collPath = join('static', 'collections', collection.id);
             createOutputDir(collPath);
         }
+
+        //check if folder exists for collection
+        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
+        createOutputDir(collPath);
+
         for (const book of collection.books) {
             let bookConverted = false;
             switch (book.type) {
                 case 'audio-only':
-                case 'bloom-player':
                 case 'undefined':
+                    break;
+                case 'bloom-player':
+                    bookConverted = true;
+                    //FIX: remove these console logs before PR
+                    console.warn(`book.id: ${book.id} book.name: ${book.name}`);
+                    console.warn('------------------------------------------------');
+                    console.log(book);
+
+                    // Create specific bloom blook directory for generated assets
+                    const bloomBookPath = path.join(
+                        'src',
+                        'gen-assets',
+                        'collections',
+                        context.bcId,
+                        book.id
+                    );
+                    createOutputDir(bloomBookPath);
+
+                    const bloomFiles: FileSrcDest[] = getBloomFilesRecursively(
+                        dataDir,
+                        path.join('books', context.bcId, book.id),
+                        path.join('src', 'gen-assets', 'collections', context.bcId, book.id)
+                    );
+
+                    convertBloomBook(context, book, bloomFiles, files, verbose);
+                    displayBookId(context.bcId, book.id);
+
+                    bloomBooks[context.docSet].push({ id: book.id, name: book.name });
                     break;
                 case 'quiz':
                     bookConverted = true;
@@ -606,9 +646,6 @@ export async function convertBooks(
                 }
             })
         );
-        //check if folder exists for collection
-        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
-        createOutputDir(collPath);
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
             const qPath = path.join('src/gen-assets', 'collections', context.bcId, 'quizzes');
@@ -622,7 +659,7 @@ export async function convertBooks(
     entries.forEach((entry) => {
         fs.writeFileSync(
             path.join(catalogPath, entry.data.docSets[0].id + '.json'),
-            JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks))
+            JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks, bloomBooks))
         );
     });
     if (verbose) {
@@ -674,6 +711,193 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
     files.push({
         path: path.join('static', 'collections', context.bcId, before),
         content
+    });
+}
+
+const MEDIA_REF_REGEXES: RegExp[] = [
+    /(\b(?:src|href)\s*=\s*)(["'])([^"']*)\2()/gi,
+    /(url\(\s*)(["'])([^"']*)\2(\s*\))/gi,
+    /(url\(\s*)()([^"')]*)()(\s*\))/gi,
+    /(\bdata-backgroundaudio\s*=\s*)(["'])([^"']*)\2()/gi
+];
+
+function replaceBloomLinks(pathToDestUrl: Map<string, string>, content: string): string {
+    for (const regex of MEDIA_REF_REGEXES) {
+        content = content.replace(regex, (match, prefix, quote, rawValue, suffix) => {
+            let decodedValue = rawValue;
+            try {
+                decodedValue = decodeURIComponent(rawValue);
+            } catch {
+                // leave as-is
+            }
+            const destUrl = pathToDestUrl.get(rawValue) ?? pathToDestUrl.get(decodedValue);
+            if (destUrl === undefined) {
+                return match;
+            }
+            return `${prefix}${quote}${destUrl}${quote}${suffix}`;
+        });
+    }
+    return content;
+}
+
+function getBloomFilesRecursively(dataDir: string, src: string, dest: string): FileSrcDest[] {
+    const srcFullPath = join(dataDir, src);
+    let files: any[] = [];
+    const returnFiles: FileSrcDest[] = [];
+
+    try {
+        if (existsSync(srcFullPath)) {
+            files = readdirSync(srcFullPath);
+            for (const file of files) {
+                const stats = statSync(join(srcFullPath, file));
+                const hashedName: string = stats.isDirectory()
+                    ? '' // intended that it will not be used because stats.isDirectory check should be used
+                    : basename(getHashedName(dataDir, join(src, file)));
+                let fullDest: string;
+
+                if (['meta.json'].includes(file) || isExcludedHashedNameDir(srcFullPath)) {
+                    // bloom-player requires meta.json. I could not find a good
+                    // way for it to use the hashed name version.
+                    // Also the directories for audio and activities are not hashed. This
+                    // is because the audio would not play properly because the hashed names could not
+                    // be updated.
+                    // Likewise the activities have issues being updated
+                    fullDest = join(dest, file);
+                } else {
+                    // default behavoir of hashed file names
+                    fullDest = stats.isDirectory() ? join(dest, file) : join(dest, hashedName);
+                }
+                const f: FileSrcDest = {
+                    dir: stats.isDirectory(),
+                    src: join(srcFullPath, file),
+                    dest: fullDest
+                };
+
+                //console.log(`File: ${file}`);
+                //console.log(f);
+
+                returnFiles.push(f);
+
+                if (stats.isDirectory()) {
+                    returnFiles.push(
+                        ...getBloomFilesRecursively(dataDir, join(src, file), fullDest)
+                    );
+                }
+            }
+            return returnFiles;
+        } else {
+            console.warn(`Could not locate ${src}, full path: ${srcFullPath}`);
+        }
+    } catch (e) {
+        console.error(`Error when reading ${src}:\n${e}`);
+    }
+
+    return returnFiles;
+}
+
+function encodeUrlPathSegments(relPath: string): string {
+    return relPath.split('/').map(encodeURIComponent).join('/');
+}
+
+function isExcludedHashedNameDir(src: string): boolean {
+    const parts = src.split(path.sep);
+    return parts.includes('activities') || parts.includes('audio');
+}
+
+function convertBloomBook(
+    context: ConvertBookContext,
+    book: BookConfig,
+    bloomFiles: FileSrcDest[],
+    files: any[],
+    verbose: number
+) {
+    let distExists: boolean = false;
+    let bookContent: string | undefined = undefined;
+    const fileChanges: FileSrcDest[] = [];
+
+    for (const bloomFile of bloomFiles) {
+        if (bloomFile.dir && bloomFile.dest !== undefined) {
+            createOutputDir(bloomFile.dest);
+        } else {
+            let newContent;
+            const ext = bloomFile.src.split('.').pop() ?? '';
+            const isActivityFile = bloomFile.src.split(path.sep).includes('activities');
+            if (ext !== undefined && ['htm', 'js', 'json', 'txt', 'html', 'css'].includes(ext)) {
+                // Read file as string to ensure that it is the correct type
+                newContent = fs.readFileSync(bloomFile.src, 'utf-8');
+                if (ext !== undefined && ['htm', 'html'].includes(ext) && !isActivityFile) {
+                    // This is the main part of our bloom book. We need to preserve
+                    // the hashed name given by convertConfig. According to Claude examining
+                    // bloom-player there is only one html page per bloom book
+                    bookContent = newContent;
+                    continue; // Should be only for the html file as there is only one
+                } else {
+                }
+            } else {
+                // read binary files
+                newContent = fs.readFileSync(bloomFile.src);
+            }
+
+            fileChanges.push(bloomFile);
+
+            if (bloomFile.src.includes('.distribution')) {
+                distExists = true;
+            }
+
+            files.push({
+                path: bloomFile.dest,
+                content: newContent
+            });
+        }
+    }
+
+    if (!distExists) {
+        // if .distribution is missing on the web version it has a console error
+        // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
+        files.push({
+            path: path.join(
+                'src',
+                'gen-assets',
+                'collections',
+                context.bcId,
+                book.id,
+                '.distribution'
+            ),
+            content: 'bloom-web'
+        });
+    }
+
+    if (fileChanges.length > 0 && bookContent !== undefined) {
+        if (verbose >= 3) {
+            console.log(`Replace links for ${book.name}`);
+        }
+        const bookSrcRoot = join(context.dataDir, 'books', context.bcId, book.id);
+        const bookDestRoot = path.join('src', 'gen-assets', 'collections', context.bcId, book.id);
+        const pathToDestUrl = new Map<string, string>();
+        for (const fileChange of fileChanges) {
+            const relSrc = path.relative(bookSrcRoot, fileChange.src).split(path.sep).join('/');
+            const encodedRelSrc = encodeUrlPathSegments(relSrc);
+            const relDest = path.relative(bookDestRoot, fileChange.dest).split(path.sep).join('/');
+            const destUrl = encodeURI(relDest);
+            pathToDestUrl.set(relSrc, destUrl);
+            pathToDestUrl.set(encodedRelSrc, destUrl);
+        }
+        bookContent = replaceBloomLinks(pathToDestUrl, bookContent);
+    }
+
+    if (verbose >= 3) {
+        console.log(`Save bloom html file for ${book.name} --> ${book.hashedFileName}`);
+    }
+    files.push({
+        path: join(
+            'src',
+            'gen-assets',
+            'collections',
+            context.bcId,
+            book.id,
+            book.hashedFileName !== undefined ? book.hashedFileName : book.file
+        ),
+        content: bookContent
     });
 }
 

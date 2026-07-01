@@ -3,6 +3,9 @@ import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
     AudioConfig,
+    BloomLang,
+    BloomMetaData,
+    BloomTitle,
     BookCollectionAudioConfig,
     BookCollectionConfig,
     BookTabConfig,
@@ -119,6 +122,36 @@ export function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleC
         verseNumbers: stylesInfoTag
             .getElementsByTagName('verse-number-style')[0]
             .attributes.getNamedItem('value')!.value
+    };
+}
+
+function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
+    if (!existsSync(jsonPath)) {
+        console.error(`Could not open ${path}`);
+    }
+
+    const meta = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+    const langs: BloomLang[] = [];
+    const titles: BloomTitle[] = [];
+    for (const k of Object.entries(meta['language-display-names'])) {
+        const key = k[0];
+        langs.push({ lang: key, name: meta['language-display-names'][key] });
+    }
+
+    // Pull the titles from meta.json. The allTitles is a string literal that
+    // contains a serlized json string. However some of these strings have
+    // unneeded and unwanted whitespace that causes the JSON parser to fail.
+    // This sanitation is how we remove that.
+    const sanitizedAllTitles = meta.allTitles.replace(/[\r\n\t]+/g, ' ');
+    const allTitles = JSON.parse(sanitizedAllTitles);
+    for (const k of Object.entries(allTitles)) {
+        const key = k[0];
+        titles.push({ lang: key, name: (allTitles[key] as string).trim() });
+    }
+
+    return {
+        languages: langs,
+        titles: titles
     };
 }
 
@@ -872,6 +905,22 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                     i++;
                 }
             }
+            let hashedFileName: string | undefined;
+            let bloomMetaData: {} = {};
+            const bookType = book.attributes.getNamedItem('type')?.value;
+            if (bookType !== undefined && ['html', 'bloom-player'].includes(bookType)) {
+                if (bookType === 'html') {
+                    hashedFileName = getHashedName(join(dataDir, 'books', tag.id), file);
+                }
+
+                if (bookType === 'bloom-player') {
+                    hashedFileName = getHashedName(join(dataDir, 'books', tag.id, book.id), file);
+                    bloomMetaData = parseBloomMeta(
+                        join(dataDir, 'books', tag.id, book.id, 'meta.json'),
+                        verbose
+                    );
+                }
+            }
 
             books.push({
                 portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
@@ -890,11 +939,9 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
                 file: format ? file : file.replace(/\.\w*$/, '.usfm'), // Default format is USFM and multiple files are combined into single .usfm
-                hashedFileName:
-                    format === 'html'
-                        ? getHashedName(join(dataDir, 'books', tag.id), file)
-                        : undefined,
+                hashedFileName: hashedFileName,
                 features: bookFeatures,
+                bloomMeta: bloomMetaData,
                 quizFeatures,
                 style,
                 styles,
