@@ -7,7 +7,6 @@ TODO:
  -> Share
  -> Play
  -> Play Repeat
- -> Verse On Image
 - Add note dialog
 - Add highlight colors
 -->
@@ -21,6 +20,8 @@ TODO:
     import { shareText } from '$lib/data/share';
     import {
         audioActive,
+        modal,
+        ModalType,
         refs,
         s,
         selectedVerses,
@@ -136,18 +137,22 @@ TODO:
     }
 
     async function shareSelectedText() {
-        const book = $selectedVerses[0].book;
-        const reference = selectedVerses.getCompositeReference();
-        const text = await selectedVerses.getCompositeText();
-        const bookCol = $selectedVerses[0].collection;
-        const fullBook = getBook({ collection: bookCol, book: book });
-        const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
-        shareText(
-            scriptureConfig.name ?? '',
-            scriptureConfig.name + '\n\n' + text + '\n' + reference,
-            book + '.txt'
-        );
-        logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
+        if ($refs.hasAudio?.timingFile) {
+            modal.open(ModalType.Share);
+        } else {
+            const book = $selectedVerses[0].book;
+            const reference = selectedVerses.getCompositeReference();
+            const text = await selectedVerses.getCompositeText();
+            const bookCol = $selectedVerses[0].collection;
+            const fullBook = getBook({ collection: bookCol, book: book });
+            const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
+            shareText(
+                scriptureConfig.name ?? '',
+                scriptureConfig.name + '\n\n' + text + '\n' + reference,
+                book + '.txt'
+            );
+            logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
+        }
     }
 
     const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);
