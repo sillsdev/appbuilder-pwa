@@ -15,7 +15,7 @@ import type {
 import jsdom from 'jsdom';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
-import { splitVersion } from './stringUtils';
+import { compareVersions, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
@@ -262,7 +262,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     data.fonts = parseFonts(document, verbose);
 
-    const { themes, defaultTheme } = parseColorThemes(document, verbose);
+    const { themes, defaultTheme } = parseColorThemes(document, data.programVersion, verbose);
     data.themes = themes;
     if (defaultTheme !== '') {
         data.defaultTheme = defaultTheme;
@@ -453,7 +453,7 @@ export function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
-export function parseColorThemes(document: Document, verbose: number) {
+export function parseColorThemes(document: Document, programVersion: string, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
@@ -480,7 +480,12 @@ export function parseColorThemes(document: Document, verbose: number) {
                     const value = cm?.getAttribute('value');
                     if (name && value) {
                         colors[name] = value;
-                    } else if (name && !value && defaultColors[name]) {
+                    } else if (
+                        name &&
+                        !value &&
+                        defaultColors[name] &&
+                        compareVersions(programVersion, '14.3') < 0
+                    ) {
                         if (verbose >= 2) {
                             console.log(
                                 `.. colors[${name}] had no specified value; ` +
