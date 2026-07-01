@@ -1630,9 +1630,9 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
 
     /**
      * Keyboards are not supported (documentation links were added in 14.2)
-     * 
+     *
      * See [Issue #1041](https://github.com/sillsdev/appbuilder-pwa/issues/1041)
-     */ 
+     */
     if (data.menuItems?.length) {
         data.menuItems = data.menuItems.filter(
             (it) =>
