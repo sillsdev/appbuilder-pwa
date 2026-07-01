@@ -23,7 +23,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     let locked = false;
     let dependentQuizId: string | null = null;
     let dependentQuizName: string | null = null;
-    let accessCode: number | null = null;
+    let accessCode: string | null = null;
 
     if (book?.quizFeatures?.['access-type'] === 'after' && book.quizFeatures['access-after']) {
         dependentQuizId = book.quizFeatures['access-after'] as string;
@@ -37,7 +37,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
                 : false;
         if (!quizUnlocked) {
             locked = true;
-            accessCode = book.quizFeatures['access-code'] as number;
+            accessCode = book.quizFeatures['access-code'] as string;
         }
     }
 
