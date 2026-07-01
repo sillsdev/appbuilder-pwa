@@ -1,5 +1,4 @@
-import { writable } from 'svelte/store';
+import { persistedLocal } from './storage';
 
-const logsStorage = localStorage.logs;
 // This doesn't have to be a store, but we could add UI to interact with the store?
-export const logs = writable(logsStorage ? JSON.parse(logsStorage) : {});
+export const logs = persistedLocal('logs', {} as Record<string, Record<string, unknown>>);

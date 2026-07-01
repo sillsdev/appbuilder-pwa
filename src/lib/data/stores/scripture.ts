@@ -1,11 +1,11 @@
 import { scriptureConfig } from '$assets/config';
+import { persistedLocal } from '$lib/data/stores/storage';
 import { updateSelections } from '$lib/scripts/verseSelectUtil';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
 import { pk } from './pk';
 import { referenceStore } from './reference';
-import { setDefaultStorage } from './storage';
 
 function createStack<T>() {
     const external = writable([] as T[]);
@@ -170,12 +170,8 @@ function getDefaultCurrentFonts() {
     }
     return currentFonts;
 }
-setDefaultStorage('currentFonts', JSON.stringify(getDefaultCurrentFonts()));
 
-export const currentFonts: Writable<ReturnType<typeof getDefaultCurrentFonts>> = writable(
-    JSON.parse(localStorage.currentFonts)
-);
-currentFonts.subscribe((fonts) => (localStorage.currentFonts = JSON.stringify(fonts)));
+export const currentFonts = persistedLocal('currentFonts', getDefaultCurrentFonts());
 
 export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]) => {
     if (!$refs.initialized) {
@@ -209,14 +205,8 @@ export type Selection = {
     verse: string;
 };
 
-setDefaultStorage('selectedVerses', JSON.stringify([]));
-
-export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 function createSelectedVerses() {
-    const external: Writable<Selection[]> = writable(JSON.parse(localStorage.selectedVerses));
-    external.subscribe(
-        (selectedVerses) => (localStorage.selectedVerses = JSON.stringify(selectedVerses))
-    );
+    const external: Writable<Selection[]> = persistedLocal('selectedVerses', []);
     return {
         subscribe: external.subscribe,
         addVerse: (id: string | number) => {
