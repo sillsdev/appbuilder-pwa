@@ -258,7 +258,7 @@
         }
     }
     function attemptUnlock() {
-        if (accessCode?.toString() === passwordInput) {
+        if (accessCode === passwordInput) {
             addQuizUnlocked({ collection, book: quizId }).then(() => invalidateAll());
         }
     }
