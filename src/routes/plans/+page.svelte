@@ -83,7 +83,7 @@
                     type="radio"
                     name="my_tabs_1"
                     role="tab"
-                    class="dy-tab dy-tab-bordered {selectedTab === 'in-use' ? 'dy-tab-active' : ''}"
+                    class="dy-tab {selectedTab === 'in-use' ? 'dy-tab-active' : ''}"
                     onclick={() => (selectedTab = 'in-use')}
                     aria-label={$t['Plans_Tab_My_Plans']}
                     style={convertStyle($s?.['ui.plans.tabs.text'])}
@@ -103,9 +103,7 @@
                     type="radio"
                     name="my_tabs_1"
                     role="tab"
-                    class="dy-tab dy-tab-bordered {selectedTab === 'completed'
-                        ? 'dy-tab-active'
-                        : ''}"
+                    class="dy-tab {selectedTab === 'completed' ? 'dy-tab-active' : ''}"
                     onclick={() => (selectedTab = 'completed')}
                     aria-label={$t['Plans_Tab_Completed_Plans']}
                     style={convertStyle($s?.['ui.plans.tabs.text'])}
