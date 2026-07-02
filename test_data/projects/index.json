@@ -12,7 +12,7 @@
                 "tests": [
                     "src/"
                 ],
-                "path": "sab_pwa_test.zip"
+                "path": "sab_test_pwa.zip"
             },
             {
                 "tests": [
