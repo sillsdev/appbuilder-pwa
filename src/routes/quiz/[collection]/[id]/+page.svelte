@@ -333,41 +333,19 @@
                     readonly
                     onkeydown={handleKeyInput}
                 />
-                <div class="grid grid-cols-3 gap-4 text-center p-10 text-[30px]">
+                <div class="grid grid-cols-3 gap-4 text-center p-10">
                     {#each Array(9) as _, i}
-                        <!-- svelte-ignore a11y_click_events_have_key_events -->
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div
-                            class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
-                            onclick={() => addNumber(i + 1)}
-                        >
+                        <button class="quiz-keypad-button" onclick={() => addNumber(i + 1)}>
                             {i + 1}
-                        </div>
+                        </button>
                     {/each}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
-                        onclick={backspaceInput}
-                    >
+                    <button class="quiz-keypad-button" onclick={backspaceInput}>
                         <BackspaceIcon />
-                    </div>
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none"
-                        onclick={() => addNumber(0)}
-                    >
-                        0
-                    </div>
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class="m-[5px] py-[15px] bg-white active:bg-gray-300 select-none flex justify-center items-center"
-                        onclick={attemptUnlock}
-                    >
+                    </button>
+                    <button class="quiz-keypad-button" onclick={() => addNumber(0)}> 0 </button>
+                    <button class="quiz-keypad-button" onclick={attemptUnlock}>
                         <LockOpenIcon />
-                    </div>
+                    </button>
                 </div>
             </div>
         {/if}
@@ -490,5 +468,20 @@
     .quiz-question-block img {
         max-width: 100%;
         max-height: 250px;
+    }
+    .quiz-keypad-button {
+        margin: 5px 1%;
+        padding: 15px 0;
+        font-size: 30px;
+
+        background-color: white;
+        user-select: none;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .quiz-keypad-button:active {
+        background-color: #d1d5db;
     }
 </style>
