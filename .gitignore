@@ -6,6 +6,7 @@ node_modules
 /package
 .env
 .env.*
+!.env.development
 !.env.example
 stats.html
 data/*

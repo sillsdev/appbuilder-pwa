@@ -4,6 +4,7 @@
     import manifestHref from '$assets/manifestUrl.json';
     import '$lib/styles/app.css';
     import config from '$assets/config';
+    import { env } from '$env/dynamic/public';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -137,8 +138,15 @@
 
 {#if showPage}
     <Sidebar>
+        <!-- Set DaisyUI theme colors to red during development for debug purposes -->
         <div
             id="container"
+            data-theme={env.PUBLIC_DEBUG_THEME === 'enabled'
+                ? (() => {
+                      console.warn('DEBUG color theme enabled');
+                      return 'debug';
+                  })()
+                : 'default'}
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
