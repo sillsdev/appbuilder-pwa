@@ -57,7 +57,7 @@ export function convertManifest(dataDir: string, verbose: number) {
                     line = line.replace(srcMatch[0], `"src": "${joinUrlPath('.', finalName)}"`);
                 }
                 if (line.includes('purpose')) {
-                    line = line.replace(/\bmaskable\b/g, 'any'); //Without this, the app icon on Android could be badly cropped
+                    line = line.replace(/"maskable"/g, '"any"'); //Without this, the app icon on Android could be badly cropped
                 }
                 return line;
             })
