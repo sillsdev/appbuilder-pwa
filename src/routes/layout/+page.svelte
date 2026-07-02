@@ -17,21 +17,6 @@
     } from '$lib/data/stores';
     import { CheckIcon, SideBySideIcon, SinglePaneIcon, VerseByVerseIcon } from '$lib/icons';
 
-    const matchingDocSets =
-        scriptureConfig.bookCollections
-            ?.map((ds) => ({
-                id: ds.languageCode + '_' + ds.id,
-                name: ds.collectionName,
-                singlePane: (ds?.features['bc-allow-single-pane'] ??
-                    ds?.features['bc-layout-allow-single-pane']) as boolean,
-                description: ds?.collectionDescription,
-                image: ds?.collectionImage
-            }))
-            .filter((x) => x.id === $refs.docSet) ?? [];
-
-    if (matchingDocSets[0]) {
-        $selectedLayouts.singlePane = matchingDocSets[0];
-    }
     let tabMenuActive = $state($layout.mode);
 
     // values of selectedLayouts before user makes changes

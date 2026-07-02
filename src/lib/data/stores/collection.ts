@@ -59,7 +59,10 @@ function createInitCollections(): App.CollectionGroup {
 const initCollections: App.CollectionGroup = createInitCollections();
 
 function createSelectedLayouts() {
-    const external = writable<App.CollectionGroup>(initCollections);
+    const external = writable<App.CollectionGroup>(
+        localStorage.selectedLayouts ? JSON.parse(localStorage.selectedLayouts) : initCollections
+    );
+    external.subscribe((value) => (localStorage.selectedLayouts = JSON.stringify(value)));
 
     return {
         subscribe: external.subscribe,
