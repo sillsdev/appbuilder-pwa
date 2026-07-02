@@ -5,7 +5,15 @@
     import BookSelector from '$lib/components/BookSelector.svelte';
     import ChapterSelector from '$lib/components/ChapterSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { bodyFontSize, convertStyle, nextRef, refs, s, t } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        bodyFontSize,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t
+    } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
     import { navigateToText } from '$lib/navigate';
     import type { PageData } from './$types.js';
@@ -21,7 +29,7 @@
     function changeTab(newTab: number) {
         curTab = newTab;
     }
-    let actionBarColor = $derived($s?.['ui.bar.action']['background-color']);
+    let actionBarBackgroundColor = $derived($s?.['ui.bar.action']['background-color']);
     let tabUnderlineColor = $derived($s?.['ui.song.tabs']['color']);
     let borderColor = $derived($s?.['ui.song.border']['background-color']);
     const songArray = $derived(curTab === 0 ? data.songsByNumber : data.songsByTitle);
@@ -52,7 +60,7 @@
                             class="dy-btn dy-btn-ghost dy-btn-circle"
                             onclick={() => goto(resolve(`/search/${$refs.collection}`))}
                         >
-                            <SearchIcon color="white" />
+                            <SearchIcon color={$actionBarColor} />
                         </button>
                     {/if}
                 </div>
@@ -62,7 +70,7 @@
     <div class="min-h-0">
         <div
             class="border-t border-base-content/10 dy-tabs dy-tabs-border w-full justify-start"
-            style:background-color={actionBarColor}
+            style:background-color={actionBarBackgroundColor}
         >
             {#each tabs as songTab, i}
                 <button
