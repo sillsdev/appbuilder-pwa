@@ -264,7 +264,7 @@ LOGGING:
     $effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         stateSelectedVerses.current;
-        updateSelections(selectedVerses);
+        updateSelections(container, selectedVerses);
     });
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
@@ -1435,6 +1435,7 @@ LOGGING:
     }
     // handles on click when interacting with the scripture view
     function onClick(e: any) {
+        console.log(e.target);
         switch (e.target.getAttribute('class')) {
             case 'v':
                 audioClickHandler(e);
