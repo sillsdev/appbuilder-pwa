@@ -145,6 +145,7 @@
     let momentum = 0;
     let maxMomentum = 0;
     let previous: string | null = null;
+    let transitionDone = true;
 
     $effect(() => {
         if (previous !== viewSettings.references.collection) {
@@ -224,7 +225,7 @@
 
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
-            if (x.current === 0) {
+            if (x.current === 0 && transitionDone) {
                 const idx = panels_X.indexOf(0);
                 settingsCache[idx].highlights = highlights;
             }
@@ -343,18 +344,22 @@
     const barType = 'book';
 
     async function prevChapter() {
+        transitionDone = false;
         await navigateToTextChapterInDirection(-1);
         await adjustSettingsCache(-1);
         await x.set(-draggableWidth, { duration: 0 });
         await tick();
         await x.set(0);
+        transitionDone = true;
     }
     async function nextChapter() {
+        transitionDone = false;
         await navigateToTextChapterInDirection(1);
         await adjustSettingsCache(1);
         await x.set(draggableWidth, { duration: 0 });
         await tick();
         await x.set(0);
+        transitionDone = true;
     }
 
     const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
@@ -467,8 +472,10 @@
         }
     });
 
-    // svelte-ignore state_referenced_locally
-    let settingsCache = $state([settings0, settings1, settings2]);
+    let settingsCache = $state(
+        // svelte-ignore state_referenced_locally
+        [settings0, settings1, settings2]
+    );
 
     function getFormat(bcId: string, bookId: string) {
         return scriptureConfig.bookCollections
@@ -815,7 +822,8 @@
                 </div>
                 <div
                     class="basis-5/6 max-w-screen-md"
-                    style="position: relative; left: {x.current}px"
+                    style="position: relative; left: {x.current}px; height: {window.screen
+                        .height}px"
                     use:measure
                 >
                     <div
