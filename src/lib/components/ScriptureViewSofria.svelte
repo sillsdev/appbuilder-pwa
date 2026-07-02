@@ -2246,7 +2246,9 @@ LOGGING:
                                         if (scriptureLogs?.sequence) {
                                             console.log('TITLE DIV %o', div);
                                         }
-                                        workspace.root.append(div);
+                                        if (timesRendered === 1) {
+                                            workspace.root.append(div);
+                                        }
                                         break;
                                     }
                                     case 'heading': {
