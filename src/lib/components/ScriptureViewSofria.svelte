@@ -61,7 +61,6 @@ LOGGING:
         monoIconColor,
         plan,
         refs,
-        selectedLayouts,
         t,
         userSettings
     } from '$lib/data/stores';
@@ -1924,10 +1923,12 @@ LOGGING:
                                 }
 
                                 if (verseByVerseMode) {
-                                    workspace.paragraphDiv.appendChild(
-                                        workspace.verseByVerseDivRoot.cloneNode(true)
-                                    );
-                                    workspace.verseByVerseDivRoot = null;
+                                    if (workspace.verseByVerseDivRoot) {
+                                        workspace.paragraphDiv.appendChild(
+                                            workspace.verseByVerseDivRoot.cloneNode(true)
+                                        );
+                                        workspace.verseByVerseDivRoot = null;
+                                    }
                                 }
 
                                 workspace.phraseDiv = null;
