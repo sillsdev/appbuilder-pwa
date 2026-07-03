@@ -321,7 +321,10 @@ LOGGING:
                     break;
             }
             const phraseIndex = createLetterIndex(workspace.currentPhraseIndex);
-            div.id = workspace.currentVerse + phraseIndex;
+
+            if (!verseByVerseMode || timesRendered === 1) {
+                div.id = workspace.currentVerse + phraseIndex;
+            }
             div.setAttribute('data-verse', workspace.currentVerse);
             div.setAttribute('data-phrase', phraseIndex);
             div.classList.add('txs', 'seltxt', 'scroll-item');
