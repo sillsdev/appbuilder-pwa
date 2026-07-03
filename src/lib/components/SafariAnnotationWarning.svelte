@@ -1,17 +1,21 @@
 <script lang="ts">
-    import { dismissSafariWarning, shouldShowSafariWarning } from '$lib/scripts/safariUtils';
+    import {
+        dismissSafariWarning,
+        getSafariWarningContext,
+        type SafariWarningContext
+    } from '$lib/scripts/safariUtils';
 
-    let visible = $state(shouldShowSafariWarning());
+    let context: SafariWarningContext = $state(getSafariWarningContext());
 
     function dismiss() {
         dismissSafariWarning();
-        visible = false;
+        context = null;
     }
 </script>
 
-{#if visible}
+{#if context}
     <div
-        class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-900 rounded-lg px-4 py-3 mx-2.5 mt-2.5 text-sm"
+        class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-900 rounded-lg px-4 py-3 mx-2.5 mt-2.5 mb-2.5 text-sm"
     >
         <svg
             class="shrink-0 mt-0.5 w-5 h-5 text-amber-500"
@@ -27,11 +31,21 @@
             />
         </svg>
         <div class="flex-1">
-            <p class="font-semibold">Annotations may be deleted by Safari</p>
-            <p class="mt-0.5">
-                Safari can delete your bookmarks, highlights, and notes after 1–2 weeks of
-                inactivity. To keep them permanently, add this app to your Home Screen.
-            </p>
+            {#if context === 'ios'}
+                <p class="font-semibold">Important for iPhone and iPad users</p>
+                <p class="mt-0.5">
+                    Safari may remove locally stored website data, including your annotations, if
+                    this website is only used in the browser. To reduce the risk of data loss,
+                    install this app to your Home Screen.
+                </p>
+            {:else}
+                <p class="font-semibold">Important for Safari users</p>
+                <p class="mt-0.5">
+                    Safari may remove locally stored website data, including your annotations, after
+                    a period of inactivity. To keep them permanently, use this site regularly or
+                    add it to your bookmarks.
+                </p>
+            {/if}
         </div>
         <button
             onclick={dismiss}

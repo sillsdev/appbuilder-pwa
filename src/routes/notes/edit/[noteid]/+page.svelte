@@ -3,6 +3,7 @@
     import { addNote, editNote, removeNote } from '$lib/data/notes';
     import { selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
+    import { markAnnotationHintShown, shouldShowAnnotationHint } from '$lib/scripts/safariUtils';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
@@ -58,6 +59,9 @@
             text,
             reference
         });
+        if (shouldShowAnnotationHint()) {
+            markAnnotationHintShown();
+        }
         goBack();
     }
 

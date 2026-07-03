@@ -31,6 +31,7 @@ TODO:
     } from '$lib/data/stores';
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
+    import { markAnnotationHintShown, shouldShowAnnotationHint } from '$lib/scripts/safariUtils';
     import BookmarkButton from './BookmarkButton.svelte';
 
     const isAudioPlayable = scriptureConfig?.mainFeatures['text-select-play-audio'];
@@ -41,6 +42,23 @@ TODO:
     const isNotesEnabled = scriptureConfig?.mainFeatures['annotation-notes'];
 
     let showHighlightPens = $state(false);
+    let showAnnotationHint = $state(false);
+    let annotationHintTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    function startAnnotationHint() {
+        if (!shouldShowAnnotationHint()) {
+            return;
+        }
+        markAnnotationHintShown();
+        showAnnotationHint = true;
+        if (annotationHintTimeoutId) {
+            clearTimeout(annotationHintTimeoutId);
+        }
+        annotationHintTimeoutId = setTimeout(() => {
+            showAnnotationHint = false;
+            annotationHintTimeoutId = null;
+        }, 4000);
+    }
 
     let { oncopy } = $props();
 
@@ -85,6 +103,7 @@ TODO:
                 text,
                 reference: $selectedVerses[0].reference
             });
+            startAnnotationHint();
         } else {
             await removeBookmark(selectedVerseBookmarks);
         }
@@ -105,6 +124,7 @@ TODO:
             await removeHighlights($selectedVerses);
         } else {
             await addHighlights(numColor, $selectedVerses, selectedVerses.getVerseTextByIndex);
+            startAnnotationHint();
         }
 
         selectedVerses.reset();
@@ -150,9 +170,16 @@ TODO:
 </script>
 
 <div
-    class="h-12 bg-base-100 mx-auto flex items-center flex-col"
+    class="relative h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={backgroundColor}
 >
+    {#if showAnnotationHint}
+        <div
+            class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md bg-amber-100 text-amber-900 text-sm rounded"
+        >
+            Annotation saved. Visit the Bookmarks page to learn how to protect your data.
+        </div>
+    {/if}
     <div class="flex flex-col justify-center w-11/12 flex-grow">
         <!-- Controls -->
         <div class="dy-btn-group place-self-center">

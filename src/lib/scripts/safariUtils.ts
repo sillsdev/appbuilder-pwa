@@ -1,41 +1,74 @@
 const DISMISSED_KEY = 'safari_annotation_warning_dismissed';
-const DISMISS_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+const ANNOTATION_HINT_KEY = 'safari_annotation_hint_shown';
+const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-function isSafariWithoutStandalone(): boolean {
-    if (typeof window === 'undefined') {
+export type SafariWarningContext = 'ios' | 'macos' | null;
+
+function isIOS(): boolean {
+    if (/iPhone|iPod/.test(navigator.userAgent)) {
+        return true;
+    }
+    if (/iPad/.test(navigator.userAgent)) {
+        return true;
+    }
+    // iPad on iOS 13+ reports as MacIntel but has touch support
+    if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) {
+        return true;
+    }
+    return false;
+}
+
+function isMacOSSafari(): boolean {
+    if (isIOS()) {
         return false;
     }
     const ua = navigator.userAgent;
-    const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(ua);
-    const isStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    return isSafari && !isStandalone;
+    return /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(ua) && /Macintosh/.test(ua);
 }
 
-export function shouldShowSafariWarning(): boolean {
+function getContext(): SafariWarningContext {
+    const isStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    if (isStandalone) {
+        return null;
+    }
+    if (isIOS()) {
+        return 'ios';
+    }
+    if (isMacOSSafari()) {
+        return 'macos';
+    }
+    return null;
+}
+
+export function getSafariWarningContext(): SafariWarningContext {
     if (typeof window === 'undefined') {
-        return false;
+        return null;
     }
     // Debug override: because the app uses hash routing, append ?debug_safari=true
     // inside the hash, e.g. /#/bookmarks?debug_safari=true
     const hashQuery = window.location.hash.split('?')[1] ?? '';
     if (new URLSearchParams(hashQuery).get('debug_safari') === 'true') {
-        return true;
+        return 'ios';
     }
-    if (!isSafariWithoutStandalone()) {
-        return false;
+    const context = getContext();
+    if (!context) {
+        return null;
     }
     try {
         const dismissed = localStorage.getItem(DISMISSED_KEY);
         if (!dismissed) {
-            return true;
+            return context;
         }
         const dismissedAt = parseInt(dismissed, 10);
         if (isNaN(dismissedAt)) {
-            return true;
+            return context;
         }
-        return Date.now() - dismissedAt > DISMISS_DURATION_MS;
+        if (Date.now() - dismissedAt > DISMISS_DURATION_MS) {
+            return context;
+        }
+        return null;
     } catch {
-        return true;
+        return context;
     }
 }
 
@@ -44,5 +77,27 @@ export function dismissSafariWarning(): void {
         localStorage.setItem(DISMISSED_KEY, Date.now().toString());
     } catch {
         // If storage is unavailable, silently ignore — the warning will reappear next visit
+    }
+}
+
+export function shouldShowAnnotationHint(): boolean {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    if (!getContext()) {
+        return false;
+    }
+    try {
+        return !localStorage.getItem(ANNOTATION_HINT_KEY);
+    } catch {
+        return false;
+    }
+}
+
+export function markAnnotationHintShown(): void {
+    try {
+        localStorage.setItem(ANNOTATION_HINT_KEY, '1');
+    } catch {
+        // silently ignore
     }
 }
