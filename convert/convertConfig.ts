@@ -453,6 +453,20 @@ export function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
+// HACK: Work-around undefined color in DAB 14.2
+// For the PWA for 14.3, we are adding a check for missing colors.
+// However, in DAB 14.2, the TextHighlightColor was not defined for Sepia
+function hackColorValue(
+    theme: string,
+    name: string,
+    value: string | null | undefined
+): string | null | undefined {
+    if (theme === 'Sepia' && name === 'TextHighlightColor' && !value) {
+        return '#D9D9D9'; // Default TextHighlightColor from Normal theme in DAB 14.2
+    }
+    return value;
+}
+
 export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
@@ -477,7 +491,7 @@ export function parseColorThemes(document: Document, verbose: number) {
                 for (const color of colorTags) {
                     const cm = color.querySelector(`cm[theme="${theme}"]`);
                     const name = color.getAttribute('name') || '';
-                    const value = cm?.getAttribute('value');
+                    const value = hackColorValue(theme, name, cm?.getAttribute('value'));
                     if (name && value) {
                         colors[name] = value;
                     } else if (name && !value) {
