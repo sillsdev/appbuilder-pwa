@@ -23,6 +23,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
     } from '$lib/data/stores';
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
+    import { markAnnotationHintShown, shouldShowAnnotationHint } from '$lib/scripts/safariUtils';
     import { resolve } from '$lib/utils/paths';
     import BookmarkButton from './BookmarkButton.svelte';
 
@@ -34,6 +35,23 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
     const isNotesEnabled = scriptureConfig?.mainFeatures['annotation-notes'];
 
     let showHighlightPens = $state(false);
+    let showAnnotationHint = $state(false);
+    let annotationHintTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    function startAnnotationHint() {
+        if (!shouldShowAnnotationHint()) {
+            return;
+        }
+        markAnnotationHintShown();
+        showAnnotationHint = true;
+        if (annotationHintTimeoutId) {
+            clearTimeout(annotationHintTimeoutId);
+        }
+        annotationHintTimeoutId = setTimeout(() => {
+            showAnnotationHint = false;
+            annotationHintTimeoutId = null;
+        }, 4000);
+    }
 
     let { oncopy } = $props();
 
@@ -78,6 +96,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                 text,
                 reference: $selectedVerses[0].reference
             });
+            startAnnotationHint();
         } else {
             await removeBookmark(selectedVerseBookmarks);
         }
@@ -98,6 +117,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
             await removeHighlights($selectedVerses);
         } else {
             await addHighlights(numColor, $selectedVerses, selectedVerses.getVerseTextByIndex);
+            startAnnotationHint();
         }
 
         selectedVerses.reset();
@@ -141,9 +161,16 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
 </script>
 
 <div
-    class="h-12 bg-base-100 mx-auto flex items-center flex-col"
+    class="relative h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={backgroundColor}
 >
+    {#if showAnnotationHint}
+        <div
+            class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md bg-amber-100 text-amber-900 text-sm rounded"
+        >
+            Annotation saved. Visit the Bookmarks page to learn how to protect your data.
+        </div>
+    {/if}
     <div class="flex flex-col justify-center w-11/12 grow">
         <!-- Controls -->
         <div class="place-self-center">
