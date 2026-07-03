@@ -105,6 +105,7 @@ jobs:
                           echo "Project: $PROJECT_NAME"
                           PROJECT_DIR="$HOME/projects/${PROGRAM}/$PROJECT_NAME"
                           mkdir -p "$PROJECT_DIR"
+                          echo "Project hash: $(sha256sum "test_data/projects/${PROGRAM}/$PROJECT_ZIP" | awk '{print $1}')"
                           unzip -q "test_data/projects/${PROGRAM}/$PROJECT_ZIP" -d "$PROJECT_DIR"
                           npm run clean:all > /dev/null
                           pushd "$PROJECT_DIR" > /dev/null
