@@ -23,7 +23,9 @@ export const Layout = {
 export type Layout = (typeof Layout)[keyof typeof Layout];
 
 function loadPersistedLayout(): { mode: Layout; auxDocSets?: string[] } {
-    if (typeof localStorage === 'undefined') return singleLayout;
+    if (typeof localStorage === 'undefined') {
+        return singleLayout;
+    }
     try {
         return localStorage.layout ? JSON.parse(localStorage.layout) : singleLayout;
     } catch {

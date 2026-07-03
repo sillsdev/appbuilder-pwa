@@ -59,7 +59,9 @@ function createInitCollections(): App.CollectionGroup {
 const initCollections: App.CollectionGroup = createInitCollections();
 
 function loadPersistedSelectedLayouts(): App.CollectionGroup {
-    if (typeof localStorage === 'undefined') return initCollections;
+    if (typeof localStorage === 'undefined') {
+        return initCollections;
+    }
     try {
         return localStorage.selectedLayouts
             ? JSON.parse(localStorage.selectedLayouts)
