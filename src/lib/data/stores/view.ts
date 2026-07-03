@@ -22,10 +22,16 @@ export const Layout = {
 } as const;
 export type Layout = (typeof Layout)[keyof typeof Layout];
 
+function loadPersistedLayout(): { mode: Layout; auxDocSets?: string[] } {
+    if (typeof localStorage === 'undefined') return singleLayout;
+    try {
+        return localStorage.layout ? JSON.parse(localStorage.layout) : singleLayout;
+    } catch {
+        return singleLayout;
+    }
+}
 const singleLayout = { mode: Layout.Single, auxDocSets: [] };
-export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(
-    localStorage.layout ? JSON.parse(localStorage.layout) : singleLayout
-);
+export const layout = writable<{ mode: Layout; auxDocSets?: string[] }>(loadPersistedLayout());
 layout.subscribe((value) => (localStorage.layout = JSON.stringify(value)));
 
 export const ModalType = {
