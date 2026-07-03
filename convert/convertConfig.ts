@@ -15,7 +15,7 @@ import type {
 import jsdom from 'jsdom';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
-import { compareVersions, splitVersion } from './stringUtils';
+import { splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
@@ -262,7 +262,7 @@ function convertConfig(dataDir: string, verbose: number) {
 
     data.fonts = parseFonts(document, verbose);
 
-    const { themes, defaultTheme } = parseColorThemes(document, data.programVersion, verbose);
+    const { themes, defaultTheme } = parseColorThemes(document, verbose);
     data.themes = themes;
     if (defaultTheme !== '') {
         data.defaultTheme = defaultTheme;
@@ -453,7 +453,21 @@ export function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
-export function parseColorThemes(document: Document, programVersion: string, verbose: number) {
+// HACK: Work-around undefined color in DAB 14.2
+// For the PWA for 14.3, we are adding a check for missing colors.
+// However, in DAB 14.2, the TextHighlightColor was not defined for Sepia
+function hackColorValue(
+    theme: string,
+    name: string,
+    value: string | null | undefined
+): string | null | undefined {
+    if (theme === 'Sepia' && name === 'TextHighlightColor' && !value) {
+        return '#D9D9D9'; // Default TextHighlightColor from Normal theme in DAB 14.2
+    }
+    return value;
+}
+
+export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
@@ -477,22 +491,17 @@ export function parseColorThemes(document: Document, programVersion: string, ver
                 for (const color of colorTags) {
                     const cm = color.querySelector(`cm[theme="${theme}"]`);
                     const name = color.getAttribute('name') || '';
-                    const value = cm?.getAttribute('value');
+                    const value = hackColorValue(theme, name, cm?.getAttribute('value'));
                     if (name && value) {
                         colors[name] = value;
-                    } else if (
-                        name &&
-                        !value &&
-                        defaultColors[name] &&
-                        compareVersions(programVersion, '14.3') < 0
-                    ) {
-                        if (verbose >= 2) {
-                            console.log(
-                                `.. colors[${name}] had no specified value; ` +
-                                    `falling back to color ${defaultColors[name]} from default theme`
-                            );
-                        }
-                        colors[name] = defaultColors[name];
+                    } else if (name && !value) {
+                        const colorMissingError = new Error(
+                            `No color value found for "${name}" in the "${theme}" theme.` +
+                                `\nIt is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.` +
+                                `\nPlease select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
+                        );
+                        colorMissingError.stack = `Error in ${__filename}:parseColorThemes(): ${colorMissingError.message}`;
+                        throw colorMissingError;
                     }
                     if (verbose >= 3) {
                         console.log(`.. colors[${name}]=${colors[name]}`);
