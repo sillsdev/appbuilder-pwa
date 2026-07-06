@@ -247,6 +247,7 @@
                 class="dy-tab {selectedTab === 'calendar' ? 'dy-tab-active' : ''}"
                 onclick={() => (selectedTab = 'calendar')}
                 aria-label="calendar logo"
+                style={convertStyle($s?.['ui.plans.tabs.text'])}
             >
                 <CalendarMonthIcon
                     color={barIconColor}
@@ -259,6 +260,7 @@
                     class="dy-tab {selectedTab === 'settings' ? 'dy-tab-active' : ''}"
                     onclick={() => (selectedTab = 'settings')}
                     aria-label="settings icon"
+                    style={convertStyle($s?.['ui.plans.tabs.text'])}
                 >
                     <SettingsIcon
                         color={barIconColor}
