@@ -18,6 +18,7 @@ import {
 } from '$lib/data/stores';
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
+import { openDB, type DBSchema } from 'idb';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
 const audioSources = import.meta.glob('./*', {
@@ -679,6 +680,64 @@ function getDamId(audioSource: AudioSource) {
     return damId;
 }
 
+export interface AudioItem {
+    date: number;
+    docSet: string;
+    collection: string;
+    book: string;
+    chapter: string;
+    blob: Blob;
+}
+interface AudioClips extends DBSchema {
+    bookmarks: {
+        key: number;
+        value: AudioItem;
+        indexes: {
+            'collection, book, chapter': string[];
+            date: string;
+        };
+    };
+}
+let audioDB: Awaited<ReturnType<typeof openDB<AudioClips>>> | null = null;
+async function openAudioClips() {
+    if (!audioDB) {
+        audioDB = await openDB<AudioClips>('audioclips', 1, {
+            upgrade(db) {
+                const audioStore = db.createObjectStore('audioclips', {
+                    keyPath: 'date'
+                });
+                audioStore.createIndex('collection, book, chapter', [
+                    'collection',
+                    'book',
+                    'chapter'
+                ]);
+                audioStore.createIndex('date', ['date']);
+            }
+        });
+    }
+    return audioDB;
+}
+export async function addAudioClip(
+    item: {
+        docSet: string;
+        collection: string;
+        book: string;
+        chapter: string;
+    },
+    url: string
+) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const audioClips = await openAudioClips();
+    const date = new Date()[Symbol.toPrimitive]('number');
+    const bookIndex = scriptureConfig.bookCollections
+        ?.find((x) => x.id === item.collection)
+        ?.books.findIndex((x) => x.id === item.book);
+    if (bookIndex !== undefined && bookIndex >= 0) {
+        const nextItem = { ...item, date: date, blob: blob };
+        await audioClips.add('audioclips', nextItem);
+    }
+}
 export async function getAudioSourceInfo(
     item: Partial<{
         collection: string;
@@ -712,8 +771,8 @@ export async function getAudioSourceInfo(
         }
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
-        modal.open(ModalType.DownloadAudio);
         audioPath = pathJoin([audioSource.address, audio.filename]);
+        modal.open(ModalType.DownloadAudio, audioPath);
     }
     //parse timing file
     const timing: Timing[] = [];
