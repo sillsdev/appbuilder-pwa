@@ -143,7 +143,7 @@ TODO:
         const fullBook = getBook({ collection: bookCol, book: book });
         const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
         const copyShareMessage = scriptureConfig.bookCollections?.find(
-            (x) => x.id === $refs.collection
+            (x) => x.id === bookCol
         )?.copyShareMessage;
         shareText(
             scriptureConfig.name ?? '',
