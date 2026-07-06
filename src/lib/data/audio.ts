@@ -6,6 +6,8 @@ import {
     audioPlayerDefault,
     audioPlayer as audioPlayerStore,
     defaultPlayMode,
+    modal,
+    ModalType,
     playMode,
     PlayMode,
     refs,
@@ -710,6 +712,7 @@ export async function getAudioSourceInfo(
         }
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
+        modal.open(ModalType.DownloadAudio);
         audioPath = pathJoin([audioSource.address, audio.filename]);
     }
     //parse timing file

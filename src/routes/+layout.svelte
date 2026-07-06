@@ -5,6 +5,7 @@
     import '$lib/styles/app.css';
     import { dev } from '$app/environment';
     import config from '$assets/config';
+    import AudioDownloadModal from '$lib/components/AudioDownloadModal.svelte';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
@@ -91,6 +92,9 @@
                         planStopId = data as string;
                         planStopDialog?.showModal();
                         break;
+                    case ModalType.DownloadAudio:
+                        audioDownloadModal?.showModal();
+                        break;
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
                         break;
@@ -120,6 +124,7 @@
     let noteDialog: NoteDialog | undefined = $state();
     let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
+    let audioDownloadModal: AudioDownloadModal | undefined = $state();
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
 </script>
@@ -171,6 +176,7 @@
                     bind:planId={planStopId}
                     vertOffset={NAVBAR_HEIGHT}
                 />
+                <AudioDownloadModal bind:this={audioDownloadModal} />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
             </div>
