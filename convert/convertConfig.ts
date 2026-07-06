@@ -679,8 +679,13 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
             if (quizFeaturesTag) {
                 quizFeatures = {};
                 for (const quizFeature of quizFeaturesTag) {
-                    quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
-                        parseConfigValue(quizFeature.attributes.getNamedItem('value')!.value);
+                    if (quizFeature.attributes.getNamedItem('name')!.value === 'access-code') {
+                        quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
+                            quizFeature.attributes.getNamedItem('value')!.value; //The access code needs to be a string so it doesn't drop leading 0s.
+                    } else {
+                        quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
+                            parseConfigValue(quizFeature.attributes.getNamedItem('value')!.value);
+                    }
                 }
             }
             const bkStyle = book.getElementsByTagName('styles-info')[0];

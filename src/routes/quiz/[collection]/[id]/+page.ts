@@ -1,6 +1,7 @@
 import config from '$assets/config';
 import type { Quiz, ScriptureConfig } from '$config';
 import { checkQuizAccess } from '$lib/data/quiz';
+import { checkQuizUnlocked } from '$lib/data/quizUnlocked';
 import type { PageLoad } from './$types';
 
 const quizzes: Record<string, string> = import.meta.glob('./**/quizzes/*.json', {
@@ -22,11 +23,22 @@ export const load: PageLoad = async ({ params, fetch }) => {
     let locked = false;
     let dependentQuizId: string | null = null;
     let dependentQuizName: string | null = null;
+    let accessCode: string | null = null;
 
     if (book?.quizFeatures?.['access-type'] === 'after' && book.quizFeatures['access-after']) {
         dependentQuizId = book.quizFeatures['access-after'] as string;
         const accessGranted = await checkQuizAccess(dependentQuizId);
         locked = !accessGranted;
+    }
+    if (book?.quizFeatures?.['access-type'] === 'code' && book.quizFeatures['access-code']) {
+        const quizUnlocked =
+            bookCollection && book
+                ? await checkQuizUnlocked({ collection: bookCollection?.id, book: book?.id })
+                : false;
+        if (!quizUnlocked) {
+            locked = true;
+            accessCode = book.quizFeatures['access-code'] as string;
+        }
     }
 
     if (locked && dependentQuizId) {
@@ -56,6 +68,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     return {
         quiz: quizData,
         locked,
+        accessCode,
         collection: params.collection,
         quizId: id,
         displayLabel: book?.name || 'Quiz',
