@@ -85,13 +85,15 @@ export class NavigationContext {
 
         let useFallbackChapter = false;
         const chapterNum = parseInt(chapter, 10);
-        const chapterRange = book?.chaptersN?.split('-').map((n) => parseInt(n, 10));
-        const fallbackChapter = String(chapterRange?.[0] || 1);
+        const chapterRange = book?.chaptersN
+            ?.split(' ')
+            .map((range) => range.split('-').map((n) => parseInt(n, 10)));
+        const fallbackChapter = String(chapterRange?.[0][0] || 1);
         if (
             (isNaN(chapterNum) && chapter !== 'i') ||
-            !chapterRange ||
-            chapterNum < chapterRange[0] ||
-            chapterNum > (chapterRange[1] || chapterRange[0])
+            !chapterRange?.some(
+                (range) => chapterNum >= range[0] && chapterNum <= (range[1] || range[0])
+            )
         ) {
             console.error(
                 `chapter '${chapter}' falls outside of chapter range '${book?.chaptersN}'. Defaulting to '${fallbackChapter}'.`
