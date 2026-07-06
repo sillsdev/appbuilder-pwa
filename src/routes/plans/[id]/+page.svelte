@@ -234,7 +234,7 @@
             <!-- svelte-ignore a11y_no_static_element_interactions -->
 
             <div
-                class="dy-tab dy-tab-bordered {selectedTab === 'info' ? 'dy-tab-active' : ''}"
+                class="dy-tab {selectedTab === 'info' ? 'dy-tab-active' : ''}"
                 onclick={() => (selectedTab = 'info')}
                 aria-label="info icon"
                 style={convertStyle($s?.['ui.plans.tabs.text'])}

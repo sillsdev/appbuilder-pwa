@@ -61,7 +61,7 @@
     </div>
     <div class="min-h-0">
         <div
-            class="border-t border-base-content/10 dy-tabs dy-tabs-bordered w-full justify-start"
+            class="border-t border-base-content/10 dy-tabs dy-tabs-border w-full justify-start"
             style:background-color={actionBarColor}
         >
             {#each tabs as songTab, i}
