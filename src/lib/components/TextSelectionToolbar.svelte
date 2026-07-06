@@ -142,9 +142,12 @@ TODO:
         const bookCol = $selectedVerses[0].collection;
         const fullBook = getBook({ collection: bookCol, book: book });
         const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
+        const copyShareMessage = scriptureConfig.bookCollections?.find(
+            (x) => x.id === $refs.collection
+        )?.copyShareMessage;
         shareText(
             scriptureConfig.name ?? '',
-            scriptureConfig.name + '\n\n' + text + '\n' + reference,
+            text + '\n' + reference + (copyShareMessage ? '\n' + copyShareMessage : ''),
             book + '.txt'
         );
         logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
