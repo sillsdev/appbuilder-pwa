@@ -82,6 +82,15 @@ body {
     }
 }
 
+/*
+   Fix unwanted modal background lightening on dark user themes
+   when specifying `data-theme` attribute for debug.
+*/
+:root,
+[data-theme] {
+    background: inherit;
+}
+
 /* Fix styling to acceptably match pre-v5 DaisyUI */
 
 @utility dy-badge {
