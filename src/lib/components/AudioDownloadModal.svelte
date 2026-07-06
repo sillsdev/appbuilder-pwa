@@ -4,7 +4,8 @@ Plan Stop Modal Dialog component.
 -->
 
 <script lang="ts">
-    import { t } from '$lib/data/stores';
+    import { addAudioClip } from '$lib/data/audio';
+    import { refs, t } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
@@ -13,9 +14,23 @@ Plan Stop Modal Dialog component.
     const modalId = 'planStopDialog';
     let modal: Modal | undefined = $state(undefined);
     let downloadAutomatically: boolean = $state(false);
+    let audioUrl: string = '';
+    console.log($refs);
 
-    export function showModal() {
+    export function showModal(url: string) {
+        audioUrl = url;
         modal?.showModal();
+    }
+    async function downloadAudio() {
+        await addAudioClip(
+            {
+                docSet: $refs.docSet,
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: $refs.chapter
+            },
+            audioUrl
+        );
     }
 </script>
 
@@ -51,7 +66,7 @@ Plan Stop Modal Dialog component.
                 <button class="dy-btn message-button" id="no">
                     {$t['Button_No']}
                 </button>
-                <button class="dy-btn message-button" id="yes">
+                <button class="dy-btn message-button" id="yes" onclick={() => downloadAudio()}>
                     {$t['Button_Yes']}
                 </button>
             </div>
