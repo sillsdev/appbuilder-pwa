@@ -5,7 +5,7 @@ Plan Stop Modal Dialog component.
 
 <script lang="ts">
     import { addAudioClip } from '$lib/data/audio';
-    import { refs, t } from '$lib/data/stores';
+    import { refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
@@ -15,14 +15,17 @@ Plan Stop Modal Dialog component.
     let modal: Modal | undefined = $state(undefined);
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
-    console.log($refs);
+    let error = $state('');
 
     export function showModal(url: string) {
         audioUrl = url;
         modal?.showModal();
     }
     async function downloadAudio() {
-        await addAudioClip(
+        if (downloadAutomatically) {
+            $userSettings['audio-auto-download'] = 'auto';
+        }
+        let addedAudioClip = await addAudioClip(
             {
                 docSet: $refs.docSet,
                 collection: $refs.collection,
@@ -31,6 +34,12 @@ Plan Stop Modal Dialog component.
             },
             audioUrl
         );
+        if (!addedAudioClip) {
+            error = 'Audio clip could not be downloaded';
+            setTimeout(() => {
+                error = '';
+            }, 2000);
+        }
     }
 </script>
 
@@ -48,7 +57,10 @@ Plan Stop Modal Dialog component.
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
                 class="message-checkbox flex w-full"
-                onclick={() => (downloadAutomatically = !downloadAutomatically)}
+                onclick={() => {
+                    console.log('HI');
+                    downloadAutomatically = !downloadAutomatically;
+                }}
             >
                 <div class="message-checkbox-left">
                     {#if downloadAutomatically}
@@ -61,15 +73,28 @@ Plan Stop Modal Dialog component.
             </div>
         </div>
 
-        <div class="left-0 dy-modal-action message-footer">
+        <div class="left-0 dy-modal-action message-footer pointer-events-none">
             <div class="message-buttons">
-                <button class="dy-btn message-button" id="no">
+                <button class="dy-btn message-button pointer-events-auto" id="no">
                     {$t['Button_No']}
                 </button>
-                <button class="dy-btn message-button" id="yes" onclick={() => downloadAudio()}>
+                <button
+                    class="dy-btn message-button pointer-events-auto"
+                    id="yes"
+                    onclick={() => downloadAudio()}
+                >
                     {$t['Button_Yes']}
                 </button>
             </div>
         </div>
     </div>
 </Modal>
+{#if error}
+    <div class="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+        <div
+            class="dy-modal-box overflow-y-visible relative opacity-100 text-red-500 text-center pointer-events-auto"
+        >
+            {error}
+        </div>
+    </div>
+{/if}
