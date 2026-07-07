@@ -17,7 +17,7 @@
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
+    import { findAudioClip, playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
     import {
         actionBarColor,
         analytics,
@@ -59,6 +59,7 @@
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
     import {
@@ -394,6 +395,34 @@
             }
         }
     };
+    export async function checkForAudioDownload() {
+        const audio = scriptureConfig.bookCollections
+            ?.find((c) => $refs.collection === c.id)
+            ?.books?.find((b) => b.id === $refs.book)
+            ?.audio?.find((a) => $refs.chapter === '' + a.num);
+        if (audio) {
+            const audioSource = scriptureConfig.audio?.sources[audio.src];
+            if (audioSource?.type === 'download') {
+                let audioPath = pathJoin([audioSource.address, audio.filename]);
+                if ($userSettings['audio-access-method'] === 'download') {
+                    let foundAudioClip = await findAudioClip({
+                        collection: $refs.collection || '',
+                        book: $refs.book || '',
+                        chapter: $refs.chapter || ''
+                    });
+                    if (!foundAudioClip) {
+                        if (audioSource?.accessMethods?.includes('download')) {
+                            if ($userSettings['audio-auto-download'] === 'auto') {
+                                modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                            } else {
+                                modal.open(ModalType.DownloadAudio, { audioPath, show: true });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     $effect(() => {
         updateHighlight($audioHighlightElements, highlightColor);
@@ -474,6 +503,9 @@
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => {
+                                    if (!$audioActive) {
+                                        checkForAudioDownload();
+                                    }
                                     $audioActive = !$audioActive;
                                 }}
                             >
@@ -646,7 +678,7 @@
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
         <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
             <div>
-                <AudioBar />
+                <AudioBar {checkForAudioDownload} />
             </div>
         </div>
     {/if}

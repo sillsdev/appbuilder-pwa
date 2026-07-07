@@ -6,12 +6,9 @@ import {
     audioPlayerDefault,
     audioPlayer as audioPlayerStore,
     defaultPlayMode,
-    modal,
-    ModalType,
     playMode,
     PlayMode,
     refs,
-    userSettings,
     type AudioPlayer,
     type PlayModeRange,
     type PlayModeSettings,
@@ -788,21 +785,14 @@ export async function getAudioSourceInfo(
         }
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
-        audioPath = pathJoin([audioSource.address, audio.filename]); //I'll need to move this to when you try to open the audio bar or play the audio
-        if (get(userSettings)['audio-access-method'] === 'download') {
-            let foundAudioClip = await findAudioClip({
-                collection: item.collection || '',
-                book: item.book || '',
-                chapter: item.chapter || ''
-            });
-            if (foundAudioClip) {
-                audioPath = URL.createObjectURL(foundAudioClip.blob);
-            } else {
-                //I'll need to automatically download instead of using the modal if get(userSettings)['audio-auto-download'] is 'auto'
-                if (audioSource?.accessMethods?.includes('download')) {
-                    modal.open(ModalType.DownloadAudio, audioPath);
-                }
-            }
+        audioPath = pathJoin([audioSource.address, audio.filename]);
+        let foundAudioClip = await findAudioClip({
+            collection: item.collection || '',
+            book: item.book || '',
+            chapter: item.chapter || ''
+        }); //If the audio has been downloaded already, use that.
+        if (foundAudioClip) {
+            audioPath = URL.createObjectURL(foundAudioClip.blob);
         }
     }
     //parse timing file
