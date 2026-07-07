@@ -1876,10 +1876,8 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
     data.mainFeatures['settings-keep-screen-on'] = false;
     data.mainFeatures['settings-share-usage-data'] = false;
 
-    // Offline audio is not done
-    data.mainFeatures['settings-audio-access-method'] = false;
+    // Offline video is not done
     data.mainFeatures['settings-video-access-method'] = false;
-    data.mainFeatures['settings-audio-download-mode'] = false;
 
     /**
      * Keyboards are not supported (documentation links were added in 14.2)

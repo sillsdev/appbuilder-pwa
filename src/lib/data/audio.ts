@@ -11,6 +11,7 @@ import {
     playMode,
     PlayMode,
     refs,
+    userSettings,
     type AudioPlayer,
     type PlayModeRange,
     type PlayModeSettings,
@@ -19,6 +20,7 @@ import {
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { openDB, type DBSchema } from 'idb';
+import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
 const audioSources = import.meta.glob('./*', {
@@ -726,18 +728,33 @@ export async function addAudioClip(
     },
     url: string
 ) {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const audioClips = await openAudioClips();
-    const date = new Date()[Symbol.toPrimitive]('number');
-    const bookIndex = scriptureConfig.bookCollections
-        ?.find((x) => x.id === item.collection)
-        ?.books.findIndex((x) => x.id === item.book);
-    if (bookIndex !== undefined && bookIndex >= 0) {
-        const nextItem = { ...item, date: date, blob: blob };
-        await audioClips.add('audioclips', nextItem);
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const audioClips = await openAudioClips();
+        const date = new Date()[Symbol.toPrimitive]('number');
+        const bookIndex = scriptureConfig.bookCollections
+            ?.find((x) => x.id === item.collection)
+            ?.books.findIndex((x) => x.id === item.book);
+        if (bookIndex !== undefined && bookIndex >= 0) {
+            const nextItem = { ...item, date: date, blob: blob };
+            await audioClips.add('audioclips', nextItem);
+        }
+        return true;
+    } catch (error) {
+        console.error('Error downloading audio:', error);
+        return false;
     }
 }
+export async function findAudioClip(item: { collection: string; book: string; chapter: string }) {
+    const audioClips = await openAudioClips();
+    const tx = audioClips.transaction('audioclips', 'readonly');
+    const index = tx.store.index('collection, book, chapter');
+    const result = await index.getAll([item.collection, item.book, item.chapter]);
+    await tx.done;
+    return result[0];
+}
+
 export async function getAudioSourceInfo(
     item: Partial<{
         collection: string;
@@ -771,8 +788,22 @@ export async function getAudioSourceInfo(
         }
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
-        audioPath = pathJoin([audioSource.address, audio.filename]);
-        modal.open(ModalType.DownloadAudio, audioPath);
+        audioPath = pathJoin([audioSource.address, audio.filename]); //I'll need to move this to when you try to open the audio bar or play the audio
+        if (get(userSettings)['audio-access-method'] === 'download') {
+            let foundAudioClip = await findAudioClip({
+                collection: item.collection || '',
+                book: item.book || '',
+                chapter: item.chapter || ''
+            });
+            if (foundAudioClip) {
+                audioPath = URL.createObjectURL(foundAudioClip.blob);
+            } else {
+                //I'll need to automatically download instead of using the modal if get(userSettings)['audio-auto-download'] is 'auto'
+                if (audioSource?.accessMethods?.includes('download')) {
+                    modal.open(ModalType.DownloadAudio, audioPath);
+                }
+            }
+        }
     }
     //parse timing file
     const timing: Timing[] = [];
