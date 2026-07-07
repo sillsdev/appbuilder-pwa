@@ -90,7 +90,8 @@ export class NavigationContext {
             .map((range) => range.split('-').map((n) => parseInt(n, 10)));
         const fallbackChapter = String(chapterRange?.[0][0] || 1);
         if (
-            (isNaN(chapterNum) && chapter !== 'i') ||
+            isNaN(chapterNum) &&
+            chapter !== 'i' &&
             !chapterRange?.some(
                 (range) => chapterNum >= range[0] && chapterNum <= (range[1] || range[0])
             )
