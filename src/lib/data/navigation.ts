@@ -181,8 +181,6 @@ export class NavigationContext {
 
     private updateChapterVerse(chapter: string, verse: string, newBook: boolean) {
         if (newBook) {
-            const catalogBook = this.catalog.documents.find((b) => this.book === b.bookCode);
-            console.log(catalogBook);
             this.versesByChapters =
                 this.catalog.documents.find((b) => this.book === b.bookCode)?.versesByChapters ??
                 {};
