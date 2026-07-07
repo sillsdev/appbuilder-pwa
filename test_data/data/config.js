@@ -167,7 +167,6 @@ export default {
             "PrimaryDarkColor": "#000044",
             "AccentColor": "#000000",
             "ActionBarColor": "#000B63",
-            "StatusBarColor": "#000044",
             "TextColor": "#000000",
             "TitlesColor": "#000B63",
             "VerseNumberColor": "#1976D2",
@@ -296,7 +295,6 @@ export default {
             "PrimaryDarkColor": "#3E2723",
             "AccentColor": "#3E2723",
             "ActionBarColor": "#4E342E",
-            "StatusBarColor": "#3E2723",
             "TextColor": "#5A4129",
             "TitlesColor": "#513A24",
             "VerseNumberColor": "#8D6E63",
@@ -425,7 +423,6 @@ export default {
             "PrimaryDarkColor": "#121212",
             "AccentColor": "#121212",
             "ActionBarColor": "#181818",
-            "StatusBarColor": "#121212",
             "TextColor": "#E0E0E0",
             "TitlesColor": "#E0E0E0",
             "VerseNumberColor": "#BBDEFB",
@@ -642,13 +639,6 @@ export default {
       "category": "ui",
       "properties": {
         "color": "TextSelectionBarIconColor"
-      }
-    },
-    {
-      "name": "ui.bar.status",
-      "category": "ui",
-      "properties": {
-        "background-color": "StatusBarColor"
       }
     },
     {

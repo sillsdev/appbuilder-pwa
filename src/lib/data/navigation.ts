@@ -1,6 +1,6 @@
 import { scriptureConfig } from '$assets/config';
 import type { BookCollectionAudioConfig, BookCollectionConfig } from '$config';
-import { isBlank, isNotBlank, isPositiveInteger } from '$lib/scripts/stringUtils';
+import { isPositiveInteger } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
 
 /**
@@ -58,7 +58,7 @@ export class NavigationContext {
         };
     }
 
-    private handleFallbacks(docSet: string, bookId: string, chapter: string) {
+    private async handleFallbacks(docSet: string, bookId: string, chapter: string) {
         let useFallbackDocSet = false;
         const fallbackDocSet = this.docSets[0];
         const collection =
@@ -83,22 +83,36 @@ export class NavigationContext {
             useFallbackBookId = true;
         }
 
+        await this.updateCatalog(useFallbackDocSet ? fallbackDocSet : docSet);
+
+        const catalogBook = this.catalog.documents.find(
+            (d) => d.bookCode === (useFallbackBookId ? fallbackBookId : bookId)
+        );
+        if (!catalogBook) {
+            console.warn(
+                `catalog entry not found for book '${bookId}', following results may be inaccurate`
+            );
+        }
+
         let useFallbackChapter = false;
         const chapterNum = parseInt(chapter, 10);
         const chapterRange = book?.chaptersN
             ?.split(' ')
             .map((range) => range.split('-').map((n) => parseInt(n, 10)));
         const fallbackChapter = String(chapterRange?.[0][0] || 1);
-        if (
-            (isNaN(chapterNum) && chapter !== 'i') ||
-            !chapterRange?.some(
-                (range) => chapterNum >= range[0] && chapterNum <= (range[1] || range[0])
-            )
-        ) {
-            console.error(
-                `chapter '${chapter}' falls outside of chapter range '${book?.chaptersN}'. Defaulting to '${fallbackChapter}'.`
-            );
-            useFallbackChapter = true;
+        if (!(chapter === 'i' && catalogBook?.hasIntroduction)) {
+            if (
+                !chapter ||
+                isNaN(chapterNum) ||
+                !chapterRange?.some(
+                    (range) => chapterNum >= range[0] && chapterNum <= (range[1] || range[0])
+                )
+            ) {
+                console.error(
+                    `chapter '${chapter}' falls outside of chapter range '${book?.chaptersN}'. Defaulting to '${fallbackChapter}'.`
+                );
+                useFallbackChapter = true;
+            }
         }
 
         return {
@@ -126,7 +140,7 @@ export class NavigationContext {
         if (!this.initialized) {
             throw new Error('NavigationContext is not initialized; please call gotoInitial()');
         }
-        const withFallbacks = this.handleFallbacks(docSet, book, chapter);
+        const withFallbacks = await this.handleFallbacks(docSet, book, chapter);
         await this.updateLocation(
             withFallbacks.docSet,
             withFallbacks.book,
@@ -142,8 +156,7 @@ export class NavigationContext {
         this.bookTab = bookTab;
     }
 
-    private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {
-        let newBook = false;
+    private async updateCatalog(docSet: string) {
         if (this.docSets.includes(docSet) && this.docSet !== docSet) {
             this.docSet = docSet;
             this.collection = docSet.split('_')[1];
@@ -153,8 +166,14 @@ export class NavigationContext {
                 ...this.books,
                 ...(this.catalog.htmlBooks ? this.catalog.htmlBooks.map((b) => b.id) : [])
             ];
-            newBook = true;
+            return true;
+        } else {
+            return false;
         }
+    }
+
+    private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {
+        let newBook = await this.updateCatalog(docSet);
         if (book !== this.book && this.allBookIds.includes(book)) {
             this.book = book;
             newBook = true;

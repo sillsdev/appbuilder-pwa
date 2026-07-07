@@ -126,7 +126,7 @@ const catalog1: CatalogData = {
             toc2: 'Matthew',
             toc3: 'Mat',
             sequences: [],
-            hasIntroduction: false,
+            hasIntroduction: true,
             versesByChapters: {
                 1: {
                     1: '1',
@@ -153,7 +153,7 @@ const catalog1: CatalogData = {
             toc2: 'Mark',
             toc3: 'Mrk',
             sequences: [],
-            hasIntroduction: false,
+            hasIntroduction: true,
             versesByChapters: {
                 1: {
                     1: '1',
