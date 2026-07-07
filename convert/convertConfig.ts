@@ -218,19 +218,35 @@ function isDictionaryConfig(data: ScriptureConfig | DictionaryConfig): data is D
     return data.programType === 'DAB';
 }
 
-function convertConfig(dataDir: string, verbose: number) {
-    const genAssets = path.join('src/gen-assets');
-    if (!existsSync(genAssets)) {
-        mkdirSync(genAssets, { recursive: true });
-    }
+export function getProgramType(dataDir: string) {
+    return extractProgramType(openConfigAsXMLDocument(dataDir)).programType;
+}
+
+function openConfigAsXMLDocument(dataDir: string) {
     const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
         contentType: 'text/xml'
     });
     const { document } = dom.window;
 
-    // Program info
+    return document;
+}
+
+function extractProgramType(document: Document) {
     const appDefinition = document.getElementsByTagName('app-definition')[0];
     const programType = appDefinition.attributes.getNamedItem('type')!.value;
+
+    return { appDefinition, programType };
+}
+
+function convertConfig(dataDir: string, verbose: number) {
+    const genAssets = path.join('src/gen-assets');
+    if (!existsSync(genAssets)) {
+        mkdirSync(genAssets, { recursive: true });
+    }
+    const document = openConfigAsXMLDocument(dataDir);
+
+    // Program info
+    const { appDefinition, programType } = extractProgramType(document);
 
     // Program type determines data object type
     const data = setConfigType(programType);
