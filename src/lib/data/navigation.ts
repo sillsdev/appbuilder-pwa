@@ -90,10 +90,11 @@ export class NavigationContext {
             .map((range) => range.split('-').map((n) => parseInt(n, 10)));
         const fallbackChapter = String(chapterRange?.[0][0] || 1);
         if (
-            (isNaN(chapterNum) && chapter !== 'i') ||
-            !chapterRange?.some(
-                (range) => chapterNum >= range[0] && chapterNum <= (range[1] || range[0])
-            )
+            chapter !== 'i' &&
+            (isNaN(chapterNum) ||
+                !chapterRange?.some(
+                    (range) => chapterNum >= range[0] && chapterNum <= (range[1] || range[0])
+                ))
         ) {
             console.error(
                 `chapter '${chapter}' falls outside of chapter range '${book?.chaptersN}'. Defaulting to '${fallbackChapter}'.`
