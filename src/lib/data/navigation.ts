@@ -85,7 +85,9 @@ export class NavigationContext {
 
         await this.updateCatalog(useFallbackDocSet ? fallbackDocSet : docSet);
 
-        const catalogBook = this.catalog.documents.find((d) => d.bookCode === bookId);
+        const catalogBook = this.catalog.documents.find(
+            (d) => d.bookCode === (useFallbackBookId ? fallbackBookId : bookId)
+        );
         if (!catalogBook) {
             console.warn(
                 `catalog entry not found for book '${bookId}', following results may be inaccurate`
