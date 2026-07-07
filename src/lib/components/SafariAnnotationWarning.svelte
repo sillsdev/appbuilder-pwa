@@ -42,8 +42,8 @@
                 <p class="font-semibold">Important for Safari users</p>
                 <p class="mt-0.5">
                     Safari may remove locally stored website data, including your annotations, after
-                    a period of inactivity. To keep them permanently, use this site regularly or
-                    add it to your bookmarks.
+                    a period of inactivity. To reduce the risk of data loss, install this app to
+                    your Dock.
                 </p>
             {/if}
         </div>
