@@ -19,7 +19,7 @@
 
     const bottomNavBarItems = config?.bottomNavBarItems;
 
-    const barBackgroundColor = $derived($s?.['ui.bottom-navigation.']['background-color']);
+    const barBackgroundColor = $derived($s?.['ui.bottom-navigation.bar']['background-color']);
     const barTextColor = $derived($s?.['ui.bottom-navigation.item.text']['color']);
     const barTextSelectedColor = $derived($s?.['ui.bottom-navigation.item.text.selected']['color']);
 
