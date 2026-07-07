@@ -32,6 +32,7 @@ TODO:
     import PlayButton from './PlayButton.svelte';
     import RepeatButton from './RepeatButton.svelte';
 
+    let { checkForAudioDownload = () => {} } = $props();
     function mayResetPlayMode(hasTiming: boolean) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
@@ -137,7 +138,14 @@ TODO:
                 <AudioIcon.Replay10 color={iconColor} />
             </button>
         {/if}
-        <PlayButton state={playButtonState} color={iconPlayColor} onclick={playPause} />
+        <PlayButton
+            state={playButtonState}
+            color={iconPlayColor}
+            onclick={() => {
+                checkForAudioDownload();
+                playPause();
+            }}
+        />
 
         {#if $refs.hasAudio?.timingFile}
             <button class="audio-control-buttons" onclick={() => changeVerse(1)}>

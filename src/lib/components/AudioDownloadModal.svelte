@@ -21,7 +21,7 @@ Plan Stop Modal Dialog component.
         audioUrl = url;
         modal?.showModal();
     }
-    async function downloadAudio() {
+    export async function downloadAudio(url: string) {
         if (downloadAutomatically) {
             $userSettings['audio-auto-download'] = 'auto';
         }
@@ -32,8 +32,13 @@ Plan Stop Modal Dialog component.
                 book: $refs.book,
                 chapter: $refs.chapter
             },
-            audioUrl
+            url
         );
+        console.log('Download finished!'); //We'll need an actual progress bar instead of just a console.log showing when it's finished.
+        return addedAudioClip;
+    }
+    async function finishModal() {
+        const addedAudioClip = downloadAudio(audioUrl);
         if (!addedAudioClip) {
             error = 'Audio clip could not be downloaded';
             setTimeout(() => {
@@ -81,7 +86,7 @@ Plan Stop Modal Dialog component.
                 <button
                     class="dy-btn message-button pointer-events-auto"
                     id="yes"
-                    onclick={() => downloadAudio()}
+                    onclick={() => finishModal()}
                 >
                     {$t['Button_Yes']}
                 </button>
