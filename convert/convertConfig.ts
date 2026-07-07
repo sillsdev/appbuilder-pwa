@@ -467,6 +467,8 @@ function hackColorValue(
     return value;
 }
 
+const deprecatedColors = ['StatusBarColor'];
+
 export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
@@ -494,6 +496,13 @@ export function parseColorThemes(document: Document, verbose: number) {
                     const value = hackColorValue(theme, name, cm?.getAttribute('value'));
                     if (name && value) {
                         colors[name] = value;
+                    } else if (deprecatedColors.includes(name)) {
+                        if (verbose >= 3) {
+                            console.log(
+                                `.. skipping deprecated color "${name}" in "${theme}" theme.`
+                            );
+                        }
+                        continue;
                     } else if (name && !value) {
                         const colorMissingError = new Error(
                             `No color value found for "${name}" in the "${theme}" theme.` +
