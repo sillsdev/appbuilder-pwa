@@ -2,6 +2,8 @@ import { scriptureConfig } from '$assets/config';
 import { get, writable } from 'svelte/store';
 import { Layout } from './view';
 
+export const testLayouts = false; // Set to true to show all layouts regardless of scriptureConfig
+
 function findCollection(id: string): App.CollectionEntry | undefined {
     const ds = scriptureConfig.bookCollections?.find((x) => x.id === id);
     return (
@@ -21,7 +23,7 @@ function createInitCollections(): App.CollectionGroup {
     const initCollections: App.CollectionGroup = {};
 
     for (const layout of layouts) {
-        if (!layout.enabled) {
+        if (!layout.enabled && !testLayouts) {
             continue;
         }
         const collections: App.CollectionEntry[] = layout.layoutCollections

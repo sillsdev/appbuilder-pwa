@@ -453,6 +453,20 @@ export function parseFonts(document: Document, verbose: number) {
     return fonts;
 }
 
+// HACK: Work-around undefined color in DAB 14.2
+// For the PWA for 14.3, we are adding a check for missing colors.
+// However, in DAB 14.2, the TextHighlightColor was not defined for Sepia
+function hackColorValue(
+    theme: string,
+    name: string,
+    value: string | null | undefined
+): string | null | undefined {
+    if (theme === 'Sepia' && name === 'TextHighlightColor' && !value) {
+        return '#D9D9D9'; // Default TextHighlightColor from Normal theme in DAB 14.2
+    }
+    return value;
+}
+
 export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
         .getElementsByTagName('color-themes')[0]
@@ -460,6 +474,7 @@ export function parseColorThemes(document: Document, verbose: number) {
     const colorSetTags = document.getElementsByTagName('colors');
     const themes = [];
     let defaultTheme = '';
+    let defaultColors: { [key: string]: string } = {};
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
@@ -475,13 +490,21 @@ export function parseColorThemes(document: Document, verbose: number) {
                 const colors: { [key: string]: string } = {};
                 for (const color of colorTags) {
                     const cm = color.querySelector(`cm[theme="${theme}"]`);
-                    const name = color.getAttribute('name');
-                    const value = cm?.getAttribute('value');
+                    const name = color.getAttribute('name') || '';
+                    const value = hackColorValue(theme, name, cm?.getAttribute('value'));
                     if (name && value) {
                         colors[name] = value;
+                    } else if (name && !value) {
+                        const colorMissingError = new Error(
+                            `No color value found for "${name}" in the "${theme}" theme.` +
+                                `\nIt is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.` +
+                                `\nPlease select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
+                        );
+                        colorMissingError.stack = `Error in ${__filename}:parseColorThemes(): ${colorMissingError.message}`;
+                        throw colorMissingError;
                     }
                     if (verbose >= 3) {
-                        console.log(`.. colors[${name}]=${value} `);
+                        console.log(`.. colors[${name}]=${colors[name]}`);
                     }
                 }
                 if (verbose >= 3) {
@@ -521,6 +544,8 @@ export function parseColorThemes(document: Document, verbose: number) {
 
         if (tag.attributes.getNamedItem('default')?.value === 'true') {
             defaultTheme = themes[themes.length - 1].name;
+            defaultColors =
+                themes[themes.length - 1].colorSets.find((c) => c.type === 'main')?.colors || {};
         }
     }
 
@@ -582,6 +607,7 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
             }
             const audio: BookCollectionAudioConfig[] = [];
             let chaptersLabels: { [key: string]: string } | undefined;
+            const pageIllustrations: { num: number; filename: string }[] = [];
             for (const page of book.getElementsByTagName('page')) {
                 if (verbose >= 2) {
                     console.log(`.. page: ${page.attributes[0].value}`);
@@ -595,6 +621,20 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                     const chapterNum = page.attributes.getNamedItem('num')!.value;
                     chaptersLabels[chapterNum] = char;
                 }
+                const imageFileTag = page.getElementsByTagName('image-filename')[0];
+                if (imageFileTag) {
+                    pageIllustrations.push({
+                        num: Number(page.attributes.getNamedItem('num')?.value),
+                        filename: book.getElementsByTagName('images')[0]
+                            ? tag.id +
+                              '-' +
+                              book.attributes.getNamedItem('id')!.value +
+                              '-' +
+                              imageFileTag.innerHTML
+                            : imageFileTag.innerHTML
+                    });
+                }
+
                 const audioTag = page.getElementsByTagName('audio')[0];
                 if (!audioTag) {
                     continue;
@@ -639,8 +679,13 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
             if (quizFeaturesTag) {
                 quizFeatures = {};
                 for (const quizFeature of quizFeaturesTag) {
-                    quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
-                        parseConfigValue(quizFeature.attributes.getNamedItem('value')!.value);
+                    if (quizFeature.attributes.getNamedItem('name')!.value === 'access-code') {
+                        quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
+                            quizFeature.attributes.getNamedItem('value')!.value; //The access code needs to be a string so it doesn't drop leading 0s.
+                    } else {
+                        quizFeatures[quizFeature.attributes.getNamedItem('name')!.value] =
+                            parseConfigValue(quizFeature.attributes.getNamedItem('value')!.value);
+                    }
                 }
             }
             const bkStyle = book.getElementsByTagName('styles-info')[0];
@@ -790,7 +835,8 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 style,
                 styles,
                 footer,
-                bookTabs
+                bookTabs,
+                pageIllustrations
             });
             if (verbose >= 3) {
                 console.log(`.... book: `, JSON.stringify(books[0]));
@@ -924,6 +970,7 @@ export function parseInterfaceLanguages(document: Document, data: AppConfig, ver
 export function parseWritingSystem(element: Element, verbose: number): WritingSystemConfig {
     const type = element.attributes.getNamedItem('type')!.value;
     const fontFamily = element.getElementsByTagName('font-family')[0].innerHTML;
+    const fontRelativeSize = parseTrait(element, 'font-relative-size');
     const textDirection = parseTrait(element, 'text-direction');
     const displaynamesTag = element.getElementsByTagName('display-names')[0];
     const displayNames: Record<string, string> = {};
@@ -934,6 +981,7 @@ export function parseWritingSystem(element: Element, verbose: number): WritingSy
         type,
         fontFamily,
         textDirection,
+        fontRelativeSize,
         displayNames
     };
 
@@ -1591,8 +1639,6 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
             });
         }
     }
-    // Verse on image is not done
-    //data.mainFeatures['text-on-image'] = false;
 
     // Share only implements links to apps on stores
     data.mainFeatures['share-download-app-link'] = false;
@@ -1611,6 +1657,19 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
     data.mainFeatures['settings-audio-access-method'] = false;
     data.mainFeatures['settings-video-access-method'] = false;
     data.mainFeatures['settings-audio-download-mode'] = false;
+
+    /**
+     * Keyboards are not supported (documentation links were added in 14.2)
+     *
+     * See [Issue #1041](https://github.com/sillsdev/appbuilder-pwa/issues/1041)
+     */
+    if (data.menuItems?.length) {
+        data.menuItems = data.menuItems.filter(
+            (it) =>
+                it.type !== 'website' ||
+                !Object.values(it.link ?? {}).some((l) => /android_asset\/keyboard/.test(l))
+        );
+    }
     return data;
 }
 

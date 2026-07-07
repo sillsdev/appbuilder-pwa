@@ -1,5 +1,13 @@
 import { createHash } from 'crypto';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import {
+    chmodSync,
+    copyFileSync,
+    existsSync,
+    mkdirSync,
+    readFileSync,
+    rmSync,
+    writeFileSync
+} from 'fs';
 import { basename, extname, join, posix } from 'path';
 
 export function getHashedName(dataDir: string, src: string) {
@@ -36,6 +44,9 @@ export function createHashedFile(dataDir: string, src: string, verbose: number, 
 
     if (hashedPath && !existsSync(dest)) {
         copyFileSync(fullPath, dest);
+        // Ensure the file is readable by everyone and not executable
+        // We had a project where the icons were executable (0o700) and the web server wouldn't serve them
+        chmodSync(dest, 0o644);
         if (verbose) {
             console.log(`converted ${src} to ${dest}`);
         }

@@ -3,10 +3,10 @@
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
+    import { resolve } from '$lib/utils/paths';
 
     const menuIcons = import.meta.glob('./*', {
         import: 'default',
@@ -123,7 +123,7 @@
 </script>
 
 <div class="h-16" style:background-color={barBackgroundColor}>
-    <div class="mx-auto max-w-screen-md">
+    <div class="mx-auto max-w-breakpoint-md">
         <div class="grid {gridColumns()} justify-items-center">
             <!-- Controls -->
             {#if bottomNavBarItems}

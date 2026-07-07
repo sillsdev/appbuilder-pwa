@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { SettingsCategory, t, userSettings } from '$lib/data/stores';
+    import config from '$assets/config';
+    import { language, SettingsCategory, t, userSettings } from '$lib/data/stores';
 
     interface Props {
         settings: App.UserPreferenceSetting[];
@@ -14,11 +15,15 @@
                 .filter(([_, v]) => v.length)
         )
     );
+    const fontRelativeSize = $derived(
+        config.interfaceLanguages?.writingSystems[$language]?.fontRelativeSize
+    );
+    const fontSize = $derived(fontRelativeSize ? fontRelativeSize : '100');
 </script>
 
 <!-- loops through the different settings types -->
 {#each Object.keys(categories) as category}
-    <div class="settings-category">
+    <div class="settings-category" style:font-size="{fontSize}%">
         {$t[category]}
     </div>
     {#each categories[category as SettingsCategory] as setting, i}
@@ -29,17 +34,21 @@
             >
                 <label class="dy-label py-0 cursor-pointer">
                     <div class="settings-title">
-                        {$t[setting.title] || setting.title}
+                        <div style:font-size="{fontSize}%">
+                            {$t[setting.title] || setting.title}
+                        </div>
                     </div>
                     <input
                         type="checkbox"
-                        class="dy-checkbox"
+                        class="dy-checkbox dy-checkbox-neutral"
                         bind:checked={$userSettings[setting.key] as boolean}
                     />
                 </label>
                 {#if setting.summary}
                     <div class="settings-summary py-0 ps-1">
-                        {$t[setting.summary]}
+                        <div style:font-size="{fontSize}%">
+                            {$t[setting.summary]}
+                        </div>
                     </div>
                 {/if}
             </div>
@@ -50,10 +59,13 @@
                 class:settings-separator={i > 0}
             >
                 <div class="settings-title py-0">
-                    {$t[setting.title] || setting.title}
+                    <div style:font-size="{fontSize}%">
+                        {$t[setting.title] || setting.title}
+                    </div>
                 </div>
                 <select
-                    class="dy-select dy-select-ghost dy-select-sm px-0"
+                    class="dy-select dy-select-ghost dy-select-sm appearance-none px-0 w-full"
+                    style:font-size="{fontSize}%"
                     bind:value={$userSettings[setting.key]}
                 >
                     {#each setting.entries ?? [] as entry, i}
@@ -62,7 +74,9 @@
                 </select>
                 {#if setting.summary}
                     <div class="settings-summary py-0">
-                        {$t[setting.summary]}
+                        <div style:font-size="{fontSize}%">
+                            {$t[setting.summary]}
+                        </div>
                     </div>
                 {/if}
             </div>
@@ -72,12 +86,18 @@
                 class:settings-separator={i > 0}
             >
                 <div class="settings-title py-0">
-                    {$t[setting.title]}
+                    <div style:font-size="{fontSize}%">
+                        {$t[setting.title]}
+                    </div>
                 </div>
                 <!-- TODO: Time Control -->
-                <div class="settings-summary py-0">{setting.defaultValue}</div>
+                <div class="settings-summary py-0">
+                    <div style:font-size="{fontSize}%">{setting.defaultValue}</div>
+                </div>
                 {#if setting.summary}
-                    <div class="settings-summary py-0">{$t[setting.summary]}</div>
+                    <div class="settings-summary py-0">
+                        <div style:font-size="{fontSize}%">{$t[setting.summary]}</div>
+                    </div>
                 {/if}
             </div>
         {/if}

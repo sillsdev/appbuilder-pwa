@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import { addNote, editNote, removeNote } from '$lib/data/notes';
-    import { selectedVerses, t } from '$lib/data/stores';
+    import { actionBarColor, selectedVerses, t } from '$lib/data/stores';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { markAnnotationHintShown, shouldShowAnnotationHint } from '$lib/scripts/safariUtils';
     import { onMount } from 'svelte';
@@ -78,37 +78,39 @@
 <div class="fullscreen-editor">
     <Navbar backNavigation={onBackNavigate}>
         {#snippet center()}
-            <div class="flex dy-join">
-                <div class="grid h-10 place-items-center dy-join-item">
+            <div class="flex">
+                <div class="grid h-10 place-items-center">
                     {$t[title]}
                 </div>
+
+                <!-- CSS variable indirection: Tailwind JIT scans at build time and won't generate
+                     classes for runtime-interpolated values like after:bg-[{$actionBarColor}].
+                     Setting a CSS var in style= lets the browser resolve the color at runtime
+                     while Tailwind sees the static string var(--divider-color) at build time. -->
                 <div
-                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-white before:bg-white dy-join-item"
+                    style="--divider-color: {$actionBarColor}"
+                    class="grid sm:flex dy-divider dy-divider-horizontal after:bg-(--divider-color) before:bg-(--divider-color)"
                 ></div>
-                <div class="grid sm:flex h-10 place-items-center dy-join-item">
+                <div class="grid sm:flex h-10 place-items-center">
                     {reference}
                 </div>
             </div>
         {/snippet}
 
         {#snippet end()}
-            <div class="dy-join">
-                <button onclick={deleteNote} class="dy-join-item dy-btn dy-btn-ghost dy-btn-circle"
-                    ><DeleteIcon color="white" /></button
+            <div>
+                <button onclick={deleteNote} class="dy-btn dy-btn-ghost dy-btn-circle"
+                    ><DeleteIcon color={$actionBarColor} /></button
                 >
-                <button onclick={action} class="dy-join-item dy-btn dy-btn-ghost p-1"
-                    ><CheckIcon color="white" /></button
+                <button onclick={action} class="dy-btn dy-btn-ghost p-1"
+                    ><CheckIcon color={$actionBarColor} /></button
                 >
             </div>
         {/snippet}
     </Navbar>
 
-    <div class="flex justify-center mt-7 h-full max-w-screen-md mx-auto">
-        <textarea
-            bind:this={textarea}
-            bind:value={text}
-            class="dy-textarea dy-textarea-bordered w-full h-5/6 shadow-md"
-        >
+    <div class="flex justify-center mt-7 h-full max-w-breakpoint-md mx-auto">
+        <textarea bind:this={textarea} bind:value={text} class="dy-textarea w-full h-5/6 shadow-md">
         </textarea>
     </div>
 </div>

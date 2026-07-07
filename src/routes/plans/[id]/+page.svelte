@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import config from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
@@ -17,6 +16,7 @@
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { resolve } from '$lib/utils/paths';
     import type { PageData } from './$types';
 
     interface Props {
@@ -199,12 +199,12 @@
     }
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
                         <!--back navigation isn't quite right-->
                         {data.planConfig?.title[$language] ?? data.planConfig?.title.default ?? ''}
                     </div>
@@ -213,7 +213,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto md:max-w-screen-md w-full">
+    <div class="overflow-y-auto mx-auto md:max-w-breakpoint-md w-full">
         {#if data.planConfig?.image}
             <div>
                 <img
@@ -228,13 +228,13 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
             role="tablist"
-            class="dy-tabs dy-tabs-bordered"
+            class="dy-tabs dy-tabs-border"
             style={convertStyle($s?.['ui.plans.tabs'])}
         >
             <!-- svelte-ignore a11y_no_static_element_interactions -->
 
             <div
-                class="dy-tab dy-tab-bordered {selectedTab === 'info' ? 'dy-tab-active' : ''}"
+                class="dy-tab {selectedTab === 'info' ? 'dy-tab-active' : ''}"
                 onclick={() => (selectedTab = 'info')}
                 aria-label="info icon"
                 style={convertStyle($s?.['ui.plans.tabs.text'])}

@@ -14,7 +14,7 @@ Font list component.
     let { selectedFont = $bindable() }: Props = $props();
 </script>
 
-<ul class="dy-menu">
+<ul class="dy-menu w-full">
     {#each $fontChoices as font}
         <li style:font-family={font} style:font-size="large">
             <button

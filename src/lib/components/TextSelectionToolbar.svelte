@@ -2,7 +2,7 @@
 @component
 Taken from modifying a copy of the AudioBar.svelte file
 Enables users to copy, highlight, bookmark, share, and annotate selected verses.
-TODO: 
+TODO:
 - Implement functionality for
  -> Share
  -> Play
@@ -13,10 +13,9 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
-    import config, { scriptureConfig } from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import { getBook, logShareContent } from '$lib/data/analytics';
-    import { play, seekToVerse } from '$lib/data/audio';
+    import { playVerses } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import { shareText } from '$lib/data/share';
@@ -32,6 +31,7 @@ TODO:
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import { markAnnotationHintShown, shouldShowAnnotationHint } from '$lib/scripts/safariUtils';
+    import { resolve } from '$lib/utils/paths';
     import BookmarkButton from './BookmarkButton.svelte';
 
     const isAudioPlayable = scriptureConfig?.mainFeatures['text-select-play-audio'];
@@ -130,12 +130,17 @@ TODO:
         selectedVerses.reset();
     }
 
-    // resets underlined verses and plays verse audio
-    function playVerseAudio() {
-        const element = $selectedVerses[0].verse;
-        const tagSelected = element + 'a';
-        seekToVerse(tagSelected);
-        play();
+    // Play from first selected verse, optionally repeating after the last verse
+    function playSelectedVerseAudio(options: { repeat: boolean }) {
+        const startVerse = $selectedVerses[0].verse;
+
+        if (options.repeat) {
+            const endVerse = $selectedVerses[$selectedVerses.length - 1].verse;
+            playVerses(startVerse, endVerse);
+        } else {
+            playVerses(startVerse);
+        }
+
         $audioActive = true;
         selectedVerses.reset();
     }
@@ -180,14 +185,14 @@ TODO:
             Annotation saved. Visit the Bookmarks page to learn how to protect your data.
         </div>
     {/if}
-    <div class="flex flex-col justify-center w-11/12 flex-grow">
+    <div class="flex flex-col justify-center w-11/12 grow">
         <!-- Controls -->
-        <div class="dy-btn-group place-self-center">
+        <div class="place-self-center">
             {#if showHighlightPens}
                 <div class="pen-grid grid grid-rows-1 gap-2 my-2">
                     {#each highlight_colors as { color, number }}
                         <button
-                            class="dy-btn-sm"
+                            class="dy-btn dy-btn-sm"
                             style:background-color={color}
                             style:border={buttonBorder}
                             onclick={() => modifyHighlight(number)}
@@ -196,13 +201,19 @@ TODO:
                     {/each}
                 </div>
             {:else}
-                {#if isAudioPlayable && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={() => playVerseAudio()}>
+                {#if isAudioPlayable && $refs.hasAudio?.timingFile}
+                    <button
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
+                        onclick={() => playSelectedVerseAudio({ repeat: false })}
+                    >
                         <AudioIcon.Play color={iconColor} />
                     </button>
                 {/if}
-                {#if isRepeatableAudio && $refs.hasAudio && $refs.hasAudio.timingFile}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                {#if isRepeatableAudio && $refs.hasAudio?.timingFile}
+                    <button
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
+                        onclick={() => playSelectedVerseAudio({ repeat: true })}
+                    >
                         <AudioIcon.PlayRepeat color={iconColor} />
                     </button>
                 {/if}
@@ -216,14 +227,14 @@ TODO:
                             }));
                             goto(resolve(`/image`));
                         }}
-                        class="dy-btn-sm dy-btn-ghost"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                     >
                         <ImageIcon.Image color={iconColor} />
                     </button>
                 {/if}
                 {#if isHighlightEnabled}
                     <button
-                        class="dy-btn-sm dy-btn-ghost"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() => (showHighlightPens = true)}
                     >
                         <HighlightIcon color={iconColor} />
@@ -231,7 +242,7 @@ TODO:
                 {/if}
                 {#if isNotesEnabled}
                     <button
-                        class="dy-btn-sm dy-btn-ghost"
+                        class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() => goto(resolve(`/notes/edit/new`))}
                     >
                         <NoteIcon color={iconColor} />
@@ -248,12 +259,12 @@ TODO:
                     />
                 {/if}
                 {#if isCopyEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={copy}>
+                    <button class="dy-btn dy-btn-sm dy-btn-ghost" onclick={copy}>
                         <CopyContentIcon color={iconColor} />
                     </button>
                 {/if}
                 {#if isShareEnabled}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={shareSelectedText}>
+                    <button class="dy-btn dy-btn-sm dy-btn-ghost" onclick={shareSelectedText}>
                         <ShareIcon color={iconColor} />
                     </button>
                 {/if}

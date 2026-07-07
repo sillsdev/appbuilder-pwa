@@ -282,7 +282,7 @@
 </script>
 
 <pre
-    class="p-4 whitespace-pre-wrap break-words"
+    class="p-4 whitespace-pre-wrap wrap-break-word"
     style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html xmlData}

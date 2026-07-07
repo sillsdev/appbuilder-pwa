@@ -6,11 +6,11 @@ TODO:
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import type { HistoryItem } from '$lib/data/history';
     import { refs } from '$lib/data/stores';
     import { formatDateAndTime } from '$lib/scripts/dateUtils';
+    import { resolve } from '$lib/utils/paths';
 
     interface Props {
         history: HistoryItem;

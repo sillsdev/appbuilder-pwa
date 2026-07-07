@@ -35,8 +35,10 @@ export interface AudioPlayer {
     duration: number;
     progress: number;
     playing: boolean;
+    hasPlayed: boolean;
     timeIndex: number;
     timing: Timing[] | null;
+    headingMarkers?: number[];
     collection?: string;
     book?: string;
     chapter?: string;
@@ -49,6 +51,7 @@ export const audioPlayerDefault = {
     duration: 0,
     progress: 0,
     playing: false,
+    hasPlayed: false,
     timeIndex: 0,
     timing: null,
     timer: null,

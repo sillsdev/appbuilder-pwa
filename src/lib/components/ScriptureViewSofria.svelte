@@ -1,6 +1,6 @@
 <!--
 @component
-A component for displaying scripture.  
+A component for displaying scripture.
 TODO:
 - find a way to scroll smoothly, as CSS only option does not work as expected.
 - save graft info so that references can be handled
@@ -36,7 +36,6 @@ LOGGING:
 
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { scriptureConfig } from '$assets/config';
@@ -58,6 +57,7 @@ LOGGING:
         logs,
         modal,
         ModalType,
+        monoIconColor,
         plan,
         refs,
         t,
@@ -81,6 +81,7 @@ LOGGING:
         onClickText,
         updateSelections
     } from '$lib/scripts/verseSelectUtil';
+    import { resolve } from '$lib/utils/paths';
     import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, onMount } from 'svelte';
@@ -480,6 +481,16 @@ LOGGING:
                 } else {
                     workspace.phraseDiv = div.cloneNode(true);
                 }
+                if (workspace.encloseInSpanTag) {
+                    const textNode = workspace.phraseDiv.firstChild;
+                    workspace.encloseInSpanTag.appendChild(textNode);
+                    workspace.phraseDiv.innerHTML = workspace.encloseInSpanTag;
+                    workspace.phraseDiv.replaceChild(
+                        workspace.encloseInSpanTag,
+                        workspace.phraseDiv.firstChild
+                    );
+                    workspace.encloseInSpanTag = undefined;
+                } //Enclose the text in a previously-created span tag
             }
             workspace.lastPhraseTerminated =
                 phrases.length > 0 ? phraseTerminated(phrases[phrases.length - 1]) : false;
@@ -731,7 +742,8 @@ LOGGING:
         el?.parentNode.insertBefore(notesSpan, el.nextSibling);
     }
     const noteSvg = () => {
-        return '<svg fill="#000000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>';
+        const noteIconColor: string = themeColors?.TextColor || $monoIconColor;
+        return `<svg fill="${noteIconColor}" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>`;
     };
     function editNote(note) {
         modal.open(ModalType.Note, note);
@@ -1267,11 +1279,13 @@ LOGGING:
         if (footer && container.getElementsByClassName('footer').length == 0) {
             const divFooter = document.createElement('div');
             divFooter.classList.add('footer');
+            divFooter.classList.add('md:footer-horizontal');
             const divFooterLine = document.createElement('div');
             divFooterLine.classList.add('footer-line');
             divFooter.appendChild(divFooterLine);
             const spanFooter = document.createElement('span');
             spanFooter.classList.add('footer');
+            spanFooter.classList.add('md:footer-horizontal');
             spanFooter.innerHTML = footer;
             divFooterLine.appendChild(spanFooter);
             container.appendChild(divFooter);
@@ -1637,6 +1651,9 @@ LOGGING:
                                             }
                                             workspace.paragraphDiv = document.createElement('div');
                                             workspace.paragraphDiv.classList.add(paraClass);
+                                            if (paraClass === 'b') {
+                                                workspace.paragraphDiv.innerHTML += '&nbsp;';
+                                            }
                                         }
                                         break;
                                     }
@@ -2022,6 +2039,40 @@ LOGGING:
                                             numeralSystem,
                                             element.atts['number']
                                         );
+                                        const book = references.book;
+                                        const bookType = scriptureConfig.bookCollections
+                                            ?.find((x) => references.collection === x.id)
+                                            ?.books.find((x) => book === x.id)?.type;
+                                        if (
+                                            bookType === 'songs' &&
+                                            workspace.chapterNumText !== ''
+                                        ) {
+                                            const div = document.createElement('div');
+                                            const chapterNumberFormatSetting =
+                                                getFeatureValueString(
+                                                    'chapter-number-format',
+                                                    references.collection,
+                                                    references.book
+                                                );
+                                            if (chapterNumberFormatSetting === 'drop-cap') {
+                                                workspace.paragraphDiv.className = 'm';
+                                                div.classList.add('c-drop');
+                                                // SAB is statically generating div.c-drop: { float: left|right; } based on settings than can change
+                                                // So override that style based on the current directin of the text
+                                                div.style.float =
+                                                    direction.toLowerCase() === 'ltr'
+                                                        ? 'left'
+                                                        : 'right';
+                                                div.innerText = workspace.chapterNumText;
+                                                workspace.paragraphDiv.appendChild(div);
+                                            } else {
+                                                // chapter at top of page
+                                                div.classList.add('c');
+                                                div.innerText = workspace.chapterNumText;
+                                                workspace.root.appendChild(div);
+                                            }
+                                            workspace.chapterNumText = '';
+                                        }
                                     } else {
                                         workspace.chapterNumText = '';
                                     }
@@ -2432,6 +2483,42 @@ LOGGING:
                             }
                             preprocessAction('startMilestone', workspace);
                             const element = context.sequences[0].element;
+                            let match;
+                            if ((match = element.subType.match(/^usfm:zon(\d+)$/))) {
+                                workspace['level' + match[1] + 'ListNum'] =
+                                    element.atts['start'][0];
+                            } else if ((match = element.subType.match(/^usfm:zoli(\d+)$/))) {
+                                workspace.paragraphDiv.classList.add('list-item');
+                                workspace.paragraphDiv.classList.add('list-decimal');
+                                workspace.paragraphDiv.classList.add('list-inside');
+                                if (!workspace['level' + match[1] + 'ListNum']) {
+                                    workspace['level' + match[1] + 'ListNum'] = 1;
+                                }
+                                workspace.paragraphDiv.style.counterSet =
+                                    'list-item ' + workspace['level' + match[1] + 'ListNum'];
+                                workspace['level' + match[1] + 'ListNum']++;
+
+                                workspace.paragraphDiv.style.paddingInlineStart =
+                                    2 * match[1] - 1 + 'rem';
+                                for (
+                                    let i = Number(match[1]) + 1;
+                                    workspace['level' + i + 'ListNum'];
+                                    i++
+                                ) {
+                                    workspace['level' + i + 'ListNum'] = undefined;
+                                } //This resets all lower-level list numbering so future lower-level lists don't continue from previous ones.
+                            } else if ((match = element.subType.match(/^usfm:zuli(\d+)$/))) {
+                                workspace.paragraphDiv.classList.add('list-item');
+                                workspace.paragraphDiv.classList.add('list-inside');
+
+                                workspace.paragraphDiv.style.paddingInlineStart =
+                                    2 * match[1] - 1 + 'rem';
+                                if (Number(match[1]) === 2) {
+                                    workspace.paragraphDiv.classList.add('list-[circle]');
+                                } else if (Number(match[1]) >= 3) {
+                                    workspace.paragraphDiv.classList.add('list-[square]');
+                                }
+                            }
                             switch (element.subType) {
                                 case 'usfm:zvideo': {
                                     const id = element.atts['id'][0];
@@ -2459,6 +2546,17 @@ LOGGING:
                                         element.atts['link'][0]
                                     );
                                     workspace.audioClips.push(workspace.milestoneLink);
+                                    break;
+                                }
+                                case 'usfm:zstyle': {
+                                    const style = element.atts['id'][0];
+                                    workspace.paragraphDiv.classList.add(style);
+                                    break;
+                                }
+                                case 'usfm:zcstyle': {
+                                    const style = element.atts['id'][0];
+                                    workspace.encloseInSpanTag = document.createElement('span');
+                                    workspace.encloseInSpanTag.classList.add(style);
                                     break;
                                 }
                                 case 'usfm:zreflink': {

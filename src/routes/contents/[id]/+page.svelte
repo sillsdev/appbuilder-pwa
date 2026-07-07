@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { asset, resolve } from '$app/paths';
+    import { asset } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { ContentItem } from '$config';
     import BottomNavigationBar from '$lib/components/BottomNavigationBar.svelte';
@@ -11,6 +11,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { loadCatalog } from '$lib/data/catalogData';
     import {
+        actionBarColor,
         contentsFontSize,
         contentsStack,
         convertStyle,
@@ -25,6 +26,7 @@
     import { navigateToText } from '$lib/navigate';
     import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { resolve } from '$lib/utils/paths';
     import { SvelteMap } from 'svelte/reactivity';
     import type { PageData } from './$types';
 
@@ -101,7 +103,7 @@
                         goto(resolve(`/${item.linkLocation}`));
                         break;
                     case 'layout':
-                        modal.open(ModalType.Collection);
+                        goto(resolve(`/layout`));
                         break;
                     case 'website':
                         //opens in a separate tab
@@ -114,7 +116,6 @@
                 // For other book types (e.g. quiz), the linkType will be
                 // the book type and the linkLocation will have the route
                 // to the viewer of the book type.
-                // @ts-expect-error I don't have a good way to fix this for now. -Aidan
                 goto(resolve(`/${item.linkLocation}`));
                 break;
         }
@@ -128,7 +129,7 @@
         let verse;
         const reference = item.linkTarget?.split('.');
         if (item.layoutMode && item.layoutCollection?.length) {
-            /* 
+            /*
             Note: have not handled layout modes
             layoutMode options:
                 single
@@ -248,12 +249,12 @@
     let showBackButton = $derived($contentsStack.length > 0);
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{title}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{title}</div>
                 </label>
             {/snippet}
 
@@ -269,7 +270,7 @@
                                 onclick={() =>
                                     modal.open(ModalType.TextAppearance, { contentsMode: true })}
                             >
-                                <TextAppearanceIcon color="white" />
+                                <TextAppearanceIcon color={$actionBarColor} />
                             </label>
                         {/if}
                     </div>
@@ -278,7 +279,7 @@
         </Navbar>
     </div>
 
-    <div class="overflow-y-auto mx-auto max-w-screen-md w-full">
+    <div class="overflow-y-auto mx-auto max-w-breakpoint-md w-full">
         <div id="container" class="contents" style={convertStyle($s?.['body.contents'])}>
             {#if data.nestedItems === true}
                 {#each data.items as item}

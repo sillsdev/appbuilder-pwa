@@ -139,7 +139,11 @@ The navbar component. We have sliders that update reactively to both font size a
 <!-- TextAppearanceSelector -->
 {#if _showTextAppearance}
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <Modal bind:dialog={modalThis} id={modalId} addCSS={positioningCSS}>
+    <Modal
+        bind:dialog={modalThis}
+        id={modalId}
+        styling="background-color:{$themeColors['PopupBackgroundColor']}; {positioningCSS}"
+    >
         <div class="grid gap-4">
             <!-- Sliders for when text appearence text size is implemented place holder no functionality-->
             {#if _showFontSize}
@@ -162,7 +166,7 @@ The navbar component. We have sliders that update reactively to both font size a
                             max={config.mainFeatures['text-size-max'] as number}
                         />
                     {/if}
-                    <div class="text-md text-{$monoIconColor} place-self-end">
+                    <div class="text-base text-{$monoIconColor} place-self-end">
                         {contentsMode ? $contentsFontSize : $bodyFontSize}
                     </div>
                 </div>
@@ -177,7 +181,7 @@ The navbar component. We have sliders that update reactively to both font size a
                         min={100}
                         max={250}
                     />
-                    <div class="text-md text-{$monoIconColor} place-self-end">
+                    <div class="text-base text-{$monoIconColor} place-self-end">
                         {formatLineHeight($bodyLineHeight)}
                     </div>
                 </div>
@@ -186,7 +190,7 @@ The navbar component. We have sliders that update reactively to both font size a
                 <div class="grid gap-4 items-center range-row m-2">
                     <ImageIcon.FontChoice color={$monoIconColor} />
                     <button
-                        class="dy-btn-sm col-span-2 rounded"
+                        class="dy-btn-sm col-span-2 rounded-sm"
                         style:border="1px dotted"
                         style:font-family={$currentFont}
                         style:font-size="large"

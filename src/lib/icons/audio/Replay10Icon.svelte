@@ -1,5 +1,5 @@
 <script lang="ts">
-    // Replay 10 from https://fonts.google.com/icons
+    // Replay 10 from https://github.com/google/material-design-icons/blob/1cdf3a193b7df33246abf562250e9b9f918e5ca7/src/av/replay_10/materialiconsoutlined/24px.svg
     // Filled = 1
     // Weight = 400
     // Grade = 0

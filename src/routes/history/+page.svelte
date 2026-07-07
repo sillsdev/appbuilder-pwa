@@ -2,7 +2,7 @@
     import HistoryCard from '$lib/components/HistoryCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { clearHistory } from '$lib/data/history';
-    import { bodyFontSize, t } from '$lib/data/stores';
+    import { actionBarColor, bodyFontSize, t } from '$lib/data/stores';
     import DeleteSweepIcon from '$lib/icons/DeleteSweepIcon.svelte';
 
     let { data } = $props();
@@ -14,25 +14,25 @@
     }
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Menu_History']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{$t['Menu_History']}</div>
                 </label>
             {/snippet}
 
             {#snippet end()}
                 <button class="dy-btn dy-btn-ghost dy-btn-circle" onclick={onClearHistory}>
-                    <DeleteSweepIcon color="white" />
+                    <DeleteSweepIcon color={$actionBarColor} />
                 </button>
             {/snippet}
         </Navbar>
     </div>
 
     <div
-        class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
+        class="overflow-y-auto p-2.5 max-w-breakpoint-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
         {#if history.length === 0}

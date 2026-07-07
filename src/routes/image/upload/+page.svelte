@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
-    import { t, voiCustomImage } from '$lib/data/stores';
+    import { actionBarColor, t, voiCustomImage } from '$lib/data/stores';
     import { CheckIcon } from '$lib/icons';
+    import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
 
     let image: HTMLImageElement;
@@ -236,13 +236,15 @@
         <Navbar {backNavigation}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Crop_Image_Title']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Crop_Image_Title']}
+                    </div>
                 </label>
             {/snippet}
             {#snippet end()}
                 <div>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={cropImage}>
-                        <CheckIcon color="white" />
+                        <CheckIcon color={$actionBarColor} />
                     </button>
                 </div>
             {/snippet}

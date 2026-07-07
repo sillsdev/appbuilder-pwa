@@ -3,13 +3,21 @@
 The navbar component.
 -->
 <script lang="ts">
-    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import type { BookConfig } from '$config';
-    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t,
+        userSettingsOrDefault
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText, navigateToUrl } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import { resolve } from '$lib/utils/paths';
     import Dropdown from './Dropdown.svelte';
     import SelectGrid from './SelectGrid.svelte';
     import SelectList from './SelectList.svelte';
@@ -34,8 +42,19 @@ The navbar component.
 
     const showChapterSelector = config.mainFeatures['show-chapter-selector-after-book'] as boolean;
     const listView = $derived($userSettingsOrDefault['book-selection'] === 'list');
-    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection'] as boolean);
+    const showVerseSelector = $derived.by(() => {
+        const bookType = scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.type;
+        return $userSettingsOrDefault['verse-selection'] && (!bookType || bookType !== 'songs');
+    }) as boolean;
     const showSelectors = $derived(config.mainFeatures['book-select'] !== 'none');
+    const hideEmptyChapters = $derived.by(() => {
+        const bookType = scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.type;
+        return $userSettingsOrDefault['hide-empty-chapters'] && (!bookType || bookType !== 'songs');
+    }) as boolean;
 
     // Translated book, chapter, and verse tab labels
     const b = $derived($t.Selector_Book);
@@ -94,6 +113,16 @@ The navbar component.
     }) {
         // Handle special book navigation first
         if (tab === b && url) {
+            $nextRef.book = text;
+            $nextRef.chapter = '1';
+            $nextRef.verse = '';
+            await navigateToText({
+                docSet: $refs.docSet,
+                collection: $refs.collection,
+                book: $nextRef.book,
+                chapter: $nextRef.chapter,
+                verse: $nextRef.verse
+            });
             navigateToUrl({
                 collection: $refs.collection,
                 book: text,
@@ -177,6 +206,9 @@ The navbar component.
         if (book.type === 'quiz') {
             url = resolve(`/quiz/${$refs.collection}/${book.id}`);
         }
+        if (book.type === 'songs') {
+            url = resolve(`/songs/${$refs.collection}/${book.id}`);
+        }
         return url;
     }
 
@@ -247,19 +279,35 @@ The navbar component.
         return groups;
     };
 
-    let chapterGridGroup = (chapters: Record<string, unknown>) => {
+    let chapterGridGroup = () => {
         let hasIntroduction = books.find((x) => x.bookCode === book)?.hasIntroduction;
-        return [
-            {
-                rows: hasIntroduction
-                    ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
-                    : null,
-                cells: Object.keys(chapters).map((x) => ({
-                    label: getChapterLabel(x),
-                    id: x
-                }))
-            }
-        ];
+        if (hideEmptyChapters) {
+            return [
+                {
+                    rows: hasIntroduction
+                        ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                        : null,
+                    cells: Object.keys(chapters)
+                        .filter((y) => Object.keys(chapters[y]).length > 0)
+                        .map((x) => ({
+                            label: getChapterLabel(x),
+                            id: x
+                        }))
+                }
+            ];
+        } else {
+            return [
+                {
+                    rows: hasIntroduction
+                        ? [{ label: $t['Chapter_Introduction_Title'], id: 'i' }]
+                        : null,
+                    cells: Object.keys(chapters).map((x) => ({
+                        label: getChapterLabel(x),
+                        id: x
+                    }))
+                }
+            ];
+        }
     };
     let verseGridGroup = (chapter: string) => {
         let value;
@@ -303,6 +351,7 @@ The navbar component.
             visible: showChapterSelector && showVerseSelector
         }
     } satisfies App.TabMenuOptions);
+    let tabColor = $derived($s?.['ui.selector.tabs']['color']);
 </script>
 
 {#snippet selectList(bcv: string, menuaction: App.MenuActionHandler)}
@@ -323,7 +372,7 @@ The navbar component.
                   bookLabel: 'abbreviation'
               })
             : bcv === c
-              ? chapterGridGroup(chapters)
+              ? chapterGridGroup()
               : verseGridGroup(chapter)}
         {menuaction}
     />
@@ -335,21 +384,31 @@ The navbar component.
         {#snippet label()}
             <div
                 class="normal-case whitespace-nowrap"
+                style:color={$actionBarColor}
                 style={convertStyle($s?.['ui.selector.book'])}
             >
                 {labelDisplayed}
             </div>
-            <DropdownIcon color="white" />
+            <DropdownIcon color={$actionBarColor} />
         {/snippet}
         {#snippet content()}
             <div>
-                <TabsMenu bind:this={bookSelector} {options} menuaction={navigateReference} />
+                <TabsMenu
+                    bind:this={bookSelector}
+                    {options}
+                    menuaction={navigateReference}
+                    color={tabColor}
+                />
             </div>
         {/snippet}
     </Dropdown>
 {:else}
     <!-- Book Label -->
-    <div class="normal-case whitespace-nowrap" style={convertStyle($s?.['ui.selector.book'])}>
+    <div
+        class="normal-case whitespace-nowrap"
+        style:color={$actionBarColor}
+        style={convertStyle($s?.['ui.selector.book'])}
+    >
         {labelDisplayed}
     </div>
 {/if}

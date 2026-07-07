@@ -1,9 +1,8 @@
 <script lang="ts">
-    //TODO: Implement video download
     import DownloadSelector from '$lib/components/DownloadSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import VerseOnImage from '$lib/components/VerseOnImage.svelte';
-    import { modal, ModalType, NAVBAR_HEIGHT, t } from '$lib/data/stores';
+    import { actionBarColor, modal, ModalType, NAVBAR_HEIGHT, refs, t } from '$lib/data/stores';
     import { DownloadIcon, ShareIcon } from '$lib/icons';
     import { fromStore } from 'svelte/store';
 
@@ -19,7 +18,9 @@
         }
     }
     function downloadVideo() {
-        console.log('Download video (Not yet implemented)');
+        if (verseOnImage_Component) {
+            verseOnImage_Component.downloadVideo(); // Call the exported function from the VerseOnImage component
+        }
     }
     const stateModal = fromStore<any[]>(modal);
     $effect(() => {
@@ -40,29 +41,35 @@
             modal.clear();
         }
     }
+    function downloadClicked() {
+        if ($refs.hasAudio?.timingFile) {
+            modal.open(ModalType.Download);
+        } else {
+            downloadImage();
+        }
+    }
     let downloadSelector: DownloadSelector;
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar h-16">
         <Navbar>
             <!-- <div slot="left-buttons" /> -->
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Text_On_Image_Title']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Text_On_Image_Title']}
+                    </div>
                 </label>
             {/snippet}
             {#snippet end()}
                 <div>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={share}>
-                        <ShareIcon color="white" />
+                        <ShareIcon color={$actionBarColor} />
                     </button>
                 </div>
-                <button
-                    class="dy-btn-sm dy-btn-ghost"
-                    onclick={() => modal.open(ModalType.Download)}
-                >
-                    <DownloadIcon color="white" />
+                <button class="dy-btn-sm dy-btn-ghost" onclick={downloadClicked}>
+                    <DownloadIcon color={$actionBarColor} />
                 </button>
             {/snippet}
         </Navbar>

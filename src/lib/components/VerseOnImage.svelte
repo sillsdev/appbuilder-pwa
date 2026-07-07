@@ -4,16 +4,18 @@ The verse on image component.
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
     import FontList from '$lib/components/FontList.svelte';
+    import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareImage } from '$lib/data/share';
     import {
         currentFont,
         direction,
         monoIconColor,
+        refs,
         s,
         selectedVerses,
+        t,
         themeColors,
         voiCustomImage,
         windowSize
@@ -21,7 +23,20 @@ The verse on image component.
     import { TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
+    import { resolve } from '$lib/utils/paths';
     import { toPng } from 'html-to-image';
+    import {
+        AudioBufferSource,
+        BufferTarget,
+        canEncodeAudio,
+        Mp4OutputFormat,
+        Output,
+        QUALITY_HIGH,
+        VideoSample,
+        VideoSampleSource,
+        WebMOutputFormat
+    } from 'mediabunny';
+    import type { AudioEncodingConfig } from 'mediabunny';
     import { onDestroy, onMount } from 'svelte';
     import ColorPicker from 'svelte-awesome-color-picker';
     import Slider from './Slider.svelte';
@@ -42,7 +57,7 @@ The verse on image component.
     const viewportHeight_in_px = $derived(
         Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
     );
-
+    let downloadProgress = $state(0);
     const reference = $derived(selectedVerses.getCompositeReference());
     let verses: string = $state('');
     let imgSrc: string = $state('');
@@ -77,7 +92,7 @@ The verse on image component.
     const textShadow = $derived(
         textShadowMode == 'none'
             ? ''
-            : (textShadowMode == 'shadow'
+            : (textShadowMode == 'shadow-sm'
                   ? (textFontSize * textShadowValue) / 100 +
                     'px ' +
                     (textFontSize * textShadowValue) / 100 +
@@ -427,6 +442,212 @@ The verse on image component.
                 }
             });
     }
+    async function pickSupportedAudioConfig() {
+        const candidates: AudioEncodingConfig[] = [
+            { codec: 'aac', bitrate: 128000 },
+            { codec: 'aac', bitrate: 96000 },
+            { codec: 'aac', bitrate: 64000 },
+            {
+                codec: 'opus',
+                bitrate: 96000
+            }
+        ];
+
+        for (const cfg of candidates) {
+            if (await canEncodeAudio(cfg.codec, cfg)) {
+                return cfg;
+            }
+        }
+
+        throw new Error('No supported AAC configuration found.');
+    } //This is used to determine a supported audio configuration. It first tries AAC (Which can be used for mp4 files), but then falls back to opus (And thus a webm file) if AAC isn't supported
+    let cancelDownload = false;
+    export async function downloadVideo() {
+        cancelDownload = false;
+        let clone: HTMLElement | undefined;
+        let sample: VideoSample | undefined;
+        const audioCtx = new AudioContext();
+        downloadProgress = 1;
+        try {
+            const original = document.getElementById('verseOnImgPreview');
+            if (!original) {
+                console.error('Error getting preview to export');
+                return;
+            }
+
+            clone = original.cloneNode(true) as HTMLElement; //Clone the verse on image so we can make adjustments to it for the export without affecting the preview.
+
+            const origCanvas = original.querySelector('canvas');
+            const cloneCanvas = clone.querySelector('canvas');
+            if (!cloneCanvas || !origCanvas) {
+                console.error('Error getting canvas to export');
+                return;
+            }
+            cloneCanvas.width = origCanvas.width & ~1;
+            cloneCanvas.height = origCanvas.height & ~1;
+            const ctx = cloneCanvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(origCanvas, 0, 0); //Copy the canvas bitmap.
+            }
+
+            clone.style.position = 'absolute';
+            clone.style.left = '0px';
+            clone.style.top = '0px';
+            clone.style.zIndex = '-9999'; //Make sure the clone isn't visible
+
+            var cloneParagraph = clone.querySelector('p');
+            const parentRect = parentDiv.getBoundingClientRect();
+            if (cloneParagraph) {
+                cloneParagraph.style.left = textX - parentRect.left + 'px';
+                cloneParagraph.style.top = textY - parentRect.top + 'px'; //Adjust the textbox so it shows up in the correct place
+            }
+
+            document.body.appendChild(clone);
+            const pngUrl = await toPng(clone);
+            const img = new Image();
+            img.src = pngUrl;
+            await img.decode();
+            const bitmap = await createImageBitmap(img, {
+                resizeWidth: img.width & ~1, // force even
+                resizeHeight: img.height & ~1, // force even
+                resizeQuality: 'high'
+            });
+            downloadProgress = 10;
+            if (cancelDownload) {
+                return;
+            }
+
+            const frame = new VideoFrame(bitmap, {
+                timestamp: 0,
+                duration: 1_000_000
+            });
+            sample = new VideoSample(frame);
+
+            const audioConfig: AudioEncodingConfig = await pickSupportedAudioConfig();
+            const useWebm = audioConfig.codec === 'opus';
+
+            const output = new Output({
+                format: useWebm ? new WebMOutputFormat() : new Mp4OutputFormat(),
+                target: new BufferTarget()
+            });
+            const videoSource = new VideoSampleSource({
+                codec: useWebm ? 'vp9' : 'avc',
+                bitrate: QUALITY_HIGH
+            });
+
+            output.addVideoTrack(videoSource);
+            downloadProgress = 20;
+            if (cancelDownload) {
+                return;
+            }
+
+            const audioSourceInfo = await getAudioSourceInfo({
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: $refs.chapter
+            });
+            if (!audioSourceInfo?.source) {
+                throw new Error('No audio source available for this chapter');
+            }
+            downloadProgress = 30;
+            if (cancelDownload) {
+                return;
+            }
+
+            const audioSource = new AudioBufferSource(audioConfig);
+            output.addAudioTrack(audioSource);
+            await output.start();
+            downloadProgress = 40;
+            if (cancelDownload) {
+                return;
+            }
+            await videoSource.add(sample);
+            downloadProgress = 50;
+            if (cancelDownload) {
+                return;
+            }
+
+            const audioBlob = await fetch(audioSourceInfo?.source).then((r) => r.blob());
+            downloadProgress = 60;
+            if (cancelDownload) {
+                return;
+            }
+            const audioBuffer = await audioCtx.decodeAudioData(await audioBlob.arrayBuffer());
+            downloadProgress = 70;
+            if (cancelDownload) {
+                return;
+            }
+
+            const sampleRate = audioBuffer.sampleRate;
+
+            for (let i = 0; i < $selectedVerses.length; i++) {
+                let startFrame = 0;
+                let endFrame = 0;
+                for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
+                    const timing = audioSourceInfo?.timing?.[j];
+                    const verse = timing?.tag?.replace(/\D/g, '');
+                    if (verse === $selectedVerses[i].verse) {
+                        if (!startFrame) {
+                            startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
+                            endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                        } else {
+                            endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
+                        }
+                    }
+                }
+                if (endFrame <= startFrame) {
+                    console.warn(`No timing found for verse ${$selectedVerses[i].verse}, skipping`);
+                    continue;
+                }
+                const trimmedBuffer = audioCtx.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    endFrame - startFrame,
+                    sampleRate
+                );
+
+                for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+                    const src = audioBuffer.getChannelData(ch);
+                    const dst = trimmedBuffer.getChannelData(ch);
+                    dst.set(src.slice(startFrame, endFrame));
+                }
+
+                await audioSource.add(trimmedBuffer);
+            }
+            await output.finalize();
+            downloadProgress = 80;
+            if (cancelDownload) {
+                return;
+            }
+
+            const buffer = output.target.buffer as BlobPart;
+            const blob = new Blob([buffer], {
+                type: useWebm ? 'video/webm' : 'video/mp4'
+            });
+            const filename = reference + (useWebm ? '.webm' : '.mp4');
+            const file = new File([blob], filename, {
+                type: useWebm ? 'video/webm' : 'video/mp4'
+            });
+            downloadProgress = 90;
+            const url = URL.createObjectURL(file);
+
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            anchor.click();
+
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error generating video export:', error);
+        } finally {
+            if (clone?.isConnected) {
+                document.body.removeChild(clone);
+            }
+            sample?.close();
+            cancelDownload = false;
+            downloadProgress = 0;
+            await audioCtx?.close();
+        }
+    } //Most of this is AI-generated, so serious testing is needed. I've done a lot of testing, but it would be good to make sure there aren't subtle problems with this code.
 
     // EditorTabs centering feature:
 
@@ -527,7 +748,7 @@ The verse on image component.
 
 <div
     id="verseOnImageContainer"
-    class="flex flex-col flex-nowrap max-w-screen-sm mx-auto"
+    class="flex flex-col flex-nowrap max-w-breakpoint-sm mx-auto"
     style="height: 100%; max-width: {imageWidth}px;"
     style:direction={$direction}
 >
@@ -620,7 +841,7 @@ The verse on image component.
             overflow-y: visible;
             min-height: 2.7rem;
             z-index: 3;
-            --tabWidth: {imageWidth / 5}px; 
+            --tabWidth: {imageWidth / 5}px;
             background-color: {$themeColors['ImageTabsBackgroundColor']};
         "
     >
@@ -642,9 +863,9 @@ The verse on image component.
         id="editorsPane"
         class="dy-w-64 dy-carousel dy-rounded-box"
         style="
-            background-color: {$themeColors['DialogBackgroundColor']}; 
+            background-color: {$themeColors['DialogBackgroundColor']};
             z-index: 3;
-            overflow-x: hidden; 
+            overflow-x: hidden;
             overflow-y: auto;
             touch-action: none;
         "
@@ -656,7 +877,7 @@ The verse on image component.
             style="
                 width:100%;
                 height: auto;
-                --imgWidth: {imageWidth / 4}px; 
+                --imgWidth: {imageWidth / 4}px;
                 overflow-y: auto;
             "
         >
@@ -866,11 +1087,11 @@ The verse on image component.
                 <button
                     class="dy-btn-sm dy-btn-ghost editorPane_button"
                     onclick={() => {
-                        textShadowMode = 'shadow';
+                        textShadowMode = 'shadow-sm';
                     }}
                 >
                     <ImageIcon.TextShadow
-                        color={textShadowMode == 'shadow' ? progressColor : unselectedColor}
+                        color={textShadowMode == 'shadow-sm' ? progressColor : unselectedColor}
                     />
                 </button>
 
@@ -1016,6 +1237,33 @@ The verse on image component.
         ]}; flex: 1 1 auto; z-index: 3;"
     ></div>
 </div>
+{#if downloadProgress > 0}
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
+        <div
+            class="bg-base-100 p-6 shadow-xl w-80
+              flex flex-col justify-between h-64"
+        >
+            <div class="flex flex-col gap-1 text-left">
+                <p class="text-lg font-bold">{$t['Text_On_Image_Save_Video']}</p>
+                <p class="text-sm">{$t['Video_Creating_Video']}</p>
+            </div>
+
+            <div class="w-full">
+                <progress class="dy-progress w-full" value={downloadProgress} max="100"></progress>
+            </div>
+
+            <div class="flex justify-end">
+                <button
+                    class="dy-btn dy-btn-sm dy-btn-ghost"
+                    onclick={() => {
+                        downloadProgress = 0;
+                        cancelDownload = true;
+                    }}>{$t['Button_Cancel']}</button
+                >
+            </div>
+        </div>
+    </div>
+{/if}
 
 <style>
     #editorTabs::-webkit-scrollbar {

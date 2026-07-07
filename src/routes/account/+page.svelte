@@ -3,12 +3,14 @@
     import { t } from '$lib/data/stores';
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Account_Page_Title']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Account_Page_Title']}
+                    </div>
                 </label>
             {/snippet}
         </Navbar>

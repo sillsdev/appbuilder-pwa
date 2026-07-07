@@ -1,7 +1,7 @@
 <!--
 @component
 Based on an audio component found at https://svelte.dev/repl/b0a901d9a15347bd95466150485e4a78?version=3.31.0.
-Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play/Pause, Seek, and Skip functionality.  
+Wraps a JS-created HTMLAudioElement with a basic UI with a progress bar and Play/Pause, Seek, and Skip functionality.
 TODO:
 - display audio not found message in UI when audio is not found
 -->
@@ -100,7 +100,7 @@ TODO:
     const iconPlayColor = $derived($s?.['ui.bar.audio.play.icon']['color']);
     const backgroundColor = $derived($s?.['ui.bar.audio']['background-color']);
     const audioBarClass = $derived($refs.hasAudio?.timingFile ? 'audio-bar' : 'audio-bar-progress');
-    $effect(() => mayResetPlayMode($refs.hasAudio?.timing));
+    $effect(() => mayResetPlayMode(!!$refs.hasAudio?.timingFile));
     $effect(() => updatePlaybackSpeed($userSettings['audio-speed'] as string));
 </script>
 
@@ -108,7 +108,7 @@ TODO:
     {#if showHint}
         <div
             style={hintStyle}
-            class="absolute flex flex-row justify-center -top-[3rem] p-2 w-full left-1/2 -translate-x-1/2 max-w-screen-md shadow-md"
+            class="absolute flex flex-row justify-center -top-12 p-2 w-full left-1/2 -translate-x-1/2 max-w-breakpoint-md shadow-md"
         >
             {hintText}
         </div>
@@ -117,7 +117,7 @@ TODO:
         <div class="audio-control-buttons">
             <RepeatButton
                 color="{iconColor},"
-                onclick={() => playMode.next($refs.hasAudio?.timingFile)}
+                onclick={() => playMode.next(!!$refs.hasAudio?.timingFile)}
                 state={$playMode.mode}
             />
         </div>

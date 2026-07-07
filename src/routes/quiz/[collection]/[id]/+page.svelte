@@ -19,13 +19,15 @@
 </script>
 
 <script lang="ts">
-    import { beforeNavigate } from '$app/navigation';
+    import { beforeNavigate, invalidateAll } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
     import type { QuizAnswer, QuizQuestion } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addQuiz } from '$lib/data/quiz';
+    import { addQuizUnlocked } from '$lib/data/quizUnlocked.js';
     import {
+        actionBarColor,
         bodyFontSize,
         bodyLineHeight,
         modal,
@@ -34,7 +36,13 @@
         t
     } from '$lib/data/stores';
     import { refs } from '$lib/data/stores/scripture';
-    import { ArrowForwardIcon, AudioIcon, TextAppearanceIcon } from '$lib/icons';
+    import {
+        ArrowForwardIcon,
+        AudioIcon,
+        BackspaceIcon,
+        LockOpenIcon,
+        TextAppearanceIcon
+    } from '$lib/icons';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { onDestroy } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
@@ -60,13 +68,12 @@
         query: '?url',
         base: '/src/gen-assets/quiz'
     });
-
     interface Props {
         data: PageData;
     }
     let { data }: Props = $props();
 
-    let { locked, quiz, quizId, displayLabel, passScore, collection } = $derived(data);
+    let { locked, accessCode, quiz, quizId, displayLabel, passScore, collection } = $derived(data);
 
     let highlightIdx = $state(-1);
     let score = $state(0);
@@ -77,6 +84,7 @@
     let showCorrectAnswer = $state(false);
 
     let currentAudio: HTMLAudioElement | null = null;
+    let passwordInput = $state('');
 
     let explanation = $state('');
 
@@ -241,9 +249,33 @@
             reset();
         }
     });
+    function addNumber(number: number) {
+        passwordInput += number;
+    }
+    function backspaceInput() {
+        if (passwordInput.length > 0) {
+            passwordInput = passwordInput.slice(0, -1);
+        }
+    }
+    function attemptUnlock() {
+        if (accessCode === passwordInput) {
+            addQuizUnlocked({ collection, book: quizId }).then(() => invalidateAll());
+        }
+    }
+    function handleKeyInput(e: KeyboardEvent) {
+        if (e.key >= '0' && e.key <= '9') {
+            addNumber(parseInt(e.key));
+        }
+        if (e.key === 'Backspace') {
+            backspaceInput();
+        }
+        if (e.key === 'Enter') {
+            attemptUnlock();
+        }
+    }
 </script>
 
-<div class="grid grid-rows-[auto,1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
+<div class="grid grid-rows-[auto_1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
     <div class="navbar">
         <Navbar>
             {#snippet start()}
@@ -259,9 +291,9 @@
                             }}
                         >
                             {#if $quizAudioActive}
-                                <AudioIcon.Volume color="white" />
+                                <AudioIcon.Volume color={$actionBarColor} />
                             {:else}
-                                <AudioIcon.Mute color="white" />
+                                <AudioIcon.Mute color={$actionBarColor} />
                             {/if}
                         </button>
                     </div>
@@ -272,7 +304,7 @@
                         class="dy-btn dy-btn-ghost p-0.5 dy-no-animation"
                         onclick={() => modal.open(ModalType.TextAppearance)}
                     >
-                        <TextAppearanceIcon color="white" />
+                        <TextAppearanceIcon color={$actionBarColor} />
                     </label>
                 </div>
             {/snippet}
@@ -280,13 +312,43 @@
     </div>
 
     {#if locked}
-        <div class="quiz-locked">
-            <div class="quiz-locked-title">{quizId}</div>
-            <div class="quiz-locked-message">
-                {$t['Quiz_Access_After_Message']}
+        {#if data.dependentQuizName || data.dependentQuizId}
+            <div class="quiz-locked">
+                <div class="quiz-locked-title">{displayLabel}</div>
+                <div class="quiz-locked-message">
+                    {$t['Quiz_Access_After_Message']}
+                </div>
+                <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
             </div>
-            <div class="quiz-locked-name">{data.dependentQuizName || data.dependentQuizId}</div>
-        </div>
+        {:else if accessCode}
+            <div class="quiz-keypad max-w-breakpoint-md mx-auto">
+                <div class="quiz-keypad-title">{displayLabel}</div>
+                <div class="quiz-keypad-message">
+                    {$t['Quiz_Access_Code_Message']}
+                </div>
+                <input
+                    id="input-box"
+                    class="text-black w-[90%] text-[30px] text-center p-[10px] border bg-white mx-auto block"
+                    bind:value={passwordInput}
+                    readonly
+                    onkeydown={handleKeyInput}
+                />
+                <div class="grid grid-cols-3 gap-4 text-center p-10">
+                    {#each Array(9) as _, i}
+                        <button class="quiz-keypad-button" onclick={() => addNumber(i + 1)}>
+                            {i + 1}
+                        </button>
+                    {/each}
+                    <button class="quiz-keypad-button" onclick={backspaceInput}>
+                        <BackspaceIcon />
+                    </button>
+                    <button class="quiz-keypad-button" onclick={() => addNumber(0)}> 0 </button>
+                    <button class="quiz-keypad-button" onclick={attemptUnlock}>
+                        <LockOpenIcon />
+                    </button>
+                </div>
+            </div>
+        {/if}
     {:else if currentQuestionIdx === questions.length}
         <div class="score">
             <div id="content" class="text-center">
@@ -406,5 +468,20 @@
     .quiz-question-block img {
         max-width: 100%;
         max-height: 250px;
+    }
+    .quiz-keypad-button {
+        margin: 5px 1%;
+        padding: 15px 0;
+        font-size: 30px;
+
+        background-color: white;
+        user-select: none;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .quiz-keypad-button:active {
+        background-color: #d1d5db;
     }
 </style>

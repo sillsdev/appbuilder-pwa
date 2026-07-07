@@ -1,8 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' source('../../../src');
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui' {
+    prefix: 'dy-';
+    themes: light --default;
+}
 
-@layer base {
+@source inline("grid-cols-{{1..12..1},none,subgrid}");
+
+/* Allow post-(Tailwind v4) styling to use sensible class names for breakpoints */
+@theme {
+    --container-breakpoint-sm: var(--breakpoint-sm);
+    --container-breakpoint-md: var(--breakpoint-md);
+    --container-breakpoint-lg: var(--breakpoint-lg);
+    --container-breakpoint-xl: var(--breakpoint-xl);
+    --container-breakpoint-2xl: var(--breakpoint-2xl);
 }
 
 /* https://stackoverflow.com/a/58236787/35577 */
@@ -13,11 +24,144 @@ body {
     overflow-x: hidden;
 }
 
-/* https://github.com/saadeghi/daisyui/issues/1450 */
-/* When tapping on the appbar buttons, the hover state sticks sometimes */
-@media (hover: none) {
-    .btn.btn-outline:hover {
-        background-color: transparent;
-        color: inherit;
+/*
+  (The following was added automatically by the Tailwind v4 upgrade script)
+
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
     }
+}
+
+/*
+  After the DaisyUI v5 upgrade, several buttons lost the ability to
+  change the pointer, due to the absence of this default rule.
+*/
+@layer base {
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']) {
+        cursor: pointer;
+    }
+}
+
+/* Fix styling to acceptably match pre-v5 DaisyUI */
+
+@utility dy-badge {
+    --dy-size: 1.25rem;
+}
+
+@utility dy-btn {
+    --dy-btn-shadow: '';
+    --size-field: 0.3rem;
+    --radius-field: 0.5rem;
+    gap: 0.5rem;
+    line-height: 1em;
+}
+
+@utility dy-btn-active {
+    &:hover {
+        background-color: #d2d2d2;
+        border-color: #d2d2d2;
+    }
+}
+
+@utility dy-btn-ghost {
+    --dy-btn-color: oklab(0.28 -0.01 -0.03 / 0.15);
+    --dy-btn-shadow: '';
+    --dy-btn-border: transparent;
+}
+
+@utility dy-btn-sm {
+    min-height: var(--dy-size);
+    padding-inline: var(--dy-btn-p);
+}
+
+/* Re-add hover shading to plan stop button */
+button.message-button:hover {
+    background-color: oklab(0.28 -0.01 -0.03 / 0.15);
+}
+
+/* Fix text color for modal close button */
+.close-btn > .dy-btn-ghost {
+    color: inherit;
+}
+
+/* Make v5 search bar checkboxes more readable */
+@utility dy-checkbox-accent {
+    --color-accent-content: green;
+}
+
+/* Make sure search bar components align */
+@utility dy-input {
+    --size-field: 0.3rem;
+    --radius-field: 0.5rem;
+}
+
+/* Fix settings menu formatting to match v4 */
+@utility dy-label {
+    display: flex;
+    justify-content: space-between;
+}
+@utility dy-form-control {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Patch the v5 generated styles to match v4 menu spacing */
+:where(li:not(.dy-menu-title) > *:not(ul, details, .dy-menu-title, .dy-btn)),
+:where(li:not(.dy-menu-title) > details > summary:not(.dy-menu-title)) {
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+}
+
+/* Round modal corners to match v4 */
+@utility dy-menu {
+    --radius-field: 0.5rem;
+    line-height: 1.25rem;
+}
+@utility dy-modal-box {
+    --radius-box: 1rem;
+}
+
+/* This fix is copied from the DaisyUI v4 generated styles. */
+:where(.dy-navbar > *:not(script, style)) {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* The following fixes the layout and styling of the text pane header. */
+@utility dy-tabs {
+    --size-field: 0.2rem;
+    --radius-field: 0px;
+    display: grid;
+    align-items: flex-end;
+}
+@utility dy-tab {
+    grid-row-start: 1;
+    --dy-tab-p: 1rem;
+}
+
+/*
+  The text pane selection highlight is now slightly taller vertically,
+  but more closely matches Android and now follows theme color.
+*/
+.dy-tabs-border > .dy-tab::before {
+    width: 100%;
+    height: 2.6px;
+    left: 0%;
+}
+
+label:where([for='sidebar']) > div {
+    color: inherit;
 }

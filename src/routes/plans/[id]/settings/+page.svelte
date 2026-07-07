@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import { addPlanState } from '$lib/data/planStates';
     import { language, t } from '$lib/data/stores';
+    import { resolve } from '$lib/utils/paths';
     import type { PageData } from './$types';
 
     interface Props {
@@ -27,19 +27,19 @@
     }
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation}>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
                         {data.planConfig?.title[$language] ?? data.planConfig?.title.default ?? ''}
                     </div>
                 </label>
             {/snippet}
         </Navbar>
     </div>
-    <div class="overflow-y-auto mx-auto max-w-screen-md">
+    <div class="overflow-y-auto mx-auto max-w-breakpoint-md">
         <div class="plan-setup">
             <div class="plan-setup-title">
                 {$t['Plans_Setup_Start_Completed_Title']}

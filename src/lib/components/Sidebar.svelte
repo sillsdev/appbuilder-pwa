@@ -4,7 +4,6 @@ The sidebar/drawer.
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import nav_drawer_image from '$assets/images/nav_drawer.png';
@@ -42,6 +41,7 @@ The sidebar/drawer.
         ShareIcon,
         TextAppearanceIcon
     } from '$lib/icons';
+    import { resolve } from '$lib/utils/paths';
     import { showTextAppearance } from './TextAppearanceSelector.svelte';
 
     const menuIcons = import.meta.glob('./*', {
@@ -86,6 +86,10 @@ The sidebar/drawer.
     const showAccount = !!(
         config.firebase?.features['firebase-database'] && config.mainFeatures['user-accounts']
     );
+    const fontRelativeSize = $derived(
+        config.interfaceLanguages?.writingSystems[$language]?.fontRelativeSize
+    );
+    const fontSize = $derived(fontRelativeSize ? fontRelativeSize : '100');
 
     function imageSrcSet(images: MenuItemConfig['images']) {
         const baseSize = Number(images?.[0]?.width);
@@ -135,6 +139,7 @@ The sidebar/drawer.
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
             style:background-color={drawerBackgroundColor}
             style:direction={$direction}
+            style:font-size="{fontSize}%"
         >
             <!-- Sidebar content here -->
             <a class="fill" href={resolve('/')}>
@@ -173,10 +178,7 @@ The sidebar/drawer.
             {#if showLayouts}
                 <li>
                     <!-- svelte-ignore a11y_missing_attribute -->
-                    <button
-                        style:color={textColor}
-                        onclick={() => modal.open(ModalType.Collection)}
-                    >
+                    <button style:color={textColor} onclick={() => goto(resolve(`/layout`))}>
                         <BibleIcon color={iconColor} />{$t['Menu_Layout']}
                     </button>
                 </li>

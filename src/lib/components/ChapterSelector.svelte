@@ -4,7 +4,15 @@ The navbar component.
 -->
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { convertStyle, nextRef, refs, s, t, userSettingsOrDefault } from '$lib/data/stores';
+    import {
+        actionBarColor,
+        convertStyle,
+        nextRef,
+        refs,
+        s,
+        t,
+        userSettingsOrDefault
+    } from '$lib/data/stores';
     import { DropdownIcon } from '$lib/icons';
     import { navigateToText } from '$lib/navigate';
     import * as numerals from '$lib/scripts/numeralSystem';
@@ -18,7 +26,19 @@ The navbar component.
     // Needs testing, does updating the book correctly effect what chapters or verses are availible in the next tab?
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
     const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
-    const showVerseSelector = $derived($userSettingsOrDefault['verse-selection']) as boolean;
+    const showVerseSelector = $derived.by(() => {
+        const bookType = scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.type;
+        return $userSettingsOrDefault['verse-selection'] && (!bookType || bookType !== 'songs');
+    }) as boolean;
+    const hideEmptyChapters = $derived.by(() => {
+        const bookType = scriptureConfig.bookCollections
+            ?.find((x) => $refs.collection === x.id)
+            ?.books.find((x) => book === x.id)?.type;
+        return $userSettingsOrDefault['hide-empty-chapters'] && (!bookType || bookType !== 'songs');
+    }) as boolean;
+
     const verseCount = $derived(getVerseCount(book, chapter));
     const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
     const chaptersLabels = $derived(
@@ -163,6 +183,7 @@ The navbar component.
         config.mainFeatures['show-chapter-number-on-app-bar'] && getChapterCount($refs.book) > 0
     );
     const canSelect = config.mainFeatures['show-chapter-selector'];
+    let tabColor = $derived($s?.['ui.selector.tabs']['color']);
 </script>
 
 {#snippet selectGrid(cv: string, menuaction: App.MenuActionHandler)}
@@ -179,10 +200,12 @@ The navbar component.
                                 }
                             ]
                           : undefined,
-                      cells: Object.keys(chapters).map((x) => ({
-                          label: getChapterLabel(x),
-                          id: x
-                      }))
+                      cells: Object.keys(chapters)
+                          .filter((y) => !hideEmptyChapters || Object.keys(chapters[y]).length > 0)
+                          .map((x) => ({
+                              label: getChapterLabel(x),
+                              id: x
+                          }))
                   }
               ]
             : verseGridGroup(chapter)}
@@ -194,11 +217,15 @@ The navbar component.
 {#if showSelector && ($nextRef.book === '' || $nextRef.chapter !== '')}
     <Dropdown bind:this={dropdown} navEnd={resetNavigation} cols={5}>
         {#snippet label()}
-            <div class="normal-case" style={convertStyle($s?.['ui.selector.chapter'])}>
+            <div
+                class="normal-case"
+                style:color={$actionBarColor}
+                style={convertStyle($s?.['ui.selector.chapter'])}
+            >
                 {chapterIndicator(book, chapter)}
             </div>
             {#if canSelect}
-                <DropdownIcon color="white" />
+                <DropdownIcon color={$actionBarColor} />
             {/if}
         {/snippet}
         {#snippet content()}
@@ -217,6 +244,7 @@ The navbar component.
                             }
                         }}
                         menuaction={navigateReference}
+                        color={tabColor}
                     />
                 </div>
             {/if}

@@ -5,10 +5,10 @@ Plan Stop Modal Dialog component.
 
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import { deleteAllProgressItemsForPlan } from '$lib/data/planProgressItems';
     import { addPlanState } from '$lib/data/planStates';
     import { t } from '$lib/data/stores';
+    import { resolve } from '$lib/utils/paths';
     import Modal from './Modal.svelte';
 
     let { planId = $bindable(undefined), vertOffset = '1rem' } = $props();

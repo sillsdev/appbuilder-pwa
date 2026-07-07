@@ -5,7 +5,7 @@
     import '$lib/styles/app.css';
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
-    import CollectionSelector from '$lib/components/CollectionSelector.svelte';
+    import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
@@ -65,9 +65,6 @@
         if ($modal.length > 0) {
             $modal.forEach(({ modalType, data }) => {
                 switch (modalType) {
-                    case ModalType.Collection:
-                        collectionSelector?.showModal();
-                        break;
                     case ModalType.Note:
                         noteDialog?.showModal(data as Parameters<NoteDialog['showModal']>[0]);
                         break;
@@ -89,6 +86,11 @@
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
                         break;
+                    case ModalType.Collection:
+                        collectionModal?.showModal(
+                            data as Parameters<CollectionModal['showModal']>[0]
+                        );
+                        break;
                 }
             });
             modal.clear();
@@ -106,9 +108,9 @@
     });
 
     let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
-    let collectionSelector: CollectionSelector | undefined = $state();
     let fontSelector: FontSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
+    let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
@@ -134,30 +136,6 @@
 </svelte:head>
 
 {#if showPage}
-    <div>
-        <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
-
-        {#if isSAB}
-            <!-- Add Note Menu -->
-            <NoteDialog bind:this={noteDialog} />
-
-            <!-- Collection Selector Menu -->
-            <CollectionSelector bind:this={collectionSelector} vertOffset={NAVBAR_HEIGHT} />
-        {/if}
-        <!-- Text Appearance Options Menu -->
-        <TextAppearanceSelector bind:this={textAppearanceSelector} vertOffset={NAVBAR_HEIGHT} />
-
-        <FontSelector bind:this={fontSelector} />
-
-        <PlanStopDialog
-            bind:this={planStopDialog}
-            bind:planId={planStopId}
-            vertOffset={NAVBAR_HEIGHT}
-        />
-
-        <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
-    </div>
-
     <Sidebar>
         <div
             id="container"
@@ -165,6 +143,27 @@
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
         >
+            <div>
+                <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
+
+                {#if isSAB}
+                    <!-- Add Note Menu -->
+                    <NoteDialog bind:this={noteDialog} />
+                {/if}
+                <!-- Text Appearance Options Menu -->
+                <TextAppearanceSelector
+                    bind:this={textAppearanceSelector}
+                    vertOffset={NAVBAR_HEIGHT}
+                />
+                <CollectionModal bind:this={collectionModal} />
+                <PlanStopDialog
+                    bind:this={planStopDialog}
+                    bind:planId={planStopId}
+                    vertOffset={NAVBAR_HEIGHT}
+                />
+                <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
+                <FontSelector bind:this={fontSelector} />
+            </div>
             {@render children()}
         </div>
     </Sidebar>

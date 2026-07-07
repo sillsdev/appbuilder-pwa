@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import AudioBar from '$lib/components/AudioBar.svelte';
@@ -20,6 +19,7 @@
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
     import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
     import {
+        actionBarColor,
         analytics,
         audioActive,
         audioHighlightElements,
@@ -59,6 +59,7 @@
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
     import {
         pinch,
@@ -67,6 +68,13 @@
         type SwipePointerEventDetail
     } from 'svelte-gestures';
     import type { PageData } from './$types';
+
+    const illustrationURLs = import.meta.glob('./*', {
+        eager: true,
+        import: 'default',
+        query: '?url',
+        base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
 
     const borders = import.meta.glob('./*', {
         import: 'default',
@@ -126,6 +134,11 @@
             ?.find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === $refs.book)?.bookTabs
     ); //This should hopefully be reactive and find the book tabs if the current book has them.
+    const bookType = $derived(
+        scriptureConfig?.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book)?.type
+    );
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
@@ -386,7 +399,7 @@
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
             if (showCollectionsOnFirstLaunch && enoughCollections) {
-                modal.open(ModalType.Collection);
+                goto(resolve(`/layout`));
             }
         }
     });
@@ -413,9 +426,21 @@
         // stop audio when changing routes
         playStop();
     });
+    function getCurrentIllustrationFile() {
+        let illustrations = scriptureConfig?.bookCollections
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === $refs.book)?.pageIllustrations;
+        if (illustrations) {
+            for (let i = 0; i < illustrations.length; i++) {
+                if (illustrations[i].num === Number($refs.chapter)) {
+                    return illustrationURLs[`./${illustrations[i].filename}`];
+                }
+            }
+        }
+    }
 </script>
 
-<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet start()}
@@ -443,9 +468,9 @@
                                 }}
                             >
                                 {#if $audioActive}
-                                    <AudioIcon.Volume color="white" />
+                                    <AudioIcon.Volume color={$actionBarColor} />
                                 {:else}
-                                    <AudioIcon.Mute color="white" />
+                                    <AudioIcon.Mute color={$actionBarColor} />
                                 {/if}
                             </button>
                         {/if}
@@ -459,7 +484,7 @@
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => goto(resolve(`/search/${$refs.collection}`))}
                             >
-                                <SearchIcon color="white" />
+                                <SearchIcon color={$actionBarColor} />
                             </button>
                         {/if}
 
@@ -469,7 +494,7 @@
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => modal.open(ModalType.TextAppearance)}
                             >
-                                <TextAppearanceIcon color="white" />
+                                <TextAppearanceIcon color={$actionBarColor} />
                             </button>
                         {/if}
 
@@ -477,9 +502,9 @@
                         {#if showCollectionNavbar && enoughCollections}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
-                                onclick={() => modal.open(ModalType.Collection)}
+                                onclick={() => goto(resolve(`/layout`))}
                             >
-                                <BibleIcon color="white" />
+                                <BibleIcon color={$actionBarColor} />
                             </button>
                         {/if}
                     </div>
@@ -494,9 +519,9 @@
                         >
                             <!-- tricky logic: this causes the direction of the arrows to switch when rtl -->
                             {#if showOverlowMenu === ($direction === 'ltr')}
-                                <TriangleRightIcon color="white" scale={1.25} />
+                                <TriangleRightIcon color={$actionBarColor} scale={1.25} />
                             {:else}
-                                <TriangleLeftIcon color="white" scale={1.25} />
+                                <TriangleLeftIcon color={$actionBarColor} scale={1.25} />
                             {/if}
                         </button>
                     {/if}
@@ -512,71 +537,85 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1 cursor-pointer"
             style:top={navBarHeight}
             style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => modal.open(ModalType.Collection)}
+            onclick={() => goto(resolve(`/layout`))}
         >
             {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
                 ?.collectionAbbreviation}
         </div>
     {/if}
-    <div
-        style="--borderImageSource=url({borders['./border.png']});"
-        class:borderimg={showBorder}
-        class="overflow-y-auto"
-        bind:this={scrollingDiv}
-        onscroll={saveScrollPosition}
-    >
-        <!-- flex causes the imported html to display outside of the view port. Use md: -->
-        <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
-            <div class="hidden md:flex basis-1/12 justify-center">
-                <button
-                    onclick={prevChapter}
-                    class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
-                    navigateBetweenBooksPrev
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
-                </button>
-            </div>
-            <div class="basis-5/6 max-w-screen-md">
-                <div class="p-2 w-full">
-                    <main>
-                        <div
-                            class="max-w-screen-md mx-auto"
-                            use:pinch
-                            onpinch={doPinch}
-                            use:swipe={{
-                                timeframe: 300,
-                                minSwipeDistance: 60,
-                                touchAction: 'pan-y'
-                            }}
-                            onswipe={doSwipe}
-                        >
-                            {#if format === 'html'}
-                                <HtmlBookView {...viewSettings as HtmlBookViewProps} />
-                            {:else}
-                                <ScriptureViewSofria
-                                    {...viewSettings as ScriptureViewSofriaProps}
-                                />
-                            {/if}
-                        </div>
-                    </main>
+    <div class="flex flex-col overflow-y-auto">
+        {#if bookType === 'story'}
+            {@const illustrationFile = getCurrentIllustrationFile()}
+            {#if illustrationFile}
+                <!-- svelte-ignore a11y_missing_attribute -->
+                <img
+                    src={illustrationFile}
+                    class="w-screen md:max-w-2xl mx-auto object-cover"
+                    use:swipe={{
+                        timeframe: 300,
+                        minSwipeDistance: 60,
+                        touchAction: 'pan-y'
+                    }}
+                    onswipe={doSwipe}
+                />
+            {/if}
+        {/if}
+        <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}>
+            <!-- flex causes the imported html to display outside of the view port. Use md: -->
+            <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
+                <div class="hidden md:flex basis-1/12 justify-center">
+                    <button
+                        onclick={prevChapter}
+                        class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
+                        navigateBetweenBooksPrev
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
+                    </button>
                 </div>
-            </div>
-            <div class="hidden basis-1/12 md:flex justify-center">
-                <button
-                    onclick={nextChapter}
-                    class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
-                    navigateBetweenBooksNext
-                        ? 'visible'
-                        : 'invisible'}"
-                >
-                    <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
-                </button>
+                <div class="basis-5/6 max-w-breakpoint-md">
+                    <div class="p-2 w-full">
+                        <main>
+                            <div
+                                style="--borderImageSource: url({borders['./border.png']});"
+                                class:borderimg={showBorder}
+                                class="max-w-breakpoint-md mx-auto"
+                                use:pinch
+                                onpinch={doPinch}
+                                use:swipe={{
+                                    timeframe: 300,
+                                    minSwipeDistance: 60,
+                                    touchAction: 'pan-y'
+                                }}
+                                onswipe={doSwipe}
+                            >
+                                {#if format === 'html'}
+                                    <HtmlBookView {...viewSettings as HtmlBookViewProps} />
+                                {:else}
+                                    <ScriptureViewSofria
+                                        {...viewSettings as ScriptureViewSofriaProps}
+                                    />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+                </div>
+                <div class="hidden basis-1/12 md:flex justify-center">
+                    <button
+                        onclick={nextChapter}
+                        class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
+                        navigateBetweenBooksNext
+                            ? 'visible'
+                            : 'invisible'}"
+                    >
+                        <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
+                    </button>
+                </div>
             </div>
         </div>
     </div>

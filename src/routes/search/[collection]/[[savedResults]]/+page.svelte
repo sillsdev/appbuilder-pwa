@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import Navbar from '$lib/components/Navbar.svelte';
     import SearchForm from '$lib/components/SearchForm.svelte';
     import SearchResultList from '$lib/components/SearchResultList.svelte';
@@ -12,6 +11,7 @@
     } from '$lib/search/domain/interfaces/presentation-interfaces';
     import { makeSearchSession } from '$lib/search/factories';
     import type { SearchFormSubmitEvent } from '$lib/types';
+    import { resolve } from '$lib/utils/paths';
     import { onMount } from 'svelte';
 
     let { data } = $props();
@@ -107,12 +107,12 @@
     });
 </script>
 
-<div class="grid grid-rows-[auto,1fr,auto]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Search']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">{$t['Search']}</div>
                 </label>
             {/snippet}
         </Navbar>
@@ -124,7 +124,7 @@
         </div>
 
         <div class="flex justify-center px-4">
-            <hr class="max-w-screen-md w-full" style:border-color={$themeColors.DividerColor} />
+            <hr class="max-w-breakpoint-md w-full" style:border-color={$themeColors.DividerColor} />
         </div>
 
         <div class="flex justify-center">

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
@@ -8,11 +7,12 @@
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { SORT_DATE, SORT_REFERENCE, toSorted } from '$lib/data/annotation-sort';
     import { removeNote, type NoteItem } from '$lib/data/notes';
-    import { bodyFontSize, monoIconColor, refs, t } from '$lib/data/stores';
+    import { actionBarColor, bodyFontSize, monoIconColor, refs, t } from '$lib/data/stores';
     import { NoteIcon } from '$lib/icons';
     import ShareIcon from '$lib/icons/ShareIcon.svelte';
     import { formatDate } from '$lib/scripts/dateUtils';
     import type { MenuActionEvent } from '$lib/types';
+    import { resolve } from '$lib/utils/paths';
     import type { PageData } from './$types';
 
     interface Props {
@@ -57,12 +57,14 @@
     let sortOrder = $state(SORT_DATE);
 </script>
 
-<div class="grid grid-rows-[auto,1fr]" style="height:100vh;height:100dvh;">
+<div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar>
             {#snippet center()}
                 <label for="sidebar">
-                    <div class="btn btn-ghost normal-case text-xl">{$t['Annotation_Notes']}</div>
+                    <div class="dy-btn dy-btn-ghost normal-case text-xl">
+                        {$t['Annotation_Notes']}
+                    </div>
                 </label>
             {/snippet}
 
@@ -71,7 +73,7 @@
                     class="dy-btn dy-btn-ghost dy-btn-circle"
                     onclick={async () => await shareAnnotations(toSorted(data.notes, sortOrder))}
                 >
-                    <ShareIcon color="white" />
+                    <ShareIcon color={$actionBarColor} />
                 </button>
                 <SortMenu menuaction={(e) => handleSortAction(e)} {...sortMenu} />
             {/snippet}
@@ -79,7 +81,7 @@
     </div>
 
     <div
-        class="overflow-y-auto p-2.5 max-w-screen-md mx-auto w-full"
+        class="overflow-y-auto p-2.5 max-w-breakpoint-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
         <SafariAnnotationWarning />
