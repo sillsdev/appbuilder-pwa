@@ -118,7 +118,7 @@
                 class="footnote rounded-sm h-40 shadow-lg overflow-y-auto"
                 onclick={(e) => {
                     e.stopPropagation();
-                    insideClick(e.currentTarget);
+                    insideClick((e.target || e.currentTarget) as HTMLElement);
                 }}
             >
                 <div
