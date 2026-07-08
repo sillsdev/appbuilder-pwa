@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, type PathLike } from 
 import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
+    AudioConfig,
     BookCollectionAudioConfig,
     BookCollectionConfig,
     BookTabConfig,
@@ -14,6 +15,8 @@ import type {
 } from '$config';
 import jsdom from 'jsdom';
 import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
+import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
+import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
 import { splitVersion } from './stringUtils';
@@ -231,7 +234,7 @@ function extractProgramType(document: Document) {
     return { appDefinition, programType };
 }
 
-function convertConfig(dataDir: string, verbose: number) {
+async function convertConfig(dataDir: string, verbose: number) {
     const genAssets = path.join('src/gen-assets');
     if (!existsSync(genAssets)) {
         mkdirSync(genAssets, { recursive: true });
@@ -373,6 +376,12 @@ function convertConfig(dataDir: string, verbose: number) {
             data.watermarkImages = watermarkImages;
         }
     }
+
+    /**
+     * DAB, SAB: depends on audioSources
+     * SAB only: depends on audioSources, videos, bookCollections
+     */
+    await verifyMediaAvailability(data, verbose);
 
     const menuItems = parseMenuItems(document, 'drawer', verbose);
     if (menuItems.length > 0) {
@@ -1309,6 +1318,168 @@ export function parseVideos(document: Document, verbose: number) {
     return videos;
 }
 
+export async function verifyMediaAvailability(config: AppConfig, verbose: number) {
+    type MediaType =
+        | ({ type: 'file' } & NonNullable<AudioConfig['files']>[number])
+        | ({ type: 'video' } & NonNullable<ScriptureConfig['videos']>[number])
+        | ({
+              type: 'book';
+              collection: string;
+              book: string;
+              chapter: string;
+          } & BookCollectionAudioConfig);
+    // check all downloadable files
+    const sources = new Map(
+        Object.entries(config.audio?.sources ?? {})
+            .filter((s) => s[1].accessMethods?.includes('download'))
+            .map(([key, value]) => [
+                key,
+                {
+                    ...value,
+                    errored: false,
+                    media: [
+                        ...(config.audio?.files
+                            ?.filter((f) => f.src === key)
+                            .map((f) => ({ type: 'file', ...f })) ?? []),
+                        ...(isSAB(config)
+                            ? [
+                                  ...(config.videos
+                                      ?.filter((v) => v.src === key)
+                                      .map((v) => ({ type: 'video', ...v })) ?? []),
+                                  ...(config.bookCollections?.flatMap((bc) =>
+                                      bc.books.flatMap((b) =>
+                                          b.audio
+                                              .filter((a) => a.src === key)
+                                              .map((a) => ({
+                                                  type: 'book',
+                                                  ...a,
+                                                  collection: bc.id,
+                                                  book: b.id,
+                                                  chapter: String(a.num)
+                                              }))
+                                      )
+                                  ) ?? [])
+                              ]
+                            : [])
+                    ] as MediaType[]
+                }
+            ])
+    );
+
+    if (verbose && sources.size) {
+        console.log(`Verifying access to ${sources.size} media sources...`);
+    }
+
+    for (const [key, source] of sources.entries()) {
+        if (verbose) {
+            if (source.media.length) {
+                console.log(
+                    ` Verifying access to ${source.media.length} files for media source ${key} (${source.type}) - ${source.name}...`
+                );
+            } else {
+                console.log(
+                    ` ⚠️ No media included for source ${key} (${source.type}) - ${source.name}`
+                );
+            }
+        }
+
+        let pass = true;
+
+        await Promise.all(
+            source.media.map(async (v) => {
+                let path = '';
+                if (source.type === 'fcbh' && v.type === 'book') {
+                    const res = await getBibleBrainUrl(source, v, (source) => source.damId);
+                    if (res.error) {
+                        pass = false;
+                        console.log(
+                            ` ⚠️ ${key} - (${v.collection} ${v.book} ${v.chapter}) API Error: ${res.error}`
+                        );
+                    } else {
+                        path = res.path ?? '';
+                    }
+                } else if (source.type === 'download') {
+                    path = pathJoin([source.address, v.type === 'file' ? v.name : v.filename]);
+                }
+
+                if (path) {
+                    return fetch(path, { method: 'HEAD' }).then(
+                        (response) => {
+                            if (!response.ok) {
+                                pass = false;
+                                console.log(` ⚠️ ${key} - ${response.statusText} ${path}`);
+                            } else if (verbose) {
+                                console.log(` ✅ ${key} - ${response.statusText}  ${path}`);
+                            }
+                        },
+                        (rejection) => {
+                            pass = false;
+                            console.log(` ⚠️ ${key} - ${rejection} ${path}`);
+                        }
+                    );
+                }
+            })
+        );
+
+        if (!pass) {
+            source.errored = true;
+        }
+    }
+
+    if (isSAB(config)) {
+        // check all remote videos
+        const remoteVideos = config.videos?.filter((v) => v.onlineUrl) ?? [];
+        if (verbose && remoteVideos.length) {
+            console.log(`Verifying access to ${remoteVideos.length} remote videos...`);
+        }
+        await Promise.all(
+            remoteVideos.map((v) =>
+                fetch(v.onlineUrl, { method: 'HEAD' }).then(
+                    (response) => {
+                        if (!response.ok) {
+                            console.log(
+                                ` ⚠️ ${response.statusText} "${v.title ?? v.id}" (${v.onlineUrl})`
+                            );
+                        } else if (verbose) {
+                            console.log(
+                                ` ✅ ${response.statusText} "${v.title ?? v.id}" (${v.onlineUrl})`
+                            );
+                        }
+                    },
+                    (rejection) =>
+                        console.log(` ⚠️ ${rejection} "${v.title ?? v.id}" (${v.onlineUrl})`)
+                )
+            )
+        );
+    }
+
+    for (const [key, source] of sources.entries()) {
+        if (source.errored) {
+            config.audio!.sources[key].accessMethods = config.audio!.sources[
+                key
+            ].accessMethods?.filter((m) => m !== 'download');
+            console.log(
+                ` ⚠️ An error was encountered when verifying download access to media source ${key} (${source.type}) - ${source.name}. Download access to this source has been removed for this build.`
+            );
+        }
+    }
+
+    const noAccessMethods = Object.entries(config.audio?.sources ?? {})
+        .filter(
+            (s) => (s[1].type === 'download' || s[1].type === 'fcbh') && !s[1].accessMethods?.length
+        )
+        .map(([k, v]) => `${k} (${v.type}) - ${v.name}`)
+        .join(', ');
+
+    if (noAccessMethods) {
+        const missinMethodError = new Error(
+            `No access methods found for media sources ${noAccessMethods}.`
+        );
+        missinMethodError.stack = `Error in ${__filename}:verifyMediaAvailability(): ${missinMethodError.message}`;
+        throw missinMethodError;
+    }
+}
+
 export function parseIllustrations(document: Document, verbose: number) {
     const imagesTags = document.getElementsByTagName('images');
     const illustrations: any[] = [];
@@ -1701,8 +1872,8 @@ export interface ConfigTaskOutput extends TaskOutput {
  */
 export class ConvertConfig extends Task {
     public triggerFiles: string[] = ['appdef.xml'];
-    public run(verbose: number): ConfigTaskOutput {
-        const data = convertConfig(this.dataDir, verbose);
+    public async run(verbose: number): Promise<ConfigTaskOutput> {
+        const data = await convertConfig(this.dataDir, verbose);
         return {
             taskName: 'ConvertConfig',
             data,

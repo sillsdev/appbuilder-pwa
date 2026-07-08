@@ -105,18 +105,18 @@ export type BookCollectionConfig = {
     collectionDescription?: string;
 };
 
+export type AudioSource = {
+    type: string;
+    name: string;
+    accessMethods?: string[];
+    folder?: string;
+    key?: string;
+    damId?: string;
+    address?: string;
+};
+
 export type AudioConfig = {
-    sources: {
-        [key: string]: {
-            type: string;
-            name: string;
-            accessMethods?: string[];
-            folder?: string;
-            key?: string;
-            damId?: string;
-            address?: string;
-        };
-    };
+    sources: Record<string, AudioSource>;
     files?: {
         name: string;
         src: string;

@@ -1,4 +1,5 @@
 import { scriptureConfig } from '$assets/config';
+import type { AudioSource } from '$config';
 import { MRUCache } from '$lib/data/mrucache';
 import {
     audioHighlightElements,
@@ -13,6 +14,7 @@ import {
     type PlayModeSettings,
     type Timing
 } from '$lib/data/stores';
+import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
@@ -662,9 +664,10 @@ export function updatePlaybackSpeed(playbackSpeed: string) {
         currentAudioPlayer.audio.playbackRate = parseFloat(playbackSpeed);
     }
 }
-function getDamId(audioSource: any) {
+
+function getDamId(audioSource: AudioSource) {
     let damId = audioSource.damId;
-    if (damId.endsWith('-opus16')) {
+    if (damId?.endsWith('-opus16')) {
         // Check to see if the browser can handle webm files.
         const audio = new Audio();
         if (!audio.canPlayType('audio/webm')) {
@@ -673,6 +676,7 @@ function getDamId(audioSource: any) {
     }
     return damId;
 }
+
 export async function getAudioSourceInfo(
     item: Partial<{
         collection: string;
@@ -693,24 +697,12 @@ export async function getAudioSourceInfo(
     let audioPath = null;
 
     if (audioSource?.type === 'fcbh') {
-        const dbp4 = audioSource.address ? audioSource.address : 'https://4.dbt.io';
-        // if (source.accessMethods.includes('download')) {
-        //    // TODO: Figure out how to use Cache API to download audio to PWA
-        // }
-        const damId = getDamId(audioSource);
-        const request = `${dbp4}/api/bibles/filesets/${damId}/${item.book}/${item.chapter}?v=4&key=${audioSource.key}`;
-        const response = await fetch(request, {
-            method: 'GET',
-            headers: {
-                accept: 'application/json'
-            }
-        });
-        const result = await response.json();
+        const result = await getBibleBrainUrl(audioSource, item, getDamId);
         if (result.error) {
-            throw `Failed to connect to BibleBrain: ${result.error}`;
+            throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
         }
 
-        audioPath = result.data[0].path;
+        audioPath = result.path;
     } else if (audioSource?.type === 'assets') {
         const audioKey = `./${audio.filename}`;
         if (!audioSources[audioKey]) {
