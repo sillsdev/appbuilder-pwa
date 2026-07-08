@@ -13,6 +13,7 @@ import type {
     WritingSystemConfig
 } from '$config';
 import jsdom from 'jsdom';
+import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
 import { splitVersion } from './stringUtils';
@@ -210,14 +211,6 @@ function setConfigType(programType: string) {
     }
 }
 
-function isScriptureConfig(data: ScriptureConfig | DictionaryConfig): data is ScriptureConfig {
-    return data.programType === 'SAB';
-}
-
-function isDictionaryConfig(data: ScriptureConfig | DictionaryConfig): data is DictionaryConfig {
-    return data.programType === 'DAB';
-}
-
 export function getProgramType(dataDir: string) {
     return extractProgramType(openConfigAsXMLDocument(dataDir)).programType;
 }
@@ -287,7 +280,7 @@ function convertConfig(dataDir: string, verbose: number) {
     const mainStyles = document.querySelector('styles')!;
     data.styles = parseStyles(mainStyles, verbose);
 
-    if (isDictionaryConfig(data)) {
+    if (isDAB(data)) {
         const singleEntryStyles = document.querySelector('styles[type=single-entry]');
         if (singleEntryStyles) {
             data.singleEntryStyles = parseStyles(singleEntryStyles, verbose);
@@ -296,7 +289,7 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    if (isScriptureConfig(data)) {
+    if (isSAB(data)) {
         data.traits = parseTraits(document, dataDir, verbose);
         data.bookCollections = parseBookCollections(document, dataDir, verbose);
 
@@ -306,7 +299,7 @@ function convertConfig(dataDir: string, verbose: number) {
                 (bc) => bc.books.filter((b) => b.type === 'glossary').length > 0
             ).length > 0;
     }
-    if (isDictionaryConfig(data)) {
+    if (isDAB(data)) {
         const writingSystems: { [key: string]: DictionaryWritingSystemConfig } = {};
         const writingSystemsTag = document.getElementsByTagName('writing-systems')[0];
         const writingSystemTags = writingSystemsTag.getElementsByTagName('writing-system');
@@ -348,7 +341,7 @@ function convertConfig(dataDir: string, verbose: number) {
         }
     }
 
-    if (isScriptureConfig(data)) {
+    if (isSAB(data)) {
         const videos = parseVideos(document, verbose);
         if (videos.length > 0) {
             data.videos = videos;
@@ -386,7 +379,7 @@ function convertConfig(dataDir: string, verbose: number) {
         data.menuItems = menuItems;
     }
 
-    if (isScriptureConfig(data)) {
+    if (isSAB(data)) {
         const bottomNavigationItems = parseMenuItems(document, 'bottom', verbose);
         if (bottomNavigationItems.length > 0) {
             data.bottomNavBarItems = bottomNavigationItems;
@@ -1644,7 +1637,7 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
     data.mainFeatures['user-accounts'] = false;
 
     // Two pane and Verse-By-Verse are not done
-    if (isScriptureConfig(data)) {
+    if (isSAB(data)) {
         // Two pane and Verse-By-Verse are not done
         if (data.layouts) {
             for (const layout of data.layouts) {

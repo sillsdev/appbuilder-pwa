@@ -12,8 +12,6 @@ The sidebar/drawer.
     import {
         direction,
         fontChoices,
-        isDAB,
-        isSAB,
         language,
         languageDefault,
         modal,
@@ -41,6 +39,7 @@ The sidebar/drawer.
         ShareIcon,
         TextAppearanceIcon
     } from '$lib/icons';
+    import { isDAB, isSAB } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { showTextAppearance } from './TextAppearanceSelector.svelte';
 

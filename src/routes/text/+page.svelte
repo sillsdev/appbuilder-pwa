@@ -156,7 +156,12 @@
     const hasNext = $derived($refs.next.chapter !== null);
     const viewShowVerses = $derived(
         ($userSettings['verse-numbers'] as boolean) ??
-            getFeatureValueBoolean('show-verse-numbers', $refs.collection, $refs.book)
+            getFeatureValueBoolean(
+                scriptureConfig,
+                'show-verse-numbers',
+                $refs.collection,
+                $refs.book
+            )
     );
 
     const minFontSize = config.mainFeatures['text-size-min'] as number;
@@ -177,7 +182,12 @@
     }
 
     const audioPhraseEndChars = $derived(
-        getFeatureValueString('audio-phrase-end-chars', $refs.collection, $refs.book)
+        getFeatureValueString(
+            scriptureConfig,
+            'audio-phrase-end-chars',
+            $refs.collection,
+            $refs.book
+        )
     );
 
     const showSearch = !!config.mainFeatures['search'];
@@ -188,7 +198,7 @@
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const showBorderSetting = $derived(
-        getFeatureValueBoolean('show-border', $refs.collection, $refs.book)
+        getFeatureValueBoolean(scriptureConfig, 'show-border', $refs.collection, $refs.book)
     );
     const showBorder = $derived(
         !!(

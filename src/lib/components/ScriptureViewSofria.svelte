@@ -351,16 +351,19 @@ LOGGING:
         switch (textType) {
             case 'xref':
                 callerType = getFeatureValueString(
+                    scriptureConfig,
                     'crossref-caller-type',
                     references.collection,
                     references.book
                 );
                 callerCustomSymbol = getFeatureValueString(
+                    scriptureConfig,
                     'crossref-caller-symbol',
                     references.collection,
                     references.book
                 );
                 callerNoCallerToAuto = getFeatureValueBoolean(
+                    scriptureConfig,
                     'crossref-caller-no-caller-to-auto',
                     references.collection,
                     references.book
@@ -369,16 +372,19 @@ LOGGING:
 
             default:
                 callerType = getFeatureValueString(
+                    scriptureConfig,
                     'footnote-caller-type',
                     references.collection,
                     references.book
                 );
                 callerCustomSymbol = getFeatureValueString(
+                    scriptureConfig,
                     'footnote-caller-symbol',
                     references.collection,
                     references.book
                 );
                 callerNoCallerToAuto = getFeatureValueBoolean(
+                    scriptureConfig,
                     'footnote-caller-no-caller-to-auto',
                     references.collection,
                     references.book
@@ -595,6 +601,7 @@ LOGGING:
         if (workspace.firstVerse === true && workspace.chapterNumText !== '') {
             const div = document.createElement('div');
             const chapterNumberFormatSetting = getFeatureValueString(
+                scriptureConfig,
                 'chapter-number-format',
                 references.collection,
                 references.book
@@ -2030,6 +2037,7 @@ LOGGING:
                                 if (element.subType === 'chapter_label') {
                                     if (
                                         getFeatureValueBoolean(
+                                            scriptureConfig,
                                             'show-chapter-numbers',
                                             references.collection,
                                             references.book
@@ -2050,6 +2058,7 @@ LOGGING:
                                             const div = document.createElement('div');
                                             const chapterNumberFormatSetting =
                                                 getFeatureValueString(
+                                                    scriptureConfig,
                                                     'chapter-number-format',
                                                     references.collection,
                                                     references.book

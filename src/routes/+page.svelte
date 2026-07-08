@@ -2,8 +2,9 @@
     import { goto } from '$app/navigation';
     import config from '$assets/config';
     import contents from '$assets/contents';
-    import { audioActive, isDAB, isFirstLaunch } from '$lib/data/stores';
+    import { audioActive, isFirstLaunch } from '$lib/data/stores';
     import { navigateToTextReference } from '$lib/navigate';
+    import { isDAB } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';

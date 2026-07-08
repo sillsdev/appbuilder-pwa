@@ -1,7 +1,8 @@
 import config, { scriptureConfig } from '$assets/config';
-import type { AppConfig, DictionaryConfig, FeatureConfig, ScriptureConfig } from '$config';
+import type { FeatureConfig } from '$config';
 import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
+import { isSAB } from '$lib/scripts/configUtils';
 import { derived, readable, writable } from 'svelte/store';
 
 export const SettingsCategory = {
@@ -47,14 +48,6 @@ const sabDefaultSettings = {
     'desktop-sidebar': false,
     'scripture-logs': false
 };
-
-export function isSAB(data: AppConfig): data is ScriptureConfig {
-    return data.programType === 'SAB';
-}
-
-export function isDAB(data: AppConfig): data is DictionaryConfig {
-    return data.programType === 'DAB';
-}
 
 export const defaultSettings: FeatureConfig = isSAB(config)
     ? { ...commonDefaultSettings, ...sabDefaultSettings }
