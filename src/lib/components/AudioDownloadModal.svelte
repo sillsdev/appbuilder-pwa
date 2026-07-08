@@ -25,6 +25,7 @@ Plan Stop Modal Dialog component.
         if (downloadAutomatically) {
             $userSettings['audio-auto-download'] = 'auto';
         }
+        downloadProgress = 50;
         let addedAudioClip = await addAudioClip(
             {
                 docSet: $refs.docSet,
@@ -34,7 +35,8 @@ Plan Stop Modal Dialog component.
             },
             url
         );
-        console.log('Download finished!'); //We'll need an actual progress bar instead of just a console.log showing when it's finished.
+        downloadProgress = 0; //Maybe change it to use a stream rather than downloading the blob all at once so we can actually show the progress and cancel it mid-download
+        console.log('Download finished!');
         return addedAudioClip;
     }
     async function finishModal() {
@@ -46,6 +48,13 @@ Plan Stop Modal Dialog component.
             }, 2000);
         }
     }
+    let downloadProgress = $state(0);
+    let cancelDownload = false;
+    let audioDownloadingMessage = $derived(
+        $t['Audio_Downloading']
+            .replace('%book', $refs.name || $refs.book)
+            .replace('%chapter', $refs.chapter)
+    );
 </script>
 
 <Modal bind:this={modal} id={modalId}>
@@ -100,6 +109,34 @@ Plan Stop Modal Dialog component.
             class="dy-modal-box overflow-y-visible relative opacity-100 text-red-500 text-center pointer-events-auto"
         >
             {error}
+        </div>
+    </div>
+{/if}
+{#if downloadProgress > 0}
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
+        <div
+            class="bg-base-100 p-6 shadow-xl w-80
+              flex flex-col justify-between h-64"
+        >
+            <div class="flex flex-col gap-1 text-left">
+                <p class="text-lg font-bold">{$t['Audio_Download_Title']}</p>
+                <!--Figure out the exact styling and such later-->
+                <p class="text-sm">{audioDownloadingMessage}</p>
+            </div>
+
+            <div class="w-full">
+                <progress class="dy-progress w-full" value={downloadProgress} max="100"></progress>
+            </div>
+
+            <div class="flex justify-end">
+                <button
+                    class="dy-btn dy-btn-sm dy-btn-ghost"
+                    onclick={() => {
+                        downloadProgress = 0;
+                        cancelDownload = true;
+                    }}>{$t['Button_Cancel']}</button
+                >
+            </div>
         </div>
     </div>
 {/if}
