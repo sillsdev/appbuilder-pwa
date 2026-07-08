@@ -207,10 +207,12 @@ export type Selection = {
     reference: string;
     verse: string;
 };
-
+setDefaultStorage('selectedVerses', JSON.stringify([]));
 function createSelectedVerses() {
-    const external: Writable<Selection[]> = writable([]);
-
+    const external: Writable<Selection[]> = writable(JSON.parse(localStorage.selectedVerses));
+    external.subscribe(
+        (selectedVerses) => (localStorage.selectedVerses = JSON.stringify(selectedVerses))
+    );
     return {
         subscribe: external.subscribe,
         addVerse: (id: string | number) => {
