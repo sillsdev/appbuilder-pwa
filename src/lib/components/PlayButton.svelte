@@ -11,6 +11,11 @@
         'outline-circle': {
             play: AudioIcon.PlayOutlineCircle,
             pause: AudioIcon.PauseOutlineCircle
+        },
+
+        'filled-circle': {
+            play: AudioIcon.PlayFillCircle,
+            pause: AudioIcon.PauseFillCircle
         }
     };
 
