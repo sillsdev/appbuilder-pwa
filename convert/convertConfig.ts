@@ -1409,7 +1409,12 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
                 }
 
                 if (path) {
-                    return testRemoteAccess(path, (status) => `${key} - ${status} ${path}`, () => (pass = false), verbose);
+                    return testRemoteAccess(
+                        path,
+                        (status) => `${key} - ${status} ${path}`,
+                        () => (pass = false),
+                        verbose
+                    );
                 }
             })
         );
@@ -1427,7 +1432,12 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
         }
         await Promise.all(
             remoteVideos.map((v) =>
-                testRemoteAccess(v.onlineUrl, (status) => `${status} "${v.title ?? v.id}" (${v.onlineUrl})`, () => {}, verbose)
+                testRemoteAccess(
+                    v.onlineUrl,
+                    (status) => `${status} "${v.title ?? v.id}" (${v.onlineUrl})`,
+                    () => {},
+                    verbose
+                )
             )
         );
     }
