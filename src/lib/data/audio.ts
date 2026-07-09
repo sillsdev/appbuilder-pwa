@@ -786,7 +786,7 @@ export async function getAudioSourceInfo(
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
-        let foundAudioClip = await findAudioClip({
+        const foundAudioClip = await findAudioClip({
             collection: item.collection || '',
             book: item.book || '',
             chapter: item.chapter || ''
