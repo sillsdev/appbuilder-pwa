@@ -22,8 +22,15 @@ export const themeBookColors = derived(theme, ($theme) => {
 });
 
 export const monoIconColor = derived(theme, ($theme) => {
-    return $theme === 'Dark' ? 'white' : 'black';
+    return themeIsDark($theme) ? 'white' : 'black';
 });
+
+/**
+ * treat Dark and Charcoal as dark themes
+ */
+export function themeIsDark(theme: string) {
+    return theme === 'Dark' || theme === 'Charcoal';
+}
 
 const resolveColor = (colorValue: string, colors: Record<string, string>) => {
     if (colorValue.startsWith('#')) {

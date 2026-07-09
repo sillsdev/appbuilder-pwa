@@ -42,6 +42,7 @@ The navbar component. We have sliders that update reactively to both font size a
         monoIconColor,
         theme,
         themeColors,
+        themeIsDark,
         themes
     } from '$lib/data/stores';
     import { ImageIcon, TextAppearanceIcon } from '$lib/icons';
@@ -124,7 +125,7 @@ The navbar component. We have sliders that update reactively to both font size a
         return (
             (theme === currentTheme ? '3px' : '1px') +
             ' solid ' +
-            (theme === 'Dark' ? '#FFFFFF' : '#888888')
+            (themeIsDark(theme) ? '#FFFFFF' : '#888888')
         );
     };
 

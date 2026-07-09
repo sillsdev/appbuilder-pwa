@@ -4,7 +4,15 @@ A component that displays the book tabs and allows the user to switch between th
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { convertStyle, language, monoIconColor, refs, s, theme } from '$lib/data/stores';
+    import {
+        convertStyle,
+        language,
+        monoIconColor,
+        refs,
+        s,
+        theme,
+        themeIsDark
+    } from '$lib/data/stores';
 
     const tabIcons = import.meta.glob('./*', {
         import: 'default',
@@ -36,7 +44,7 @@ A component that displays the book tabs and allows the user to switch between th
         onclick={() => changeTab(0)}
         style={convertStyle($s?.['ui.book.tabs'])}
     >
-        <picture class:invert={$theme === 'Dark'}>
+        <picture class:invert={themeIsDark($theme)}>
             <img
                 src={tabIcons[`./${getImageName(bookTabs?.mainType)}`]}
                 color={$monoIconColor}
@@ -52,7 +60,7 @@ A component that displays the book tabs and allows the user to switch between th
             onclick={() => changeTab(i + 1)}
             style={convertStyle($s?.['ui.book.tabs'])}
         >
-            <picture class:invert={$theme === 'Dark'}>
+            <picture class:invert={themeIsDark($theme)}>
                 <img
                     src={tabIcons[`./${getImageName(bookTab.type)}`]}
                     color={$monoIconColor}

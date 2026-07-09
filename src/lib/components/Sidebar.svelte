@@ -24,6 +24,7 @@ The sidebar/drawer.
         t,
         theme,
         themeColors,
+        themeIsDark,
         userPreferenceSettings
     } from '$lib/data/stores';
     import {
@@ -261,7 +262,7 @@ The sidebar/drawer.
                             target="_blank"
                             rel="noreferrer"
                         >
-                            <picture class:invert={$theme === 'Dark'}>
+                            <picture class:invert={themeIsDark($theme)}>
                                 {#if (item.images?.length ?? 0) > 1}
                                     <source srcset={imageSrcSet(item.images)} />
                                 {/if}

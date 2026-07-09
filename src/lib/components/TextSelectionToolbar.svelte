@@ -26,6 +26,7 @@ TODO:
         selectedVerses,
         theme,
         themeColors,
+        themeIsDark,
         voiCustomImage
     } from '$lib/data/stores';
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
@@ -55,7 +56,7 @@ TODO:
         ]
     );
 
-    const buttonBorder = $derived('1px solid ' + ($theme === 'Dark' ? '#FFFFFF' : '#888888'));
+    const buttonBorder = $derived('1px solid ' + (themeIsDark($theme) ? '#FFFFFF' : '#888888'));
 
     let selectedVerseBookmarks = $state(-1);
     async function updateSelectedVerseBookmarks() {

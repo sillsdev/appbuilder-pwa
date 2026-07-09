@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import { language, languageDefault, refs, s, theme } from '$lib/data/stores';
+    import { language, languageDefault, refs, s, theme, themeIsDark } from '$lib/data/stores';
     import { resolve } from '$lib/utils/paths';
 
     const menuIcons = import.meta.glob('./*', {
@@ -135,7 +135,7 @@
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
                             onclick={() => handleClick(item.type, item.link?.['default'])}
                         >
-                            <picture class:invert={$theme === 'Dark'}>
+                            <picture class:invert={themeIsDark($theme)}>
                                 <!-- Image Icon -->
                                 <img
                                     src={menuIcons[`./${item.images?.[0]?.file}`]}
