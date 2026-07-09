@@ -93,7 +93,7 @@ if (programType === 'DAB') {
         expect(result).not.toHaveLength(0);
         for (const bookCol in result) {
             const bc = result[bookCol];
-            expect(Object.keys(bc)).toHaveLength(13);
+            expect(Object.keys(bc)).toHaveLength(14);
             expect(bc.id).not.toBe('');
             expect(bc.collectionName).not.toBe('');
             expect(bc.collectionAbbreviation).not.toBe('');
