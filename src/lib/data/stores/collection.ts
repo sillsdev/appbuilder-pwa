@@ -58,8 +58,21 @@ function createInitCollections(): App.CollectionGroup {
 
 const initCollections: App.CollectionGroup = createInitCollections();
 
+function loadPersistedSelectedLayouts(): App.CollectionGroup {
+    if (typeof localStorage === 'undefined') {
+        return initCollections;
+    }
+    try {
+        return localStorage.selectedLayouts
+            ? JSON.parse(localStorage.selectedLayouts)
+            : initCollections;
+    } catch {
+        return initCollections;
+    }
+}
 function createSelectedLayouts() {
-    const external = writable<App.CollectionGroup>(initCollections);
+    const external = writable<App.CollectionGroup>(loadPersistedSelectedLayouts());
+    external.subscribe((value) => (localStorage.selectedLayouts = JSON.stringify(value)));
 
     return {
         subscribe: external.subscribe,

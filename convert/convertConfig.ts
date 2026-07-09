@@ -1639,10 +1639,10 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
 
     // Two pane and Verse-By-Verse are not done
     if (isScriptureConfig(data)) {
-        // Two pane and Verse-By-Verse are not done
+        // Two pane is not done
         if (data.layouts) {
             for (const layout of data.layouts) {
-                if (layout.mode === 'two' || layout.mode === 'verse-by-verse') {
+                if (layout.mode === 'two') {
                     layout.enabled = false;
                 }
             }

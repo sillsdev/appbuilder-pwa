@@ -54,6 +54,7 @@ LOGGING:
         currentPlanState,
         footnotes,
         language,
+        layout,
         logs,
         modal,
         ModalType,
@@ -143,6 +144,12 @@ LOGGING:
 
     let container: HTMLElement = $state();
     let displayingIntroduction = $state(false);
+    let timesRendered = $state(0);
+    $effect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        $refs;
+        timesRendered = 0;
+    });
 
     const fnc = 'abcdefghijklmnopqrstuvwxyz';
     /** calculate letter index from number
@@ -155,6 +162,9 @@ LOGGING:
             fnc.charAt(index % fnc.length)
         );
     }
+    const layoutMode = $derived($layout.mode);
+    const verseByVerseMode = $derived(layoutMode === 'verse-by-verse');
+    let currentCollection: string;
     let planDivObserver = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
     // Function to observe the visibility of the plan div
@@ -311,7 +321,10 @@ LOGGING:
                     break;
             }
             const phraseIndex = createLetterIndex(workspace.currentPhraseIndex);
-            div.id = workspace.currentVerse + phraseIndex;
+
+            if (!verseByVerseMode || timesRendered === 1) {
+                div.id = workspace.currentVerse + phraseIndex;
+            }
             div.setAttribute('data-verse', workspace.currentVerse);
             div.setAttribute('data-phrase', phraseIndex);
             div.classList.add('txs', 'seltxt', 'scroll-item');
@@ -567,7 +580,9 @@ LOGGING:
     };
     function appendPhrase(workspace) {
         workspace.lastPhrase = workspace.phraseDiv.getAttribute('data-phrase');
-        if (versePerLine) {
+        if (verseByVerseMode && workspace.currentVerseByVerseDiv) {
+            workspace.currentVerseByVerseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
+        } else if (versePerLine) {
             workspace.verseDiv.appendChild(workspace.phraseDiv.cloneNode(true));
         } else {
             workspace.paragraphDiv.appendChild(workspace.phraseDiv.cloneNode(true));
@@ -606,19 +621,25 @@ LOGGING:
                 // So override that style based on the current directin of the text
                 div.style.float = direction.toLowerCase() === 'ltr' ? 'left' : 'right';
                 div.innerText = workspace.chapterNumText;
-                workspace.paragraphDiv.appendChild(div);
-                if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
-                    addVerseNumber(workspace, element, showVerseNumbers);
+                if (timesRendered === 1) {
+                    workspace.paragraphDiv.appendChild(div);
+                    if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
+                        addVerseNumber(workspace, element, showVerseNumbers);
+                    }
                 }
             } else {
                 // chapter at top of page
                 div.classList.add('c');
                 div.innerText = workspace.chapterNumText;
-                workspace.root.appendChild(div);
-                addVerseNumber(workspace, element, showVerseNumbers);
+                if (timesRendered === 1) {
+                    workspace.root.appendChild(div);
+                    addVerseNumber(workspace, element, showVerseNumbers);
+                }
             }
         } else {
-            addVerseNumber(workspace, element, showVerseNumbers);
+            if (timesRendered === 1) {
+                addVerseNumber(workspace, element, showVerseNumbers);
+            }
         }
         workspace.firstVerse = false;
     }
@@ -1514,7 +1535,15 @@ LOGGING:
         if (!proskomma) {
             return;
         }
+        timesRendered = 0;
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
+        if (verseByVerseMode) {
+            if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
+                for (const i in $layout.auxDocSets) {
+                    await loadDocSetIfNotLoaded(proskomma, $layout?.auxDocSets?.[i], fetch);
+                }
+            }
+        }
         const cl = new SofriaRenderFromProskomma({
             proskomma,
             actions: {
@@ -1530,8 +1559,11 @@ LOGGING:
                                     context.document.metadata.document
                                 );
                             }
+                            timesRendered = timesRendered + 1;
                             preprocessAction('startDocument', workspace);
-                            bookRoot.replaceChildren();
+                            if (timesRendered <= 1) {
+                                bookRoot.replaceChildren();
+                            }
                             workspace.root = bookRoot;
                             workspace.footnoteIndex = 0;
                             workspace.footnoteIdIndex = 0;
@@ -1591,22 +1623,24 @@ LOGGING:
                                 console.log('End Document');
                             }
                             preprocessAction('endDocument', workspace);
-                            addOnClickDivs();
-                            if (!displayingIntroduction) {
-                                addNotedVerses(notes);
-                                addBookmarkedVerses(bookmarks);
-                                addHighlightedVerses(highlights);
-                                if (showVideo()) {
-                                    addVideos(videos);
+                            if (timesRendered === 1) {
+                                addOnClickDivs();
+                                if (!displayingIntroduction) {
+                                    addNotedVerses(notes);
+                                    addBookmarkedVerses(bookmarks);
+                                    addHighlightedVerses(highlights);
+                                    if (showVideo()) {
+                                        addVideos(videos);
+                                    }
+                                    if (showImage()) {
+                                        addIllustrations(illustrations);
+                                    }
+                                    addPlanDiv(workspace, '-1');
                                 }
-                                if (showImage()) {
-                                    addIllustrations(illustrations);
+                                addFooter(document, workspace.root, docSet);
+                                if (references) {
+                                    observeVisibility();
                                 }
-                                addPlanDiv(workspace, '-1');
-                            }
-                            addFooter(document, workspace.root, docSet);
-                            if (references) {
-                                observeVisibility();
                             }
                         }
                     }
@@ -1717,37 +1751,6 @@ LOGGING:
                                     workspace.titleGraft
                                 )
                             ) {
-                                switch (sequenceType) {
-                                    case 'main': {
-                                        if (scriptureLogs?.paragraph) {
-                                            console.log('End main paragraph');
-                                        }
-                                        if (
-                                            workspace.phraseDiv != null &&
-                                            workspace.phraseDiv.innerText !== ''
-                                        ) {
-                                            appendPhrase(workspace);
-                                            workspace.phraseDiv = null;
-                                        }
-                                        if (versePerLine) {
-                                            if (workspace.verseDiv !== null) {
-                                                workspace.paragraphDiv.appendChild(
-                                                    workspace.verseDiv.cloneNode(true)
-                                                );
-                                                workspace.verseDiv = document.createElement('div');
-                                            }
-                                        }
-                                        // Build div
-                                        if (workspace.paragraphDiv.innerHTML !== '') {
-                                            workspace.root.appendChild(workspace.paragraphDiv);
-                                        }
-                                        if (workspace.videoDiv) {
-                                            workspace.root.appendChild(workspace.videoDiv);
-                                            workspace.videoDiv = null;
-                                        }
-                                        break;
-                                    }
-                                }
                                 if (sequenceType == 'main') {
                                     if (scriptureLogs?.paragraph) {
                                         console.log('End main paragraph');
@@ -1769,10 +1772,14 @@ LOGGING:
                                     }
                                     // Build div
                                     if (workspace.paragraphDiv.innerHTML !== '') {
-                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                        if (timesRendered === 1) {
+                                            workspace.root.appendChild(workspace.paragraphDiv);
+                                        }
                                     }
                                     if (workspace.videoDiv) {
-                                        workspace.root.appendChild(workspace.videoDiv);
+                                        if (timesRendered === 1) {
+                                            workspace.root.appendChild(workspace.videoDiv);
+                                        }
                                         workspace.videoDiv = null;
                                     }
                                 } else if (sequenceType == 'title') {
@@ -1786,7 +1793,9 @@ LOGGING:
                                     workspace.titleSpan = null;
                                 } else if (sequenceType == 'heading') {
                                     workspace.headerDiv.appendChild(workspace.headerInnerDiv);
-                                    workspace.root.appendChild(workspace.headerDiv);
+                                    if (timesRendered === 1) {
+                                        workspace.root.appendChild(workspace.headerDiv);
+                                    }
                                     workspace.headerInnerDiv = null;
                                     workspace.headerDiv = null;
                                 } else if (sequenceType == 'introduction') {
@@ -1797,7 +1806,9 @@ LOGGING:
                                         appendPhrase(workspace);
                                         workspace.phraseDiv = null;
                                     }
-                                    workspace.root.appendChild(workspace.paragraphDiv);
+                                    if (timesRendered === 1) {
+                                        workspace.root.appendChild(workspace.paragraphDiv);
+                                    }
                                 }
                             }
                         }
@@ -1824,6 +1835,59 @@ LOGGING:
                                 if (versePerLine) {
                                     workspace.verseDiv = document.createElement('div');
                                     workspace.verseDiv.classList.add('verse-block');
+                                }
+                                if (verseByVerseMode) {
+                                    const collectionBeingUsed =
+                                        scriptureConfig.bookCollections?.find(
+                                            (x) => x.languageCode + '_' + x.id === currentCollection
+                                        );
+                                    const collectionDirection =
+                                        collectionBeingUsed?.style?.textDirection;
+                                    const font = collectionBeingUsed?.style?.font;
+                                    const fontSize = collectionBeingUsed?.style?.textSize;
+                                    const lineHeight = collectionBeingUsed?.style?.lineHeight;
+                                    if (timesRendered > 1) {
+                                        workspace.verseByVerseDivRoot = document.getElementById(
+                                            'verseblock-' + element.atts['number']
+                                        );
+                                        workspace.currentVerseByVerseDiv =
+                                            document.createElement('div');
+                                        workspace.currentVerseByVerseDiv.classList.add(
+                                            'verse-by-verse-verse'
+                                        );
+                                        workspace.currentVerseByVerseDiv.classList.add(
+                                            'verse-by-verse-block'
+                                        );
+                                        workspace.currentVerseByVerseDiv.classList.add(
+                                            'verse-by-verse-' + (timesRendered - 1)
+                                        );
+                                        if (collectionDirection) {
+                                            workspace.currentVerseByVerseDiv.style.direction =
+                                                collectionDirection.toLowerCase();
+                                        }
+                                        if (font) {
+                                            workspace.currentVerseByVerseDiv.style.fontFamily =
+                                                font;
+                                        }
+                                        if (fontSize) {
+                                            workspace.currentVerseByVerseDiv.style.fontSize =
+                                                fontSize + 'px';
+                                        }
+                                        if (lineHeight) {
+                                            workspace.currentVerseByVerseDiv.style.lineHeight =
+                                                lineHeight + '%';
+                                        }
+                                        workspace.verseByVerseDivRoot?.appendChild(
+                                            workspace.currentVerseByVerseDiv
+                                        );
+                                    } else {
+                                        workspace.verseByVerseDivRoot =
+                                            document.createElement('div');
+                                        workspace.verseByVerseDivRoot.id =
+                                            'verseblock-' + element.atts['number'];
+                                        workspace.currentVerseByVerseDiv =
+                                            workspace.verseByVerseDivRoot;
+                                    }
                                 }
                                 if (scriptureLogs?.verses) {
                                     console.log('IN: %o', workspace.phraseDiv);
@@ -1860,6 +1924,16 @@ LOGGING:
                                     );
                                     workspace.verseDiv = null;
                                 }
+
+                                if (verseByVerseMode) {
+                                    if (workspace.verseByVerseDivRoot) {
+                                        workspace.paragraphDiv.appendChild(
+                                            workspace.verseByVerseDivRoot.cloneNode(true)
+                                        );
+                                        workspace.verseByVerseDivRoot = null;
+                                    }
+                                }
+
                                 workspace.phraseDiv = null;
                                 addBookmarksDiv(workspace);
                                 addNotesDiv(workspace);
@@ -2069,7 +2143,9 @@ LOGGING:
                                                 // chapter at top of page
                                                 div.classList.add('c');
                                                 div.innerText = workspace.chapterNumText;
-                                                workspace.root.appendChild(div);
+                                                if (timesRendered === 1) {
+                                                    workspace.root.appendChild(div);
+                                                }
                                             }
                                             workspace.chapterNumText = '';
                                         }
@@ -2174,7 +2250,9 @@ LOGGING:
                                         if (scriptureLogs?.sequence) {
                                             console.log('TITLE DIV %o', div);
                                         }
-                                        workspace.root.append(div);
+                                        if (timesRendered === 1) {
+                                            workspace.root.append(div);
+                                        }
                                         break;
                                     }
                                     case 'heading': {
@@ -2667,9 +2745,45 @@ LOGGING:
         performance.mark('cl-render-start');
         // Parse whole book if no chapters
         if (chapterCount(currentBook) === 0) {
+            currentCollection = docSet;
             cl.renderDocument({ docId, config: {}, output });
+            if (verseByVerseMode) {
+                if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
+                    for (const i in $layout.auxDocSets) {
+                        const bookLookup = {};
+                        for (const docRecord of docsResult.data.documents) {
+                            if (docRecord.docSetId === $layout.auxDocSets[i]) {
+                                bookLookup[docRecord.bookCode] = docRecord.id;
+                            }
+                        }
+                        const docId = bookLookup[bookCode];
+                        if (docId) {
+                            currentCollection = $layout.auxDocSets[i];
+                            cl.renderDocument({ docId, config: {}, output });
+                        }
+                    }
+                }
+            }
         } else {
+            currentCollection = docSet;
             cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+            if (verseByVerseMode) {
+                if ($layout.auxDocSets?.length && $layout.auxDocSets.length > 0) {
+                    for (const i in $layout.auxDocSets) {
+                        const bookLookup = {};
+                        for (const docRecord of docsResult.data.documents) {
+                            if (docRecord.docSetId === $layout.auxDocSets[i]) {
+                                bookLookup[docRecord.bookCode] = docRecord.id;
+                            }
+                        }
+                        const docId = bookLookup[bookCode];
+                        if (docId) {
+                            currentCollection = $layout.auxDocSets[i];
+                            cl.renderDocument({ docId, config: { chapters: [chapter] }, output });
+                        }
+                    }
+                }
+            }
         }
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
