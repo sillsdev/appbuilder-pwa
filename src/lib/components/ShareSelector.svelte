@@ -31,9 +31,12 @@ A component providing a dropdown where you can choose to download audio or video
         const bookCol = $selectedVerses[0].collection;
         const fullBook = getBook({ collection: bookCol, book: book });
         const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
+        const copyShareMessage = scriptureConfig.bookCollections?.find(
+            (x) => x.id === bookCol
+        )?.copyShareMessage;
         shareText(
             scriptureConfig.name ?? '',
-            scriptureConfig.name + '\n\n' + text + '\n' + reference,
+            text + '\n' + reference + (copyShareMessage ? '\n' + copyShareMessage : ''),
             book + '.txt'
         );
         logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
@@ -209,8 +212,12 @@ A component providing a dropdown where you can choose to download audio or video
     } //This is used to determine a supported audio configuration. It first tries AAC, but then falls back to opus if AAC isn't supported. This is a duplicate of the function with the same name in VerseOnImage.svelte, so maybe it should be moved to somewhere that exports it for any place that needs it to use it?
     let modalId = 'shareSelector';
     let modalThis: Modal;
-    export function showModal() {
-        modalThis.showModal();
+    export function showModal(shareTextOnly: boolean) {
+        if (shareTextOnly) {
+            shareSelectedText();
+        } else {
+            modalThis.showModal();
+        }
     }
     const positioningCSS = $derived(
         'position:absolute; bottom:' +
