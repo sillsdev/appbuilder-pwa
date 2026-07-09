@@ -1403,20 +1403,7 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
                 }
 
                 if (path) {
-                    return fetch(path, { method: 'HEAD' }).then(
-                        (response) => {
-                            if (!response.ok) {
-                                pass = false;
-                                console.log(` ⚠️ ${key} - ${response.statusText} ${path}`);
-                            } else if (verbose) {
-                                console.log(` ✅ ${key} - ${response.statusText}  ${path}`);
-                            }
-                        },
-                        (rejection) => {
-                            pass = false;
-                            console.log(` ⚠️ ${key} - ${rejection} ${path}`);
-                        }
-                    );
+                    return testRemoteAccess(path, (status) => `${key} - ${status} ${path}`, () => (pass = false), verbose);
                 }
             })
         );
@@ -1434,21 +1421,7 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
         }
         await Promise.all(
             remoteVideos.map((v) =>
-                fetch(v.onlineUrl, { method: 'HEAD' }).then(
-                    (response) => {
-                        if (!response.ok) {
-                            console.log(
-                                ` ⚠️ ${response.statusText} "${v.title ?? v.id}" (${v.onlineUrl})`
-                            );
-                        } else if (verbose) {
-                            console.log(
-                                ` ✅ ${response.statusText} "${v.title ?? v.id}" (${v.onlineUrl})`
-                            );
-                        }
-                    },
-                    (rejection) =>
-                        console.log(` ⚠️ ${rejection} "${v.title ?? v.id}" (${v.onlineUrl})`)
-                )
+                testRemoteAccess(v.onlineUrl, (status) => `${status} "${v.title ?? v.id}" (${v.onlineUrl})`, () => {}, verbose)
             )
         );
     }
@@ -1477,6 +1450,41 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
         );
         missinMethodError.stack = `Error in ${__filename}:verifyMediaAvailability(): ${missinMethodError.message}`;
         throw missinMethodError;
+    }
+}
+
+async function testRemoteAccess(
+    path: string,
+    display: (status: string) => string,
+    fail: () => void,
+    verbose: number
+) {
+    try {
+        await fetch(path, {
+            method: 'OPTIONS',
+            headers: { 'Access-Control-Request-Method': 'GET', Origin: '*' }
+        }).then(
+            (response) => {
+                const origin = response.headers.get('Access-Control-Allow-Origin');
+                const methods =
+                    response.headers.get('Access-Control-Allow-Methods')?.split(/,\s*/) ?? [];
+                if (!(response.ok && origin === '*' && methods.includes('GET'))) {
+                    fail();
+                    console.log(
+                        ` ⚠️ ${display(response.statusText)}${verbose && origin !== '*' ? `\n Origin: '${origin}'` : ''}${verbose && !methods.includes('GET') ? `\n Methods: '${methods.join(', ')}'` : ''}`
+                    );
+                } else if (verbose) {
+                    console.log(` ✅ ${display(response.statusText)}`);
+                }
+            },
+            (rejection) => {
+                fail();
+                console.log(` ⚠️ ${display(rejection)}`);
+            }
+        );
+    } catch (e) {
+        fail();
+        console.log(` ⚠️ ${display(e instanceof Error ? e.message : (e as string))}`);
     }
 }
 
