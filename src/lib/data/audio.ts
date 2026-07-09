@@ -688,7 +688,7 @@ export interface AudioItem {
     blob: Blob;
 }
 interface AudioClips extends DBSchema {
-    bookmarks: {
+    audioclips: {
         key: number;
         value: AudioItem;
         indexes: {
