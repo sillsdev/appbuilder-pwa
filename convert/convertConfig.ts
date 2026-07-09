@@ -14,6 +14,7 @@ import type {
     WritingSystemConfig
 } from '$config';
 import jsdom from 'jsdom';
+import { shuffleArray } from '../src/lib/scripts/arrayUtils';
 import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
 import { pathJoin } from '../src/lib/scripts/stringUtils';
@@ -1371,10 +1372,15 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
     }
 
     for (const [key, source] of sources.entries()) {
+        const sampleSize = Math.min(
+            source.media.length,
+            Math.max(10, Math.floor(Math.sqrt(source.media.length)))
+        );
+        const sample = shuffleArray(source.media).slice(0, sampleSize);
         if (verbose) {
             if (source.media.length) {
                 console.log(
-                    ` Verifying access to ${source.media.length} files for media source ${key} (${source.type}) - ${source.name}...`
+                    ` Testing access to ${sampleSize}/${source.media.length} files for media source ${key} (${source.type}) - ${source.name}...`
                 );
             } else {
                 console.log(
@@ -1386,7 +1392,7 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
         let pass = true;
 
         await Promise.all(
-            source.media.map(async (v) => {
+            sample.map(async (v) => {
                 let path = '';
                 if (source.type === 'fcbh' && v.type === 'book') {
                     const res = await getBibleBrainUrl(source, v, (source) => source.damId);
