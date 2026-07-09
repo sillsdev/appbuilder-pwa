@@ -85,11 +85,13 @@
                         planStopDialog?.showModal();
                         break;
                     case ModalType.DownloadAudio:
-                        let audioModalData = data as { audioPath: string; show: boolean };
-                        if (audioModalData.show) {
-                            audioDownloadModal?.showModal(audioModalData.audioPath);
-                        } else {
-                            audioDownloadModal?.downloadAudio(audioModalData.audioPath);
+                        {
+                            const audioModalData = data as { audioPath: string; show: boolean };
+                            if (audioModalData.show) {
+                                audioDownloadModal?.showModal(audioModalData.audioPath);
+                            } else {
+                                audioDownloadModal?.downloadAudio(audioModalData.audioPath);
+                            }
                         }
                         break;
                     case ModalType.PlaybackSpeed:
