@@ -17,7 +17,7 @@
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { findAudioClip, playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
+    import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
     import {
         actionBarColor,
         analytics,
@@ -395,7 +395,7 @@
             }
         }
     };
-    export async function checkForAudioDownload() {
+    async function checkForAudioDownload() {
         const audio = scriptureConfig.bookCollections
             ?.find((c) => $refs.collection === c.id)
             ?.books?.find((b) => b.id === $refs.book)
@@ -405,23 +405,24 @@
             if (audioSource?.type === 'download') {
                 let audioPath = pathJoin([audioSource.address, audio.filename]);
                 if ($userSettings['audio-access-method'] === 'download') {
-                    let foundAudioClip = await findAudioClip({
-                        collection: $refs.collection || '',
-                        book: $refs.book || '',
-                        chapter: $refs.chapter || ''
+                    const response = await fetch(`/checkCache?url=${audioPath}`);
+                    const foundInCache = await response.text().then((text) => {
+                        return text === 'true';
                     });
-                    if (!foundAudioClip) {
+                    if (!foundInCache) {
                         if (audioSource?.accessMethods?.includes('download')) {
                             if ($userSettings['audio-auto-download'] === 'auto') {
                                 modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
                             } else {
                                 modal.open(ModalType.DownloadAudio, { audioPath, show: true });
                             }
+                            return false;
                         }
                     }
                 }
             }
         }
+        return true;
     }
 
     $effect(() => {

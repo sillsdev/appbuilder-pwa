@@ -67,5 +67,24 @@ self.addEventListener('fetch', (event) => {
         }
     }
 
-    event.respondWith(respond());
+    async function checkIfFileExistsInCache() {
+        const cache = await caches.open(CACHE);
+        const newHeaders = new Headers();
+
+        const remoteUrl = new URL(event.request.url).searchParams.get('url');
+
+        const forwarded = new Request(remoteUrl, {
+            method: event.request.method,
+            headers: newHeaders,
+            body: event.request.body
+        });
+
+        return new Response(String(!!(await cache.match(forwarded))));
+    }
+
+    event.respondWith(
+        event.request.url.startsWith(self.registration.scope + 'checkCache')
+            ? checkIfFileExistsInCache()
+            : respond()
+    );
 });

@@ -6,10 +6,10 @@ Audio Download Modal Dialog component.
 <script lang="ts">
     /**
 Serious issues left:
- * The loading bar is always at 50% and the cancel button doesn't work since it's downloaded as a blob rather than a stream.
- * If you click the play button on a downloadable audio source, it pops up the modal while also streaming the audio.
+* The loading bar is always at 50% and the cancel button doesn't work since it's downloaded as a blob rather than a stream.
+* If you click the play button on a downloadable audio source, it pops up the modal while also streaming the audio.
 */
-    import { addAudioClip, updateAudioPlayer } from '$lib/data/audio';
+    import { updateAudioPlayer, updateAudioSource } from '$lib/data/audio';
     import { refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
@@ -32,24 +32,20 @@ Serious issues left:
                 $userSettings['audio-auto-download'] = 'auto';
             }
             downloadProgress = 50;
-            let addedAudioClip = await addAudioClip(
-                {
-                    docSet: $refs.docSet,
-                    collection: $refs.collection,
-                    book: $refs.book,
-                    chapter: $refs.chapter
-                },
-                url
-            );
+            //$userSettings['audio-access-method'] === 'download'
+            const response = await fetch(url);
+            const blob = await response.blob();
             downloadProgress = 0; //I should change it to use a stream rather than downloading the blob all at once so we can actually show the progress and cancel it mid-download
 
-            if (!addedAudioClip) {
+            if (!blob) {
                 return false;
             }
-            updateAudioPlayer($refs);
-            return addedAudioClip;
+            const audioPath = URL.createObjectURL(blob);
+            updateAudioSource(audioPath);
+            return true;
         } catch (err) {
-            console.error('Error downloading audio fji hfuh sudfh iudfh iuhfiuo dhf: ', err);
+            downloadProgress = 0;
+            console.error('Error downloading audio: ', err);
             return false;
         }
     }
@@ -64,7 +60,6 @@ Serious issues left:
         }
     }
     let downloadProgress = $state(0);
-    let cancelDownload = false;
     let audioDownloadingMessage = $derived(
         $t['Audio_Downloading']
             .replace('%book', $refs.name || $refs.book)
@@ -148,7 +143,6 @@ Serious issues left:
                     class="dy-btn dy-btn-sm dy-btn-ghost"
                     onclick={() => {
                         //downloadProgress = 0;
-                        //cancelDownload = true;
                     }}>{$t['Button_Cancel']}</button
                 >
             </div>
