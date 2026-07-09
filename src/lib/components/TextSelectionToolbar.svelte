@@ -140,21 +140,7 @@ TODO:
         if ($refs.hasAudio?.timingFile) {
             modal.open(ModalType.Share);
         } else {
-            const book = $selectedVerses[0].book;
-            const reference = selectedVerses.getCompositeReference();
-            const text = await selectedVerses.getCompositeText();
-            const bookCol = $selectedVerses[0].collection;
-            const fullBook = getBook({ collection: bookCol, book: book });
-            const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
-            const copyShareMessage = scriptureConfig.bookCollections?.find(
-                (x) => x.id === bookCol
-            )?.copyShareMessage;
-            shareText(
-                scriptureConfig.name ?? '',
-                text + '\n' + reference + (copyShareMessage ? '\n' + copyShareMessage : ''),
-                book + '.txt'
-            );
-            logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
+            modal.open(ModalType.Share, true); //Just share the text rather than giving the user a choice about how to share it
         }
     }
 

@@ -80,6 +80,9 @@
                     case ModalType.Font:
                         fontSelector?.showModal();
                         break;
+                    case ModalType.Share:
+                        shareSelector?.showModal(data as boolean);
+                        break;
                     case ModalType.StopPlan:
                         planStopId = data as string;
                         planStopDialog?.showModal();
@@ -165,6 +168,7 @@
                 />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
+                <ShareSelector bind:this={shareSelector} />
             </div>
             {@render children()}
         </div>
