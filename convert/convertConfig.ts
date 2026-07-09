@@ -595,6 +595,15 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
         if (verbose >= 2) {
             console.log(`Converting Collection: ${tag.id}`);
         }
+        const metaTags = tag.querySelector('metadata')?.getElementsByTagName('meta');
+        let copyShareMessage: string | undefined;
+        if (metaTags) {
+            for (const metaTag of metaTags) {
+                if (metaTag.attributes.getNamedItem('name')?.value === 'copy-share-message') {
+                    copyShareMessage = metaTag.attributes.getNamedItem('content')?.value;
+                }
+            }
+        }
         const featuresTags = tag.querySelector('features[type=bc]')?.getElementsByTagName('e');
         if (!featuresTags) {
             throw 'Book collection feature tags missing';
@@ -926,7 +935,8 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
             languageName,
             footer,
             style: parseStylesInfo(stylesTag, verbose),
-            styles
+            styles,
+            copyShareMessage
         });
         if (verbose >= 3) {
             console.log(

@@ -89,6 +89,7 @@ export type BookCollectionConfig = {
     languageCode: string;
     languageName?: string;
     footer?: HTML;
+    copyShareMessage?: string;
     meta?: {
         [key: string]: string;
     };
