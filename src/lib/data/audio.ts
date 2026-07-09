@@ -16,6 +16,8 @@ import {
 } from '$lib/data/stores';
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
+import { openDB, type DBSchema } from 'idb';
+import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
 
 const audioSources = import.meta.glob('./*', {
@@ -114,18 +116,6 @@ async function getAudio() {
     }
     currentAudioPlayer.timing = audioSourceInfo.timing;
     const a = createAudio(audioSourceInfo.source);
-    a.onloadedmetadata = () => {
-        currentAudioPlayer!.duration = a.duration;
-        currentAudioPlayer!.timeIndex = 0;
-        currentAudioPlayer!.loaded = true;
-        currentAudioPlayer!.audio = a;
-        audioPlayerStore.set(currentAudioPlayer!);
-        updateTime();
-    };
-}
-
-export async function updateAudioSource(audioPath: string) {
-    const a = createAudio(audioPath);
     a.onloadedmetadata = () => {
         currentAudioPlayer!.duration = a.duration;
         currentAudioPlayer!.timeIndex = 0;
@@ -689,6 +679,79 @@ function getDamId(audioSource: AudioSource) {
     return damId;
 }
 
+export interface AudioItem {
+    date: number;
+    docSet: string;
+    collection: string;
+    book: string;
+    chapter: string;
+    blob: Blob;
+}
+interface AudioClips extends DBSchema {
+    bookmarks: {
+        key: number;
+        value: AudioItem;
+        indexes: {
+            'collection, book, chapter': string[];
+            date: string;
+        };
+    };
+}
+let audioDB: Awaited<ReturnType<typeof openDB<AudioClips>>> | null = null;
+async function openAudioClips() {
+    if (!audioDB) {
+        audioDB = await openDB<AudioClips>('audioclips', 1, {
+            upgrade(db) {
+                const audioStore = db.createObjectStore('audioclips', {
+                    keyPath: 'date'
+                });
+                audioStore.createIndex('collection, book, chapter', [
+                    'collection',
+                    'book',
+                    'chapter'
+                ]);
+                audioStore.createIndex('date', ['date']);
+            }
+        });
+    }
+    return audioDB;
+}
+export async function addAudioClip(
+    item: {
+        docSet: string;
+        collection: string;
+        book: string;
+        chapter: string;
+    },
+    url: string
+) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const audioClips = await openAudioClips();
+        const date = new Date()[Symbol.toPrimitive]('number');
+        const bookIndex = scriptureConfig.bookCollections
+            ?.find((x) => x.id === item.collection)
+            ?.books.findIndex((x) => x.id === item.book);
+        if (bookIndex !== undefined && bookIndex >= 0) {
+            const nextItem = { ...item, date: date, blob: blob };
+            await audioClips.add('audioclips', nextItem);
+        }
+        return true;
+    } catch (error) {
+        console.error('Error downloading audio:', error);
+        return false;
+    }
+}
+export async function findAudioClip(item: { collection: string; book: string; chapter: string }) {
+    const audioClips = await openAudioClips();
+    const tx = audioClips.transaction('audioclips', 'readonly');
+    const index = tx.store.index('collection, book, chapter');
+    const result = await index.getAll([item.collection, item.book, item.chapter]);
+    await tx.done;
+    return result[0];
+}
+
 export async function getAudioSourceInfo(
     item: Partial<{
         collection: string;
@@ -723,14 +786,13 @@ export async function getAudioSourceInfo(
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
-        const response = await fetch(`/checkCache?url=${audioPath}`);
-        const foundInCache = await response.text().then((text) => {
-            return text === 'true';
-        });
-        if (foundInCache) {
-            const response = await fetch(audioPath);
-            const blob = await response.blob();
-            audioPath = URL.createObjectURL(blob);
+        let foundAudioClip = await findAudioClip({
+            collection: item.collection || '',
+            book: item.book || '',
+            chapter: item.chapter || ''
+        }); //If the audio has been downloaded already, use that.
+        if (foundAudioClip) {
+            audioPath = URL.createObjectURL(foundAudioClip.blob);
         }
     }
     //parse timing file

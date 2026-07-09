@@ -141,11 +141,9 @@ TODO:
         <PlayButton
             state={playButtonState}
             color={iconPlayColor}
-            onclick={async () => {
-                const canPlayPause = await checkForAudioDownload();
-                if (canPlayPause) {
-                    playPause();
-                }
+            onclick={() => {
+                checkForAudioDownload();
+                playPause();
             }}
         />
 
