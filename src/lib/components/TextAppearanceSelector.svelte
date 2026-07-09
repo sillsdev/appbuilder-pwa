@@ -204,35 +204,15 @@ The navbar component. We have sliders that update reactively to both font size a
             {/if}
             <!-- Theme Selction buttons-->
             {#if _showThemes}
-                <div
-                    class="grid gap-2 m-2"
-                    class:grid-cols-2={themes.length === 2}
-                    class:grid-cols-3={themes.length === 3}
-                >
-                    {#if themes.includes('Normal')}
+                <div class="grid grid-cols-{themes.length} gap-2 m-2">
+                    {#each themes as t}
                         <button
                             class="dy-btn-sm"
-                            style:background-color={buttonBackground('Normal')}
-                            style:border={buttonBorder('Normal', $theme)}
-                            onclick={() => ($theme = 'Normal')}
+                            style:background-color={buttonBackground(t)}
+                            style:border={buttonBorder(t, $theme)}
+                            onclick={() => ($theme = t)}
                         ></button>
-                    {/if}
-                    {#if themes.includes('Sepia')}
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Sepia')}
-                            style:border={buttonBorder('Sepia', $theme)}
-                            onclick={() => ($theme = 'Sepia')}
-                        ></button>
-                    {/if}
-                    {#if themes.includes('Dark')}
-                        <button
-                            class="dy-btn-sm"
-                            style:background-color={buttonBackground('Dark')}
-                            style:border={buttonBorder('Dark', $theme)}
-                            onclick={() => ($theme = 'Dark')}
-                        ></button>
-                    {/if}
+                    {/each}
                 </div>
             {/if}
         </div>
