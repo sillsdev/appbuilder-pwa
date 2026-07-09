@@ -422,10 +422,12 @@
                                 modal.open(ModalType.DownloadAudio, { audioPath, show: true });
                             }
                         }
+                        return false;
                     }
                 }
             }
         }
+        return true;
     }
 
     $effect(() => {

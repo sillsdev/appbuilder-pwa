@@ -6,8 +6,7 @@ Audio Download Modal Dialog component.
 <script lang="ts">
     /**
 Serious issues left:
- * The loading bar is always at 50% and the cancel button doesn't work since it's downloaded as a blob rather than a stream.
- * If you click the play button on a downloadable audio source, it pops up the modal while also streaming the audio.
+* The loading bar is always at 50% and the cancel button doesn't work since it's downloaded as a blob rather than a stream.
 */
     import { addAudioClip, updateAudioPlayer } from '$lib/data/audio';
     import { refs, t, userSettings } from '$lib/data/stores';
