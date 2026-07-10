@@ -166,7 +166,7 @@ TODO:
         <!-- Controls -->
         <div class="place-self-center">
             {#if showHighlightPens}
-                <div class="pen-grid grid grid-rows-1 gap-2 my-2">
+                <div class="pen-grid grid grid-rows-1 gap-2 my-1">
                     {#each highlight_colors as { color, number }}
                         <button
                             class="dy-btn dy-btn-sm"
