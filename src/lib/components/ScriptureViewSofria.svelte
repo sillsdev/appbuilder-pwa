@@ -72,6 +72,7 @@ LOGGING:
         DefaultProskommaRenderWorkspace,
         type ProskommaRenderWorkspace
     } from '$lib/scripts/proskomma-render-actions/common';
+    import startDocumentActionMain from '$lib/scripts/proskomma-render-actions/startDocumentActions';
     import {
         generateHTML,
         getDisplayString,
@@ -1535,37 +1536,16 @@ LOGGING:
                         description: 'Initialize Proskomma render workspace',
                         test: () => true,
                         action: ({ context, workspace }) => {
-                            workspace = {
-                                ...workspace,
-                                ...DefaultProskommaRenderWorkspace
-                            } as ProskommaRenderWorkspace;
+                            Object.assign(workspace, DefaultProskommaRenderWorkspace);
                             bookRoot.replaceChildren();
-                            workspace.bookRoot = bookRoot;
+                            workspace.root = bookRoot;
                             workspace.paragraphDiv = document.createElement('div');
                             workspace.titleBlockDiv = document.createElement('div');
                             workspace.showWordsOfJesus = showRedLetters;
+                            console.log('WORKSPACE %o', workspace);
                         }
                     },
-                    {
-                        description: 'Set up; Book heading',
-                        test: () => true,
-                        action: ({ context, workspace }) => {
-                            if (scriptureLogs?.document) {
-                                console.log(
-                                    'Start Document: %o, %o',
-                                    context,
-                                    context.document.metadata.document
-                                );
-                            }
-                            preprocessAction('startDocument', workspace);
-                            deselectAllElements(selectedVerses);
-
-                            const div = document.createElement('div');
-                            div.setAttribute('data-verse', 'start');
-                            div.setAttribute('data-phrase', 'none');
-                            workspace.root.append(div);
-                        }
-                    }
+                    startDocumentActionMain
                 ],
                 endDocument: [
                     {
