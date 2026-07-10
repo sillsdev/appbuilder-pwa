@@ -10,6 +10,8 @@ export type ProskommaRenderAction = {
     action: ({}: any) => void;
 };
 
+export type ProskommaRenderActionFactory = ({}: any) => ProskommaRenderAction;
+
 export type ProskommaRenderWorkspace = {
     root: HTMLElement;
     footnoteIndex: number;
@@ -110,4 +112,22 @@ export function createBookRoot(doc: Document) {
     const bookRoot = doc.createElement('div');
     bookRoot.replaceChildren();
     return bookRoot;
+}
+
+const clickableClasses = ['seltext', 'r', 's', 'mt', 'imt2', 'ip', 'is', 'io', 'io2'] as const;
+export function hasClickableClass(divElement: HTMLDivElement) {
+    if (divElement.classList.contains('seltxt') && divElement.id != '') {
+        return true;
+    } else {
+        return clickableClasses.some((cls) => divElement.classList.contains(cls));
+    }
+}
+
+export function addOnClickDivs() {
+    var els = document.getElementsByTagName('div');
+    for (var i = 0; i < els.length; i++) {
+        if (hasClickableClass(els[i])) {
+            els[i].addEventListener('click', onClick, false);
+        }
+    }
 }
