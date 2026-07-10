@@ -4,8 +4,10 @@ import { updateSelections } from '$lib/scripts/verseSelectUtil';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
+import { logs } from './log';
 import { pk } from './pk';
 import { referenceStore } from './reference';
+import { userSettings } from './setting';
 
 function createStack<T>() {
     const external = writable([] as T[]);
@@ -205,6 +207,8 @@ export type Selection = {
     verse: string;
 };
 
+export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
+
 function createSelectedVerses() {
     const external: Writable<Selection[]> = persistedLocal('selectedVerses', []);
     return {
@@ -364,3 +368,49 @@ function createSelectedVerses() {
     };
 }
 export const selectedVerses = createSelectedVerses();
+
+export type ScriptureLogConfig = {
+    root: number;
+    docResult: number;
+    document: number;
+    paragraph: number;
+    phrase: number;
+    chapter: number;
+    verses: number;
+    text: number;
+    sequence: number;
+    wrapper: number;
+    milestone: number;
+    blockGraft: number;
+    inlineGraft: number;
+    mark: number;
+    meta: number;
+    row: number;
+    placement: number;
+};
+
+export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $logs]) => {
+    return (
+        $userSettings['scripture-logs']
+            ? {
+                  root: 1,
+                  docResult: 1,
+                  document: 1,
+                  paragraph: 1,
+                  phrase: 1,
+                  chapter: 1,
+                  verses: 1,
+                  text: 1,
+                  sequence: 1,
+                  wrapper: 1,
+                  milestone: 1,
+                  blockGraft: 1,
+                  inlineGraft: 1,
+                  mark: 1,
+                  meta: 1,
+                  row: 1,
+                  placement: 1
+              }
+            : $logs['scripture']
+    ) as ScriptureLogConfig;
+});
