@@ -6,7 +6,7 @@
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
 
-    let image: HTMLImageElement;
+    let image: HTMLImageElement | undefined = $state();
     let container: HTMLDivElement;
 
     let cropTop = $state(0);
@@ -38,14 +38,16 @@
             initCropBox();
         } else {
             image.addEventListener('load', initCropBox, { once: true });
-            return () => image.removeEventListener('load', initCropBox);
+            return () => image?.removeEventListener('load', initCropBox);
         }
     });
     function initCropBox() {
-        imageRect = getImageRect(image);
-        cropSize = Math.max(20, Math.min(100, imageRect.width, imageRect.height));
-        cropLeft = imageRect.left;
-        cropTop = imageRect.top;
+        if (image) {
+            imageRect = getImageRect(image);
+            cropSize = Math.max(20, Math.min(100, imageRect.width, imageRect.height));
+            cropLeft = imageRect.left;
+            cropTop = imageRect.top;
+        }
     }
     function getImageRect(img: HTMLImageElement) {
         const containerRect = container.getBoundingClientRect();
@@ -88,7 +90,7 @@
     } //2-finger resize
 
     function onTouchMove(e: TouchEvent) {
-        if (e.touches.length === 2) {
+        if (e.touches.length === 2 && image) {
             e.preventDefault();
             if (dragging) {
                 stopDrag();
@@ -126,10 +128,7 @@
     }
 
     function drag(e: PointerEvent) {
-        if (!dragging) {
-            return;
-        }
-        if (resizing) {
+        if (!dragging || resizing || !image) {
             return;
         }
 
@@ -155,7 +154,7 @@
         window.addEventListener('pointerup', stopResize);
     }
     function resize(e: PointerEvent) {
-        if (!resizing) {
+        if (!resizing || !image) {
             return;
         }
         if (dragging) {
@@ -181,33 +180,37 @@
         window.removeEventListener('pointerup', stopResize);
     }
     function getCroppedImage() {
-        const imgRect = getImageRect(image);
+        if (image) {
+            const imgRect = getImageRect(image);
 
-        const scaleX = image.naturalWidth / imgRect.width;
-        const scaleY = image.naturalHeight / imgRect.height;
+            const scaleX = image.naturalWidth / imgRect.width;
+            const scaleY = image.naturalHeight / imgRect.height;
 
-        const cropX = (cropLeft - imgRect.left) * scaleX;
-        const cropY = (cropTop - imgRect.top) * scaleY;
-        const cropImgSize = cropSize * scaleX;
+            const cropX = (cropLeft - imgRect.left) * scaleX;
+            const cropY = (cropTop - imgRect.top) * scaleY;
+            const cropImgSize = cropSize * scaleX;
 
-        const canvas = document.createElement('canvas');
-        canvas.width = cropImgSize;
-        canvas.height = cropImgSize;
+            const canvas = document.createElement('canvas');
+            canvas.width = cropImgSize;
+            canvas.height = cropImgSize;
 
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(
-            image,
-            cropX,
-            cropY,
-            cropImgSize,
-            cropImgSize,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(
+                image,
+                cropX,
+                cropY,
+                cropImgSize,
+                cropImgSize,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
 
-        return canvas.toDataURL('image/png');
+            return canvas.toDataURL('image/png');
+        } else {
+            return null;
+        }
     }
     function cropImage() {
         if (!image?.complete) {

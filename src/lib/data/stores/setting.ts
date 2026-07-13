@@ -1,8 +1,8 @@
 import config, { scriptureConfig } from '$assets/config';
 import type { AppConfig, DictionaryConfig, FeatureConfig, ScriptureConfig } from '$config';
 import { getDefaultLanguage } from '$lib/data/language';
-import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
-import { derived, readable, writable } from 'svelte/store';
+import { persistedLocal } from '$lib/data/stores/storage';
+import { derived, readable } from 'svelte/store';
 
 export const SettingsCategory = {
     Interface: 'Settings_Category_Interface',
@@ -13,8 +13,11 @@ export const SettingsCategory = {
 } as const;
 export type SettingsCategory = (typeof SettingsCategory)[keyof typeof SettingsCategory];
 
-setDefaultStorage('development', 'false');
-export const development = readable(localStorage.development === 'true');
+export const development = persistedLocal<boolean, typeof readable<boolean>>(
+    'development',
+    false,
+    readable
+);
 
 const commonDefaultSettings: FeatureConfig = {
     'app-layout-direction': config.mainFeatures['app-layout-direction'],
@@ -102,7 +105,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             });
         }
 
-        if (config.mainFeatures['settings-show-border'] && config.traits['has-borders']) {
+        if (config.mainFeatures['settings-show-border'] && config.traits?.['has-borders']) {
             // Show Border
             settings.push({
                 type: 'checkbox',
@@ -124,7 +127,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             });
         }
 
-        if (config.mainFeatures['settings-glossary-links'] && config.traits['has-glossary']) {
+        if (config.mainFeatures['settings-glossary-links'] && config.traits?.['has-glossary']) {
             settings.push({
                 type: 'checkbox',
                 category: SettingsCategory.TextDisplay,
@@ -136,7 +139,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 
         if (
             config.mainFeatures['settings-display-images-in-bible-text'] &&
-            config.traits['has-illustrations']
+            config.traits?.['has-illustrations']
         ) {
             // Images in Bible Text
             settings.push({
@@ -151,7 +154,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 
         if (
             config.mainFeatures['settings-display-videos-in-bible-text'] &&
-            config.traits['has-video']
+            config.traits?.['has-video']
         ) {
             // Videos in Bible Text
             settings.push({
@@ -167,7 +170,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         // "Audio"
         if (
             config.mainFeatures['settings-audio-highlight-phrase'] &&
-            config.traits['has-sync-audio']
+            config.traits?.['has-sync-audio']
         ) {
             // Synchronised phrase highlighting
             settings.push({
@@ -179,7 +182,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             });
         }
 
-        if (config.mainFeatures['settings-audio-speed'] && config.traits['has-audio']) {
+        if (config.mainFeatures['settings-audio-speed'] && config.traits?.['has-audio']) {
             // Playback speed
             settings.push({
                 type: 'list',
@@ -307,7 +310,10 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
         }
 
         // "Navigation"
-        if (config.mainFeatures['settings-book-selection'] && config.traits['has-multiple-books']) {
+        if (
+            config.mainFeatures['settings-book-selection'] &&
+            config.traits?.['has-multiple-books']
+        ) {
             // Book Selection
             settings.push({
                 type: 'list',
@@ -394,18 +400,15 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
     return settings;
 })();
 
-function defaultUserSettings() {
-    return userPreferenceSettings.reduce(
-        (defaults, setting) => {
-            defaults[setting.key] = setting.defaultValue ?? defaultSettings[setting.key];
-            return defaults;
-        },
-        {} as typeof defaultSettings
-    );
-}
-mergeDefaultStorage('userSettings', defaultUserSettings());
-export const userSettings = writable(JSON.parse(localStorage.userSettings) as FeatureConfig);
-userSettings.subscribe((value) => (localStorage.userSettings = JSON.stringify(value)));
+export const userSettings = persistedLocal('userSettings', {
+    ...Object.fromEntries(
+        userPreferenceSettings.map((setting) => [
+            setting.key,
+            setting.defaultValue ?? defaultSettings[setting.key]
+        ])
+    ),
+    ...JSON.parse(localStorage.userSettings || '{}')
+} as FeatureConfig);
 
 export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {
     return { ...defaultSettings, ...$userSettings };
