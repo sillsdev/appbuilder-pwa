@@ -4,13 +4,10 @@ Audio Download Modal Dialog component.
 -->
 
 <script lang="ts">
-    /**
-Serious issues left:
-* The loading bar is always at 50% and the cancel button doesn't work since it's downloaded as a blob rather than a stream.
-*/
     import { addAudioClip, updateAudioPlayer } from '$lib/data/audio';
     import { refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
+    import { tick } from 'svelte';
     import Modal from './Modal.svelte';
 
     let { planId = $bindable(undefined) } = $props();
@@ -30,7 +27,8 @@ Serious issues left:
             if (downloadAutomatically) {
                 $userSettings['audio-auto-download'] = 'auto';
             }
-            downloadProgress = 50;
+            downloadProgress = 1;
+            abortController = new AbortController();
             let addedAudioClip = await addAudioClip(
                 {
                     docSet: $refs.docSet,
@@ -38,9 +36,13 @@ Serious issues left:
                     book: $refs.book,
                     chapter: $refs.chapter
                 },
-                url
+                url,
+                abortController,
+                (percent) => {
+                    tick().then(() => (downloadProgress = percent));
+                }
             );
-            downloadProgress = 0; //I should change it to use a stream rather than downloading the blob all at once so we can actually show the progress and cancel it mid-download
+            downloadProgress = 0;
 
             if (!addedAudioClip) {
                 return false;
@@ -54,7 +56,7 @@ Serious issues left:
     }
     async function finishModal() {
         const addedAudioClip = await downloadAudio(audioUrl);
-        if (!addedAudioClip) {
+        if (!addedAudioClip && !abortController?.signal.aborted) {
             error = 'Audio clip could not be downloaded';
             setTimeout(() => {
                 error = '';
@@ -63,7 +65,7 @@ Serious issues left:
         }
     }
     let downloadProgress = $state(0);
-    let cancelDownload = false;
+    let abortController: AbortController | undefined = undefined;
     let audioDownloadingMessage = $derived(
         $t['Audio_Downloading']
             .replace('%book', $refs.name || $refs.book)
@@ -86,7 +88,6 @@ Serious issues left:
             <div
                 class="message-checkbox flex w-full"
                 onclick={() => {
-                    console.log('HI');
                     downloadAutomatically = !downloadAutomatically;
                 }}
             >
@@ -146,8 +147,8 @@ Serious issues left:
                 <button
                     class="dy-btn dy-btn-sm dy-btn-ghost"
                     onclick={() => {
-                        //downloadProgress = 0;
-                        //cancelDownload = true;
+                        downloadProgress = 0;
+                        abortController?.abort();
                     }}>{$t['Button_Cancel']}</button
                 >
             </div>
