@@ -17,8 +17,9 @@ import {
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { openDB, type DBSchema } from 'idb';
-import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
+
+const audioClipUrls = new Map<string, string>();
 
 const audioSources = import.meta.glob('./*', {
     import: 'default',
@@ -728,7 +729,10 @@ export async function addAudioClip(
     onProgress?: (percent: number) => void
 ) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: abortController.signal });
+        if (!response.ok) {
+            return false;
+        }
         const contentLength = response.headers.get('Content-Length');
         const total = contentLength ? parseInt(contentLength, 10) : 0;
         if (!response.body) {
@@ -756,7 +760,6 @@ export async function addAudioClip(
                 onProgress(percent);
             }
         }
-        chunks.splice(chunks.length / 50, (chunks.length * 48) / 50);
 
         const blob = new Blob(chunks);
         const audioClips = await openAudioClips();
@@ -767,8 +770,9 @@ export async function addAudioClip(
         if (bookIndex !== undefined && bookIndex >= 0) {
             const nextItem = { ...item, date: date, blob: blob };
             await audioClips.add('audioclips', nextItem);
+            return true;
         }
-        return true;
+        return false;
     } catch (error) {
         console.error('Error downloading audio:', error);
         return false;
@@ -823,7 +827,11 @@ export async function getAudioSourceInfo(
             chapter: item.chapter || ''
         }); //If the audio has been downloaded already, use that.
         if (foundAudioClip) {
-            audioPath = URL.createObjectURL(foundAudioClip.blob);
+            const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
+            if (!audioClipUrls.has(clipKey)) {
+                audioClipUrls.set(clipKey, URL.createObjectURL(foundAudioClip.blob));
+            }
+            audioPath = audioClipUrls.get(clipKey)!;
         }
     }
     //parse timing file
