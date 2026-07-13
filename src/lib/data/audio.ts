@@ -735,7 +735,7 @@ export async function addAudioClip(
             return false;
         }
         const reader = response.body.getReader();
-        const chunks: Uint8Array<ArrayBuffer>[] = [];
+        const chunks: BlobPart[] = [];
         let received = 0;
 
         while (true) {
@@ -748,6 +748,7 @@ export async function addAudioClip(
             }
 
             chunks.push(value);
+
             received += value.length;
 
             if (total && onProgress) {
