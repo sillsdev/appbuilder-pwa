@@ -723,11 +723,41 @@ export async function addAudioClip(
         book: string;
         chapter: string;
     },
-    url: string
+    url: string,
+    abortController: AbortController,
+    onProgress?: (percent: number) => void
 ) {
     try {
         const response = await fetch(url);
-        const blob = await response.blob();
+        const contentLength = response.headers.get('Content-Length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+        if (!response.body) {
+            return false;
+        }
+        const reader = response.body.getReader();
+        const chunks: Uint8Array<ArrayBuffer>[] = [];
+        let received = 0;
+
+        while (true) {
+            if (abortController.signal.aborted) {
+                return false;
+            }
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+
+            chunks.push(value);
+            received += value.length;
+
+            if (total && onProgress) {
+                const percent = Math.round((received / total) * 100);
+                onProgress(percent);
+            }
+        }
+        chunks.splice(chunks.length / 50, (chunks.length * 48) / 50);
+
+        const blob = new Blob(chunks);
         const audioClips = await openAudioClips();
         const date = new Date()[Symbol.toPrimitive]('number');
         const bookIndex = scriptureConfig.bookCollections
@@ -831,7 +861,6 @@ export async function getAudioSourceInfo(
             }
         }
     }
-
     return {
         source: audioPath,
         timing: timing.length > 0 ? timing : null
