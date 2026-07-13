@@ -50,7 +50,7 @@ Audio Download Modal Dialog component.
             updateAudioPlayer($refs);
             return addedAudioClip;
         } catch (err) {
-            console.error('Error downloading audio fji hfuh sudfh iudfh iuhfiuo dhf: ', err);
+            console.error('Error downloading audio: ', err);
             return false;
         }
     }
