@@ -32,7 +32,11 @@ TODO:
     import PlayButton from './PlayButton.svelte';
     import RepeatButton from './RepeatButton.svelte';
 
-    let { checkForAudioDownload = () => {} } = $props();
+    interface Props {
+        checkAudioAvailability?: () => Promise<boolean>; //checkAudioAvailability downloads the audio if necessary and returns true if the audio is available
+    }
+
+    let { checkAudioAvailability = () => Promise.resolve(true) }: Props = $props();
     function mayResetPlayMode(hasTiming: boolean) {
         // If the current mode is repeatSelection and the reference is changed to something without timing
         // (even chapter without audio), then reset the playMode.  This matches how the Android app behaves.
@@ -141,12 +145,12 @@ TODO:
         <PlayButton
             state={playButtonState}
             color={iconPlayColor}
-            onclick={async () => {
-                const audioAvailable = await checkForAudioDownload();
-                if (audioAvailable) {
-                    playPause();
-                }
-            }}
+            onclick={() =>
+                checkAudioAvailability().then((audioAvailable) => {
+                    if (audioAvailable) {
+                        playPause();
+                    }
+                })}
         />
 
         {#if $refs.hasAudio?.timingFile}
@@ -170,7 +174,7 @@ TODO:
             <AudioIcon.Speed color={iconColor} />
         </button>
     {/if}
-    {#if !$refs.hasAudio.timingFile}
+    {#if !$refs.hasAudio?.timingFile}
         <!-- Progress Bar -->
         <div class="audio-progress-value text-sm">
             {format($audioPlayer.progress)}

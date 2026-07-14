@@ -12,7 +12,7 @@ Audio Download Modal Dialog component.
 
     let { planId = $bindable(undefined) } = $props();
 
-    const modalId = 'planStopDialog';
+    const modalId = 'audioDownloadModal';
     let modal: Modal | undefined = $state(undefined);
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';

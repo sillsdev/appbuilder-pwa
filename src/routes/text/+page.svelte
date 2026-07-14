@@ -399,7 +399,7 @@
             }
         }
     };
-    export async function checkForAudioDownload() {
+    async function checkAudioAvailability() {
         const audio = scriptureConfig.bookCollections
             ?.find((c) => $refs.collection === c.id)
             ?.books?.find((b) => b.id === $refs.book)
@@ -508,7 +508,7 @@
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => {
                                     if (!$audioActive) {
-                                        checkForAudioDownload();
+                                        checkAudioAvailability();
                                     }
                                     $audioActive = !$audioActive;
                                 }}
@@ -680,7 +680,7 @@
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
         <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
             <div>
-                <AudioBar {checkForAudioDownload} />
+                <AudioBar {checkAudioAvailability} />
             </div>
         </div>
     {/if}
