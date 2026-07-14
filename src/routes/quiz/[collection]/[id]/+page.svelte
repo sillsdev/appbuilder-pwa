@@ -1,23 +1,3 @@
-<script lang="ts" module>
-    function getRandomItem<T>(array: T[]) {
-        return array[Math.floor(Math.random() * array.length)];
-    }
-
-    function shuffle<T>(array: T[]) {
-        let currentIndex = array.length;
-        let randomIndex = 0;
-
-        while (currentIndex !== 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-        }
-
-        return array;
-    }
-</script>
-
 <script lang="ts">
     import { beforeNavigate, invalidateAll } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
@@ -43,6 +23,7 @@
         LockOpenIcon,
         TextAppearanceIcon
     } from '$lib/icons';
+    import { getRandomItem, shuffleArray } from '$lib/scripts/arrayUtils.js';
     import { compareVersions } from '$lib/scripts/stringUtils';
     import { onDestroy } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
@@ -95,12 +76,12 @@
     );
     const questions: QuizQuestion[] = $derived(
         book?.quizFeatures?.['shuffle-questions']
-            ? shuffle([...(quiz?.questions ?? [])])
+            ? shuffleArray([...(quiz?.questions ?? [])])
             : [...(quiz?.questions ?? [])]
     );
     const currentQuestion: QuizQuestion | undefined = $derived(questions[currentQuestionIdx]);
     const shuffledAnswers: QuizAnswer[] = $derived(
-        shuffle(currentQuestion?.answers.map((a) => ({ ...a, clicked: false })) ?? [])
+        shuffleArray(currentQuestion?.answers.map((a) => ({ ...a, clicked: false })) ?? [])
     );
 
     const staticAssets = compareVersions(scriptureConfig.programVersion, '12.0') < 0;

@@ -1,22 +1,31 @@
-import config, { scriptureConfig } from '$assets/config';
-import type { BookCollectionConfig, BookConfig, ScriptureConfig, StyleConfig } from '$config';
+import type {
+    AppConfig,
+    BookCollectionConfig,
+    BookConfig,
+    DictionaryConfig,
+    ScriptureConfig,
+    StyleConfig
+} from '$config';
 
-export function getFeatureValueBoolean(feature: string, bc: string, book: string): boolean {
+export function getFeatureValueBoolean(
+    config: ScriptureConfig,
+    feature: string,
+    bc: string,
+    book: string
+): boolean {
     let returnValue = false;
     let value: any = '';
     if (config.mainFeatures[feature] != null) {
         value = config.mainFeatures[feature];
     }
-    const bookCollectionFeatures = scriptureConfig.bookCollections?.find(
-        (x) => x.id === bc
-    )?.features;
+    const bookCollectionFeatures = config.bookCollections?.find((x) => x.id === bc)?.features;
     if (bookCollectionFeatures != null) {
         const bookCollectionFeature = bookCollectionFeatures[feature];
         if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
             value = bookCollectionFeatures[feature];
         }
     }
-    const bookFeatures = scriptureConfig.bookCollections
+    const bookFeatures = config.bookCollections
         ?.find((x) => x.id === bc)
         ?.books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
@@ -33,21 +42,24 @@ export function getFeatureValueBoolean(feature: string, bc: string, book: string
 
     return returnValue;
 }
-export function getFeatureValueString(feature: string, bc: string, book: string): string {
+export function getFeatureValueString(
+    config: ScriptureConfig,
+    feature: string,
+    bc: string,
+    book: string
+): string {
     let value = '';
     if (config.mainFeatures[feature] != null) {
         value = config.mainFeatures[feature] as string;
     }
-    const bookCollectionFeatures = scriptureConfig.bookCollections?.find(
-        (x) => x.id === bc
-    )?.features;
+    const bookCollectionFeatures = config.bookCollections?.find((x) => x.id === bc)?.features;
     if (bookCollectionFeatures != null) {
         const bookCollectionFeature = bookCollectionFeatures[feature];
         if (bookCollectionFeature != null && bookCollectionFeature != 'inherit') {
             value = bookCollectionFeatures[feature] as string;
         }
     }
-    const bookFeatures = scriptureConfig.bookCollections
+    const bookFeatures = config.bookCollections
         ?.find((x) => x.id === bc)
         ?.books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
@@ -59,7 +71,7 @@ export function getFeatureValueString(feature: string, bc: string, book: string)
     // console.log('getFeatureValueString %o %o', feature, value);
     return value;
 }
-export function hasFeature(feature: string) {
+export function hasFeature(config: AppConfig, feature: string) {
     return config.mainFeatures[feature] != null;
 }
 
@@ -87,4 +99,12 @@ export function getStyle(
     }
     // No style was found.
     return '';
+}
+
+export function isSAB(data: Pick<AppConfig, 'programType'>): data is ScriptureConfig {
+    return data.programType === 'SAB';
+}
+
+export function isDAB(data: Pick<AppConfig, 'programType'>): data is DictionaryConfig {
+    return data.programType === 'DAB';
 }

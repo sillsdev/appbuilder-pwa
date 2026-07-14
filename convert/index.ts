@@ -4,7 +4,7 @@ import { watch } from 'chokidar';
 import { ConvertAbout } from './convertAbout';
 import { ConvertBadges } from './convertBadges';
 import { ConvertBooks } from './convertBooks';
-import { ConvertConfig } from './convertConfig';
+import { ConvertConfig, getProgramType } from './convertConfig';
 import { ConvertContents } from './convertContents';
 import { ConvertFirebase } from './convertFirebase';
 import { ConvertManifest } from './convertManifest';
@@ -34,8 +34,7 @@ const verbose: number = verboseLevel
         : 1
     : 0;
 
-const config = new ConvertConfig(dataDir).run(verbose);
-const programType = config.data.programType;
+const programType = getProgramType(dataDir);
 
 //Classes common to both SAB and DAB
 const commonStepClasses = [

@@ -1,7 +1,8 @@
 <script lang="ts">
     import config, { dictionaryConfig } from '$assets/config';
-    import { convertStyle, isDAB, isSAB, s, t, themeColors } from '$lib/data/stores';
+    import { convertStyle, s, t, themeColors } from '$lib/data/stores';
     import { SearchIcon } from '$lib/icons';
+    import { isDAB, isSAB } from '$lib/scripts/configUtils';
     import type { SearchFormSubmitEvent } from '$lib/types';
 
     interface SearchFormProps {
