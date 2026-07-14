@@ -1461,11 +1461,11 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
         .join(', ');
 
     if (noAccessMethods) {
-        const missinMethodError = new Error(
+        const missingMethodError = new Error(
             `No access methods found for media sources ${noAccessMethods}.`
         );
-        missinMethodError.stack = `Error in ${__filename}:verifyMediaAvailability(): ${missinMethodError.message}`;
-        throw missinMethodError;
+        missingMethodError.stack = `Error in ${__filename}:verifyMediaAvailability(): ${missingMethodError.message}`;
+        throw missingMethodError;
     }
 }
 
