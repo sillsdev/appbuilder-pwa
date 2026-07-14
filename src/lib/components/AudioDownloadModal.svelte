@@ -4,7 +4,8 @@ Audio Download Modal Dialog component.
 -->
 
 <script lang="ts">
-    import { addAudioClip, updateAudioPlayer } from '$lib/data/audio';
+    import { updateAudioPlayer } from '$lib/data/audio';
+    import { addAudioClip } from '$lib/data/audioclipsDB';
     import { refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import { tick } from 'svelte';
