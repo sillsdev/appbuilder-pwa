@@ -124,7 +124,11 @@
     }
 </script>
 
-<div class="h-16" style:background-color={barBackgroundColor}>
+<div
+    class="h-16"
+    style:background-color={barBackgroundColor}
+    style:margin-bottom="env(safe-area-inset-bottom)"
+>
     <div class="mx-auto max-w-breakpoint-md">
         <div class="grid {gridColumns()} justify-items-center">
             <!-- Controls -->
