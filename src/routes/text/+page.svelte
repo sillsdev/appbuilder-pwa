@@ -17,7 +17,8 @@
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { findAudioClip, playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
+    import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
+    import { findAudioClip } from '$lib/data/audioclipsDB';
     import {
         actionBarColor,
         analytics,
