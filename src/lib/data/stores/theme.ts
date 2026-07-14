@@ -3,7 +3,18 @@ import { derived, writable } from 'svelte/store';
 import { setDefaultStorage } from './storage';
 
 //** themes */
-export const themes = config.themes?.filter((x) => x.enabled)?.map((theme) => theme.name) ?? [];
+// rough port of AppConfig.java:getColorThemeDisplayOrder
+const themeOrder: string[] = ['Normal', 'Sage', 'Rose', 'Sepia', 'Charcoal', 'Dark'] as const;
+function orderThemes(theme: string) {
+    const i = themeOrder.indexOf(theme);
+    return i < 0 ? 100 : i;
+}
+
+export const themes =
+    config.themes
+        ?.filter((x) => x.enabled)
+        ?.map((theme) => theme.name)
+        .sort((a, b) => orderThemes(a) - orderThemes(b)) ?? [];
 export const themeDefault = config.defaultTheme ?? '';
 setDefaultStorage('theme', themeDefault);
 export const theme = writable(localStorage.theme);
@@ -22,8 +33,15 @@ export const themeBookColors = derived(theme, ($theme) => {
 });
 
 export const monoIconColor = derived(theme, ($theme) => {
-    return $theme === 'Dark' ? 'white' : 'black';
+    return themeIsDark($theme) ? 'white' : 'black';
 });
+
+/**
+ * treat Dark and Charcoal as dark themes
+ */
+export function themeIsDark(theme: string) {
+    return theme === 'Dark' || theme === 'Charcoal';
+}
 
 const resolveColor = (colorValue: string, colors: Record<string, string>) => {
     if (colorValue.startsWith('#')) {

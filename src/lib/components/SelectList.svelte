@@ -3,7 +3,7 @@
 A component to display menu options in a list.
 -->
 <script lang="ts">
-    import { convertStyle, s, theme, themeColors } from '$lib/data/stores';
+    import { convertStyle, s, theme, themeColors, themeIsDark } from '$lib/data/stores';
 
     let { options = [], menuaction }: { options: App.GridGroup[]; menuaction } = $props();
 
@@ -18,7 +18,7 @@ A component to display menu options in a list.
 
     let hovered = $state(null);
     const hoverColor = $derived(
-        $theme === 'Dark' ? '#444444' : $themeColors['ButtonSelectedColor']
+        themeIsDark($theme) ? '#444444' : $themeColors['ButtonSelectedColor']
     );
     const backgroundColor = $derived($s['ui.button.book-list']['background-color']);
 

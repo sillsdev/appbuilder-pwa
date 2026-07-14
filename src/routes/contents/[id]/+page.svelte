@@ -18,6 +18,7 @@
         language,
         modal,
         ModalType,
+        monoIconColor,
         refs,
         s,
         themeColors
@@ -336,7 +337,7 @@
                                     class="contents-item-audio-image"
                                     onclick={(event) => playAudio(event, item)}
                                 >
-                                    <AudioIcon.Volume></AudioIcon.Volume>
+                                    <AudioIcon.Volume color={$monoIconColor} />
                                 </div>
                             {/if}
 
