@@ -10,8 +10,6 @@ Audio Download Modal Dialog component.
     import { tick } from 'svelte';
     import Modal from './Modal.svelte';
 
-    let { planId = $bindable(undefined) } = $props();
-
     const modalId = 'audioDownloadModal';
     let modal: Modal | undefined = $state(undefined);
     let downloadAutomatically: boolean = $state(false);
@@ -129,23 +127,24 @@ Audio Download Modal Dialog component.
 {/if}
 {#if downloadProgress > 0}
     <div class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
-        <div
-            class="bg-base-100 p-6 shadow-xl w-80
-              flex flex-col justify-between h-64"
-        >
-            <div class="flex flex-col gap-1 text-left">
-                <p class="text-lg font-bold">{$t['Audio_Download_Title']}</p>
-                <!--Figure out the exact styling and such later-->
-                <p class="text-sm">{audioDownloadingMessage}</p>
-            </div>
+        <div class="message" id="container">
+            <div class="w-70 md:w-100 message-body">
+                <div class="message-header h-5"></div>
+                <div class="message-title">{$t['Audio_Download_Title']}</div>
+                <div class="message-text">{audioDownloadingMessage}</div>
 
-            <div class="w-full">
-                <progress class="dy-progress w-full" value={downloadProgress} max="100"></progress>
+                <div
+                    class="message-progress"
+                    style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;"
+                >
+                    <div class="w-full h-1 dy-progress bg-[#e4e4e4]">
+                        <div class="h-full bg-black" style="width: {downloadProgress}%"></div>
+                    </div>
+                </div>
             </div>
-
             <div class="flex justify-end">
                 <button
-                    class="dy-btn dy-btn-sm dy-btn-ghost"
+                    class="dy-btn dy-btn-sm message-button"
                     onclick={() => {
                         downloadProgress = 0;
                         abortController?.abort();
