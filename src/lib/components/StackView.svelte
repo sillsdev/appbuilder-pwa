@@ -115,7 +115,7 @@
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
                 id="container"
-                class="footnote rounded-sm h-40 shadow-lg overflow-y-auto"
+                class="footnote place-self-center rounded-sm h-40 shadow-lg overflow-y-auto"
                 onclick={(e) => {
                     e.stopPropagation();
                     insideClick((e.target || e.currentTarget) as HTMLElement);
