@@ -9,10 +9,6 @@
     let image: HTMLImageElement;
     let container: HTMLDivElement;
 
-    let cropTop = $state(0);
-    let cropLeft = $state(0);
-    let cropSize = $state(100);
-
     let dragging = false;
     let dragStartX = 0;
     let dragStartY = 0;
@@ -25,6 +21,14 @@
         width: 0,
         height: 0
     });
+
+    let unscaledCropLeft = $state(0);
+    let unscaledCropTop = $state(0);
+    let cropScale = $state(0.5);
+
+    const cropLeft = $derived(imageRect.left + unscaledCropLeft * imageRect.width);
+    const cropTop = $derived(imageRect.top + unscaledCropTop * imageRect.height);
+    const cropSize = $derived(cropScale * Math.min(imageRect.width, imageRect.height));
 
     let resizeStartSize = $state(0);
     let resizeStartDistance = $state(0); //These are variables for the 2-finger resize
@@ -41,12 +45,30 @@
             return () => image.removeEventListener('load', initCropBox);
         }
     });
+    function updateCropValues(
+        scaledCropLeft: number | null,
+        scaledCropTop: number | null,
+        scaledCropSize: number | null
+    ) {
+        if (scaledCropSize) {
+            cropScale = scaledCropSize / Math.min(imageRect.width, imageRect.height);
+        }
+        if (scaledCropLeft) {
+            unscaledCropLeft = (scaledCropLeft - imageRect.left) / imageRect.width;
+        }
+        if (scaledCropTop) {
+            unscaledCropTop = (scaledCropTop - imageRect.top) / imageRect.height;
+        }
+    }
     function initCropBox() {
         imageRect = getImageRect(image);
-        cropSize = Math.max(20, Math.min(100, imageRect.width, imageRect.height));
-        cropLeft = imageRect.left;
-        cropTop = imageRect.top;
+        const scaledCropSize = Math.max(20, Math.min(100, imageRect.width, imageRect.height));
+        updateCropValues(cropLeft, cropTop, scaledCropSize);
     }
+    window.addEventListener('resize', () => {
+        imageRect = getImageRect(image);
+        updateCropValues(cropLeft, cropTop, cropSize);
+    });
     function getImageRect(img: HTMLImageElement) {
         const containerRect = container.getBoundingClientRect();
         const naturalRatio = img.naturalWidth / img.naturalHeight;
@@ -104,15 +126,17 @@
             newSize = Math.max(20, Math.min(newSize, maxSizeX, maxSizeY));
 
             const sizeDifference = -(newSize - cropSize);
-            cropLeft = Math.min(
+            const scaledCropLeft = Math.min(
                 Math.max(cropLeft + sizeDifference / 2, rect.left),
                 rect.right - newSize
             );
-            cropTop = Math.min(
+            const scaledCropTop = Math.min(
                 Math.max(cropTop + sizeDifference / 2, rect.top),
                 rect.bottom - newSize
             );
-            cropSize = newSize;
+            const scaledCropSize = newSize;
+
+            updateCropValues(scaledCropLeft, scaledCropTop, scaledCropSize);
         }
     } //2-finger resize
 
@@ -135,9 +159,16 @@
 
         const rect = getImageRect(image);
 
-        cropLeft = Math.min(Math.max(e.clientX - dragStartX, rect.left), rect.right - cropSize);
+        const scaledCropLeft = Math.min(
+            Math.max(e.clientX - dragStartX, rect.left),
+            rect.right - cropSize
+        );
+        const scaledCropTop = Math.min(
+            Math.max(e.clientY - dragStartY, rect.top),
+            rect.bottom - cropSize
+        );
 
-        cropTop = Math.min(Math.max(e.clientY - dragStartY, rect.top), rect.bottom - cropSize);
+        updateCropValues(scaledCropLeft, scaledCropTop, cropSize);
     }
 
     function stopDrag() {
@@ -172,7 +203,7 @@
         const maxSizeY = rect.bottom - cropTop;
         newSize = Math.min(newSize, maxSizeX, maxSizeY);
 
-        cropSize = Math.max(20, newSize);
+        updateCropValues(null, null, Math.max(20, newSize));
     }
 
     function stopResize() {
