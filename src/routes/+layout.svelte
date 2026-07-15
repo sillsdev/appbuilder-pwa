@@ -161,11 +161,7 @@
                     vertOffset={NAVBAR_HEIGHT}
                 />
                 <CollectionModal bind:this={collectionModal} />
-                <PlanStopDialog
-                    bind:this={planStopDialog}
-                    bind:planId={planStopId}
-                    vertOffset={NAVBAR_HEIGHT}
-                />
+                <PlanStopDialog bind:this={planStopDialog} bind:planId={planStopId} />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
                 <ShareSelector bind:this={shareSelector} />

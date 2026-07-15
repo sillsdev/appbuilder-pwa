@@ -8,7 +8,7 @@ A component providing a dropdown where you can choose to download audio or video
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareText } from '$lib/data/share';
-    import { refs, selectedVerses, t, themeColors } from '$lib/data/stores';
+    import { getPositioningCSS, refs, selectedVerses, t } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import FormatAlignLeftIcon from '$lib/icons/image/FormatAlignLeftIcon.svelte';
     import {
@@ -23,7 +23,7 @@ A component providing a dropdown where you can choose to download audio or video
     import type { AudioEncodingConfig } from 'mediabunny';
     import Modal from './Modal.svelte';
 
-    let { vertOffset = '1rem' } = $props();
+    let { vertOffset = '2rem' } = $props();
     async function shareSelectedText() {
         const book = $selectedVerses[0].book;
         const reference = selectedVerses.getCompositeReference();
@@ -219,36 +219,32 @@ A component providing a dropdown where you can choose to download audio or video
             modalThis.showModal();
         }
     }
-    const positioningCSS = $derived(
-        'position:absolute; bottom:' +
-            (Number(vertOffset.replace('rem', '')) + 1) +
-            'rem; inset-inline-end:1rem; width:auto;'
-    );
+    const positioningCSS = $derived(getPositioningCSS(vertOffset, 'bottom'));
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <Modal
     bind:this={modalThis}
     id={modalId}
-    styling="background-color:{$themeColors['PopupBackgroundColor']}; {positioningCSS}"
+    styling="background-color:red; box-shadow:none; padding:0; width:auto; {positioningCSS}"
 >
-    <div class="grid gap-2 m-2">
+    <div class="grid">
         <button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
+            class="dy-btn flex items-center justify-center rounded-none"
             onclick={() => shareSelectedText()}
         >
             <FormatAlignLeftIcon />
             {$t['Share_Text']}
         </button>
         <button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
+            class="dy-btn flex items-center justify-center rounded-none"
             onclick={() => shareAudio()}
         >
             <AudioIcon.Volume />
             {$t['Share_Audio']}
         </button>
         <!--<button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
+            class="dy-btn flex items-center justify-center rounded-none"
             onclick={() => downloadVideo()}
         >
             <VideoIcon />

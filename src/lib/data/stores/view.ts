@@ -13,6 +13,15 @@ export const isFirstLaunch = derived(
     [firstLaunchTime, launchTime],
     ([$firstLaunchTime, $launchTime]) => $firstLaunchTime === $launchTime
 );
+export function getPositioningCSS(vertOffset: string, position: string) {
+    return (
+        'position:absolute; ' +
+        position +
+        ':' +
+        (Number(vertOffset.replace('rem', '')) + 1) +
+        'rem; inset-inline-end:1rem;'
+    );
+}
 
 /**the current view/layout mode*/
 export const Layout = {

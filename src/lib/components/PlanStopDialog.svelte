@@ -11,7 +11,7 @@ Plan Stop Modal Dialog component.
     import { resolve } from '$lib/utils/paths';
     import Modal from './Modal.svelte';
 
-    let { planId = $bindable(undefined), vertOffset = '1rem' } = $props();
+    let { planId = $bindable(undefined) } = $props();
 
     const modalId = 'planStopDialog';
     let modal: Modal | undefined = $state(undefined);
@@ -31,13 +31,6 @@ Plan Stop Modal Dialog component.
             goto(resolve(`/plans`));
         });
     }
-
-    //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    const positioningCSS = $derived(
-        'position:absolute; top:' +
-            (Number(vertOffset.replace('rem', '')) + 1) +
-            'rem; inset-inline-end:1rem;'
-    );
 </script>
 
 <Modal bind:this={modal} id={modalId}>

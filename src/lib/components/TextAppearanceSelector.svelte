@@ -35,6 +35,7 @@ The navbar component. We have sliders that update reactively to both font size a
         contentsFontSize,
         currentFont,
         fontChoices,
+        getPositioningCSS,
         language,
         languages,
         modal,
@@ -67,11 +68,7 @@ The navbar component. We have sliders that update reactively to both font size a
 
     const contentsMode = $derived(options?.contentsMode ?? false);
     //The positioningCSS positions the modal 1rem below the navbar and 1rem from the right edge of the screen (on mobile it will be centered)
-    const positioningCSS = $derived(
-        'position:absolute; top:' +
-            (Number(vertOffset.replace('rem', '')) + 1) +
-            'rem; inset-inline-end:1rem;'
-    );
+    const positioningCSS = $derived(getPositioningCSS(vertOffset, 'top'));
     const barColor = $derived($themeColors['SliderBarColor']);
     const progressColor = $derived($themeColors['SliderProgressColor']);
     const _showFontSize = showFontSize();
