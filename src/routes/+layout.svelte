@@ -3,6 +3,7 @@
     import faviconHref from '$assets/icons/favicon.png';
     import manifestHref from '$assets/manifestUrl.json';
     import '$lib/styles/app.css';
+    import { dev } from '$app/environment';
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
@@ -137,8 +138,15 @@
 
 {#if showPage}
     <Sidebar>
+        <!-- Set DaisyUI theme colors to red during development for debug purposes -->
         <div
             id="container"
+            data-theme={dev
+                ? (() => {
+                      console.warn('DEBUG color theme enabled');
+                      return 'debug';
+                  })()
+                : 'default'}
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}

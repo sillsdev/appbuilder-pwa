@@ -5,6 +5,38 @@
     themes: light --default;
 }
 
+/*
+  Since we aren't (intentionally) using DaisyUI theme colors, this *loud* theme
+  should make missing App Builder styles easier to catch in development.
+*/
+@plugin "daisyui/theme" {
+    name: 'debug';
+    default: false;
+    prefersdark: false;
+    color-scheme: light;
+
+    --color-base-100: 'red';
+    --color-base-200: 'red';
+    --color-base-300: 'red';
+    --color-base-content: 'red';
+    --color-primary: 'red';
+    --color-primary-content: 'red';
+    --color-secondary: 'red';
+    --color-secondary-content: 'red';
+    --color-accent: 'red';
+    --color-accent-content: 'red';
+    --color-neutral: 'red';
+    --color-neutral-content: 'red';
+    --color-info: 'red';
+    --color-info-content: 'red';
+    --color-success: 'red';
+    --color-success-content: 'red';
+    --color-warning: 'red';
+    --color-warning-content: 'red';
+    --color-error: 'red';
+    --color-error-content: 'red';
+}
+
 @source inline("grid-cols-{{1..12..1},none,subgrid}");
 
 /* Allow post-(Tailwind v4) styling to use sensible class names for breakpoints */
