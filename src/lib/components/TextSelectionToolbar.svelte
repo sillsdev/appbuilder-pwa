@@ -2,22 +2,13 @@
 @component
 Taken from modifying a copy of the AudioBar.svelte file
 Enables users to copy, highlight, bookmark, share, and annotate selected verses.
-TODO:
-- Implement functionality for
- -> Share
- -> Play
- -> Play Repeat
-- Add note dialog
-- Add highlight colors
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
-    import { getBook, logShareContent } from '$lib/data/analytics';
     import { playVerses } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
-    import { shareText } from '$lib/data/share';
     import {
         audioActive,
         modal,
