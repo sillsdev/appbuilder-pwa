@@ -109,29 +109,31 @@
   - make width of scripture view
 -->
 {#if $footnotes.length > 0}
-    <div bind:this={stack} class="absolute max-w-breakpoint-md w-5/6 h-40 bottom-8 dy-stack">
-        {#each $footnotes as item}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-                id="container"
-                class="footnote place-self-center rounded-sm h-40 shadow-lg overflow-y-auto"
-                onclick={(e) => {
-                    e.stopPropagation();
-                    insideClick((e.target || e.currentTarget) as HTMLElement);
-                }}
-            >
+    <div class="flex justify-center">
+        <div bind:this={stack} class="absolute max-w-breakpoint-md w-5/6 h-40 bottom-8 dy-stack">
+            {#each $footnotes as item}
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                     id="container"
-                    class="footnote"
-                    style:font-family={font}
-                    style:font-size={fontSize}
-                    style:line-height={lineHeight}
+                    class="footnote place-self-center rounded-sm h-40 shadow-lg overflow-y-auto"
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        insideClick((e.target || e.currentTarget) as HTMLElement);
+                    }}
                 >
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html item}
+                    <div
+                        id="container"
+                        class="footnote"
+                        style:font-family={font}
+                        style:font-size={fontSize}
+                        style:line-height={lineHeight}
+                    >
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                        {@html item}
+                    </div>
                 </div>
-            </div>
-        {/each}
+            {/each}
+        </div>
     </div>
 {/if}
