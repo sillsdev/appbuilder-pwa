@@ -37,7 +37,9 @@ export class MRUCache<TKey, TValue> {
     }
 
     clear(): void {
-        this.cache.keys().forEach((v) => this.cleanupItem?.(this.cache.get(v)!, v));
+        for (const v of this.cache.keys()) {
+            this.cleanupItem?.(this.cache.get(v)!, v);
+        }
         this.cache.clear();
     }
 
