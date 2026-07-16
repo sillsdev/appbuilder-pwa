@@ -19,7 +19,10 @@ import { pathJoin } from '$lib/scripts/stringUtils';
 import { logAudioDuration, logAudioPlay } from './analytics';
 import { findAudioClip } from './audioclipsDB';
 
-const audioClipUrls = new Map<string, string>();
+const audioClipUrls = new MRUCache<string, string>(10, (item, key) => {
+    URL.revokeObjectURL(item);
+    cache.delete(key);
+});
 
 const audioSources = import.meta.glob('./*', {
     import: 'default',
@@ -721,8 +724,8 @@ export async function getAudioSourceInfo(
         }); //If the audio has been downloaded already, use that.
         if (foundAudioClip) {
             const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
-            if (!audioClipUrls.has(clipKey)) {
-                audioClipUrls.set(clipKey, URL.createObjectURL(foundAudioClip.blob));
+            if (!audioClipUrls.get(clipKey)) {
+                audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
             }
             audioPath = audioClipUrls.get(clipKey)!;
         }
