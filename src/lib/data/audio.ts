@@ -23,7 +23,7 @@ import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
 import { findAudioClip } from './audioclipsDB';
 
-const audioClipUrls = new MRUCache<string, string>(10, (item, key) => {
+export const audioClipUrls = new MRUCache<string, string>(10, (item, key) => {
     URL.revokeObjectURL(item);
     cache.delete(key);
 });
@@ -707,12 +707,28 @@ export async function getAudioSourceInfo(
     let audioPath = null;
 
     if (audioSource?.type === 'fcbh') {
-        const result = await getBibleBrainUrl(audioSource, item, getDamId);
-        if (result.error) {
-            throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+        if (audioSource.accessMethods?.includes('download')) {
+            const foundAudioClip = await findAudioClip({
+                collection: item.collection || '',
+                book: item.book || '',
+                chapter: item.chapter || ''
+            }); //If the audio has been downloaded already, use that.
+            if (foundAudioClip) {
+                const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
+                if (!audioClipUrls.get(clipKey)) {
+                    audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
+                }
+                audioPath = audioClipUrls.get(clipKey)!;
+            }
         }
+        if (!audioPath) {
+            const result = await getBibleBrainUrl(audioSource, item, getDamId);
+            if (result.error) {
+                throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+            }
 
-        audioPath = result.path;
+            audioPath = result.path;
+        }
     } else if (audioSource?.type === 'assets') {
         const audioKey = `./${audio.filename}`;
         if (!audioSources[audioKey]) {
@@ -850,27 +866,42 @@ export async function checkAudioAvailability() {
         ?.find((c) => get(refs).collection === c.id)
         ?.books?.find((b) => b.id === get(refs).book)
         ?.audio?.find((a) => get(refs).chapter === '' + a.num);
-    if (audio) {
+    if (audio && get(userSettings)['audio-access-method'] === 'download') {
         const audioSource = scriptureConfig.audio?.sources[audio.src];
+        let audioPath = '';
         if (audioSource?.type === 'download') {
-            const audioPath = pathJoin([audioSource.address, audio.filename]);
-            if (get(userSettings)['audio-access-method'] === 'download') {
-                const foundAudioClip = await findAudioClip({
+            audioPath = pathJoin([audioSource.address, audio.filename]);
+        } else if (audioSource?.type === 'fcbh') {
+            const result = await getBibleBrainUrl(
+                audioSource,
+                {
                     collection: get(refs).collection || '',
                     book: get(refs).book || '',
                     chapter: get(refs).chapter || ''
-                });
-                if (!foundAudioClip) {
-                    if (audioSource?.accessMethods?.includes('download')) {
-                        if (get(userSettings)['audio-auto-download'] === 'auto') {
-                            modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
-                        } else {
-                            modal.open(ModalType.DownloadAudio, { audioPath, show: true });
-                        }
-                    }
-                    return false;
+                },
+                getDamId
+            );
+            if (result.error) {
+                throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+            }
+            if (result.path) {
+                audioPath = result.path;
+            }
+        }
+        const foundAudioClip = await findAudioClip({
+            collection: get(refs).collection || '',
+            book: get(refs).book || '',
+            chapter: get(refs).chapter || ''
+        });
+        if (!foundAudioClip) {
+            if (audioSource?.accessMethods?.includes('download')) {
+                if (get(userSettings)['audio-auto-download'] === 'auto') {
+                    modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                } else {
+                    modal.open(ModalType.DownloadAudio, { audioPath, show: true });
                 }
             }
+            return false;
         }
     }
     return true;
