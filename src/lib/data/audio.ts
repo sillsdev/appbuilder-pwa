@@ -868,40 +868,40 @@ export async function checkAudioAvailability() {
         ?.audio?.find((a) => get(refs).chapter === '' + a.num);
     if (audio && get(userSettings)['audio-access-method'] === 'download') {
         const audioSource = scriptureConfig.audio?.sources[audio.src];
-        let audioPath = '';
-        if (audioSource?.type === 'download') {
-            audioPath = pathJoin([audioSource.address, audio.filename]);
-        } else if (audioSource?.type === 'fcbh') {
-            const result = await getBibleBrainUrl(
-                audioSource,
-                {
-                    collection: get(refs).collection || '',
-                    book: get(refs).book || '',
-                    chapter: get(refs).chapter || ''
-                },
-                getDamId
-            );
-            if (result.error) {
-                throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
-            }
-            if (result.path) {
-                audioPath = result.path;
-            }
-        }
         const foundAudioClip = await findAudioClip({
             collection: get(refs).collection || '',
             book: get(refs).book || '',
             chapter: get(refs).chapter || ''
         });
         if (!foundAudioClip) {
+            let audioPath = '';
+            if (audioSource?.type === 'download') {
+                audioPath = pathJoin([audioSource.address, audio.filename]);
+            } else if (audioSource?.type === 'fcbh') {
+                const result = await getBibleBrainUrl(
+                    audioSource,
+                    {
+                        collection: get(refs).collection || '',
+                        book: get(refs).book || '',
+                        chapter: get(refs).chapter || ''
+                    },
+                    getDamId
+                );
+                if (result.error) {
+                    throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+                }
+                if (result.path) {
+                    audioPath = result.path;
+                }
+            }
             if (audioSource?.accessMethods?.includes('download')) {
                 if (get(userSettings)['audio-auto-download'] === 'auto') {
                     modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
                 } else {
                     modal.open(ModalType.DownloadAudio, { audioPath, show: true });
                 }
+                return false;
             }
-            return false;
         }
     }
     return true;
