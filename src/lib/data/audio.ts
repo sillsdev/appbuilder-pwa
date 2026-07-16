@@ -6,9 +6,12 @@ import {
     audioPlayerDefault,
     audioPlayer as audioPlayerStore,
     defaultPlayMode,
+    modal,
+    ModalType,
     playMode,
     PlayMode,
     refs,
+    userSettings,
     type AudioPlayer,
     type PlayModeRange,
     type PlayModeSettings,
@@ -16,6 +19,7 @@ import {
 } from '$lib/data/stores';
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
+import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
 import { findAudioClip } from './audioclipsDB';
 
@@ -839,4 +843,35 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
     }
 
     return { start, end } as PlayModeRange;
+}
+
+export async function checkAudioAvailability() {
+    const audio = scriptureConfig.bookCollections
+        ?.find((c) => get(refs).collection === c.id)
+        ?.books?.find((b) => b.id === get(refs).book)
+        ?.audio?.find((a) => get(refs).chapter === '' + a.num);
+    if (audio) {
+        const audioSource = scriptureConfig.audio?.sources[audio.src];
+        if (audioSource?.type === 'download') {
+            let audioPath = pathJoin([audioSource.address, audio.filename]);
+            if (get(userSettings)['audio-access-method'] === 'download') {
+                let foundAudioClip = await findAudioClip({
+                    collection: get(refs).collection || '',
+                    book: get(refs).book || '',
+                    chapter: get(refs).chapter || ''
+                });
+                if (!foundAudioClip) {
+                    if (audioSource?.accessMethods?.includes('download')) {
+                        if (get(userSettings)['audio-auto-download'] === 'auto') {
+                            modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                        } else {
+                            modal.open(ModalType.DownloadAudio, { audioPath, show: true });
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }

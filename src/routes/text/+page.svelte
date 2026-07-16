@@ -17,8 +17,12 @@
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
-    import { findAudioClip } from '$lib/data/audioclipsDB';
+    import {
+        checkAudioAvailability,
+        playStop,
+        seekToVerse,
+        updateAudioPlayer
+    } from '$lib/data/audio';
     import {
         actionBarColor,
         analytics,
@@ -396,36 +400,6 @@
             }
         }
     };
-    async function checkAudioAvailability() {
-        const audio = scriptureConfig.bookCollections
-            ?.find((c) => $refs.collection === c.id)
-            ?.books?.find((b) => b.id === $refs.book)
-            ?.audio?.find((a) => $refs.chapter === '' + a.num);
-        if (audio) {
-            const audioSource = scriptureConfig.audio?.sources[audio.src];
-            if (audioSource?.type === 'download') {
-                let audioPath = pathJoin([audioSource.address, audio.filename]);
-                if ($userSettings['audio-access-method'] === 'download') {
-                    let foundAudioClip = await findAudioClip({
-                        collection: $refs.collection || '',
-                        book: $refs.book || '',
-                        chapter: $refs.chapter || ''
-                    });
-                    if (!foundAudioClip) {
-                        if (audioSource?.accessMethods?.includes('download')) {
-                            if ($userSettings['audio-auto-download'] === 'auto') {
-                                modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
-                            } else {
-                                modal.open(ModalType.DownloadAudio, { audioPath, show: true });
-                            }
-                        }
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
 
     $effect(() => {
         updateHighlight($audioHighlightElements, highlightColor);
