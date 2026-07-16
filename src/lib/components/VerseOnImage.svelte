@@ -703,6 +703,15 @@ The verse on image component.
     let textY = $state(0);
     let dragging = false;
     let offsetX: number, offsetY: number;
+    let previousParentLeft = 0;
+    onMount(() => {
+        previousParentLeft = parentDiv.getBoundingClientRect().left;
+    });
+
+    window.addEventListener('resize', () => {
+        textX = parentDiv.getBoundingClientRect().left - previousParentLeft + textX; //It looks like this doesn't need to be done with y because the canvas doesn't move when the window height is changed.
+        previousParentLeft = parentDiv.getBoundingClientRect().left;
+    });
 
     function drag(event: PointerEvent) {
         if (dragging) {
