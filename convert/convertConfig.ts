@@ -1434,24 +1434,6 @@ export async function verifyMediaAvailability(config: AppConfig, verbose: number
         }
     }
 
-    if (isSAB(config)) {
-        // check all remote videos
-        const remoteVideos = config.videos?.filter((v) => v.onlineUrl) ?? [];
-        if (verbose && remoteVideos.length) {
-            console.log(`Verifying access to ${remoteVideos.length} remote videos...`);
-        }
-        await Promise.all(
-            remoteVideos.map((v) =>
-                testRemoteAccess(
-                    v.onlineUrl,
-                    (status) => `${status} "${v.title ?? v.id}" (${v.onlineUrl})`,
-                    () => {},
-                    verbose
-                )
-            )
-        );
-    }
-
     for (const [key, source] of sources.entries()) {
         if (source.errored) {
             config.audio!.sources[key].accessMethods = config.audio!.sources[
