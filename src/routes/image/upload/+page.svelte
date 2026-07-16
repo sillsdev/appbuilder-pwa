@@ -50,13 +50,13 @@
         scaledCropTop: number | null,
         scaledCropSize: number | null
     ) {
-        if (scaledCropSize) {
+        if (scaledCropSize !== null) {
             cropScale = scaledCropSize / Math.min(imageRect.width, imageRect.height);
         }
-        if (scaledCropLeft) {
+        if (scaledCropLeft !== null) {
             unscaledCropLeft = (scaledCropLeft - imageRect.left) / imageRect.width;
         }
-        if (scaledCropTop) {
+        if (scaledCropTop !== null) {
             unscaledCropTop = (scaledCropTop - imageRect.top) / imageRect.height;
         }
     }
@@ -65,9 +65,14 @@
         const scaledCropSize = Math.max(20, Math.min(100, imageRect.width, imageRect.height));
         updateCropValues(cropLeft, cropTop, scaledCropSize);
     }
-    window.addEventListener('resize', () => {
+
+    function onResize() {
         imageRect = getImageRect(image);
         updateCropValues(cropLeft, cropTop, cropSize);
+    }
+    onMount(() => {
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
     });
     function getImageRect(img: HTMLImageElement) {
         const containerRect = container.getBoundingClientRect();
