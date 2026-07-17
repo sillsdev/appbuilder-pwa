@@ -50,6 +50,13 @@
         refs.init();
     }
 
+    const debugTheme = dev
+        ? (() => {
+              console.warn('DEBUG color theme enabled');
+              return 'debug';
+          })()
+        : undefined;
+
     if (!$analytics.initialized) {
         analytics.init();
     }
@@ -138,15 +145,10 @@
 
 {#if showPage}
     <Sidebar>
-        <!-- Set DaisyUI theme colors to red during development for debug purposes -->
+        <!-- `debugTheme` sets the *allegedly* unused DaisyUI theme to all-red when dev server is running -->
         <div
             id="container"
-            data-theme={dev
-                ? (() => {
-                      console.warn('DEBUG color theme enabled');
-                      return 'debug';
-                  })()
-                : 'light'}
+            data-theme={debugTheme}
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
