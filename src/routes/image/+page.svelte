@@ -81,7 +81,7 @@
         {downloadVideo}
     />
 
-    <div class="overflow-y-auto" style="border:0px solid orange;">
+    <div class="overflow-y-auto">
         <VerseOnImage bind:this={verseOnImage_Component} />
     </div>
 </div>

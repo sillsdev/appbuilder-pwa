@@ -158,10 +158,7 @@ TODO:
     const iconColor = $derived($s['ui.bar.text-select.icon']['color']);
 </script>
 
-<div
-    class="h-12 bg-base-100 mx-auto flex items-center flex-col"
-    style:background-color={backgroundColor}
->
+<div class="h-12 mx-auto flex items-center flex-col" style:background-color={backgroundColor}>
     <div class="flex flex-col justify-center w-11/12 grow">
         <!-- Controls -->
         <div class="place-self-center">

@@ -634,7 +634,8 @@
     </div>
     {#if textCopied}
         <div
-            class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
+            style={convertStyle($s?.['ui.bar.audio.hint.text'])}
+            class="flex h-12 p-2 items-center justify-center text-center text-sm"
         >
             {$t['Text_Copied']}
         </div>

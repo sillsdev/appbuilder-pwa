@@ -247,6 +247,7 @@
                 class="dy-tab {selectedTab === 'calendar' ? 'dy-tab-active' : ''}"
                 onclick={() => (selectedTab = 'calendar')}
                 aria-label="calendar logo"
+                style={convertStyle($s?.['ui.plans.tabs.text'])}
             >
                 <CalendarMonthIcon
                     color={barIconColor}
@@ -259,6 +260,7 @@
                     class="dy-tab {selectedTab === 'settings' ? 'dy-tab-active' : ''}"
                     onclick={() => (selectedTab = 'settings')}
                     aria-label="settings icon"
+                    style={convertStyle($s?.['ui.plans.tabs.text'])}
                 >
                     <SettingsIcon
                         color={barIconColor}
@@ -321,7 +323,7 @@
                     onmouseup={handleMouseUp}
                     onmouseleave={handleMouseUp}
                 >
-                    <ul class="dy-menu-horizontal bg-base-200 rounded-box">
+                    <ul class="dy-menu-horizontal rounded-box">
                         {#each data.planData.items as item}
                             <!-- plan-day-box selected plan-day-box-selected plan-day-box-uncompleted or
                          plan-day-box plan-day-box-unselected plan-day-box-uncompleted -->
