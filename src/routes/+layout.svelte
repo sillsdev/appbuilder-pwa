@@ -146,7 +146,7 @@
                       console.warn('DEBUG color theme enabled');
                       return 'debug';
                   })()
-                : 'default'}
+                : 'light'}
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
