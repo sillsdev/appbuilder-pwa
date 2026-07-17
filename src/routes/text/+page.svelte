@@ -629,9 +629,10 @@
             </div>
         </div>
     </div>
-    <div class="flex justify-center">
-        <StackView {...stackSettings} />
-    </div>
+
+    <!-- Display pop-ups for cross-references, footnotes, etc. -->
+    <StackView {...stackSettings} />
+
     {#if textCopied}
         <div
             class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
