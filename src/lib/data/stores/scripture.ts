@@ -157,7 +157,7 @@ function getDefaultCurrentFonts() {
             // Sometimes, the collection.style.font doesn't exist in the array of fonts!
             const font =
                 collection.style?.font &&
-                scriptureConfig.fonts?.some((font) => font.family === collection.style?.font)
+                    scriptureConfig.fonts?.some((font) => font.family === collection.style?.font)
                     ? collection.style.font
                     : scriptureConfig.fonts?.[0].family;
             if (font) {
@@ -194,8 +194,8 @@ export const fontChoices = derived(refs, ($refs) => {
         (bookFonts?.length ?? 0) > 0
             ? bookFonts
             : (colFonts?.length ?? 0) > 0
-              ? colFonts
-              : allFonts;
+                ? colFonts
+                : allFonts;
     return currentFonts;
 });
 

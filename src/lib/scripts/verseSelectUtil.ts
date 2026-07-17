@@ -18,10 +18,11 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
         } else {
             selectedVerses.removeVerse(id);
         }
+        console.log(selectedVerses.getVerseByIndex(0));
     }
 }
-export function updateSelections(selections: any) {
-    const items = Array.from(document.getElementsByClassName('selected'));
+export function updateSelections(element: HTMLElement, selections: any) {
+    const items = Array.from(element.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
     for (let i = 0; i < items.length; i++) {
@@ -30,17 +31,17 @@ export function updateSelections(selections: any) {
             lastId = id;
             const verse = selections.getVerseByVerseNumber(id);
             if (verse.verse === '') {
-                modifyClassOfElements(id, 'selected', false);
+                modifyClassOfElements(element, id, 'selected', false);
             }
         }
     }
     // Select items in list
     for (let i = 0; i < selections.length(); i++) {
         const selectedVerse = selections.getVerseByIndex(i).verse;
-        modifyClassOfElements(selectedVerse, 'selected', true);
+        modifyClassOfElements(element, selectedVerse, 'selected', true);
     }
 }
-// Deselect all elements
+// Deselect all HTMLElements
 export function deselectAllElements(selections: any) {
     const els = document.getElementsByTagName('div');
     for (let i = 0; i < els.length; i++) {
@@ -51,9 +52,9 @@ export function deselectAllElements(selections: any) {
     selections.reset();
 }
 
-// Deselect elements
-export function deselectElements(id: string, selections: any) {
-    modifyClassOfElements(id, 'selected', false);
+// Deselect HTMLElements
+export function deselectElements(element: HTMLElement, id: string, selections: any) {
+    modifyClassOfElements(element, id, 'selected', false);
     selections.removeVerse(id);
 }
 
@@ -71,34 +72,34 @@ function removeIdSuffixes(id: string) {
 
     return id;
 }
-export function isSelectableText(target) {
+export function isSelectableText(target: HTMLElement) {
     return target.classList.contains('seltxt');
 }
 
-function isClickableText(target) {
+function isClickableText(target: HTMLElement) {
     return target.tagName === 'A';
 }
 
-function isMain(target) {
+function isMain(target: HTMLElement) {
     return target.tagName === 'MAIN';
 }
-// Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function modifyClassOfElements(id, clsName, select) {
-    let success = modifyClassOfElement(id, clsName, select);
+// Modify class name of HTMLElements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
+function modifyClassOfElements(element: HTMLElement, id: string, clsName: string, select: boolean) {
+    let success = modifyClassOfElement(element, id, clsName, select);
     for (let i = 97; i <= 122; i++) {
         const letter = String.fromCharCode(i);
-        success = modifyClassOfElement(id + letter, clsName, select);
+        success = modifyClassOfElement(element, id + letter, clsName, select);
         if (!success) {
             break;
         }
     }
 }
 
-// Modify class name of elements id, id+1, id+2, etc.
-function modifyClassOfElement(id: string, clsName: string, select: boolean): boolean {
+// Modify class name of HTMLElements id, id+1, id+2, etc.
+function modifyClassOfElement(element: HTMLElement, id: string, clsName: string, select: boolean): boolean {
     let found = false;
     let i = 0;
-    let el = document.getElementById(id);
+    let el = element.querySelector<HTMLElement>('#' + CSS.escape(id));
 
     while (el) {
         if (select) {
@@ -109,7 +110,7 @@ function modifyClassOfElement(id: string, clsName: string, select: boolean): boo
             el.classList.remove(clsName);
         }
         i++;
-        el = document.getElementById(id + '+' + i);
+        el = element.querySelector<HTMLElement>('#' + CSS.escape(id + '+' + i));
         found = true;
     }
 
