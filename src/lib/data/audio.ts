@@ -875,17 +875,19 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
 }
 
 export async function checkAudioAvailability() {
+    let curRefs = get(refs);
     const audio = scriptureConfig.bookCollections
-        ?.find((c) => get(refs).collection === c.id)
-        ?.books?.find((b) => b.id === get(refs).book)
-        ?.audio?.find((a) => get(refs).chapter === '' + a.num);
+        ?.find((c) => curRefs.collection === c.id)
+        ?.books?.find((b) => b.id === curRefs.book)
+        ?.audio?.find((a) => curRefs.chapter === '' + a.num);
     if (audio && get(userSettings)['audio-access-method'] === 'download') {
         const audioSource = scriptureConfig.audio?.sources[audio.src];
         const foundAudioClip = await findAudioClip({
-            collection: get(refs).collection || '',
-            book: get(refs).book || '',
-            chapter: get(refs).chapter || ''
+            collection: curRefs.collection || '',
+            book: curRefs.book || '',
+            chapter: curRefs.chapter || ''
         });
+        curRefs = get(refs);
         if (!foundAudioClip) {
             let audioPath = '';
             if (audioSource?.type === 'download') {
@@ -894,9 +896,9 @@ export async function checkAudioAvailability() {
                 const result = await getBibleBrainUrl(
                     audioSource,
                     {
-                        collection: get(refs).collection || '',
-                        book: get(refs).book || '',
-                        chapter: get(refs).chapter || ''
+                        collection: curRefs.collection || '',
+                        book: curRefs.book || '',
+                        chapter: curRefs.chapter || ''
                     },
                     getDamId
                 );
