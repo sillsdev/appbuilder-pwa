@@ -3,6 +3,7 @@
     import faviconHref from '$assets/icons/favicon.png';
     import manifestHref from '$assets/manifestUrl.json';
     import '$lib/styles/app.css';
+    import { dev } from '$app/environment';
     import config from '$assets/config';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
@@ -48,6 +49,13 @@
         // When this async function completes, $refs.intialized will be true.
         refs.init();
     }
+
+    const debugTheme = dev
+        ? (() => {
+              console.warn('DEBUG color theme enabled');
+              return 'debug';
+          })()
+        : undefined;
 
     if (!$analytics.initialized) {
         analytics.init();
@@ -137,8 +145,10 @@
 
 {#if showPage}
     <Sidebar>
+        <!-- `debugTheme` sets the *allegedly* unused DaisyUI theme to all-red when dev server is running -->
         <div
             id="container"
+            data-theme={debugTheme}
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
