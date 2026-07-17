@@ -72,6 +72,15 @@ export function updateAudioPlayer(item: { collection: string; book: string; chap
             audioPlayer.timeIndex = 0;
         }
     }
+    if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
+        if (currentAudioPlayer.audio) {
+            currentAudioPlayer.audio.pause();
+            if (currentAudioPlayer.timer) {
+                clearInterval(currentAudioPlayer.timer);
+                currentAudioPlayer.timer = null;
+            }
+        }
+    }
     audioPlayerStore.set(audioPlayer);
 }
 // some browsers don't support all sources (e.g. Mobile Safari doesn't support webm)
@@ -113,6 +122,7 @@ async function getAudio() {
     if (!currentAudioPlayer || currentAudioPlayer.loaded) {
         return;
     }
+    const player = currentAudioPlayer;
     currentAudioPlayer.duration = 0;
     currentAudioPlayer.progress = 0;
     if (currentAudioPlayer.playing) {
@@ -125,6 +135,9 @@ async function getAudio() {
     currentAudioPlayer.timing = audioSourceInfo.timing;
     const a = createAudio(audioSourceInfo.source);
     a.onloadedmetadata = () => {
+        if (player !== currentAudioPlayer) {
+            return;
+        }
         currentAudioPlayer!.duration = a.duration;
         currentAudioPlayer!.timeIndex = 0;
         currentAudioPlayer!.loaded = true;
