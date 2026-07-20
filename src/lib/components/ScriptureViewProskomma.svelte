@@ -45,8 +45,11 @@ LOGGING:
     import type { NoteItem } from '$lib/data/notes';
     import { type GlossaryQueryResult } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
+    import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
+    import type { ProskommaRenderAction } from 'proskomma-core';
+    import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { fromStore, type Readable } from 'svelte/store';
 
     let {
@@ -83,6 +86,30 @@ LOGGING:
         single
     }
 
+    const RenderEventNames = [
+        'startDocument',
+        'endDocument',
+        'startParagraph',
+        'endParagraph',
+        'startVerses',
+        'endVerses',
+        'startChapter',
+        'endChapter',
+        'text',
+        'metaContent',
+        'mark',
+        'startSequence',
+        'endSequence',
+        'blockGraft',
+        'inlineGraft',
+        'startWrapper',
+        'endWrapper',
+        'startMilestone',
+        'endMilestone',
+        'startRow',
+        'endRow'
+    ];
+
     class RenderScope {
         constructor(doc: Document, name: string, type: RenderScopeType, contentRoot?: HTMLElement) {
             this.name = name;
@@ -99,7 +126,7 @@ LOGGING:
 
     type RenderAction = {
         scopeTypes: Set<RenderScopeType>;
-        action(params: any, environment: any): void;
+        action(environment: any, params: any): void;
     };
 
     class FeatureSpec {
@@ -119,9 +146,7 @@ LOGGING:
     }
 
     const renderFeatures: Array<FeatureSpec> = getEnabledRenderFeatures();
-    const renderActions = renderFeatures.flatMap((v) => {
-        return { ...v.actions };
-    });
+    const renderActions = renderFeatures.flatMap((v) => ({ ...v.actions }));
     const openScopes: Array<RenderScope> = [];
 
     function getEnabledRenderFeatures() {
@@ -145,12 +170,10 @@ LOGGING:
             case RenderEventType.end:
                 topScope = openScopes.shift();
                 if (topScope?.type === eventDetails.scopeType) {
-                    for (const feature of renderFeatures.filter((f) => f.enabled)) {
-                        for (const action of feature.actions) {
-                            // perform action
-                            // append result to content root
-                            // update workspace if needed
-                        }
+                    for (const action of renderActions) {
+                        // perform action
+                        // append result to content root
+                        // update workspace if needed
                     }
                 }
                 break;
@@ -160,9 +183,33 @@ LOGGING:
         }
     }
 
+    type Environment = {
+        config: any;
+        context: any;
+        workspace: any;
+        output: any;
+    };
+
     let container: HTMLElement | undefined = $state();
     let loading = $state(false);
     let bookRoot = $state(document.createElement('div'));
+
+    const actionObject: { [key: string]: ProskommaRenderAction } = {};
+    for (var name of RenderEventNames) {
+        actionObject[name] = {
+            description: `Handling ${name}`,
+            test: () => true,
+            action: (environment: Environment) => {
+                handleSofriaRenderEvent(environment, name);
+            }
+        };
+    }
+
+    const pkRenderer = new SofriaRenderFromProskomma({
+        proskomma,
+        actions: actionObject,
+        debugLevel: 0
+    });
 </script>
 
 <article class="container" bind:this={container}>
