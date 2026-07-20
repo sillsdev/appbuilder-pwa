@@ -20,4 +20,14 @@ declare module 'proskomma-core' {
     export const typeDefs: string;
 
     export const resolvers: object;
+
+    /**
+     * Placeholder type since Proskomma doesn't yet use TypeScript
+     * (see https://github.com/Proskomma/proskomma-json-tools/blob/main/src/render/renderers/ProskommaRenderAction.js)
+     */
+    export type ProskommaRenderAction = {
+        description: string;
+        test: () => boolean;
+        action: ({}: any) => void;
+    };
 }
