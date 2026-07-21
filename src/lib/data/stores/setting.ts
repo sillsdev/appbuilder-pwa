@@ -2,9 +2,15 @@ import config, { scriptureConfig } from '$assets/config';
 import type { FeatureConfig } from '$config';
 import { isFileSystemAccessSupported } from '$lib/data/audioFileSystem';
 import { getDefaultLanguage } from '$lib/data/language';
+<<<<<<< HEAD
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
 import { isSAB } from '$lib/scripts/configUtils';
 import { derived, readable, writable } from 'svelte/store';
+=======
+import { persistedLocal } from '$lib/data/stores/storage';
+import { isSAB } from '$lib/scripts/configUtils';
+import { derived, readable } from 'svelte/store';
+>>>>>>> 305d295 (Fix basic render event call sequence)
 
 export const SettingsCategory = {
     Interface: 'Settings_Category_Interface',

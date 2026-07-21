@@ -38,11 +38,11 @@ LOGGING:
 <script lang="ts">
     /* eslint-disable svelte/no-dom-manipulating */
 
-    import { randomUUID, type UUID } from 'crypto';
     import { scriptureConfig } from '$assets/config';
     import type { BookmarkItem } from '$lib/data/bookmarks';
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
+    import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { type GlossaryQueryResult } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
@@ -125,13 +125,11 @@ LOGGING:
         constructor(doc: Document, name: string, type: RenderScopeType, contentRoot?: HTMLElement) {
             this.name = name;
             this.type = type;
-            this.id = randomUUID();
             this.contentRoot = contentRoot ?? doc.createElement('div');
         }
 
         name: string;
         type: RenderScopeType;
-        id: UUID;
         contentRoot: HTMLElement | null = null;
     }
 
@@ -148,12 +146,7 @@ LOGGING:
     class FeatureSpec {
         constructor(tag: string, actions: Array<RenderAction>) {
             this.configTag = tag;
-            this.enabled = getFeatureValueBoolean(
-                scriptureConfig,
-                tag,
-                references.collection,
-                references.book
-            );
+            this.enabled = getFeatureValueBoolean(tag, references.collection, references.book);
             this.actions = actions;
         }
         configTag: string;
@@ -183,7 +176,9 @@ LOGGING:
                 scopeType = RenderScopeType.document;
                 break;
             default:
-                throw new Error('Unsupported event type');
+                console.error(`Unsupported event type ${eventName}`);
+                eventType = RenderEventType.single;
+                scopeType = RenderScopeType.this_first;
         }
 
         return { eventType, scopeType };
@@ -225,19 +220,23 @@ LOGGING:
     const currentBook = $derived(references.book);
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
-    const currentDocumentID = $derived.by(() => {
+
+    async function getCurrentDocumentID() {
+        await loadDocSetIfNotLoaded(proskomma, currentDocset, fetch);
         const bookDocuments = proskomma.gqlQuerySync(
             '{documents { docSetId id bookCode: header(id: "bookCode") } }'
-        )?.data?.documents;
+        );
+        console.warn('book query result: %o', bookDocuments);
 
-        for (const doc of bookDocuments) {
+        for (const doc of bookDocuments?.data?.documents ?? []) {
+            console.warn(`Checking current docset ${currentDocset} against id ${doc.docSetId}`);
             if (currentDocset === doc.docSetId) {
-                return doc.docSetId;
+                return doc.id;
             }
         }
 
         return undefined;
-    });
+    }
 
     let container: HTMLElement | undefined = $state();
     let loading = $state(true);
@@ -246,16 +245,22 @@ LOGGING:
     const output: { root?: HTMLDivElement } = {};
 
     async function renderCurrentDocument(docSet: string, bookCode: string, chapter: string) {
-        const actionObject: { [key: string]: ProskommaRenderAction } = {};
+        const actionObject: { [key: string]: ProskommaRenderAction[] } = {};
         for (var name of RenderEventNames) {
-            actionObject[name] = {
-                description: `Handling ${name}`,
-                test: () => true,
-                action: (environment: Environment) => {
-                    handleSofriaRenderEvent(environment, name);
+            actionObject[name] = [
+                {
+                    description: `Handling ${name}`,
+                    test: () => true,
+                    action: (environment: Environment) => {
+                        handleSofriaRenderEvent(environment, name);
+                    }
                 }
-            };
+            ];
         }
+
+        await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
+        const docId = await getCurrentDocumentID();
+        console.warn(`found docId ${docId}`);
 
         const pkRenderer = new SofriaRenderFromProskomma({
             proskomma,
@@ -264,7 +269,7 @@ LOGGING:
         });
 
         pkRenderer.renderDocument({
-            docId: currentDocumentID,
+            docId,
             config: { chapters: [chapter] },
             output
         });
@@ -274,7 +279,7 @@ LOGGING:
     }
 
     $effect(() => {
-        renderCurrentDocument(currentDocumentID ?? '', currentBook, currentChapter);
+        renderCurrentDocument(currentDocset, currentBook, currentChapter);
     });
 </script>
 
