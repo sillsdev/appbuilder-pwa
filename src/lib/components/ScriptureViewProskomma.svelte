@@ -46,6 +46,14 @@ LOGGING:
     import { type GlossaryQueryResult } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
+    import {
+        RenderEventNames,
+        RenderEventType,
+        RenderScope,
+        RenderScopeType,
+        type FeatureSpec,
+        type RenderEventDetails
+    } from '$lib/render-sofria/common';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import type { ProskommaRenderAction } from 'proskomma-core';
@@ -81,78 +89,6 @@ LOGGING:
         scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
             ?.textDirection || 'ltr'
     );
-
-    enum RenderScopeType {
-        this_first,
-        that,
-        document,
-        paragraph,
-        sequence,
-        text
-    }
-
-    enum RenderEventType {
-        start,
-        end,
-        single
-    }
-
-    const RenderEventNames = [
-        'startDocument',
-        'endDocument',
-        'startParagraph',
-        'endParagraph',
-        'startVerses',
-        'endVerses',
-        'startChapter',
-        'endChapter',
-        'text',
-        'metaContent',
-        'mark',
-        'startSequence',
-        'endSequence',
-        'blockGraft',
-        'inlineGraft',
-        'startWrapper',
-        'endWrapper',
-        'startMilestone',
-        'endMilestone',
-        'startRow',
-        'endRow'
-    ];
-
-    class RenderScope {
-        constructor(doc: Document, name: string, type: RenderScopeType, contentRoot?: HTMLElement) {
-            this.name = name;
-            this.type = type;
-            this.contentRoot = contentRoot ?? doc.createElement('div');
-        }
-
-        name: string;
-        type: RenderScopeType;
-        contentRoot: HTMLElement | null = null;
-    }
-
-    type RenderAction = {
-        scopeTypes: Set<RenderScopeType>;
-        action(environment: any, params: any): void;
-    };
-
-    type RenderEventDetails = {
-        eventType: RenderEventType;
-        scopeType: RenderScopeType;
-    };
-
-    class FeatureSpec {
-        constructor(tag: string, actions: Array<RenderAction>) {
-            this.configTag = tag;
-            this.enabled = getFeatureValueBoolean(tag, references.collection, references.book);
-            this.actions = actions;
-        }
-        configTag: string;
-        enabled: boolean;
-        actions: Array<RenderAction>;
-    }
 
     const renderFeatures: Array<FeatureSpec> = getEnabledRenderFeatures();
     const renderActions = renderFeatures.flatMap((v) => ({ ...v.actions }));
