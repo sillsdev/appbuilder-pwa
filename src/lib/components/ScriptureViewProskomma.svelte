@@ -75,9 +75,20 @@ LOGGING:
         proskomma
     }: Props = $props();
 
+    const fontSize = $derived(bodyFontSize + 'px');
+    const lineHeight = $derived(bodyLineHeight + '%');
+    const direction = $derived(
+        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
+            ?.textDirection || 'ltr'
+    );
+
     enum RenderScopeType {
         this_first,
-        that
+        that,
+        document,
+        paragraph,
+        sequence,
+        text
     }
 
     enum RenderEventType {
@@ -129,6 +140,11 @@ LOGGING:
         action(environment: any, params: any): void;
     };
 
+    type RenderEventDetails = {
+        eventType: RenderEventType;
+        scopeType: RenderScopeType;
+    };
+
     class FeatureSpec {
         constructor(tag: string, actions: Array<RenderAction>) {
             this.configTag = tag;
@@ -153,23 +169,39 @@ LOGGING:
         return [];
     }
 
-    function getSofriaEventDetails(environment: any, eventName: string) {
-        //TODO
-        return { eventType: RenderEventType.start, scopeType: RenderScopeType.that };
+    function getSofriaEventDetails(environment: any, eventName: string): RenderEventDetails {
+        let eventType: RenderEventType;
+        let scopeType: RenderScopeType;
+
+        switch (eventName) {
+            case 'startDocument':
+                eventType = RenderEventType.start;
+                scopeType = RenderScopeType.document;
+                break;
+            case 'endDocument':
+                eventType = RenderEventType.end;
+                scopeType = RenderScopeType.document;
+                break;
+            default:
+                throw new Error('Unsupported event type');
+        }
+
+        return { eventType, scopeType };
     }
 
     function handleSofriaRenderEvent(environment: any, eventName: string) {
+        console.log('Handling function called for %s on %o', eventName, environment);
         const eventDetails = getSofriaEventDetails(environment, eventName);
         let topScope: RenderScope | undefined;
 
         switch (eventDetails.eventType) {
             case RenderEventType.start:
                 openScopes.unshift(new RenderScope(document, eventName, eventDetails.scopeType));
-                // update workspace if needed
                 break;
             case RenderEventType.end:
                 topScope = openScopes.shift();
                 if (topScope?.type === eventDetails.scopeType) {
+                    console.log(`---> Matched end scope type: ${eventDetails.scopeType}`);
                     for (const action of renderActions) {
                         // perform action
                         // append result to content root
@@ -190,25 +222,59 @@ LOGGING:
         output: any;
     };
 
+    const currentBook = $derived(references.book);
+    const currentChapter = $derived(references.chapter);
+    const currentDocset = $derived(references.docSet);
+    const currentDocumentID = $derived.by(() => {
+        const bookDocuments = proskomma.gqlQuerySync(
+            '{documents { docSetId id bookCode: header(id: "bookCode") } }'
+        )?.data?.documents;
+
+        for (const doc of bookDocuments) {
+            if (currentDocset === doc.docSetId) {
+                return doc.docSetId;
+            }
+        }
+
+        return undefined;
+    });
+
     let container: HTMLElement | undefined = $state();
-    let loading = $state(false);
+    let loading = $state(true);
     let bookRoot = $state(document.createElement('div'));
 
-    const actionObject: { [key: string]: ProskommaRenderAction } = {};
-    for (var name of RenderEventNames) {
-        actionObject[name] = {
-            description: `Handling ${name}`,
-            test: () => true,
-            action: (environment: Environment) => {
-                handleSofriaRenderEvent(environment, name);
-            }
-        };
+    const output: { root?: HTMLDivElement } = {};
+
+    async function renderCurrentDocument(docSet: string, bookCode: string, chapter: string) {
+        const actionObject: { [key: string]: ProskommaRenderAction } = {};
+        for (var name of RenderEventNames) {
+            actionObject[name] = {
+                description: `Handling ${name}`,
+                test: () => true,
+                action: (environment: Environment) => {
+                    handleSofriaRenderEvent(environment, name);
+                }
+            };
+        }
+
+        const pkRenderer = new SofriaRenderFromProskomma({
+            proskomma,
+            actions: actionObject,
+            debugLevel: 0
+        });
+
+        pkRenderer.renderDocument({
+            docId: currentDocumentID,
+            config: { chapters: [chapter] },
+            output
+        });
+
+        bookRoot = output.root ?? bookRoot;
+        loading = false;
     }
 
-    const pkRenderer = new SofriaRenderFromProskomma({
-        proskomma,
-        actions: actionObject,
-        debugLevel: 0
+    $effect(() => {
+        renderCurrentDocument(currentDocumentID ?? '', currentBook, currentChapter);
     });
 </script>
 
