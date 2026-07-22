@@ -174,7 +174,7 @@ export class NavigationContext {
 
     private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {
         let newBook = await this.updateCatalog(docSet);
-        if (book !== this.book && this.allBookIds.includes(book)) {
+        if (book !== this.book && (this.allBookIds.includes(book) || !this.book)) {
             this.book = book;
             newBook = true;
         }

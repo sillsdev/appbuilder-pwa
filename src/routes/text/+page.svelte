@@ -128,17 +128,18 @@
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
-
-    const bookTabs = $derived(
+    const book = $derived(
         scriptureConfig?.bookCollections
             ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.bookTabs
-    ); //This should hopefully be reactive and find the book tabs if the current book has them.
-    const bookType = $derived(
-        scriptureConfig?.bookCollections
-            ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.type
+            ?.books.find((x) => x.id === $refs.book)
     );
+    const bookTabs = $derived(book?.bookTabs); //This should hopefully be reactive and find the book tabs if the current book has them.
+    const bookType = $derived(book?.type);
+    $effect(() => {
+        if (bookType === 'quiz') {
+            goto(resolve(`/quiz/${$refs.collection}/${book?.id}`));
+        }
+    });
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
@@ -244,9 +245,7 @@
     );
 
     function getFormat(bcId: string, bookId: string) {
-        return scriptureConfig.bookCollections
-            ?.find((x) => x.id === bcId)
-            ?.books.find((x) => x.id === bookId)?.format;
+        return book?.format;
     }
 
     const stackSettings = $derived({
@@ -437,9 +436,7 @@
         playStop();
     });
     function getCurrentIllustrationFile() {
-        let illustrations = scriptureConfig?.bookCollections
-            ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.pageIllustrations;
+        let illustrations = book?.pageIllustrations;
         if (illustrations) {
             for (let i = 0; i < illustrations.length; i++) {
                 if (illustrations[i].num === Number($refs.chapter)) {
