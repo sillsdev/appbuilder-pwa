@@ -569,7 +569,6 @@ export async function convertBooks(
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
-        //catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
         catalogEntries.push(
             pk.gqlQuery(queries.catalogQuery({ cv: true })).then((j) => {
                 if (j.data.nDocSets > 0) {
@@ -622,7 +621,7 @@ export async function convertBooks(
     createOutputDir(catalogPath);
     entries.forEach((entry) => {
         fs.writeFileSync(
-            path.join(catalogPath, entry.data.docSets[0]?.id + '.json'),
+            path.join(catalogPath, entry.data.docSets[0].id + '.json'),
             JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks))
         );
     });

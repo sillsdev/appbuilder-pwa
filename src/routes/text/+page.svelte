@@ -137,7 +137,7 @@
     const bookType = $derived(book?.type);
     $effect(() => {
         if (bookType === 'quiz') {
-            goto(resolve(`/quiz/${$refs.collection}/${book?.id}`));
+            goto(resolve(`/quiz/${$refs.collection}/${book?.id}`), { replaceState: true });
         }
     });
 
