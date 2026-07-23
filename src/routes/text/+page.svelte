@@ -404,7 +404,7 @@
     $effect(() => {
         newRefScroll($refs);
     });
-    const navBarHeight = NAVBAR_HEIGHT;
+    const navBarHeight = $derived(bookTabs ? 'calc(' + NAVBAR_HEIGHT + ' + 2rem)' : NAVBAR_HEIGHT);
     onMount(() => {
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
