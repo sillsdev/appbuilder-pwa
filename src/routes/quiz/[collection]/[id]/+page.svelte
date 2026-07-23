@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { beforeNavigate, invalidateAll } from '$app/navigation';
-    import { scriptureConfig } from '$assets/config';
+    import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
+    import config, { scriptureConfig } from '$assets/config';
+    import contents from '$assets/contents';
     import type { QuizAnswer, QuizQuestion } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
@@ -10,9 +11,13 @@
         actionBarColor,
         bodyFontSize,
         bodyLineHeight,
+        contentsStack,
+        convertStyle,
         modal,
         ModalType,
+        NAVBAR_HEIGHT,
         quizAudioActive,
+        s,
         t
     } from '$lib/data/stores';
     import { refs } from '$lib/data/stores/scripture';
@@ -25,6 +30,7 @@
     } from '$lib/icons';
     import { getRandomItem, shuffleArray } from '$lib/scripts/arrayUtils.js';
     import { compareVersions } from '$lib/scripts/stringUtils';
+    import { resolve } from '$lib/utils/paths';
     import { onDestroy } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
     import type { PageData } from './$types.js';
@@ -74,6 +80,10 @@
             ?.find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === quizId)
     );
+    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
+
+    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
+    const navBarHeight = NAVBAR_HEIGHT;
     const questions: QuizQuestion[] = $derived(
         book?.quizFeatures?.['shuffle-questions']
             ? shuffleArray([...(quiz?.questions ?? [])])
@@ -85,6 +95,9 @@
     );
 
     const staticAssets = compareVersions(scriptureConfig.programVersion, '12.0') < 0;
+    const showBackButton = $derived(
+        contents?.features?.['navigation-type'] === 'up' && $contentsStack.length > 0
+    );
     function getQuizAssetAudio(file: string) {
         return staticAssets ? 'assets/' + file : quizAssets[`./${file}`].replace(/^\//, '');
     }
@@ -258,7 +271,7 @@
 
 <div class="grid grid-rows-[auto_1fr] h-screen overflow-y-auto" style:font-size="{$bodyFontSize}px">
     <div class="navbar">
-        <Navbar>
+        <Navbar {showBackButton}>
             {#snippet start()}
                 <BookSelector {displayLabel} />
             {/snippet}
@@ -291,6 +304,20 @@
             {/snippet}
         </Navbar>
     </div>
+    {#if showCollectionViewer && enoughCollections}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1 cursor-pointer"
+            style:top={navBarHeight}
+            style:background-color={convertStyle($s?.['ui.pane1'])}
+            style={convertStyle($s?.['ui.pane1.name'])}
+            onclick={() => goto(resolve(`/layout`))}
+        >
+            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
+                ?.collectionAbbreviation}
+        </div>
+    {/if}
 
     {#if locked}
         {#if data.dependentQuizName || data.dependentQuizId}
