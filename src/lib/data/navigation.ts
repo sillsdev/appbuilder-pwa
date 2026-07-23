@@ -162,9 +162,15 @@ export class NavigationContext {
             this.collection = docSet.split('_')[1];
             this.catalog = await this.fetchCatalog(this.docSet);
             this.books = this.catalog.documents.map((b) => b.bookCode);
+            const collection = this.config.bookCollections?.find(
+                (c) => docSet === c.id || docSet === this.docSetFromCollection(c)
+            );
+            const quizzes =
+                collection?.books.filter((x) => x.type === 'quiz').map((x) => x.id) || [];
             this.allBookIds = [
                 ...this.books,
-                ...(this.catalog.htmlBooks ? this.catalog.htmlBooks.map((b) => b.id) : [])
+                ...(this.catalog.htmlBooks ? this.catalog.htmlBooks.map((b) => b.id) : []),
+                ...quizzes
             ];
             return true;
         } else {
@@ -174,8 +180,7 @@ export class NavigationContext {
 
     private async updateLocation(docSet: string, book: string, chapter: string, verse: string) {
         let newBook = await this.updateCatalog(docSet);
-
-        if (book !== this.book) {
+        if (book !== this.book && this.allBookIds.includes(book)) {
             this.book = book;
             newBook = true;
         }
