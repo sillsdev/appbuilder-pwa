@@ -876,6 +876,9 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
 
 export async function checkAudioAvailability() {
     let curRefs = get(refs);
+    if (cache.get(cacheKey(curRefs.collection, curRefs.book, curRefs.chapter))) {
+        return true;
+    }
     const audio = scriptureConfig.bookCollections
         ?.find((c) => curRefs.collection === c.id)
         ?.books?.find((b) => b.id === curRefs.book)
