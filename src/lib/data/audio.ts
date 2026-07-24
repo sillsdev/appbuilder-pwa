@@ -876,9 +876,6 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
 
 export async function checkAudioAvailability() {
     let curRefs = get(refs);
-    if (cache.get(cacheKey(curRefs.collection, curRefs.book, curRefs.chapter))) {
-        return true;
-    }
     const audio = scriptureConfig.bookCollections
         ?.find((c) => curRefs.collection === c.id)
         ?.books?.find((b) => b.id === curRefs.book)
@@ -913,10 +910,14 @@ export async function checkAudioAvailability() {
                 }
             }
             if (audioSource?.accessMethods?.includes('download')) {
-                if (get(userSettings)['audio-auto-download'] === 'auto') {
-                    modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                if (!navigator.onLine) {
+                    modal.open(ModalType.NoConnection);
                 } else {
-                    modal.open(ModalType.DownloadAudio, { audioPath, show: true });
+                    if (get(userSettings)['audio-auto-download'] === 'auto') {
+                        modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                    } else {
+                        modal.open(ModalType.DownloadAudio, { audioPath, show: true });
+                    }
                 }
                 return false;
             }
