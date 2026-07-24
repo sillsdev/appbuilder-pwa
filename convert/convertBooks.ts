@@ -566,11 +566,46 @@ export async function convertBooks(
             console.timeEnd('convert ' + collection.id);
         }
         //start freezing process and map promise to docSet name
-
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
-        catalogEntries.push(pk.gqlQuery(queries.catalogQuery({ cv: true })));
+        catalogEntries.push(
+            pk.gqlQuery(queries.catalogQuery({ cv: true })).then((j) => {
+                if (j.data.nDocSets > 0) {
+                    return j;
+                } else {
+                    if (verbose) {
+                        console.log(` -- Empty DocSet: ${context.docSet}`);
+                    }
+                    // return empty version of appropriate docSet,
+                    // as the query failed due to lack of documents.
+                    return {
+                        data: {
+                            nDocSets: 1,
+                            nDocuments: 0,
+                            docSets: [
+                                {
+                                    id: context.docSet,
+                                    tagsKv: [],
+                                    selectors: [
+                                        {
+                                            key: 'lang',
+                                            value: context.lang
+                                        },
+                                        {
+                                            key: 'abbr',
+                                            value: context.bcId
+                                        }
+                                    ],
+                                    hasMapping: false,
+                                    documents: []
+                                }
+                            ]
+                        }
+                    };
+                }
+            })
+        );
         //check if folder exists for collection
         const collPath = path.join('src/gen-assets', 'collections', context.bcId);
         createOutputDir(collPath);
@@ -598,12 +633,12 @@ export async function convertBooks(
     //write frozen archives
 
     //push files to be written to files array
-    freezer.forEach((value, key) =>
+    freezer.forEach((value, key) => {
         files.push({
             path: path.join('src/gen-assets', 'collections', key + '.pkf'),
-            content: value
-        })
-    );
+            content: value || ''
+        });
+    });
 
     //write index file
     fs.writeFileSync(

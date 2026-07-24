@@ -37,11 +37,13 @@
         isFirstLaunch,
         modal,
         ModalType,
+        moreThanOneCollection,
         NAVBAR_HEIGHT,
         notes,
         refs,
         s,
         selectedVerses,
+        showCollection,
         showDesktopSidebar,
         t,
         themeColors,
@@ -128,17 +130,18 @@
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
-
-    const bookTabs = $derived(
+    const book = $derived(
         scriptureConfig?.bookCollections
             ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.bookTabs
-    ); //This should hopefully be reactive and find the book tabs if the current book has them.
-    const bookType = $derived(
-        scriptureConfig?.bookCollections
-            ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.type
+            ?.books.find((x) => x.id === $refs.book)
     );
+    const bookTabs = $derived(book?.bookTabs); //This should hopefully be reactive and find the book tabs if the current book has them.
+    const bookType = $derived(book?.type);
+    $effect(() => {
+        if (bookType === 'quiz') {
+            goto(resolve(`/quiz/${$refs.collection}/${book?.id}`), { replaceState: true });
+        }
+    });
 
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
@@ -191,10 +194,7 @@
     );
 
     const showSearch = !!config.mainFeatures['search'];
-    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
-    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
-    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
-    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
+
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const showBorderSetting = $derived(
@@ -206,48 +206,43 @@
             ($userSettings['show-border'] ?? showBorderSetting)
         )
     );
-    const format = $derived(getFormat($refs.collection, $refs.book));
     const viewSettings = $derived(
-        format === 'html'
+        book?.format === 'html'
             ? ({
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
                   fetch: data.fetch
               } satisfies HtmlBookViewProps)
-            : ({
-                  audioPhraseEndChars: audioPhraseEndChars,
-                  bodyFontSize: $bodyFontSize,
-                  bodyLineHeight: $bodyLineHeight,
-                  bookmarks: $bookmarks,
-                  notes: $notes,
-                  highlights: $highlights,
-                  maxSelections: config.mainFeatures['annotation-max-select'],
-                  redLetters: $userSettingsOrDefault['red-letters'] as boolean,
-                  references: $refs,
-                  glossary: $glossary,
-                  selectedVerses: selectedVerses,
-                  themeColors: $themeColors,
-                  verseLayout: $userSettingsOrDefault['verse-layout'],
-                  viewShowBibleImages: $userSettingsOrDefault[
-                      'display-images-in-bible-text'
-                  ] as string,
-                  viewShowBibleVideos: $userSettingsOrDefault[
-                      'display-videos-in-bible-text'
-                  ] as string,
-                  viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                  viewShowVerses,
-                  viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
-                  font: $currentFont!,
-                  proskomma: data?.proskomma
-              } satisfies ScriptureViewSofriaProps)
+            : book?.testament !== 'quiz'
+              ? ({
+                    audioPhraseEndChars: audioPhraseEndChars,
+                    bodyFontSize: $bodyFontSize,
+                    bodyLineHeight: $bodyLineHeight,
+                    bookmarks: $bookmarks,
+                    notes: $notes,
+                    highlights: $highlights,
+                    maxSelections: config.mainFeatures['annotation-max-select'],
+                    redLetters: $userSettingsOrDefault['red-letters'] as boolean,
+                    references: $refs,
+                    glossary: $glossary,
+                    selectedVerses: selectedVerses,
+                    themeColors: $themeColors,
+                    verseLayout: $userSettingsOrDefault['verse-layout'],
+                    viewShowBibleImages: $userSettingsOrDefault[
+                        'display-images-in-bible-text'
+                    ] as string,
+                    viewShowBibleVideos: $userSettingsOrDefault[
+                        'display-videos-in-bible-text'
+                    ] as string,
+                    viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
+                    viewShowVerses,
+                    viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
+                    font: $currentFont!,
+                    proskomma: data?.proskomma
+                } satisfies ScriptureViewSofriaProps)
+              : {}
     );
-
-    function getFormat(bcId: string, bookId: string) {
-        return scriptureConfig.bookCollections
-            ?.find((x) => x.id === bcId)
-            ?.books.find((x) => x.id === bookId)?.format;
-    }
 
     const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
@@ -255,7 +250,7 @@
         font: $currentFont
     });
 
-    const extraIconsExist = $derived(showSearch || showCollectionNavbar); //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    const extraIconsExist = $derived(showSearch || showCollection.navbar); //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv: HTMLDivElement | undefined = $state();
 
     let showOverlowMenu = $state(false); //Controls the visibility of the extraButtons div on mobile
@@ -408,7 +403,7 @@
     onMount(() => {
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
-            if (showCollectionsOnFirstLaunch && enoughCollections) {
+            if (showCollection.onFirstLaunch && moreThanOneCollection) {
                 goto(resolve(`/layout`));
             }
         }
@@ -437,9 +432,7 @@
         playStop();
     });
     function getCurrentIllustrationFile() {
-        let illustrations = scriptureConfig?.bookCollections
-            ?.find((x) => x.id === $refs.collection)
-            ?.books.find((x) => x.id === $refs.book)?.pageIllustrations;
+        let illustrations = book?.pageIllustrations;
         if (illustrations) {
             for (let i = 0; i < illustrations.length; i++) {
                 if (illustrations[i].num === Number($refs.chapter)) {
@@ -509,7 +502,7 @@
                         {/if}
 
                         <!-- Collection Selector Button -->
-                        {#if showCollectionNavbar && enoughCollections}
+                        {#if showCollection.navbar && moreThanOneCollection}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => goto(resolve(`/layout`))}
@@ -543,19 +536,16 @@
         {/if}
     </div>
 
-    {#if showCollectionViewer && enoughCollections}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1 cursor-pointer"
+    {#if showCollection.viewer && moreThanOneCollection}
+        <button
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
             style:top={navBarHeight}
-            style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
             onclick={() => goto(resolve(`/layout`))}
         >
             {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
                 ?.collectionAbbreviation}
-        </div>
+        </button>
     {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
@@ -604,9 +594,9 @@
                                 }}
                                 onswipe={doSwipe}
                             >
-                                {#if format === 'html'}
+                                {#if book?.format === 'html'}
                                     <HtmlBookView {...viewSettings as HtmlBookViewProps} />
-                                {:else}
+                                {:else if book?.testament !== 'quiz'}
                                     <ScriptureViewSofria
                                         {...viewSettings as ScriptureViewSofriaProps}
                                     />
