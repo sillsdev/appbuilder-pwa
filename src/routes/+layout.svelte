@@ -10,6 +10,7 @@
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
+    import ShareSelector from '$lib/components/ShareSelector.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import catalog from '$lib/data/catalogData';
@@ -87,6 +88,9 @@
                     case ModalType.Font:
                         fontSelector?.showModal();
                         break;
+                    case ModalType.Share:
+                        shareSelector?.showModal(data as boolean);
+                        break;
                     case ModalType.StopPlan:
                         planStopId = data as string;
                         planStopDialog?.showModal();
@@ -117,6 +121,7 @@
 
     let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
     let fontSelector: FontSelector | undefined = $state();
+    let shareSelector: ShareSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
     let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
@@ -166,13 +171,10 @@
                     vertOffset={NAVBAR_HEIGHT}
                 />
                 <CollectionModal bind:this={collectionModal} />
-                <PlanStopDialog
-                    bind:this={planStopDialog}
-                    bind:planId={planStopId}
-                    vertOffset={NAVBAR_HEIGHT}
-                />
+                <PlanStopDialog bind:this={planStopDialog} bind:planId={planStopId} />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
+                <ShareSelector bind:this={shareSelector} />
             </div>
             {@render children()}
         </div>

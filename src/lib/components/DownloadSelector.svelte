@@ -4,7 +4,7 @@ A component for verse-on-image providing a dropdown where you can choose to down
 -->
 
 <script lang="ts">
-    import { convertStyle, s, t, themeColors } from '$lib/data/stores';
+    import { getPositioningCSS, t, themeColors } from '$lib/data/stores';
     import { ImageIcon, VideoIcon } from '$lib/icons';
     import Modal from './Modal.svelte';
 
@@ -15,18 +15,14 @@ A component for verse-on-image providing a dropdown where you can choose to down
     export function showModal() {
         modalThis.showModal();
     }
-    const positioningCSS = $derived(
-        'position:absolute; top:' +
-            (Number(vertOffset.replace('rem', '')) + 1) +
-            'rem; inset-inline-end:1rem; width:auto;'
-    );
+    const positioningCSS = $derived(getPositioningCSS(vertOffset, 'top'));
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <Modal
     bind:this={modalThis}
     id={modalId}
-    styling="background-color:{$themeColors['PopupBackgroundColor']}; {positioningCSS}"
+    styling="background-color:{$themeColors['PopupBackgroundColor']}; width:auto; {positioningCSS}"
 >
     <div class="grid gap-2 m-2">
         <button
