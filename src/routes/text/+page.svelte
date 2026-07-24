@@ -37,11 +37,13 @@
         isFirstLaunch,
         modal,
         ModalType,
+        moreThanOneCollection,
         NAVBAR_HEIGHT,
         notes,
         refs,
         s,
         selectedVerses,
+        showCollection,
         showDesktopSidebar,
         t,
         themeColors,
@@ -192,10 +194,7 @@
     );
 
     const showSearch = !!config.mainFeatures['search'];
-    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
-    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
-    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
-    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
+    
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const showBorderSetting = $derived(
@@ -251,7 +250,7 @@
         font: $currentFont
     });
 
-    const extraIconsExist = $derived(showSearch || showCollectionNavbar); //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
+    const extraIconsExist = $derived(showSearch || showCollection.navbar); //Note: was trying document.getElementById('extraButtons').childElementCount; but that caused it to hang forever.
     let scrollingDiv: HTMLDivElement | undefined = $state();
 
     let showOverlowMenu = $state(false); //Controls the visibility of the extraButtons div on mobile
@@ -404,7 +403,7 @@
     onMount(() => {
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
-            if (showCollectionsOnFirstLaunch && enoughCollections) {
+            if (showCollection.onFirstLaunch && moreThanOneCollection) {
                 goto(resolve(`/layout`));
             }
         }
@@ -503,7 +502,7 @@
                         {/if}
 
                         <!-- Collection Selector Button -->
-                        {#if showCollectionNavbar && enoughCollections}
+                        {#if showCollection.navbar && moreThanOneCollection}
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => goto(resolve(`/layout`))}
@@ -537,19 +536,16 @@
         {/if}
     </div>
 
-    {#if showCollectionViewer && enoughCollections}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1 cursor-pointer"
+    {#if showCollection.viewer && moreThanOneCollection}
+        <button
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
             style:top={navBarHeight}
-            style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
             onclick={() => goto(resolve(`/layout`))}
         >
             {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
                 ?.collectionAbbreviation}
-        </div>
+        </button>
     {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}

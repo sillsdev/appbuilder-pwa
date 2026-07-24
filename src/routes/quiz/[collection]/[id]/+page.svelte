@@ -1,6 +1,6 @@
 <script lang="ts">
     import { beforeNavigate, goto, invalidateAll } from '$app/navigation';
-    import config, { scriptureConfig } from '$assets/config';
+    import { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
     import type { QuizAnswer, QuizQuestion } from '$config';
     import BookSelector from '$lib/components/BookSelector.svelte';
@@ -15,9 +15,11 @@
         convertStyle,
         modal,
         ModalType,
+        moreThanOneCollection,
         NAVBAR_HEIGHT,
         quizAudioActive,
         s,
+        showCollection,
         t
     } from '$lib/data/stores';
     import { refs } from '$lib/data/stores/scripture';
@@ -80,9 +82,7 @@
             ?.find((x) => x.id === $refs.collection)
             ?.books.find((x) => x.id === quizId)
     );
-    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
 
-    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
     const navBarHeight = NAVBAR_HEIGHT;
     const questions: QuizQuestion[] = $derived(
         book?.quizFeatures?.['shuffle-questions']
@@ -304,19 +304,16 @@
             {/snippet}
         </Navbar>
     </div>
-    {#if showCollectionViewer && enoughCollections}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1 cursor-pointer"
+    {#if showCollection.viewer && moreThanOneCollection}
+        <button
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
             style:top={navBarHeight}
-            style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
             onclick={() => goto(resolve(`/layout`))}
         >
             {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
                 ?.collectionAbbreviation}
-        </div>
+        </button>
     {/if}
 
     {#if locked}
@@ -336,7 +333,7 @@
                 </div>
                 <input
                     id="input-box"
-                    class="text-black w-[90%] text-[30px] text-center p-[10px] border bg-white mx-auto block"
+                    class="text-black w-[90%] text-[30px] text-center p-2.5 border bg-white mx-auto block"
                     bind:value={passwordInput}
                     readonly
                     onkeydown={handleKeyInput}

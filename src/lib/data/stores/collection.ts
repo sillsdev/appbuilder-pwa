@@ -80,3 +80,10 @@ function createSelectedLayouts() {
     };
 }
 export const selectedLayouts = createSelectedLayouts();
+
+export const moreThanOneCollection = (scriptureConfig.bookCollections?.length ?? 0) > 1;
+export const showCollection = {
+    navbar: !!scriptureConfig.mainFeatures['layout-config-change-toolbar-button'],
+    viewer: !!scriptureConfig.mainFeatures['layout-config-change-viewer-button'],
+    onFirstLaunch: !!scriptureConfig.mainFeatures['layout-config-first-launch']
+} as const;
