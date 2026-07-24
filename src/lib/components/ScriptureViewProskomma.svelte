@@ -47,12 +47,13 @@ LOGGING:
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import {
+        RenderEventDescriptor,
         RenderEventNames,
-        RenderEventType,
+        RenderEventPosition,
         RenderScope,
-        RenderScopeType,
+        RenderScopeLevel,
         type FeatureSpec,
-        type RenderEventDetails
+        type RenderAction
     } from '$lib/render-sofria/common';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
@@ -92,55 +93,40 @@ LOGGING:
 
     const renderFeatures: Array<FeatureSpec> = getEnabledRenderFeatures();
     const renderActions = renderFeatures.flatMap((v) => ({ ...v.actions }));
+    const actionsDict: { [key: string]: Array<RenderAction> } = {};
+    for (const a of renderActions) {
+        for (const s of a.scopeLevels) {
+            // TODO: figure out how to map to actual event names
+            actionsDict[s].push(a);
+        }
+    }
     const openScopes: Array<RenderScope> = [];
 
     function getEnabledRenderFeatures() {
         return [];
     }
 
-    function getSofriaEventDetails(environment: any, eventName: string): RenderEventDetails {
-        let eventType: RenderEventType;
-        let scopeType: RenderScopeType;
-
-        switch (eventName) {
-            case 'startDocument':
-                eventType = RenderEventType.start;
-                scopeType = RenderScopeType.document;
-                break;
-            case 'endDocument':
-                eventType = RenderEventType.end;
-                scopeType = RenderScopeType.document;
-                break;
-            default:
-                console.error(`Unsupported event type ${eventName}`);
-                eventType = RenderEventType.single;
-                scopeType = RenderScopeType.this_first;
-        }
-
-        return { eventType, scopeType };
-    }
-
     function handleSofriaRenderEvent(environment: any, eventName: string) {
         console.log('Handling function called for %s on %o', eventName, environment);
-        const eventDetails = getSofriaEventDetails(environment, eventName);
+        const eventDetails = new RenderEventDescriptor(eventName);
         let topScope: RenderScope | undefined;
 
-        switch (eventDetails.eventType) {
-            case RenderEventType.start:
-                openScopes.unshift(new RenderScope(document, eventName, eventDetails.scopeType));
+        switch (eventDetails.position) {
+            case RenderEventPosition.scopeStart:
+                openScopes.unshift(new RenderScope(document, eventDetails.level));
                 break;
-            case RenderEventType.end:
+            case RenderEventPosition.scopeEnd:
                 topScope = openScopes.shift();
-                if (topScope?.type === eventDetails.scopeType) {
-                    console.log(`---> Matched end scope type: ${eventDetails.scopeType}`);
-                    for (const action of renderActions) {
+                if (topScope?.level === eventDetails.level) {
+                    console.log(`---> Matched end scope type: ${eventDetails.level}`);
+                    for (const action of actionsDict[eventName]) {
                         // perform action
                         // append result to content root
                         // update workspace if needed
                     }
                 }
                 break;
-            case RenderEventType.single:
+            case RenderEventPosition.standalone:
                 // similar as for RenderEventType.end
                 break;
         }
