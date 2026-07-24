@@ -207,46 +207,43 @@
             ($userSettings['show-border'] ?? showBorderSetting)
         )
     );
-    const format = $derived(getFormat($refs.collection, $refs.book));
     const viewSettings = $derived(
-        format === 'html'
+        book?.format === 'html'
             ? ({
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
                   fetch: data.fetch
               } satisfies HtmlBookViewProps)
-            : ({
-                  audioPhraseEndChars: audioPhraseEndChars,
-                  bodyFontSize: $bodyFontSize,
-                  bodyLineHeight: $bodyLineHeight,
-                  bookmarks: $bookmarks,
-                  notes: $notes,
-                  highlights: $highlights,
-                  maxSelections: config.mainFeatures['annotation-max-select'],
-                  redLetters: $userSettingsOrDefault['red-letters'] as boolean,
-                  references: $refs,
-                  glossary: $glossary,
-                  selectedVerses: selectedVerses,
-                  themeColors: $themeColors,
-                  verseLayout: $userSettingsOrDefault['verse-layout'],
-                  viewShowBibleImages: $userSettingsOrDefault[
-                      'display-images-in-bible-text'
-                  ] as string,
-                  viewShowBibleVideos: $userSettingsOrDefault[
-                      'display-videos-in-bible-text'
-                  ] as string,
-                  viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                  viewShowVerses,
-                  viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
-                  font: $currentFont!,
-                  proskomma: data?.proskomma
-              } satisfies ScriptureViewSofriaProps)
+            : book?.testament !== 'quiz'
+              ? ({
+                    audioPhraseEndChars: audioPhraseEndChars,
+                    bodyFontSize: $bodyFontSize,
+                    bodyLineHeight: $bodyLineHeight,
+                    bookmarks: $bookmarks,
+                    notes: $notes,
+                    highlights: $highlights,
+                    maxSelections: config.mainFeatures['annotation-max-select'],
+                    redLetters: $userSettingsOrDefault['red-letters'] as boolean,
+                    references: $refs,
+                    glossary: $glossary,
+                    selectedVerses: selectedVerses,
+                    themeColors: $themeColors,
+                    verseLayout: $userSettingsOrDefault['verse-layout'],
+                    viewShowBibleImages: $userSettingsOrDefault[
+                        'display-images-in-bible-text'
+                    ] as string,
+                    viewShowBibleVideos: $userSettingsOrDefault[
+                        'display-videos-in-bible-text'
+                    ] as string,
+                    viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
+                    viewShowVerses,
+                    viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
+                    font: $currentFont!,
+                    proskomma: data?.proskomma
+                } satisfies ScriptureViewSofriaProps)
+              : {}
     );
-
-    function getFormat(bcId: string, bookId: string) {
-        return book?.format;
-    }
 
     const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
@@ -601,9 +598,9 @@
                                 }}
                                 onswipe={doSwipe}
                             >
-                                {#if format === 'html'}
+                                {#if book?.format === 'html'}
                                     <HtmlBookView {...viewSettings as HtmlBookViewProps} />
-                                {:else}
+                                {:else if book?.testament !== 'quiz'}
                                     <ScriptureViewSofria
                                         {...viewSettings as ScriptureViewSofriaProps}
                                     />
