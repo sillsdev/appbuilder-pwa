@@ -1,10 +1,12 @@
 export class MRUCache<TKey, TValue> {
     private capacity: number;
     private cache: Map<TKey, TValue>;
+    private cleanupItem: undefined | ((item: TValue, key: TKey) => void);
 
-    constructor(capacity: number) {
+    constructor(capacity: number, cleanupItem?: (item: TValue, key: TKey) => void) {
         this.capacity = capacity;
         this.cache = new Map<TKey, TValue>();
+        this.cleanupItem = cleanupItem;
     }
 
     get(key: TKey): TValue | null {
@@ -19,15 +21,25 @@ export class MRUCache<TKey, TValue> {
 
     put(key: TKey, data: TValue): void {
         if (this.cache.has(key)) {
-            this.cache.delete(key);
+            this.delete(key);
         } else if (this.cache.size === this.capacity) {
             const firstKey = this.cache.keys().next().value;
-            this.cache.delete(firstKey);
+            this.delete(firstKey!);
         }
         this.cache.set(key, data);
     }
 
+    delete(key: TKey): void {
+        if (this.cache.has(key)) {
+            this.cleanupItem?.(this.cache.get(key)!, key);
+            this.cache.delete(key);
+        }
+    }
+
     clear(): void {
+        for (const v of this.cache.keys()) {
+            this.cleanupItem?.(this.cache.get(v)!, v);
+        }
         this.cache.clear();
     }
 

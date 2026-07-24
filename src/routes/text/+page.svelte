@@ -17,7 +17,12 @@
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
-    import { playStop, seekToVerse, updateAudioPlayer } from '$lib/data/audio';
+    import {
+        checkAudioAvailability,
+        playStop,
+        seekToVerse,
+        updateAudioPlayer
+    } from '$lib/data/audio';
     import {
         actionBarColor,
         analytics,
@@ -61,6 +66,7 @@
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+    import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
     import {
@@ -467,6 +473,9 @@
                             <button
                                 class="dy-btn dy-btn-ghost dy-btn-circle"
                                 onclick={() => {
+                                    if (!$audioActive) {
+                                        checkAudioAvailability();
+                                    }
                                     $audioActive = !$audioActive;
                                 }}
                             >
@@ -637,7 +646,7 @@
         <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
         <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
             <div>
-                <AudioBar />
+                <AudioBar {checkAudioAvailability} />
             </div>
         </div>
     {/if}

@@ -6,9 +6,12 @@ import {
     audioPlayerDefault,
     audioPlayer as audioPlayerStore,
     defaultPlayMode,
+    modal,
+    ModalType,
     playMode,
     PlayMode,
     refs,
+    userSettings,
     type AudioPlayer,
     type PlayModeRange,
     type PlayModeSettings,
@@ -16,7 +19,14 @@ import {
 } from '$lib/data/stores';
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
+import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
+import { findAudioClip } from './audioclipsDB';
+
+export const audioClipUrls = new MRUCache<string, string>(10, (item, key) => {
+    URL.revokeObjectURL(item);
+    cache.delete(key);
+});
 
 const audioSources = import.meta.glob('./*', {
     import: 'default',
@@ -62,6 +72,15 @@ export function updateAudioPlayer(item: { collection: string; book: string; chap
             audioPlayer.timeIndex = 0;
         }
     }
+    if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
+        if (currentAudioPlayer.audio) {
+            currentAudioPlayer.audio.pause();
+            if (currentAudioPlayer.timer) {
+                clearInterval(currentAudioPlayer.timer);
+                currentAudioPlayer.timer = null;
+            }
+        }
+    }
     audioPlayerStore.set(audioPlayer);
 }
 // some browsers don't support all sources (e.g. Mobile Safari doesn't support webm)
@@ -103,6 +122,7 @@ async function getAudio() {
     if (!currentAudioPlayer || currentAudioPlayer.loaded) {
         return;
     }
+    const player = currentAudioPlayer;
     currentAudioPlayer.duration = 0;
     currentAudioPlayer.progress = 0;
     if (currentAudioPlayer.playing) {
@@ -115,6 +135,9 @@ async function getAudio() {
     currentAudioPlayer.timing = audioSourceInfo.timing;
     const a = createAudio(audioSourceInfo.source);
     a.onloadedmetadata = () => {
+        if (player !== currentAudioPlayer) {
+            return;
+        }
         currentAudioPlayer!.duration = a.duration;
         currentAudioPlayer!.timeIndex = 0;
         currentAudioPlayer!.loaded = true;
@@ -697,12 +720,28 @@ export async function getAudioSourceInfo(
     let audioPath = null;
 
     if (audioSource?.type === 'fcbh') {
-        const result = await getBibleBrainUrl(audioSource, item, getDamId);
-        if (result.error) {
-            throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+        if (audioSource.accessMethods?.includes('download')) {
+            const foundAudioClip = await findAudioClip({
+                collection: item.collection || '',
+                book: item.book || '',
+                chapter: item.chapter || ''
+            }); //If the audio has been downloaded already, use that.
+            if (foundAudioClip) {
+                const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
+                if (!audioClipUrls.get(clipKey)) {
+                    audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
+                }
+                audioPath = audioClipUrls.get(clipKey)!;
+            }
         }
+        if (!audioPath) {
+            const result = await getBibleBrainUrl(audioSource, item, getDamId);
+            if (result.error) {
+                throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+            }
 
-        audioPath = result.path;
+            audioPath = result.path;
+        }
     } else if (audioSource?.type === 'assets') {
         const audioKey = `./${audio.filename}`;
         if (!audioSources[audioKey]) {
@@ -711,6 +750,18 @@ export async function getAudioSourceInfo(
         audioPath = audioSources[audioKey];
     } else if (audioSource?.type === 'download') {
         audioPath = pathJoin([audioSource.address, audio.filename]);
+        const foundAudioClip = await findAudioClip({
+            collection: item.collection || '',
+            book: item.book || '',
+            chapter: item.chapter || ''
+        }); //If the audio has been downloaded already, use that.
+        if (foundAudioClip) {
+            const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
+            if (!audioClipUrls.get(clipKey)) {
+                audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
+            }
+            audioPath = audioClipUrls.get(clipKey)!;
+        }
     }
     //parse timing file
     const timing: Timing[] = [];
@@ -748,7 +799,6 @@ export async function getAudioSourceInfo(
             }
         }
     }
-
     return {
         source: audioPath,
         timing: timing.length > 0 ? timing : null
@@ -822,4 +872,52 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
     }
 
     return { start, end } as PlayModeRange;
+}
+
+export async function checkAudioAvailability() {
+    let curRefs = get(refs);
+    const audio = scriptureConfig.bookCollections
+        ?.find((c) => curRefs.collection === c.id)
+        ?.books?.find((b) => b.id === curRefs.book)
+        ?.audio?.find((a) => curRefs.chapter === '' + a.num);
+    if (audio && get(userSettings)['audio-access-method'] === 'download') {
+        const audioSource = scriptureConfig.audio?.sources[audio.src];
+        const foundAudioClip = await findAudioClip({
+            collection: curRefs.collection || '',
+            book: curRefs.book || '',
+            chapter: curRefs.chapter || ''
+        });
+        curRefs = get(refs);
+        if (!foundAudioClip) {
+            let audioPath = '';
+            if (audioSource?.type === 'download') {
+                audioPath = pathJoin([audioSource.address, audio.filename]);
+            } else if (audioSource?.type === 'fcbh') {
+                const result = await getBibleBrainUrl(
+                    audioSource,
+                    {
+                        collection: curRefs.collection || '',
+                        book: curRefs.book || '',
+                        chapter: curRefs.chapter || ''
+                    },
+                    getDamId
+                );
+                if (result.error) {
+                    throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+                }
+                if (result.path) {
+                    audioPath = result.path;
+                }
+            }
+            if (audioSource?.accessMethods?.includes('download')) {
+                if (get(userSettings)['audio-auto-download'] === 'auto') {
+                    modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                } else {
+                    modal.open(ModalType.DownloadAudio, { audioPath, show: true });
+                }
+                return false;
+            }
+        }
+    }
+    return true;
 }
