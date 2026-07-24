@@ -1,62 +1,81 @@
-export enum RenderScopeType {
-    this_first,
-    that,
+export enum RenderScopeLevel {
     document,
     paragraph,
     sequence,
-    text
+    text,
+    verses,
+    chapter,
+    metaContent,
+    mark,
+    blockGraft,
+    inlineGraft,
+    wrapper,
+    milestone,
+    row,
+    unsupported
 }
 
-export enum RenderEventType {
-    start,
-    end,
-    single
+export enum RenderEventPosition {
+    scopeStart,
+    scopeEnd,
+    standalone
 }
 
-export const RenderEventNames = [
-    'startDocument',
-    'endDocument',
-    'startParagraph',
-    'endParagraph',
-    'startVerses',
-    'endVerses',
-    'startChapter',
-    'endChapter',
-    'text',
-    'metaContent',
-    'mark',
-    'startSequence',
-    'endSequence',
-    'blockGraft',
-    'inlineGraft',
-    'startWrapper',
-    'endWrapper',
-    'startMilestone',
-    'endMilestone',
-    'startRow',
-    'endRow'
-];
+// export const RenderEventNames = [
+//     'startDocument',
+//     'endDocument',
+//     'startParagraph',
+//     'endParagraph',
+//     'startVerses',
+//     'endVerses',
+//     'startChapter',
+//     'endChapter',
+//     'text',
+//     'metaContent',
+//     'mark',
+//     'startSequence',
+//     'endSequence',
+//     'blockGraft',
+//     'inlineGraft',
+//     'startWrapper',
+//     'endWrapper',
+//     'startMilestone',
+//     'endMilestone',
+//     'startRow',
+//     'endRow'
+// ];
+
+export class RenderEventDescriptor {
+    constructor(eventName: string) {
+        if (eventName.startsWith('start')) {
+            this.position = RenderEventPosition.scopeStart;
+            this.level = RenderScopeLevel[eventName.replace('start', '')];
+        } else if (eventName.startsWith('end')) {
+            this.position = RenderEventPosition.scopeEnd;
+            this.level = RenderScopeLevel[eventName.replace('end', '')];
+        } else {
+            this.position = RenderEventPosition.standalone;
+            this.level = RenderScopeLevel[eventName];
+        }
+    }
+
+    level: RenderScopeLevel;
+    position: RenderEventPosition;
+}
 
 export class RenderScope {
-    constructor(doc: Document, name: string, type: RenderScopeType, contentRoot?: HTMLElement) {
-        this.name = name;
-        this.type = type;
+    constructor(doc: Document, level: RenderScopeLevel, contentRoot?: HTMLElement) {
+        this.level = level;
         this.contentRoot = contentRoot ?? doc.createElement('div');
     }
 
-    name: string;
-    type: RenderScopeType;
+    level: RenderScopeLevel;
     contentRoot: HTMLElement | null = null;
 }
 
 export type RenderAction = {
-    scopeTypes: Set<RenderScopeType>;
+    scopeLevels: Set<RenderScopeLevel>;
     action(environment: any, params: any): void;
-};
-
-export type RenderEventDetails = {
-    eventType: RenderEventType;
-    scopeType: RenderScopeType;
 };
 
 export class FeatureSpec {
