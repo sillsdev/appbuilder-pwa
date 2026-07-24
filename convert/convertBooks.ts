@@ -566,7 +566,6 @@ export async function convertBooks(
             console.timeEnd('convert ' + collection.id);
         }
         //start freezing process and map promise to docSet name
-        
         const frozen = freeze(pk);
         freezer.set(context.docSet, frozen[context.docSet]);
         //start catalog generation process
