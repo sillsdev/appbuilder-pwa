@@ -194,7 +194,7 @@
     );
 
     const showSearch = !!config.mainFeatures['search'];
-    
+
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const showBorderSetting = $derived(
