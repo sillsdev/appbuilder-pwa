@@ -5,7 +5,7 @@ export const appOnline = readable(true, (set) => {
     if (browser) {
         let fromNavigator = navigator.onLine;
         let fromWorker = true;
-        
+
         function updateValue() {
             // if worker says we're offline, we're offline
             // if worker says we're online, check navigator.onLine
@@ -39,6 +39,6 @@ export const appOnline = readable(true, (set) => {
             window.removeEventListener('online', online);
             window.removeEventListener('offline', offline);
             navigator.serviceWorker.removeEventListener('message', message);
-        }
+        };
     }
 });
