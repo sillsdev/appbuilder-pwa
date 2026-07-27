@@ -507,7 +507,7 @@ describe('goTo', () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MAT', '3', '1');
-            const next = { book: 'MRK', chapter: '1' };
+            const next = { book: 'MRK', chapter: 'i' };
             expect(navContext.next).toStrictEqual(next);
         });
 
@@ -525,7 +525,7 @@ describe('goTo', () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MAT', '3', '1');
-            await navContext.goto('eng_C01', 'MAT', '1', '1');
+            await navContext.goto('eng_C01', 'MAT', 'i', '1');
             const prev = { book: null, chapter: null };
             expect(navContext.prev).toStrictEqual(prev);
         });
@@ -541,7 +541,7 @@ describe('goTo', () => {
         test('last chapter of previous book', async () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
-            await navContext.goto('eng_C01', 'MRK', '1', '1');
+            await navContext.goto('eng_C01', 'MRK', 'i', '1');
             const prev = { book: 'MAT', chapter: '3' };
             expect(navContext.prev).toStrictEqual(prev);
         });
@@ -564,10 +564,10 @@ describe('goTo', () => {
 
             await navContext.gotoNext();
             expect(navContext.book).toBe('MRK');
-            expect(navContext.chapter).toBe('1');
+            expect(navContext.chapter).toBe('i');
         });
 
-        test('at end of collection do not advane', async () => {
+        test('at end of collection do not advance', async () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MRK', '3', '1');
@@ -583,11 +583,11 @@ describe('goTo', () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
             await navContext.goto('eng_C01', 'MAT', '3', '1');
-            await navContext.goto('eng_C01', 'MAT', '1', '1');
+            await navContext.goto('eng_C01', 'MAT', 'i', '1');
 
             await navContext.gotoPrev();
             expect(navContext.book).toBe('MAT');
-            expect(navContext.chapter).toBe('1');
+            expect(navContext.chapter).toBe('i');
         });
 
         test('previous chapter of same book', async () => {
@@ -603,7 +603,7 @@ describe('goTo', () => {
         test('last chapter of previous book', async () => {
             const navContext = new TestNavigationContext(getTestCatalog, config);
             await navContext.gotoInitial();
-            await navContext.goto('eng_C01', 'MRK', '1', '1');
+            await navContext.goto('eng_C01', 'MRK', 'i', '1');
 
             await navContext.gotoPrev();
             expect(navContext.book).toBe('MAT');

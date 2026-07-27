@@ -264,7 +264,10 @@ export class NavigationContext {
         } else if (bookNum + 1 < this.books.length) {
             const nextDocument = this.catalog.documents[bookNum + 1];
             const nextChapters = Object.keys(nextDocument.versesByChapters);
-            this.next = { book: nextDocument.bookCode, chapter: nextChapters[0] };
+            this.next = {
+                book: nextDocument.bookCode,
+                chapter: nextDocument.hasIntroduction ? 'i' : nextChapters[0]
+            };
         } else {
             this.next = { book: null, chapter: null };
         }
@@ -273,15 +276,20 @@ export class NavigationContext {
     private updatePrev(bookNum: number, chapterNum: number, chapters: string[]) {
         if (chapterNum - 1 >= 0) {
             this.prev = { book: this.book, chapter: chapters[chapterNum - 1] };
-        } else if (bookNum - 1 >= 0) {
-            const prevDocument = this.catalog.documents[bookNum - 1];
-            const prevChapters = Object.keys(prevDocument.versesByChapters);
-            this.prev = {
-                book: prevDocument.bookCode,
-                chapter: prevChapters[prevChapters.length - 1]
-            };
         } else {
-            this.prev = { book: null, chapter: null };
+            const book = this.catalog.documents.find((b) => this.book === b.bookCode);
+            if (chapterNum === 0 && book?.hasIntroduction) {
+                this.prev = { book: this.book, chapter: 'i' };
+            } else if (bookNum - 1 >= 0) {
+                const prevDocument = this.catalog.documents[bookNum - 1];
+                const prevChapters = Object.keys(prevDocument.versesByChapters);
+                this.prev = {
+                    book: prevDocument.bookCode,
+                    chapter: prevChapters[prevChapters.length - 1]
+                };
+            } else {
+                this.prev = { book: null, chapter: null };
+            }
         }
     }
 
