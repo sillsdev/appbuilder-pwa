@@ -197,8 +197,17 @@
 
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
+    const isIntro = $derived($refs.chapter === 'i');
+
     const showBorderSetting = $derived(
-        getFeatureValueBoolean(scriptureConfig, 'show-border', $refs.collection, $refs.book)
+        isIntro
+            ? getFeatureValueBoolean(
+                  scriptureConfig,
+                  'show-border-intro',
+                  $refs.collection,
+                  $refs.book
+              )
+            : getFeatureValueBoolean(scriptureConfig, 'show-border', $refs.collection, $refs.book)
     );
     const showBorder = $derived(
         !!(
