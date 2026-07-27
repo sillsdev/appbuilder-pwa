@@ -894,20 +894,24 @@ export async function checkAudioAvailability() {
             if (audioSource?.type === 'download') {
                 audioPath = pathJoin([audioSource.address, audio.filename]);
             } else if (audioSource?.type === 'fcbh') {
-                const result = await getBibleBrainUrl(
-                    audioSource,
-                    {
-                        collection: curRefs.collection || '',
-                        book: curRefs.book || '',
-                        chapter: curRefs.chapter || ''
-                    },
-                    getDamId
-                );
-                if (result.error) {
-                    throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
-                }
-                if (result.path) {
-                    audioPath = result.path;
+                if (!get(appOnline)) {
+                    modal.open(ModalType.NoConnection);
+                } else {
+                    const result = await getBibleBrainUrl(
+                        audioSource,
+                        {
+                            collection: curRefs.collection || '',
+                            book: curRefs.book || '',
+                            chapter: curRefs.chapter || ''
+                        },
+                        getDamId
+                    );
+                    if (result.error) {
+                        throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+                    }
+                    if (result.path) {
+                        audioPath = result.path;
+                    }
                 }
             }
             if (audioSource?.accessMethods?.includes('download')) {
