@@ -135,7 +135,7 @@
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
                             onclick={() => handleClick(item.type, item.link?.['default'])}
                         >
-                            <picture class:invert={themeIsDark($theme)}>
+                            <picture>
                                 <!-- Image Icon -->
                                 <div
                                     style={`width:24px; height:24px; background: ${
