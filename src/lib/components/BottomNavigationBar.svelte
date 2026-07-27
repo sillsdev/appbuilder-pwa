@@ -135,19 +135,17 @@
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
                             onclick={() => handleClick(item.type, item.link?.['default'])}
                         >
-                            <picture>
-                                <!-- Image Icon -->
-                                <div
-                                    style={`width:24px; height:24px; background: ${
-                                        selectedLink(item.type, item.link?.['default'])
-                                            ? barTextSelectedColor
-                                            : barTextColor
-                                    }; mask: url(${menuIcons[`./${item.images?.[0]?.file}`]}); -webkit-mask: url(${menuIcons[`./${item.images?.[0]?.file}`]});`}
-                                    class={selectedLink(item.type, item.link?.['default'])
-                                        ? 'opacity-100'
-                                        : 'opacity-50'}
-                                ></div>
-                            </picture>
+                            <!-- Image Icon -->
+                            <div
+                                style={`width:24px; height:24px; background: ${
+                                    selectedLink(item.type, item.link?.['default'])
+                                        ? barTextSelectedColor
+                                        : barTextColor
+                                }; mask: url(${menuIcons[`./${item.images?.[0]?.file}`]}); -webkit-mask: url(${menuIcons[`./${item.images?.[0]?.file}`]});`}
+                                class={selectedLink(item.type, item.link?.['default'])
+                                    ? 'opacity-100'
+                                    : 'opacity-50'}
+                            ></div>
                             <!-- Text -->
                             <span
                                 class="text-center"
