@@ -24,7 +24,7 @@ No Connection Modal Dialog component.
             </div>
         </div>
 
-        <div class="!static !min-h-4 left-0 dy-modal-action message-footer pointer-events-none">
+        <div class="static! min-h-4! left-0 dy-modal-action message-footer pointer-events-none">
             <div class="message-buttons">
                 <button class="dy-btn message-button pointer-events-auto" id="yes">
                     {$t['Button_OK']}
