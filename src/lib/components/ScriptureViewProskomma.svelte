@@ -50,13 +50,14 @@ LOGGING:
         RenderEventDescriptor,
         RenderEventNames,
         RenderEventPosition,
+        renderFeatures,
         RenderScope,
         RenderScopeLevel,
         type FeatureSpec,
         type RenderAction
     } from '$lib/render-sofria/common';
     import type { SABProskomma } from '$lib/sab-proskomma';
-    import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
+    import { checkFeatureValueIs, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { fromStore, type Readable } from 'svelte/store';
@@ -91,19 +92,42 @@ LOGGING:
             ?.textDirection || 'ltr'
     );
 
-    const renderFeatures: Array<FeatureSpec> = getEnabledRenderFeatures();
-    const renderActions = renderFeatures.flatMap((v) => ({ ...v.actions }));
     const actionsDict: { [key: string]: Array<RenderAction> } = {};
-    for (const a of renderActions) {
-        for (const s of a.scopeLevels) {
-            // TODO: figure out how to map to actual event names
-            actionsDict[s].push(a);
-        }
-    }
     const openScopes: Array<RenderScope> = [];
 
+    // for (const a of renderActions) {
+    //     for (const s of a.scopeLevels) {
+    //         // TODO: figure out how to map to actual event names
+    //         actionsDict[s].push(a);
+    //     }
+    // }
+
+    /**
+     * On load, check the enabled render features;
+     * subsequent calls return the dictionary of enabled render features.
+     */
     function getEnabledRenderFeatures() {
-        return [];
+        if (actionsDict === ({} as typeof actionsDict)) {
+            for (const f of renderFeatures) {
+                if (
+                    checkFeatureValueIs(
+                        scriptureConfig,
+                        f.configTag,
+                        f.enabledValue,
+                        references.collection,
+                        references.book
+                    )
+                ) {
+                    for (const a of f.actions) {
+                        for (const t of a.eventTriggers) {
+                            actionsDict[t].push(a);
+                        }
+                    }
+                }
+            }
+        } else {
+            return actionsDict;
+        }
     }
 
     function handleSofriaRenderEvent(environment: any, eventName: string) {
