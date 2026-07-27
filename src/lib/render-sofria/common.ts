@@ -21,29 +21,29 @@ export enum RenderEventPosition {
     standalone
 }
 
-// export const RenderEventNames = [
-//     'startDocument',
-//     'endDocument',
-//     'startParagraph',
-//     'endParagraph',
-//     'startVerses',
-//     'endVerses',
-//     'startChapter',
-//     'endChapter',
-//     'text',
-//     'metaContent',
-//     'mark',
-//     'startSequence',
-//     'endSequence',
-//     'blockGraft',
-//     'inlineGraft',
-//     'startWrapper',
-//     'endWrapper',
-//     'startMilestone',
-//     'endMilestone',
-//     'startRow',
-//     'endRow'
-// ];
+export const RenderEventNames = [
+    'startDocument',
+    'endDocument',
+    'startParagraph',
+    'endParagraph',
+    'startVerses',
+    'endVerses',
+    'startChapter',
+    'endChapter',
+    'text',
+    'metaContent',
+    'mark',
+    'startSequence',
+    'endSequence',
+    'blockGraft',
+    'inlineGraft',
+    'startWrapper',
+    'endWrapper',
+    'startMilestone',
+    'endMilestone',
+    'startRow',
+    'endRow'
+];
 
 export class RenderEventDescriptor {
     constructor(eventName: string) {
@@ -74,17 +74,19 @@ export class RenderScope {
 }
 
 export type RenderAction = {
-    scopeLevels: Set<RenderScopeLevel>;
+    eventTriggers: Set<string>;
     action(environment: any, params: any): void;
 };
 
 export class FeatureSpec {
-    constructor(tag: string, actions: Array<RenderAction>) {
+    constructor(tag: string, enabledValue: string, actions: Array<RenderAction>) {
         this.configTag = tag;
-        this.enabled = false;
+        this.enabledValue = enabledValue;
         this.actions = actions;
     }
     configTag: string;
-    enabled: boolean;
+    enabledValue: string;
     actions: Array<RenderAction>;
 }
+
+export const renderFeatures: Array<FeatureSpec> = [];

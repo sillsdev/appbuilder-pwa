@@ -77,6 +77,19 @@ export function getFeatureValueString(
     // console.log('getFeatureValueString %o %o', feature, value);
     return value;
 }
+export function checkFeatureValueIs(
+    config: ScriptureConfig,
+    feature: string,
+    expectedValue: string,
+    bc: string,
+    book: string
+) {
+    if (['true', 'false'].includes(expectedValue)) {
+        return getFeatureValueBoolean(config, feature, bc, book).toString() === expectedValue;
+    } else {
+        return getFeatureValueString(config, feature, bc, book) === expectedValue;
+    }
+}
 export function hasFeature(config: AppConfig, feature: string) {
     return config.mainFeatures[feature] != null;
 }
