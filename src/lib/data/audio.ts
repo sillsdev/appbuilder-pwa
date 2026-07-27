@@ -2,6 +2,7 @@ import { scriptureConfig } from '$assets/config';
 import type { AudioSource } from '$config';
 import { MRUCache } from '$lib/data/mrucache';
 import {
+    appOnline,
     audioHighlightElements,
     audioPlayerDefault,
     audioPlayer as audioPlayerStore,
@@ -910,7 +911,7 @@ export async function checkAudioAvailability() {
                 }
             }
             if (audioSource?.accessMethods?.includes('download')) {
-                if (!navigator.onLine) {
+                if (!get(appOnline)) {
                     modal.open(ModalType.NoConnection);
                 } else {
                     if (get(userSettings)['audio-auto-download'] === 'auto') {

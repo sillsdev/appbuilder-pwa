@@ -8,5 +8,6 @@ export * from './log';
 export * from './plan';
 export * from './scripture';
 export * from './setting';
+export * from './system';
 export * from './theme';
 export * from './view';

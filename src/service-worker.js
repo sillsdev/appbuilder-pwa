@@ -52,6 +52,8 @@ self.addEventListener('fetch', (event) => {
             return cache.match(event.request);
         }
 
+        let online = true;
+
         // for everything else, try the network first, but
         // fall back to the cache if we're offline
         try {
@@ -63,7 +65,11 @@ self.addEventListener('fetch', (event) => {
 
             return response;
         } catch {
+            online = false;
             return cache.match(event.request);
+        } finally {
+            const client = await self.clients.get(event.clientId);
+            client?.postMessage({ online });
         }
     }
 
