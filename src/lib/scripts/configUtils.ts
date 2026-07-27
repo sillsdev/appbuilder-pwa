@@ -33,7 +33,7 @@ export function getFeatureValueBoolean(
         if (
             feature === 'show-border-intro' &&
             bookFeature === 'inherit' &&
-            config.mainFeatures['show-border']
+            config.mainFeatures['show-border'] != null
         ) {
             value = config.mainFeatures['show-border'];
         } else if (bookFeature != null && bookFeature !== 'inherit') {
