@@ -137,18 +137,24 @@
                         >
                             <picture class:invert={themeIsDark($theme)}>
                                 <!-- Image Icon -->
-                                <img
-                                    src={menuIcons[`./${item.images?.[0]?.file}`]}
-                                    alt=""
+                                <div
+                                    style={`width:24px; height:24px; background: ${
+                                        selectedLink(item.type, item.link?.['default'])
+                                            ? barTextSelectedColor
+                                            : barTextColor
+                                    }; mask: url(${menuIcons[`./${item.images?.[0]?.file}`]}); -webkit-mask: url(${menuIcons[`./${item.images?.[0]?.file}`]});`}
                                     class={selectedLink(item.type, item.link?.['default'])
                                         ? 'opacity-100'
                                         : 'opacity-50'}
-                                />
+                                ></div>
                             </picture>
                             <!-- Text -->
                             <span
                                 class="text-center"
-                                style="color: {selectedLink(item.type, item.link?.['default'])
+                                style="font-family: system-ui; color: {selectedLink(
+                                    item.type,
+                                    item.link?.['default']
+                                )
                                     ? barTextSelectedColor
                                     : barTextColor}"
                             >
