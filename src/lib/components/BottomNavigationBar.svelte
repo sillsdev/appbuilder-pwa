@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import { language, languageDefault, refs, s, theme, themeIsDark } from '$lib/data/stores';
+    import { language, languageDefault, refs, s } from '$lib/data/stores';
     import { resolve } from '$lib/utils/paths';
 
     const menuIcons = import.meta.glob('./*', {
@@ -149,7 +149,9 @@
                             <!-- Text -->
                             <span
                                 class="text-center"
-                                style="font-family: system-ui; color: {selectedLink(
+                                style="font-family: {$s?.['ui.bottom-navigation.item.text'][
+                                    'font-family'
+                                ] ?? 'system-ui'}; color: {selectedLink(
                                     item.type,
                                     item.link?.['default']
                                 )
