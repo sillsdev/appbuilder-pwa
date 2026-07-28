@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import { language, languageDefault, refs, s } from '$lib/data/stores';
+    import { convertStyle, language, languageDefault, refs, s } from '$lib/data/stores';
     import { resolve } from '$lib/utils/paths';
 
     const menuIcons = import.meta.glob('./*', {
@@ -22,8 +22,8 @@
     const barBackgroundColor = $derived(
         ($s?.['ui.bottom-navigation.bar'] ?? $s?.['ui.bottom-navigation.'])?.['background-color']
     );
-    const barTextColor = $derived($s?.['ui.bottom-navigation.item.text']['color']);
-    const barTextSelectedColor = $derived($s?.['ui.bottom-navigation.item.text.selected']['color']);
+    const barTextColor = $derived($s?.['ui.bottom-navigation.item.icon']['color']);
+    const barTextSelectedColor = $derived($s?.['ui.bottom-navigation.item.icon.selected']['color']);
 
     const showContents = (contents.screens?.length ?? 0) > 0;
     const showSearch = config.mainFeatures['search'] as boolean;
@@ -142,21 +142,21 @@
                                         ? barTextSelectedColor
                                         : barTextColor
                                 }; mask: url(${menuIcons[`./${item.images?.[0]?.file}`]}); -webkit-mask: url(${menuIcons[`./${item.images?.[0]?.file}`]});`}
-                                class={selectedLink(item.type, item.link?.['default'])
-                                    ? 'opacity-100'
-                                    : 'opacity-50'}
                             ></div>
                             <!-- Text -->
                             <span
                                 class="text-center"
                                 style="font-family: {$s?.['ui.bottom-navigation.item.text'][
                                     'font-family'
-                                ] ?? 'system-ui'}; color: {selectedLink(
-                                    item.type,
-                                    item.link?.['default']
-                                )
-                                    ? barTextSelectedColor
-                                    : barTextColor}"
+                                ]
+                                    ? ''
+                                    : 'system-ui'}; {convertStyle(
+                                    $s?.[
+                                        selectedLink(item.type, item.link?.['default'])
+                                            ? 'ui.bottom-navigation.item.text.selected'
+                                            : 'ui.bottom-navigation.item.text'
+                                    ]
+                                )}"
                             >
                                 {item.title[$language] || item.title[languageDefault]}
                             </span>
