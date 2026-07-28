@@ -382,7 +382,7 @@ async function convertConfig(dataDir: string, verbose: number) {
      * DAB, SAB: depends on audioSources
      * SAB only: depends on audioSources, videos, bookCollections
      */
-    await verifyMediaAvailability(data, verbose);
+    //await verifyMediaAvailability(data, verbose);
 
     const menuItems = parseMenuItems(document, 'drawer', verbose);
     if (menuItems.length > 0) {
