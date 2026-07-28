@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import { language, languageDefault, refs, s, theme, themeIsDark } from '$lib/data/stores';
+    import { convertStyle, language, languageDefault, refs, s } from '$lib/data/stores';
     import { resolve } from '$lib/utils/paths';
 
     const menuIcons = import.meta.glob('./*', {
@@ -22,8 +22,8 @@
     const barBackgroundColor = $derived(
         ($s?.['ui.bottom-navigation.bar'] ?? $s?.['ui.bottom-navigation.'])?.['background-color']
     );
-    const barTextColor = $derived($s?.['ui.bottom-navigation.item.text']['color']);
-    const barTextSelectedColor = $derived($s?.['ui.bottom-navigation.item.text.selected']['color']);
+    const barIconColor = $derived($s?.['ui.bottom-navigation.item.icon']['color']);
+    const barIconSelectedColor = $derived($s?.['ui.bottom-navigation.item.icon.selected']['color']);
 
     const showContents = (contents.screens?.length ?? 0) > 0;
     const showSearch = config.mainFeatures['search'] as boolean;
@@ -135,22 +135,24 @@
                             class="dy-btn dy-btn-ghost flex-col gap-1 my-2"
                             onclick={() => handleClick(item.type, item.link?.['default'])}
                         >
-                            <picture class:invert={themeIsDark($theme)}>
-                                <!-- Image Icon -->
-                                <img
-                                    src={menuIcons[`./${item.images?.[0]?.file}`]}
-                                    alt=""
-                                    class={selectedLink(item.type, item.link?.['default'])
-                                        ? 'opacity-100'
-                                        : 'opacity-50'}
-                                />
-                            </picture>
+                            <!-- Image Icon -->
+                            <div
+                                style={`width:24px; height:24px; background: ${
+                                    selectedLink(item.type, item.link?.['default'])
+                                        ? barIconSelectedColor
+                                        : barIconColor
+                                }; mask: url(${menuIcons[`./${item.images?.[0]?.file}`]}); -webkit-mask: url(${menuIcons[`./${item.images?.[0]?.file}`]});`}
+                            ></div>
                             <!-- Text -->
                             <span
                                 class="text-center"
-                                style="color: {selectedLink(item.type, item.link?.['default'])
-                                    ? barTextSelectedColor
-                                    : barTextColor}"
+                                style="font-family: 'system-ui'; {convertStyle(
+                                    $s?.[
+                                        selectedLink(item.type, item.link?.['default'])
+                                            ? 'ui.bottom-navigation.item.text.selected'
+                                            : 'ui.bottom-navigation.item.text'
+                                    ]
+                                )}"
                             >
                                 {item.title[$language] || item.title[languageDefault]}
                             </span>
