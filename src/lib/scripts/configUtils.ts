@@ -30,7 +30,13 @@ export function getFeatureValueBoolean(
         ?.books.find((x) => x.id === book)?.features;
     if (bookFeatures != null) {
         const bookFeature = bookFeatures[feature];
-        if (bookFeature != null && bookFeature !== 'inherit') {
+        if (
+            feature === 'show-border-intro' &&
+            bookFeature === 'inherit' &&
+            config.mainFeatures['show-border'] != null
+        ) {
+            value = config.mainFeatures['show-border'];
+        } else if (bookFeature != null && bookFeature !== 'inherit') {
             value = bookFeatures[feature];
         }
     }
