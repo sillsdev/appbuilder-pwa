@@ -38,6 +38,7 @@ LOGGING:
 <script lang="ts">
     /* eslint-disable svelte/no-dom-manipulating */
 
+    import type { Action } from '@sveltejs/kit';
     import { scriptureConfig } from '$assets/config';
     import type { BookmarkItem } from '$lib/data/bookmarks';
     import type { HighlightItem } from '$lib/data/highlights';
@@ -48,19 +49,23 @@ LOGGING:
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import {
         RenderEventDescriptor,
-        RenderEventNames,
+        RenderEventNamesList,
         RenderEventPosition,
         renderFeatures,
         RenderScope,
         RenderScopeLevel,
+        type ActionDictionary,
         type FeatureSpec,
-        type RenderAction
+        type RenderAction,
+        type RenderEnvironment,
+        type RenderEventNames
     } from '$lib/render-sofria/common';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { checkFeatureValueIs, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { fromStore, type Readable } from 'svelte/store';
+    import type { Environment } from 'vite';
 
     let {
         audioPhraseEndChars,
@@ -85,6 +90,38 @@ LOGGING:
         proskomma
     }: Props = $props();
 
+    const currentBook = $derived(references.book);
+    const currentChapter = $derived(references.chapter);
+    const currentDocset = $derived(references.docSet);
+
+    const openScopes: Array<RenderScope> = [];
+
+    const actionsDict: ActionDictionary = $derived.by(() => {
+        const result: ActionDictionary = {};
+        for (const f of renderFeatures) {
+            if (
+                checkFeatureValueIs(
+                    scriptureConfig,
+                    f.configTag,
+                    f.enabledValue,
+                    references.collection,
+                    references.book
+                )
+            ) {
+                for (const a of f.actions) {
+                    for (const t of a.eventTriggers) {
+                        if (result[t]) {
+                            result[t].push(a);
+                        } else {
+                            result[t] = [a];
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    });
+
     const fontSize = $derived(bodyFontSize + 'px');
     const lineHeight = $derived(bodyLineHeight + '%');
     const direction = $derived(
@@ -92,80 +129,11 @@ LOGGING:
             ?.textDirection || 'ltr'
     );
 
-    const actionsDict: { [key: string]: Array<RenderAction> } = {};
-    const openScopes: Array<RenderScope> = [];
+    const output: { root?: HTMLDivElement } = {};
+    let container: HTMLElement | undefined = $state();
+    let bookRoot = $state(document.createElement('div'));
 
-    // for (const a of renderActions) {
-    //     for (const s of a.scopeLevels) {
-    //         // TODO: figure out how to map to actual event names
-    //         actionsDict[s].push(a);
-    //     }
-    // }
-
-    /**
-     * On load, check the enabled render features;
-     * subsequent calls return the dictionary of enabled render features.
-     */
-    function getEnabledRenderFeatures() {
-        if (actionsDict === ({} as typeof actionsDict)) {
-            for (const f of renderFeatures) {
-                if (
-                    checkFeatureValueIs(
-                        scriptureConfig,
-                        f.configTag,
-                        f.enabledValue,
-                        references.collection,
-                        references.book
-                    )
-                ) {
-                    for (const a of f.actions) {
-                        for (const t of a.eventTriggers) {
-                            actionsDict[t].push(a);
-                        }
-                    }
-                }
-            }
-        } else {
-            return actionsDict;
-        }
-    }
-
-    function handleSofriaRenderEvent(environment: any, eventName: string) {
-        console.log('Handling function called for %s on %o', eventName, environment);
-        const eventDetails = new RenderEventDescriptor(eventName);
-        let topScope: RenderScope | undefined;
-
-        switch (eventDetails.position) {
-            case RenderEventPosition.scopeStart:
-                openScopes.unshift(new RenderScope(document, eventDetails.level));
-                break;
-            case RenderEventPosition.scopeEnd:
-                topScope = openScopes.shift();
-                if (topScope?.level === eventDetails.level) {
-                    console.log(`---> Matched end scope type: ${eventDetails.level}`);
-                    for (const action of actionsDict[eventName]) {
-                        // perform action
-                        // append result to content root
-                        // update workspace if needed
-                    }
-                }
-                break;
-            case RenderEventPosition.standalone:
-                // similar as for RenderEventType.end
-                break;
-        }
-    }
-
-    type Environment = {
-        config: any;
-        context: any;
-        workspace: any;
-        output: any;
-    };
-
-    const currentBook = $derived(references.book);
-    const currentChapter = $derived(references.chapter);
-    const currentDocset = $derived(references.docSet);
+    let loading = $state(true);
 
     async function getCurrentDocumentID() {
         await loadDocSetIfNotLoaded(proskomma, currentDocset, fetch);
@@ -184,20 +152,44 @@ LOGGING:
         return undefined;
     }
 
-    let container: HTMLElement | undefined = $state();
-    let loading = $state(true);
-    let bookRoot = $state(document.createElement('div'));
+    function handleSofriaRenderEvent(environment: any, eventName: RenderEventNames) {
+        console.log('Handling function called for %s on %o', eventName, environment);
+        const eventDetails = new RenderEventDescriptor(eventName);
+        let topScope: RenderScope | undefined;
 
-    const output: { root?: HTMLDivElement } = {};
+        switch (eventDetails.position) {
+            case RenderEventPosition.scopeStart:
+                openScopes.unshift(new RenderScope(document, eventDetails.level));
+                break;
+            case RenderEventPosition.scopeEnd:
+                topScope = openScopes.shift();
+                if (topScope?.level === eventDetails.level) {
+                    console.log(`---> Matched end scope type: ${eventDetails.level}`);
+                    if (actionsDict[eventName]) {
+                        for (const action of actionsDict[eventName]) {
+                            // perform action
+                            // append result to content root
+                            // update workspace if needed
+                        }
+                    } else {
+                        console.warn(`No enabled actions found for event ${eventName}`);
+                    }
+                }
+                break;
+            case RenderEventPosition.standalone:
+                // similar as for RenderEventType.end
+                break;
+        }
+    }
 
     async function renderCurrentDocument(docSet: string, bookCode: string, chapter: string) {
         const actionObject: { [key: string]: ProskommaRenderAction[] } = {};
-        for (var name of RenderEventNames) {
+        for (const name of RenderEventNamesList) {
             actionObject[name] = [
                 {
                     description: `Handling ${name}`,
                     test: () => true,
-                    action: (environment: Environment) => {
+                    action: (environment: RenderEnvironment) => {
                         handleSofriaRenderEvent(environment, name);
                     }
                 }

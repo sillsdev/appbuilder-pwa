@@ -21,7 +21,7 @@ export enum RenderEventPosition {
     standalone
 }
 
-export const RenderEventNames = [
+export const RenderEventNamesList = [
     'startDocument',
     'endDocument',
     'startParagraph',
@@ -43,7 +43,7 @@ export const RenderEventNames = [
     'endMilestone',
     'startRow',
     'endRow'
-];
+] as const;
 
 export class RenderEventDescriptor {
     constructor(eventName: string) {
@@ -73,10 +73,27 @@ export class RenderScope {
     contentRoot: HTMLElement | null = null;
 }
 
-export type RenderAction = {
-    eventTriggers: Set<string>;
-    action(environment: any, params: any): void;
+/**
+ * This should eventually go in proskomma.d.ts
+ */
+export type RenderEnvironment = {
+    config: any;
+    context: any;
+    workspace: any;
+    output: any;
 };
+
+export type RenderAction = {
+    eventTriggers: Set<RenderEventNames>;
+    action(environment: RenderEnvironment, params: any): void;
+};
+
+/**
+ * Methodology from
+ * https://stackoverflow.com/questions/55570729/how-to-limit-the-keys-of-an-object-to-the-strings-of-an-array-in-typescript
+ */
+export type RenderEventNames = (typeof RenderEventNamesList)[number];
+export type ActionDictionary = Partial<{ [key in RenderEventNames]: Array<RenderAction> }>;
 
 export class FeatureSpec {
     constructor(tag: string, enabledValue: string, actions: Array<RenderAction>) {
