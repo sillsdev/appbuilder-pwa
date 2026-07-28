@@ -22,8 +22,8 @@
     const barBackgroundColor = $derived(
         ($s?.['ui.bottom-navigation.bar'] ?? $s?.['ui.bottom-navigation.'])?.['background-color']
     );
-    const barTextColor = $derived($s?.['ui.bottom-navigation.item.icon']['color']);
-    const barTextSelectedColor = $derived($s?.['ui.bottom-navigation.item.icon.selected']['color']);
+    const barIconColor = $derived($s?.['ui.bottom-navigation.item.icon']['color']);
+    const barIconSelectedColor = $derived($s?.['ui.bottom-navigation.item.icon.selected']['color']);
 
     const showContents = (contents.screens?.length ?? 0) > 0;
     const showSearch = config.mainFeatures['search'] as boolean;
@@ -139,18 +139,14 @@
                             <div
                                 style={`width:24px; height:24px; background: ${
                                     selectedLink(item.type, item.link?.['default'])
-                                        ? barTextSelectedColor
-                                        : barTextColor
+                                        ? barIconSelectedColor
+                                        : barIconColor
                                 }; mask: url(${menuIcons[`./${item.images?.[0]?.file}`]}); -webkit-mask: url(${menuIcons[`./${item.images?.[0]?.file}`]});`}
                             ></div>
                             <!-- Text -->
                             <span
                                 class="text-center"
-                                style="font-family: {$s?.['ui.bottom-navigation.item.text'][
-                                    'font-family'
-                                ]
-                                    ? ''
-                                    : 'system-ui'}; {convertStyle(
+                                style="font-family: 'system-ui'; {convertStyle(
                                     $s?.[
                                         selectedLink(item.type, item.link?.['default'])
                                             ? 'ui.bottom-navigation.item.text.selected'
