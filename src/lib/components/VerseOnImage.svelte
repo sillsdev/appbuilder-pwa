@@ -70,6 +70,7 @@ The verse on image component.
     let cnv_background: HTMLImageElement | undefined = $state();
     let textbox: HTMLParagraphElement;
     const txtFormatted: string = $derived(verses);
+    let words: { word: string; styling: string }[] = $state([]);
     let verseBold = $state($s?.['ui.text-on-image']['font-weight'] == 'bold');
     let verseItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let textFontSize = $state(13);
@@ -80,6 +81,7 @@ The verse on image component.
     let refItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let refFontPercent = $state(80);
     let fontColor: string = $state(standardize_color(String($s?.['ui.text-on-image']['color'])));
+    let wordColor: string = $state(standardize_color(String($s?.['ui.text-on-image']['color'])));
     let letterSpacing = $state(0);
     let lineHeightPercent = $state(0);
     const lineHeight = $derived(1 + lineHeightPercent / 100);
@@ -111,11 +113,13 @@ The verse on image component.
         TextAppearanceIcon,
         ImageIcon.FormatAlignCenter,
         ImageIcon.FormatColorFill,
+        ImageIcon.WordSelect,
         ImageIcon.TextShadow,
         ImageIcon.Brightness,
         ImageIcon.Blur,
         ImageIcon.Reference
     ];
+    const wordEditorIndex = optionIcons.indexOf(ImageIcon.WordSelect);
 
     function standardize_color(str: string) {
         var ctx = document.createElement('canvas').getContext('2d');
@@ -318,6 +322,11 @@ The verse on image component.
         const childRect = textbox.getBoundingClientRect();
         textX = parentRect.left + (parentRect.width - childRect.width) / 2;
         textY = parentRect.top + (parentRect.height - childRect.height) / 2;
+
+        words = verses.split(' ').map((word) => ({
+            word: word,
+            styling: ''
+        }));
     });
 
     // Share button feature:
@@ -817,7 +826,17 @@ The verse on image component.
                     class="absolute top-0 right-0 w-3 h-full bg-transparent cursor-e-resize z-50 pointer-events-auto"
                     onpointerdown={startResize}
                 ></span>
-                {txtFormatted}
+                {#each words as word, i}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <span
+                        onclick={() => {
+                            if (active_editor_index === wordEditorIndex) {
+                                word.styling = `color:${wordColor};`;
+                            }
+                        }}
+                        style={word.styling}>{word.word} &#8203;</span
+                    >
+                {/each}
                 <span
                     id="verseOnImageRefDiv"
                     class="flex flex-col justify-center items-center"
@@ -999,7 +1018,7 @@ The verse on image component.
             </div>
         </div>
 
-        <!-- Text Alignemnt and Width and Line Height Pane -->
+        <!-- Text Alignment and Width and Line Height Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <!-- Left align button -->
@@ -1076,6 +1095,12 @@ The verse on image component.
         <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
             <!-- Color Picker -->
             <ColorPicker toRight={false} isInput={false} bind:hex={fontColor} />
+        </div>
+
+        <!-- Word Editor Pane -->
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
+            <!-- Color Picker -->
+            <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
         </div>
 
         <!-- Text Shadow/Glow Pane -->

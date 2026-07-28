@@ -20,6 +20,7 @@ import TextGlowIcon from './TextGlowIcon.svelte';
 import TextShadowIcon from './TextShadowIcon.svelte';
 import TextShadowNoneIcon from './TextShadowNoneIcon.svelte';
 import TextWidthIcon from './TextWidthIcon.svelte';
+import WordSelectIcon from './WordSelectIcon.svelte';
 
 const ImageIcon = {
     Blur: BlurIcon,
@@ -43,7 +44,8 @@ const ImageIcon = {
     TextGlow: TextGlowIcon,
     TextShadow: TextShadowIcon,
     TextShadowNone: TextShadowNoneIcon,
-    TextWidth: TextWidthIcon
+    TextWidth: TextWidthIcon,
+    WordSelect: WordSelectIcon
 };
 
 export { ImageIcon };
