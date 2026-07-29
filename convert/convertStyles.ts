@@ -4,6 +4,7 @@ import { ConfigTaskOutput } from 'convertConfig';
 import { createOutputDir, joinUrlPath } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
+import { isDAB } from '../src/lib/scripts/configUtils';
 
 export interface StylesTaskOutput extends TaskOutput {
     taskName: 'ConvertStyles';
@@ -159,6 +160,14 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
             '.plan-day-box-content { position:absolute; top:50%; left:50%; transform: translate(-50%, -50%); }'
         );
         tempStyles.push('.plan-checkbox-image { display:block; }');
+    }
+
+    if (isDAB(configData.data)) {
+        /* 
+        * Imitate browser-native styling for better link visibility...
+        * use :where for extra low specificity 
+        */
+        tempStyles.push(':where(.clickable) { color: -webkit-link; text-decoration: underline; }');
     }
     return tempStyles.join('\n') + '\n';
 }

@@ -299,14 +299,4 @@
         height: 24px;
         overflow: visible;
     }
-
-    /* 
-     * Imitate browser-native styling for better link visibility...
-     * use :where for extra low specificity 
-     */
-    pre :global(:where(.clickable)) {
-        color: -webkit-link;
-        cursor: pointer;
-        text-decoration: underline;
-    }
 </style>
