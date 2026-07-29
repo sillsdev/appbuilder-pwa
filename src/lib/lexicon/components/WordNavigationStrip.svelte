@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { themeColors } from '$lib/data/stores';
+    import { convertStyle, s, themeColors } from '$lib/data/stores';
     import {
         compareWordsEqual,
         currentReversal,
@@ -53,9 +53,9 @@
 
 <div
     class="flex items-center justify-between p-2"
-    style="background-color: {$themeColors[
-        'TabBackgroundColor'
-    ]}; border-bottom: 1px solid {$themeColors['SettingsSeparatorColor']};"
+    style="border-bottom: 1px solid {$themeColors['SettingsSeparatorColor']}; {convertStyle(
+        $s?.[`ui.viewer-title-${currentReversal.languageId}`]
+    )}"
 >
     <button
         class="flex items-center justify-center w-10 h-10 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"

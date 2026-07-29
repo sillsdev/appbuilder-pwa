@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import config from '$assets/config';
-    import { themeColors } from '$lib/data/stores';
+    import { convertStyle, s, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         displayNames,
@@ -169,8 +169,10 @@
     >
         {#each currentAlphabet as letter}
             <button
-                class="dy-btn dy-btn-square dy-btn-sm rounded-xs font-bold snap-start sm:text-base lg:text-lg"
-                style="border-color: {$themeColors['SettingsSeparatorColor']};"
+                class="dy-btn dy-btn-square dy-btn-sm dy-btn-ghost rounded-xs font-bold snap-start sm:text-base lg:text-lg"
+                style="color: {$themeColors['TextColor']}; border-color: {$themeColors[
+                    'SettingsSeparatorColor'
+                ]}; {convertStyle($s?.[`ui.alphabet-button-${currentReversal.languageId}`])}"
                 disabled={currentReversal.languageId !== vernacularLanguageId.value &&
                     !Array.from(
                         reversals

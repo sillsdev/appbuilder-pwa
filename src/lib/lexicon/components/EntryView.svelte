@@ -104,7 +104,7 @@
                         dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
                     }
                     if (match || href?.startsWith('#')) {
-                        return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
+                        return `<a class="clickable cursor-pointer"${dataAttributes}>${linkText}</a>`;
                     } else {
                         return createElementString(el, parentContainsSenseNumber || isSenseNumber);
                     }
@@ -118,7 +118,7 @@
                     audioElements.set(audioId, src);
 
                     // Add just the inline clickable icon - no audio element here
-                    return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
+                    return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
                 } else if (tagName === 'img' && el.hasAttribute('src')) {
                     const src = el.getAttribute('src')?.replace(/^illustrations\//, '');
                     const hashedSrc = src && illustrations[`./${src}`];
@@ -289,3 +289,14 @@
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html xmlData}
 </pre>
+
+<style>
+    pre :global(button.audio-link) {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 2px;
+        width: 24px;
+        height: 24px;
+        overflow: visible;
+    }
+</style>
