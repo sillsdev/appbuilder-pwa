@@ -96,14 +96,15 @@ export type RenderAction = {
 export type RenderEventNames = (typeof RenderEventNamesList)[number];
 export type ActionDictionary = Partial<{ [key in RenderEventNames]: Array<RenderAction> }>;
 
+export type FeatureFlag = { tag: string; enabledValue: string };
+
 export class FeatureSpec {
-    constructor(tag: string, enabledValue: string, actions: Array<RenderAction>) {
-        this.configTag = tag;
-        this.enabledValue = enabledValue;
+    constructor(actions: Array<RenderAction>, flag?: FeatureFlag) {
+        this.flag = flag;
         this.actions = actions;
     }
-    configTag: string;
-    enabledValue: string;
+
+    flag: FeatureFlag;
     actions: Array<RenderAction>;
 }
 
