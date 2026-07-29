@@ -1,6 +1,7 @@
 <script lang="ts">
     import { afterNavigate } from '$app/navigation';
     import SearchForm from '$lib/components/SearchForm.svelte';
+    import { themeColors } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -55,16 +56,19 @@
 </script>
 
 {#if !selectedWord.value}
-    <div class="flex w-full" style="background-color: var(--TitleBackgroundColor);">
+    <div class="flex w-full" style="background-color: {$themeColors['TitleBackgroundColor']};">
         <div
             class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
-            style="height: 36px; color: var(--TextColor);"
+            style="height: 36px; color: {$themeColors['TextColor']};"
         >
             {searchWord ? `Search: ${searchWord}` : 'Search'}
         </div>
     </div>
 {/if}
-<div class="flex-1 overflow-y-auto width-full" style="background-color: var(--BackgroundColor);">
+<div
+    class="flex-1 overflow-y-auto width-full"
+    style="background-color: {$themeColors['BackgroundColor']};"
+>
     <div class="overflow-auto" bind:this={scrollDiv}>
         <div class="flex justify-center">
             {#if !searchWord && !searchIDs.length}
@@ -75,7 +79,7 @@
         <div class="flex justify-center px-4">
             <hr
                 class="max-w-breakpoint-md w-full"
-                style="border-color: var(--SettingsSeparatorColor);"
+                style="border-color: {$themeColors['SettingsSeparatorColor']};"
             />
         </div>
 
@@ -91,7 +95,7 @@
                         wordIDs={selectedWord.value ? undefined : searchIDs}
                     />
                 {:else if searchWord && !searchIDs.length}
-                    <div class="text-center" style="color: var(--SettingsSummaryColor);">
+                    <div class="text-center" style="color: {$themeColors['SettingsSummaryColor']};">
                         No results found.
                     </div>
                 {/if}

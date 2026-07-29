@@ -1,6 +1,6 @@
 <script lang="ts">
     import config, { dictionaryConfig } from '$assets/config';
-    import { bodyFontSize, convertStyle, currentFont } from '$lib/data/stores';
+    import { bodyFontSize, convertStyle, currentFont, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
@@ -72,7 +72,7 @@
 
         function processNode(node: Node, parentHasSenseNumber = false): string {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue?.trim() ?? '';
+                return node.nodeValue ?? '';
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
                 const tagName = el.tagName.toLowerCase();
@@ -101,10 +101,11 @@
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
-                        dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
+                        // preserve href for a11y, normal navigation blocked by preventDefault in handler, so app can navigate
+                        dataAttributes = ` href="${href}" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
                     }
                     if (match || href?.startsWith('#')) {
-                        return `<span class="clickable cursor-pointer"${dataAttributes}>${linkText}</span>`;
+                        return `<a class="clickable cursor-pointer"${dataAttributes}>${linkText}</a>`;
                     } else {
                         return createElementString(el, parentContainsSenseNumber || isSenseNumber);
                     }
@@ -118,7 +119,7 @@
                     audioElements.set(audioId, src);
 
                     // Add just the inline clickable icon - no audio element here
-                    return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio" style="display: inline-block; vertical-align: middle; margin: 0 2px; width: 24px; height: 24px; overflow: visible;"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
+                    return `<button type="button" class="audio-link" data-audio-id="${audioId}" aria-label="Play audio"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: block; overflow: visible;"><path d="M14 20.725v-2.05q2.25-.65 3.625-2.5t1.375-4.2q0-2.35-1.375-4.2T14 5.275v-2.05q3.1.7 5.05 3.137Q21 8.8 21 11.975q0 3.175-1.95 5.612-1.95 2.438-5.05 3.138ZM3 15V9h4l5-5v16l-5-5Zm11 1V7.95q1.175.55 1.838 1.65.662 1.1.662 2.4q0 1.275-.662 2.362Q15.175 15.45 14 16Z"/></svg></button>`;
                 } else if (tagName === 'img' && el.hasAttribute('src')) {
                     const src = el.getAttribute('src')?.replace(/^illustrations\//, '');
                     const hashedSrc = src && illustrations[`./${src}`];
@@ -184,8 +185,8 @@
             xmlResults
                 .filter((xml) => xml) // Ensure no null values are included
                 .map((v) => formatXmlByClass(v[1] as string))
-                .join('\n<hr style="border-color: var(--SettingsSeparatorColor);">\n') +
-            '\n<hr style="border-color: var(--SettingsSeparatorColor);">\n';
+                .join(`\n<hr style="border-color: ${$themeColors['SettingsSeparatorColor']};">\n`) +
+            `\n<hr style="border-color: ${$themeColors['SettingsSeparatorColor']};">\n`;
     }
 
     function attachEventListeners() {
@@ -198,7 +199,8 @@
 
         const freshSpans = document.querySelectorAll('.clickable');
         freshSpans.forEach((span) => {
-            span.addEventListener('click', () => {
+            span.addEventListener('click', (e) => {
+                e.preventDefault();
                 currentReversal.languageId = vernacularLanguageId.value;
                 const name = span.getAttribute('data-word');
                 const id = parseInt(span.getAttribute('data-index') ?? 'NaN', 10);
@@ -271,7 +273,8 @@
     }
 
     $effect(() => {
-        if (_wordIDs.length) {
+        if (_wordIDs.length && $themeColors) {
+            console.log($themeColors);
             (async () => {
                 await updateXmlData();
                 applyStyles();
@@ -283,7 +286,20 @@
 
 <pre
     class="p-4 whitespace-pre-wrap wrap-break-word"
-    style="background-color: var(--BackgroundColor); font-size: {$bodyFontSize}px; font-family: {$currentFont};">
+    style="background-color: {$themeColors[
+        'BackgroundColor'
+    ]}; font-size: {$bodyFontSize}px; font-family: {$currentFont};">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html xmlData}
 </pre>
+
+<style>
+    pre :global(button.audio-link) {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 2px;
+        width: 24px;
+        height: 24px;
+        overflow: visible;
+    }
+</style>

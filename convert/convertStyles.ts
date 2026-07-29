@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
+import { isDAB } from '../src/lib/scripts/configUtils';
 import { createOutputDir, joinUrlPath } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
@@ -159,6 +160,16 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
             '.plan-day-box-content { position:absolute; top:50%; left:50%; transform: translate(-50%, -50%); }'
         );
         tempStyles.push('.plan-checkbox-image { display:block; }');
+    }
+
+    if (isDAB(configData.data)) {
+        /*
+         * Imitate browser-native styling for better link visibility...
+         * use :where for extra low specificity
+         */
+        tempStyles.push(
+            ':where(.clickable) { color: var(--LinkColor); text-decoration: underline; }'
+        );
     }
     return tempStyles.join('\n') + '\n';
 }

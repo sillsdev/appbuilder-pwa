@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { convertStyle, s, themeColors } from '$lib/data/stores';
     import {
         compareWordsEqual,
         currentReversal,
@@ -52,39 +53,40 @@
 
 <div
     class="flex items-center justify-between p-2"
-    style="background-color: var(--TabBackgroundColor); border-bottom: 1px solid var(--SettingsSeparatorColor);"
+    style="border-bottom: 1px solid {$themeColors['SettingsSeparatorColor']}; {convertStyle(
+        $s?.[`ui.viewer-title-${currentReversal.languageId}`]
+    )}"
 >
     <button
         class="flex items-center justify-center w-10 h-10 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
-        style="color: var(--TabTextColor);"
+        style="color: {$themeColors['TabTextColor']};"
         onclick={goToPrevious}
         disabled={!previousWord}
         aria-label="Previous word"
     >
         <div
             class="w-0 h-0 border-y-12 border-y-transparent border-r-20"
-            style="border-right-color: var(--PrimaryColor);"
+            style="border-right-color: {$themeColors['PrimaryColor']};"
         ></div>
     </button>
 
     <div
         class="text-center font-bold text-lg px-4 truncate max-w-xs"
-        style="color: var(--TextColor);"
+        style="color: {$themeColors['TextColor']};"
     >
-        {selectedWord.value?.name || ''}
-        <HomonymSubscript word={selectedWord.value} />
+        {selectedWord.value?.name || ''}<HomonymSubscript word={selectedWord.value} />
     </div>
 
     <button
         class="flex items-center justify-center w-10 h-10 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
-        style="color: var(--TabTextColor);"
+        style="color: {$themeColors['TabTextColor']};"
         onclick={goToNext}
         disabled={!nextWord}
         aria-label="Next word"
     >
         <div
             class="w-0 h-0 border-y-12 border-y-transparent border-l-20"
-            style="border-left-color: var(--PrimaryColor);"
+            style="border-left-color: {$themeColors['PrimaryColor']};"
         ></div>
     </button>
 </div>
