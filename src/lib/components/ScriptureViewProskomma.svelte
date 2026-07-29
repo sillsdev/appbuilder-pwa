@@ -100,10 +100,11 @@ LOGGING:
         const result: ActionDictionary = {};
         for (const f of renderFeatures) {
             if (
+                !f.flag ||
                 checkFeatureValueIs(
                     scriptureConfig,
-                    f.configTag,
-                    f.enabledValue,
+                    f.flag.tag,
+                    f.flag.enabledValue,
                     references.collection,
                     references.book
                 )
@@ -164,23 +165,6 @@ LOGGING:
     function handleSofriaRenderEvent(environment: any, eventName: RenderEventNames) {
         console.log('Handling function called for %s on %o', eventName, environment);
 
-        /**
-         * 1. On opening scope, add to stack and perform action(s) to update workspace state.
-         *    Append any action results to top scope's element root.
-         * 2. On marker event, perform action(s) and append any results to top scope's element root
-         * 3. On ending scope, perform action(s) and append any results to top scope's element root, then
-         *    remove from stack, append element's root to new top scope's root, and update workspace state
-         * Common steps:
-         * - Perform relevant action(s)
-         * - Append any action results to top scope's element root
-         * Order:
-         *  - Add newly opened scope to stack (if applicable) and update workspace state
-         *  - Perform all render actions for incoming event (if applicable)
-         *  - Remove scope just closed from stack (if applicable), then append its root
-         *    to the new top scope's root. If last scope, append to output node instead.
-         *    Update workspace state as needed.
-         */
-
         const eventDetails = new RenderEventDescriptor(eventName);
 
         if (eventDetails.position === RenderEventPosition.scopeStart) {
@@ -189,6 +173,7 @@ LOGGING:
 
         if (actionsDict[eventName]) {
             for (const a of actionsDict[eventName]) {
+                a.action(environment);
                 if (a.output) {
                     openScopes[0].contentRoot?.appendChild(a.output);
                 }
@@ -200,53 +185,12 @@ LOGGING:
             const topScope = openScopes.shift();
             if (topScope?.contentRoot) {
                 if (openScopes.length > 0) {
-                    openScopes[0].contentRoot?.appendChild(topScope?.contentRoot);
+                    openScopes[0].contentRoot?.appendChild(topScope.contentRoot);
                 } else {
-                    environment.output.rootNode.appendChild(topScope?.contentRoot);
+                    environment.output.root = topScope.contentRoot;
                 }
             }
         }
-
-        // let topScope: RenderScope | undefined;
-        // let topScopeLevel: RenderScopeLevel | undefined;
-
-        // switch (eventDetails.position) {
-        //     case RenderEventPosition.scopeStart:
-        //         console.log(`---> Start scope type: ${eventDetails.level}`);
-        //         openScopes.unshift(new RenderScope(document, eventDetails.level));
-        //         break;
-        //     case RenderEventPosition.scopeEnd:
-        //         /**
-        //          * Append the rendered root of the scope now closing to its parent, if it exists.
-        //          */
-        //         topScopeLevel = openScopes.at(0)?.level;
-        //         if (topScopeLevel !== eventDetails.level) {
-        //             throw new Error(
-        //                 `Render scope mismatch: tried to close a ${eventDetails.level} scope, ` +
-        //                     `but a ${topScopeLevel} scope was last opened`
-        //             );
-        //         }
-
-        //         console.log(`---> Matched end scope type: ${eventDetails.level}`);
-        //         if (actionsDict[eventName]) {
-        //             for (const a of actionsDict[eventName]) {
-        //                 const wasApplied = a.action(environment, {});
-        //                 if (wasApplied) {
-        //                     openScopes.at(0)?.contentRoot?.appendChild(a.output ?? null);
-        //                     break;
-        //                 }
-        //                 // perform action
-        //                 // append result to content root
-        //                 // update workspace if needed
-        //             }
-        //         } else {
-        //             console.warn(`No enabled actions found for event ${eventName}`);
-        //         }
-        //         break;
-        //     case RenderEventPosition.standalone:
-        //         // similar as for RenderEventType.end
-        //         break;
-        // }
     }
 
     async function renderCurrentDocument(docSet: string, bookCode: string, chapter: string) {
