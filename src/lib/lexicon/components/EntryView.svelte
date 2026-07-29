@@ -72,7 +72,7 @@
 
         function processNode(node: Node, parentHasSenseNumber = false): string {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue?.trim() ?? '';
+                return node.nodeValue ?? '';
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
                 const tagName = el.tagName.toLowerCase();
