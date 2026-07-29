@@ -1140,7 +1140,12 @@ The verse on image component.
                                     wordSelected.uppercase = true;
                                 }
                             }}
-                            >A<ArrowUpIcon width="12px" height="12px" color="#6B7280"
+                            >A<ArrowUpIcon
+                                width="12px"
+                                height="12px"
+                                color={wordSelected?.uppercase
+                                    ? 'var(--SliderProgressColor)'
+                                    : '#6B7280'}
                             ></ArrowUpIcon></button
                         >
                     </div>
@@ -1156,7 +1161,12 @@ The verse on image component.
                                     wordSelected.uppercase = false;
                                 }
                             }}
-                            >a<ArrowDownIcon width="12px" height="12px" color="#6B7280"
+                            >a<ArrowDownIcon
+                                width="12px"
+                                height="12px"
+                                color={wordSelected?.uppercase === false
+                                    ? 'var(--SliderProgressColor)'
+                                    : '#6B7280'}
                             ></ArrowDownIcon></button
                         >
                     </div>
