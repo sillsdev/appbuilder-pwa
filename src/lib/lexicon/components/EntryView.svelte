@@ -101,7 +101,8 @@
                         const word = wordObject ? wordObject.name : 'Unknown';
                         const homonymIndex = wordObject ? wordObject.homonym_index : 1;
 
-                        dataAttributes = ` data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
+                        // preserve href for a11y, normal navigation blocked by preventDefault in handler, so app can navigate
+                        dataAttributes = ` href="${href}" data-word="${word}" data-index="${index}" data-homonym="${homonymIndex}"`;
                     }
                     if (match || href?.startsWith('#')) {
                         return `<a class="clickable cursor-pointer"${dataAttributes}>${linkText}</a>`;
@@ -198,7 +199,8 @@
 
         const freshSpans = document.querySelectorAll('.clickable');
         freshSpans.forEach((span) => {
-            span.addEventListener('click', () => {
+            span.addEventListener('click', (e) => {
+                e.preventDefault();
                 currentReversal.languageId = vernacularLanguageId.value;
                 const name = span.getAttribute('data-word');
                 const id = parseInt(span.getAttribute('data-index') ?? 'NaN', 10);
@@ -271,7 +273,8 @@
     }
 
     $effect(() => {
-        if (_wordIDs.length) {
+        if (_wordIDs.length && $themeColors) {
+            console.log($themeColors);
             (async () => {
                 await updateXmlData();
                 applyStyles();
