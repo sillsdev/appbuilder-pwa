@@ -5,9 +5,11 @@
     import '$lib/styles/app.css';
     import { dev } from '$app/environment';
     import config from '$assets/config';
+    import AudioDownloadModal from '$lib/components/AudioDownloadModal.svelte';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
+    import NoConnectionModal from '$lib/components/NoConnectionModal.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
@@ -91,8 +93,21 @@
                         planStopId = data as string;
                         planStopDialog?.showModal();
                         break;
+                    case ModalType.DownloadAudio:
+                        {
+                            const audioModalData = data as { audioPath: string; show: boolean };
+                            if (audioModalData.show) {
+                                audioDownloadModal?.showModal(audioModalData.audioPath);
+                            } else {
+                                audioDownloadModal?.downloadAudio(audioModalData.audioPath);
+                            }
+                        }
+                        break;
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
+                        break;
+                    case ModalType.NoConnection:
+                        noConnectionModal?.showModal();
                         break;
                     case ModalType.Collection:
                         collectionModal?.showModal(
@@ -120,6 +135,8 @@
     let noteDialog: NoteDialog | undefined = $state();
     let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
+    let audioDownloadModal: AudioDownloadModal | undefined = $state();
+    let noConnectionModal: NoConnectionModal | undefined = $state();
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
 </script>
@@ -171,6 +188,8 @@
                     bind:planId={planStopId}
                     vertOffset={NAVBAR_HEIGHT}
                 />
+                <AudioDownloadModal bind:this={audioDownloadModal} />
+                <NoConnectionModal bind:this={noConnectionModal} />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
             </div>
