@@ -663,7 +663,7 @@ The verse on image component.
 
     let active_editor_index = $state(-1);
 
-    function centerButton(n: number) {
+    function adjustCarousel(n: number) {
         const container = document.getElementById('editorTabs');
         if (!container) {
             return;
@@ -683,6 +683,21 @@ The verse on image component.
             container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
         }
 
+        // Remove the activeButton class from all buttons
+        buttons.forEach((btn) => {
+            btn.classList.remove('activeButton');
+        });
+
+        // Set the clicked button as the activeButton
+        active_editor_index = n;
+        if (button) {
+            button.classList.add('activeButton');
+        }
+    }
+
+    function centerButton(n: number) {
+        adjustCarousel(n);
+
         let carousel = document.getElementById('editorsPane') as HTMLDivElement;
         const editors = carousel.children as HTMLCollectionOf<HTMLElement>; // document.querySelectorAll('#editorsPane div');// Get the carousel's children.
         if (n < editors.length) {
@@ -693,17 +708,6 @@ The verse on image component.
             carousel.scrollTo({ left: scrollDistance, behavior: 'auto' }); // Scroll the carousel to the desired position
         } else {
             console.error('Invalid child index');
-        }
-
-        // Remove the activeButton class from all buttons
-        buttons.forEach((btn) => {
-            btn.classList.remove('activeButton');
-        });
-
-        // Set the clicked button as the activeButton
-        active_editor_index = n;
-        if (button) {
-            button.classList.add('activeButton');
         }
     }
 
@@ -769,6 +773,7 @@ The verse on image component.
             wordSelected.color = `color:${wordColor};`;
         }
     });
+    let scrollTimeout: NodeJS.Timeout | undefined;
 </script>
 
 <div
@@ -906,6 +911,14 @@ The verse on image component.
             overflow-y: auto;
             touch-action: none;
         "
+        onscroll={(e) => {
+            const el: HTMLDivElement = e.currentTarget;
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const index = Math.round(el?.scrollLeft / el?.clientWidth);
+                adjustCarousel(index);
+            }, 25);
+        }}
     >
         <!-- Image Selector -->
         <div
