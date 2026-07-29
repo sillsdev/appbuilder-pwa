@@ -66,6 +66,7 @@ The verse on image component.
     const imageWidth = $derived(cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2);
     const imageHeight = $derived(imageWidth);
     let cnv: HTMLCanvasElement;
+    const collection = scriptureConfig?.bookCollections?.find((x) => x.id === $refs.collection);
 
     let cnv_background: HTMLImageElement | undefined = $state();
     let textbox: HTMLParagraphElement;
@@ -846,8 +847,10 @@ The verse on image component.
                                 wordSelected = word;
                             }
                         }}
-                        style={word.color + (word.uppercase ? 'text-transform: uppercase;' : '')}
-                        >{word.word} &#8203;</span
+                        style={word.color}
+                        >{word.uppercase
+                            ? word.word.toLocaleUpperCase(collection?.languageCode)
+                            : word.word} &#8203;</span
                     >
                 {/each}
                 <span
