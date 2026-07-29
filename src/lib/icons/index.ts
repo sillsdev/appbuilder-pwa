@@ -2,7 +2,9 @@
 import AboutIcon from './AboutIcon.svelte';
 import AccountIcon from './AccountIcon.svelte';
 import ArrowBackIcon from './ArrowBackIcon.svelte';
+import ArrowDownIcon from './ArrowDownIcon.svelte';
 import ArrowForwardIcon from './ArrowForwardIcon.svelte';
+import ArrowUpIcon from './ArrowUpIcon.svelte';
 import { AudioIcon } from './audio';
 import BackspaceIcon from './BackspaceIcon.svelte';
 import BibleIcon from './BibleIcon.svelte';
@@ -46,6 +48,8 @@ export {
     AccountIcon,
     ArrowBackIcon,
     ArrowForwardIcon,
+    ArrowDownIcon,
+    ArrowUpIcon,
     AudioIcon,
     BackspaceIcon,
     BibleIcon,

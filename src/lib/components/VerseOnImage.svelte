@@ -20,7 +20,7 @@ The verse on image component.
         voiCustomImage,
         windowSize
     } from '$lib/data/stores';
-    import { TextAppearanceIcon } from '$lib/icons';
+    import { ArrowDownIcon, ArrowUpIcon, TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
     import { resolve } from '$lib/utils/paths';
@@ -69,8 +69,8 @@ The verse on image component.
 
     let cnv_background: HTMLImageElement | undefined = $state();
     let textbox: HTMLParagraphElement;
-    const txtFormatted: string = $derived(verses);
-    let words: { word: string; styling: string }[] = $state([]);
+    let wordSelected: { word: string; color: string; uppercase: boolean } | undefined = $state();
+    let words: { word: string; color: string; uppercase: boolean }[] = $state([]);
     let verseBold = $state($s?.['ui.text-on-image']['font-weight'] == 'bold');
     let verseItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let textFontSize = $state(13);
@@ -325,7 +325,8 @@ The verse on image component.
 
         words = verses.split(' ').map((word) => ({
             word: word,
-            styling: ''
+            color: '',
+            uppercase: false
         }));
     });
 
@@ -763,6 +764,11 @@ The verse on image component.
         window.removeEventListener('pointermove', drag);
         window.removeEventListener('pointerup', stopDrag);
     });
+    $effect(() => {
+        if (wordSelected) {
+            wordSelected.color = `color:${wordColor};`;
+        }
+    });
 </script>
 
 <div
@@ -831,10 +837,12 @@ The verse on image component.
                     <span
                         onclick={() => {
                             if (active_editor_index === wordEditorIndex) {
-                                word.styling = `color:${wordColor};`;
+                                word.color = `color:${wordColor};`;
+                                wordSelected = word;
                             }
                         }}
-                        style={word.styling}>{word.word} &#8203;</span
+                        style={word.color + (word.uppercase ? 'text-transform: uppercase;' : '')}
+                        >{word.word} &#8203;</span
                     >
                 {/each}
                 <span
@@ -1099,8 +1107,45 @@ The verse on image component.
 
         <!-- Word Editor Pane -->
         <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
-            <!-- Color Picker -->
-            <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
+            <div class="text-sm text-center" style="color: var(--TextColor);">
+                {$t['Text_On_Image_Highlight_Words']}
+            </div>
+            <div class="flex flex-row gap-5">
+                <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
+                <div class="flex flex-row gap-2">
+                    <div class="flex items-center">
+                        <button
+                            class="flex items-center text-base bg-gray-300 p-2 text-gray-500"
+                            style="{wordSelected?.uppercase
+                                ? 'color:var(--SliderProgressColor);'
+                                : ''} font-family: 'system-ui';"
+                            onclick={() => {
+                                if (wordSelected) {
+                                    wordSelected.uppercase = true;
+                                }
+                            }}
+                            >A<ArrowUpIcon width="12px" height="12px" color="#6B7280"
+                            ></ArrowUpIcon></button
+                        >
+                    </div>
+                    <!--The color of the text should be SliderProgressColor when selected and gray when not-->
+                    <div class="flex items-center">
+                        <button
+                            class="flex items-center text-base bg-gray-300 p-2 text-gray-500"
+                            style="{wordSelected?.uppercase === false
+                                ? 'color:var(--SliderProgressColor);'
+                                : ''} font-family: 'system-ui';"
+                            onclick={() => {
+                                if (wordSelected) {
+                                    wordSelected.uppercase = false;
+                                }
+                            }}
+                            >a<ArrowDownIcon width="12px" height="12px" color="#6B7280"
+                            ></ArrowDownIcon></button
+                        >
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Text Shadow/Glow Pane -->
