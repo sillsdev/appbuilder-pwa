@@ -65,7 +65,6 @@ LOGGING:
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { fromStore, type Readable } from 'svelte/store';
-    import type { Environment } from 'vite';
 
     let {
         audioPhraseEndChars,
@@ -194,7 +193,7 @@ LOGGING:
     }
 
     async function renderCurrentDocument(docSet: string, bookCode: string, chapter: string) {
-        const actionObject: { [key: string]: ProskommaRenderAction[] } = {};
+        const actionObject: { [key in RenderEventNames]?: ProskommaRenderAction[] } = {};
         for (const name of RenderEventNamesList) {
             actionObject[name] = [
                 {
