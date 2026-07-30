@@ -718,50 +718,42 @@ export async function getAudioSourceInfo(
     }
 
     const audioSource = scriptureConfig.audio?.sources[audio.src];
-    let audioPath = null;
+    let audioPath: string | null = null;
 
-    if (audioSource?.type === 'fcbh') {
-        if (audioSource.accessMethods?.includes('download')) {
+    if (audioSource?.accessMethods?.includes('download')) {
+        const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
+        audioPath = audioClipUrls.get(clipKey);
+        if (!audioPath) {
             const foundAudioClip = await findAudioClip({
                 collection: item.collection || '',
                 book: item.book || '',
                 chapter: item.chapter || ''
             }); //If the audio has been downloaded already, use that.
             if (foundAudioClip) {
-                const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
                 if (!audioClipUrls.get(clipKey)) {
                     audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
                 }
                 audioPath = audioClipUrls.get(clipKey)!;
             }
         }
-        if (!audioPath) {
+    }
+
+    if (!audioPath) {
+        if (audioSource?.type === 'fcbh') {
             const result = await getBibleBrainUrl(audioSource, item, getDamId);
             if (result.error) {
                 throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
             }
 
-            audioPath = result.path;
-        }
-    } else if (audioSource?.type === 'assets') {
-        const audioKey = `./${audio.filename}`;
-        if (!audioSources[audioKey]) {
-            throw new Error(`Audio file not found in generated assets: ${audio.filename}`);
-        }
-        audioPath = audioSources[audioKey];
-    } else if (audioSource?.type === 'download') {
-        audioPath = pathJoin([audioSource.address, audio.filename]);
-        const foundAudioClip = await findAudioClip({
-            collection: item.collection || '',
-            book: item.book || '',
-            chapter: item.chapter || ''
-        }); //If the audio has been downloaded already, use that.
-        if (foundAudioClip) {
-            const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
-            if (!audioClipUrls.get(clipKey)) {
-                audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
+            audioPath = result.path || null;
+        } else if (audioSource?.type === 'assets') {
+            const audioKey = `./${audio.filename}`;
+            if (!audioSources[audioKey]) {
+                throw new Error(`Audio file not found in generated assets: ${audio.filename}`);
             }
-            audioPath = audioClipUrls.get(clipKey)!;
+            audioPath = audioSources[audioKey];
+        } else if (audioSource?.type === 'download') {
+            audioPath = pathJoin([audioSource.address, audio.filename]);
         }
     }
     //parse timing file
@@ -800,10 +792,12 @@ export async function getAudioSourceInfo(
             }
         }
     }
-    return {
-        source: audioPath,
-        timing: timing.length > 0 ? timing : null
-    };
+    return audioPath
+        ? {
+              source: audioPath,
+              timing: timing.length > 0 ? timing : null
+          }
+        : undefined;
 }
 
 /**
