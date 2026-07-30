@@ -47,11 +47,11 @@ LOGGING:
     import { type GlossaryQueryResult } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
+    import { renderFeatures } from '$lib/render-sofria';
     import {
         RenderEventDescriptor,
         RenderEventNamesList,
         RenderEventPosition,
-        renderFeatures,
         RenderScope,
         RenderScopeLevel,
         type ActionDictionary,
@@ -119,6 +119,7 @@ LOGGING:
                 }
             }
         }
+        console.warn('Compiled actions dictionary: %o', result);
         return result;
     });
 
@@ -172,6 +173,7 @@ LOGGING:
 
         if (actionsDict[eventName]) {
             for (const a of actionsDict[eventName]) {
+                console.log('Processing action %o for event %s', a, eventName);
                 a.action(environment);
                 if (a.output) {
                     openScopes[0].contentRoot?.appendChild(a.output);
@@ -200,6 +202,8 @@ LOGGING:
                     description: `Handling ${name}`,
                     test: () => true,
                     action: (environment: RenderEnvironment) => {
+                        // TODO: de-duplicate next line
+                        environment.workspace.document = environment.workspace.document ?? document;
                         handleSofriaRenderEvent(environment, name);
                     }
                 }
@@ -222,7 +226,8 @@ LOGGING:
             output
         });
 
-        bookRoot = output.root ?? bookRoot;
+        console.warn('Final rendering output: %o', output.root);
+        bookRoot.appendChild(output.root);
         loading = false;
     }
 
