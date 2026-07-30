@@ -1,3 +1,10 @@
-import { FeatureSpec } from './common';
+import { FeatureSpec, type RenderAction, type RenderEnvironment } from './common';
 
-export default documentFeature = new FeatureSpec();
+const documentFeature = new FeatureSpec([
+    {
+        eventTriggers: ['startDocument'],
+        action(environment: RenderEnvironment) {
+            this.output = 0;
+        }
+    }
+] as Array<RenderAction>);
