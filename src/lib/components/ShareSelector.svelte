@@ -8,7 +8,7 @@ A component providing a dropdown where you can choose to download audio or video
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareAudio, shareText } from '$lib/data/share';
-    import { getPositioningCSS, refs, selectedVerses, t } from '$lib/data/stores';
+    import { convertStyle, getPositioningCSS, refs, s, selectedVerses, t } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import FormatAlignLeftIcon from '$lib/icons/image/FormatAlignLeftIcon.svelte';
     import {
@@ -157,27 +157,30 @@ A component providing a dropdown where you can choose to download audio or video
         }
     }
     const positioningCSS = $derived(getPositioningCSS(vertOffset, 'bottom'));
+    const iconColor = $derived($s?.['ui.bar.audio.hint.text']?.['color'] || 'black');
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <Modal
     bind:this={modalThis}
     id={modalId}
-    styling="background-color:red; box-shadow:none; padding:0; width:auto; {positioningCSS}"
+    styling="box-shadow:none; padding:0; width:auto; {positioningCSS}"
 >
-    <div class="grid">
+    <div class="grid message" id="container">
         <button
-            class="dy-btn flex items-center justify-center rounded-none"
+            class="dy-btn flex items-center justify-center rounded-none border-transparent"
+            style={convertStyle($s?.['ui.bar.audio.hint.text'])}
             onclick={() => shareSelectedText()}
         >
-            <FormatAlignLeftIcon />
+            <FormatAlignLeftIcon color={iconColor} />
             {$t['Share_Text']}
         </button>
         <button
-            class="dy-btn flex items-center justify-center rounded-none"
+            class="dy-btn flex items-center justify-center rounded-none border-transparent"
+            style={convertStyle($s?.['ui.bar.audio.hint.text'])}
             onclick={() => shareAudioFile()}
         >
-            <AudioIcon.Volume />
+            <AudioIcon.Volume color={iconColor} />
             {$t['Share_Audio']}
         </button>
         <!--<button
