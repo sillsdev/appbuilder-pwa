@@ -44,6 +44,7 @@ export const RenderEventNamesList = [
     'startRow',
     'endRow'
 ] as const;
+export type RenderEventNames = (typeof RenderEventNamesList)[number];
 
 export class RenderEventDescriptor {
     constructor(eventName: string) {
@@ -79,13 +80,14 @@ export class RenderScope {
 export type RenderEnvironment = {
     config: any;
     context: any;
-    workspace: any;
+    workspace: RenderWorkspace;
     output: any;
 };
 
 export type RenderAction = {
     eventTriggers: Array<RenderEventNames>;
     action(environment: RenderEnvironment): void;
+    actionState?: any;
     output?: HTMLElement;
 };
 
@@ -93,7 +95,6 @@ export type RenderAction = {
  * Methodology from
  * https://stackoverflow.com/questions/55570729/how-to-limit-the-keys-of-an-object-to-the-strings-of-an-array-in-typescript
  */
-export type RenderEventNames = (typeof RenderEventNamesList)[number];
 export type ActionDictionary = Partial<{ [key in RenderEventNames]: Array<RenderAction> }>;
 
 export type FeatureFlag = { tag: string; enabledValue: string };
@@ -109,3 +110,13 @@ export class FeatureSpec {
 }
 
 export const renderFeatures: Array<FeatureSpec> = [];
+
+export type RenderScratchpad = {
+    [key in RenderEventNames]?: any;
+};
+
+export type RenderWorkspace = {
+    document: Document;
+    bookRoot: HTMLDivElement;
+    scratch: RenderScratchpad;
+};
