@@ -227,6 +227,7 @@ LOGGING:
         });
 
         console.warn('Final rendering output: %o', output.root);
+        bookRoot.replaceChildren();
         bookRoot.appendChild(output.root);
         loading = false;
     }
