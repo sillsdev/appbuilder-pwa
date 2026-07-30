@@ -911,7 +911,7 @@ The verse on image component.
             background-color: {$themeColors['DialogBackgroundColor']};
             z-index: 3;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: hidden;
             touch-action: none;
         "
         onscroll={(e) => {
@@ -981,12 +981,22 @@ The verse on image component.
         </div>
 
         <!-- Font Selector Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <FontList bind:selectedFont={textFont} />
         </div>
 
         <!-- Font Editor Pane -->
-        <div class="dy-carousel-item editorPane items-center">
+        <div
+            class="dy-carousel-item editorPane items-center"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Bold button -->
                 <button
@@ -1043,7 +1053,12 @@ The verse on image component.
         </div>
 
         <!-- Text Alignment and Width and Line Height Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Left align button -->
                 <button
@@ -1116,17 +1131,17 @@ The verse on image component.
         </div>
 
         <!-- Font Color Pane -->
-        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem; overflow-y: auto;">
             <!-- Color Picker -->
             <ColorPicker toRight={false} isInput={false} bind:hex={fontColor} />
         </div>
 
         <!-- Word Editor Pane -->
-        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem; overflow-y: auto;">
             <div class="text-sm text-center" style="color: var(--TextColor);">
                 {$t['Text_On_Image_Highlight_Words']}
             </div>
-            <div class="flex flex-row gap-5">
+            <div class="flex flex-row flex-wrap gap-5">
                 <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
                 <div class="flex flex-row gap-2">
                     <div class="flex items-center">
@@ -1149,7 +1164,6 @@ The verse on image component.
                             ></ArrowUpIcon></button
                         >
                     </div>
-                    <!--The color of the text should be SliderProgressColor when selected and gray when not-->
                     <div class="flex items-center">
                         <button
                             class="flex items-center text-base bg-gray-300 p-2 text-gray-500"
@@ -1175,7 +1189,12 @@ The verse on image component.
         </div>
 
         <!-- Text Shadow/Glow Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Text Shadow None Toggle -->
                 <button
@@ -1232,7 +1251,12 @@ The verse on image component.
         </div>
 
         <!-- Image Editor Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <!-- Image brightness slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
                 <div style="margin-right: 1rem;">
@@ -1283,7 +1307,12 @@ The verse on image component.
         </div>
 
         <!-- Image Blur Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <!-- Image blur slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
                 <div style="margin-right: 1rem;">
@@ -1295,8 +1324,13 @@ The verse on image component.
             </div>
         </div>
 
-        <!-- Refrence Formatting Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <!-- Reference Formatting Pane -->
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Ref bold button -->
                 <button
