@@ -18,3 +18,5 @@ const documentFeature = new FeatureSpec([
         }
     }
 ] as Array<RenderAction>);
+
+export default documentFeature;
