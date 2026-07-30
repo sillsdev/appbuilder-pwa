@@ -1,3 +1,5 @@
+import documentFeature from './DocumentFeature';
+
 export enum RenderScopeLevel {
     document,
     paragraph,
@@ -108,8 +110,6 @@ export class FeatureSpec {
     flag: FeatureFlag;
     actions: Array<RenderAction>;
 }
-
-export const renderFeatures: Array<FeatureSpec> = [];
 
 export type RenderScratchpad = {
     [key in RenderEventNames]?: any;
