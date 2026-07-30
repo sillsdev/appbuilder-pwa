@@ -980,12 +980,22 @@ The verse on image component.
         </div>
 
         <!-- Font Selector Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <FontList bind:selectedFont={textFont} />
         </div>
 
         <!-- Font Editor Pane -->
-        <div class="dy-carousel-item editorPane items-center">
+        <div
+            class="dy-carousel-item editorPane items-center"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Bold button -->
                 <button
@@ -1042,7 +1052,12 @@ The verse on image component.
         </div>
 
         <!-- Text Alignment and Width and Line Height Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Left align button -->
                 <button
@@ -1115,13 +1130,13 @@ The verse on image component.
         </div>
 
         <!-- Font Color Pane -->
-        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem; overflow-y: auto;">
             <!-- Color Picker -->
             <ColorPicker toRight={false} isInput={false} bind:hex={fontColor} />
         </div>
 
         <!-- Word Editor Pane -->
-        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem; overflow-y: auto;">
             <div class="text-sm text-center" style="color: var(--TextColor);">
                 {$t['Text_On_Image_Highlight_Words']}
             </div>
@@ -1173,7 +1188,12 @@ The verse on image component.
         </div>
 
         <!-- Text Shadow/Glow Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <div class="flex flex-row items-center">
                 <!-- Text Shadow None Toggle -->
                 <button
@@ -1230,7 +1250,12 @@ The verse on image component.
         </div>
 
         <!-- Image Editor Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <!-- Image brightness slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
                 <div style="margin-right: 1rem;">
@@ -1281,7 +1306,12 @@ The verse on image component.
         </div>
 
         <!-- Image Blur Pane -->
-        <div class="dy-carousel-item items-center editorPane">
+        <div
+            class="dy-carousel-item items-center editorPane"
+            style="
+                overflow-y: auto;
+            "
+        >
             <!-- Image blur slider -->
             <div class="flex flex-row flex-nowrap items-center editorPane_slider">
                 <div style="margin-right: 1rem;">
