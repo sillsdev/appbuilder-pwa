@@ -84,7 +84,7 @@ export type RenderEnvironment = {
 };
 
 export type RenderAction = {
-    eventTriggers: Set<RenderEventNames>;
+    eventTriggers: Array<RenderEventNames>;
     action(environment: RenderEnvironment): void;
     output?: HTMLElement;
 };
