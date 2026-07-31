@@ -78,11 +78,13 @@ A component providing a dropdown where you can choose to download audio or video
             for (let i = 0; i < $selectedVerses.length; i++) {
                 let startFrame = 0;
                 let endFrame = 0;
+                let foundVerseTiming = false;
                 for (var j = 0; j < (audioSourceInfo?.timing?.length || 0); j++) {
                     const timing = audioSourceInfo?.timing?.[j];
                     const verse = timing?.tag?.replace(/\D/g, '');
                     if (verse === $selectedVerses[i].verse) {
-                        if (!startFrame) {
+                        if (!foundVerseTiming) {
+                            foundVerseTiming = true;
                             startFrame = Math.floor((timing?.starttime || 0) * sampleRate);
                             endFrame = Math.floor((timing?.endtime || 0) * sampleRate);
                         } else {
@@ -90,7 +92,7 @@ A component providing a dropdown where you can choose to download audio or video
                         }
                     }
                 }
-                if (endFrame <= startFrame) {
+                if (!foundVerseTiming || endFrame <= startFrame) {
                     console.warn(`No timing found for verse ${$selectedVerses[i].verse}, skipping`);
                     continue;
                 }
@@ -113,7 +115,7 @@ A component providing a dropdown where you can choose to download audio or video
             await shareAudio(
                 reference,
                 await selectedVerses.getCompositeText(),
-                reference + outputFormat.fileExtension,
+                reference.replace(/[\\/:*?"<>|]/g, '_') + outputFormat.fileExtension,
                 new Blob([output.target.buffer as BlobPart], {
                     type: outputFormat.mimeType
                 }),
