@@ -1127,7 +1127,7 @@ The verse on image component.
             </div>
             <div class="flex flex-row flex-wrap flex-wrap-reverse gap-5">
                 <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
-                <div class="flex flex-row gap-2 justify-center flex-grow">
+                <div class="flex flex-row gap-2 justify-center grow">
                     <div class="flex items-center">
                         <button
                             class="flex items-center text-base bg-gray-300 p-2 text-gray-500"
