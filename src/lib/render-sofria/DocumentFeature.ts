@@ -9,7 +9,7 @@ const documentFeature = new FeatureSpec([
             baseDiv.setAttribute('data-phrase', 'none');
             this.output = baseDiv;
             (this.output as HTMLDivElement).innerText =
-                'Hello from somewhere in DocumentFeature.ts! ||';
+                'Beginning of document in DocumentFeature.ts! ||';
         }
     },
     {
