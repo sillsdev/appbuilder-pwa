@@ -5,6 +5,7 @@ export enum RenderScopeLevel {
     paragraph,
     sequence,
     text,
+    phrase,
     verses,
     chapter,
     metaContent,
@@ -13,7 +14,9 @@ export enum RenderScopeLevel {
     inlineGraft,
     wrapper,
     milestone,
+    table,
     row,
+    cell,
     unsupported
 }
 
