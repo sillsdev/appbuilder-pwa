@@ -32,6 +32,7 @@ import LaunchIcon from './LaunchIcon.svelte';
 import LockOpenIcon from './LockOpenIcon.svelte';
 import MoreVertIcon from './MoreVertIcon.svelte';
 import NoteIcon from './NoteIcon.svelte';
+import RotateIcon from './RotateIcon.svelte';
 import SearchIcon from './SearchIcon.svelte';
 import SettingsIcon from './SettingsIcon.svelte';
 import ShareIcon from './ShareIcon.svelte';
@@ -76,6 +77,7 @@ export {
     LockOpenIcon,
     MoreVertIcon,
     NoteIcon,
+    RotateIcon,
     SearchIcon,
     SettingsIcon,
     ShareIcon,
