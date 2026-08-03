@@ -97,6 +97,8 @@ LOGGING:
 
     const actionsDict: ActionDictionary = $derived.by(() => {
         const result: ActionDictionary = {};
+        // TODO: ensure iteration is sequential across the list
+        // to perform actions for each feature in order specified in render-sofria/common.ts
         for (const f of renderFeatures) {
             if (
                 !f.flag ||
