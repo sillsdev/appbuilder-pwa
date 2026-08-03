@@ -755,13 +755,14 @@ export async function getAudioSourceInfo(
             }
         }
     }
-
+    let isRemoteFile: Boolean = false;
     if (!audioPath) {
         if (audioSource?.type === 'fcbh') {
             const result = await getBibleBrainUrl(audioSource, item, getDamId);
             if (result.error) {
                 throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
             }
+            isRemoteFile = true;
 
             audioPath = result.path || null;
         } else if (audioSource?.type === 'assets') {
@@ -771,6 +772,7 @@ export async function getAudioSourceInfo(
             }
             audioPath = audioSources[audioKey];
         } else if (audioSource?.type === 'download') {
+            isRemoteFile = true;
             audioPath = pathJoin([audioSource.address, audio.filename]);
         }
     }
@@ -813,7 +815,8 @@ export async function getAudioSourceInfo(
     return audioPath
         ? {
               source: audioPath,
-              timing: timing.length > 0 ? timing : null
+              timing: timing.length > 0 ? timing : null,
+              isRemoteFile
           }
         : undefined;
 }

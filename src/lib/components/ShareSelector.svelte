@@ -9,6 +9,7 @@ A component providing a dropdown where you can choose to download audio or video
     import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareAudio, shareText } from '$lib/data/share';
     import {
+        appOnline,
         convertStyle,
         getPositioningCSS,
         modal,
@@ -73,6 +74,10 @@ A component providing a dropdown where you can choose to download audio or video
             });
             if (!audioSourceInfo?.source) {
                 throw new Error('No audio source available for this chapter');
+            }
+            if (audioSourceInfo?.isRemoteFile && !$appOnline) {
+                modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
+                return;
             }
 
             const audioSource = new AudioBufferSource(audioConfig);
