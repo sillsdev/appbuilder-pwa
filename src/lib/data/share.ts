@@ -28,15 +28,7 @@ export async function shareText(
     }
 
     // if we're here, we failed to share, so we'll try to use the download link
-    const shareFile = createShareFile(title + '\n\n' + text, filename);
-    const url = URL.createObjectURL(shareFile);
-
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = filename;
-    anchor.click();
-
-    URL.revokeObjectURL(url);
+    downloadObject(createShareFile(title + '\n\n' + text, filename));
 }
 
 export async function shareImage(title: string, text: string, filename: string, image: Blob) {
@@ -53,11 +45,41 @@ export async function shareImage(title: string, text: string, filename: string, 
     }
 
     // if we're here, we failed to share, so we'll try to use the download link
+    downloadObject(file);
+}
+
+export async function shareAudio(
+    title: string,
+    text: string,
+    filename: string,
+    audio: Blob,
+    type: string
+) {
+    const file = new File([audio], filename, { type });
+    try {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            const shareData: ShareData = { title, text, files: [file] };
+
+            await navigator.share(shareData);
+            return;
+        }
+    } catch (error) {
+        if ((error as { name?: string })?.name === 'AbortError') {
+            return; // user intentionally dismissed native share UI
+        }
+        console.error('Error sharing: ', error);
+    }
+
+    // if we're here, we failed to share, so we'll try to use the download link
+    downloadObject(file);
+}
+
+function downloadObject(file: File) {
     const url = URL.createObjectURL(file);
 
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = filename;
+    anchor.download = file.name;
     anchor.click();
 
     URL.revokeObjectURL(url);

@@ -5,13 +5,14 @@
     import '$lib/styles/app.css';
     import { dev } from '$app/environment';
     import config from '$assets/config';
+    import AudioAlertModal from '$lib/components/AudioAlertModal.svelte';
     import AudioDownloadModal from '$lib/components/AudioDownloadModal.svelte';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
-    import NoConnectionModal from '$lib/components/NoConnectionModal.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
     import PlanStopDialog from '$lib/components/PlanStopDialog.svelte';
+    import ShareSelector from '$lib/components/ShareSelector.svelte';
     import Sidebar from '$lib/components/Sidebar.svelte';
     import TextAppearanceSelector from '$lib/components/TextAppearanceSelector.svelte';
     import catalog from '$lib/data/catalogData';
@@ -89,6 +90,9 @@
                     case ModalType.Font:
                         fontSelector?.showModal();
                         break;
+                    case ModalType.Share:
+                        shareSelector?.showModal(data as boolean);
+                        break;
                     case ModalType.StopPlan:
                         planStopId = data as string;
                         planStopDialog?.showModal();
@@ -106,8 +110,8 @@
                     case ModalType.PlaybackSpeed:
                         audioPlaybackSpeed?.showModal();
                         break;
-                    case ModalType.NoConnection:
-                        noConnectionModal?.showModal();
+                    case ModalType.AudioAlert:
+                        audioAlertModal?.showModal(data as string);
                         break;
                     case ModalType.Collection:
                         collectionModal?.showModal(
@@ -132,11 +136,12 @@
 
     let textAppearanceSelector: TextAppearanceSelector | undefined = $state();
     let fontSelector: FontSelector | undefined = $state();
+    let shareSelector: ShareSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
     let collectionModal: CollectionModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let audioDownloadModal: AudioDownloadModal | undefined = $state();
-    let noConnectionModal: NoConnectionModal | undefined = $state();
+    let audioAlertModal: AudioAlertModal | undefined = $state();
     let planStopId: string = $state('');
     let audioPlaybackSpeed: AudioPlaybackSpeed | undefined = $state();
 </script>
@@ -183,15 +188,12 @@
                     vertOffset={NAVBAR_HEIGHT}
                 />
                 <CollectionModal bind:this={collectionModal} />
-                <PlanStopDialog
-                    bind:this={planStopDialog}
-                    bind:planId={planStopId}
-                    vertOffset={NAVBAR_HEIGHT}
-                />
+                <PlanStopDialog bind:this={planStopDialog} bind:planId={planStopId} />
                 <AudioDownloadModal bind:this={audioDownloadModal} />
-                <NoConnectionModal bind:this={noConnectionModal} />
+                <AudioAlertModal bind:this={audioAlertModal} />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
+                <ShareSelector bind:this={shareSelector} />
             </div>
             {@render children()}
         </div>

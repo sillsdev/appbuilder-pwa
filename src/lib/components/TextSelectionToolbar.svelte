@@ -2,25 +2,17 @@
 @component
 Taken from modifying a copy of the AudioBar.svelte file
 Enables users to copy, highlight, bookmark, share, and annotate selected verses.
-TODO:
-- Implement functionality for
- -> Share
- -> Play
- -> Play Repeat
- -> Verse On Image
-- Add note dialog
-- Add highlight colors
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
-    import { getBook, logShareContent } from '$lib/data/analytics';
     import { playVerses } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
-    import { shareText } from '$lib/data/share';
     import {
         audioActive,
+        modal,
+        ModalType,
         refs,
         s,
         selectedVerses,
@@ -137,21 +129,11 @@ TODO:
     }
 
     async function shareSelectedText() {
-        const book = $selectedVerses[0].book;
-        const reference = selectedVerses.getCompositeReference();
-        const text = await selectedVerses.getCompositeText();
-        const bookCol = $selectedVerses[0].collection;
-        const fullBook = getBook({ collection: bookCol, book: book });
-        const bookAbbrev = fullBook?.abbreviation ?? fullBook?.name;
-        const copyShareMessage = scriptureConfig.bookCollections?.find(
-            (x) => x.id === bookCol
-        )?.copyShareMessage;
-        shareText(
-            scriptureConfig.name ?? '',
-            text + '\n' + reference + (copyShareMessage ? '\n' + copyShareMessage : ''),
-            book + '.txt'
-        );
-        logShareContent('Text', bookCol, bookAbbrev ?? '', reference);
+        if ($refs.hasAudio?.timingFile) {
+            modal.open(ModalType.Share);
+        } else {
+            modal.open(ModalType.Share, true); //Just share the text rather than giving the user a choice about how to share it
+        }
     }
 
     const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);

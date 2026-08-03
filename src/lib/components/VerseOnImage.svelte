@@ -647,7 +647,7 @@ The verse on image component.
             downloadProgress = 0;
             await audioCtx?.close();
         }
-    } //Most of this is AI-generated, so serious testing is needed. I've done a lot of testing, but it would be good to make sure there aren't subtle problems with this code.
+    }
 
     // EditorTabs centering feature:
 
