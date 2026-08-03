@@ -33,10 +33,6 @@ const httpsPreferredOrigins = new Set<string>();
  * response itself and never rewrites https:// URLs or URLs whose origin is
  * already known to work over plain http.
  */
-export function resetProtocolPreferences(): void {
-    httpsPreferredOrigins.clear();
-}
-
 export async function fetchWithProtocolFallback(url: string, init: RequestInit): Promise<Response> {
     let parsed: URL;
     try {
@@ -63,6 +59,10 @@ export async function fetchWithProtocolFallback(url: string, init: RequestInit):
         httpsPreferredOrigins.add(parsed.origin);
         return response;
     }
+}
+
+export function resetProtocolPreferences(): void {
+    httpsPreferredOrigins.clear();
 }
 
 let audioDB: Awaited<ReturnType<typeof openDB<AudioClips>>> | null = null;
