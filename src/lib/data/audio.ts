@@ -22,9 +22,9 @@ import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
-import { findAudioClip } from './audioclipsDB';
+import { findAudioFile } from './audioFilesDB';
 
-export const audioClipUrls = new MRUCache<string, string>(10, (item, key) => {
+export const audioFileUrls = new MRUCache<string, string>(10, (item, key) => {
     URL.revokeObjectURL(item);
     cache.delete(key);
 });
@@ -739,19 +739,19 @@ export async function getAudioSourceInfo(
     let audioPath: string | null = null;
 
     if (audioSource?.accessMethods?.includes('download')) {
-        const clipKey = `${item.collection}-${item.book}-${item.chapter}`;
-        audioPath = audioClipUrls.get(clipKey);
+        const fileKey = `${item.collection}-${item.book}-${item.chapter}`;
+        audioPath = audioFileUrls.get(fileKey);
         if (!audioPath) {
-            const foundAudioClip = await findAudioClip({
+            const foundAudioFile = await findAudioFile({
                 collection: item.collection || '',
                 book: item.book || '',
                 chapter: item.chapter || ''
             }); //If the audio has been downloaded already, use that.
-            if (foundAudioClip) {
-                if (!audioClipUrls.get(clipKey)) {
-                    audioClipUrls.put(clipKey, URL.createObjectURL(foundAudioClip.blob));
+            if (foundAudioFile) {
+                if (!audioFileUrls.get(fileKey)) {
+                    audioFileUrls.put(fileKey, URL.createObjectURL(foundAudioFile.blob));
                 }
-                audioPath = audioClipUrls.get(clipKey)!;
+                audioPath = audioFileUrls.get(fileKey)!;
             }
         }
     }
@@ -900,13 +900,13 @@ export async function checkAudioAvailability() {
             (!audioSource?.accessMethods?.includes('stream') &&
                 audioSource?.accessMethods?.includes('download'))
         ) {
-            const foundAudioClip = await findAudioClip({
+            const foundAudioFile = await findAudioFile({
                 collection: curRefs.collection || '',
                 book: curRefs.book || '',
                 chapter: curRefs.chapter || ''
             });
             curRefs = get(refs);
-            if (!foundAudioClip) {
+            if (!foundAudioFile) {
                 let audioPath = '';
                 if (audioSource?.type === 'download') {
                     audioPath = pathJoin([audioSource.address, audio.filename]);

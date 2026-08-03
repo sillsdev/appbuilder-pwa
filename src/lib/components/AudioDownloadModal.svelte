@@ -5,7 +5,7 @@ Audio Download Modal Dialog component.
 
 <script lang="ts">
     import { updateAudioPlayer } from '$lib/data/audio';
-    import { addAudioClip } from '$lib/data/audioclipsDB';
+    import { addAudioFile } from '$lib/data/audioFilesDB';
     import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import { tick } from 'svelte';
@@ -28,7 +28,7 @@ Audio Download Modal Dialog component.
             }
             downloadProgress = 1;
             abortController = new AbortController();
-            let addedAudioClip = await addAudioClip(
+            let addedAudioFile = await addAudioFile(
                 {
                     docSet: $refs.docSet,
                     collection: $refs.collection,
@@ -43,19 +43,19 @@ Audio Download Modal Dialog component.
             );
             downloadProgress = 0;
 
-            if (!addedAudioClip) {
+            if (!addedAudioFile) {
                 return false;
             }
             updateAudioPlayer($refs, { autoplay: true });
-            return addedAudioClip;
+            return addedAudioFile;
         } catch (err) {
             console.error('Error downloading audio: ', err);
             return false;
         }
     }
     async function finishModal() {
-        const addedAudioClip = await downloadAudio(audioUrl);
-        if (!addedAudioClip && !abortController?.signal.aborted) {
+        const addedAudioFile = await downloadAudio(audioUrl);
+        if (!addedAudioFile && !abortController?.signal.aborted) {
             modal?.close();
             alert.open(ModalType.AudioAlert, 'Audio_Download_Error');
             return false;
