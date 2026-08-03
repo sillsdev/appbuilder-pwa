@@ -47,6 +47,10 @@ const AUDIO_SEEK_THRESHOLD = 2.0;
 
 const cache = new MRUCache<string, AudioPlayer>(10);
 let currentAudioPlayer: AudioPlayer | undefined = undefined;
+// tracks which audio player should start playing automatically once it
+// finishes loading (e.g. after a download completes), so a stale request
+// can't trigger playback of whatever chapter is current by the time it loads
+let autoplayTarget: AudioPlayer | undefined = undefined;
 audioPlayerStore.subscribe(async (value: AudioPlayer) => {
     currentAudioPlayer = value;
     await getAudio();
@@ -60,7 +64,10 @@ function cacheKey(collection: string, book: string, chapter: string) {
     return `${collection}-${book}-${chapter}`;
 }
 // builds a collection of audio players which can be switched between
-export function updateAudioPlayer(item: { collection: string; book: string; chapter: string }) {
+export function updateAudioPlayer(
+    item: { collection: string; book: string; chapter: string },
+    options?: { autoplay?: boolean }
+) {
     const key = cacheKey(item.collection, item.book, item.chapter);
     let audioPlayer = cache.get(key);
     if (!audioPlayer) {
@@ -83,6 +90,13 @@ export function updateAudioPlayer(item: { collection: string; book: string; chap
         }
     }
     audioPlayerStore.set(audioPlayer);
+    if (options?.autoplay) {
+        if (audioPlayer.loaded) {
+            play();
+        } else {
+            autoplayTarget = audioPlayer;
+        }
+    }
 }
 // some browsers don't support all sources (e.g. Mobile Safari doesn't support webm)
 function createAudio(audioSource: string): HTMLAudioElement {
@@ -145,6 +159,10 @@ async function getAudio() {
         currentAudioPlayer!.audio = a;
         audioPlayerStore.set(currentAudioPlayer!);
         updateTime();
+        if (autoplayTarget === currentAudioPlayer) {
+            autoplayTarget = undefined;
+            play();
+        }
     };
 }
 
