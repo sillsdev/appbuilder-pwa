@@ -885,7 +885,8 @@ export async function checkAudioAvailability() {
         const audioSource = scriptureConfig.audio?.sources[audio.src];
         if (
             get(userSettings)['audio-access-method'] === 'download' ||
-            !audioSource?.accessMethods?.includes('stream')
+            (!audioSource?.accessMethods?.includes('stream') &&
+                audioSource?.accessMethods?.includes('download'))
         ) {
             const foundAudioClip = await findAudioClip({
                 collection: curRefs.collection || '',
