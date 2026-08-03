@@ -916,6 +916,7 @@ export async function checkAudioAvailability() {
                 } else if (audioSource?.type === 'fcbh') {
                     if (!get(appOnline)) {
                         modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
+                        return false;
                     } else {
                         const result = await getBibleBrainUrl(
                             audioSource,
