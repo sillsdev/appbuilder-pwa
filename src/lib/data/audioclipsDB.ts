@@ -37,10 +37,7 @@ export function resetProtocolPreferences(): void {
     httpsPreferredOrigins.clear();
 }
 
-export async function fetchWithProtocolFallback(
-    url: string,
-    init: RequestInit
-): Promise<Response> {
+export async function fetchWithProtocolFallback(url: string, init: RequestInit): Promise<Response> {
     let parsed: URL;
     try {
         parsed = new URL(url);

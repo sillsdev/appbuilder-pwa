@@ -38,10 +38,7 @@ describe('fetchWithProtocolFallback', () => {
         // Subsequent request to the same origin should go straight to HTTPS.
         const secondHttpsResponse = new Response('ok');
         (fetch as any).mockResolvedValueOnce(secondHttpsResponse);
-        const secondResponse = await fetchWithProtocolFallback(
-            'http://example.com/other.mp3',
-            {}
-        );
+        const secondResponse = await fetchWithProtocolFallback('http://example.com/other.mp3', {});
 
         expect(secondResponse).toBe(secondHttpsResponse);
         expect(fetch).toHaveBeenCalledTimes(3);
@@ -65,9 +62,9 @@ describe('fetchWithProtocolFallback', () => {
             .mockRejectedValueOnce(new TypeError('Failed to fetch'))
             .mockRejectedValueOnce(httpsError);
 
-        await expect(
-            fetchWithProtocolFallback('http://example.com/audio.mp3', {})
-        ).rejects.toBe(httpsError);
+        await expect(fetchWithProtocolFallback('http://example.com/audio.mp3', {})).rejects.toBe(
+            httpsError
+        );
         expect(fetch).toHaveBeenCalledTimes(2);
     });
 
@@ -92,10 +89,7 @@ describe('fetchWithProtocolFallback', () => {
         // origin-a should still be requested directly over HTTP afterwards.
         const secondHttpResponseA = new Response('ok');
         (fetch as any).mockResolvedValueOnce(secondHttpResponseA);
-        const responseA2 = await fetchWithProtocolFallback(
-            'http://origin-a.example/other.mp3',
-            {}
-        );
+        const responseA2 = await fetchWithProtocolFallback('http://origin-a.example/other.mp3', {});
         expect(responseA2).toBe(secondHttpResponseA);
         expect(fetch).toHaveBeenLastCalledWith('http://origin-a.example/other.mp3', {});
     });
