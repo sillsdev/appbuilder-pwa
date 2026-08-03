@@ -12,8 +12,18 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
     // Create a new cache and add all files to it
     async function addFilesToCache() {
+        console.log('[SW] Installing...');
         const cache = await caches.open(CACHE);
-        await cache.addAll(ASSETS);
+        // Cache each URL individually so one failure doesn't abort SW install
+        await Promise.all(
+            ASSETS.map((url) =>
+                cache.add(url).catch((err) => {
+                    console.warn('[SW] Could not cache:', url, err);
+                })
+            )
+        );
+        // Activate immediately rather than waiting for old SW to be replaced
+        self.skipWaiting();
     }
 
     event.waitUntil(addFilesToCache());
@@ -22,6 +32,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
     // Remove previous cached data from disk
     async function deleteOldCaches() {
+        console.log('[SW] Activating...');
         const cachePath = CACHE.split(';')[2];
         for (const key of await caches.keys()) {
             const keyPath = key.split(';')[2];
@@ -29,9 +40,12 @@ self.addEventListener('activate', (event) => {
              * we want to delete the cache if it is missing the path (backwards-compatible), or if its path is the same as the current app (the fix)
              */
             if (key !== CACHE && (!keyPath || keyPath === cachePath)) {
+                console.log(`[SW] Deleting old cache: ${key}`);
                 await caches.delete(key);
             }
         }
+        // Take control of all pages in scope immediately
+        await self.clients.claim();
     }
 
     event.waitUntil(deleteOldCaches());
@@ -47,9 +61,11 @@ self.addEventListener('fetch', (event) => {
         const url = new URL(event.request.url);
         const cache = await caches.open(CACHE);
 
-        // `build`/`files` can always be served from the cache
-        if (ASSETS.includes(url.pathname)) {
-            return cache.match(event.request);
+        const cachedResponse = cache.match(event.request);
+
+        // `build`/`files` can always be served from the cache (unless items are evicted under cache pressure...)
+        if (cachedResponse && ASSETS.includes(url.pathname)) {
+            return cachedResponse;
         }
 
         let online = true;
@@ -66,7 +82,7 @@ self.addEventListener('fetch', (event) => {
             return response;
         } catch {
             online = false;
-            return cache.match(event.request);
+            return cachedResponse;
         } finally {
             const client = await self.clients.get(event.clientId);
             client?.postMessage({ online });
