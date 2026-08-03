@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { fetchWithProtocolFallback, resetProtocolPreferences } from './audioclipsDB';
+import { fetchWithProtocolFallback, resetProtocolPreferences } from './audioFilesDB';
 
 describe('fetchWithProtocolFallback', () => {
     beforeEach(() => {
