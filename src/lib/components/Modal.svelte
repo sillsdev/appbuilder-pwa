@@ -28,6 +28,10 @@ See https://daisyui.com/components/modal/#modal-that-closes-when-clicked-outside
     export function showModal() {
         dialog?.showModal();
     }
+
+    export function close() {
+        dialog?.close();
+    }
 </script>
 
 <dialog

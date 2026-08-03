@@ -7,10 +7,13 @@ No Connection Modal Dialog component.
     import { t } from '$lib/data/stores';
     import Modal from './Modal.svelte';
 
-    const modalId = 'noConnectionModal';
+    const modalId = 'audioAlertModal';
     let modal: Modal | undefined = $state(undefined);
 
-    export function showModal() {
+    let messageKey = $state('');
+
+    export function showModal(_messageKey: string) {
+        messageKey = _messageKey;
         modal?.showModal();
     }
 </script>
@@ -20,7 +23,7 @@ No Connection Modal Dialog component.
         <div class="message-body" id="message-body">
             <div class="message-header"></div>
             <div class="message-text">
-                {$t['Audio_Download_Connect']}
+                {$t[messageKey]}
             </div>
         </div>
 

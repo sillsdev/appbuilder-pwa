@@ -44,7 +44,7 @@ export const ModalType = {
     Download: 'download',
     Collection: 'collection',
     DownloadAudio: 'download-audio',
-    NoConnection: 'no-connection',
+    AudioAlert: 'audio-alert',
     Share: 'share'
 } as const;
 export type ModalType = (typeof ModalType)[keyof typeof ModalType];

@@ -889,7 +889,7 @@ export async function checkAudioAvailability() {
                 audioPath = pathJoin([audioSource.address, audio.filename]);
             } else if (audioSource?.type === 'fcbh') {
                 if (!get(appOnline)) {
-                    modal.open(ModalType.NoConnection);
+                    modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
                 } else {
                     const result = await getBibleBrainUrl(
                         audioSource,
@@ -910,7 +910,7 @@ export async function checkAudioAvailability() {
             }
             if (audioSource?.accessMethods?.includes('download')) {
                 if (!get(appOnline)) {
-                    modal.open(ModalType.NoConnection);
+                    modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
                 } else {
                     if (get(userSettings)['audio-auto-download'] === 'auto') {
                         modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal

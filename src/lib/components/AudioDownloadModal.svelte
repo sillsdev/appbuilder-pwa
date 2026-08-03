@@ -6,7 +6,7 @@ Audio Download Modal Dialog component.
 <script lang="ts">
     import { updateAudioPlayer } from '$lib/data/audio';
     import { addAudioClip } from '$lib/data/audioclipsDB';
-    import { refs, t, userSettings } from '$lib/data/stores';
+    import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import { tick } from 'svelte';
     import Modal from './Modal.svelte';
@@ -56,10 +56,8 @@ Audio Download Modal Dialog component.
     async function finishModal() {
         const addedAudioClip = await downloadAudio(audioUrl);
         if (!addedAudioClip && !abortController?.signal.aborted) {
-            error = 'Audio clip could not be downloaded';
-            setTimeout(() => {
-                error = '';
-            }, 2000);
+            modal?.close();
+            alert.open(ModalType.AudioAlert, 'Audio_Download_Error');
             return false;
         }
     }
@@ -117,15 +115,6 @@ Audio Download Modal Dialog component.
         </div>
     </div>
 </Modal>
-{#if error}
-    <div class="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-        <div
-            class="dy-modal-box overflow-y-visible relative opacity-100 text-red-500 text-center pointer-events-auto"
-        >
-            {error}
-        </div>
-    </div>
-{/if}
 {#if downloadProgress > 0}
     <div class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
         <div class="message" id="container">

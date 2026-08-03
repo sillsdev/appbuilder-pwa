@@ -8,7 +8,16 @@ A component providing a dropdown where you can choose to download audio or video
     import { getBook, logShareContent } from '$lib/data/analytics';
     import { getAudioSourceInfo } from '$lib/data/audio';
     import { shareAudio, shareText } from '$lib/data/share';
-    import { convertStyle, getPositioningCSS, refs, s, selectedVerses, t } from '$lib/data/stores';
+    import {
+        convertStyle,
+        getPositioningCSS,
+        modal,
+        ModalType,
+        refs,
+        s,
+        selectedVerses,
+        t
+    } from '$lib/data/stores';
     import { AudioIcon } from '$lib/icons';
     import FormatAlignLeftIcon from '$lib/icons/image/FormatAlignLeftIcon.svelte';
     import {
@@ -122,6 +131,7 @@ A component providing a dropdown where you can choose to download audio or video
                 outputFormat.mimeType
             );
         } catch (error) {
+            modal.open(ModalType.AudioAlert, 'Audio_Download_Error');
             console.error('Error generating audio export:', error);
         } finally {
             await audioCtx?.close();
