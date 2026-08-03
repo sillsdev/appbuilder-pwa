@@ -15,10 +15,11 @@ Audio Download Modal Dialog component.
     let modal: Modal | undefined = $state(undefined);
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
-    let error = $state('');
+    let afterDownload: (() => void) | undefined;
 
-    export function showModal(url: string) {
+    export function showModal(url: string, options?: { afterDownload?: () => void }) {
         audioUrl = url;
+        afterDownload = options?.afterDownload;
         modal?.showModal();
     }
     export async function downloadAudio(url: string) {
@@ -47,6 +48,9 @@ Audio Download Modal Dialog component.
                 return false;
             }
             updateAudioPlayer($refs, { autoplay: true });
+            if (afterDownload) {
+                afterDownload();
+            }
             return addedAudioFile;
         } catch (err) {
             console.error('Error downloading audio: ', err);

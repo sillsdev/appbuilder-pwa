@@ -99,11 +99,20 @@
                         break;
                     case ModalType.DownloadAudio:
                         {
-                            const audioModalData = data as { audioPath: string; show: boolean };
+                            const audioModalData = data as {
+                                audioPath: string;
+                                show: boolean;
+                                afterDownload?: () => void;
+                            };
                             if (audioModalData.show) {
-                                audioDownloadModal?.showModal(audioModalData.audioPath);
+                                audioDownloadModal?.showModal(audioModalData.audioPath, {
+                                    afterDownload: audioModalData.afterDownload
+                                });
                             } else {
                                 audioDownloadModal?.downloadAudio(audioModalData.audioPath);
+                                if (audioModalData.afterDownload) {
+                                    audioModalData.afterDownload();
+                                }
                             }
                         }
                         break;

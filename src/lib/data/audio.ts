@@ -66,7 +66,7 @@ function cacheKey(collection: string, book: string, chapter: string) {
 // builds a collection of audio players which can be switched between
 export function updateAudioPlayer(
     item: { collection: string; book: string; chapter: string },
-    options?: { autoplay?: boolean }
+    options?: { autoplay?: boolean; autoplaySelectedVerses?: boolean }
 ) {
     const key = cacheKey(item.collection, item.book, item.chapter);
     let audioPlayer = cache.get(key);
@@ -92,7 +92,11 @@ export function updateAudioPlayer(
     audioPlayerStore.set(audioPlayer);
     if (options?.autoplay) {
         if (audioPlayer.loaded) {
-            play();
+            if (options?.autoplaySelectedVerses) {
+                playSelectedVerseAudio({ repeat: false });
+            } else {
+                play();
+            }
         } else {
             autoplayTarget = audioPlayer;
         }
@@ -755,7 +759,7 @@ export async function getAudioSourceInfo(
             }
         }
     }
-    let isRemoteFile: Boolean = false;
+    let isRemoteFile: boolean = false;
     if (!audioPath) {
         if (audioSource?.type === 'fcbh') {
             const result = await getBibleBrainUrl(audioSource, item, getDamId);
@@ -890,7 +894,7 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
     return { start, end } as PlayModeRange;
 }
 
-export async function checkAudioAvailability() {
+export async function checkAudioAvailability(options?: { afterDownload?: () => void }) {
     let curRefs = get(refs);
     const audio = scriptureConfig.bookCollections
         ?.find((c) => curRefs.collection === c.id)
@@ -940,9 +944,17 @@ export async function checkAudioAvailability() {
                         modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
                     } else {
                         if (get(userSettings)['audio-auto-download'] === 'auto') {
-                            modal.open(ModalType.DownloadAudio, { audioPath, show: false }); //Just download it without showing the modal
+                            modal.open(ModalType.DownloadAudio, {
+                                audioPath,
+                                show: false,
+                                afterDownload: options?.afterDownload
+                            }); //Just download it without showing the modal
                         } else {
-                            modal.open(ModalType.DownloadAudio, { audioPath, show: true });
+                            modal.open(ModalType.DownloadAudio, {
+                                audioPath,
+                                show: true,
+                                afterDownload: options?.afterDownload
+                            });
                         }
                     }
                     return false;
@@ -951,4 +963,7 @@ export async function checkAudioAvailability() {
         }
     }
     return true;
+}
+function playSelectedVerseAudio(arg0: { repeat: boolean }) {
+    throw new Error('Function not implemented.');
 }
