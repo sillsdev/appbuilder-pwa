@@ -19,6 +19,52 @@ interface AudioClips extends DBSchema {
         };
     };
 }
+// Origins that are known to require HTTPS even though the configured URL uses
+// http://. Populated at runtime; kept in memory only (not persisted) so a
+// fresh page load re-checks the environment rather than getting stuck on a
+// stale determination, and so it never blocks a working MicroPi/offline
+// server whose http:// URLs work directly.
+const httpsPreferredOrigins = new Set<string>();
+
+/**
+ * Fetches a URL, transparently retrying over https:// if an http:// request
+ * fails outright (e.g. a http->https redirect whose response lacks the CORS
+ * headers needed for fetch() to follow it). Never inspects the redirect
+ * response itself and never rewrites https:// URLs or URLs whose origin is
+ * already known to work over plain http.
+ */
+export async function fetchWithProtocolFallback(url: string, init: RequestInit): Promise<Response> {
+    let parsed: URL;
+    try {
+        parsed = new URL(url);
+    } catch {
+        return fetch(url, init);
+    }
+    if (parsed.protocol !== 'http:') {
+        return fetch(url, init);
+    }
+    if (httpsPreferredOrigins.has(parsed.origin)) {
+        parsed.protocol = 'https:';
+        return fetch(parsed.toString(), init);
+    }
+    try {
+        return await fetch(url, init);
+    } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+            throw error;
+        }
+        const httpsUrl = new URL(url);
+        httpsUrl.protocol = 'https:';
+        const response = await fetch(httpsUrl.toString(), init);
+        httpsPreferredOrigins.add(parsed.origin);
+        return response;
+    }
+}
+
+export function resetProtocolPreferences(): void {
+    httpsPreferredOrigins.clear();
+}
+
 let audioDB: Awaited<ReturnType<typeof openDB<AudioClips>>> | null = null;
 async function openAudioClips() {
     if (!audioDB) {
@@ -50,7 +96,7 @@ export async function addAudioClip(
     onProgress?: (percent: number) => void
 ) {
     try {
-        const response = await fetch(url, { signal: abortController.signal });
+        const response = await fetchWithProtocolFallback(url, { signal: abortController.signal });
         if (!response.ok) {
             return false;
         }
