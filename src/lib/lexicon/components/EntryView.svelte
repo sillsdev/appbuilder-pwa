@@ -1,6 +1,12 @@
 <script lang="ts">
-    import config, { dictionaryConfig } from '$assets/config';
-    import { bodyFontSize, convertStyle, currentFont, themeColors } from '$lib/data/stores';
+    /* eslint-disable svelte/no-at-html-tags */
+    import { dictionaryConfig } from '$assets/config';
+    import {
+        bodyFontSize,
+        convertStyle,
+        currentFont,
+        themeColors
+    } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
@@ -274,7 +280,6 @@
 
     $effect(() => {
         if (_wordIDs.length && $themeColors) {
-            console.log($themeColors);
             (async () => {
                 await updateXmlData();
                 applyStyles();
@@ -286,12 +291,10 @@
 
 <pre
     class="p-4 whitespace-pre-wrap wrap-break-word"
-    style="background-color: {$themeColors[
-        'BackgroundColor'
-    ]}; font-size: {$bodyFontSize}px; font-family: {$currentFont};">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html xmlData}
-</pre>
+    style:background-color={$themeColors['BackgroundColor']}
+    style:font-size="{$bodyFontSize}px"
+    style:font-family={$currentFont}>{@html xmlData}</pre>
+<!-- It is of utmost importance that this @html call be sandwiched between the tags. If this is undone by prettier, please look into ignoring prettier for the above line, WITHOUT including a comment inside the pre block. pre is VERY sensitive to "whitespace", which includes comments. -Aidan -->
 
 <style>
     pre :global(button.audio-link) {
