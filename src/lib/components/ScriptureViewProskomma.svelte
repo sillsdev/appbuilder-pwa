@@ -44,7 +44,7 @@ LOGGING:
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { type GlossaryQueryResult } from '$lib/data/stores';
+    import { logs, userSettings, type GlossaryQueryResult } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import { renderFeatures } from '$lib/render-sofria';
@@ -131,6 +131,29 @@ LOGGING:
         scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
             ?.textDirection || 'ltr'
     );
+    const scriptureLogs = $derived.by(() =>
+        $userSettings['scripture-logs']
+            ? {
+                  root: 1,
+                  docResult: 1,
+                  document: 1,
+                  paragraph: 1,
+                  phrase: 1,
+                  chapter: 1,
+                  verses: 1,
+                  text: 1,
+                  sequence: 1,
+                  wrapper: 1,
+                  milestone: 1,
+                  blockGraft: 1,
+                  inlineGraft: 1,
+                  mark: 1,
+                  meta: 1,
+                  row: 1,
+                  placement: 1
+              }
+            : $logs['scripture']
+    );
 
     const output: { root?: HTMLDivElement } = {};
     let container: HTMLElement | undefined = $state();
@@ -170,14 +193,14 @@ LOGGING:
         const eventDetails = new RenderEventDescriptor(eventName);
 
         if (eventDetails.position === RenderEventPosition.scopeStart) {
-            openScopes.unshift(new RenderScope(document, eventDetails.level));
+            openScopes.push(new RenderScope(document, eventDetails.level));
         }
 
         if (actionsDict[eventName]) {
             for (const a of actionsDict[eventName]) {
                 console.log('Processing action %o for event %s', a, eventName);
                 a.action(environment);
-                if (a.output) {
+                if (a.output && openScopes.length > 0) {
                     openScopes[0].contentRoot?.appendChild(a.output);
                 }
             }
@@ -185,7 +208,7 @@ LOGGING:
 
         if (eventDetails.position === RenderEventPosition.scopeEnd) {
             // TODO: check for errors when stack is already empty
-            const topScope = openScopes.shift();
+            const topScope = openScopes.pop();
             if (topScope?.contentRoot) {
                 if (openScopes.length > 0) {
                     openScopes[0].contentRoot?.appendChild(topScope.contentRoot);
@@ -204,13 +227,20 @@ LOGGING:
                     description: `Handling ${name}`,
                     test: () => true,
                     action: (environment: RenderEnvironment) => {
-                        // TODO: de-duplicate next line
-                        environment.workspace.document = environment.workspace.document ?? document;
                         handleSofriaRenderEvent(environment, name);
                     }
                 }
             ];
         }
+        actionObject['startDocument']?.unshift({
+            description: `Initialize render workspace globals`,
+            test: () => true,
+            action: ({ workspace }: RenderEnvironment) => {
+                workspace.document = document;
+                workspace.scopes = openScopes;
+                workspace.logSettings = scriptureLogs;
+            }
+        });
 
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         const docId = await getCurrentDocumentID();
