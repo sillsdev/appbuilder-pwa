@@ -28,19 +28,23 @@ A component for verse-on-image providing a dropdown where you can choose to down
 >
     <div class="grid gap-2 m-2">
         <button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2 border-none text-gray-700"
-            style="background-color:{$themeColors['PopupBackgroundColor']};"
+            class="dy-btn dy-btn-sm flex border-none"
             onclick={() => downloadImage()}
+            style="background-color:{$themeColors['PopupBackgroundColor']}; color:{$themeColors[
+                'TextColor'
+            ]}"
         >
-            <ImageIcon.Image />
+            <ImageIcon.Image color={$themeColors['TextColor']} />
             {$t['Text_On_Image_Save_Image']}
         </button>
         <button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2 border-none text-gray-700"
-            style="background-color:{$themeColors['PopupBackgroundColor']};"
+            class="dy-btn dy-btn-sm flex border-none"
+            style="background-color:{$themeColors['PopupBackgroundColor']}; color:{$themeColors[
+                'TextColor'
+            ]}"
             onclick={() => downloadVideo()}
         >
-            <VideoIcon />
+            <VideoIcon color={$themeColors['TextColor']} />
             {$t['Text_On_Image_Save_Video']}
         </button>
     </div>
