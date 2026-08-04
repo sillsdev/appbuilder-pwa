@@ -178,7 +178,14 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                 {#if isRepeatableAudio && $refs.hasAudio?.timingFile}
                     <button
                         class="dy-btn dy-btn-sm dy-btn-ghost"
-                        onclick={() => playSelectedVerseAudio({ repeat: true })}
+                        onclick={() =>
+                            checkAudioAvailability({
+                                afterDownload: () => playSelectedVerseAudio({ repeat: true })
+                            }).then((audioAvailable) => {
+                                if (audioAvailable) {
+                                    playSelectedVerseAudio({ repeat: true });
+                                }
+                            })}
                     >
                         <AudioIcon.PlayRepeat color={iconColor} />
                     </button>
