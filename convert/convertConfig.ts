@@ -496,6 +496,7 @@ export function parseColorThemes(document: Document, verbose: number) {
     const themes: { name: string; enabled: boolean; colorSets: any[] }[] = [];
     let defaultTheme = '';
     let defaultColors: { [key: string]: string } = {};
+    let replacedMissingColor = false;
 
     for (const tag of colorThemeTags) {
         const theme = tag.attributes.getNamedItem('name')!.value;
@@ -531,6 +532,7 @@ export function parseColorThemes(document: Document, verbose: number) {
                                 `⚠️ no value for "${name}" in "${theme}" theme, using "Normal" theme value "${normalValue}" instead.`
                             );
 
+                            replacedMissingColor = true;
                             colors[name] = normalValue;
                         } else {
                             const colorMissingError = new Error(
@@ -586,6 +588,14 @@ export function parseColorThemes(document: Document, verbose: number) {
             defaultColors =
                 themes[themes.length - 1].colorSets.find((c) => c.type === 'main')?.colors || {};
         }
+    }
+
+    if (replacedMissingColor) {
+        console.log(
+            "⚠️ Some colors were missing in the theme and were replaced with the 'Normal' theme values.\n" +
+                `   It is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.\n` +
+                `   Please select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
+        );
     }
 
     if (verbose) {
