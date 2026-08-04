@@ -87,9 +87,17 @@ The verse on image component.
     let lineHeightPercent = $state(0);
     const lineHeight = $derived(1 + lineHeightPercent / 100);
     let txtPadding = $state('0px');
+    let txtVisibility = $state('');
     let textAlign = $state('center');
     let textboxWidthPercent = $state(84);
-    let textboxWidth = $derived((imageWidth * textboxWidthPercent) / 100);
+    let textboxWidth = $state(0);
+    function updateTextboxWidth(percent: number) {
+        const parentRect = parentDiv.getBoundingClientRect();
+        textboxWidth = Math.min(
+            (imageWidth * percent) / 100,
+            parentRect.width + parentRect.left - textX
+        );
+    }
     let textShadowMode = $state('glow');
     let textShadowValue = $state(15);
     const textShadow = $derived(
@@ -210,6 +218,7 @@ The verse on image component.
                 textX = Math.max(textX + sizeDifference / 2, rect.left);
                 textboxWidth = newWidth;
             }
+            textboxWidthPercent = (textboxWidth * 100) / imageWidth;
 
             const childRect = textbox.getBoundingClientRect();
             textY = Math.min(textY, Math.max(rect.height - childRect.height, rect.top));
@@ -236,6 +245,7 @@ The verse on image component.
         const rect = parentDiv.getBoundingClientRect();
         const maxSizeX = rect.right - textX;
         textboxWidth = Math.min(Math.max(50, newWidth), maxSizeX);
+        textboxWidthPercent = (textboxWidth * 100) / imageWidth;
     }
     function stopResize() {
         resizing = false;
@@ -258,27 +268,43 @@ The verse on image component.
      * 2. increase the percentage by 2% until we get to 90%. (fontSize defined, fontSizeMax = undefined)
      * 3. reset back to the initial text size we figured out in #1 so that we can center the text. (fontsize and fontSizeMax define)
      */
-    function initFontSizesAndCenterText() {
+    function initFontSizesAndCenterText(textArea?: {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+    }) {
         const textOverlay = document.getElementById('verseOnImageTextDiv');
         if (!textOverlay) {
             return;
         }
-        const textDisplay = textOverlay.style.display;
         let fontSize: number;
         let fontSizeMax: number;
-        textOverlay.style.display = 'none'; // hide until done calculating sizes
+        txtVisibility = 'hidden'; // hide until done calculating sizes
 
         const getFontSize = (percent: number, height: number) => {
             const px2pt = (px: number) => (px * 72) / 96;
             return px2pt((percent * height) / 100);
         };
-
         let fontSizePercent = 7;
         textFontSize = getFontSize(fontSizePercent, imageHeight);
+        const parentRect = parentDiv.getBoundingClientRect();
+        const childRect = textbox.getBoundingClientRect();
+        if (textArea) {
+            textX = parentRect.left + parentRect.width * textArea.left;
+            textY = parentRect.top + parentRect.height * textArea.top;
+            textboxWidth = parentRect.width * textArea.width;
+        } else {
+            textboxWidthPercent = 84;
+            updateTextboxWidth(textboxWidthPercent);
+            textX = parentRect.left + (parentRect.width - /*childRect.width*/ textboxWidth) / 2;
+            textY = parentRect.top + (parentRect.height - childRect.height) / 2;
+        }
 
         const adjustFontSize = () => {
+            const maxHeight = textArea?.height || 0.8;
             if (!fontSize) {
-                if (textOverlay.offsetHeight > 0.8 * imageHeight && fontSizePercent > 0.5) {
+                if (textOverlay.offsetHeight > maxHeight * imageHeight && fontSizePercent > 0.5) {
                     fontSizePercent -= 0.5;
                     textFontSize = getFontSize(fontSizePercent, imageHeight);
                 } else {
@@ -298,25 +324,50 @@ The verse on image component.
             } else {
                 const parentRect = parentDiv.getBoundingClientRect();
                 const childRect = textbox.getBoundingClientRect();
-                textX = parentRect.left + (parentRect.width - childRect.width) / 2;
-                textY = parentRect.top + (parentRect.height - childRect.height) / 2;
+                if (textArea) {
+                    textX = parentRect.left + parentRect.width * textArea.left;
+                    textY = parentRect.top + parentRect.height * textArea.top;
+                    textboxWidth = parentRect.width * textArea.width;
+                } else {
+                    textboxWidthPercent = 84;
+                    updateTextboxWidth(textboxWidthPercent);
+                    textX =
+                        parentRect.left + (parentRect.width - /*childRect.width*/ textboxWidth) / 2;
+                    textY = parentRect.top + (parentRect.height - childRect.height) / 2;
+                }
 
                 resizeObserver.unobserve(textOverlay);
-                textOverlay.style.display = textDisplay;
+                txtVisibility = '';
             }
         };
         const resizeObserver = new ResizeObserver(adjustFontSize);
         resizeObserver.observe(textOverlay);
     }
+    function setImageBackground(
+        backgroundImage:
+            | {
+                  width: string;
+                  height: string;
+                  filename: string;
+                  textArea?: { left: number; top: number; width: number; height: number };
+              }
+            | undefined
+    ) {
+        if (backgroundImage) {
+            imgSrc = backgroundURLs[`./${backgroundImage.filename}`];
+            initFontSizesAndCenterText(backgroundImage.textArea);
+        }
+    }
 
     onMount(async () => {
+        updateTextboxWidth(textboxWidthPercent);
         verses = await selectedVerses.getCompositeText();
         if ($voiCustomImage.cropped) {
             imgSrc = $voiCustomImage.cropped;
+            initFontSizesAndCenterText();
         } else {
-            imgSrc = backgroundURLs[`./${scriptureConfig.backgroundImages?.[0].filename}`];
+            setImageBackground(scriptureConfig.backgroundImages?.[0]);
         }
-        initFontSizesAndCenterText();
 
         centerButton(0);
         const parentRect = parentDiv.getBoundingClientRect();
@@ -828,6 +879,7 @@ The verse on image component.
                     border: none;
                     left: {textX}px;
                     top: {textY}px;
+                    visibility: {txtVisibility};
                 "
                 class="select-none"
                 bind:this={textbox}
@@ -972,7 +1024,7 @@ The verse on image component.
                         src={backgroundURLs[`./${imgObj.filename}`]}
                         class="image_selector_pane_box"
                         onclick={() => {
-                            imgSrc = backgroundURLs[`./${imgObj.filename}`];
+                            setImageBackground(imgObj);
                         }}
                     />
                 {/each}
@@ -1104,7 +1156,13 @@ The verse on image component.
                 </div>
                 <div class="grid grid-cols-1" style="width: 100%;">
                     <Slider
-                        bind:value={textboxWidthPercent}
+                        bind:value={
+                            () => textboxWidthPercent,
+                            (t) => {
+                                textboxWidthPercent = t;
+                                updateTextboxWidth(t);
+                            }
+                        }
                         {barColor}
                         {progressColor}
                         min={20}

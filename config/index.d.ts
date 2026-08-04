@@ -300,6 +300,7 @@ export type ScriptureConfig = AppConfig & {
         width: string;
         height: string;
         filename: string;
+        textArea?: { left: number; top: number; width: number; height: number };
     }[];
     watermarkImages?: {
         width: string;

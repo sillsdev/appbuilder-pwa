@@ -1670,7 +1670,21 @@ export function parseBackgroundImages(document: Document, verbose: number) {
             const width = backgroundImage.getAttribute('width')!;
             const height = backgroundImage.getAttribute('height')!;
             const filename = backgroundImage.innerHTML;
-            backgroundImages.push({ width, height, filename });
+            const textAreaString = backgroundImage.getAttribute('text-area');
+            let textArea: { left: number; top: number; width: number; height: number } | undefined =
+                undefined;
+            if (textAreaString) {
+                const textAreaArray = textAreaString.split(' ');
+                if (textAreaArray.length === 4) {
+                    textArea = {
+                        left: Number(textAreaArray[0]),
+                        top: Number(textAreaArray[1]),
+                        width: Number(textAreaArray[2]),
+                        height: Number(textAreaArray[3])
+                    };
+                }
+            }
+            backgroundImages.push({ width, height, filename, textArea });
         }
     }
     if (verbose) {
