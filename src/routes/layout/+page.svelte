@@ -7,11 +7,14 @@
     import TabsMenu from '$lib/components/TabsMenu.svelte';
     import {
         actionBarColor,
+        isFirstLaunch,
         layout,
         Layout,
+        layoutSelected,
         monoIconColor,
         refs,
         selectedLayouts,
+        showCollection,
         t,
         testLayouts
     } from '$lib/data/stores';
@@ -47,6 +50,8 @@
         testLayouts ||
         !!scriptureConfig.layouts?.find((x) => x.mode === Layout.VerseByVerse)?.enabled; //Not yet implemented
 
+    const showingOnFirstLaunch = $isFirstLaunch && showCollection.onFirstLaunch && !$layoutSelected;
+
     // In the native app, if only showing the single pane, then don't show the title.
     // If showing one of the other two, then show the title.
     const showTitle = showSideBySide || showVerseByVerse;
@@ -65,6 +70,7 @@
         const selectedLayout = getSelectedLayout();
         $refs.docSet = selectedLayout.primaryDocSet;
         $layout = selectedLayout;
+        $layoutSelected = true;
         goto(resolve(`/`));
     }
 
@@ -89,7 +95,7 @@
 {/snippet}
 <div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
     <div class="navbar h-16">
-        <Navbar {backNavigation}>
+        <Navbar {backNavigation} showBackButton={!showingOnFirstLaunch}>
             {#snippet center()}
                 <label for="sidebar">
                     <div class="dy-btn dy-btn-ghost normal-case text-xl">
