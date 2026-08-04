@@ -493,7 +493,7 @@ export function parseColorThemes(document: Document, verbose: number) {
         .getElementsByTagName('color-themes')[0]
         .getElementsByTagName('color-theme');
     const colorSetTags = document.getElementsByTagName('colors');
-    const themes = [];
+    const themes: { name: string; enabled: boolean; colorSets: any[] }[] = [];
     let defaultTheme = '';
     let defaultColors: { [key: string]: string } = {};
 
@@ -523,13 +523,24 @@ export function parseColorThemes(document: Document, verbose: number) {
                         }
                         continue;
                     } else if (name && !value) {
-                        const colorMissingError = new Error(
-                            `No color value found for "${name}" in the "${theme}" theme.` +
-                                `\nIt is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.` +
-                                `\nPlease select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
-                        );
-                        colorMissingError.stack = `Error in ${__filename}:parseColorThemes(): ${colorMissingError.message}`;
-                        throw colorMissingError;
+                        // Try to fallback to the Normal theme value if available
+                        const normalCm = color.querySelector(`cm[theme="Normal"]`);
+                        const normalValue = normalCm?.getAttribute('value');
+                        if (normalValue) {
+                            console.log(
+                                `⚠️ no value for "${name}" in "${theme}" theme, using "Normal" theme value "${normalValue}" instead.`
+                            );
+
+                            colors[name] = normalValue;
+                        } else {
+                            const colorMissingError = new Error(
+                                `No color value found for "${name}" in the "${theme}" theme.` +
+                                    `\nIt is possible that the project was last saved with a version of the App Builder that didn't correctly save the color values.` +
+                                    `\nPlease select a different color theme in the App Builder and save the project, then change it back to the desired theme and save the project again.`
+                            );
+                            colorMissingError.stack = `Error in ${__filename}:parseColorThemes(): ${colorMissingError.message}`;
+                            throw colorMissingError;
+                        }
                     }
                     if (verbose >= 3) {
                         console.log(`.. colors[${name}]=${colors[name]}`);
