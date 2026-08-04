@@ -32,14 +32,16 @@
 
     function addSpecialCharacter(char: string, event: MouseEvent) {
         event.preventDefault();
-        const startPos = searchbar.selectionStart;
-        const endPos = searchbar.selectionEnd;
-        phrase = phrase.slice(0, startPos) + char + phrase.slice(endPos);
-        // Update the input value and maintain focus
-        searchbar.focus();
-        requestAnimationFrame(() =>
-            searchbar.setSelectionRange(startPos + char.length, startPos + char.length)
-        );
+        const startPos = searchbar?.selectionStart ?? null;
+        const endPos = searchbar?.selectionEnd ?? null;
+        if (startPos !== null && endPos !== null) {
+            phrase = phrase.slice(0, startPos) + char + phrase.slice(endPos);
+            // Update the input value and maintain focus
+            searchbar?.focus();
+            requestAnimationFrame(() =>
+                searchbar?.setSelectionRange(startPos + char.length, startPos + char.length)
+            );
+        }
     }
 
     let dismissSearchBar: boolean = $state(false);
@@ -70,7 +72,7 @@
                 placeholder={$t['Search_Text_Hint']}
                 class="grow px-4 py-2 mx-2 dy-input min-w-0"
                 style:min-width="0"
-                style={convertStyle($s['ui.search.entry-text'])}
+                style={convertStyle($s?.['ui.search.entry-text'])}
                 style:background-color="var(--PopupBackgroundColor)"
                 style:color="var(--SearchTextColor)"
                 style:border-color="var(--SettingsSeparatorColor)"
@@ -82,7 +84,7 @@
             <button
                 onclick={doSubmit}
                 class="dy-btn mx-2 flex-none"
-                style={convertStyle($s['ui.search.button'])}
+                style={convertStyle($s?.['ui.search.button'])}
                 style:background-color="var(--SearchButtonColor)"
                 style:color="var(--SearchButtonTextColor)"
                 style:border-color="var(--SettingsSeparatorColor)"
@@ -97,7 +99,7 @@
                 {#each specialCharacters as character}
                     <button
                         class="m-0.5 rounded-sm w-8 h-10"
-                        style={convertStyle($s['ui.search.buttons'])}
+                        style={convertStyle($s?.['ui.search.buttons'])}
                         style:background-color="var(--TabBackgroundColor)"
                         style:color="var(--TextColor)"
                         onclick={(e) => addSpecialCharacter(character, e)}
@@ -120,7 +122,7 @@
                 />
                 <span
                     class="dy-label-text grow px-4"
-                    style={convertStyle($s['ui.search.checkbox'])}
+                    style={convertStyle($s?.['ui.search.checkbox'])}
                     style:color="var(--TextColor)"
                 >
                     <bdi>{$t['Search_Match_Whole_Words']}</bdi>
@@ -140,7 +142,7 @@
                 />
                 <span
                     class="dy-label-text grow px-4"
-                    style={convertStyle($s['ui.search.checkbox'])}
+                    style={convertStyle($s?.['ui.search.checkbox'])}
                     style:color="var(--TextColor)"
                 >
                     <bdi>{$t['Search_Match_Accents']}</bdi>

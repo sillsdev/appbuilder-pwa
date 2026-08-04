@@ -1,7 +1,7 @@
 <script lang="ts">
     import { afterNavigate } from '$app/navigation';
     import SearchForm from '$lib/components/SearchForm.svelte';
-    import { themeColors } from '$lib/data/stores';
+    import { t, themeColors } from '$lib/data/stores';
     import { selectedWord, selectWord } from '$lib/data/stores/lexicon.svelte';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import WordNavigationStrip from '$lib/lexicon/components/WordNavigationStrip.svelte';
@@ -10,7 +10,7 @@
     import { type SearchFormSubmitEvent } from '$lib/types.js';
 
     let phrase: string = $state('');
-    let wholeWords: boolean = $state(false);
+    let wholeWords: boolean = $state(true);
     let matchAccents: boolean = $state(false);
     // cache search word for display
     let searchWord: string | undefined = $state();
@@ -61,7 +61,7 @@
             class="py-2 px-6 font-bold text-center relative text-sm flex items-center justify-center w-full"
             style="height: 36px; color: {$themeColors['TextColor']};"
         >
-            {searchWord ? `Search: ${searchWord}` : 'Search'}
+            {searchWord ? `${$t['Search_Results_Title']} ${searchWord}` : $t['Search_Title']}
         </div>
     </div>
 {/if}
