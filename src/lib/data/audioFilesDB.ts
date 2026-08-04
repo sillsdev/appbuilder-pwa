@@ -9,8 +9,8 @@ export interface AudioItem {
     chapter: string;
     blob: Blob;
 }
-interface AudioClips extends DBSchema {
-    audioclips: {
+interface AudioFiles extends DBSchema {
+    audiofiles: {
         key: number;
         value: AudioItem;
         indexes: {
@@ -65,12 +65,12 @@ export function resetProtocolPreferences(): void {
     httpsPreferredOrigins.clear();
 }
 
-let audioDB: Awaited<ReturnType<typeof openDB<AudioClips>>> | null = null;
-async function openAudioClips() {
+let audioDB: Awaited<ReturnType<typeof openDB<AudioFiles>>> | null = null;
+async function openAudioFiles() {
     if (!audioDB) {
-        audioDB = await openDB<AudioClips>('audioclips', 1, {
+        audioDB = await openDB<AudioFiles>('audiofiles', 1, {
             upgrade(db) {
-                const audioStore = db.createObjectStore('audioclips', {
+                const audioStore = db.createObjectStore('audiofiles', {
                     keyPath: 'date'
                 });
                 audioStore.createIndex('collection, book, chapter', [
@@ -84,7 +84,7 @@ async function openAudioClips() {
     }
     return audioDB;
 }
-export async function addAudioClip(
+export async function addAudioFile(
     item: {
         docSet: string;
         collection: string;
@@ -94,16 +94,16 @@ export async function addAudioClip(
     url: string,
     abortController: AbortController,
     onProgress?: (percent: number) => void
-) {
+): Promise<{ success: true; error?: never } | { success: false; error: string }> {
     try {
         const response = await fetchWithProtocolFallback(url, { signal: abortController.signal });
         if (!response.ok) {
-            return false;
+            return { success: false, error: response.statusText };
         }
         const contentLength = response.headers.get('Content-Length');
         const total = contentLength ? parseInt(contentLength, 10) : 0;
         if (!response.body) {
-            return false;
+            return { success: false, error: 'No Content' };
         }
         const reader = response.body.getReader();
         const chunks: BlobPart[] = [];
@@ -111,7 +111,7 @@ export async function addAudioClip(
 
         while (true) {
             if (abortController.signal.aborted) {
-                return false;
+                return { success: false, error: 'Download Cancelled' };
             }
             const { done, value } = await reader.read();
             if (done) {
@@ -129,25 +129,28 @@ export async function addAudioClip(
         }
 
         const blob = new Blob(chunks);
-        const audioClips = await openAudioClips();
+        const audioFiles = await openAudioFiles();
         const date = new Date().getTime();
         const bookIndex = scriptureConfig.bookCollections
             ?.find((x) => x.id === item.collection)
             ?.books.findIndex((x) => x.id === item.book);
         if (bookIndex !== undefined && bookIndex >= 0) {
             const nextItem = { ...item, date: date, blob: blob };
-            await audioClips.add('audioclips', nextItem);
-            return true;
+            await audioFiles.add('audiofiles', nextItem);
+            return { success: true };
         }
-        return false;
+        return {
+            success: false,
+            error: `Could not locate book ${item.collection}.${item.book} for downloaded audio.`
+        };
     } catch (error) {
         console.error('Error downloading audio:', error);
-        return false;
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
 }
-export async function findAudioClip(item: { collection: string; book: string; chapter: string }) {
-    const audioClips = await openAudioClips();
-    const tx = audioClips.transaction('audioclips', 'readonly');
+export async function findAudioFile(item: { collection: string; book: string; chapter: string }) {
+    const audioFiles = await openAudioFiles();
+    const tx = audioFiles.transaction('audiofiles', 'readonly');
     const index = tx.store.index('collection, book, chapter');
     const result = await index.getAll([item.collection, item.book, item.chapter]);
     await tx.done;

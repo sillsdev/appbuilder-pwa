@@ -2,6 +2,12 @@
 @component
 No Connection Modal Dialog component.
 -->
+<script lang="ts" module>
+    export interface AudioAlertModalProps {
+        messageKey: string;
+        details?: string;
+    }
+</script>
 
 <script lang="ts">
     import { t } from '$lib/data/stores';
@@ -10,10 +16,10 @@ No Connection Modal Dialog component.
     const modalId = 'audioAlertModal';
     let modal: Modal | undefined = $state(undefined);
 
-    let messageKey = $state('');
+    let props: AudioAlertModalProps = $state({ messageKey: '' });
 
-    export function showModal(_messageKey: string) {
-        messageKey = _messageKey;
+    export function showModal(_props: AudioAlertModalProps) {
+        props = _props;
         modal?.showModal();
     }
 </script>
@@ -23,7 +29,12 @@ No Connection Modal Dialog component.
         <div class="message-body" id="message-body">
             <div class="message-header"></div>
             <div class="message-text">
-                {$t[messageKey]}
+                {#if props.messageKey}
+                    {$t[props.messageKey]}
+                {/if}
+                {#if props.details}
+                    <br />{props.details}
+                {/if}
             </div>
         </div>
 

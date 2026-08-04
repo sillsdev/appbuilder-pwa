@@ -6,7 +6,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { scriptureConfig } from '$assets/config';
-    import { playVerses } from '$lib/data/audio';
+    import { checkAudioAvailability, playVerses } from '$lib/data/audio';
     import { addBookmark, findBookmark, removeBookmark } from '$lib/data/bookmarks';
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import {
@@ -136,8 +136,8 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
         }
     }
 
-    const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);
-    const iconColor = $derived($s['ui.bar.text-select.icon']['color']);
+    const backgroundColor = $derived($s?.['ui.bar.text-select']['background-color']);
+    const iconColor = $derived($s?.['ui.bar.text-select.icon']['color']);
 </script>
 
 <div
@@ -163,7 +163,14 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                 {#if isAudioPlayable && $refs.hasAudio?.timingFile}
                     <button
                         class="dy-btn dy-btn-sm dy-btn-ghost"
-                        onclick={() => playSelectedVerseAudio({ repeat: false })}
+                        onclick={() =>
+                            checkAudioAvailability({
+                                afterDownload: () => playSelectedVerseAudio({ repeat: false })
+                            }).then((audioAvailable) => {
+                                if (audioAvailable) {
+                                    playSelectedVerseAudio({ repeat: false });
+                                }
+                            })}
                     >
                         <AudioIcon.Play color={iconColor} />
                     </button>
@@ -171,7 +178,14 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                 {#if isRepeatableAudio && $refs.hasAudio?.timingFile}
                     <button
                         class="dy-btn dy-btn-sm dy-btn-ghost"
-                        onclick={() => playSelectedVerseAudio({ repeat: true })}
+                        onclick={() =>
+                            checkAudioAvailability({
+                                afterDownload: () => playSelectedVerseAudio({ repeat: true })
+                            }).then((audioAvailable) => {
+                                if (audioAvailable) {
+                                    playSelectedVerseAudio({ repeat: true });
+                                }
+                            })}
                     >
                         <AudioIcon.PlayRepeat color={iconColor} />
                     </button>

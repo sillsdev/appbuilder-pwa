@@ -5,7 +5,7 @@ Audio Download Modal Dialog component.
 
 <script lang="ts">
     import { updateAudioPlayer } from '$lib/data/audio';
-    import { addAudioClip } from '$lib/data/audioclipsDB';
+    import { addAudioFile } from '$lib/data/audioFilesDB';
     import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import { tick } from 'svelte';
@@ -15,20 +15,21 @@ Audio Download Modal Dialog component.
     let modal: Modal | undefined = $state(undefined);
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
-    let error = $state('');
+    let afterDownload: (() => void) | undefined;
 
-    export function showModal(url: string) {
+    export function showModal(url: string, options?: { afterDownload?: () => void }) {
         audioUrl = url;
+        afterDownload = options?.afterDownload;
         modal?.showModal();
     }
-    export async function downloadAudio(url: string) {
+    export async function downloadAudio(url: string): ReturnType<typeof addAudioFile> {
         try {
             if (downloadAutomatically) {
                 $userSettings['audio-auto-download'] = 'auto';
             }
             downloadProgress = 1;
             abortController = new AbortController();
-            let addedAudioClip = await addAudioClip(
+            const addedAudioFile = await addAudioFile(
                 {
                     docSet: $refs.docSet,
                     collection: $refs.collection,
@@ -43,21 +44,25 @@ Audio Download Modal Dialog component.
             );
             downloadProgress = 0;
 
-            if (!addedAudioClip) {
-                return false;
+            if (!addedAudioFile.success) {
+                return addedAudioFile;
             }
             updateAudioPlayer($refs, { autoplay: true });
-            return addedAudioClip;
+            afterDownload?.();
+            return addedAudioFile;
         } catch (err) {
             console.error('Error downloading audio: ', err);
-            return false;
+            return { success: false, error: err instanceof Error ? err.message : String(err) };
         }
     }
     async function finishModal() {
-        const addedAudioClip = await downloadAudio(audioUrl);
-        if (!addedAudioClip && !abortController?.signal.aborted) {
+        const addedAudioFile = await downloadAudio(audioUrl);
+        if (!addedAudioFile.success && !abortController?.signal.aborted) {
             modal?.close();
-            alert.open(ModalType.AudioAlert, 'Audio_Download_Error');
+            alert.open(ModalType.AudioAlert, {
+                messageKey: 'Audio_Download_Error',
+                details: addedAudioFile.error
+            });
             return false;
         }
     }

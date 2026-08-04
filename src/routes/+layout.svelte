@@ -5,7 +5,9 @@
     import '$lib/styles/app.css';
     import { dev } from '$app/environment';
     import config from '$assets/config';
-    import AudioAlertModal from '$lib/components/AudioAlertModal.svelte';
+    import AudioAlertModal, {
+        type AudioAlertModalProps
+    } from '$lib/components/AudioAlertModal.svelte';
     import AudioDownloadModal from '$lib/components/AudioDownloadModal.svelte';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
@@ -99,11 +101,18 @@
                         break;
                     case ModalType.DownloadAudio:
                         {
-                            const audioModalData = data as { audioPath: string; show: boolean };
+                            const audioModalData = data as {
+                                audioPath: string;
+                                show: boolean;
+                                afterDownload?: () => void;
+                            };
                             if (audioModalData.show) {
-                                audioDownloadModal?.showModal(audioModalData.audioPath);
+                                audioDownloadModal?.showModal(audioModalData.audioPath, {
+                                    afterDownload: audioModalData.afterDownload
+                                });
                             } else {
                                 audioDownloadModal?.downloadAudio(audioModalData.audioPath);
+                                audioModalData.afterDownload?.();
                             }
                         }
                         break;
@@ -111,7 +120,7 @@
                         audioPlaybackSpeed?.showModal();
                         break;
                     case ModalType.AudioAlert:
-                        audioAlertModal?.showModal(data as string);
+                        audioAlertModal?.showModal(data as AudioAlertModalProps);
                         break;
                     case ModalType.Collection:
                         collectionModal?.showModal(
