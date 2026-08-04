@@ -20,7 +20,7 @@ The verse on image component.
         voiCustomImage,
         windowSize
     } from '$lib/data/stores';
-    import { TextAppearanceIcon } from '$lib/icons';
+    import { ArrowDownIcon, ArrowUpIcon, TextAppearanceIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import ImagesIcon from '$lib/icons/image/ImagesIcon.svelte';
     import { resolve } from '$lib/utils/paths';
@@ -66,10 +66,12 @@ The verse on image component.
     const imageWidth = $derived(cnvFullScreen ? viewportWidth_in_px : viewportHeight_in_px / 2);
     const imageHeight = $derived(imageWidth);
     let cnv: HTMLCanvasElement;
+    const collection = scriptureConfig?.bookCollections?.find((x) => x.id === $refs.collection);
 
     let cnv_background: HTMLImageElement | undefined = $state();
     let textbox: HTMLParagraphElement;
-    const txtFormatted: string = $derived(verses);
+    let wordSelected: { word: string; color: string; uppercase: boolean } | undefined = $state();
+    let words: { word: string; color: string; uppercase: boolean }[] = $state([]);
     let verseBold = $state($s?.['ui.text-on-image']['font-weight'] == 'bold');
     let verseItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let textFontSize = $state(13);
@@ -80,6 +82,7 @@ The verse on image component.
     let refItalic = $state($s?.['ui.text-on-image']['font-style'] == 'italic');
     let refFontPercent = $state(80);
     let fontColor: string = $state(standardize_color(String($s?.['ui.text-on-image']['color'])));
+    let wordColor: string = $state(standardize_color(String($s?.['ui.text-on-image']['color'])));
     let letterSpacing = $state(0);
     let lineHeightPercent = $state(0);
     const lineHeight = $derived(1 + lineHeightPercent / 100);
@@ -111,11 +114,13 @@ The verse on image component.
         TextAppearanceIcon,
         ImageIcon.FormatAlignCenter,
         ImageIcon.FormatColorFill,
+        ImageIcon.WordSelect,
         ImageIcon.TextShadow,
         ImageIcon.Brightness,
         ImageIcon.Blur,
         ImageIcon.Reference
     ];
+    const wordEditorIndex = optionIcons.indexOf(ImageIcon.WordSelect);
 
     function standardize_color(str: string) {
         var ctx = document.createElement('canvas').getContext('2d');
@@ -318,6 +323,12 @@ The verse on image component.
         const childRect = textbox.getBoundingClientRect();
         textX = parentRect.left + (parentRect.width - childRect.width) / 2;
         textY = parentRect.top + (parentRect.height - childRect.height) / 2;
+
+        words = verses.split(' ').map((word) => ({
+            word: word,
+            color: '',
+            uppercase: false
+        }));
     });
 
     // Share button feature:
@@ -653,7 +664,7 @@ The verse on image component.
 
     let active_editor_index = $state(-1);
 
-    function centerButton(n: number) {
+    function adjustCarousel(n: number) {
         const container = document.getElementById('editorTabs');
         if (!container) {
             return;
@@ -673,6 +684,21 @@ The verse on image component.
             container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
         }
 
+        // Remove the activeButton class from all buttons
+        buttons.forEach((btn) => {
+            btn.classList.remove('activeButton');
+        });
+
+        // Set the clicked button as the activeButton
+        active_editor_index = n;
+        if (button) {
+            button.classList.add('activeButton');
+        }
+    }
+
+    function centerButton(n: number) {
+        adjustCarousel(n);
+
         let carousel = document.getElementById('editorsPane') as HTMLDivElement;
         const editors = carousel.children as HTMLCollectionOf<HTMLElement>; // document.querySelectorAll('#editorsPane div');// Get the carousel's children.
         if (n < editors.length) {
@@ -683,17 +709,6 @@ The verse on image component.
             carousel.scrollTo({ left: scrollDistance, behavior: 'auto' }); // Scroll the carousel to the desired position
         } else {
             console.error('Invalid child index');
-        }
-
-        // Remove the activeButton class from all buttons
-        buttons.forEach((btn) => {
-            btn.classList.remove('activeButton');
-        });
-
-        // Set the clicked button as the activeButton
-        active_editor_index = n;
-        if (button) {
-            button.classList.add('activeButton');
         }
     }
 
@@ -754,6 +769,12 @@ The verse on image component.
         window.removeEventListener('pointermove', drag);
         window.removeEventListener('pointerup', stopDrag);
     });
+    $effect(() => {
+        if (wordSelected) {
+            wordSelected.color = `color:${wordColor};`;
+        }
+    });
+    let scrollTimeout: NodeJS.Timeout | undefined;
 </script>
 
 <div
@@ -817,7 +838,21 @@ The verse on image component.
                     class="absolute top-0 right-0 w-3 h-full bg-transparent cursor-e-resize z-50 pointer-events-auto"
                     onpointerdown={startResize}
                 ></span>
-                {txtFormatted}
+                {#each words as word, i}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <span
+                        onclick={() => {
+                            if (active_editor_index === wordEditorIndex) {
+                                word.color = `color:${wordColor};`;
+                                wordSelected = word;
+                            }
+                        }}
+                        style={word.color}
+                        >{word.uppercase
+                            ? word.word.toLocaleUpperCase(collection?.languageCode)
+                            : word.word} &#8203;</span
+                    >
+                {/each}
                 <span
                     id="verseOnImageRefDiv"
                     class="flex flex-col justify-center items-center"
@@ -876,19 +911,26 @@ The verse on image component.
             background-color: {$themeColors['DialogBackgroundColor']};
             z-index: 3;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: hidden;
             touch-action: none;
         "
+        onscroll={(e) => {
+            const el: HTMLDivElement = e.currentTarget;
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const index = Math.round(el?.scrollLeft / el?.clientWidth);
+                adjustCarousel(index);
+            }, 25);
+        }}
     >
         <!-- Image Selector -->
         <div
             id="image_selector_pane"
-            class="dy-carousel-item editor_pane"
+            class="dy-carousel-item editor_pane overflow-y-auto"
             style="
                 width:100%;
                 height: auto;
                 --imgWidth: {imageWidth / 4}px;
-                overflow-y: auto;
             "
         >
             <div id="image_selector_grid" class="grid grid-cols-4" style="height: fit-content;">
@@ -999,7 +1041,7 @@ The verse on image component.
             </div>
         </div>
 
-        <!-- Text Alignemnt and Width and Line Height Pane -->
+        <!-- Text Alignment and Width and Line Height Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <!-- Left align button -->
@@ -1076,6 +1118,58 @@ The verse on image component.
         <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
             <!-- Color Picker -->
             <ColorPicker toRight={false} isInput={false} bind:hex={fontColor} />
+        </div>
+
+        <!-- Word Editor Pane -->
+        <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
+            <div class="text-sm text-center" style="color: var(--TextColor);">
+                {$t['Text_On_Image_Highlight_Words']}
+            </div>
+            <div class="flex flex-row flex-wrap flex-wrap-reverse gap-5">
+                <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
+                <div class="flex flex-row gap-2 justify-center grow">
+                    <div class="flex items-center">
+                        <button
+                            class="flex items-center text-base bg-gray-300 p-2 text-gray-500"
+                            style="{wordSelected?.uppercase
+                                ? 'color:var(--SliderProgressColor);'
+                                : ''} font-family: 'system-ui';"
+                            onclick={() => {
+                                if (wordSelected) {
+                                    wordSelected.uppercase = true;
+                                }
+                            }}
+                            >A<ArrowUpIcon
+                                width="12px"
+                                height="12px"
+                                color={wordSelected?.uppercase
+                                    ? 'var(--SliderProgressColor)'
+                                    : '#6B7280'}
+                            ></ArrowUpIcon></button
+                        >
+                    </div>
+                    <div class="flex items-center">
+                        <button
+                            class="flex items-center text-base bg-gray-300 p-2 text-gray-500"
+                            style="{wordSelected?.uppercase === false
+                                ? 'color:var(--SliderProgressColor);'
+                                : ''} font-family: 'system-ui';"
+                            onclick={() => {
+                                if (wordSelected) {
+                                    wordSelected.uppercase = false;
+                                }
+                            }}
+                            >a<ArrowDownIcon
+                                width="12px"
+                                height="12px"
+                                color={wordSelected?.uppercase === false
+                                    ? 'var(--SliderProgressColor)'
+                                    : '#6B7280'}
+                            ></ArrowDownIcon></button
+                        >
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Text Shadow/Glow Pane -->
@@ -1199,7 +1293,7 @@ The verse on image component.
             </div>
         </div>
 
-        <!-- Refrence Formatting Pane -->
+        <!-- Reference Formatting Pane -->
         <div class="dy-carousel-item items-center editorPane">
             <div class="flex flex-row items-center">
                 <!-- Ref bold button -->
@@ -1300,6 +1394,7 @@ The verse on image component.
     .editorPane {
         flex-direction: column;
         width: 100%;
+        overflow-y: auto;
     }
 
     .editorPane_button {

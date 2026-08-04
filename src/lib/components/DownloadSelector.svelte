@@ -22,21 +22,29 @@ A component for verse-on-image providing a dropdown where you can choose to down
 <Modal
     bind:this={modalThis}
     id={modalId}
-    styling="background-color:{$themeColors['PopupBackgroundColor']}; width:auto; {positioningCSS}"
+    styling="padding:0; background-color:{$themeColors[
+        'PopupBackgroundColor'
+    ]}; width:auto; {positioningCSS}"
 >
     <div class="grid gap-2 m-2">
         <button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
+            class="dy-btn dy-btn-sm flex border-none"
             onclick={() => downloadImage()}
+            style="background-color:{$themeColors['PopupBackgroundColor']}; color:{$themeColors[
+                'TextColor'
+            ]}"
         >
-            <ImageIcon.Image />
+            <ImageIcon.Image color={$themeColors['TextColor']} />
             {$t['Text_On_Image_Save_Image']}
         </button>
         <button
-            class="dy-btn dy-btn-sm flex items-center justify-center gap-2"
+            class="dy-btn dy-btn-sm flex border-none"
+            style="background-color:{$themeColors['PopupBackgroundColor']}; color:{$themeColors[
+                'TextColor'
+            ]}"
             onclick={() => downloadVideo()}
         >
-            <VideoIcon />
+            <VideoIcon color={$themeColors['TextColor']} />
             {$t['Text_On_Image_Save_Video']}
         </button>
     </div>
