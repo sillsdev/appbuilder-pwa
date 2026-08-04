@@ -256,6 +256,9 @@
         goto(resolve('/image'));
     }
     function rotateImage() {
+        if (!image?.complete || !image.naturalWidth || !image.naturalHeight) {
+            return;
+        }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         if (ctx) {
