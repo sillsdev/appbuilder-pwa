@@ -121,5 +121,7 @@ export type RenderScratchpad = {
 export type RenderWorkspace = {
     document: Document;
     bookRoot: HTMLDivElement;
+    scopes: Array<RenderScope>;
+    logSettings: any;
     scratch: RenderScratchpad;
 };
