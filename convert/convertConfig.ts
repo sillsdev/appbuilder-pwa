@@ -486,7 +486,7 @@ function hackColorValue(
     return value;
 }
 
-const deprecatedColors = ['StatusBarColor'];
+const deprecatedColors = ['StatusBarColor', 'VerseBlock1Color', 'VerseBlock2Color'];
 
 export function parseColorThemes(document: Document, verbose: number) {
     const colorThemeTags = document
