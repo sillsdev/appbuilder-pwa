@@ -919,7 +919,7 @@ export async function checkAudioAvailability(options?: { afterDownload?: () => v
                     audioPath = pathJoin([audioSource.address, audio.filename]);
                 } else if (audioSource?.type === 'fcbh') {
                     if (!get(appOnline)) {
-                        modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
+                        modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' });
                         return false;
                     } else {
                         const result = await getBibleBrainUrl(
@@ -941,7 +941,7 @@ export async function checkAudioAvailability(options?: { afterDownload?: () => v
                 }
                 if (audioSource?.accessMethods?.includes('download')) {
                     if (!get(appOnline)) {
-                        modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
+                        modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' });
                     } else {
                         if (get(userSettings)['audio-auto-download'] === 'auto') {
                             modal.open(ModalType.DownloadAudio, {

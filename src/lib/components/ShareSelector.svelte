@@ -76,7 +76,7 @@ A component providing a dropdown where you can choose to download audio or video
                 throw new Error('No audio source available for this chapter');
             }
             if (audioSourceInfo?.isRemoteFile && !$appOnline) {
-                modal.open(ModalType.AudioAlert, 'Audio_Download_Connect');
+                modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' });
                 return;
             }
 
@@ -136,7 +136,10 @@ A component providing a dropdown where you can choose to download audio or video
                 outputFormat.mimeType
             );
         } catch (error) {
-            modal.open(ModalType.AudioAlert, 'Audio_Download_Error');
+            modal.open(ModalType.AudioAlert, {
+                messageKey: 'Audio_Download_Error',
+                details: error instanceof Error ? error.message : String(error)
+            });
             console.error('Error generating audio export:', error);
         } finally {
             await audioCtx?.close();

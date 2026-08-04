@@ -94,16 +94,16 @@ export async function addAudioFile(
     url: string,
     abortController: AbortController,
     onProgress?: (percent: number) => void
-) {
+): Promise<{ success: true; error?: never } | { success: false; error: string }> {
     try {
         const response = await fetchWithProtocolFallback(url, { signal: abortController.signal });
         if (!response.ok) {
-            return false;
+            return { success: false, error: response.statusText };
         }
         const contentLength = response.headers.get('Content-Length');
         const total = contentLength ? parseInt(contentLength, 10) : 0;
         if (!response.body) {
-            return false;
+            return { success: false, error: 'No Content' };
         }
         const reader = response.body.getReader();
         const chunks: BlobPart[] = [];
@@ -111,7 +111,7 @@ export async function addAudioFile(
 
         while (true) {
             if (abortController.signal.aborted) {
-                return false;
+                return { success: false, error: 'Download Cancelled' };
             }
             const { done, value } = await reader.read();
             if (done) {
@@ -137,12 +137,15 @@ export async function addAudioFile(
         if (bookIndex !== undefined && bookIndex >= 0) {
             const nextItem = { ...item, date: date, blob: blob };
             await audioFiles.add('audiofiles', nextItem);
-            return true;
+            return { success: true };
         }
-        return false;
+        return {
+            success: false,
+            error: `Could not locate book ${item.collection}.${item.book} for downloaded audio.`
+        };
     } catch (error) {
         console.error('Error downloading audio:', error);
-        return false;
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
 }
 export async function findAudioFile(item: { collection: string; book: string; chapter: string }) {

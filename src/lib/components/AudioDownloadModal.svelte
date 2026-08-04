@@ -22,14 +22,14 @@ Audio Download Modal Dialog component.
         afterDownload = options?.afterDownload;
         modal?.showModal();
     }
-    export async function downloadAudio(url: string) {
+    export async function downloadAudio(url: string): ReturnType<typeof addAudioFile> {
         try {
             if (downloadAutomatically) {
                 $userSettings['audio-auto-download'] = 'auto';
             }
             downloadProgress = 1;
             abortController = new AbortController();
-            let addedAudioFile = await addAudioFile(
+            const addedAudioFile = await addAudioFile(
                 {
                     docSet: $refs.docSet,
                     collection: $refs.collection,
@@ -44,8 +44,8 @@ Audio Download Modal Dialog component.
             );
             downloadProgress = 0;
 
-            if (!addedAudioFile) {
-                return false;
+            if (!addedAudioFile.success) {
+                return addedAudioFile;
             }
             updateAudioPlayer($refs, { autoplay: true });
             if (afterDownload) {
@@ -54,14 +54,17 @@ Audio Download Modal Dialog component.
             return addedAudioFile;
         } catch (err) {
             console.error('Error downloading audio: ', err);
-            return false;
+            return { success: false, error: err instanceof Error ? err.message : String(err) };
         }
     }
     async function finishModal() {
         const addedAudioFile = await downloadAudio(audioUrl);
-        if (!addedAudioFile && !abortController?.signal.aborted) {
+        if (!addedAudioFile.success && !abortController?.signal.aborted) {
             modal?.close();
-            alert.open(ModalType.AudioAlert, 'Audio_Download_Error');
+            alert.open(ModalType.AudioAlert, {
+                messageKey: 'Audio_Download_Error',
+                details: addedAudioFile.error
+            });
             return false;
         }
     }
