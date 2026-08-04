@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import config from '$assets/config';
-    import { convertStyle, s, themeColors } from '$lib/data/stores';
+    import { bodyLineHeight, convertStyle, s, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         displayNames,
@@ -190,6 +190,7 @@
 
 <div
     class="flex-1 overflow-y-auto"
+    style:line-height="{$bodyLineHeight}%"
     bind:this={scrollContainer}
     onscroll={(e) => checkIfScrolledToBottom(e.currentTarget)}
 >
