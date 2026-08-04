@@ -12,19 +12,18 @@ LOGGING:
 <script module lang="ts">
     export interface Props {
         audioPhraseEndChars: string;
-        bodyFontSize: number;
-        bodyLineHeight: number;
-        bookmarks: Promise<BookmarkItem[]>;
-        notes: Promise<NoteItem[]>;
-        highlights: Promise<HighlightItem[]>;
-        maxSelections: number;
+        bodyFontSize: any;
+        bodyLineHeight: any;
+        bookmarks: any;
+        notes: any;
+        highlights: any;
+        maxSelections: any;
         redLetters: boolean;
-        references: ReferenceStore;
-        glossary: Promise<GlossaryQueryResult>;
-        // we don't actually care about this value, we just care if it changes
-        selectedVerses: Readable<unknown>;
-        themeColors: Record<string, string>;
-        verseLayout: string;
+        references: any;
+        glossary: any;
+        selectedVerses: any;
+        themeColors: any;
+        verseLayout: any;
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
@@ -44,8 +43,7 @@ LOGGING:
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { logs, userSettings, type GlossaryQueryResult } from '$lib/data/stores';
-    import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
+    import { logs, userSettings } from '$lib/data/stores';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import { renderFeatures } from '$lib/render-sofria';
     import {
