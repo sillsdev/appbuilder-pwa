@@ -40,6 +40,7 @@
         glossary,
         highlights,
         isFirstLaunch,
+        layoutSelected,
         modal,
         ModalType,
         moreThanOneCollection,
@@ -418,7 +419,7 @@
     onMount(() => {
         if ($isFirstLaunch) {
             analytics.log('ab_first_run');
-            if (showCollection.onFirstLaunch && moreThanOneCollection) {
+            if (showCollection.onFirstLaunch && moreThanOneCollection && !$layoutSelected) {
                 goto(resolve(`/layout`));
             }
         }

@@ -1,5 +1,6 @@
 import { scriptureConfig } from '$assets/config';
 import { get, writable } from 'svelte/store';
+import { setDefaultStorage } from './storage';
 import { Layout } from './view';
 
 export const testLayouts = false; // Set to true to show all layouts regardless of scriptureConfig
@@ -80,6 +81,10 @@ function createSelectedLayouts() {
     };
 }
 export const selectedLayouts = createSelectedLayouts();
+
+setDefaultStorage('layoutSelected', 'false');
+export const layoutSelected = writable(localStorage.layoutSelected === 'true');
+layoutSelected.subscribe((selected) => (localStorage.layoutSelected = selected ? 'true' : 'false'));
 
 export const moreThanOneCollection = (scriptureConfig.bookCollections?.length ?? 0) > 1;
 export const showCollection = {
