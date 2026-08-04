@@ -48,9 +48,7 @@ Audio Download Modal Dialog component.
                 return addedAudioFile;
             }
             updateAudioPlayer($refs, { autoplay: true });
-            if (afterDownload) {
-                afterDownload();
-            }
+            afterDownload?.();
             return addedAudioFile;
         } catch (err) {
             console.error('Error downloading audio: ', err);

@@ -136,8 +136,8 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
         }
     }
 
-    const backgroundColor = $derived($s['ui.bar.text-select']['background-color']);
-    const iconColor = $derived($s['ui.bar.text-select.icon']['color']);
+    const backgroundColor = $derived($s?.['ui.bar.text-select']['background-color']);
+    const iconColor = $derived($s?.['ui.bar.text-select.icon']['color']);
 </script>
 
 <div
