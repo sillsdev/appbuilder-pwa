@@ -1,5 +1,8 @@
+// TODO: Try to prevent onClickText propogation based on e.timeStamp
+
 export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
     let target = e.target;
+    console.log("pointerdown", e.target, e.timeStamp);
 
     while (!isSelectableText(target) && !isClickableText(target) && !isMain(target)) {
         target = target.parentNode;
@@ -18,7 +21,6 @@ export function onClickText(e: any, selectedVerses: any, maxSelections: any) {
         } else {
             selectedVerses.removeVerse(id);
         }
-        console.log(selectedVerses.getVerseByIndex(0));
     }
 }
 export function updateSelections(element: HTMLElement, selections: any) {
