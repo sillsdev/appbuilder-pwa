@@ -12,15 +12,6 @@ const documentFeature = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['text'],
-        action({ context, workspace }: RenderEnvironment) {
-            const text = context.sequences[0].element.text;
-            const textDiv = workspace.document.createElement('div');
-            textDiv.innerText = text;
-            this.output = textDiv;
-        }
-    },
-    {
         eventTriggers: ['endDocument'],
         action(environment: RenderEnvironment) {
             const endDiv = environment.workspace.document.createElement('div');
