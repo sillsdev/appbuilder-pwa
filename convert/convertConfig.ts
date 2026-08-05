@@ -20,7 +20,7 @@ import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
 import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
-import { splitVersion } from './stringUtils';
+import { compareVersions, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
@@ -1894,6 +1894,17 @@ function filterFeaturesNotReady(data: ScriptureConfig | DictionaryConfig) {
                 !Object.values(it.link ?? {}).some((l) => /android_asset\/keyboard/.test(l))
         );
     }
+
+    /** Resource strings for the downloads audio to file system were not added until 14.4 */
+    if (data.programVersion && compareVersions(data.programVersion, '14.4') < 0) {
+        // disable the AudioSource.folder for all audio sources (both download and folder types)
+        if (data.audio?.sources) {
+            for (const source of Object.values(data.audio.sources)) {
+                delete source.folder;
+            }
+        }
+    }
+
     return data;
 }
 
