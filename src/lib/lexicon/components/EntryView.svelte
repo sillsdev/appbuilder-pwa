@@ -228,49 +228,28 @@
     }
 
     function applyStyles() {
-        // Apply styles from config
-        for (let stl of dictionaryConfig.singleEntryStyles ?? []) {
-            for (let elm of document.querySelectorAll(stl.name) as NodeListOf<HTMLElement>) {
-                let styleString = convertStyle(stl.properties);
+        if (
+            dictionaryConfig.mainFeatures['modify-single-entry-styles'] &&
+            wordIDs.value.length <= 1
+        ) {
+            const importedStyles = new Set(dictionaryConfig.styles?.map((s) => s.name));
+            // Apply single-entry override styles
+            for (let stl of dictionaryConfig.singleEntryStyles ?? []) {
+                if (importedStyles.has(stl.name)) {
+                    for (let elm of document.querySelectorAll(
+                        stl.name
+                    ) as NodeListOf<HTMLElement>) {
+                        Object.entries(stl.properties).forEach(([style, value]) => {
+                            elm.style.setProperty(style, value);
+                        });
 
-                if (removeNewLines) {
-                    styleString = styleString.replace(/display:\s*block/g, 'display: inline');
+                        if (removeNewLines && elm.style.display === 'block') {
+                            elm.style.display = 'inline';
+                        }
+                    }
                 }
-
-                elm.style = styleString;
             }
         }
-
-        // Fix legacy sensecontent indentation
-        const senseEls = document.querySelectorAll('.sensecontent');
-        senseEls.forEach((el) => {
-            let style = el.getAttribute('style') || '';
-
-            const hasLegacyIndent =
-                style.includes('text-indent: -2em') && style.includes('margin-left: 4em');
-
-            if (hasLegacyIndent) {
-                let cleaned = style
-                    .replace(/text-indent:\s*-2em;?/g, '')
-                    .replace(/margin-left:\s*4em;?/g, '')
-                    .trim();
-
-                if (cleaned && !cleaned.endsWith(';')) {
-                    cleaned += ';';
-                }
-                /* removing this line for now. It doesn't look great with, so I don't think it actually fixes the issue.
-                cleaned += ' margin-left: -1.1em;';
-                */
-
-                style = cleaned;
-            }
-
-            if (removeNewLines) {
-                style = style.replace(/display:\s*block/g, 'display: inline');
-            }
-
-            el.setAttribute('style', style.trim());
-        });
     }
 
     $effect(() => {
