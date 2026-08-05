@@ -120,7 +120,9 @@ export type RenderScratchpad = {
 
 export type RenderWorkspace = {
     document: Document;
+    currentTextPosition: { chapter: string; verse: string; phrase?: string };
     bookRoot: HTMLDivElement;
+    activeElements: any;
     scopes: Array<RenderScope>;
     logSettings: any;
     scratch: RenderScratchpad;
