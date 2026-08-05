@@ -10,13 +10,18 @@ const mainTextFeature = new FeatureSpec([
                     context.sequences[0].block.subType.split(':')[1] ||
                     context.sequences[0].block.subType;
 
-                const paragraphDiv = workspace.scopeManager.getActiveContentRoot(
-                    RenderScopeLevel.paragraph
-                );
+                const paragraphDiv =
+                    workspace.scopeManager.getActiveContentRoot(RenderScopeLevel.paragraph) ??
+                    workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass);
                 if (paraClass === 'b') {
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
+
+                workspace.scopeManager.setActiveContentRoot(
+                    RenderScopeLevel.paragraph,
+                    paragraphDiv
+                );
             }
             // workspace.scopes.push(new RenderScope(workspace.document, RenderScopeLevel.phrase));
         }
