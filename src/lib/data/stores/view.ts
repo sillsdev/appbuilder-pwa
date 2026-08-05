@@ -1,6 +1,4 @@
-import config from '$assets/config';
 import { derived, get, readable, writable } from 'svelte/store';
-import { isDAB } from '../../scripts/configUtils';
 import { defaultSettings, userSettings } from './setting';
 import { setDefaultStorage } from './storage';
 
@@ -111,7 +109,7 @@ setDefaultStorage('bodyFontSize', '17');
 export const bodyFontSize = writable(Number(localStorage.bodyFontSize));
 bodyFontSize.subscribe((fontSize) => (localStorage.bodyFontSize = fontSize));
 /**line height of body elements */
-setDefaultStorage('bodyLineHeight', isDAB(config) ? '100' : '175');
+setDefaultStorage('bodyLineHeight', '175');
 export const bodyLineHeight = writable(Number(localStorage.bodyLineHeight));
 bodyLineHeight.subscribe((lineHeight) => (localStorage.bodyLineHeight = lineHeight));
 

@@ -190,7 +190,6 @@
 
 <div
     class="flex-1 overflow-y-auto"
-    style:line-height="{$bodyLineHeight}%"
     bind:this={scrollContainer}
     onscroll={(e) => checkIfScrolledToBottom(e.currentTarget)}
 >
