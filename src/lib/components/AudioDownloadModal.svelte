@@ -121,22 +121,18 @@ Audio Download Modal Dialog component.
                 <div class="message-text">
                     {$t['Audio_Download_Confirm']}
                 </div>
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div
-                    class="message-checkbox flex w-full"
-                    onclick={() => {
-                        downloadAutomatically = !downloadAutomatically;
-                    }}
-                >
-                    <div class="message-checkbox-left">
-                        {#if downloadAutomatically}
-                            <CheckboxIcon></CheckboxIcon>
-                        {:else}
-                            <CheckboxOutlineIcon></CheckboxOutlineIcon>
-                        {/if}
-                    </div>
-                    <div class="message-checkbox-caption">{$t['Audio_Download_Auto']}</div>
+                <div class="message-checkbox flex w-full">
+                    <label class="flex w-full cursor-pointer items-center">
+                        <input type="checkbox" class="sr-only" bind:checked={downloadAutomatically} />
+                        <div class="message-checkbox-left" aria-hidden="true">
+                            {#if downloadAutomatically}
+                                <CheckboxIcon></CheckboxIcon>
+                            {:else}
+                                <CheckboxOutlineIcon></CheckboxOutlineIcon>
+                            {/if}
+                        </div>
+                        <div class="message-checkbox-caption">{$t['Audio_Download_Auto']}</div>
+                    </label>
                 </div>
             {:else}
                 <div class="message-title">
