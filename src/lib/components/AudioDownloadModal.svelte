@@ -9,16 +9,13 @@ Audio Download Modal Dialog component.
     import {
         getStoredMusicDirHandle,
         isFileSystemAccessSupported,
-        pickMusicDirectory
+        pickMusicDirectory,
+        STORAGE_CHOICE_KEY
     } from '$lib/data/audioFileSystem';
     import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import { tick } from 'svelte';
     import Modal from './Modal.svelte';
-
-    // Tracks whether the user has already been asked (once, ever) whether
-    // downloaded audio should also be saved to the filesystem.
-    const STORAGE_CHOICE_KEY = 'audio-filesystem-storage-choice';
 
     const modalId = 'audioDownloadModal';
     let modal: Modal | undefined = $state(undefined);
