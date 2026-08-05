@@ -69,7 +69,7 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
-    import { onDestroy, onMount, tick } from 'svelte';
+    import { onDestroy, onMount, tick, untrack } from 'svelte';
     import {
         pinch,
         swipe,
@@ -156,10 +156,10 @@
     let transitionDone = true;
 
     $effect(() => {
-        if (previous !== viewSettings.references.collection) {
+        if (previous !== viewSettings.references!.collection) {
             setupSettingsCache();
         }
-        previous = viewSettings.references.collection;
+        previous = viewSettings.references!.collection;
     });
 
     async function setupSettingsCache() {
@@ -169,8 +169,8 @@
             highlights: Promise.resolve([]),
             references: {
                 ...viewSettings.references,
-                book: viewSettings.references.prev.book,
-                chapter: viewSettings.references.prev.chapter
+                book: viewSettings.references!.prev.book,
+                chapter: viewSettings.references!.prev.chapter
             }
         };
 
@@ -185,8 +185,8 @@
             highlights: Promise.resolve([]),
             references: {
                 ...viewSettings.references,
-                book: viewSettings.references.next.book,
-                chapter: viewSettings.references.next.chapter
+                book: viewSettings.references!.next.book,
+                chapter: viewSettings.references!.next.chapter
             }
         };
         panels_X[0] = -draggableWidth;
@@ -207,8 +207,8 @@
                 highlights: Promise.resolve([]),
                 references: {
                     ...viewSettings.references,
-                    book: viewSettings.references.prev.book,
-                    chapter: viewSettings.references.prev.chapter
+                    book: viewSettings.references!.prev.book,
+                    chapter: viewSettings.references!.prev.chapter
                 }
             };
         } else if (direction === 1) {
@@ -219,8 +219,8 @@
                 highlights: Promise.resolve([]),
                 references: {
                     ...viewSettings.references,
-                    book: viewSettings.references.next.book,
-                    chapter: viewSettings.references.next.chapter
+                    book: viewSettings.references!.next.book,
+                    chapter: viewSettings.references!.next.chapter
                 }
             };
         }
@@ -481,8 +481,8 @@
         highlights: Promise.resolve([]),
         references: {
             ...viewSettings.references,
-            book: viewSettings.references.prev.book,
-            chapter: viewSettings.references.prev.chapter
+            book: viewSettings.references!.prev.book,
+            chapter: viewSettings.references!.prev.chapter
         }
     });
 
@@ -497,8 +497,8 @@
         highlights: Promise.resolve([]),
         references: {
             ...viewSettings.references,
-            book: viewSettings.references.next.book,
-            chapter: viewSettings.references.next.chapter
+            book: viewSettings.references!.next.book,
+            chapter: viewSettings.references!.next.chapter
         }
     });
 
@@ -859,13 +859,11 @@
                 >
                     <div
                         class="p-2 w-full overflow-y-hidden"
-                        style="position: absolute; left: {panels_X[0]}px;  height: {Math.abs(
+                        style="position: absolute; left: {panels_X[0]}px; height: {Math.abs(
                             panels_X[0] + x.current
                         ) === draggableWidth
                             ? window.screen.height
-                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 *
-                            panels_X[0] -
-                            x.current}px);"
+                            : 'auto'}px;"
                     >
                         <main>
                             <div
@@ -890,13 +888,11 @@
 
                     <div
                         class="p-2 w-full overflow-y-hidden"
-                        style="position: absolute; left: {panels_X[1]}px;  height: {Math.abs(
+                        style="position: absolute; left: {panels_X[1]}px; height: {Math.abs(
                             panels_X[1] + x.current
                         ) === draggableWidth
                             ? window.screen.height
-                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[1] + x.current}px 0 {-1 *
-                            panels_X[1] -
-                            x.current}px);"
+                            : 'auto'}px;"
                     >
                         <main>
                             <div
@@ -925,9 +921,7 @@
                             panels_X[2] + x.current
                         ) === draggableWidth
                             ? window.screen.height
-                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[2] + x.current}px 0 {-1 *
-                            panels_X[2] -
-                            x.current}px);"
+                            : 'auto'}px;"
                     >
                         <main>
                             <div

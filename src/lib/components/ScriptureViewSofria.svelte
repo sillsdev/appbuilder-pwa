@@ -326,6 +326,7 @@ LOGGING:
         if (workspace.inRow) {
             if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
                 const references = text.split('; ');
+                console.log('Creating Span with onClick listener');
                 for (let i = 0; i < references.length; i++) {
                     var spanV = document.createElement('span');
                     spanV.classList.add('reflink');
@@ -1435,7 +1436,6 @@ LOGGING:
     }
     // handles on click when interacting with the scripture view
     function onClick(e: any) {
-        console.log(e.target);
         switch (e.target.getAttribute('class')) {
             case 'v':
                 audioClickHandler(e);
@@ -1489,7 +1489,10 @@ LOGGING:
         var els = document.getElementsByTagName('div');
         for (var i = 0; i < els.length; i++) {
             if (hasClickableClass(els[i])) {
-                els[i].addEventListener('click', onClick, false);
+                if (!els[i].onclick) {
+                    els[i].removeEventListener('click', onClick);
+                    els[i].addEventListener('click', onClick, false);
+                }
             }
         }
     }
