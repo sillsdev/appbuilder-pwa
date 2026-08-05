@@ -2,12 +2,14 @@
     import { goto } from '$app/navigation';
     import Navbar from '$lib/components/Navbar.svelte';
     import { actionBarColor, t, voiCustomImage } from '$lib/data/stores';
-    import { CheckIcon } from '$lib/icons';
+    import { CheckIcon, RotateIcon } from '$lib/icons';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
 
     let image: HTMLImageElement;
     let container: HTMLDivElement;
+
+    let imageSource = $state($voiCustomImage.original);
 
     let dragging = false;
     let dragStartX = 0;
@@ -37,12 +39,6 @@
         if (!image || !$voiCustomImage.original) {
             goto(resolve('/image'));
             return;
-        }
-        if (image.complete) {
-            initCropBox();
-        } else {
-            image.addEventListener('load', initCropBox, { once: true });
-            return () => image.removeEventListener('load', initCropBox);
         }
     });
     function updateCropValues(
@@ -259,6 +255,23 @@
     function backNavigation() {
         goto(resolve('/image'));
     }
+    function rotateImage() {
+        if (!image?.complete || !image.naturalWidth || !image.naturalHeight) {
+            return;
+        }
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            canvas.width = image.naturalHeight;
+            canvas.height = image.naturalWidth;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(Math.PI / 2);
+
+            ctx.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
+            imageSource = canvas.toDataURL();
+        }
+    }
+
     onDestroy(() => {
         window.removeEventListener('pointermove', drag);
         window.removeEventListener('pointerup', stopDrag);
@@ -279,6 +292,9 @@
             {/snippet}
             {#snippet end()}
                 <div>
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={rotateImage}>
+                        <RotateIcon color={$actionBarColor} />
+                    </button>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={cropImage}>
                         <CheckIcon color={$actionBarColor} />
                     </button>
@@ -294,11 +310,12 @@
         ontouchstart={onTouchStart}
         ontouchmove={onTouchMove}
     >
-        {#if $voiCustomImage.original}
+        {#if imageSource}
             <!-- svelte-ignore a11y_img_redundant_alt -->
             <img
-                src={$voiCustomImage.original}
+                src={imageSource}
                 bind:this={image}
+                onload={initCropBox}
                 alt="Selected Image"
                 class="w-full h-full object-contain select-none"
             />
