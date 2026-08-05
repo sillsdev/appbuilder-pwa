@@ -25,12 +25,12 @@ export interface AudioItem {
 }
 interface AudioFiles extends DBSchema {
     audiofiles: {
-        key: number;
+        // [collection, book, chapter] identifies the one record kept per
+        // chapter; docSet doesn't distinguish audio content (scriptureConfig
+        // resolves audio by collection/book/chapter only), so it's stored on
+        // the record but left out of the key.
+        key: [string, string, string];
         value: AudioItem;
-        indexes: {
-            'collection, book, chapter': string[];
-            date: string;
-        };
     };
 }
 // Origins that are known to require HTTPS even though the configured URL uses
@@ -82,17 +82,36 @@ export function resetProtocolPreferences(): void {
 let audioDB: Awaited<ReturnType<typeof openDB<AudioFiles>>> | null = null;
 async function openAudioFiles() {
     if (!audioDB) {
-        audioDB = await openDB<AudioFiles>('audiofiles', 1, {
-            upgrade(db) {
-                const audioStore = db.createObjectStore('audiofiles', {
-                    keyPath: 'date'
+        audioDB = await openDB<AudioFiles>('audiofiles', 2, {
+            async upgrade(db, oldVersion, newVersion, transaction) {
+                if (oldVersion < 1) {
+                    db.createObjectStore('audiofiles', {
+                        keyPath: ['collection', 'book', 'chapter']
+                    });
+                    return;
+                }
+                // v1 keyed records by download date, so re-downloading a
+                // chapter (e.g. after filesystem storage was enabled) added a
+                // second record rather than replacing the first. Migrate the
+                // existing records to a compound key, keeping only the
+                // newest record per chapter so no downloaded audio is lost.
+                const oldStore = transaction.objectStore('audiofiles');
+                const existing = await oldStore.getAll();
+                const newestByChapter = new Map<string, AudioItem>();
+                for (const record of existing) {
+                    const key = JSON.stringify([record.collection, record.book, record.chapter]);
+                    const current = newestByChapter.get(key);
+                    if (!current || record.date > current.date) {
+                        newestByChapter.set(key, record);
+                    }
+                }
+                db.deleteObjectStore('audiofiles');
+                const newStore = db.createObjectStore('audiofiles', {
+                    keyPath: ['collection', 'book', 'chapter']
                 });
-                audioStore.createIndex('collection, book, chapter', [
-                    'collection',
-                    'book',
-                    'chapter'
-                ]);
-                audioStore.createIndex('date', ['date']);
+                await Promise.all(
+                    Array.from(newestByChapter.values(), (record) => newStore.put(record))
+                );
             }
         });
     }
@@ -165,7 +184,7 @@ export async function addAudioFile(
                         subdirHandle &&
                         (await writeAudioFile(subdirHandle, chapterAudio.filename, blob))
                     ) {
-                        await audioFiles.add('audiofiles', {
+                        await audioFiles.put('audiofiles', {
                             ...item,
                             date,
                             filename: chapterAudio.filename,
@@ -176,7 +195,7 @@ export async function addAudioFile(
                 }
             }
             const nextItem = { ...item, date: date, blob: blob };
-            await audioFiles.add('audiofiles', nextItem);
+            await audioFiles.put('audiofiles', nextItem);
             return { success: true };
         }
         return {
@@ -190,9 +209,5 @@ export async function addAudioFile(
 }
 export async function findAudioFile(item: { collection: string; book: string; chapter: string }) {
     const audioFiles = await openAudioFiles();
-    const tx = audioFiles.transaction('audiofiles', 'readonly');
-    const index = tx.store.index('collection, book, chapter');
-    const result = await index.getAll([item.collection, item.book, item.chapter]);
-    await tx.done;
-    return result[0];
+    return audioFiles.get('audiofiles', [item.collection, item.book, item.chapter]);
 }
