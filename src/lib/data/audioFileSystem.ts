@@ -9,6 +9,12 @@ interface DirectoryHandles extends DBSchema {
 
 const MUSIC_DIR_ID = 'musicDir';
 
+/**
+ * localStorage key tracking whether the user has already been asked (once,
+ * ever) whether downloaded audio should also be saved to the filesystem.
+ */
+export const STORAGE_CHOICE_KEY = 'audio-filesystem-storage-choice';
+
 let handleDB: Awaited<ReturnType<typeof openDB<DirectoryHandles>>> | null = null;
 async function openHandleDB() {
     if (!handleDB) {

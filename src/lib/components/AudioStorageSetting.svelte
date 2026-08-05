@@ -11,12 +11,11 @@ API), falling back to IndexedDB storage when disconnected.
         getMusicDirStatus,
         getStoredMusicDirHandle,
         pickMusicDirectory,
-        requestMusicDirPermission
+        requestMusicDirPermission,
+        STORAGE_CHOICE_KEY
     } from '$lib/data/audioFileSystem';
     import { t } from '$lib/data/stores';
     import { onMount } from 'svelte';
-
-    const STORAGE_CHOICE_KEY = 'audio-filesystem-storage-choice';
 
     // The AudioSource.folder subdirectory name(s) audio is actually written
     // into, under whichever root folder the user picks. `audio.sources` also
