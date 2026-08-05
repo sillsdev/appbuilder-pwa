@@ -73,11 +73,11 @@ export class RenderEventDescriptor {
 export class RenderScope {
     constructor(doc: Document, level: RenderScopeLevel, contentRoot?: HTMLElement) {
         this.level = level;
-        this.contentRoot = contentRoot ?? doc.createElement('div');
+        this.contentRoot = contentRoot;
     }
 
     level: RenderScopeLevel;
-    contentRoot: HTMLElement | null = null;
+    contentRoot?: HTMLElement;
 }
 
 /**
