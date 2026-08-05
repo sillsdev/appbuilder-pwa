@@ -55,10 +55,10 @@ export class RenderEventDescriptor {
     constructor(eventName: string) {
         if (eventName.startsWith('start')) {
             this.position = RenderEventPosition.scopeStart;
-            this.level = RenderScopeLevel[eventName.replace('start', '')];
+            this.level = RenderScopeLevel[eventName.replace('start', '').toLowerCase()];
         } else if (eventName.startsWith('end')) {
             this.position = RenderEventPosition.scopeEnd;
-            this.level = RenderScopeLevel[eventName.replace('end', '')];
+            this.level = RenderScopeLevel[eventName.replace('end', '').toLowerCase()];
         } else {
             this.position = RenderEventPosition.standalone;
             this.level = RenderScopeLevel[eventName];
