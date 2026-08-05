@@ -120,7 +120,11 @@ Audio Download Modal Dialog component.
                 </div>
                 <div class="message-checkbox flex w-full">
                     <label class="flex w-full cursor-pointer items-center">
-                        <input type="checkbox" class="sr-only" bind:checked={downloadAutomatically} />
+                        <input
+                            type="checkbox"
+                            class="sr-only"
+                            bind:checked={downloadAutomatically}
+                        />
                         <div class="message-checkbox-left" aria-hidden="true">
                             {#if downloadAutomatically}
                                 <CheckboxIcon></CheckboxIcon>
