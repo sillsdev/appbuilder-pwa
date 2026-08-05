@@ -213,7 +213,9 @@ export type Selection = {
 export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 
 function createSelectedVerses() {
-    const external: Writable<Selection[]> = writable(JSON.parse(localStorage.selectedVerses));
+    const external: Writable<Selection[]> = writable(
+        JSON.parse(localStorage.selectedVerses ?? '{}')
+    );
     external.subscribe(
         (selectedVerses) => (localStorage.selectedVerses = JSON.stringify(selectedVerses))
     );
