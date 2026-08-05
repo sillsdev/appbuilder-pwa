@@ -23,6 +23,7 @@ import { pathJoin } from '$lib/scripts/stringUtils';
 import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
 import { findAudioFile } from './audioFilesDB';
+import { resolveFilesystemAudioFile } from './audioFileSystem';
 
 export const audioFileUrls = new MRUCache<string, string>(10, (item, key) => {
     URL.revokeObjectURL(item);
@@ -753,9 +754,19 @@ export async function getAudioSourceInfo(
             }); //If the audio has been downloaded already, use that.
             if (foundAudioFile) {
                 if (!audioFileUrls.get(fileKey)) {
-                    audioFileUrls.put(fileKey, URL.createObjectURL(foundAudioFile.blob));
+                    const source =
+                        foundAudioFile.blob ??
+                        (foundAudioFile.filename && foundAudioFile.folder
+                            ? await resolveFilesystemAudioFile({
+                                  folder: foundAudioFile.folder,
+                                  filename: foundAudioFile.filename
+                              })
+                            : undefined);
+                    if (source) {
+                        audioFileUrls.put(fileKey, URL.createObjectURL(source));
+                    }
                 }
-                audioPath = audioFileUrls.get(fileKey)!;
+                audioPath = audioFileUrls.get(fileKey) ?? null;
             }
         }
     }

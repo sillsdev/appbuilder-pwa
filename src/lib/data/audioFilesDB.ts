@@ -1,5 +1,12 @@
 import { scriptureConfig } from '$assets/config';
 import { openDB, type DBSchema } from 'idb';
+import {
+    getAudioSubdirHandle,
+    getStoredMusicDirHandle,
+    isFileSystemAccessSupported,
+    queryMusicDirPermission,
+    writeAudioFile
+} from './audioFileSystem';
 
 export interface AudioItem {
     date: number;
@@ -7,7 +14,14 @@ export interface AudioItem {
     collection: string;
     book: string;
     chapter: string;
-    blob: Blob;
+    // Present when the audio is stored in IndexedDB. Absent when stored on the
+    // filesystem instead (see `filename`/`folder`).
+    blob?: Blob;
+    // Present when stored on the filesystem: the filename inside `folder`.
+    filename?: string;
+    // Present when stored on the filesystem: the AudioSource.folder subdirectory
+    // (under the user-selected music directory) the file was written into.
+    folder?: string;
 }
 interface AudioFiles extends DBSchema {
     audiofiles: {
@@ -131,10 +145,36 @@ export async function addAudioFile(
         const blob = new Blob(chunks);
         const audioFiles = await openAudioFiles();
         const date = new Date().getTime();
-        const bookIndex = scriptureConfig.bookCollections
+        const book = scriptureConfig.bookCollections
             ?.find((x) => x.id === item.collection)
-            ?.books.findIndex((x) => x.id === item.book);
-        if (bookIndex !== undefined && bookIndex >= 0) {
+            ?.books.find((x) => x.id === item.book);
+        if (book) {
+            const chapterAudio = book.audio?.find((a) => item.chapter === '' + a.num);
+            const folder = chapterAudio
+                ? scriptureConfig.audio?.sources[chapterAudio.src]?.folder
+                : undefined;
+            if (folder && chapterAudio?.filename && isFileSystemAccessSupported()) {
+                const musicDirHandle = await getStoredMusicDirHandle();
+                const permission =
+                    musicDirHandle && (await queryMusicDirPermission(musicDirHandle, 'readwrite'));
+                if (musicDirHandle && permission === 'granted') {
+                    const subdirHandle = await getAudioSubdirHandle(musicDirHandle, folder, {
+                        create: true
+                    });
+                    if (
+                        subdirHandle &&
+                        (await writeAudioFile(subdirHandle, chapterAudio.filename, blob))
+                    ) {
+                        await audioFiles.add('audiofiles', {
+                            ...item,
+                            date,
+                            filename: chapterAudio.filename,
+                            folder
+                        });
+                        return { success: true };
+                    }
+                }
+            }
             const nextItem = { ...item, date: date, blob: blob };
             await audioFiles.add('audiofiles', nextItem);
             return { success: true };
