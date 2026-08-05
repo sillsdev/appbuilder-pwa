@@ -43,7 +43,7 @@ LOGGING:
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { logs, userSettings } from '$lib/data/stores';
+    import { scriptureLogs } from '$lib/data/stores';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import { renderFeatures } from '$lib/render-sofria';
     import {
@@ -59,6 +59,7 @@ LOGGING:
         type RenderEventNames,
         type RenderWorkspace
     } from '$lib/render-sofria/common';
+    import ScopeManager from '$lib/render-sofria/ScopeManager';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { checkFeatureValueIs, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import type { ProskommaRenderAction } from 'proskomma-core';
@@ -92,7 +93,8 @@ LOGGING:
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
 
-    const openScopes: Array<RenderScope> = $state([]);
+    // const openScopes: Array<RenderScope> = $state([]);
+    const scopeManager = $state(new ScopeManager([]));
 
     const actionsDict: ActionDictionary = $derived.by(() => {
         const result: ActionDictionary = {};
@@ -130,29 +132,6 @@ LOGGING:
         scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
             ?.textDirection || 'ltr'
     );
-    const scriptureLogs = $derived.by(() =>
-        $userSettings['scripture-logs']
-            ? {
-                  root: 1,
-                  docResult: 1,
-                  document: 1,
-                  paragraph: 1,
-                  phrase: 1,
-                  chapter: 1,
-                  verses: 1,
-                  text: 1,
-                  sequence: 1,
-                  wrapper: 1,
-                  milestone: 1,
-                  blockGraft: 1,
-                  inlineGraft: 1,
-                  mark: 1,
-                  meta: 1,
-                  row: 1,
-                  placement: 1
-              }
-            : $logs['scripture']
-    );
 
     const output: { root?: HTMLDivElement } = {};
     let container: HTMLElement | undefined = $state();
@@ -184,8 +163,12 @@ LOGGING:
      */
     function updateRenderWorkspace({ workspace }: RenderEnvironment) {
         workspace.document = document;
-        workspace.scopes = openScopes;
+        workspace.scopeManager = scopeManager;
         workspace.logSettings = scriptureLogs;
+        workspace.currentTextPosition = workspace.currentTextPosition ?? {
+            chapter: 'none',
+            verse: 'none'
+        };
     }
 
     /**
@@ -205,7 +188,7 @@ LOGGING:
         const eventDetails = new RenderEventDescriptor(eventName);
 
         if (eventDetails.position === RenderEventPosition.scopeStart) {
-            openScopes.push(new RenderScope(document, eventDetails.level));
+            scopeManager.addScope(document, eventDetails.level);
         }
 
         if (actionsDict[eventName]) {
@@ -213,20 +196,24 @@ LOGGING:
                 console.log('Processing action %o for event %s', a, eventName);
                 a.action(environment);
                 if (a.output) {
-                    openScopes[0]?.contentRoot?.appendChild(a.output);
+                    scopeManager.appendInnerContent(a.output);
                 }
             }
         }
 
         if (eventDetails.position === RenderEventPosition.scopeEnd) {
             // TODO: check for errors when stack is already empty
-            const topScope = openScopes.pop();
-            if (topScope?.contentRoot) {
-                if (openScopes.length > 0) {
-                    openScopes[0].contentRoot?.appendChild(topScope.contentRoot);
-                } else {
-                    environment.output.root = topScope.contentRoot;
-                }
+            // const topScope = openScopes.pop();
+            // if (topScope?.contentRoot) {
+            //     if (scopeManager.getDepth() > 0) {
+            //         openScopes[0].contentRoot?.appendChild(topScope.contentRoot);
+            //     } else {
+            //         environment.output.root = topScope.contentRoot;
+            //     }
+            // }
+            const maybeFinalOutput = scopeManager.promoteContent();
+            if (maybeFinalOutput) {
+                environment.output.root = maybeFinalOutput;
             }
         }
     }
@@ -255,6 +242,8 @@ LOGGING:
             debugLevel: 0
         });
 
+        scopeManager.reset();
+
         pkRenderer.renderDocument({
             docId,
             config: { chapters: [chapter] },
@@ -263,7 +252,14 @@ LOGGING:
 
         console.warn('Final rendering output: %o', output.root);
         bookRoot.replaceChildren();
-        bookRoot.appendChild(output.root);
+        bookRoot.appendChild(
+            output.root ??
+                (() => {
+                    const div = document.createElement('div');
+                    div.innerHTML += 'No rendering output!';
+                    return div;
+                })()
+        );
         loading = false;
     }
 
