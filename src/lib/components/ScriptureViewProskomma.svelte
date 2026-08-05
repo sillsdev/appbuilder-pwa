@@ -177,6 +177,11 @@ LOGGING:
         return undefined;
     }
 
+    /**
+     * Bootstrap state from this component into the render workspace that
+     * Proskomma uses to handle events, for easier access within render actions.
+     * @param environment - the render environment on which to set state from this component
+     */
     function updateRenderWorkspace({ workspace }: RenderEnvironment) {
         workspace.document = document;
         workspace.scopes = openScopes;
