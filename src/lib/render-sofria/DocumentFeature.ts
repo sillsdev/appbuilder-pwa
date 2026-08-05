@@ -7,9 +7,8 @@ const documentFeature = new FeatureSpec([
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
             baseDiv.setAttribute('data-phrase', 'none');
+            baseDiv.innerText = 'Beginning of document in DocumentFeature.ts! ||';
             this.output = baseDiv;
-            (this.output as HTMLDivElement).innerText =
-                'Beginning of document in DocumentFeature.ts! ||';
         }
     },
     {
@@ -24,9 +23,9 @@ const documentFeature = new FeatureSpec([
     {
         eventTriggers: ['endDocument'],
         action(environment: RenderEnvironment) {
-            this.output = environment.workspace.document.createElement('div');
-            (this.output as HTMLDivElement).innerText =
-                ' || End of document reached in DocumentFeature.ts';
+            const endDiv = environment.workspace.document.createElement('div');
+            endDiv.innerText = ' || End of document reached in DocumentFeature.ts';
+            this.output = endDiv;
         }
     }
 ] as Array<RenderAction>);
