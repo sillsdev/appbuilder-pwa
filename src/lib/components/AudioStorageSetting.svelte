@@ -17,18 +17,39 @@ API), falling back to IndexedDB storage when disconnected.
     import { t } from '$lib/data/stores';
     import { onMount } from 'svelte';
 
-    // The AudioSource.folder subdirectory name(s) audio is actually written
-    // into, under whichever root folder the user picks. `audio.sources` also
-    // holds non-audio (e.g. video) entries that happen to have a `folder`,
-    // so this must match the same "downloadable audio" filter addAudioFile
-    // and setting.ts use, not just "has a folder".
-    const audioSubfolders = Array.from(
-        new Set(
-            Object.values(scriptureConfig.audio?.sources ?? {})
-                .filter((source) => source.accessMethods?.includes('download'))
-                .map((source) => source.folder)
-                .filter((folder): folder is string => !!folder)
+    // Every `src` key actually referenced by a chapter's audio entry, across
+    // all book collections/books and their book tabs. A source not used by
+    // any chapter shouldn't be shown here even if it's otherwise
+    // download-capable and has a folder configured.
+    const usedAudioSrcKeys = new Set(
+        (scriptureConfig.bookCollections ?? []).flatMap((collection) =>
+            collection.books.flatMap((book) => [
+                ...book.audio.map((audio) => audio.src),
+                ...(book.bookTabs?.tabs.flatMap((tab) => tab.audio.map((audio) => audio.src)) ?? [])
+            ])
         )
+    );
+
+    // The AudioSource(s) whose folder subdirectory audio is actually written
+    // into, under whichever root folder the user picks. `audio.sources` also
+    // holds non-audio (e.g. video) entries and sources no chapter references,
+    // so this must match download folders ('download' type) and pre-placed
+    // folders ('folder' type, not yet implemented elsewhere) - not
+    // accessMethods, which is about download-vs-stream choice, a separate
+    // concern from whether a source writes to an on-device folder. Deduped
+    // by name+folder since distinct source keys can otherwise describe the
+    // same folder.
+    const audioSources = Array.from(
+        new Map(
+            Object.entries(scriptureConfig.audio?.sources ?? {})
+                .filter(
+                    (entry): entry is [string, (typeof entry)[1] & { folder: string }] =>
+                        usedAudioSrcKeys.has(entry[0]) &&
+                        !!entry[1].folder &&
+                        (entry[1].type === 'download' || entry[1].type === 'folder')
+                )
+                .map(([, source]) => [JSON.stringify([source.name, source.folder]), source])
+        ).values()
     );
 
     interface Props {
@@ -43,16 +64,19 @@ API), falling back to IndexedDB storage when disconnected.
         needsPermission?: boolean;
     } = $state({ connected: false });
 
-    // The path shown to the user for the connected state: the chosen root
-    // folder's name plus the subfolder(s) audio is actually saved into -
-    // never just the root folder name, which wouldn't tell them where their
-    // files actually end up.
-    let connectedPath = $derived(
+    // The path(s) shown to the user for the connected state: the chosen root
+    // folder's name plus the subfolder audio is actually saved into for each
+    // AudioSource - never just the root folder name, which wouldn't tell them
+    // where their files actually end up, and never a bare comma-joined list,
+    // which doesn't say which folder belongs to which source.
+    let connectedLines = $derived(
         status.folderName
-            ? audioSubfolders.length
-                ? audioSubfolders.map((folder) => `${status.folderName}/${folder}`).join(', ')
-                : status.folderName
-            : ''
+            ? audioSources.length
+                ? audioSources.map(
+                      (source) => `${source.name}: ${status.folderName}/${source.folder}`
+                  )
+                : [status.folderName]
+            : []
     );
 
     async function refreshStatus() {
@@ -95,7 +119,9 @@ API), falling back to IndexedDB storage when disconnected.
             {#if status.connected && status.needsPermission}
                 {$t['Settings_Audio_Storage_Needs_Permission'] || 'Permission needed'}
             {:else if status.connected}
-                {connectedPath}
+                {#each connectedLines as line}
+                    <div>{line}</div>
+                {/each}
             {:else}
                 {$t['Settings_Audio_Storage_Not_Connected'] || 'Not connected'}
             {/if}
