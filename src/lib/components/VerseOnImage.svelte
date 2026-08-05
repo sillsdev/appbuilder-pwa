@@ -289,16 +289,10 @@ The verse on image component.
         let fontSizePercent = 7;
         textFontSize = getFontSize(fontSizePercent, imageHeight);
         const parentRect = parentDiv.getBoundingClientRect();
-        const childRect = textbox.getBoundingClientRect();
         if (textArea) {
             textX = parentRect.left + parentRect.width * textArea.left;
-            textY = parentRect.top + parentRect.height * textArea.top;
+            textY = 16 + parentRect.top + parentRect.height * textArea.top;
             textboxWidth = parentRect.width * textArea.width;
-        } else {
-            textboxWidthPercent = 84;
-            updateTextboxWidth(textboxWidthPercent);
-            textX = parentRect.left + (parentRect.width - /*childRect.width*/ textboxWidth) / 2;
-            textY = parentRect.top + (parentRect.height - childRect.height) / 2;
         }
 
         const adjustFontSize = () => {
@@ -326,13 +320,14 @@ The verse on image component.
                 const childRect = textbox.getBoundingClientRect();
                 if (textArea) {
                     textX = parentRect.left + parentRect.width * textArea.left;
-                    textY = parentRect.top + parentRect.height * textArea.top;
+                    textY =
+                        16 +
+                        parentRect.top +
+                        parentRect.height * textArea.top +
+                        (parentRect.height * textArea.height - childRect.height) / 2;
                     textboxWidth = parentRect.width * textArea.width;
                 } else {
-                    textboxWidthPercent = 84;
-                    updateTextboxWidth(textboxWidthPercent);
-                    textX =
-                        parentRect.left + (parentRect.width - /*childRect.width*/ textboxWidth) / 2;
+                    textX = parentRect.left + (parentRect.width - textboxWidth) / 2;
                     textY = parentRect.top + (parentRect.height - childRect.height) / 2;
                 }
 
