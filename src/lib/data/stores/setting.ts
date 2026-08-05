@@ -1,5 +1,6 @@
 import config, { scriptureConfig } from '$assets/config';
 import type { FeatureConfig } from '$config';
+import { isFileSystemAccessSupported } from '$lib/data/audioFileSystem';
 import { getDefaultLanguage } from '$lib/data/language';
 import { mergeDefaultStorage, setDefaultStorage } from '$lib/data/stores/storage';
 import { isSAB } from '$lib/scripts/configUtils';
@@ -228,6 +229,19 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
                 'Settings_Audio_Download_Automatic_Wifi'
             ],
             values: ['prompt', 'auto', 'auto-wifi']
+        });
+    }
+
+    const hasAudioSourceWithFolder = Object.keys(config.audio?.sources ?? {}).some(
+        (key) => !!config.audio?.sources[key].folder
+    );
+    if (hasAudioSourceWitbDownload && hasAudioSourceWithFolder && isFileSystemAccessSupported()) {
+        settings.push({
+            type: 'audio-storage',
+            category: SettingsCategory.Audio,
+            title: 'Settings_Audio_Storage',
+            summary: 'Settings_Audio_Storage_Summary',
+            key: 'audio-storage'
         });
     }
 

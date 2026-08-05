@@ -83,7 +83,7 @@ declare namespace App {
     }
 
     interface UserPreferenceSetting {
-        type: 'checkbox' | 'list' | 'time';
+        type: 'checkbox' | 'list' | 'time' | 'audio-storage';
         category: string;
         title: string;
         summary?: string;

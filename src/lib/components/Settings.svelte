@@ -1,5 +1,6 @@
 <script lang="ts">
     import config from '$assets/config';
+    import AudioStorageSetting from '$lib/components/AudioStorageSetting.svelte';
     import {
         language,
         SettingsCategory,
@@ -115,6 +116,10 @@
                         <div style:font-size="{fontSize}%">{$t[setting.summary]}</div>
                     </div>
                 {/if}
+            </div>
+        {:else if setting.type === 'audio-storage'}
+            <div class:settings-separator={i > 0}>
+                <AudioStorageSetting {setting} {fontSize} />
             </div>
         {/if}
     {/each}
