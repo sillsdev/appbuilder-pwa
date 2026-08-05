@@ -1,4 +1,5 @@
 import documentFeature from './DocumentFeature';
+import type ScopeManager from './ScopeManager';
 
 export enum RenderScopeLevel {
     document,
@@ -123,7 +124,7 @@ export type RenderWorkspace = {
     currentTextPosition: { chapter: string; verse: string; phrase?: string };
     bookRoot: HTMLDivElement;
     activeElements: any;
-    scopes: Array<RenderScope>;
+    scopeManager: ScopeManager;
     logSettings: any;
     scratch: RenderScratchpad;
 };

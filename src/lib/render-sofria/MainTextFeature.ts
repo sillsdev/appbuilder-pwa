@@ -6,8 +6,19 @@ const mainTextFeature = new FeatureSpec([
         action({ context, workspace }: RenderEnvironment) {
             if (context.sequences[0].type === 'main') {
                 // Render main text
-                // workspace.scopes.push(new RenderScope(workspace.document, RenderScopeLevel.phrase));
+                const paraClass =
+                    context.sequences[0].block.subType.split(':')[1] ||
+                    context.sequences[0].block.subType;
+
+                const paragraphDiv = workspace.scopeManager.getActiveContentRoot(
+                    RenderScopeLevel.paragraph
+                );
+                paragraphDiv.classList.add(paraClass);
+                if (paraClass === 'b') {
+                    paragraphDiv.innerHTML += '&nbsp;';
+                }
             }
+            // workspace.scopes.push(new RenderScope(workspace.document, RenderScopeLevel.phrase));
         }
     },
     {
