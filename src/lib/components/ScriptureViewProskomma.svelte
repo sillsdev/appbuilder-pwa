@@ -163,14 +163,16 @@ LOGGING:
      * @param environment - the render environment on which to set state from this component
      */
     function initRenderWorkspace({ workspace, output }: RenderEnvironment) {
+        scriptureRoot.replaceChildren();
+        scopeManager.reset();
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = scopeManager;
-        workspace.logSettings = scriptureLogs;
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
             chapter: 'none',
             verse: 'none'
         };
+        workspace.logSettings = scriptureLogs;
     }
 
     /**
