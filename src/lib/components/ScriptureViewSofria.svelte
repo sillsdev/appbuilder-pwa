@@ -1486,11 +1486,10 @@ LOGGING:
         }
     }
     function addOnClickDivs() {
-        var els = document.getElementsByTagName('div');
+        var els = container.getElementsByTagName('div');
         for (var i = 0; i < els.length; i++) {
             if (hasClickableClass(els[i])) {
                 if (!els[i].onclick) {
-                    els[i].removeEventListener('click', onClick);
                     els[i].addEventListener('click', onClick, false);
                 }
             }
