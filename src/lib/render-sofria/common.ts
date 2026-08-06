@@ -93,8 +93,6 @@ export type RenderEnvironment = {
 export type RenderAction = {
     eventTriggers: Array<RenderEventNames>;
     action(environment: RenderEnvironment): void;
-    actionState?: any;
-    output?: HTMLElement;
 };
 
 /**
@@ -122,7 +120,7 @@ export type RenderScratchpad = {
 export type RenderWorkspace = {
     document: Document;
     currentTextPosition: { chapter: string; verse: string; phrase?: string };
-    bookRoot: HTMLDivElement;
+    root: HTMLDivElement;
     activeElements: any;
     scopeManager: ScopeManager;
     logSettings: any;

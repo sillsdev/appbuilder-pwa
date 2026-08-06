@@ -1,4 +1,10 @@
-import { FeatureSpec, type RenderAction, type RenderEnvironment } from './common';
+import {
+    FeatureSpec,
+    RenderScope,
+    RenderScopeLevel,
+    type RenderAction,
+    type RenderEnvironment
+} from './common';
 
 const documentFeature = new FeatureSpec([
     {
@@ -8,15 +14,19 @@ const documentFeature = new FeatureSpec([
             baseDiv.setAttribute('data-verse', 'start');
             baseDiv.setAttribute('data-phrase', 'none');
             baseDiv.innerText = 'Beginning of document in DocumentFeature.ts! ||';
-            this.output = baseDiv;
+
+            workspace.root.appendChild(baseDiv);
+            workspace.scopeManager.addScope(RenderScopeLevel.document, workspace.root);
         }
     },
     {
         eventTriggers: ['endDocument'],
-        action(environment: RenderEnvironment) {
-            const endDiv = environment.workspace.document.createElement('div');
+        action({ workspace, output }: RenderEnvironment) {
+            const endDiv = workspace.document.createElement('div');
             endDiv.innerText = ' || End of document reached in DocumentFeature.ts';
-            this.output = endDiv;
+            workspace.scopeManager.appendInnerContent(endDiv);
+            workspace.scopeManager.removeScope(RenderScopeLevel.document);
+            output.root = workspace.root;
         }
     }
 ] as Array<RenderAction>);
