@@ -2,6 +2,7 @@
     import config from '$assets/config';
     import {
         language,
+        s,
         SettingsCategory,
         t,
         theme,
@@ -26,6 +27,7 @@
         config.interfaceLanguages?.writingSystems[$language]?.fontRelativeSize
     );
     const fontSize = $derived(fontRelativeSize ? fontRelativeSize : '100');
+    console.log($s);
 </script>
 
 <!-- loops through the different settings types -->
@@ -72,15 +74,20 @@
                         {$t[setting.title] || setting.title}
                     </div>
                 </div>
-                <select
-                    class="dy-select dy-select-ghost dy-select-sm appearance-none px-0 w-full"
-                    style:font-size="{fontSize}%"
-                    bind:value={$userSettings[setting.key]}
-                >
-                    {#each setting.entries ?? [] as entry, i}
-                        <option value={setting.values![i]}>{$t[entry] || entry}</option>
-                    {/each}
-                </select>
+                <div class="settings-summary">
+                    <select
+                        class="dy-select dy-select-ghost dy-select-sm appearance-none px-0 w-full outline-none settings-select"
+                        style:font-size="{fontSize}%"
+                        bind:value={$userSettings[setting.key]}
+                    >
+                        {#each setting.entries ?? [] as entry, i}
+                            <option
+                                style="background: var(--DialogBackgroundColor); color: var(--SettingsTitleColor);"
+                                value={setting.values![i]}>{$t[entry] || entry}</option
+                            >
+                        {/each}
+                    </select>
+                </div>
                 {#if setting.summary}
                     <div class="settings-summary py-0">
                         <div style:font-size="{fontSize}%">
@@ -112,3 +119,13 @@
         {/if}
     {/each}
 {/each}
+
+<style>
+    .settings-select {
+        &:focus,
+        &:focus-within {
+            background-color: var(--DialogBackgroundColor);
+            color: var(--SettingsSummaryColor);
+        }
+    }
+</style>
