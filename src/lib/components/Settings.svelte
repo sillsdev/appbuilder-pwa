@@ -1,6 +1,13 @@
 <script lang="ts">
     import config from '$assets/config';
-    import { language, SettingsCategory, t, userSettings } from '$lib/data/stores';
+    import {
+        language,
+        SettingsCategory,
+        t,
+        theme,
+        themeIsDark,
+        userSettings
+    } from '$lib/data/stores';
 
     interface Props {
         settings: App.UserPreferenceSetting[];
@@ -40,7 +47,9 @@
                     </div>
                     <input
                         type="checkbox"
-                        class="dy-checkbox dy-checkbox-neutral"
+                        class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
+         checked:bg-black text-white"
+                        class:invert={themeIsDark($theme)}
                         bind:checked={$userSettings[setting.key] as boolean}
                     />
                 </label>
