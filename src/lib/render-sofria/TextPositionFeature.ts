@@ -17,6 +17,7 @@ const textPositionFeature = new FeatureSpec([
         eventTriggers: ['startVerses'],
         action({ context, workspace }: RenderEnvironment) {
             workspace.currentTextPosition.verse = context.sequences[0].element.atts['number'];
+            workspace.currentTextPosition.phraseIndex = 0;
         }
     },
     {

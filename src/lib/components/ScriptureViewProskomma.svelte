@@ -37,7 +37,6 @@ LOGGING:
 <script lang="ts">
     /* eslint-disable svelte/no-dom-manipulating */
 
-    import type { Action } from '@sveltejs/kit';
     import { scriptureConfig } from '$assets/config';
     import type { BookmarkItem } from '$lib/data/bookmarks';
     import type { HighlightItem } from '$lib/data/highlights';
@@ -60,6 +59,7 @@ LOGGING:
         type RenderWorkspace
     } from '$lib/render-sofria/common';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
+    import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { checkFeatureValueIs, getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import type { ProskommaRenderAction } from 'proskomma-core';
@@ -168,11 +168,14 @@ LOGGING:
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = scopeManager;
+        workspace.sequenceTypes = [];
+        workspace.references = references;
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
             chapter: 'none',
             verse: 'none'
         };
         workspace.logSettings = scriptureLogs;
+        workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
     }
 
     /**
@@ -198,7 +201,7 @@ LOGGING:
         }
     }
 
-    async function renderCurrentDocument(docSet: string, bookCode: string, chapter: string) {
+    async function renderDocumentSofria(docSet: string, bookCode: string, chapter: string) {
         const actionObject: { [key in RenderEventNames]?: ProskommaRenderAction[] } = {};
         for (const name of RenderEventNamesList) {
             actionObject[name] = [
@@ -234,7 +237,7 @@ LOGGING:
     }
 
     $effect(() => {
-        renderCurrentDocument(currentDocset, currentBook, currentChapter);
+        renderDocumentSofria(currentDocset, currentBook, currentChapter);
     });
 </script>
 

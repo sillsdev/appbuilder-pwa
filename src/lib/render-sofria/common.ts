@@ -117,12 +117,17 @@ export type RenderScratchpad = {
     [key in RenderEventNames]?: any;
 };
 
+export type SequenceType = 'main' | 'title' | 'introduction';
+
 export type RenderWorkspace = {
     document: Document;
-    currentTextPosition: { chapter: string; verse: string; phrase?: string };
+    references: any;
+    currentTextPosition: { chapter: string; verse: string; phraseIndex?: number };
+    sequenceTypes: Array<SequenceType>;
     root: HTMLDivElement;
     activeElements: any;
     scopeManager: ScopeManager;
     logSettings: any;
     scratch: RenderScratchpad;
+    separatorRegex: RegExp;
 };
