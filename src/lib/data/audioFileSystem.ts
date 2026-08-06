@@ -148,6 +148,41 @@ async function readAudioFile(
 }
 
 /**
+ * Probes the stored music directory for a specific file, without reading its
+ * contents. Used to recognize audio that's still on disk after the
+ * `audiofiles` IndexedDB record tracking it was cleared (e.g. by the user
+ * clearing site data), so the app doesn't re-prompt for a download it doesn't
+ * need. Never requests permission (no user gesture available here) - if
+ * permission isn't already granted, this resolves to false.
+ */
+export async function fileExistsInMusicDir(folder: string, filename: string): Promise<boolean> {
+    if (!isFileSystemAccessSupported()) {
+        return false;
+    }
+    const musicDirHandle = await getStoredMusicDirHandle();
+    if (!musicDirHandle) {
+        return false;
+    }
+    if ((await queryMusicDirPermission(musicDirHandle, 'read')) !== 'granted') {
+        return false;
+    }
+    const subdirHandle = await getAudioSubdirHandle(musicDirHandle, folder);
+    if (!subdirHandle) {
+        return false;
+    }
+    try {
+        await subdirHandle.getFileHandle(filename);
+        return true;
+    } catch (error) {
+        if (error instanceof DOMException && error.name === 'NotFoundError') {
+            return false;
+        }
+        console.error(`Error checking for audio file "${filename}":`, error);
+        return false;
+    }
+}
+
+/**
  * Status for the Settings UI: whether a music folder is connected, its name,
  * and whether permission needs to be re-granted (e.g. revoked externally).
  */
