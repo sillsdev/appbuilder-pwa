@@ -139,16 +139,16 @@ LOGGING:
 
     let loading = $state(true);
 
-    async function getCurrentDocumentID() {
-        await loadDocSetIfNotLoaded(proskomma, currentDocset, fetch);
+    async function getCurrentDocumentID(docSet: string, bookCode: string) {
+        await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         const bookDocuments = proskomma.gqlQuerySync(
             '{documents { docSetId id bookCode: header(id: "bookCode") } }'
         );
         console.warn('book query result: %o', bookDocuments);
 
         for (const doc of bookDocuments?.data?.documents ?? []) {
-            console.warn(`Checking current docset ${currentDocset} against id ${doc.docSetId}`);
-            if (currentDocset === doc.docSetId) {
+            console.warn(`Checking current doc ${doc.id} against id ${bookCode}`);
+            if (doc.bookCode === bookCode) {
                 return doc.id;
             }
         }
@@ -232,8 +232,10 @@ LOGGING:
             ];
         }
 
+        scopeManager.reset();
+
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
-        const docId = await getCurrentDocumentID();
+        const docId = await getCurrentDocumentID(docSet, bookCode);
         console.warn(`found docId ${docId}`);
 
         const pkRenderer = new SofriaRenderFromProskomma({
@@ -241,9 +243,6 @@ LOGGING:
             actions: actionObject,
             debugLevel: 0
         });
-
-        scopeManager.reset();
-
         pkRenderer.renderDocument({
             docId,
             config: { chapters: [chapter] },
@@ -251,6 +250,7 @@ LOGGING:
         });
 
         console.warn('Final rendering output: %o', output.root);
+
         bookRoot.replaceChildren();
         bookRoot.appendChild(
             output.root ??
@@ -260,6 +260,7 @@ LOGGING:
                     return div;
                 })()
         );
+
         loading = false;
     }
 
