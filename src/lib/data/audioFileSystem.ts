@@ -163,7 +163,7 @@ export async function getMusicDirStatus(): Promise<{
     if (!handle) {
         return { connected: false };
     }
-    const permission = await queryMusicDirPermission(handle, 'read');
+    const permission = await queryMusicDirPermission(handle, 'readwrite');
     if (permission === 'granted') {
         return { connected: true, folderName: handle.name };
     }
