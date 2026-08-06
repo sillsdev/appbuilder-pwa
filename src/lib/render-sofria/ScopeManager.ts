@@ -1,17 +1,19 @@
 import { RenderScope, type RenderScopeLevel } from './common';
 
 class ScopeManager {
-    constructor(stack: RenderScope[]) {
+    constructor(document: Document, stack: RenderScope[]) {
+        this.document = document;
         this.stack = stack;
     }
 
+    document: Document;
     stack: Array<RenderScope>;
 
-    addScope(document: Document, level: RenderScopeLevel, root?: HTMLElement) {
+    addScope(level: RenderScopeLevel, root?: HTMLElement) {
         if (root) {
-            this.stack.push(new RenderScope(document, level, root));
+            this.stack.push(new RenderScope(this.document, level, root));
         } else {
-            this.stack.push(new RenderScope(document, level));
+            this.stack.push(new RenderScope(this.document, level));
         }
     }
 
@@ -27,12 +29,12 @@ class ScopeManager {
         }
     }
 
-    getDepth() {
-        return this.stack.length;
-    }
-
     reset() {
         this.stack = [];
+    }
+
+    getDepth() {
+        return this.stack.length;
     }
 
     getTopScope() {
@@ -58,7 +60,7 @@ class ScopeManager {
     }
 
     getActiveContentRoot(level: RenderScopeLevel) {
-        const result = this.getCurrentScope(level).contentRoot ?? undefined;
+        const result = this.getCurrentScope(level)?.contentRoot ?? undefined;
         console.log('getActiveContentRoot: %o -> %o', level, result);
         return result;
     }
@@ -73,11 +75,9 @@ class ScopeManager {
         if (root) {
             root.appendChild(content);
         } else {
-            if (level) {
-                this.setActiveContentRoot(level, content);
-            } else {
-                this.stack.at(-1).contentRoot = content;
-            }
+            throw new Error(
+                `Tried to append ${content} to undefined content root at level ${level ?? 'top'}`
+            );
         }
     }
 
