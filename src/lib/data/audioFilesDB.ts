@@ -1,6 +1,8 @@
 import { scriptureConfig } from '$assets/config';
+import type { BookCollectionAudioConfig } from '$config';
 import { openDB, type DBSchema } from 'idb';
 import {
+    fileExistsInMusicDir,
     getAudioSubdirHandle,
     getStoredMusicDirHandle,
     isFileSystemAccessSupported,
@@ -210,4 +212,37 @@ export async function addAudioFile(
 export async function findAudioFile(item: { collection: string; book: string; chapter: string }) {
     const audioFiles = await openAudioFiles();
     return audioFiles.get('audiofiles', [item.collection, item.book, item.chapter]);
+}
+
+/**
+ * Falls back to the filesystem when `findAudioFile` finds no record - the
+ * record is lost whenever the user clears site data, even though a
+ * previously-downloaded file written to their chosen music folder is
+ * untouched by that. If the file is still there, re-creates the IndexedDB
+ * record (so this probe only has to happen once per chapter) and returns it;
+ * otherwise returns undefined so the caller prompts to download as usual.
+ */
+export async function recoverAudioFileFromDisk(
+    item: { docSet: string; collection: string; book: string; chapter: string },
+    chapterAudio: BookCollectionAudioConfig
+): Promise<AudioItem | undefined> {
+    if (!isFileSystemAccessSupported()) {
+        return undefined;
+    }
+    const folder = scriptureConfig.audio?.sources[chapterAudio.src]?.folder;
+    if (!folder) {
+        return undefined;
+    }
+    if (!(await fileExistsInMusicDir(folder, chapterAudio.filename))) {
+        return undefined;
+    }
+    const record: AudioItem = {
+        ...item,
+        date: new Date().getTime(),
+        filename: chapterAudio.filename,
+        folder
+    };
+    const audioFiles = await openAudioFiles();
+    await audioFiles.put('audiofiles', record);
+    return record;
 }
