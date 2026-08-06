@@ -10,18 +10,13 @@ const mainTextFeature = new FeatureSpec([
                     context.sequences[0].block.subType.split(':')[1] ||
                     context.sequences[0].block.subType;
 
-                const paragraphDiv =
-                    workspace.scopeManager.getActiveContentRoot(RenderScopeLevel.paragraph) ??
-                    workspace.document.createElement('div');
+                const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass);
                 if (paraClass === 'b') {
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
-                workspace.scopeManager.setActiveContentRoot(
-                    RenderScopeLevel.paragraph,
-                    paragraphDiv
-                );
+                workspace.scopeManager.addScope(RenderScopeLevel.paragraph, paragraphDiv);
             }
             // workspace.scopes.push(new RenderScope(workspace.document, RenderScopeLevel.phrase));
         }
@@ -32,14 +27,14 @@ const mainTextFeature = new FeatureSpec([
             const text = context.sequences[0].element.text;
             const textDiv = workspace.document.createElement('div');
             textDiv.innerText = text;
-            this.output = textDiv;
+            workspace.scopeManager.appendInnerContent(textDiv);
         }
     },
     {
         eventTriggers: ['endParagraph'],
         action({ context, workspace }: RenderEnvironment) {
             if (context.sequences[0].type === 'main') {
-                // Render main text
+                workspace.scopeManager.promoteContent();
             }
         }
     }
