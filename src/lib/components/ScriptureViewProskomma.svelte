@@ -147,7 +147,7 @@ LOGGING:
         console.warn('book query result: %o', bookDocuments);
 
         for (const doc of bookDocuments?.data?.documents ?? []) {
-            console.warn(`Checking current doc ${doc.id} against id ${bookCode}`);
+            console.warn(`Checking current doc ${doc.bookCode} against id ${bookCode}`);
             if (doc.bookCode === bookCode) {
                 return doc.id;
             }
