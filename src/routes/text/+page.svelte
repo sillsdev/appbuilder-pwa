@@ -863,7 +863,9 @@
                             panels_X[0] + x.current
                         ) === draggableWidth
                             ? window.screen.height
-                            : 'auto'}px;"
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 *
+                            panels_X[0] -
+                            x.current}px);"
                     >
                         <main>
                             <div
@@ -892,7 +894,9 @@
                             panels_X[1] + x.current
                         ) === draggableWidth
                             ? window.screen.height
-                            : 'auto'}px;"
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[1] + x.current}px 0 {-1 *
+                            panels_X[1] -
+                            x.current}px);"
                     >
                         <main>
                             <div
@@ -921,7 +925,9 @@
                             panels_X[2] + x.current
                         ) === draggableWidth
                             ? window.screen.height
-                            : 'auto'}px;"
+                            : 'auto'}px; clip-path: inset(0 {1 * panels_X[2] + x.current}px 0 {-1 *
+                            panels_X[2] -
+                            x.current}px);"
                     >
                         <main>
                             <div
