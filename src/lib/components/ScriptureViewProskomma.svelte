@@ -65,6 +65,7 @@ LOGGING:
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { fromStore, type Readable } from 'svelte/store';
+    import ScriptureViewSofria from './ScriptureViewSofria.svelte';
 
     let {
         audioPhraseEndChars,
@@ -94,7 +95,7 @@ LOGGING:
     const currentDocset = $derived(references.docSet);
 
     // const openScopes: Array<RenderScope> = $state([]);
-    const scopeManager = $state(new ScopeManager([]));
+    const scopeManager = $state(new ScopeManager(document, []));
 
     const actionsDict: ActionDictionary = $derived.by(() => {
         const result: ActionDictionary = {};
@@ -135,9 +136,9 @@ LOGGING:
 
     const output: { root?: HTMLDivElement } = {};
     let container: HTMLElement | undefined = $state();
-    let bookRoot = $state(document.createElement('div'));
-
+    let scriptureRoot = $state(document.createElement('div'));
     let loading = $state(true);
+    let renderWorkspaceInitialized = $state(false);
 
     async function getCurrentDocumentID(docSet: string, bookCode: string) {
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
@@ -161,8 +162,9 @@ LOGGING:
      * Proskomma uses to handle events, for easier access within render actions.
      * @param environment - the render environment on which to set state from this component
      */
-    function updateRenderWorkspace({ workspace }: RenderEnvironment) {
+    function initRenderWorkspace({ workspace, output }: RenderEnvironment) {
         workspace.document = document;
+        workspace.root = scriptureRoot;
         workspace.scopeManager = scopeManager;
         workspace.logSettings = scriptureLogs;
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
@@ -180,41 +182,17 @@ LOGGING:
      * @param environment - the render environment passed in from Proskomma
      * @param eventName   - the Proskomma name of the event (e.g. `startDocument`, `text`)
      */
-    function handleSofriaRenderEvent(environment: any, eventName: RenderEventNames) {
+    function handleSofriaRenderEvent(environment: RenderEnvironment, eventName: RenderEventNames) {
         console.log('Handling function called for %s on %o', eventName, environment);
 
-        updateRenderWorkspace(environment);
-
-        const eventDetails = new RenderEventDescriptor(eventName);
-
-        if (eventDetails.position === RenderEventPosition.scopeStart) {
-            scopeManager.addScope(document, eventDetails.level);
+        if (!renderWorkspaceInitialized) {
+            initRenderWorkspace(environment);
+            renderWorkspaceInitialized = true;
         }
 
-        if (actionsDict[eventName]) {
-            for (const a of actionsDict[eventName]) {
-                console.log('Processing action %o for event %s', a, eventName);
-                a.action(environment);
-                if (a.output) {
-                    scopeManager.appendInnerContent(a.output);
-                }
-            }
-        }
-
-        if (eventDetails.position === RenderEventPosition.scopeEnd) {
-            // TODO: check for errors when stack is already empty
-            // const topScope = openScopes.pop();
-            // if (topScope?.contentRoot) {
-            //     if (scopeManager.getDepth() > 0) {
-            //         openScopes[0].contentRoot?.appendChild(topScope.contentRoot);
-            //     } else {
-            //         environment.output.root = topScope.contentRoot;
-            //     }
-            // }
-            const maybeFinalOutput = scopeManager.promoteContent();
-            if (maybeFinalOutput) {
-                environment.output.root = maybeFinalOutput;
-            }
+        for (const a of actionsDict[eventName] ?? []) {
+            console.log('Processing action %o for event %s', a, eventName);
+            a.action(environment);
         }
     }
 
@@ -232,11 +210,11 @@ LOGGING:
             ];
         }
 
-        scopeManager.reset();
-
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         const docId = await getCurrentDocumentID(docSet, bookCode);
         console.warn(`found docId ${docId}`);
+
+        renderWorkspaceInitialized = false;
 
         const pkRenderer = new SofriaRenderFromProskomma({
             proskomma,
@@ -250,17 +228,6 @@ LOGGING:
         });
 
         console.warn('Final rendering output: %o', output.root);
-
-        bookRoot.replaceChildren();
-        bookRoot.appendChild(
-            output.root ??
-                (() => {
-                    const div = document.createElement('div');
-                    div.innerHTML += 'No rendering output!';
-                    return div;
-                })()
-        );
-
         loading = false;
     }
 
@@ -275,7 +242,7 @@ LOGGING:
     {/if}
     <div
         id="content"
-        bind:this={bookRoot}
+        bind:this={scriptureRoot}
         class:hidden={loading}
         style:font-family={font}
         style:font-size={fontSize}
