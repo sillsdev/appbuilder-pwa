@@ -2,7 +2,6 @@
     import config from '$assets/config';
     import {
         language,
-        s,
         SettingsCategory,
         t,
         theme,
@@ -27,7 +26,6 @@
         config.interfaceLanguages?.writingSystems[$language]?.fontRelativeSize
     );
     const fontSize = $derived(fontRelativeSize ? fontRelativeSize : '100');
-    console.log($s);
 </script>
 
 <!-- loops through the different settings types -->
