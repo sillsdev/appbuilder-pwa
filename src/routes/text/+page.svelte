@@ -972,11 +972,10 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-sm p-1 end-3 m-1 cursor-pointer"
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
             style:top={navBarHeight}
-            style:background-color={convertStyle($s?.['ui.pane1'])}
             style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => modal.open(ModalType.Collection)}
+            onclick={() => goto(resolve(`/layout`))}
         >
             {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
                 ?.collectionAbbreviation}
