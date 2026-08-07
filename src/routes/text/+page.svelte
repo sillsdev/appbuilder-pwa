@@ -725,7 +725,7 @@
         <Navbar {backNavigation} {showBackButton}>
             {#snippet start()}
                 <div class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}>
-                    <BookSelector />
+                    <BookSelector onBookSelection={setupSettingsCache} />
                     <ChapterSelector onChapterSelection={setupSettingsCache} />
                 </div>
             {/snippet}
