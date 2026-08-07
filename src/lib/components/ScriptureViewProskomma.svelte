@@ -172,7 +172,7 @@ LOGGING:
      * Proskomma uses to handle events, for easier access within render actions.
      * @param environment - the render environment on which to set state from this component
      */
-    function initRenderWorkspace({ workspace, output }: RenderEnvironment) {
+    function initRenderWorkspace({ workspace }: RenderEnvironment) {
         scriptureRoot.replaceChildren();
         scopeManager.reset();
         workspace.document = document;
@@ -184,6 +184,7 @@ LOGGING:
             chapter: 'none',
             verse: 'none'
         };
+        workspace.showVerseNumbers = viewShowVerses;
         workspace.logSettings = scriptureLogs;
         workspace.numeralSystem = numeralSystem;
         workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);

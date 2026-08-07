@@ -4,6 +4,7 @@ import documentFeature from './DocumentFeature';
 import loggingFeature from './LoggingFeature';
 import mainTextFeature from './MainTextFeature';
 import textPositionFeature from './TextPositionFeature';
+import verseNumberFeature from './VerseNumberFeature';
 
 /**
  * Note: feature order matters. Subsequently listed features can depend
@@ -12,6 +13,7 @@ import textPositionFeature from './TextPositionFeature';
 export const renderFeatures: Array<FeatureSpec> = [
     loggingFeature,
     documentFeature,
+    verseNumberFeature,
     textPositionFeature,
     mainTextFeature,
     chapterNumberFeature
