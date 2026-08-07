@@ -264,7 +264,7 @@ LOGGING:
     $effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         stateSelectedVerses.current;
-        updateSelections(selectedVerses);
+        updateSelections(container, selectedVerses);
     });
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
@@ -326,6 +326,7 @@ LOGGING:
         if (workspace.inRow) {
             if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
                 const references = text.split('; ');
+                console.log('Creating Span with onClick listener');
                 for (let i = 0; i < references.length; i++) {
                     var spanV = document.createElement('span');
                     spanV.classList.add('reflink');
@@ -1485,10 +1486,12 @@ LOGGING:
         }
     }
     function addOnClickDivs() {
-        var els = document.getElementsByTagName('div');
+        var els = container.getElementsByTagName('div');
         for (var i = 0; i < els.length; i++) {
             if (hasClickableClass(els[i])) {
-                els[i].addEventListener('click', onClick, false);
+                if (!els[i].onclick) {
+                    els[i].addEventListener('click', onClick, false);
+                }
             }
         }
     }

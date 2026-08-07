@@ -23,7 +23,10 @@ The navbar component.
     import SelectList from './SelectList.svelte';
     import TabsMenu from './TabsMenu.svelte';
 
-    let { displayLabel = undefined } = $props();
+    let { displayLabel = undefined, onBookSelection } = $props<{
+        displayLabel?: string;
+        onBookSelection?: () => void;
+    }>();
 
     /**list of books, quizzes, and quiz groups in current docSet*/
     const books = $derived($refs.catalog.documents);
@@ -191,6 +194,8 @@ The navbar component.
             chapter: $nextRef.chapter,
             verse: $nextRef.verse
         });
+        // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
+        onBookSelection();
         close();
     }
 
