@@ -1,3 +1,4 @@
+import chapterNumberFeature from './ChapterNumberFeature';
 import type { FeatureSpec } from './common';
 import documentFeature from './DocumentFeature';
 import loggingFeature from './LoggingFeature';
@@ -12,5 +13,6 @@ export const renderFeatures: Array<FeatureSpec> = [
     loggingFeature,
     documentFeature,
     textPositionFeature,
-    mainTextFeature
+    mainTextFeature,
+    chapterNumberFeature
 ];
