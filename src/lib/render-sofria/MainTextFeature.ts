@@ -1,5 +1,5 @@
 import { FeatureSpec, RenderScope, RenderScopeLevel, type RenderEnvironment } from './common';
-import { createLetterIndex, subdividePhrases } from './util';
+import { addVerseNumberRange, createLetterIndex, subdividePhrases } from './util';
 
 const mainTextFeature = new FeatureSpec([
     {
@@ -47,6 +47,17 @@ const mainTextFeature = new FeatureSpec([
                 const phraseIndex = createLetterIndex(workspace.currentTextPosition.phraseIndex);
 
                 phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
+
+                console.warn(
+                    `adding verse number: ${phraseDiv.id === workspace.currentTextPosition.verse + 'a'}; ${workspace.verseRangeNumber}`
+                );
+                if (
+                    workspace.showVerseNumbers &&
+                    phraseDiv.id === workspace.currentTextPosition.verse + 'a' &&
+                    workspace.verseRangeNumber
+                ) {
+                    addVerseNumberRange(workspace, phraseDiv);
+                }
                 phraseDiv.setAttribute('data-verse', workspace.currentTextPosition.verse);
                 phraseDiv.setAttribute('data-phrase', phraseIndex);
                 phraseDiv.classList.add('txs', 'seltxt', 'scroll-item');
