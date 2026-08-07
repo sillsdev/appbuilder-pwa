@@ -122,7 +122,13 @@ export type SequenceType = 'main' | 'title' | 'introduction';
 export type RenderWorkspace = {
     document: Document;
     references: any;
-    currentTextPosition: { chapter: string; verse: string; phraseIndex?: number };
+    currentTextPosition: {
+        chapter: string;
+        verse: string;
+        phraseIndex?: number;
+    };
+    showVerseNumbers: boolean;
+    verseRangeNumber?: string;
     sequenceTypes: Array<SequenceType>;
     root: HTMLDivElement;
     activeElements: any;

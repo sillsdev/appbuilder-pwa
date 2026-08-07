@@ -1,3 +1,4 @@
+import { scriptureConfig } from '$assets/config';
 import * as numerals from '$lib/scripts/numeralSystem';
 import { parsePhrase, prepareAudioPhraseEndChars } from '$lib/scripts/parsePhrase';
 import type { RenderEnvironment, RenderWorkspace } from './common';
@@ -63,6 +64,30 @@ export function addVerseNumber(
         workspace.phraseDiv.appendChild(spanV);
         workspace.phraseDiv.appendChild(spanVsp);
     }
+}
+
+export function addVerseNumberRange(workspace: RenderWorkspace, phraseDiv: HTMLDivElement) {
+    // TODO: parameterize next line
+    // TODO: figure out how to hide first verse number
+    const direction = scriptureConfig.bookCollections?.find(
+        (x) => x.id === workspace.references.collection
+    )?.style?.textDirection;
+
+    const spanV = workspace.document.createElement('span');
+    spanV.classList.add('v');
+    // 'number' can be a range of verse numbers
+    spanV.innerText = numerals.formatNumberRange(
+        workspace.numeralSystem,
+        workspace.verseRangeNumber,
+        direction
+    );
+
+    const spanVsp = workspace.document.createElement('span');
+    spanVsp.classList.add('vsp');
+    spanVsp.innerText = '\u00A0'; // &nbsp
+
+    phraseDiv.appendChild(spanV);
+    phraseDiv.appendChild(spanVsp);
 }
 
 // export function handleVerseLabel(element, showVerseNumbers, workspace) {
