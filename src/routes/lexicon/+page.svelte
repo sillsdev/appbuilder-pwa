@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import config from '$assets/config';
-    import { convertStyle, s, themeColors } from '$lib/data/stores';
+    import { bodyLineHeight, convertStyle, s, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         displayNames,

@@ -1,6 +1,7 @@
 <script lang="ts">
-    import config, { dictionaryConfig } from '$assets/config';
-    import { bodyFontSize, convertStyle, currentFont, themeColors } from '$lib/data/stores';
+    /* eslint-disable svelte/no-at-html-tags */
+    import { dictionaryConfig } from '$assets/config';
+    import { bodyFontSize, currentFont, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
@@ -32,7 +33,7 @@
 
     let { wordIDs: override, removeNewLines = false }: Props = $props();
 
-    const _wordIDs = $derived(override ?? wordIDs.value);
+    const entryWordIDs = $derived(override ?? wordIDs.value);
 
     let xmlData = $state('');
 
@@ -173,12 +174,12 @@
     }
 
     async function updateXmlData() {
-        if (!_wordIDs.length) {
+        if (!entryWordIDs.length) {
             xmlData = '';
             return;
         }
 
-        const xmlResults = (await queryXmlByWordId(_wordIDs)) ?? [];
+        const xmlResults = (await queryXmlByWordId(entryWordIDs)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
@@ -227,54 +228,32 @@
     }
 
     function applyStyles() {
-        // Apply styles from config
-        for (let stl of dictionaryConfig.singleEntryStyles ?? []) {
-            for (let elm of document.querySelectorAll(stl.name) as NodeListOf<HTMLElement>) {
-                let styleString = convertStyle(stl.properties);
+        if (
+            dictionaryConfig.mainFeatures['modify-single-entry-styles'] &&
+            entryWordIDs.length <= 1
+        ) {
+            const importedStyles = new Set(dictionaryConfig.styles?.map((s) => s.name));
+            // Apply single-entry override styles
+            for (let stl of dictionaryConfig.singleEntryStyles ?? []) {
+                if (importedStyles.has(stl.name)) {
+                    for (let elm of document.querySelectorAll(
+                        stl.name
+                    ) as NodeListOf<HTMLElement>) {
+                        Object.entries(stl.properties).forEach(([style, value]) => {
+                            elm.style.setProperty(style, value);
+                        });
 
-                if (removeNewLines) {
-                    styleString = styleString.replace(/display:\s*block/g, 'display: inline');
+                        if (removeNewLines && elm.style.display === 'block') {
+                            elm.style.display = 'inline';
+                        }
+                    }
                 }
-
-                elm.style = styleString;
             }
         }
-
-        // Fix legacy sensecontent indentation
-        const senseEls = document.querySelectorAll('.sensecontent');
-        senseEls.forEach((el) => {
-            let style = el.getAttribute('style') || '';
-
-            const hasLegacyIndent =
-                style.includes('text-indent: -2em') && style.includes('margin-left: 4em');
-
-            if (hasLegacyIndent) {
-                let cleaned = style
-                    .replace(/text-indent:\s*-2em;?/g, '')
-                    .replace(/margin-left:\s*4em;?/g, '')
-                    .trim();
-
-                if (cleaned && !cleaned.endsWith(';')) {
-                    cleaned += ';';
-                }
-                /* removing this line for now. It doesn't look great with, so I don't think it actually fixes the issue.
-                cleaned += ' margin-left: -1.1em;';
-                */
-
-                style = cleaned;
-            }
-
-            if (removeNewLines) {
-                style = style.replace(/display:\s*block/g, 'display: inline');
-            }
-
-            el.setAttribute('style', style.trim());
-        });
     }
 
     $effect(() => {
-        if (_wordIDs.length && $themeColors) {
-            console.log($themeColors);
+        if (entryWordIDs.length && $themeColors) {
             (async () => {
                 await updateXmlData();
                 applyStyles();
@@ -286,12 +265,11 @@
 
 <pre
     class="p-4 whitespace-pre-wrap wrap-break-word"
-    style="background-color: {$themeColors[
-        'BackgroundColor'
-    ]}; font-size: {$bodyFontSize}px; font-family: {$currentFont};">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html xmlData}
-</pre>
+    style:background-color={$themeColors['BackgroundColor']}
+    style:font-size="{$bodyFontSize}px"
+    style:font-family={$currentFont}>{@html xmlData}</pre>
+
+<!-- It is of utmost importance that this @html call be sandwiched between the tags. If this is undone by prettier, please look into ignoring prettier for the above line, WITHOUT including a comment inside the pre block. pre is VERY sensitive to "whitespace", which includes comments. -Aidan -->
 
 <style>
     pre :global(button.audio-link) {
