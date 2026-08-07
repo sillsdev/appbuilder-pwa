@@ -52,11 +52,6 @@ The navbar component.
 
     let { onChapterSelection } = $props<{ onChapterSelection?: () => void }>();
 
-    function handleChange() {
-        // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
-        onChapterSelection();
-    }
-
     /**
      * Pushes reference changes to refs['next']. Pushes final change to default reference.
      */
@@ -95,7 +90,8 @@ The navbar component.
             chapter: $nextRef.chapter,
             verse: $nextRef.verse
         });
-        handleChange();
+        // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
+        onChapterSelection();
         close();
     }
 
