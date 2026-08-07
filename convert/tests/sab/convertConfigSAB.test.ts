@@ -251,7 +251,7 @@ if (programType === 'DAB') {
         const result = parseFeatures(document, 1);
         // If this number is different from expected, AppBuilders likely has new features.
         // Care should be taken to look at what's new and open issues accordingly.
-        expect(Object.keys(result)).toHaveLength(144);
+        expect(Object.keys(result)).toHaveLength(146);
     });
 
     test('convertConfig: parse background images', () => {
