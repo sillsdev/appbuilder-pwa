@@ -1,6 +1,13 @@
 <script lang="ts">
     import config from '$assets/config';
-    import { language, SettingsCategory, t, userSettings } from '$lib/data/stores';
+    import {
+        language,
+        SettingsCategory,
+        t,
+        theme,
+        themeIsDark,
+        userSettings
+    } from '$lib/data/stores';
 
     interface Props {
         settings: App.UserPreferenceSetting[];
@@ -40,7 +47,9 @@
                     </div>
                     <input
                         type="checkbox"
-                        class="dy-checkbox dy-checkbox-neutral"
+                        class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
+         checked:bg-black text-white"
+                        class:invert={themeIsDark($theme)}
                         bind:checked={$userSettings[setting.key] as boolean}
                     />
                 </label>
@@ -63,15 +72,20 @@
                         {$t[setting.title] || setting.title}
                     </div>
                 </div>
-                <select
-                    class="dy-select dy-select-ghost dy-select-sm appearance-none px-0 w-full"
-                    style:font-size="{fontSize}%"
-                    bind:value={$userSettings[setting.key]}
-                >
-                    {#each setting.entries ?? [] as entry, i}
-                        <option value={setting.values![i]}>{$t[entry] || entry}</option>
-                    {/each}
-                </select>
+                <div class="settings-summary">
+                    <select
+                        class="dy-select dy-select-ghost dy-select-sm appearance-none px-0 w-full outline-none settings-select"
+                        style:font-size="{fontSize}%"
+                        bind:value={$userSettings[setting.key]}
+                    >
+                        {#each setting.entries ?? [] as entry, i}
+                            <option
+                                style="background: var(--DialogBackgroundColor); color: var(--SettingsTitleColor);"
+                                value={setting.values![i]}>{$t[entry] || entry}</option
+                            >
+                        {/each}
+                    </select>
+                </div>
                 {#if setting.summary}
                     <div class="settings-summary py-0">
                         <div style:font-size="{fontSize}%">
@@ -103,3 +117,13 @@
         {/if}
     {/each}
 {/each}
+
+<style>
+    .settings-select {
+        &:focus,
+        &:focus-within {
+            background-color: var(--DialogBackgroundColor);
+            color: var(--SettingsSummaryColor);
+        }
+    }
+</style>
