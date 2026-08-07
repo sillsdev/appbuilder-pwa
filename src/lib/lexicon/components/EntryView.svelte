@@ -1,7 +1,7 @@
 <script lang="ts">
     /* eslint-disable svelte/no-at-html-tags */
     import { dictionaryConfig } from '$assets/config';
-    import { bodyFontSize, convertStyle, currentFont, themeColors } from '$lib/data/stores';
+    import { bodyFontSize, currentFont, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
         initializeDatabase,
@@ -33,7 +33,7 @@
 
     let { wordIDs: override, removeNewLines = false }: Props = $props();
 
-    const _wordIDs = $derived(override ?? wordIDs.value);
+    const entryWordIDs = $derived(override ?? wordIDs.value);
 
     let xmlData = $state('');
 
@@ -174,12 +174,12 @@
     }
 
     async function updateXmlData() {
-        if (!_wordIDs.length) {
+        if (!entryWordIDs.length) {
             xmlData = '';
             return;
         }
 
-        const xmlResults = (await queryXmlByWordId(_wordIDs)) ?? [];
+        const xmlResults = (await queryXmlByWordId(entryWordIDs)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
         xmlData =
@@ -230,7 +230,7 @@
     function applyStyles() {
         if (
             dictionaryConfig.mainFeatures['modify-single-entry-styles'] &&
-            wordIDs.value.length <= 1
+            entryWordIDs.length <= 1
         ) {
             const importedStyles = new Set(dictionaryConfig.styles?.map((s) => s.name));
             // Apply single-entry override styles
@@ -253,7 +253,7 @@
     }
 
     $effect(() => {
-        if (_wordIDs.length && $themeColors) {
+        if (entryWordIDs.length && $themeColors) {
             (async () => {
                 await updateXmlData();
                 applyStyles();
