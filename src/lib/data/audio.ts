@@ -22,7 +22,8 @@ import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { get } from 'svelte/store';
 import { logAudioDuration, logAudioPlay } from './analytics';
-import { findAudioFile } from './audioFilesDB';
+import { findAudioFile, recoverAudioFileFromDisk } from './audioFilesDB';
+import { resolveFilesystemAudioFile } from './audioFileSystem';
 
 export const audioFileUrls = new MRUCache<string, string>(10, (item, key) => {
     URL.revokeObjectURL(item);
@@ -746,16 +747,37 @@ export async function getAudioSourceInfo(
         const fileKey = `${item.collection}-${item.book}-${item.chapter}`;
         audioPath = audioFileUrls.get(fileKey);
         if (!audioPath) {
-            const foundAudioFile = await findAudioFile({
+            let foundAudioFile = await findAudioFile({
                 collection: item.collection || '',
                 book: item.book || '',
                 chapter: item.chapter || ''
             }); //If the audio has been downloaded already, use that.
+            if (!foundAudioFile) {
+                foundAudioFile = await recoverAudioFileFromDisk(
+                    {
+                        docSet: get(refs).docSet || '',
+                        collection: item.collection || '',
+                        book: item.book || '',
+                        chapter: item.chapter || ''
+                    },
+                    audio
+                );
+            }
             if (foundAudioFile) {
                 if (!audioFileUrls.get(fileKey)) {
-                    audioFileUrls.put(fileKey, URL.createObjectURL(foundAudioFile.blob));
+                    const source =
+                        foundAudioFile.blob ??
+                        (foundAudioFile.filename && foundAudioFile.folder
+                            ? await resolveFilesystemAudioFile({
+                                  folder: foundAudioFile.folder,
+                                  filename: foundAudioFile.filename
+                              })
+                            : undefined);
+                    if (source) {
+                        audioFileUrls.put(fileKey, URL.createObjectURL(source));
+                    }
                 }
-                audioPath = audioFileUrls.get(fileKey)!;
+                audioPath = audioFileUrls.get(fileKey) ?? null;
             }
         }
     }
@@ -907,11 +929,22 @@ export async function checkAudioAvailability(options?: { afterDownload?: () => v
             (!audioSource?.accessMethods?.includes('stream') &&
                 audioSource?.accessMethods?.includes('download'))
         ) {
-            const foundAudioFile = await findAudioFile({
+            let foundAudioFile = await findAudioFile({
                 collection: curRefs.collection || '',
                 book: curRefs.book || '',
                 chapter: curRefs.chapter || ''
             });
+            if (!foundAudioFile) {
+                foundAudioFile = await recoverAudioFileFromDisk(
+                    {
+                        docSet: curRefs.docSet || '',
+                        collection: curRefs.collection || '',
+                        book: curRefs.book || '',
+                        chapter: curRefs.chapter || ''
+                    },
+                    audio
+                );
+            }
             curRefs = get(refs);
             if (!foundAudioFile) {
                 let audioPath = '';
