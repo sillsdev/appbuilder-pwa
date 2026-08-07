@@ -20,7 +20,6 @@ const mainTextFeature = new FeatureSpec([
 
                 workspace.scopeManager.addScope(RenderScopeLevel.paragraph, paragraphDiv);
             }
-            // workspace.scopes.push(new RenderScope(workspace.document, RenderScopeLevel.phrase));
         }
     },
     {
@@ -42,8 +41,6 @@ const mainTextFeature = new FeatureSpec([
                 console.log('Adding text:', text);
             }
 
-            const textDiv = workspace.document.createElement('div');
-
             const phrases = subdividePhrases(workspace, text);
             for (const phrase of phrases) {
                 const phraseDiv = workspace.document.createElement('div');
@@ -55,13 +52,9 @@ const mainTextFeature = new FeatureSpec([
                 phraseDiv.classList.add('txs', 'seltxt', 'scroll-item');
                 phraseDiv.innerHTML += phrase;
 
-                textDiv.appendChild(phraseDiv);
-
+                workspace.scopeManager.appendInnerContent(phraseDiv);
                 workspace.currentTextPosition.phraseIndex++;
             }
-
-            // textDiv.innerText = text;
-            workspace.scopeManager.appendInnerContent(textDiv);
         }
     },
     {
