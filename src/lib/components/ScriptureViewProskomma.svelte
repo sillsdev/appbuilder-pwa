@@ -62,6 +62,7 @@ LOGGING:
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { checkFeatureValueIs, getFeatureValueBoolean } from '$lib/scripts/configUtils';
+    import * as numerals from '$lib/scripts/numeralSystem';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { fromStore, type Readable } from 'svelte/store';
@@ -102,7 +103,7 @@ LOGGING:
         // TODO: ensure iteration is sequential across the list
         // to perform actions for each feature in order specified in render-sofria/common.ts
         for (const f of renderFeatures) {
-            if (
+            const enabled =
                 !f.flag ||
                 checkFeatureValueIs(
                     scriptureConfig,
@@ -110,8 +111,14 @@ LOGGING:
                     f.flag.enabledValue,
                     references.collection,
                     references.book
-                )
-            ) {
+                );
+
+            if (f.flag) {
+                console.warn(
+                    `feature with ${f.flag.tag} === ${f.flag.enabledValue} is ${enabled ? 'enabled' : 'disabled'}`
+                );
+            }
+            if (enabled) {
                 for (const a of f.actions) {
                     for (const t of a.eventTriggers) {
                         if (result[t]) {
@@ -132,6 +139,9 @@ LOGGING:
     const direction = $derived(
         scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
             ?.textDirection || 'ltr'
+    );
+    const numeralSystem = $derived(
+        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
     );
 
     const output: { root?: HTMLDivElement } = {};
@@ -175,6 +185,7 @@ LOGGING:
             verse: 'none'
         };
         workspace.logSettings = scriptureLogs;
+        workspace.numeralSystem = numeralSystem;
         workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
     }
 

@@ -1,4 +1,4 @@
-import documentFeature from './DocumentFeature';
+import type { NumeralSystem } from '$lib/scripts/numeralSystem';
 import type ScopeManager from './ScopeManager';
 
 export enum RenderScopeLevel {
@@ -130,4 +130,5 @@ export type RenderWorkspace = {
     logSettings: any;
     scratch: RenderScratchpad;
     separatorRegex: RegExp;
+    numeralSystem: NumeralSystem;
 };
