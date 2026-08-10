@@ -5,6 +5,7 @@
         SettingsCategory,
         t,
         theme,
+        themeColors,
         themeIsDark,
         userSettings
     } from '$lib/data/stores';
@@ -80,7 +81,8 @@
                     >
                         {#each setting.entries ?? [] as entry, i}
                             <option
-                                style="background: var(--DialogBackgroundColor); color: var(--SettingsTitleColor);"
+                                style:background-color={$themeColors['DialogBackgroundColor']}
+                                style:color={$themeColors['SettingsTitleColor']}
                                 value={setting.values![i]}>{$t[entry] || entry}</option
                             >
                         {/each}
