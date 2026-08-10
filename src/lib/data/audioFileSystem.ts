@@ -28,7 +28,9 @@ async function openHandleDB() {
 }
 
 export function isFileSystemAccessSupported(): boolean {
-    return typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+    // Permissions isn't working correctly, so disable for now.
+    return false;
+    //return typeof window !== 'undefined' && 'showDirectoryPicker' in window;
 }
 
 export async function getStoredMusicDirHandle(): Promise<FileSystemDirectoryHandle | undefined> {
