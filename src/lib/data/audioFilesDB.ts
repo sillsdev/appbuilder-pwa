@@ -4,9 +4,7 @@ import { openDB, type DBSchema } from 'idb';
 import {
     fileExistsInMusicDir,
     getAudioSubdirHandle,
-    getStoredMusicDirHandle,
     isFileSystemAccessSupported,
-    queryMusicDirPermission,
     writeAudioFile
 } from './audioFileSystem';
 
@@ -128,7 +126,8 @@ export async function addAudioFile(
     },
     url: string,
     abortController: AbortController,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
+    musicDirHandle?: FileSystemDirectoryHandle
 ): Promise<{ success: true; error?: never } | { success: false; error: string }> {
     try {
         const response = await fetchWithProtocolFallback(url, { signal: abortController.signal });
@@ -174,27 +173,34 @@ export async function addAudioFile(
             const folder = chapterAudio
                 ? scriptureConfig.audio?.sources[chapterAudio.src]?.folder
                 : undefined;
-            if (folder && chapterAudio?.filename && isFileSystemAccessSupported()) {
-                const musicDirHandle = await getStoredMusicDirHandle();
-                const permission =
-                    musicDirHandle && (await queryMusicDirPermission(musicDirHandle, 'readwrite'));
-                if (musicDirHandle && permission === 'granted') {
-                    const subdirHandle = await getAudioSubdirHandle(musicDirHandle, folder, {
-                        create: true
+            console.debug('[audio-fs] addAudioFile: write check', {
+                folder,
+                filename: chapterAudio?.filename,
+                hasHandle: !!musicDirHandle
+            });
+            if (folder && chapterAudio?.filename && musicDirHandle) {
+                const subdirHandle = await getAudioSubdirHandle(musicDirHandle, folder, {
+                    create: true
+                });
+                if (
+                    subdirHandle &&
+                    (await writeAudioFile(subdirHandle, chapterAudio.filename, blob))
+                ) {
+                    await audioFiles.put('audiofiles', {
+                        ...item,
+                        date,
+                        filename: chapterAudio.filename,
+                        folder
                     });
-                    if (
-                        subdirHandle &&
-                        (await writeAudioFile(subdirHandle, chapterAudio.filename, blob))
-                    ) {
-                        await audioFiles.put('audiofiles', {
-                            ...item,
-                            date,
-                            filename: chapterAudio.filename,
-                            folder
-                        });
-                        return { success: true };
-                    }
+                    console.debug('[audio-fs] addAudioFile: wrote to filesystem', {
+                        folder,
+                        filename: chapterAudio.filename
+                    });
+                    return { success: true };
                 }
+                console.debug(
+                    '[audio-fs] addAudioFile: filesystem write failed, falling back to blob'
+                );
             }
             const nextItem = { ...item, date: date, blob: blob };
             await audioFiles.put('audiofiles', nextItem);

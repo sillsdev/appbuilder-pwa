@@ -28,9 +28,7 @@ async function openHandleDB() {
 }
 
 export function isFileSystemAccessSupported(): boolean {
-    // Permissions isn't working correctly, so disable for now.
-    return false;
-    //return typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+    return typeof window !== 'undefined' && 'showDirectoryPicker' in window;
 }
 
 export async function getStoredMusicDirHandle(): Promise<FileSystemDirectoryHandle | undefined> {
@@ -99,6 +97,28 @@ export async function requestMusicDirPermission(
         console.error('Error requesting music directory permission:', error);
         return 'denied';
     }
+}
+
+/**
+ * Resolves the stored music directory handle with readwrite permission
+ * confirmed, requesting it if necessary. Must be called from a user-gesture
+ * handler (e.g. a click), and as close to that gesture as possible - the
+ * transient activation a click grants is short-lived, so this should run
+ * before any lengthy async work (like a download fetch), not after.
+ */
+export async function ensureWritableMusicDirHandle(): Promise<
+    FileSystemDirectoryHandle | undefined
+> {
+    if (!isFileSystemAccessSupported()) {
+        return undefined;
+    }
+    const handle = await getStoredMusicDirHandle();
+    if (!handle) {
+        return undefined;
+    }
+    const permission = await requestMusicDirPermission(handle, 'readwrite');
+    console.debug(`[audio-fs] ensureWritableMusicDirHandle: permission=${permission}`);
+    return permission === 'granted' ? handle : undefined;
 }
 
 export async function getAudioSubdirHandle(
@@ -201,6 +221,7 @@ export async function getMusicDirStatus(): Promise<{
         return { connected: false };
     }
     const permission = await queryMusicDirPermission(handle, 'readwrite');
+    console.debug(`[audio-fs] getMusicDirStatus: permission=${permission}`);
     if (permission === 'granted') {
         return { connected: true, folderName: handle.name };
     }

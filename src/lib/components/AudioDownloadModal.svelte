@@ -7,6 +7,7 @@ Audio Download Modal Dialog component.
     import { updateAudioPlayer } from '$lib/data/audio';
     import { addAudioFile } from '$lib/data/audioFilesDB';
     import {
+        ensureWritableMusicDirHandle,
         getStoredMusicDirHandle,
         isFileSystemAccessSupported,
         pickMusicDirectory,
@@ -61,6 +62,15 @@ Audio Download Modal Dialog component.
             }
             downloadProgress = 1;
             abortController = new AbortController();
+            // Resolve (and if needed, request) filesystem permission here, right
+            // at the top of the call, so it happens as close as possible to the
+            // user gesture that triggered the download - the fetch below can take
+            // a while, and by the time it finishes the click's transient
+            // activation needed for a permission prompt is likely gone.
+            const musicDirHandle = await ensureWritableMusicDirHandle();
+            console.debug('[audio-fs] downloadAudio: musicDirHandle resolved', {
+                hasHandle: !!musicDirHandle
+            });
             const addedAudioFile = await addAudioFile(
                 {
                     docSet: $refs.docSet,
@@ -72,7 +82,8 @@ Audio Download Modal Dialog component.
                 abortController,
                 (percent) => {
                     tick().then(() => (downloadProgress = percent));
-                }
+                },
+                musicDirHandle
             );
             downloadProgress = 0;
 
