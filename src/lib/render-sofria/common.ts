@@ -131,7 +131,6 @@ export type RenderWorkspace = {
     verseRangeNumber?: string;
     sequenceTypes: Array<SequenceType>;
     root: HTMLDivElement;
-    activeElements: any;
     scopeManager: ScopeManager;
     logSettings: any;
     scratch: RenderScratchpad;

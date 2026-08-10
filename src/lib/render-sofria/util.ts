@@ -42,31 +42,10 @@ export function subdividePhrases(workspace: RenderWorkspace, text: string) {
     }
 }
 
-export function addVerseNumber(
-    workspace: any,
-    element: any,
-    showVerseNumbers: boolean,
-    direction: string
-) {
-    if (showVerseNumbers === true) {
-        const spanV = document.createElement('span');
-        spanV.classList.add('v');
-        // 'number' can be a range of verse numbers
-        spanV.innerText = numerals.formatNumberRange(
-            workspace.numeralSystem,
-            element.atts['number'],
-            direction
-        );
-
-        const spanVsp = document.createElement('span');
-        spanVsp.classList.add('vsp');
-        spanVsp.innerText = '\u00A0'; // &nbsp
-        workspace.phraseDiv.appendChild(spanV);
-        workspace.phraseDiv.appendChild(spanVsp);
-    }
-}
-
 export function addVerseNumberRange(workspace: RenderWorkspace, phraseDiv: HTMLDivElement) {
+    console.warn(
+        `adding verse number: ${phraseDiv.id === workspace.currentTextPosition.verse + 'a'}; ${workspace.verseRangeNumber}`
+    );
     // TODO: parameterize next line
     // TODO: figure out how to hide first verse number
     const direction = scriptureConfig.bookCollections?.find(
