@@ -724,6 +724,25 @@ function getDamId(audioSource: AudioSource) {
     return damId;
 }
 
+export function getAudioSourceType(
+    item: Partial<{
+        collection: string;
+        book: string;
+        chapter: string;
+    }>
+) {
+    const audio = scriptureConfig.bookCollections
+        ?.find((c) => item.collection === c.id)
+        ?.books?.find((b) => b.id === item.book)
+        ?.audio?.find((a) => item.chapter === '' + a.num);
+    if (!audio) {
+        return;
+    }
+
+    const audioSource = scriptureConfig.audio?.sources[audio.src];
+    return audioSource?.type;
+}
+
 export async function getAudioSourceInfo(
     item: Partial<{
         collection: string;

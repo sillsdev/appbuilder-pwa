@@ -20,6 +20,7 @@ import CopyContentIcon from './CopyContentIcon.svelte';
 import DeleteIcon from './DeleteIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
 import DownloadIcon from './DownloadIcon.svelte';
+import DownloadDoneIcon from './DownloadIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
 import EditIcon from './EditIcon.svelte';
 import HamburgerIcon from './HamburgerIcon.svelte';
@@ -65,6 +66,7 @@ export {
     DeleteIcon,
     DeleteSweepIcon,
     DownloadIcon,
+    DownloadDoneIcon,
     DropdownIcon,
     EditIcon,
     HamburgerIcon,
