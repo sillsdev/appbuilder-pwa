@@ -48,9 +48,6 @@ const mainTextFeature = new FeatureSpec([
 
                 phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
 
-                console.warn(
-                    `adding verse number: ${phraseDiv.id === workspace.currentTextPosition.verse + 'a'}; ${workspace.verseRangeNumber}`
-                );
                 if (
                     workspace.showVerseNumbers &&
                     phraseDiv.id === workspace.currentTextPosition.verse + 'a' &&
