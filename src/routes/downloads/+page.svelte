@@ -29,7 +29,7 @@
     let downloadItems: CollectionInfo[] = $state([]);
     onMount(async () => {
         if (scriptureConfig?.bookCollections) {
-            for (const collection of scriptureConfig?.bookCollections) {
+            for (const collection of scriptureConfig.bookCollections) {
                 if (collection.books) {
                     let numDownloaded = 0;
                     let numToDownload = 0;
@@ -138,6 +138,60 @@
         let i = 0;
         return str.replace(/%d/g, () => placeholders[i++]);
     }
+    function deleteSelected() {
+        if (currentState === 'collection') {
+            currentCollection?.books
+                .filter((b) => !b.containedInApp)
+                .forEach((book) => {
+                    book.chapters
+                        .filter((c) => c.type === 'downloaded')
+                        .forEach((chapter) => {
+                            console.log(
+                                'Delete chapter ' + chapter.number + ' of book ' + book.name
+                            );
+                            chapter.type = 'remote';
+                            book.numDownloaded--;
+                        });
+                });
+        } else if (currentState === 'book') {
+            currentBook?.chapters
+                .filter((c) => c.type === 'downloaded')
+                .forEach((chapter) => {
+                    console.log(
+                        'Delete chapter ' + chapter.number + ' of book ' + currentBook?.name
+                    );
+                    chapter.type = 'remote';
+                    currentBook!.numDownloaded--;
+                });
+        }
+    }
+    function downloadSelected() {
+        if (currentState === 'collection') {
+            currentCollection?.books
+                .filter((b) => !b.containedInApp)
+                .forEach((book) => {
+                    book.chapters
+                        .filter((c) => c.type === 'remote')
+                        .forEach((chapter) => {
+                            console.log(
+                                'Download chapter ' + chapter.number + ' of book ' + book.name
+                            );
+                            chapter.type = 'downloaded';
+                            book.numDownloaded++;
+                        });
+                });
+        } else if (currentState === 'book') {
+            currentBook?.chapters
+                .filter((c) => c.type === 'remote')
+                .forEach((chapter) => {
+                    console.log(
+                        'Download chapter ' + chapter.number + ' of book ' + currentBook?.name
+                    );
+                    chapter.type = 'downloaded';
+                    currentBook!.numDownloaded++;
+                });
+        }
+    }
 </script>
 
 <div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">
@@ -151,13 +205,15 @@
                 </label>
             {/snippet}
             {#snippet end()}
-                {#if currentState === 'collection' && currentCollection?.books
+                {#if (currentState === 'collection' && currentCollection?.books
                         .filter((b) => !b.containedInApp)
-                        .some((b) => b.selected)}
-                    <button class="dy-btn-sm dy-btn-ghost">
+                        .some((b) => b.selected)) || (currentState === 'book' && currentBook?.chapters
+                            .filter((c) => c.type === 'remote' || c.type === 'downloaded')
+                            .some((c) => c.selected))}
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={deleteSelected}>
                         <DeleteIcon color={$actionBarColor} />
                     </button>
-                    <button class="dy-btn-sm dy-btn-ghost">
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={downloadSelected}>
                         <DownloadIcon color={$actionBarColor} />
                     </button>
                 {/if}
@@ -207,19 +263,21 @@
                 <div class="download-title">
                     {currentCollection.name}
                 </div>
-                <div class="download-select-all-items flex">
-                    <div class="download-checkbox">
-                        <input
-                            type="checkbox"
-                            class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
+                {#if currentCollection.books.some((b) => !b.containedInApp)}
+                    <div class="download-select-all-items flex">
+                        <div class="download-checkbox">
+                            <input
+                                type="checkbox"
+                                class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
          checked:bg-black text-white"
-                            class:invert={themeIsDark($theme)}
-                            bind:checked={selectAll}
-                            onclick={toggleSelectAll}
-                        />
+                                class:invert={themeIsDark($theme)}
+                                bind:checked={selectAll}
+                                onclick={toggleSelectAll}
+                            />
+                        </div>
+                        <div>{$t['Download_Select_All']}</div>
                     </div>
-                    <div>{$t['Download_Select_All']}</div>
-                </div>
+                {/if}
                 {#each currentCollection.books as item}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -275,19 +333,21 @@
                 <div class="download-title">
                     {currentBook.name}
                 </div>
-                <div class="download-select-all-items flex">
-                    <div class="download-checkbox">
-                        <input
-                            type="checkbox"
-                            class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
+                {#if currentBook.chapters.some((c) => c.type === 'remote' || c.type === 'downloaded')}
+                    <div class="download-select-all-items flex">
+                        <div class="download-checkbox">
+                            <input
+                                type="checkbox"
+                                class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
          checked:bg-black text-white"
-                            class:invert={themeIsDark($theme)}
-                            checked={selectAll}
-                            onclick={toggleSelectAll}
-                        />
+                                class:invert={themeIsDark($theme)}
+                                checked={selectAll}
+                                onclick={toggleSelectAll}
+                            />
+                        </div>
+                        <div>{$t['Download_Select_All']}</div>
                     </div>
-                    <div>{$t['Download_Select_All']}</div>
-                </div>
+                {/if}
                 {#each currentBook.chapters as item}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
