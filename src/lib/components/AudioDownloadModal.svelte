@@ -6,6 +6,13 @@ Audio Download Modal Dialog component.
 <script lang="ts">
     import { updateAudioPlayer } from '$lib/data/audio';
     import { addAudioFile } from '$lib/data/audioFilesDB';
+    import {
+        ensureWritableMusicDirHandle,
+        getStoredMusicDirHandle,
+        isFileSystemAccessSupported,
+        pickMusicDirectory,
+        STORAGE_CHOICE_KEY
+    } from '$lib/data/audioFileSystem';
     import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
     import { tick } from 'svelte';
@@ -13,6 +20,7 @@ Audio Download Modal Dialog component.
 
     const modalId = 'audioDownloadModal';
     let modal: Modal | undefined = $state(undefined);
+    let modalStep: 'confirm' | 'storage-offer' = $state('confirm');
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
     let afterDownload: (() => void) | undefined;
@@ -20,7 +28,32 @@ Audio Download Modal Dialog component.
     export function showModal(url: string, options?: { afterDownload?: () => void }) {
         audioUrl = url;
         afterDownload = options?.afterDownload;
+        modalStep = 'confirm';
         modal?.showModal();
+    }
+
+    async function shouldOfferFilesystemStorage(): Promise<boolean> {
+        if (!isFileSystemAccessSupported() || localStorage.getItem(STORAGE_CHOICE_KEY)) {
+            return false;
+        }
+        return !(await getStoredMusicDirHandle());
+    }
+
+    async function onConfirmYes() {
+        if (await shouldOfferFilesystemStorage()) {
+            modalStep = 'storage-offer';
+            return;
+        }
+        modal?.close();
+        await proceedWithDownload();
+    }
+
+    async function onStorageOfferChoice(saveToFilesystem: boolean) {
+        modal?.close();
+        modalStep = 'confirm';
+        const handle = saveToFilesystem ? await pickMusicDirectory() : undefined;
+        localStorage.setItem(STORAGE_CHOICE_KEY, handle ? 'enabled' : 'declined');
+        await proceedWithDownload();
     }
     export async function downloadAudio(url: string): ReturnType<typeof addAudioFile> {
         try {
@@ -29,6 +62,15 @@ Audio Download Modal Dialog component.
             }
             downloadProgress = 1;
             abortController = new AbortController();
+            // Resolve (and if needed, request) filesystem permission here, right
+            // at the top of the call, so it happens as close as possible to the
+            // user gesture that triggered the download - the fetch below can take
+            // a while, and by the time it finishes the click's transient
+            // activation needed for a permission prompt is likely gone.
+            const musicDirHandle = await ensureWritableMusicDirHandle();
+            console.debug('[audio-fs] downloadAudio: musicDirHandle resolved', {
+                hasHandle: !!musicDirHandle
+            });
             const addedAudioFile = await addAudioFile(
                 {
                     docSet: $refs.docSet,
@@ -40,7 +82,8 @@ Audio Download Modal Dialog component.
                 abortController,
                 (percent) => {
                     tick().then(() => (downloadProgress = percent));
-                }
+                },
+                musicDirHandle
             );
             downloadProgress = 0;
 
@@ -55,7 +98,7 @@ Audio Download Modal Dialog component.
             return { success: false, error: err instanceof Error ? err.message : String(err) };
         }
     }
-    async function finishModal() {
+    async function proceedWithDownload() {
         const addedAudioFile = await downloadAudio(audioUrl);
         if (!addedAudioFile.success && !abortController?.signal.aborted) {
             modal?.close();
@@ -79,43 +122,77 @@ Audio Download Modal Dialog component.
     <div id="container" class="message">
         <div class="message-body" id="message-body">
             <div class="message-header"></div>
-            <div class="message-title">
-                {$t['Audio_Download_Title']}
-            </div>
-            <div class="message-text">
-                {$t['Audio_Download_Confirm']}
-            </div>
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-                class="message-checkbox flex w-full"
-                onclick={() => {
-                    downloadAutomatically = !downloadAutomatically;
-                }}
-            >
-                <div class="message-checkbox-left">
-                    {#if downloadAutomatically}
-                        <CheckboxIcon></CheckboxIcon>
-                    {:else}
-                        <CheckboxOutlineIcon></CheckboxOutlineIcon>
-                    {/if}
+            {#if modalStep === 'confirm'}
+                <div class="message-title">
+                    {$t['Audio_Download_Title']}
                 </div>
-                <div class="message-checkbox-caption">{$t['Audio_Download_Auto']}</div>
-            </div>
+                <div class="message-text">
+                    {$t['Audio_Download_Confirm']}
+                </div>
+                <div class="message-checkbox flex w-full">
+                    <label class="flex w-full cursor-pointer items-center">
+                        <input
+                            type="checkbox"
+                            class="sr-only"
+                            bind:checked={downloadAutomatically}
+                        />
+                        <div class="message-checkbox-left" aria-hidden="true">
+                            {#if downloadAutomatically}
+                                <CheckboxIcon></CheckboxIcon>
+                            {:else}
+                                <CheckboxOutlineIcon></CheckboxOutlineIcon>
+                            {/if}
+                        </div>
+                        <div class="message-checkbox-caption">{$t['Audio_Download_Auto']}</div>
+                    </label>
+                </div>
+            {:else}
+                <div class="message-title">
+                    {$t['Audio_Download_Title']}
+                </div>
+                <div class="message-text">
+                    {$t['Audio_Storage_Offer']}
+                </div>
+            {/if}
         </div>
 
         <div class="left-0 dy-modal-action message-footer pointer-events-none">
             <div class="message-buttons">
-                <button class="dy-btn message-button pointer-events-auto" id="no">
-                    {$t['Button_No']}
-                </button>
-                <button
-                    class="dy-btn message-button pointer-events-auto"
-                    id="yes"
-                    onclick={() => finishModal()}
-                >
-                    {$t['Button_Yes']}
-                </button>
+                {#if modalStep === 'confirm'}
+                    <button
+                        class="dy-btn message-button pointer-events-auto"
+                        id="no"
+                        type="button"
+                        onclick={() => modal?.close()}
+                    >
+                        {$t['Button_No']}
+                    </button>
+                    <button
+                        class="dy-btn message-button pointer-events-auto"
+                        id="yes"
+                        type="button"
+                        onclick={() => onConfirmYes()}
+                    >
+                        {$t['Button_Yes']}
+                    </button>
+                {:else}
+                    <button
+                        class="dy-btn message-button pointer-events-auto"
+                        id="no"
+                        type="button"
+                        onclick={() => onStorageOfferChoice(false)}
+                    >
+                        {$t['Button_No']}
+                    </button>
+                    <button
+                        class="dy-btn message-button pointer-events-auto"
+                        id="yes"
+                        type="button"
+                        onclick={() => onStorageOfferChoice(true)}
+                    >
+                        {$t['Button_Yes']}
+                    </button>
+                {/if}
             </div>
         </div>
     </div>
