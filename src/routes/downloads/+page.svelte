@@ -2,7 +2,7 @@
     import { scriptureConfig } from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getAudioSourceInfo, getAudioSourceType } from '$lib/data/audio';
-    import { actionBarColor, s, t, theme, themeIsDark } from '$lib/data/stores';
+    import { actionBarColor, t, theme, themeIsDark } from '$lib/data/stores';
     import { DownloadIcon } from '$lib/icons';
     import ChevronIcon from '$lib/icons/ChevronIcon.svelte';
     import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
@@ -13,6 +13,7 @@
 
     type BookInfo = {
         name: string;
+        id: string;
         numDownloaded: number;
         numToDownload: number;
         chapters: ChaptersInfo[];
@@ -21,6 +22,8 @@
     };
     type CollectionInfo = {
         name: string;
+        id: string;
+        docSet: string;
         numDownloaded: number;
         numToDownload: number;
         books: BookInfo[];
@@ -37,6 +40,7 @@
                     for (const book of collection.books) {
                         let bookInfo: BookInfo = {
                             name: book.name,
+                            id: book.id,
                             numDownloaded: 0,
                             numToDownload: 0,
                             chapters: [],
@@ -90,6 +94,8 @@
                     if (numToDownload > 0) {
                         downloadItems.push({
                             name: collection.collectionName || '',
+                            docSet: collection.languageCode + '_' + collection.id,
+                            id: collection.id,
                             numDownloaded,
                             numToDownload,
                             books: books
@@ -134,6 +140,20 @@
     let currentCollection: CollectionInfo | undefined = $state();
     let currentBook: BookInfo | undefined = $state();
     let selectAll = $state(false);
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'DOWNLOAD_FINISHED') {
+            const downloadedItem = event.data.item;
+            console.log('Download finished: ', event.data.item);
+            const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
+            const book = collection?.books.find((b) => b.id === downloadedItem.bookId);
+            const chapter = book?.chapters.find((c) => c.number === downloadedItem.chapter);
+            if (chapter && chapter.type !== 'downloaded') {
+                chapter.type = 'downloaded';
+                book!.numDownloaded++;
+                collection!.numDownloaded++;
+            }
+        }
+    });
     function replacePlaceholders(str: string, placeholders: string[]) {
         let i = 0;
         return str.replace(/%d/g, () => placeholders[i++]);
@@ -173,22 +193,34 @@
                     book.chapters
                         .filter((c) => c.type === 'remote')
                         .forEach((chapter) => {
-                            console.log(
+                            /*console.log(
                                 'Download chapter ' + chapter.number + ' of book ' + book.name
-                            );
-                            chapter.type = 'downloaded';
-                            book.numDownloaded++;
+                            );*/
+                            navigator.serviceWorker?.controller?.postMessage({
+                                type: 'START_DOWNLOAD',
+                                collectionId: currentCollection?.id,
+                                bookId: book.id,
+                                chapter: chapter.number
+                            });
+                            //chapter.type = 'downloaded';
+                            //book.numDownloaded++;
                         });
                 });
         } else if (currentState === 'book') {
             currentBook?.chapters
                 .filter((c) => c.type === 'remote')
                 .forEach((chapter) => {
-                    console.log(
+                    /*console.log(
                         'Download chapter ' + chapter.number + ' of book ' + currentBook?.name
-                    );
-                    chapter.type = 'downloaded';
-                    currentBook!.numDownloaded++;
+                    );*/
+                    navigator.serviceWorker?.controller?.postMessage({
+                        type: 'START_DOWNLOAD',
+                        collectionId: currentCollection?.id,
+                        bookId: currentBook?.id,
+                        chapter: chapter.number
+                    });
+                    //chapter.type = 'downloaded';
+                    //currentBook!.numDownloaded++;
                 });
         }
     }

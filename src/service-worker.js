@@ -8,6 +8,8 @@ const ASSETS = [
     ...build, // the app itself
     ...files // everything in `static`
 ];
+let audioDownloadQueue = [];
+let processingAudioDownloads = false;
 
 self.addEventListener('install', (event) => {
     // Create a new cache and add all files to it
@@ -91,3 +93,56 @@ self.addEventListener('fetch', (event) => {
 
     event.respondWith(respond());
 });
+
+self.addEventListener('message', async (event) => {
+    if (event.data?.type === 'START_DOWNLOAD') {
+        /*console.log(event.data);
+        let id = 'bob';
+        let received = 'hi';
+        self.clients.matchAll().then((clients) => {
+            clients.forEach((client) =>
+                client.postMessage({ type: 'DOWNLOAD_PROGRESS', id, received })
+            );
+        });*/
+        const { collectionId, bookId, chapter } = event.data;
+        audioDownloadQueue.push({
+            collectionId,
+            bookId,
+            chapter
+        });
+        processAudioQueue();
+    }
+});
+async function processAudioQueue() {
+    if (processingAudioDownloads) {
+        return;
+    }
+    processingAudioDownloads = true;
+    while (audioDownloadQueue.length > 0) {
+        const item = audioDownloadQueue[0];
+        await waitForSeconds(1);
+        await downloadItem(item);
+        console.log('Download item');
+        console.log(item);
+        audioDownloadQueue.shift();
+        self.clients.matchAll().then((clients) => {
+            clients.forEach((client) =>
+                client.postMessage({ type: 'DOWNLOAD_FINISHED', item: item })
+            );
+        });
+    }
+    processingAudioDownloads = false;
+}
+async function downloadItem(item) {
+    /*modal.open(ModalType.DownloadAudio, {
+        audioPath,
+        show: false,
+        afterDownload: options?.afterDownload
+    });*/
+}
+
+function waitForSeconds(seconds) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, seconds * 1000);
+    });
+}
