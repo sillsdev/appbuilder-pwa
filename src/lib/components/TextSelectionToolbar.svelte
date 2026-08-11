@@ -165,7 +165,11 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                         class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() =>
                             checkAudioAvailability({
-                                afterDownload: () => playSelectedVerseAudio({ repeat: false })
+                                afterDownload: (success: boolean) => {
+                                    if (success) {
+                                        playSelectedVerseAudio({ repeat: false });
+                                    }
+                                }
                             }).then((audioAvailable) => {
                                 if (audioAvailable) {
                                     playSelectedVerseAudio({ repeat: false });
@@ -180,7 +184,11 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                         class="dy-btn dy-btn-sm dy-btn-ghost"
                         onclick={() =>
                             checkAudioAvailability({
-                                afterDownload: () => playSelectedVerseAudio({ repeat: true })
+                                afterDownload: (success: boolean) => {
+                                    if (success) {
+                                        playSelectedVerseAudio({ repeat: true });
+                                    }
+                                }
                             }).then((audioAvailable) => {
                                 if (audioAvailable) {
                                     playSelectedVerseAudio({ repeat: true });

@@ -23,9 +23,12 @@ Audio Download Modal Dialog component.
     let modalStep: 'confirm' | 'storage-offer' = $state('confirm');
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
-    let afterDownload: (() => void) | undefined;
+    let afterDownload: ((success: boolean) => void) | undefined;
 
-    export function showModal(url: string, options?: { afterDownload?: () => void }) {
+    export function showModal(
+        url: string,
+        options?: { afterDownload?: (success: boolean) => void }
+    ) {
         audioUrl = url;
         afterDownload = options?.afterDownload;
         modalStep = 'confirm';
@@ -55,12 +58,22 @@ Audio Download Modal Dialog component.
         localStorage.setItem(STORAGE_CHOICE_KEY, handle ? 'enabled' : 'declined');
         await proceedWithDownload();
     }
-    export async function downloadAudio(url: string): ReturnType<typeof addAudioFile> {
+    export async function downloadAudio(
+        url: string,
+        item: { docSet: string; collection: string; book: string; chapter: string },
+        options?: {
+            noAutoplay?: boolean;
+            hideBar?: boolean;
+            afterDownload?: (success: boolean) => void;
+        }
+    ): ReturnType<typeof addAudioFile> {
         try {
             if (downloadAutomatically) {
                 $userSettings['audio-auto-download'] = 'auto';
             }
-            downloadProgress = 1;
+            if (!options?.hideBar) {
+                downloadProgress = 1;
+            }
             abortController = new AbortController();
             // Resolve (and if needed, request) filesystem permission here, right
             // at the top of the call, so it happens as close as possible to the
@@ -73,33 +86,39 @@ Audio Download Modal Dialog component.
             });
             const addedAudioFile = await addAudioFile(
                 {
-                    docSet: $refs.docSet,
-                    collection: $refs.collection,
-                    book: $refs.book,
-                    chapter: $refs.chapter
+                    docSet: item.docSet,
+                    collection: item.collection,
+                    book: item.book,
+                    chapter: item.chapter
                 },
                 url,
                 abortController,
                 (percent) => {
-                    tick().then(() => (downloadProgress = percent));
+                    if (!options?.hideBar) {
+                        tick().then(() => (downloadProgress = percent));
+                    }
                 },
                 musicDirHandle
             );
-            downloadProgress = 0;
+            if (!options?.hideBar) {
+                downloadProgress = 0;
+            }
 
             if (!addedAudioFile.success) {
+                options?.afterDownload?.(false);
                 return addedAudioFile;
             }
-            updateAudioPlayer($refs, { autoplay: true });
-            afterDownload?.();
+            updateAudioPlayer(item, { autoplay: !options?.noAutoplay });
+            options?.afterDownload?.(true);
             return addedAudioFile;
         } catch (err) {
+            options?.afterDownload?.(false);
             console.error('Error downloading audio: ', err);
             return { success: false, error: err instanceof Error ? err.message : String(err) };
         }
     }
     async function proceedWithDownload() {
-        const addedAudioFile = await downloadAudio(audioUrl);
+        const addedAudioFile = await downloadAudio(audioUrl, $refs, { afterDownload });
         if (!addedAudioFile.success && !abortController?.signal.aborted) {
             modal?.close();
             alert.open(ModalType.AudioAlert, {

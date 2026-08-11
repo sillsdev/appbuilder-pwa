@@ -104,15 +104,30 @@
                             const audioModalData = data as {
                                 audioPath: string;
                                 show: boolean;
-                                afterDownload?: () => void;
+                                item?: {
+                                    docSet: string;
+                                    collection: string;
+                                    book: string;
+                                    chapter: string;
+                                };
+                                noAutoplay?: boolean;
+                                hideBar?: boolean;
+                                afterDownload?: (success: boolean) => void;
                             };
                             if (audioModalData.show) {
                                 audioDownloadModal?.showModal(audioModalData.audioPath, {
                                     afterDownload: audioModalData.afterDownload
                                 });
                             } else {
-                                audioDownloadModal?.downloadAudio(audioModalData.audioPath);
-                                audioModalData.afterDownload?.();
+                                audioDownloadModal?.downloadAudio(
+                                    audioModalData.audioPath,
+                                    audioModalData.item ?? $refs,
+                                    {
+                                        noAutoplay: audioModalData.noAutoplay,
+                                        hideBar: audioModalData.hideBar,
+                                        afterDownload: audioModalData.afterDownload
+                                    }
+                                );
                             }
                         }
                         break;

@@ -113,7 +113,7 @@
             selectAll = allSelected;
         } else if (currentState === 'book' && currentBook) {
             const eligible = currentBook.chapters.filter(
-                (c) => c.type === 'remote' || c.type === 'downloaded'
+                (c) => c.type === 'remote' || c.type === 'downloaded' || c.type === 'waiting'
             );
             const allSelected = eligible.length > 0 && eligible.every((b) => b.selected);
 
@@ -130,7 +130,11 @@
             }
         } else if (currentState === 'book' && currentBook) {
             for (const chapter of currentBook.chapters) {
-                if (chapter.type === 'remote' || chapter.type === 'downloaded') {
+                if (
+                    chapter.type === 'remote' ||
+                    chapter.type === 'downloaded' ||
+                    chapter.type === 'waiting'
+                ) {
                     chapter.selected = selectAll;
                 }
             }
@@ -151,6 +155,15 @@
                 chapter.type = 'downloaded';
                 book!.numDownloaded++;
                 collection!.numDownloaded++;
+            }
+        } else if (event.data.type === 'DOWNLOAD_FAILED') {
+            const downloadedItem = event.data.item;
+            console.log('Download failed: ', event.data.item);
+            const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
+            const book = collection?.books.find((b) => b.id === downloadedItem.bookId);
+            const chapter = book?.chapters.find((c) => c.number === downloadedItem.chapter);
+            if (chapter && chapter.type !== 'downloaded') {
+                chapter.type = 'remote';
             }
         }
     });
@@ -188,7 +201,7 @@
     function downloadSelected() {
         if (currentState === 'collection') {
             currentCollection?.books
-                .filter((b) => !b.containedInApp)
+                .filter((b) => b.selected && !b.containedInApp)
                 .forEach((book) => {
                     book.chapters
                         .filter((c) => c.type === 'remote')
@@ -199,6 +212,7 @@
                             navigator.serviceWorker?.controller?.postMessage({
                                 type: 'START_DOWNLOAD',
                                 collectionId: currentCollection?.id,
+                                docSet: currentCollection?.docSet,
                                 bookId: book.id,
                                 chapter: chapter.number
                             });
@@ -208,7 +222,7 @@
                 });
         } else if (currentState === 'book') {
             currentBook?.chapters
-                .filter((c) => c.type === 'remote')
+                .filter((c) => c.selected && c.type === 'remote')
                 .forEach((chapter) => {
                     /*console.log(
                         'Download chapter ' + chapter.number + ' of book ' + currentBook?.name
@@ -216,9 +230,11 @@
                     navigator.serviceWorker?.controller?.postMessage({
                         type: 'START_DOWNLOAD',
                         collectionId: currentCollection?.id,
+                        docSet: currentCollection?.docSet,
                         bookId: currentBook?.id,
                         chapter: chapter.number
                     });
+                    chapter.type = 'waiting';
                     //chapter.type = 'downloaded';
                     //currentBook!.numDownloaded++;
                 });
@@ -240,7 +256,7 @@
                 {#if (currentState === 'collection' && currentCollection?.books
                         .filter((b) => !b.containedInApp)
                         .some((b) => b.selected)) || (currentState === 'book' && currentBook?.chapters
-                            .filter((c) => c.type === 'remote' || c.type === 'downloaded')
+                            .filter((c) => c.type === 'remote' || c.type === 'downloaded' || c.type === 'waiting')
                             .some((c) => c.selected))}
                     <button class="dy-btn-sm dy-btn-ghost" onclick={deleteSelected}>
                         <DeleteIcon color={$actionBarColor} />
@@ -365,7 +381,7 @@
                 <div class="download-title">
                     {currentBook.name}
                 </div>
-                {#if currentBook.chapters.some((c) => c.type === 'remote' || c.type === 'downloaded')}
+                {#if currentBook.chapters.some((c) => c.type === 'remote' || c.type === 'downloaded' || c.type === 'waiting')}
                     <div class="download-select-all-items flex">
                         <div class="download-checkbox">
                             <input
@@ -389,7 +405,7 @@
                             : ''}"
                     >
                         <div class="w-[20%] flex items-center justify-center p-0">
-                            {#if item.type === 'remote' || item.type === 'downloaded'}
+                            {#if item.type === 'remote' || item.type === 'downloaded' || item.type === 'waiting'}
                                 <input
                                     type="checkbox"
                                     class="dy-checkbox dy-checkbox-neutral appearance-none bg-white border-black
@@ -409,7 +425,9 @@
                                     ? $t['Download_Contained_In_App']
                                     : item.type === 'remote'
                                       ? $t['Download_Not_Downloaded_Yet']
-                                      : $t['Download_Downloaded']}
+                                      : item.type === 'waiting'
+                                        ? $t['Download_Waiting_To_Download']
+                                        : $t['Download_Downloaded']}
                             </div>
                             <div class="download-item-progress h-1 w-[95%]">
                                 {#if item.type === 'local' || item.type === 'downloaded'}

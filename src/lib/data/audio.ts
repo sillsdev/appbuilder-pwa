@@ -935,7 +935,9 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
     return { start, end } as PlayModeRange;
 }
 
-export async function checkAudioAvailability(options?: { afterDownload?: () => void }) {
+export async function checkAudioAvailability(options?: {
+    afterDownload?: (success: boolean) => void;
+}) {
     let curRefs = get(refs);
     const audio = scriptureConfig.bookCollections
         ?.find((c) => curRefs.collection === c.id)
@@ -1016,6 +1018,91 @@ export async function checkAudioAvailability(options?: { afterDownload?: () => v
     }
     return true;
 }
+async function downloadAudio(
+    item: { collection: string; book: string; chapter: string; docSet: string },
+    options?: { afterDownload?: (success: boolean) => void }
+) {
+    const audio = scriptureConfig.bookCollections
+        ?.find((c) => item.collection === c.id)
+        ?.books?.find((b) => b.id === item.book)
+        ?.audio?.find((a) => item.chapter === '' + a.num);
+    if (audio) {
+        const audioSource = scriptureConfig.audio?.sources[audio.src];
+        let foundAudioFile = await recoverAudioFileFromDisk(
+            {
+                docSet: item.docSet || '',
+                collection: item.collection || '',
+                book: item.book || '',
+                chapter: item.chapter || ''
+            },
+            audio
+        );
+        if (!foundAudioFile) {
+            let audioPath = '';
+            if (audioSource?.type === 'download') {
+                audioPath = pathJoin([audioSource.address, audio.filename]);
+            } else if (audioSource?.type === 'fcbh') {
+                if (!get(appOnline)) {
+                    modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' }); //It looks like we'll actually need a slightly different audio alert (Should probably still go in the same modal) that uses Download_Check_Internet_Connection and also has a header with Notification_Channel_Name_Download
+                    return false;
+                } else {
+                    const result = await getBibleBrainUrl(
+                        audioSource,
+                        {
+                            collection: item.collection || '',
+                            book: item.book || '',
+                            chapter: item.chapter || ''
+                        },
+                        getDamId
+                    );
+                    if (result.error) {
+                        throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+                    }
+                    if (result.path) {
+                        audioPath = result.path;
+                    }
+                }
+            }
+            if (!get(appOnline)) {
+                modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' }); //See comment on the other AudioAlert modal opening
+                return false;
+            } else {
+                modal.open(ModalType.DownloadAudio, {
+                    audioPath,
+                    show: false,
+                    noAutoplay: true,
+                    hideBar: true,
+                    item,
+                    afterDownload: options?.afterDownload
+                });
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data.type === 'DOWNLOAD_AUDIO_ITEM') {
+        const item = event.data.item;
+        downloadAudio(
+            {
+                docSet: item.docSet,
+                collection: item.collectionId,
+                book: item.bookId,
+                chapter: '' + item.chapter
+            },
+            {
+                afterDownload: (success: boolean) => {
+                    navigator.serviceWorker?.controller?.postMessage({
+                        type: 'FINISH_DOWNLOAD_AUDIO_ITEM',
+                        success
+                    });
+                }
+            }
+        );
+    }
+});
 function playSelectedVerseAudio(arg0: { repeat: boolean }) {
     throw new Error('Function not implemented.');
 }

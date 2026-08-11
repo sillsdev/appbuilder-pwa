@@ -94,23 +94,24 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(respond());
 });
 
+const messageWaiters = new Map(); //A map of resolve functions to run when the correct message is received
+
 self.addEventListener('message', async (event) => {
     if (event.data?.type === 'START_DOWNLOAD') {
-        /*console.log(event.data);
-        let id = 'bob';
-        let received = 'hi';
-        self.clients.matchAll().then((clients) => {
-            clients.forEach((client) =>
-                client.postMessage({ type: 'DOWNLOAD_PROGRESS', id, received })
-            );
-        });*/
-        const { collectionId, bookId, chapter } = event.data;
+        const { collectionId, bookId, chapter, docSet } = event.data;
         audioDownloadQueue.push({
+            docSet,
             collectionId,
             bookId,
             chapter
         });
         processAudioQueue();
+    } else if (event.data?.type) {
+        const resolve = messageWaiters.get(event.data.type);
+        if (resolve) {
+            messageWaiters.delete(event.data.type);
+            resolve(event.data);
+        }
     }
 });
 async function processAudioQueue() {
@@ -120,29 +121,36 @@ async function processAudioQueue() {
     processingAudioDownloads = true;
     while (audioDownloadQueue.length > 0) {
         const item = audioDownloadQueue[0];
-        await waitForSeconds(1);
-        await downloadItem(item);
-        console.log('Download item');
-        console.log(item);
+        const success = await downloadItem(item);
         audioDownloadQueue.shift();
-        self.clients.matchAll().then((clients) => {
-            clients.forEach((client) =>
-                client.postMessage({ type: 'DOWNLOAD_FINISHED', item: item })
-            );
-        });
+        if (success) {
+            self.clients.matchAll().then((clients) => {
+                clients.forEach((client) =>
+                    client.postMessage({ type: 'DOWNLOAD_FINISHED', item: item })
+                );
+            });
+        } else {
+            self.clients.matchAll().then((clients) => {
+                clients.forEach((client) =>
+                    client.postMessage({ type: 'DOWNLOAD_FAILED', item: item })
+                );
+            });
+        }
     }
     processingAudioDownloads = false;
 }
 async function downloadItem(item) {
-    /*modal.open(ModalType.DownloadAudio, {
-        audioPath,
-        show: false,
-        afterDownload: options?.afterDownload
-    });*/
+    self.clients.matchAll().then((clients) => {
+        clients.forEach((client) =>
+            client.postMessage({ type: 'DOWNLOAD_AUDIO_ITEM', item: item })
+        );
+    });
+    let messageContent = await waitForMessage('FINISH_DOWNLOAD_AUDIO_ITEM');
+    return messageContent.success;
 }
 
-function waitForSeconds(seconds) {
+function waitForMessage(message) {
     return new Promise((resolve) => {
-        setTimeout(resolve, seconds * 1000);
+        messageWaiters.set(message, resolve);
     });
 }
