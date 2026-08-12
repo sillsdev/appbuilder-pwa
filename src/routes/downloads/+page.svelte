@@ -2,6 +2,7 @@
     import { scriptureConfig } from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getAudioSourceInfo, getAudioSourceType } from '$lib/data/audio';
+    import { removeAudioFile } from '$lib/data/audioFilesDB';
     import { actionBarColor, t, theme, themeIsDark } from '$lib/data/stores';
     import { DownloadIcon } from '$lib/icons';
     import ChevronIcon from '$lib/icons/ChevronIcon.svelte';
@@ -147,7 +148,6 @@
     navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data.type === 'DOWNLOAD_FINISHED') {
             const downloadedItem = event.data.item;
-            console.log('Download finished: ', event.data.item);
             const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
             const book = collection?.books.find((b) => b.id === downloadedItem.bookId);
             const chapter = book?.chapters.find((c) => c.number === downloadedItem.chapter);
@@ -158,7 +158,6 @@
             }
         } else if (event.data.type === 'DOWNLOAD_FAILED') {
             const downloadedItem = event.data.item;
-            console.log('Download failed: ', event.data.item);
             const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
             const book = collection?.books.find((b) => b.id === downloadedItem.bookId);
             const chapter = book?.chapters.find((c) => c.number === downloadedItem.chapter);
@@ -174,27 +173,35 @@
     function deleteSelected() {
         if (currentState === 'collection') {
             currentCollection?.books
-                .filter((b) => !b.containedInApp)
+                .filter((b) => b.selected && !b.containedInApp)
                 .forEach((book) => {
+                    book.selected = false;
                     book.chapters
                         .filter((c) => c.type === 'downloaded')
                         .forEach((chapter) => {
-                            console.log(
-                                'Delete chapter ' + chapter.number + ' of book ' + book.name
-                            );
-                            chapter.type = 'remote';
-                            book.numDownloaded--;
+                            removeAudioFile({
+                                collection: currentCollection!.id,
+                                book: book.id,
+                                chapter: chapter.number + ''
+                            }).then(() => {
+                                chapter.type = 'remote';
+                                book.numDownloaded--;
+                            });
                         });
                 });
         } else if (currentState === 'book') {
             currentBook?.chapters
-                .filter((c) => c.type === 'downloaded')
+                .filter((c) => c.selected && c.type === 'downloaded')
                 .forEach((chapter) => {
-                    console.log(
-                        'Delete chapter ' + chapter.number + ' of book ' + currentBook?.name
-                    );
-                    chapter.type = 'remote';
-                    currentBook!.numDownloaded--;
+                    chapter.selected = false;
+                    removeAudioFile({
+                        collection: currentCollection?.id || '',
+                        book: currentBook!.id,
+                        chapter: chapter.number + ''
+                    }).then(() => {
+                        chapter.type = 'remote';
+                        currentBook!.numDownloaded--;
+                    });
                 });
         }
     }
@@ -203,12 +210,10 @@
             currentCollection?.books
                 .filter((b) => b.selected && !b.containedInApp)
                 .forEach((book) => {
+                    book.selected = false;
                     book.chapters
                         .filter((c) => c.type === 'remote')
                         .forEach((chapter) => {
-                            /*console.log(
-                                'Download chapter ' + chapter.number + ' of book ' + book.name
-                            );*/
                             navigator.serviceWorker?.controller?.postMessage({
                                 type: 'START_DOWNLOAD',
                                 collectionId: currentCollection?.id,
@@ -216,17 +221,13 @@
                                 bookId: book.id,
                                 chapter: chapter.number
                             });
-                            //chapter.type = 'downloaded';
-                            //book.numDownloaded++;
                         });
                 });
         } else if (currentState === 'book') {
             currentBook?.chapters
                 .filter((c) => c.selected && c.type === 'remote')
                 .forEach((chapter) => {
-                    /*console.log(
-                        'Download chapter ' + chapter.number + ' of book ' + currentBook?.name
-                    );*/
+                    chapter.selected = false;
                     navigator.serviceWorker?.controller?.postMessage({
                         type: 'START_DOWNLOAD',
                         collectionId: currentCollection?.id,
@@ -235,8 +236,6 @@
                         chapter: chapter.number
                     });
                     chapter.type = 'waiting';
-                    //chapter.type = 'downloaded';
-                    //currentBook!.numDownloaded++;
                 });
         }
     }

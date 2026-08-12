@@ -220,6 +220,11 @@ export async function findAudioFile(item: { collection: string; book: string; ch
     return audioFiles.get('audiofiles', [item.collection, item.book, item.chapter]);
 }
 
+export async function removeAudioFile(item: { collection: string; book: string; chapter: string }) {
+    const audioFiles = await openAudioFiles();
+    await audioFiles.delete('audiofiles', [item.collection, item.book, item.chapter]);
+}
+
 /**
  * Falls back to the filesystem when `findAudioFile` finds no record - the
  * record is lost whenever the user clears site data, even though a

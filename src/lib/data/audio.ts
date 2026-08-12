@@ -1028,7 +1028,7 @@ async function downloadAudio(
         ?.audio?.find((a) => item.chapter === '' + a.num);
     if (audio) {
         const audioSource = scriptureConfig.audio?.sources[audio.src];
-        let foundAudioFile = await recoverAudioFileFromDisk(
+        const foundAudioFile = await recoverAudioFileFromDisk(
             {
                 docSet: item.docSet || '',
                 collection: item.collection || '',
