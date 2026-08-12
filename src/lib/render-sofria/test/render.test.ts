@@ -1454,3 +1454,120 @@ describe('ChordPro chords', () => {
         );
     });
 });
+
+describe('verses continued into a paragraph that starts another verse', () => {
+    /** verse 2 continues into a paragraph that starts one new verse (3) */
+    const startsOneVerse =
+        '\\c 1\n\\p\n\\v 1 One.\n\\v 2 Two a.\n\\p Two b.\n\\v 3 Three.\n\\p\n\\v 4 Four.\n';
+    /** verse 2 continues into a paragraph that starts two new verses (3, 4) */
+    const startsTwoVerses =
+        '\\c 1\n\\p\n\\v 1 One.\n\\p\n\\v 2 Two a.\n\\p Two b.\n\\v 3 Three.\n\\v 4 Four.\n\\p\n\\v 5 Five.\n';
+
+    const phraseText = (root: Element, verse: string) =>
+        [...root.querySelectorAll(`[data-verse="${verse}"][data-phrase]`)].map((el) =>
+            el.textContent?.trim()
+        );
+    const versesWithText = (root: Element) => [
+        ...new Set(
+            [...root.querySelectorAll('[data-phrase]:not([data-verse="none"])')]
+                .filter((el) => el.textContent?.trim())
+                .map((el) => el.getAttribute('data-verse'))
+        )
+    ];
+    const range = (start: number, end = start) => ({ verseRange: { start, end } });
+
+    describe('verse ranges', () => {
+        test.each([
+            ['one new verse', startsOneVerse],
+            ['two new verses', startsTwoVerses]
+        ])('continued verse keeps its continuation (paragraph starts %s)', (_name, usfm) => {
+            const root = renderUsfm(usfm, range(2));
+            expect(phraseText(root, '2')).toEqual(['Two a.', 'Two b.']);
+            // verse 1 is checked by 'the verse before the range is not rendered' below
+            expect(versesWithText(root).filter((v) => Number(v) > 2)).toEqual([]);
+        });
+
+        test('a verse after the continuation excludes the continued text', () => {
+            const root = renderUsfm(startsTwoVerses, range(3));
+            expect(phraseText(root, '3')).toEqual(['Three.']);
+            expect(versesWithText(root)).toEqual(['3']);
+        });
+
+        test('a range of the new verses excludes the continued text', () => {
+            const root = renderUsfm(startsTwoVerses, range(3, 4));
+            expect(versesWithText(root)).toEqual(['3', '4']);
+        });
+
+        // BUG (also on main): a verse that starts inside the continuation paragraph
+        // renders nothing when it is the only verse in the range.
+        test.fails('the single new verse in a continuation paragraph is rendered', () => {
+            const root = renderUsfm(startsOneVerse, range(3));
+            expect(phraseText(root, '3')).toEqual(['Three.']);
+        });
+
+        // BUG (also on main): the verse before the range is rendered when it is in its
+        // own paragraph.
+        test.fails('the verse before the range is not rendered', () => {
+            const root = renderUsfm(startsTwoVerses, range(2));
+            expect(phraseText(root, '1')).toEqual([]);
+        });
+
+        test('text before the first verse in the same paragraph is kept', () => {
+            const root = renderUsfm(
+                '\\c 1\n\\p Intro text \\v 1 One.\n\\p\n\\v 2 Two.\n',
+                range(1, 2)
+            );
+            expect(root.textContent).toContain('Intro text');
+        });
+    });
+
+    describe('hover', () => {
+        const over = (el: Element) =>
+            el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+        const leave = (el: Element) => el.dispatchEvent(new MouseEvent('mouseleave'));
+        const hovered = (root: Element) =>
+            [...root.querySelectorAll('.force-hover')].map(
+                (el) => `${el.getAttribute('data-verse')}${el.getAttribute('data-phrase') ?? ''}`
+            );
+        const continuation = (root: Element) =>
+            [...root.querySelectorAll('[data-verse="2"][data-phrase]')].find(
+                (el) => el.textContent?.trim() === 'Two b.'
+            )!;
+
+        test.each([
+            ['one new verse', startsOneVerse],
+            ['two new verses', startsTwoVerses]
+        ])(
+            'hovering the continuation shades only the phrases of its verse (paragraph starts %s)',
+            (_name, usfm) => {
+                const root = renderUsfm(usfm, { attachHoverListeners: true });
+                const phrases = root.querySelectorAll('[data-verse="2"][data-phrase]');
+                over(continuation(root));
+                expect(hovered(root).sort()).toEqual(
+                    [...phrases].map((el) => `2${el.getAttribute('data-phrase')}`).sort()
+                );
+                const verseDiv = root.querySelector('[data-verse="2"]:not([data-phrase])')!;
+                expect(verseDiv.classList.contains('force-hover')).toBe(false);
+                leave(continuation(root));
+                expect(hovered(root)).toEqual([]);
+            }
+        );
+
+        test('no hover listeners when attachHoverListeners is false', () => {
+            const root = renderUsfm(startsOneVerse, { attachHoverListeners: false });
+            over(continuation(root));
+            expect(hovered(root)).toEqual([]);
+        });
+
+        test('text before the first verse is not shaded as if it were a verse', () => {
+            const root = renderUsfm(
+                '\\c 1\n\\d A title.\n\\p Intro text \\v 1 One.\n\\p More.\n\\v 2 Two.\n',
+                { attachHoverListeners: true }
+            );
+            const none = [...root.querySelectorAll('[data-verse="none"][data-phrase]')];
+            expect(none.length).toBeGreaterThan(1);
+            over(none.find((el) => el.textContent?.includes('Intro'))!);
+            expect(hovered(root).filter((h) => h.startsWith('none'))).toEqual([]);
+        });
+    });
+});

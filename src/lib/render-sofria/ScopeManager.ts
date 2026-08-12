@@ -48,23 +48,27 @@ class ScopeManager {
         }
     }
 
-    /**
-     * remove scope from top of stack, asserting that the scope type matches
-     */
-    pop(assertScopeType: RenderScopeWithSubType) {
+    private assertTop(scope: RenderScopeWithSubType, action: string) {
         const layers = this.stack.length;
         if (layers < 1) {
-            throw new Error('Tried to pop empty stack');
+            throw new Error(`Tried to ${action} empty stack`);
         }
 
         const topScope = this.stack.at(-1)!;
 
-        if (!topScope.match(assertScopeType)) {
+        if (!topScope.match(scope)) {
+            this.debug();
             throw new Error(
-                `Tried to pop scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
+                `Tried to ${action} scope ${scope} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
             );
         }
+    }
 
+    /**
+     * remove scope from top of stack, asserting that the scope type matches
+     */
+    pop(assertScopeType: RenderScopeWithSubType) {
+        this.assertTop(assertScopeType, 'pop');
         this.updateMap(assertScopeType, 'remove', this.stack.at(-1)?.subType);
         return this.stack.pop()!;
     }
@@ -76,6 +80,14 @@ class ScopeManager {
 
     find(level?: RenderScopeWithSubType) {
         return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
+    }
+
+    /**
+     * get scope at top of stack, asserting that the scope type matches
+     */
+    top(assertScopeType: RenderScopeWithSubType) {
+        this.assertTop(assertScopeType, 'get top');
+        return this.stack.at(-1)!;
     }
 
     depth(level?: RenderScopeWithSubType) {
@@ -128,19 +140,8 @@ class ScopeManager {
     }
 
     promoteContent(assertScopeType: RenderScopeWithSubType) {
+        this.assertTop(assertScopeType, 'promote from');
         const layers = this.stack.length;
-        if (layers < 1) {
-            throw new Error('Tried to promote content on empty scope stack');
-        }
-
-        const topScope = this.stack.at(-1)!;
-
-        if (!topScope.match(assertScopeType)) {
-            this.debug();
-            throw new Error(
-                `Tried to promote scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
-            );
-        }
 
         this.updateMap(assertScopeType, 'remove', this.stack.at(-1)?.subType);
 
