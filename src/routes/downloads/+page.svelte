@@ -12,7 +12,12 @@
     import DownloadDoneIcon from '$lib/icons/DownloadDoneIcon.svelte';
     import { onDestroy, onMount } from 'svelte';
 
-    type ChaptersInfo = { number: number; type: string; selected: boolean };
+    type ChaptersInfo = {
+        number: number;
+        type: string;
+        selected: boolean;
+        downloadProgress: number;
+    };
 
     type BookInfo = {
         name: string;
@@ -62,7 +67,8 @@
                                 bookInfo.chapters.push({
                                     number: audio.num,
                                     type: 'local',
-                                    selected: false
+                                    selected: false,
+                                    downloadProgress: 0
                                 }); //This would be the type that says, "Contained in app"
                             } else {
                                 bookInfo.containedInApp = false;
@@ -77,13 +83,15 @@
                                     bookInfo.chapters.push({
                                         number: audio.num,
                                         type: 'downloaded',
-                                        selected: false
+                                        selected: false,
+                                        downloadProgress: 0
                                     }); //This would be the type that says when it was downloaded (Or in the PWA, probably just "Downloaded")
                                 } else {
                                     bookInfo.chapters.push({
                                         number: audio.num,
                                         type: 'remote',
-                                        selected: false
+                                        selected: false,
+                                        downloadProgress: 0
                                     }); //This would be the type that says, "Not downloaded yet".
                                 }
                             }
@@ -173,6 +181,14 @@
             }
         } else if (event.data.type === 'All_DOWNLOADS_FINISHED') {
             showCancelDownload = false;
+        } else if (event.data.type === 'DOWNLOAD_PROGRESS_RECEIVED') {
+            const downloadedItem = event.data.item;
+            const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
+            const book = collection?.books.find((b) => b.id === downloadedItem.bookId);
+            const chapter = book?.chapters.find((c) => c.number === downloadedItem.chapter);
+            if (chapter && event.data.progress) {
+                chapter.downloadProgress = event.data.progress;
+            }
         }
     }
     downloadWorker.addEventListener('message', handleMessageEvent);
@@ -201,17 +217,19 @@
                 });
         } else if (currentState === 'book') {
             currentBook?.chapters
-                .filter((c) => c.selected && c.type === 'downloaded')
+                .filter((c) => c.selected && (c.type === 'downloaded' || c.type === 'remote'))
                 .forEach((chapter) => {
                     chapter.selected = false;
-                    removeAudioFile({
-                        collection: currentCollection?.id || '',
-                        book: currentBook!.id,
-                        chapter: chapter.number + ''
-                    }).then(() => {
-                        chapter.type = 'remote';
-                        currentBook!.numDownloaded--;
-                    });
+                    if (chapter.type === 'downloaded') {
+                        removeAudioFile({
+                            collection: currentCollection?.id || '',
+                            book: currentBook!.id,
+                            chapter: chapter.number + ''
+                        }).then(() => {
+                            chapter.type = 'remote';
+                            currentBook!.numDownloaded--;
+                        });
+                    }
                 });
         }
     }
@@ -454,10 +472,12 @@
                                         : $t['Download_Downloaded']}
                             </div>
                             <div class="download-item-progress h-1 w-[95%]">
-                                {#if item.type === 'local' || item.type === 'downloaded'}
+                                {#if item.type === 'local' || item.type === 'downloaded' || item.type === 'waiting'}
                                     <div
                                         class="download-item-progress-bar h-full"
-                                        style="width:100%;"
+                                        style="width:{item.type === 'waiting'
+                                            ? item.downloadProgress
+                                            : '100'}%;"
                                     ></div>
                                 {/if}
                             </div>

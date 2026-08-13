@@ -4,7 +4,7 @@ Cancel Downloads Modal Dialog component.
 -->
 
 <script lang="ts">
-    import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
+    import { t } from '$lib/data/stores';
     import { getWorker } from '$lib/download-worker/workerSingleton';
     import Modal from './Modal.svelte';
 

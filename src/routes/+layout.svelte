@@ -117,6 +117,7 @@
                                 autoplay?: boolean;
                                 hideBar?: boolean;
                                 afterDownload?: (success: boolean) => void;
+                                onProgressUpdate?: (percent: number) => void;
                             };
                             if (audioModalData.show) {
                                 audioDownloadModal?.showModal(audioModalData.audioPath, {
@@ -130,7 +131,8 @@
                                     {
                                         autoplay: audioModalData.autoplay,
                                         hideBar: audioModalData.hideBar,
-                                        afterDownload: audioModalData.afterDownload
+                                        afterDownload: audioModalData.afterDownload,
+                                        onProgressUpdate: audioModalData.onProgressUpdate
                                     }
                                 );
                             }

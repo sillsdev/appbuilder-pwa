@@ -14,8 +14,9 @@ Audio Download Modal Dialog component.
         STORAGE_CHOICE_KEY
     } from '$lib/data/audioFileSystem';
     import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
+    import { getWorker } from '$lib/download-worker/workerSingleton';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
-    import { tick } from 'svelte';
+    import { onDestroy, tick } from 'svelte';
     import Modal from './Modal.svelte';
 
     const modalId = 'audioDownloadModal';
@@ -67,6 +68,7 @@ Audio Download Modal Dialog component.
             autoplay?: boolean;
             hideBar?: boolean;
             afterDownload?: (success: boolean) => void;
+            onProgressUpdate?: (percent: number) => void;
         }
     ): ReturnType<typeof addAudioFile> {
         try {
@@ -95,11 +97,12 @@ Audio Download Modal Dialog component.
                 },
                 url,
                 abortController,
-                (percent) => {
-                    if (!options?.hideBar) {
-                        tick().then(() => (downloadProgress = percent));
-                    }
-                },
+                options?.onProgressUpdate ||
+                    ((percent) => {
+                        if (!options?.hideBar) {
+                            tick().then(() => (downloadProgress = percent));
+                        }
+                    }),
                 musicDirHandle
             );
             if (!options?.hideBar) {
@@ -140,6 +143,16 @@ Audio Download Modal Dialog component.
             .replace('%book', $refs.name || $refs.book)
             .replace('%chapter', $refs.chapter)
     );
+    const downloadWorker = getWorker();
+    function handleMessageEvent(event: MessageEvent) {
+        if (event.data.type === 'CANCEL_ALL_DOWNLOADS') {
+            abortController?.abort();
+        }
+    }
+    downloadWorker.addEventListener('message', handleMessageEvent);
+    onDestroy(() => {
+        downloadWorker.removeEventListener('message', handleMessageEvent);
+    });
 </script>
 
 <Modal bind:this={modal} id={modalId}>

@@ -22,6 +22,17 @@ self.addEventListener('message', (event) => {
             self.postMessage({ type: 'DOWNLOAD_CANCELLED', item: i });
         }
         audioDownloadQueue.length = 0;
+    } else if (event.data?.type === 'DOWNLOAD_PROGRESS') {
+        const item = event.data?.item;
+        self.postMessage({
+            type: 'DOWNLOAD_PROGRESS_RECEIVED',
+            item: {
+                collectionId: item.collection,
+                bookId: item.book,
+                chapter: Number(item.chapter)
+            },
+            progress: event.data?.progress
+        });
     } else if (event.data?.type) {
         const resolve = messageWaiters.get(event.data.type);
         if (resolve) {

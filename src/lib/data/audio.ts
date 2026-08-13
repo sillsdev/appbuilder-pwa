@@ -1083,7 +1083,14 @@ async function downloadAudio(
                     autoplay: false,
                     hideBar: true,
                     item,
-                    afterDownload: options?.afterDownload
+                    afterDownload: options?.afterDownload,
+                    onProgressUpdate: (percent: number) => {
+                        downloadWorker.postMessage({
+                            type: 'DOWNLOAD_PROGRESS',
+                            item: item,
+                            progress: percent
+                        });
+                    }
                 });
                 return true;
             }
