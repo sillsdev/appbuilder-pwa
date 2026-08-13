@@ -1047,7 +1047,10 @@ async function downloadAudio(
                 audioPath = pathJoin([audioSource.address, audio.filename]);
             } else if (audioSource?.type === 'fcbh') {
                 if (!get(appOnline)) {
-                    modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' }); //It looks like we'll actually need a slightly different audio alert (Should probably still go in the same modal) that uses Download_Check_Internet_Connection and also has a header with Notification_Channel_Name_Download
+                    modal.open(ModalType.AudioAlert, {
+                        messageKey: 'Download_Check_Internet_Connection',
+                        title: 'Notification_Channel_Name_Download'
+                    });
                     return false;
                 } else {
                     const result = await getBibleBrainUrl(
@@ -1068,7 +1071,10 @@ async function downloadAudio(
                 }
             }
             if (!get(appOnline)) {
-                modal.open(ModalType.AudioAlert, { messageKey: 'Audio_Download_Connect' }); //See comment on the other AudioAlert modal opening
+                modal.open(ModalType.AudioAlert, {
+                    messageKey: 'Download_Check_Internet_Connection',
+                    title: 'Notification_Channel_Name_Download'
+                });
                 return false;
             } else {
                 modal.open(ModalType.DownloadAudio, {
