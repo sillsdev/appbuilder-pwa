@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
-import { isDAB } from '../src/lib/scripts/configUtils';
+import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { createOutputDir, joinUrlPath } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
@@ -171,6 +171,12 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
             ':where(.clickable) { color: var(--LinkColor); text-decoration: underline; }'
         );
     }
+
+    if (isSAB(configData.data)) {
+        tempStyles.push(".seltxt { cursor: pointer; }");
+        tempStyles.push(".seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }");
+    }
+
     return tempStyles.join('\n') + '\n';
 }
 
