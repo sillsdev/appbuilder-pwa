@@ -33,7 +33,10 @@ TODO:
     import RepeatButton from './RepeatButton.svelte';
 
     interface Props {
-        checkAudioAvailability?: () => Promise<boolean>; //checkAudioAvailability downloads the audio if necessary and returns true if the audio is available
+        checkAudioAvailability?: (options?: {
+            afterDownload?: (success: boolean) => void;
+            autoplay?: boolean;
+        }) => Promise<boolean>; //checkAudioAvailability downloads the audio if necessary and returns true if the audio is available
     }
 
     let { checkAudioAvailability = () => Promise.resolve(true) }: Props = $props();
@@ -146,7 +149,7 @@ TODO:
             state={playButtonState}
             color={iconPlayColor}
             onclick={() =>
-                checkAudioAvailability().then((audioAvailable) => {
+                checkAudioAvailability({ autoplay: true }).then((audioAvailable) => {
                     if (audioAvailable) {
                         playPause();
                     }

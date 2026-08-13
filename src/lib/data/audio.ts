@@ -938,6 +938,7 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
 
 export async function checkAudioAvailability(options?: {
     afterDownload?: (success: boolean) => void;
+    autoplay?: boolean;
 }) {
     let curRefs = get(refs);
     const audio = scriptureConfig.bookCollections
@@ -1002,12 +1003,14 @@ export async function checkAudioAvailability(options?: {
                             modal.open(ModalType.DownloadAudio, {
                                 audioPath,
                                 show: false,
+                                autoplay: options?.autoplay,
                                 afterDownload: options?.afterDownload
                             }); //Just download it without showing the modal
                         } else {
                             modal.open(ModalType.DownloadAudio, {
                                 audioPath,
                                 show: true,
+                                autoplay: options?.autoplay,
                                 afterDownload: options?.afterDownload
                             });
                         }
@@ -1071,7 +1074,7 @@ async function downloadAudio(
                 modal.open(ModalType.DownloadAudio, {
                     audioPath,
                     show: false,
-                    noAutoplay: true,
+                    autoplay: false,
                     hideBar: true,
                     item,
                     afterDownload: options?.afterDownload

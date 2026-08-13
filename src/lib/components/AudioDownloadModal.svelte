@@ -24,11 +24,13 @@ Audio Download Modal Dialog component.
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
     let afterDownload: ((success: boolean) => void) | undefined;
+    let autoplay: boolean | undefined;
 
     export function showModal(
         url: string,
-        options?: { afterDownload?: (success: boolean) => void }
+        options?: { autoplay?: boolean; afterDownload?: (success: boolean) => void }
     ) {
+        autoplay = options?.autoplay;
         audioUrl = url;
         afterDownload = options?.afterDownload;
         modalStep = 'confirm';
@@ -62,7 +64,7 @@ Audio Download Modal Dialog component.
         url: string,
         item: { docSet: string; collection: string; book: string; chapter: string },
         options?: {
-            noAutoplay?: boolean;
+            autoplay?: boolean;
             hideBar?: boolean;
             afterDownload?: (success: boolean) => void;
         }
@@ -108,7 +110,7 @@ Audio Download Modal Dialog component.
                 options?.afterDownload?.(false);
                 return addedAudioFile;
             }
-            updateAudioPlayer(item, { autoplay: !options?.noAutoplay });
+            updateAudioPlayer(item, { autoplay: options?.autoplay });
             options?.afterDownload?.(true);
             return addedAudioFile;
         } catch (err) {
@@ -118,7 +120,10 @@ Audio Download Modal Dialog component.
         }
     }
     async function proceedWithDownload() {
-        const addedAudioFile = await downloadAudio(audioUrl, $refs, { afterDownload });
+        const addedAudioFile = await downloadAudio(audioUrl, $refs, {
+            afterDownload,
+            autoplay: autoplay
+        });
         if (!addedAudioFile.success && !abortController?.signal.aborted) {
             modal?.close();
             alert.open(ModalType.AudioAlert, {

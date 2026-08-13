@@ -110,12 +110,13 @@
                                     book: string;
                                     chapter: string;
                                 };
-                                noAutoplay?: boolean;
+                                autoplay?: boolean;
                                 hideBar?: boolean;
                                 afterDownload?: (success: boolean) => void;
                             };
                             if (audioModalData.show) {
                                 audioDownloadModal?.showModal(audioModalData.audioPath, {
+                                    autoplay: audioModalData.autoplay,
                                     afterDownload: audioModalData.afterDownload
                                 });
                             } else {
@@ -123,7 +124,7 @@
                                     audioModalData.audioPath,
                                     audioModalData.item ?? $refs,
                                     {
-                                        noAutoplay: audioModalData.noAutoplay,
+                                        autoplay: audioModalData.autoplay,
                                         hideBar: audioModalData.hideBar,
                                         afterDownload: audioModalData.afterDownload
                                     }

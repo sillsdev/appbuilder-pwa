@@ -1,4 +1,4 @@
-let audioDownloadQueue: {
+const audioDownloadQueue: {
     docSet: string;
     collectionId: string;
     bookId: string;
@@ -49,7 +49,7 @@ async function downloadItem(item: {
     chapter: string;
 }) {
     self.postMessage({ type: 'DOWNLOAD_AUDIO_ITEM', item: item });
-    let messageContent: { type: string; success: boolean } = await waitForMessage(
+    const messageContent: { type: string; success: boolean } = await waitForMessage(
         'FINISH_DOWNLOAD_AUDIO_ITEM'
     );
     return messageContent.success;
