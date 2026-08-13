@@ -4,11 +4,12 @@
     import { getAudioSourceInfo, getAudioSourceType } from '$lib/data/audio';
     import { removeAudioFile } from '$lib/data/audioFilesDB';
     import { actionBarColor, t, theme, themeIsDark } from '$lib/data/stores';
+    import { getWorker } from '$lib/download-worker/workerSingleton';
     import { DownloadIcon } from '$lib/icons';
     import ChevronIcon from '$lib/icons/ChevronIcon.svelte';
     import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
     import DownloadDoneIcon from '$lib/icons/DownloadDoneIcon.svelte';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
 
     type ChaptersInfo = { number: number; type: string; selected: boolean };
 
@@ -145,7 +146,8 @@
     let currentCollection: CollectionInfo | undefined = $state();
     let currentBook: BookInfo | undefined = $state();
     let selectAll = $state(false);
-    navigator.serviceWorker.addEventListener('message', (event) => {
+    const downloadWorker = getWorker();
+    function handleMessageEvent(event: MessageEvent) {
         if (event.data.type === 'DOWNLOAD_FINISHED') {
             const downloadedItem = event.data.item;
             const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
@@ -165,7 +167,8 @@
                 chapter.type = 'remote';
             }
         }
-    });
+    }
+    downloadWorker.addEventListener('message', handleMessageEvent);
     function replacePlaceholders(str: string, placeholders: string[]) {
         let i = 0;
         return str.replace(/%d/g, () => placeholders[i++]);
@@ -214,7 +217,7 @@
                     book.chapters
                         .filter((c) => c.type === 'remote')
                         .forEach((chapter) => {
-                            navigator.serviceWorker?.controller?.postMessage({
+                            downloadWorker.postMessage({
                                 type: 'START_DOWNLOAD',
                                 collectionId: currentCollection?.id,
                                 docSet: currentCollection?.docSet,
@@ -228,7 +231,7 @@
                 .filter((c) => c.selected && c.type === 'remote')
                 .forEach((chapter) => {
                     chapter.selected = false;
-                    navigator.serviceWorker?.controller?.postMessage({
+                    downloadWorker.postMessage({
                         type: 'START_DOWNLOAD',
                         collectionId: currentCollection?.id,
                         docSet: currentCollection?.docSet,
@@ -239,6 +242,9 @@
                 });
         }
     }
+    onDestroy(() => {
+        downloadWorker.removeEventListener('message', handleMessageEvent);
+    });
 </script>
 
 <div class="grid grid-rows-[auto_1fr]" style="height:100vh;height:100dvh;">

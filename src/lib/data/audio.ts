@@ -18,6 +18,7 @@ import {
     type PlayModeSettings,
     type Timing
 } from '$lib/data/stores';
+import { getWorker } from '$lib/download-worker/workerSingleton';
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { get } from 'svelte/store';
@@ -1082,7 +1083,9 @@ async function downloadAudio(
     return false;
 }
 
-navigator.serviceWorker.addEventListener('message', (event) => {
+const downloadWorker = getWorker();
+
+downloadWorker.addEventListener('message', (event) => {
     if (event.data.type === 'DOWNLOAD_AUDIO_ITEM') {
         const item = event.data.item;
         downloadAudio(
@@ -1094,7 +1097,7 @@ navigator.serviceWorker.addEventListener('message', (event) => {
             },
             {
                 afterDownload: (success: boolean) => {
-                    navigator.serviceWorker?.controller?.postMessage({
+                    downloadWorker.postMessage({
                         type: 'FINISH_DOWNLOAD_AUDIO_ITEM',
                         success
                     });
