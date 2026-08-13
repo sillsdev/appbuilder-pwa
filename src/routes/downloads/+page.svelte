@@ -3,9 +3,10 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { getAudioSourceInfo, getAudioSourceType } from '$lib/data/audio';
     import { removeAudioFile } from '$lib/data/audioFilesDB';
-    import { actionBarColor, t, theme, themeIsDark } from '$lib/data/stores';
+    import { actionBarColor, modal, ModalType, t, theme, themeIsDark } from '$lib/data/stores';
     import { getWorker } from '$lib/download-worker/workerSingleton';
     import { DownloadIcon } from '$lib/icons';
+    import CancelDownloadIcon from '$lib/icons/CancelDownloadIcon.svelte';
     import ChevronIcon from '$lib/icons/ChevronIcon.svelte';
     import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
     import DownloadDoneIcon from '$lib/icons/DownloadDoneIcon.svelte';
@@ -142,6 +143,7 @@
             }
         }
     }
+    let showCancelDownload = $state(false);
     let currentState = $state('root'); //root, collection, or book
     let currentCollection: CollectionInfo | undefined = $state();
     let currentBook: BookInfo | undefined = $state();
@@ -158,7 +160,10 @@
                 book!.numDownloaded++;
                 collection!.numDownloaded++;
             }
-        } else if (event.data.type === 'DOWNLOAD_FAILED') {
+        } else if (
+            event.data.type === 'DOWNLOAD_FAILED' ||
+            event.data.type === 'DOWNLOAD_CANCELLED'
+        ) {
             const downloadedItem = event.data.item;
             const collection = downloadItems.find((c) => c.id === downloadedItem.collectionId);
             const book = collection?.books.find((b) => b.id === downloadedItem.bookId);
@@ -166,6 +171,8 @@
             if (chapter && chapter.type !== 'downloaded') {
                 chapter.type = 'remote';
             }
+        } else if (event.data.type === 'All_DOWNLOADS_FINISHED') {
+            showCancelDownload = false;
         }
     }
     downloadWorker.addEventListener('message', handleMessageEvent);
@@ -224,6 +231,7 @@
                                 bookId: book.id,
                                 chapter: chapter.number
                             });
+                            showCancelDownload = true;
                         });
                 });
         } else if (currentState === 'book') {
@@ -238,9 +246,13 @@
                         bookId: currentBook?.id,
                         chapter: chapter.number
                     });
+                    showCancelDownload = true;
                     chapter.type = 'waiting';
                 });
         }
+    }
+    function promptCancelDownloads() {
+        modal.open(ModalType.CancelDownloads);
     }
     onDestroy(() => {
         downloadWorker.removeEventListener('message', handleMessageEvent);
@@ -258,6 +270,13 @@
                 </label>
             {/snippet}
             {#snippet end()}
+                {#if showCancelDownload}
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={promptCancelDownloads}>
+                        <div class="transform scale-x-[-1]">
+                            <CancelDownloadIcon color={$actionBarColor} />
+                        </div>
+                    </button>
+                {/if}
                 {#if (currentState === 'collection' && currentCollection?.books
                         .filter((b) => !b.containedInApp)
                         .some((b) => b.selected)) || (currentState === 'book' && currentBook?.chapters

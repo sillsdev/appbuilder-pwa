@@ -12,6 +12,7 @@ import BookmarkIcon from './BookmarkIcon.svelte';
 import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
 import CalendarMonthIcon from './CalendarMonthIcon.svelte';
 import VerseByVerseIcon from './CalendarMonthIcon.svelte';
+import CancelDownloadIcon from './CancelDownloadIcon.svelte';
 import CheckboxIcon from './CheckboxIcon.svelte';
 import CheckboxOutlineIcon from './CheckboxOutlineIcon.svelte';
 import CheckIcon from './CheckIcon.svelte';
@@ -58,6 +59,7 @@ export {
     BookmarkIcon,
     BookmarkOutlineIcon,
     CalendarMonthIcon,
+    CancelDownloadIcon,
     CheckboxIcon,
     CheckboxOutlineIcon,
     CheckIcon,

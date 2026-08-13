@@ -17,6 +17,11 @@ self.addEventListener('message', (event) => {
             chapter
         });
         processAudioQueue();
+    } else if (event.data?.type === 'CANCEL_ALL_DOWNLOADS') {
+        for (const i of audioDownloadQueue) {
+            self.postMessage({ type: 'DOWNLOAD_CANCELLED', item: i });
+        }
+        audioDownloadQueue.length = 0;
     } else if (event.data?.type) {
         const resolve = messageWaiters.get(event.data.type);
         if (resolve) {
@@ -40,6 +45,7 @@ async function processAudioQueue() {
             self.postMessage({ type: 'DOWNLOAD_FAILED', item: item });
         }
     }
+    self.postMessage({ type: 'All_DOWNLOADS_FINISHED' });
     processingAudioDownloads = false;
 }
 async function downloadItem(item: {

@@ -10,6 +10,7 @@
     } from '$lib/components/AudioAlertModal.svelte';
     import AudioDownloadModal from '$lib/components/AudioDownloadModal.svelte';
     import AudioPlaybackSpeed from '$lib/components/AudioPlaybackSpeed.svelte';
+    import CancelDownloadsModal from '$lib/components/CancelDownloadsModal.svelte';
     import CollectionModal from '$lib/components/CollectionModal.svelte';
     import FontSelector from '$lib/components/FontSelector.svelte';
     import NoteDialog from '$lib/components/NoteDialog.svelte';
@@ -95,6 +96,9 @@
                     case ModalType.Share:
                         shareSelector?.showModal(data as boolean);
                         break;
+                    case ModalType.CancelDownloads:
+                        cancelDownloadsModal?.showModal();
+                        break;
                     case ModalType.StopPlan:
                         planStopId = data as string;
                         planStopDialog?.showModal();
@@ -164,6 +168,7 @@
     let shareSelector: ShareSelector | undefined = $state();
     let noteDialog: NoteDialog | undefined = $state();
     let collectionModal: CollectionModal | undefined = $state();
+    let cancelDownloadsModal: CancelDownloadsModal | undefined = $state();
     let planStopDialog: PlanStopDialog | undefined = $state(undefined);
     let audioDownloadModal: AudioDownloadModal | undefined = $state();
     let audioAlertModal: AudioAlertModal | undefined = $state();
@@ -216,6 +221,7 @@
                 <PlanStopDialog bind:this={planStopDialog} bind:planId={planStopId} />
                 <AudioDownloadModal bind:this={audioDownloadModal} />
                 <AudioAlertModal bind:this={audioAlertModal} />
+                <CancelDownloadsModal bind:this={cancelDownloadsModal} />
                 <AudioPlaybackSpeed bind:this={audioPlaybackSpeed} />
                 <FontSelector bind:this={fontSelector} />
                 <ShareSelector bind:this={shareSelector} />
