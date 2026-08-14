@@ -939,7 +939,6 @@ The verse on image component.
         "
     >
         <!-- NavBar of tab buttons to bring up the different editor panes -->
-        <!-- TODO HERE-->
         {#each optionIcons as icon, i}
             {@const Icon = icon}
             <button
