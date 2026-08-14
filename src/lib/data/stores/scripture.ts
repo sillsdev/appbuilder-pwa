@@ -181,21 +181,19 @@ export const currentFont = derived([refs, currentFonts], ([$refs, $currentFonts]
     return $currentFonts[$refs.collection];
 });
 
+const configFonts = [...new Set(scriptureConfig.fonts?.map((x) => x.family))];
+
 export const fontChoices = derived(refs, ($refs) => {
     if (!$refs.initialized) {
-        return [];
+        return configFonts;
     }
-    const bookFonts = scriptureConfig.bookCollections
-        ?.find((x) => x.id === $refs.collection)
-        ?.books.find((x) => x.id === $refs.book)?.fonts;
-    const colFonts = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.fonts;
-    const allFonts = [...new Set(scriptureConfig.fonts?.map((x) => x.family))];
-    const currentFonts =
-        (bookFonts?.length ?? 0) > 0
-            ? bookFonts
-            : (colFonts?.length ?? 0) > 0
-              ? colFonts
-              : allFonts;
+    const collection = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection);
+    const bookFonts = collection?.books.find((x) => x.id === $refs.book)?.fonts;
+    const currentFonts = bookFonts?.length
+        ? bookFonts
+        : collection?.fonts?.length
+          ? collection.fonts
+          : configFonts;
     return currentFonts;
 });
 
