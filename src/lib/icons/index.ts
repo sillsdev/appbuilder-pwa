@@ -12,6 +12,7 @@ import BookmarkIcon from './BookmarkIcon.svelte';
 import BookmarkOutlineIcon from './BookmarkOutlineIcon.svelte';
 import CalendarMonthIcon from './CalendarMonthIcon.svelte';
 import VerseByVerseIcon from './CalendarMonthIcon.svelte';
+import CancelDownloadIcon from './CancelDownloadIcon.svelte';
 import CheckboxIcon from './CheckboxIcon.svelte';
 import CheckboxOutlineIcon from './CheckboxOutlineIcon.svelte';
 import CheckIcon from './CheckIcon.svelte';
@@ -19,6 +20,7 @@ import ChevronIcon from './ChevronIcon.svelte';
 import CopyContentIcon from './CopyContentIcon.svelte';
 import DeleteIcon from './DeleteIcon.svelte';
 import DeleteSweepIcon from './DeleteSweepIcon.svelte';
+import DownloadDoneIcon from './DownloadDoneIcon.svelte';
 import DownloadIcon from './DownloadIcon.svelte';
 import DropdownIcon from './DropdownIcon.svelte';
 import EditIcon from './EditIcon.svelte';
@@ -57,6 +59,7 @@ export {
     BookmarkIcon,
     BookmarkOutlineIcon,
     CalendarMonthIcon,
+    CancelDownloadIcon,
     CheckboxIcon,
     CheckboxOutlineIcon,
     CheckIcon,
@@ -65,6 +68,7 @@ export {
     DeleteIcon,
     DeleteSweepIcon,
     DownloadIcon,
+    DownloadDoneIcon,
     DropdownIcon,
     EditIcon,
     HamburgerIcon,

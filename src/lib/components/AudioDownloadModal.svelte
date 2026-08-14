@@ -14,8 +14,9 @@ Audio Download Modal Dialog component.
         STORAGE_CHOICE_KEY
     } from '$lib/data/audioFileSystem';
     import { modal as alert, ModalType, refs, t, userSettings } from '$lib/data/stores';
+    import { getWorker } from '$lib/download-worker/workerSingleton';
     import { CheckboxIcon, CheckboxOutlineIcon } from '$lib/icons';
-    import { tick } from 'svelte';
+    import { onDestroy, tick } from 'svelte';
     import Modal from './Modal.svelte';
 
     const modalId = 'audioDownloadModal';
@@ -23,9 +24,14 @@ Audio Download Modal Dialog component.
     let modalStep: 'confirm' | 'storage-offer' = $state('confirm');
     let downloadAutomatically: boolean = $state(false);
     let audioUrl: string = '';
-    let afterDownload: (() => void) | undefined;
+    let afterDownload: ((success: boolean) => void) | undefined;
+    let autoplay: boolean | undefined;
 
-    export function showModal(url: string, options?: { afterDownload?: () => void }) {
+    export function showModal(
+        url: string,
+        options?: { autoplay?: boolean; afterDownload?: (success: boolean) => void }
+    ) {
+        autoplay = options?.autoplay;
         audioUrl = url;
         afterDownload = options?.afterDownload;
         modalStep = 'confirm';
@@ -55,12 +61,23 @@ Audio Download Modal Dialog component.
         localStorage.setItem(STORAGE_CHOICE_KEY, handle ? 'enabled' : 'declined');
         await proceedWithDownload();
     }
-    export async function downloadAudio(url: string): ReturnType<typeof addAudioFile> {
+    export async function downloadAudio(
+        url: string,
+        item: { docSet: string; collection: string; book: string; chapter: string },
+        options?: {
+            autoplay?: boolean;
+            hideBar?: boolean;
+            afterDownload?: (success: boolean) => void;
+            onProgressUpdate?: (percent: number) => void;
+        }
+    ): ReturnType<typeof addAudioFile> {
         try {
             if (downloadAutomatically) {
                 $userSettings['audio-auto-download'] = 'auto';
             }
-            downloadProgress = 1;
+            if (!options?.hideBar) {
+                downloadProgress = 1;
+            }
             abortController = new AbortController();
             // Resolve (and if needed, request) filesystem permission here, right
             // at the top of the call, so it happens as close as possible to the
@@ -73,33 +90,45 @@ Audio Download Modal Dialog component.
             });
             const addedAudioFile = await addAudioFile(
                 {
-                    docSet: $refs.docSet,
-                    collection: $refs.collection,
-                    book: $refs.book,
-                    chapter: $refs.chapter
+                    docSet: item.docSet,
+                    collection: item.collection,
+                    book: item.book,
+                    chapter: item.chapter
                 },
                 url,
                 abortController,
-                (percent) => {
-                    tick().then(() => (downloadProgress = percent));
-                },
+                options?.onProgressUpdate ||
+                    ((percent) => {
+                        if (!options?.hideBar) {
+                            tick().then(() => (downloadProgress = percent));
+                        }
+                    }),
                 musicDirHandle
             );
-            downloadProgress = 0;
+            if (!options?.hideBar) {
+                downloadProgress = 0;
+            }
 
             if (!addedAudioFile.success) {
+                options?.afterDownload?.(false);
                 return addedAudioFile;
             }
-            updateAudioPlayer($refs, { autoplay: true });
-            afterDownload?.();
+            if (!options?.hideBar) {
+                updateAudioPlayer(item, { autoplay: options?.autoplay });
+            }
+            options?.afterDownload?.(true);
             return addedAudioFile;
         } catch (err) {
+            options?.afterDownload?.(false);
             console.error('Error downloading audio: ', err);
             return { success: false, error: err instanceof Error ? err.message : String(err) };
         }
     }
     async function proceedWithDownload() {
-        const addedAudioFile = await downloadAudio(audioUrl);
+        const addedAudioFile = await downloadAudio(audioUrl, $refs, {
+            afterDownload,
+            autoplay: autoplay
+        });
         if (!addedAudioFile.success && !abortController?.signal.aborted) {
             modal?.close();
             alert.open(ModalType.AudioAlert, {
@@ -116,6 +145,16 @@ Audio Download Modal Dialog component.
             .replace('%book', $refs.name || $refs.book)
             .replace('%chapter', $refs.chapter)
     );
+    const downloadWorker = getWorker();
+    function handleMessageEvent(event: MessageEvent) {
+        if (event.data.type === 'DOWNLOAD_CANCELLED') {
+            abortController?.abort();
+        }
+    }
+    downloadWorker.addEventListener('message', handleMessageEvent);
+    onDestroy(() => {
+        downloadWorker.removeEventListener('message', handleMessageEvent);
+    });
 </script>
 
 <Modal bind:this={modal} id={modalId}>

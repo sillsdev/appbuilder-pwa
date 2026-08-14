@@ -31,6 +31,7 @@ The sidebar/drawer.
         BibleIcon,
         BookmarkIcon,
         CalendarMonthIcon,
+        DownloadIcon,
         HighlightIcon,
         HistoryIcon,
         HomeIcon,
@@ -73,6 +74,7 @@ The sidebar/drawer.
     const showSearch = !!config.mainFeatures['search'];
     const showHistory = !!config.mainFeatures['history'];
     const showSettings = !!userPreferenceSettings.length;
+    const showDownloadManager = !!config.mainFeatures['audio-download-manager'];
     const showBookmarks = !!config.mainFeatures['annotation-bookmarks'];
     const showNotes = !!config.mainFeatures['annotation-notes'];
     const showHighlights = !!config.mainFeatures['annotation-highlights'];
@@ -223,6 +225,15 @@ The sidebar/drawer.
                         <ShareIcon color={iconColor} />{$t['Menu_Share_App']}
                     </button>
                 </li>
+            {/if}
+            {#if showDownloadManager}
+                <li>
+                    <button style:color={textColor} onclick={() => goto(resolve('/downloads'))}>
+                        <DownloadIcon color={iconColor} />{$t['Menu_Downloads']}
+                    </button>
+                </li>
+            {/if}
+            {#if showShare || showDownloadManager}
                 <div class="dy-divider m-1"></div>
             {/if}
             {#if showPlans}

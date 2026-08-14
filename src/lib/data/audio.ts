@@ -18,6 +18,7 @@ import {
     type PlayModeSettings,
     type Timing
 } from '$lib/data/stores';
+import { getWorker } from '$lib/download-worker/workerSingleton';
 import { getBibleBrainUrl } from '$lib/scripts/mediaUtils';
 import { pathJoin } from '$lib/scripts/stringUtils';
 import { get } from 'svelte/store';
@@ -724,6 +725,25 @@ function getDamId(audioSource: AudioSource) {
     return damId;
 }
 
+export function getAudioSourceType(
+    item: Partial<{
+        collection: string;
+        book: string;
+        chapter: string;
+    }>
+) {
+    const audio = scriptureConfig.bookCollections
+        ?.find((c) => item.collection === c.id)
+        ?.books?.find((b) => b.id === item.book)
+        ?.audio?.find((a) => item.chapter === '' + a.num);
+    if (!audio) {
+        return;
+    }
+
+    const audioSource = scriptureConfig.audio?.sources[audio.src];
+    return audioSource?.type;
+}
+
 export async function getAudioSourceInfo(
     item: Partial<{
         collection: string;
@@ -916,7 +936,10 @@ function getVerseTimingRange(startVerse: string, endVerse: string) {
     return { start, end } as PlayModeRange;
 }
 
-export async function checkAudioAvailability(options?: { afterDownload?: () => void }) {
+export async function checkAudioAvailability(options?: {
+    afterDownload?: (success: boolean) => void;
+    autoplay?: boolean;
+}) {
     let curRefs = get(refs);
     const audio = scriptureConfig.bookCollections
         ?.find((c) => curRefs.collection === c.id)
@@ -980,12 +1003,14 @@ export async function checkAudioAvailability(options?: { afterDownload?: () => v
                             modal.open(ModalType.DownloadAudio, {
                                 audioPath,
                                 show: false,
+                                autoplay: options?.autoplay,
                                 afterDownload: options?.afterDownload
                             }); //Just download it without showing the modal
                         } else {
                             modal.open(ModalType.DownloadAudio, {
                                 audioPath,
                                 show: true,
+                                autoplay: options?.autoplay,
                                 afterDownload: options?.afterDownload
                             });
                         }
@@ -997,6 +1022,111 @@ export async function checkAudioAvailability(options?: { afterDownload?: () => v
     }
     return true;
 }
+async function downloadAudio(
+    item: { collection: string; book: string; chapter: string; docSet: string },
+    options?: { afterDownload?: (success: boolean) => void }
+) {
+    const audio = scriptureConfig.bookCollections
+        ?.find((c) => item.collection === c.id)
+        ?.books?.find((b) => b.id === item.book)
+        ?.audio?.find((a) => item.chapter === '' + a.num);
+    if (audio) {
+        const audioSource = scriptureConfig.audio?.sources[audio.src];
+        const foundAudioFile = await recoverAudioFileFromDisk(
+            {
+                docSet: item.docSet || '',
+                collection: item.collection || '',
+                book: item.book || '',
+                chapter: item.chapter || ''
+            },
+            audio
+        );
+        if (!foundAudioFile) {
+            let audioPath = '';
+            if (audioSource?.type === 'download') {
+                audioPath = pathJoin([audioSource.address, audio.filename]);
+            } else if (audioSource?.type === 'fcbh') {
+                if (!get(appOnline)) {
+                    modal.open(ModalType.AudioAlert, {
+                        messageKey: 'Download_Check_Internet_Connection',
+                        title: 'Notification_Channel_Name_Download'
+                    });
+                    options?.afterDownload?.(false);
+                    return false;
+                } else {
+                    const result = await getBibleBrainUrl(
+                        audioSource,
+                        {
+                            collection: item.collection || '',
+                            book: item.book || '',
+                            chapter: item.chapter || ''
+                        },
+                        getDamId
+                    );
+                    if (result.error) {
+                        throw new Error(`Failed to connect to BibleBrain: ${result.error}`);
+                    }
+                    if (result.path) {
+                        audioPath = result.path;
+                    }
+                }
+            }
+            if (!get(appOnline)) {
+                modal.open(ModalType.AudioAlert, {
+                    messageKey: 'Download_Check_Internet_Connection',
+                    title: 'Notification_Channel_Name_Download'
+                });
+
+                options?.afterDownload?.(false);
+                return false;
+            } else {
+                modal.open(ModalType.DownloadAudio, {
+                    audioPath,
+                    show: false,
+                    autoplay: false,
+                    hideBar: true,
+                    item,
+                    afterDownload: options?.afterDownload,
+                    onProgressUpdate: (percent: number) => {
+                        downloadWorker.postMessage({
+                            type: 'DOWNLOAD_PROGRESS',
+                            item: item,
+                            progress: percent
+                        });
+                    }
+                });
+                return true;
+            }
+        }
+    }
+
+    options?.afterDownload?.(false);
+    return false;
+}
+
+const downloadWorker = getWorker();
+
+downloadWorker.addEventListener('message', (event) => {
+    if (event.data.type === 'DOWNLOAD_AUDIO_ITEM') {
+        const item = event.data.item;
+        downloadAudio(
+            {
+                docSet: item.docSet,
+                collection: item.collectionId,
+                book: item.bookId,
+                chapter: '' + item.chapter
+            },
+            {
+                afterDownload: (success: boolean) => {
+                    downloadWorker.postMessage({
+                        type: 'FINISH_DOWNLOAD_AUDIO_ITEM',
+                        success
+                    });
+                }
+            }
+        );
+    }
+});
 function playSelectedVerseAudio(arg0: { repeat: boolean }) {
     throw new Error('Function not implemented.');
 }

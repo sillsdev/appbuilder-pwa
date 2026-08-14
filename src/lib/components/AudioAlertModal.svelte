@@ -5,6 +5,7 @@ No Connection Modal Dialog component.
 <script lang="ts" module>
     export interface AudioAlertModalProps {
         messageKey: string;
+        title?: string;
         details?: string;
     }
 </script>
@@ -28,6 +29,11 @@ No Connection Modal Dialog component.
     <div id="container" class="message">
         <div class="message-body" id="message-body">
             <div class="message-header"></div>
+            {#if props.title}
+                <div class="message-title">
+                    {$t[props.title]}
+                </div>
+            {/if}
             <div class="message-text">
                 {#if props.messageKey}
                     {$t[props.messageKey]}

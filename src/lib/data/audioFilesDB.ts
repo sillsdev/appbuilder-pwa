@@ -4,6 +4,7 @@ import { openDB, type DBSchema } from 'idb';
 import {
     fileExistsInMusicDir,
     getAudioSubdirHandle,
+    getStoredMusicDirHandle,
     isFileSystemAccessSupported,
     writeAudioFile
 } from './audioFileSystem';
@@ -218,6 +219,37 @@ export async function addAudioFile(
 export async function findAudioFile(item: { collection: string; book: string; chapter: string }) {
     const audioFiles = await openAudioFiles();
     return audioFiles.get('audiofiles', [item.collection, item.book, item.chapter]);
+}
+
+export async function removeAudioFile(item: { collection: string; book: string; chapter: string }) {
+    const audioFiles = await openAudioFiles();
+    await audioFiles.delete('audiofiles', [item.collection, item.book, item.chapter]);
+}
+
+export async function deleteDownloadedAudio(item: {
+    collection: string;
+    book: string;
+    chapter: string;
+}) {
+    const record = await findAudioFile(item);
+
+    if (record?.filename && record.folder) {
+        const musicDir = await getStoredMusicDirHandle();
+        if (musicDir) {
+            const subdir = await getAudioSubdirHandle(musicDir, record.folder);
+            if (subdir) {
+                try {
+                    await subdir.removeEntry(record.filename);
+                } catch (e) {
+                    if (!(e instanceof DOMException && e.name === 'NotFoundError')) {
+                        throw e;
+                    }
+                }
+            }
+        }
+    }
+
+    await removeAudioFile(item);
 }
 
 /**
