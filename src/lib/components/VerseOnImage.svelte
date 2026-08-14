@@ -11,6 +11,7 @@ The verse on image component.
     import {
         currentFont,
         direction,
+        fontChoices,
         monoIconColor,
         refs,
         s,
@@ -118,7 +119,7 @@ The verse on image component.
 
     const optionIcons = [
         ImageIcon.Image,
-        ImageIcon.FontChoice,
+        ...($fontChoices.length > 1 ? [ImageIcon.FontChoice] : []),
         TextAppearanceIcon,
         ImageIcon.FormatAlignCenter,
         ImageIcon.FormatColorFill,
@@ -1027,9 +1028,11 @@ The verse on image component.
         </div>
 
         <!-- Font Selector Pane -->
-        <div class="dy-carousel-item items-center editorPane">
-            <FontList bind:selectedFont={textFont} />
-        </div>
+        {#if $fontChoices.length > 1}
+            <div class="dy-carousel-item items-center editorPane">
+                <FontList bind:selectedFont={textFont} />
+            </div>
+        {/if}
 
         <!-- Font Editor Pane -->
         <div class="dy-carousel-item editorPane items-center">
