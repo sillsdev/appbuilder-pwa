@@ -140,6 +140,7 @@ The sidebar/drawer.
             style:background-color={drawerBackgroundColor}
             style:direction={$direction}
             style:font-size="{fontSize}%"
+            style:font-family="system-ui, roboto"
         >
             <!-- Sidebar content here -->
             <a class="fill" href={resolve('/')}>
