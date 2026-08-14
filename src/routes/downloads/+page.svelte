@@ -212,6 +212,7 @@
                             }).then(() => {
                                 chapter.type = 'remote';
                                 book.numDownloaded--;
+                                currentCollection!.numDownloaded--;
                             });
                         });
                 });
@@ -228,6 +229,9 @@
                         }).then(() => {
                             chapter.type = 'remote';
                             currentBook!.numDownloaded--;
+                            if (currentCollection) {
+                                currentCollection.numDownloaded--;
+                            }
                         });
                     }
                 });
@@ -250,6 +254,7 @@
                                 chapter: chapter.number
                             });
                             showCancelDownload = true;
+                            chapter.type = 'waiting';
                         });
                 });
         } else if (currentState === 'book') {
@@ -288,13 +293,6 @@
                 </label>
             {/snippet}
             {#snippet end()}
-                {#if showCancelDownload}
-                    <button class="dy-btn-sm dy-btn-ghost" onclick={promptCancelDownloads}>
-                        <div class="transform scale-x-[-1]">
-                            <CancelDownloadIcon color={$actionBarColor} />
-                        </div>
-                    </button>
-                {/if}
                 {#if (currentState === 'collection' && currentCollection?.books
                         .filter((b) => !b.containedInApp)
                         .some((b) => b.selected)) || (currentState === 'book' && currentBook?.chapters
@@ -305,6 +303,13 @@
                     </button>
                     <button class="dy-btn-sm dy-btn-ghost" onclick={downloadSelected}>
                         <DownloadIcon color={$actionBarColor} />
+                    </button>
+                {/if}
+                {#if showCancelDownload}
+                    <button class="dy-btn-sm dy-btn-ghost" onclick={promptCancelDownloads}>
+                        <div class="transform scale-x-[-1]">
+                            <CancelDownloadIcon color={$actionBarColor} />
+                        </div>
                     </button>
                 {/if}
             {/snippet}

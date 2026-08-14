@@ -113,7 +113,9 @@ Audio Download Modal Dialog component.
                 options?.afterDownload?.(false);
                 return addedAudioFile;
             }
-            updateAudioPlayer(item, { autoplay: options?.autoplay });
+            if (!options?.hideBar) {
+                updateAudioPlayer(item, { autoplay: options?.autoplay });
+            }
             options?.afterDownload?.(true);
             return addedAudioFile;
         } catch (err) {

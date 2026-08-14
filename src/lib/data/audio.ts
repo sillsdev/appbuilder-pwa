@@ -1051,6 +1051,7 @@ async function downloadAudio(
                         messageKey: 'Download_Check_Internet_Connection',
                         title: 'Notification_Channel_Name_Download'
                     });
+                    options?.afterDownload?.(false);
                     return false;
                 } else {
                     const result = await getBibleBrainUrl(
@@ -1075,6 +1076,8 @@ async function downloadAudio(
                     messageKey: 'Download_Check_Internet_Connection',
                     title: 'Notification_Channel_Name_Download'
                 });
+
+                options?.afterDownload?.(false);
                 return false;
             } else {
                 modal.open(ModalType.DownloadAudio, {
@@ -1096,6 +1099,8 @@ async function downloadAudio(
             }
         }
     }
+
+    options?.afterDownload?.(false);
     return false;
 }
 
