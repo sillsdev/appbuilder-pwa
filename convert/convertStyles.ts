@@ -173,8 +173,10 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
     }
 
     if (isSAB(configData.data)) {
-        tempStyles.push(".seltxt { cursor: pointer; }");
-        tempStyles.push(".seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }");
+        tempStyles.push('.seltxt { cursor: pointer; }');
+        tempStyles.push(
+            '.seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }'
+        );
     }
 
     return tempStyles.join('\n') + '\n';
