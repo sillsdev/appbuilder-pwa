@@ -147,7 +147,7 @@ Audio Download Modal Dialog component.
     );
     const downloadWorker = getWorker();
     function handleMessageEvent(event: MessageEvent) {
-        if (event.data.type === 'CANCEL_ALL_DOWNLOADS') {
+        if (event.data.type === 'DOWNLOAD_CANCELLED') {
             abortController?.abort();
         }
     }
