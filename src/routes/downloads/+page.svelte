@@ -2,7 +2,7 @@
     import { scriptureConfig } from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getAudioSourceInfo, getAudioSourceType } from '$lib/data/audio';
-    import { removeAudioFile } from '$lib/data/audioFilesDB';
+    import { deleteDownloadedAudio } from '$lib/data/audioFilesDB';
     import { actionBarColor, modal, ModalType, t, theme, themeIsDark } from '$lib/data/stores';
     import { getWorker } from '$lib/download-worker/workerSingleton';
     import { DownloadIcon } from '$lib/icons';
@@ -205,7 +205,7 @@
                     book.chapters
                         .filter((c) => c.type === 'downloaded')
                         .forEach((chapter) => {
-                            removeAudioFile({
+                            deleteDownloadedAudio({
                                 collection: currentCollection!.id,
                                 book: book.id,
                                 chapter: chapter.number + ''
@@ -222,7 +222,7 @@
                 .forEach((chapter) => {
                     chapter.selected = false;
                     if (chapter.type === 'downloaded') {
-                        removeAudioFile({
+                        deleteDownloadedAudio({
                             collection: currentCollection?.id || '',
                             book: currentBook!.id,
                             chapter: chapter.number + ''
