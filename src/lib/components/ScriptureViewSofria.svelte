@@ -2817,7 +2817,7 @@ LOGGING:
         style:font-family={font}
         style:font-size={fontSize}
         style:line-height={lineHeight}
-        class="single"
+        class="single mx-2"
         style:direction
     ></div>
 </article>
