@@ -17,6 +17,7 @@ export interface StylesTaskOutput extends TaskOutput {
  * The margin-top and margin-bottom are changed to padding-top and padding-bottom and attached
  * to the #content element instead.
  */
+
 export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
     const dstDir = path.join('src/gen-assets', 'styles');
@@ -173,10 +174,10 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
     }
 
     if (isSAB(configData.data)) {
+        tempStyles.push('@media (hover: hover) and (pointer: fine) {');
         tempStyles.push('.seltxt { cursor: pointer; }');
-        tempStyles.push(
-            '.seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }'
-        );
+        tempStyles.push('.seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }');
+        tempStyles.push('}');
     }
 
     return tempStyles.join('\n') + '\n';
