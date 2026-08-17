@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
-import { isDAB } from '../src/lib/scripts/configUtils';
+import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { createOutputDir, joinUrlPath } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
@@ -17,6 +17,7 @@ export interface StylesTaskOutput extends TaskOutput {
  * The margin-top and margin-bottom are changed to padding-top and padding-bottom and attached
  * to the #content element instead.
  */
+
 export function convertStyles(dataDir: string, configData: ConfigTaskOutput, verbose: number) {
     const srcDir = path.join(dataDir, 'styles');
     const dstDir = path.join('src/gen-assets', 'styles');
@@ -171,6 +172,14 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
             ':where(.clickable) { color: var(--LinkColor); text-decoration: underline; }'
         );
     }
+
+    if (isSAB(configData.data)) {
+        tempStyles.push('@media (hover: hover) and (pointer: fine) {');
+        tempStyles.push('.seltxt { cursor: pointer; }');
+        tempStyles.push('.seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }');
+        tempStyles.push('}');
+    }
+
     return tempStyles.join('\n') + '\n';
 }
 

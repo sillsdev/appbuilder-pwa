@@ -215,6 +215,7 @@ LOGGING:
     function escapeSpecialChars(separators: string) {
         return separators.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
     }
+
     const seprgx2 = (inputChars: string) => {
         let separators = prepareAudioPhraseEndChars(inputChars);
         let result = '(';
@@ -315,6 +316,9 @@ LOGGING:
             div.setAttribute('data-verse', workspace.currentVerse);
             div.setAttribute('data-phrase', phraseIndex);
             div.classList.add('txs', 'seltxt', 'scroll-item');
+            // div.addEventListener('mouseenter', () =>
+            //     registerHoveredVerseDivs(workspace.currentVerse)
+            // );
         } else {
             div.id = '+' + parseInt(workspace.introductionIndex);
             div.classList.add('txs');
