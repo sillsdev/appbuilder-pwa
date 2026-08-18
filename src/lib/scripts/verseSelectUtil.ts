@@ -1,6 +1,10 @@
-import { selectedVerses } from '$lib/data/stores';
+import type { SelectedVersesStore } from '$lib/data/stores';
 
-export function onClickText(e: MouseEvent, maxSelections: number) {
+export function onClickText(
+    e: MouseEvent,
+    selectedVerses: SelectedVersesStore,
+    maxSelections: number
+) {
     let target = e.target as HTMLElement;
 
     while (!isSelectableText(target) && !isClickableText(target) && !isMain(target)) {
@@ -22,41 +26,45 @@ export function onClickText(e: MouseEvent, maxSelections: number) {
         }
     }
 }
-export function updateSelections() {
-    const items = Array.from(document.getElementsByClassName('selected'));
+export function updateSelections(element: HTMLElement, selections: SelectedVersesStore) {
+    const items = Array.from(element.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
     for (let i = 0; i < items.length; i++) {
         const id = removeIdSuffixes(items[i].id);
         if (id !== lastId) {
             lastId = id;
-            const verse = selectedVerses.getVerseByVerseNumber(id);
+            const verse = selections.getVerseByVerseNumber(id);
             if (verse.verse === '') {
-                modifyClassOfElements(id, 'selected', false);
+                modifyClassOfElements(element, id, 'selected', false);
             }
         }
     }
     // Select items in list
-    for (let i = 0; i < selectedVerses.length(); i++) {
-        const selectedVerse = selectedVerses.getVerseByIndex(i).verse;
-        modifyClassOfElements(selectedVerse, 'selected', true);
+    for (let i = 0; i < selections.length(); i++) {
+        const selectedVerse = selections.getVerseByIndex(i).verse;
+        modifyClassOfElements(element, selectedVerse, 'selected', true);
     }
 }
-// Deselect all elements
-export function deselectAllElements() {
+// Deselect all HTMLElements
+export function deselectAllElements(selections: SelectedVersesStore) {
     const els = document.getElementsByTagName('div');
     for (let i = 0; i < els.length; i++) {
         if (els[i].id != '') {
             els[i].classList.remove('selected');
         }
     }
-    selectedVerses.reset();
+    selections.reset();
 }
 
-// Deselect elements
-export function deselectElements(id: string) {
-    modifyClassOfElements(id, 'selected', false);
-    selectedVerses.removeVerse(id);
+// Deselect HTMLElements
+export function deselectElements(
+    element: HTMLElement,
+    id: string,
+    selections: SelectedVersesStore
+) {
+    modifyClassOfElements(element, id, 'selected', false);
+    selections.removeVerse(id);
 }
 
 function removeIdSuffixes(id: string) {
@@ -84,23 +92,28 @@ function isClickableText(target: HTMLElement) {
 function isMain(target: HTMLElement) {
     return target.tagName === 'MAIN';
 }
-// Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function modifyClassOfElements(id: string, clsName: string, select: boolean) {
-    let success = modifyClassOfElement(id, clsName, select);
+// Modify class name of HTMLElements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
+function modifyClassOfElements(element: HTMLElement, id: string, clsName: string, select: boolean) {
+    let success = modifyClassOfElement(element, id, clsName, select);
     for (let i = 97; i <= 122; i++) {
         const letter = String.fromCharCode(i);
-        success = modifyClassOfElement(id + letter, clsName, select);
+        success = modifyClassOfElement(element, id + letter, clsName, select);
         if (!success) {
             break;
         }
     }
 }
 
-// Modify class name of elements id, id+1, id+2, etc.
-function modifyClassOfElement(id: string, clsName: string, select: boolean): boolean {
+// Modify class name of HTMLElements id, id+1, id+2, etc.
+function modifyClassOfElement(
+    element: HTMLElement,
+    id: string,
+    clsName: string,
+    select: boolean
+): boolean {
     let found = false;
     let i = 0;
-    let el = document.getElementById(id);
+    let el = element.querySelector<HTMLElement>('#' + CSS.escape(id));
 
     while (el) {
         if (select) {
@@ -111,7 +124,7 @@ function modifyClassOfElement(id: string, clsName: string, select: boolean): boo
             el.classList.remove(clsName);
         }
         i++;
-        el = document.getElementById(id + '+' + i);
+        el = element.querySelector<HTMLElement>('#' + CSS.escape(id + '+' + i));
         found = true;
     }
 

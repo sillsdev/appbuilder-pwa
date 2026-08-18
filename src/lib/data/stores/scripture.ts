@@ -1,6 +1,5 @@
 import { scriptureConfig } from '$assets/config';
 import { persistedLocal } from '$lib/data/stores/storage';
-import { updateSelections } from '$lib/scripts/verseSelectUtil';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
@@ -186,13 +185,17 @@ export const fontChoices = derived(refs, ($refs) => {
     if (!$refs.initialized) {
         return configFonts;
     }
-    const collection = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection);
-    const bookFonts = collection?.books.find((x) => x.id === $refs.book)?.fonts;
-    const currentFonts = bookFonts?.length
-        ? bookFonts
-        : collection?.fonts?.length
-          ? collection.fonts
-          : configFonts;
+    const bookFonts = scriptureConfig.bookCollections
+        ?.find((x) => x.id === $refs.collection)
+        ?.books.find((x) => x.id === $refs.book)?.fonts;
+    const colFonts = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.fonts;
+    const allFonts = [...new Set(scriptureConfig.fonts?.map((x) => x.family))];
+    const currentFonts =
+        (bookFonts?.length ?? 0) > 0
+            ? bookFonts
+            : (colFonts?.length ?? 0) > 0
+              ? colFonts
+              : allFonts;
     return currentFonts;
 });
 
@@ -225,7 +228,6 @@ function createSelectedVerses() {
             const newIndex = getInsertIndex(newVerseNumber, selections);
             selections.splice(newIndex, 0, selection);
             external.set(selections);
-            updateSelections();
         },
         removeVerse: (id: string | number) => {
             const selections = get(external);
@@ -234,11 +236,9 @@ function createSelectedVerses() {
                 selections.splice(index, 1);
                 external.set(selections);
             }
-            updateSelections();
         },
         reset: () => {
             external.set([]);
-            updateSelections();
         },
         length: () => {
             const selections = get(external);
@@ -363,4 +363,7 @@ function createSelectedVerses() {
         }
     };
 }
+
+export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
+
 export const selectedVerses = createSelectedVerses();
