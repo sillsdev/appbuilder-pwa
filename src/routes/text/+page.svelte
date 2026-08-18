@@ -11,6 +11,7 @@
         type Props as HtmlBookViewProps
     } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import ScriptureViewProskomma from '$lib/components/ScriptureViewProskomma.svelte';
     import ScriptureViewSofria, {
         type Props as ScriptureViewSofriaProps
     } from '$lib/components/ScriptureViewSofria.svelte';
@@ -616,7 +617,10 @@
                                 {#if book?.format === 'html'}
                                     <HtmlBookView {...viewSettings as HtmlBookViewProps} />
                                 {:else if book?.testament !== 'quiz'}
-                                    <ScriptureViewSofria
+                                    <!-- <ScriptureViewSofria -->
+                                    <!-- {...viewSettings as ScriptureViewSofriaProps} -->
+                                    <!-- /> -->
+                                    <ScriptureViewProskomma
                                         {...viewSettings as ScriptureViewSofriaProps}
                                     />
                                 {/if}
