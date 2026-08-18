@@ -42,11 +42,11 @@ Custom list of collections for the LayoutOptions menu
                 style:background-color={selectedLayouts?.id === d.id
                     ? $themeColors['LayoutItemSelectedBackgroundColor']
                     : ''}
-                class="flex justify-between layout-item-block rounded-none"
+                class="flex layout-item-block rounded-none"
                 role="button"
             >
                 {#if d.image}
-                    <div class="layout-image-block self-start">
+                    <div class="layout-image-block self-start w-[15%]!">
                         <img class="layout-image" src={illustrations['./' + d.image]} />
                     </div>
                 {/if}
