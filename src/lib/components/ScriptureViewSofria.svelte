@@ -264,7 +264,9 @@ LOGGING:
     $effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         stateSelectedVerses.current;
-        updateSelections(selectedVerses);
+        if ($refs.chapter === references.chapter) {
+            updateSelections(container, selectedVerses);
+        }
     });
 
     const countSubheadingPrefixes = (subHeadings: [string], labelPrefix: string) => {
@@ -759,13 +761,13 @@ LOGGING:
         notesInChapter.then((notes) => {
             for (var k = 0; k < notes.length; k++) {
                 const note = notes[k];
-                const bookmarksSpan = document.getElementById('bookmarks' + note.verse);
+                const bookmarksSpan = container.querySelector('#bookmarks' + note.verse);
                 if (!bookmarksSpan) {
                     console.warn('No bookmarks span for verse %s', note.verse);
                     continue;
                 }
 
-                const existingNoteSpan = document.getElementById('note' + k);
+                const existingNoteSpan = container.querySelector('#note' + k);
                 if (!existingNoteSpan) {
                     let noteSpan = document.createElement('span');
                     noteSpan.id = 'note' + k;
@@ -796,13 +798,14 @@ LOGGING:
     function addBookmarkedVerses(bookmarksInChapter) {
         bookmarksInChapter.then((bookmarks) => {
             for (var j = 0; j < bookmarks.length; j++) {
-                const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
+                // const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
+                const bookmarksSpan = container.querySelector(`#bookmarks${bookmarks[j].verse}`);
                 if (!bookmarksSpan) {
                     console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
                     continue;
                 }
 
-                const existingBookmarkSpan = document.getElementById('bookmark' + j);
+                const existingBookmarkSpan = container.querySelector(`#bookmark${j}`);
                 if (!existingBookmarkSpan) {
                     let bookmarkSpan = document.createElement('span');
                     bookmarkSpan.id = 'bookmark' + j;
@@ -1072,7 +1075,7 @@ LOGGING:
         return false;
     }
     function findBookmarkElementForVerse(verse, verseRangeSeparator) {
-        const elements = document.querySelectorAll('[id^="bookmarks"]');
+        const elements = container.querySelectorAll('[id^="bookmarks"]');
 
         for (const element of elements) {
             const id = element.id.replace('bookmarks', '');
@@ -1092,7 +1095,7 @@ LOGGING:
         return null; // No matching element found
     }
     function findDataElementForVerse(verse, verseRangeSeparator) {
-        const elements = document.querySelectorAll('[data-verse][data-phrase="a"]');
+        const elements = container.querySelectorAll('[data-verse][data-phrase="a"]');
 
         for (const element of elements) {
             const verseData = element.getAttribute('data-verse');
@@ -1143,7 +1146,11 @@ LOGGING:
                 console.log('Could not find data element for verse', verse);
             }
         } else if (pos === 'top') {
-            const el = document.getElementsByClassName('m')[0];
+            let els = container.getElementsByClassName('m');
+            if (els.length === 0) {
+                els = container.getElementsByClassName('c');
+            }
+            const el = els[0];
             el.insertAdjacentElement('beforebegin', element);
         } else if (pos === 'bottom') {
             const els = container.querySelectorAll('span[id^=bookmarks]');
@@ -1485,10 +1492,12 @@ LOGGING:
         }
     }
     function addOnClickDivs() {
-        var els = document.getElementsByTagName('div');
+        var els = container.getElementsByTagName('div');
         for (var i = 0; i < els.length; i++) {
             if (hasClickableClass(els[i])) {
-                els[i].addEventListener('click', onClick, false);
+                if (!els[i].onclick) {
+                    els[i].addEventListener('click', onClick, false);
+                }
             }
         }
     }

@@ -69,13 +69,14 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, tick, untrack } from 'svelte';
     import {
         pinch,
         swipe,
         type PinchPointerEventDetail,
         type SwipePointerEventDetail
     } from 'svelte-gestures';
+    import { Tween } from 'svelte/motion';
     import type { PageData } from './$types';
 
     const illustrationURLs = import.meta.glob('./*', {
@@ -125,10 +126,12 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
+
+    let innerWidth = $state(0);
+    let innerHeight = $state(0);
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     async function doSwipe(event: CustomEvent<SwipePointerEventDetail>) {
         const swipeDirection = event.detail.direction;
-        console.log('SWIPE', swipeDirection);
         if (
             swipeBetweenBooks ||
             ($refs.prev.book === $refs.book && swipeDirection === 'right') ||
@@ -137,6 +140,235 @@
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
+
+    let x = new Tween(0);
+    let startX = 0;
+    let isDragging = $state(false);
+    let draggableWidth = $state(0);
+    let panels_X = $state([-1, 0, 1]);
+    let minSlideDistance = () => draggableWidth / 2; // use to determine how far a user has to slide to move to the next chapter
+    let minSlideMomentum = 1; // measured in pixels per millisecond
+    let lastX = 0;
+    let lastTime = 0;
+    let momentum = 0;
+    let maxMomentum = 0;
+    let transitionDone = true;
+
+    // Update the panels for any updates from different format changes
+    $effect(() => {
+        if (previousSettings.bodyFontSize !== viewSettings.bodyFontSize) {
+        } else if (previousSettings.bodyLineHeight !== viewSettings.bodyLineHeight) {
+        } else if (previousSettings.font !== viewSettings.font) {
+        } else if (previousSettings.themeColors !== viewSettings.themeColors) {
+        } else if (previousSettings.viewShowVerses !== viewSettings.viewShowVerses) {
+        } else {
+            return;
+        }
+        setupSettingsCache();
+        previousSettings = { ...viewSettings };
+    });
+
+    async function setupSettingsCache() {
+        settingsCache[0] = {
+            // Initial settings for left panel
+            ...viewSettings,
+            highlights: Promise.resolve([]),
+            bookmarks: Promise.resolve([]),
+            notes: Promise.resolve([]),
+            references: {
+                ...viewSettings.references,
+                book: hasPrev ? viewSettings.references!.prev.book : viewSettings.references!.book,
+                chapter: hasPrev ? viewSettings.references!.prev.chapter : '1'
+            }
+        };
+
+        settingsCache[1] = {
+            // Initial settings for center panel
+            ...viewSettings
+        };
+
+        settingsCache[2] = {
+            // Initial settings for right panel
+            ...viewSettings,
+            highlights: Promise.resolve([]),
+            bookmarks: Promise.resolve([]),
+            notes: Promise.resolve([]),
+            references: {
+                ...viewSettings.references,
+                book: hasNext ? viewSettings.references!.next.book : viewSettings.references!.book,
+                chapter: hasNext ? viewSettings.references!.next.chapter : '1'
+            }
+        };
+
+        if (Math.sign(panels_X[0]) > -1) {
+            panels_X[0] = -draggableWidth;
+            panels_X[1] = 0;
+            panels_X[2] = draggableWidth;
+        }
+    }
+
+    async function adjustSettingsCache(direction: number) {
+        let idx;
+        adjustPanelX(0, direction);
+        adjustPanelX(1, direction);
+        adjustPanelX(2, direction);
+        if (direction === -1) {
+            panels_X = [panels_X[1], panels_X[2], panels_X[0]];
+            if (hasPrev) {
+                idx = panels_X.indexOf(Math.min(...panels_X));
+                settingsCache[idx] = {
+                    ...viewSettings, // load in the page before
+                    highlights: Promise.resolve([]),
+                    bookmarks: Promise.resolve([]),
+                    notes: Promise.resolve([]),
+                    references: {
+                        ...viewSettings.references,
+                        book: viewSettings.references!.prev.book,
+                        chapter: viewSettings.references!.prev.chapter
+                    }
+                };
+            }
+        } else if (direction === 1) {
+            panels_X = [panels_X[2], panels_X[0], panels_X[1]];
+            if (hasNext) {
+                idx = panels_X.indexOf(Math.max(...panels_X));
+                settingsCache[idx] = {
+                    ...viewSettings, // load in the next page
+                    highlights: Promise.resolve([]),
+                    bookmarks: Promise.resolve([]),
+                    notes: Promise.resolve([]),
+                    references: {
+                        ...viewSettings.references,
+                        book: viewSettings.references!.next.book,
+                        chapter: viewSettings.references!.next.chapter
+                    }
+                };
+            }
+        }
+        idx = panels_X.indexOf(0);
+        settingsCache[idx].highlights = viewSettings.highlights;
+        settingsCache[idx].bookmarks = viewSettings.bookmarks;
+        settingsCache[idx].notes = viewSettings.notes;
+    }
+
+    $effect(() => {
+        const highlights = viewSettings.highlights;
+
+        // untrack prevents these reads from becoming dependencies
+        untrack(() => {
+            if (x.current === 0 && transitionDone) {
+                const idx = panels_X.indexOf(0);
+                settingsCache[idx].highlights = highlights;
+            }
+        });
+    });
+
+    $effect(() => {
+        const bookmarks = viewSettings.bookmarks;
+
+        // untrack prevents these reads from becoming dependencies
+        untrack(() => {
+            if (x.current === 0 && transitionDone) {
+                const idx = panels_X.indexOf(0);
+                settingsCache[idx].bookmarks = bookmarks;
+            }
+        });
+    });
+
+    async function adjustPanelX(panelX: number, direction: number) {
+        if (Math.abs(panels_X[panelX]) > draggableWidth) {
+            // this panel needs to be rotated to the other side and reloaded with a new page content
+            if (direction === -1) {
+                panels_X[panelX] = draggableWidth;
+            } else {
+                panels_X[panelX] = -draggableWidth;
+            }
+        }
+    }
+
+    async function handlePointerCancel(_e: PointerEvent) {
+        await x.set(0, { duration: Math.abs(x.current) });
+    }
+
+    async function handleMouseUp(_event: PointerEvent) {
+        isDragging = false;
+        if (
+            !(Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) &&
+            draggableWidth > 0
+        ) {
+            if (x.current < 0 && momentum < 0) {
+                if (hasNext && navigateBetweenBooksNext) {
+                    await navigateToTextChapterInDirection(1);
+                    await adjustSettingsCache(1);
+                    await x.set(draggableWidth + x.current, { duration: 1 });
+                }
+            } else {
+                if (hasPrev && navigateBetweenBooksPrev) {
+                    await navigateToTextChapterInDirection(-1);
+                    await adjustSettingsCache(-1);
+                    await x.set(-draggableWidth + x.current, { duration: 1 });
+                }
+            }
+            await tick();
+        }
+        momentum = 0;
+        maxMomentum = 0;
+        await x.set(0, { duration: Math.abs(x.current) });
+    }
+
+    function handleMouseDown(event: PointerEvent) {
+        if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
+            isDragging = true;
+            startX = event.clientX - x.current;
+            lastTime = performance.now();
+        }
+    }
+
+    function handleMouseMove(event: PointerEvent) {
+        if (isDragging) {
+            let delta = event.clientX - startX;
+            x.set(delta, { duration: 0 });
+            if (x.current > 0 && !(hasPrev && navigateBetweenBooksPrev)) {
+                x.set(0, { duration: 0 });
+                return;
+            } else if (x.current < 0 && !(hasNext && navigateBetweenBooksNext)) {
+                x.set(0, { duration: 0 });
+                return;
+            } else if (x.current > draggableWidth) {
+                x.set(draggableWidth, { duration: 0 });
+            } else if (x.current < -draggableWidth) {
+                x.set(-draggableWidth, { duration: 0 });
+            }
+            const currentTime = performance.now();
+
+            const deltaX = x.current - lastX;
+            const deltaT = currentTime - lastTime;
+
+            momentum = deltaX / deltaT;
+            maxMomentum = Math.max(momentum, maxMomentum);
+
+            lastTime = currentTime;
+            lastX = x.current;
+        }
+    }
+
+    function measure(node: Element) {
+        const observer = new ResizeObserver(([entry]) => {
+            draggableWidth = entry.contentRect.width;
+            panels_X = panels_X.map((x) => {
+                return draggableWidth * Math.sign(x);
+            });
+        });
+
+        observer.observe(node);
+
+        return {
+            destroy() {
+                observer.disconnect();
+            }
+        };
+    }
+
     const book = $derived(
         scriptureConfig?.bookCollections
             ?.find((x) => x.id === $refs.collection)
@@ -154,10 +386,22 @@
     const barType = 'book';
 
     async function prevChapter() {
+        transitionDone = false;
         await navigateToTextChapterInDirection(-1);
+        await adjustSettingsCache(-1);
+        await x.set(-draggableWidth, { duration: 0 });
+        await tick();
+        await x.set(0);
+        transitionDone = true;
     }
     async function nextChapter() {
+        transitionDone = false;
         await navigateToTextChapterInDirection(1);
+        await adjustSettingsCache(1);
+        await x.set(draggableWidth, { duration: 0 });
+        await tick();
+        await x.set(0);
+        transitionDone = true;
     }
 
     const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
@@ -201,7 +445,10 @@
     );
 
     const showSearch = !!config.mainFeatures['search'];
-
+    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
+    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
+    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const isIntro = $derived($refs.chapter === 'i');
@@ -259,6 +506,52 @@
                 } satisfies ScriptureViewSofriaProps)
               : {}
     );
+    let previousSettings = {
+        // svelte-ignore state_referenced_locally
+        ...viewSettings
+    };
+
+    const settings0 = $derived({
+        // Initial settings for left panel
+        ...viewSettings,
+        highlights: Promise.resolve([]),
+        bookmarks: Promise.resolve([]),
+        notes: Promise.resolve([]),
+        references: {
+            ...viewSettings.references,
+            book: hasPrev ? viewSettings.references!.prev.book : viewSettings.references!.book,
+            chapter: hasPrev ? viewSettings.references!.prev.chapter : '1'
+        }
+    });
+
+    const settings1 = $derived({
+        // Initial settings for center panel
+        ...viewSettings
+    });
+
+    const settings2 = $derived({
+        // Initial settings for right panel
+        ...viewSettings,
+        highlights: Promise.resolve([]),
+        bookmarks: Promise.resolve([]),
+        notes: Promise.resolve([]),
+        references: {
+            ...viewSettings.references,
+            book: hasNext ? viewSettings.references!.next.book : viewSettings.references!.book,
+            chapter: hasNext ? viewSettings.references!.next.chapter : '1'
+        }
+    });
+
+    let settingsCache = $state(
+        // svelte-ignore state_referenced_locally
+        [settings0, settings1, settings2]
+    );
+
+    function getFormat(bcId: string, bookId: string) {
+        return scriptureConfig.bookCollections
+            ?.find((x) => x.id === bcId)
+            ?.books.find((x) => x.id === bookId)?.format;
+    }
 
     const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
@@ -459,13 +752,22 @@
     }
 </script>
 
+<svelte:window
+    bind:innerWidth
+    bind:innerHeight
+    // bind:visualViewport?.height={}
+    onpointermove={handleMouseMove}
+    onpointerup={handleMouseUp}
+    onpointercancel={handlePointerCancel}
+/>
+
 <div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet start()}
                 <div class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}>
-                    <BookSelector />
-                    <ChapterSelector />
+                    <BookSelector onBookSelection={setupSettingsCache} />
+                    <ChapterSelector onChapterSelection={setupSettingsCache} />
                 </div>
             {/snippet}
 
@@ -476,7 +778,7 @@
                     class="flex flex-nowrap"
                     onclick={showOverlowMenu ? handleMenuClick : () => ({})}
                 >
-                    <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
+                    <!-- (mobile) handleMenuClick() is called to collapse the extraButtons menu when any button inside right-buttons is clicked. -->
                     <div class="flex">
                         {#if $refs.hasAudio && showAudio}
                             <!-- Mute/Volume Button -->
@@ -555,17 +857,6 @@
         {/if}
     </div>
 
-    {#if showCollection.viewer && moreThanOneCollection}
-        <button
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
-            style:top={navBarHeight}
-            style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => goto(resolve(`/layout`))}
-        >
-            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
-                ?.collectionAbbreviation}
-        </button>
-    {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
             {@const illustrationFile = getCurrentIllustrationFile()}
@@ -583,7 +874,11 @@
                 />
             {/if}
         {/if}
-        <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}>
+        <div
+            class="overflow-y-auto grow overflow-x-hidden"
+            bind:this={scrollingDiv}
+            onscroll={saveScrollPosition}
+        >
             <!-- flex causes the imported html to display outside of the view port. Use md: -->
             <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
                 <div class="hidden md:flex basis-1/12 justify-center">
@@ -597,13 +892,28 @@
                         <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
                     </button>
                 </div>
-                <div class="basis-5/6 max-w-breakpoint-md">
-                    <div class="p-2 w-full">
+                <div
+                    class="basis-5/6 max-w-screen-md"
+                    style="position: relative; left: {x.current}px; height: {innerHeight}px"
+                    use:measure
+                >
+                    <div
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[0]}px; display: {Math.abs(
+                            panels_X[0] + x.current
+                        ) === draggableWidth
+                            ? 'none'
+                            : 'block'}; clip-path: inset(0 {1 * panels_X[0] + x.current}px 0 {-1 *
+                            panels_X[0] -
+                            x.current}px);"
+                    >
                         <main>
                             <div
                                 style="--borderImageSource: url({borders['./border.png']});"
                                 class:borderimg={showBorder}
-                                class="max-w-breakpoint-md mx-auto"
+                                aria-hidden="true"
+                                class="max-w-screen-md mx-auto"
+                                onpointerdown={handleMouseDown}
                                 use:pinch
                                 onpinch={doPinch}
                                 use:swipe={{
@@ -611,13 +921,84 @@
                                     minSwipeDistance: 60,
                                     touchAction: 'pan-y'
                                 }}
-                                onswipe={doSwipe}
                             >
                                 {#if book?.format === 'html'}
-                                    <HtmlBookView {...viewSettings as HtmlBookViewProps} />
+                                    <HtmlBookView {...settingsCache[0] as HtmlBookViewProps} />
                                 {:else if book?.testament !== 'quiz'}
                                     <ScriptureViewSofria
-                                        {...viewSettings as ScriptureViewSofriaProps}
+                                        {...settingsCache[0] as ScriptureViewSofriaProps}
+                                    />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+
+                    <div
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[1]}px; display: {Math.abs(
+                            panels_X[1] + x.current
+                        ) === draggableWidth
+                            ? 'none'
+                            : 'block'}; clip-path: inset(0 {1 * panels_X[1] + x.current}px 0 {-1 *
+                            panels_X[1] -
+                            x.current}px);"
+                    >
+                        <main>
+                            <div
+                                style="--borderImageSource: url({borders['./border.png']});"
+                                class:borderimg={showBorder}
+                                aria-hidden="true"
+                                class="max-w-screen-md mx-auto"
+                                onpointerdown={handleMouseDown}
+                                use:pinch
+                                onpinch={doPinch}
+                                use:swipe={{
+                                    timeframe: 300,
+                                    minSwipeDistance: 60,
+                                    touchAction: 'pan-y'
+                                }}
+                            >
+                                {#if book?.format === 'html'}
+                                    <HtmlBookView {...settingsCache[1] as HtmlBookViewProps} />
+                                {:else if book?.testament !== 'quiz'}
+                                    <ScriptureViewSofria
+                                        {...settingsCache[1] as ScriptureViewSofriaProps}
+                                    />
+                                {/if}
+                            </div>
+                        </main>
+                    </div>
+
+                    <div
+                        class="p-2 w-full overflow-y-hidden"
+                        style="position: absolute; left: {panels_X[2]}px; display: {Math.abs(
+                            panels_X[2] + x.current
+                        ) === draggableWidth
+                            ? 'none'
+                            : 'block'}; clip-path: inset(0 {1 * panels_X[2] + x.current}px 0 {-1 *
+                            panels_X[2] -
+                            x.current}px);"
+                    >
+                        <main>
+                            <div
+                                style="--borderImageSource: url({borders['./border.png']});"
+                                class:borderimg={showBorder}
+                                aria-hidden="true"
+                                class="max-w-screen-md mx-auto"
+                                onpointerdown={handleMouseDown}
+                                use:pinch
+                                onpinch={doPinch}
+                                use:swipe={{
+                                    timeframe: 300,
+                                    minSwipeDistance: 60,
+                                    touchAction: 'pan-y'
+                                }}
+                            >
+                                {#if book?.format === 'html'}
+                                    <HtmlBookView {...settingsCache[2] as HtmlBookViewProps} />
+                                {:else if book?.testament !== 'quiz'}
+                                    <ScriptureViewSofria
+                                        {...settingsCache[2] as ScriptureViewSofriaProps}
                                     />
                                 {/if}
                             </div>
@@ -637,11 +1018,24 @@
                 </div>
             </div>
         </div>
+        <!-- Display pop-ups for cross-references, footnotes, etc. -->
+        <StackView {...stackSettings} />
+        <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
     </div>
 
-    <!-- Display pop-ups for cross-references, footnotes, etc. -->
-    <StackView {...stackSettings} />
-
+    {#if showCollectionViewer && enoughCollections}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
+            style:top={navBarHeight}
+            style={convertStyle($s?.['ui.pane1.name'])}
+            onclick={() => goto(resolve(`/layout`))}
+        >
+            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
+                ?.collectionAbbreviation}
+        </div>
+    {/if}
     {#if textCopied}
         <div
             class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
