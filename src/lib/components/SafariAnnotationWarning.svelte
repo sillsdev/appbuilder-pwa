@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { t } from '$lib/data/stores';
     import {
         dismissSafariWarning,
         getSafariWarningContext,
@@ -6,6 +7,20 @@
     } from '$lib/scripts/safariUtils';
 
     let context: SafariWarningContext = $state(getSafariWarningContext());
+    const storageInfoUrl =
+        'https://webkit.org/tracking-prevention/#7-day-cap-on-all-script-writeable-storage';
+
+    let installUrl = $derived(
+        context === 'ios'
+            ? 'https://support.apple.com/guide/iphone/open-as-web-app-iphea86e5236/ios'
+            : 'https://support.apple.com/guide/safari/add-to-dock-ibrw9e991864/mac'
+    );
+
+    let warning = $derived(
+        $t['Warning_Apple_Delete_Data'] ??
+            'On Apple devices, locally stored website data, including your annotations, may be deleted after a period of 7 days of inactivity. To reduce the risk of data loss, install this website as an app.'
+    );
+    let howToInstall = $derived($t['Warning_Apple_How_To_Install'] ?? 'How to install');
 
     function dismiss() {
         dismissSafariWarning();
@@ -31,21 +46,12 @@
             />
         </svg>
         <div class="flex-1">
-            {#if context === 'ios'}
-                <p class="font-semibold">Important for iPhone and iPad users</p>
-                <p class="mt-0.5">
-                    Safari may remove locally stored website data, including your annotations, if
-                    this website is only used in the browser. To reduce the risk of data loss,
-                    install this app to your Home Screen.
-                </p>
-            {:else}
-                <p class="font-semibold">Important for Safari users</p>
-                <p class="mt-0.5">
-                    Safari may remove locally stored website data, including your annotations, after
-                    a period of inactivity. To reduce the risk of data loss, install this app to
-                    your Dock.
-                </p>
-            {/if}
+            <p class="mt-0.5">
+                {warning}
+                <a href={installUrl} target="_blank" rel="noopener noreferrer" class="link">
+                    {howToInstall}
+                </a>
+            </p>
         </div>
         <button
             onclick={dismiss}
