@@ -163,6 +163,10 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
         tempStyles.push('.plan-checkbox-image { display:block; }');
     }
 
+    if (isSAB(configData.data)) {
+        tempStyles.push("#container.plan-chooser:hover { cursor: pointer; transform: translate(-1px, -1px); }");
+    }
+
     if (isDAB(configData.data)) {
         /*
          * Imitate browser-native styling for better link visibility...
