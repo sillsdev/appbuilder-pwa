@@ -3,9 +3,10 @@
     "version": "14.4.0",
     "type": "module",
     "scripts": {
-        "dev": "ts-node scripts/dev-node.ts",
-        "dev:c": "ts-node scripts/dev-concurrently.ts",
+        "dev": "ts-node scripts/dev.ts",
+        "dev:conc": "ts-node scripts/dev-concurrently.ts",
         "dev:noconvert": "vite dev --host",
+        "dev:nc": "vite dev --host",
         "build": "npm run enforce-version && ts-node convert/index.ts && npx svelte-kit sync && vite build",
         "analyze": "npm run build -- --mode analyze && npm run open-stats",
         "open-stats": "ts-node scripts/open-stats.ts",
