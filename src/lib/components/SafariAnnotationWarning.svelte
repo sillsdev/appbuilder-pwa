@@ -48,7 +48,12 @@
         <div class="flex-1">
             <p class="mt-0.5">
                 {warning}
-                <a href={installUrl} target="_blank" rel="noopener noreferrer external" class="link">
+                <a
+                    href={installUrl}
+                    target="_blank"
+                    rel="noopener noreferrer external"
+                    class="link"
+                >
                     {howToInstall}
                 </a>
             </p>
