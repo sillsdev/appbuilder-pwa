@@ -36,7 +36,7 @@ A simple dropdown menu from DaisyUI.
     });
 </script>
 
-<!-- https://github.com/saadeghi/daisyui/discussions/2469 
+<!-- https://github.com/saadeghi/daisyui/discussions/2469
      how to make dropdown align with screen instead of label -->
 <details bind:this={details} class="dy-dropdown max-sm:[position:unset]" ontoggle={onToggle}>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -46,7 +46,7 @@ A simple dropdown menu from DaisyUI.
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
         bind:this={container}
-        class="dy-dropdown-content dy-menu shadow-lg mt-2.5 bg-base-100 z-10 max-sm:absolute max-sm:inset-s-1.5"
+        class="dy-dropdown-content dy-menu shadow-lg mt-2.5 z-10 max-sm:absolute max-sm:inset-s-1.5"
         class:min-w-[22rem]={cols == 6}
         class:min-w-[18rem]={cols == 5}
         style={convertStyle($s?.['ui.background'])}

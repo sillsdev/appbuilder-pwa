@@ -92,6 +92,8 @@
         base: '/src/gen-assets/borders'
     });
 
+    const barIconSelectedColor = $derived($s?.['ui.bottom-navigation.item.icon']['color']);
+
     interface Props {
         data: PageData;
     }
@@ -593,7 +595,11 @@
                             ? 'visible'
                             : 'invisible'}"
                     >
-                        <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
+                        <ChevronIcon
+                            size={36}
+                            color={barIconSelectedColor}
+                            deg={$direction === 'ltr' ? 180 : 0}
+                        />
                     </button>
                 </div>
                 <div class="basis-5/6 max-w-breakpoint-md">
@@ -631,7 +637,11 @@
                             ? 'visible'
                             : 'invisible'}"
                     >
-                        <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
+                        <ChevronIcon
+                            size={36}
+                            color={barIconSelectedColor}
+                            deg={$direction === 'ltr' ? 0 : 180}
+                        />
                     </button>
                 </div>
             </div>
@@ -643,7 +653,8 @@
 
     {#if textCopied}
         <div
-            class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
+            style={convertStyle($s?.['ui.bar.audio.hint.text'])}
+            class="flex h-12 p-2 items-center justify-center text-center text-sm"
         >
             {$t['Text_Copied']}
         </div>
