@@ -16,7 +16,9 @@ async function main() {
         { glob: true }
     );
 
-    console.log('🔔 Reminder: The project cannot be built until the conversion scripts are run again.');
+    console.log(
+        '🔔 Reminder: The project cannot be built until the conversion scripts are run again.'
+    );
 }
 
 main();
