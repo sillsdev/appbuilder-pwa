@@ -42,11 +42,11 @@ class ScopeManager {
     }
 
     getTopContentRoot() {
-        return this.getTopScope().contentRoot;
+        return this.getTopScope()?.contentRoot;
     }
 
     getCurrentScope(level: RenderScopeLevel) {
-        let scope: RenderScope;
+        let scope: RenderScope | undefined;
 
         for (let i = this.stack.length - 1; i >= 0; i--) {
             if (this.stack[i].level === level) {
@@ -67,7 +67,10 @@ class ScopeManager {
 
     setActiveContentRoot(level: RenderScopeLevel, contentRoot: HTMLElement) {
         console.log('setActiveContentRoot: %o, %o', level, contentRoot);
-        this.getCurrentScope(level).contentRoot = contentRoot;
+        const currentScope = this.getCurrentScope(level);
+        if (currentScope) {
+            currentScope.contentRoot = contentRoot;
+        }
     }
 
     appendInnerContent(content: HTMLElement, level?: RenderScopeLevel) {
@@ -87,14 +90,16 @@ class ScopeManager {
             throw new Error('Tried to promote content on empty scope stack');
         }
 
-        const innerRoot = this.stack.pop().contentRoot;
+        const innerRoot = this.stack.pop()?.contentRoot;
         if (layers > 1) {
             if (innerRoot) {
                 const outerScope = this.getTopScope();
-                if (outerScope.contentRoot) {
-                    outerScope.contentRoot.appendChild(innerRoot);
-                } else {
-                    outerScope.contentRoot = innerRoot;
+                if (outerScope) {
+                    if (outerScope.contentRoot) {
+                        outerScope.contentRoot.appendChild(innerRoot);
+                    } else {
+                        outerScope.contentRoot = innerRoot;
+                    }
                 }
             }
 

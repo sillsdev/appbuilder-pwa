@@ -12,18 +12,17 @@ LOGGING:
 <script module lang="ts">
     export interface Props {
         audioPhraseEndChars: string;
-        bodyFontSize: any;
-        bodyLineHeight: any;
-        bookmarks: any;
-        notes: any;
-        highlights: any;
-        maxSelections: any;
+        bodyFontSize: number;
+        bodyLineHeight: number;
+        bookmarks: Promise<BookmarkItem[]>;
+        notes: Promise<NoteItem[]>;
+        highlights: Promise<HighlightItem[]>;
+        maxSelections: number;
         redLetters: boolean;
-        references: any;
-        glossary: any;
-        selectedVerses: any;
-        themeColors: any;
-        verseLayout: any;
+        references: ReferenceStore;
+        glossary: Promise<GlossaryQueryResult>;
+        themeColors: Record<string, string>;
+        verseLayout: string;
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
@@ -42,20 +41,20 @@ LOGGING:
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { scriptureLogs } from '$lib/data/stores';
+    import { scriptureLogs, type GlossaryQueryResult } from '$lib/data/stores';
+    import type { ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
     import { renderFeatures } from '$lib/render-sofria';
     import {
         RenderEventDescriptor,
-        RenderEventNamesList,
         RenderEventPosition,
+        renderEvents,
         RenderScope,
-        RenderScopeLevel,
         type ActionDictionary,
         type FeatureSpec,
         type RenderAction,
         type RenderEnvironment,
-        type RenderEventNames,
+        type RenderEvent,
         type RenderWorkspace
     } from '$lib/render-sofria/common';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
@@ -79,7 +78,6 @@ LOGGING:
         redLetters,
         references,
         glossary,
-        selectedVerses,
         themeColors,
         verseLayout,
         viewShowBibleImages,
@@ -185,7 +183,7 @@ LOGGING:
             verse: 'none'
         };
         workspace.showVerseNumbers = viewShowVerses;
-        workspace.logSettings = scriptureLogs;
+        workspace.logSettings = $scriptureLogs;
         workspace.numeralSystem = numeralSystem;
         workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
     }
@@ -199,7 +197,7 @@ LOGGING:
      * @param environment - the render environment passed in from Proskomma
      * @param eventName   - the Proskomma name of the event (e.g. `startDocument`, `text`)
      */
-    function handleSofriaRenderEvent(environment: RenderEnvironment, eventName: RenderEventNames) {
+    function handleSofriaRenderEvent(environment: RenderEnvironment, eventName: RenderEvent) {
         console.log('Handling function called for %s on %o', eventName, environment);
 
         if (!renderWorkspaceInitialized) {
@@ -214,8 +212,8 @@ LOGGING:
     }
 
     async function renderDocumentSofria(docSet: string, bookCode: string, chapter: string) {
-        const actionObject: { [key in RenderEventNames]?: ProskommaRenderAction[] } = {};
-        for (const name of RenderEventNamesList) {
+        const actionObject: { [key in RenderEvent]?: ProskommaRenderAction[] } = {};
+        for (const name of renderEvents) {
             actionObject[name] = [
                 {
                     description: `Handling ${name}`,

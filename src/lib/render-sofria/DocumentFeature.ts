@@ -1,10 +1,4 @@
-import {
-    FeatureSpec,
-    RenderScope,
-    RenderScopeLevel,
-    type RenderAction,
-    type RenderEnvironment
-} from './common';
+import { FeatureSpec, RenderScope, type RenderAction, type RenderEnvironment } from './common';
 
 const documentFeature = new FeatureSpec([
     {
@@ -16,7 +10,7 @@ const documentFeature = new FeatureSpec([
             baseDiv.innerText = 'Beginning of document in DocumentFeature.ts! ||';
 
             workspace.root.appendChild(baseDiv);
-            workspace.scopeManager.addScope(RenderScopeLevel.document, workspace.root);
+            workspace.scopeManager.addScope('document', workspace.root);
         }
     },
     {
@@ -25,7 +19,7 @@ const documentFeature = new FeatureSpec([
             const endDiv = workspace.document.createElement('div');
             endDiv.innerText = ' || End of document reached in DocumentFeature.ts';
             workspace.scopeManager.appendInnerContent(endDiv);
-            workspace.scopeManager.removeScope(RenderScopeLevel.document);
+            workspace.scopeManager.removeScope('document');
             output.root = workspace.root;
         }
     }
