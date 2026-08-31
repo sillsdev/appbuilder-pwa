@@ -1,4 +1,4 @@
-import { FeatureSpec, RenderScope, RenderScopeLevel, type RenderEnvironment } from './common';
+import { FeatureSpec, RenderScope, type RenderEnvironment } from './common';
 import { addVerseNumberRange, createLetterIndex, subdividePhrases } from './util';
 
 const mainTextFeature = new FeatureSpec([
@@ -9,16 +9,16 @@ const mainTextFeature = new FeatureSpec([
                 workspace.sequenceTypes.push('main');
                 // Render main text
                 const paraClass =
-                    context.sequences[0].block.subType.split(':')[1] ||
+                    context.sequences[0].block.subType?.split(':')[1] ||
                     context.sequences[0].block.subType;
 
                 const paragraphDiv = workspace.document.createElement('div');
-                paragraphDiv.classList.add(paraClass);
+                paragraphDiv.classList.add(paraClass ?? '');
                 if (paraClass === 'b') {
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
-                workspace.scopeManager.addScope(RenderScopeLevel.paragraph, paragraphDiv);
+                workspace.scopeManager.addScope('paragraph', paragraphDiv);
             }
         }
     },
@@ -44,7 +44,9 @@ const mainTextFeature = new FeatureSpec([
             const phrases = subdividePhrases(workspace, text);
             for (const phrase of phrases) {
                 const phraseDiv = workspace.document.createElement('div');
-                const phraseIndex = createLetterIndex(workspace.currentTextPosition.phraseIndex);
+                const phraseIndex = createLetterIndex(
+                    workspace.currentTextPosition.phraseIndex ?? 0
+                );
 
                 phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
 
@@ -61,7 +63,8 @@ const mainTextFeature = new FeatureSpec([
                 phraseDiv.innerHTML += phrase;
 
                 workspace.scopeManager.appendInnerContent(phraseDiv);
-                workspace.currentTextPosition.phraseIndex++;
+                workspace.currentTextPosition.phraseIndex =
+                    (workspace.currentTextPosition.phraseIndex ?? 0) + 1;
             }
         }
     },

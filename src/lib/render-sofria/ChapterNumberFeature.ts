@@ -1,7 +1,7 @@
 import { scriptureConfig } from '$assets/config';
 import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
-import { FeatureSpec, RenderScopeLevel, type RenderEnvironment } from './common';
+import { FeatureSpec, type RenderEnvironment } from './common';
 
 const chapterNumberFeature = new FeatureSpec(
     [
@@ -36,19 +36,17 @@ const chapterNumberFeature = new FeatureSpec(
                             (x) => x.id === workspace.references.collection
                         )?.style?.textDirection;
                         chapterNumDiv.style.float =
-                            direction.toLowerCase() === 'ltr' ? 'left' : 'right';
+                            direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
 
-                        const currentParagraph = workspace.scopeManager.getActiveContentRoot(
-                            RenderScopeLevel.paragraph
-                        );
-                        currentParagraph.className = 'm';
-                        currentParagraph.appendChild(chapterNumDiv);
+                        const currentParagraph =
+                            workspace.scopeManager.getActiveContentRoot('paragraph');
+                        if (currentParagraph) {
+                            currentParagraph.className = 'm';
+                            currentParagraph.appendChild(chapterNumDiv);
+                        }
                     } else {
                         chapterNumDiv.classList.add('c');
-                        workspace.scopeManager.appendInnerContent(
-                            chapterNumDiv,
-                            RenderScopeLevel.document
-                        );
+                        workspace.scopeManager.appendInnerContent(chapterNumDiv, 'document');
                     }
                 }
             }

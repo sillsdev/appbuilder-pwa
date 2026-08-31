@@ -1,25 +1,27 @@
+import type { ScriptureLogConfig } from '$lib/data/stores';
+import type { ReferenceStore } from '$lib/data/stores/reference';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
+import type { RenderContext } from 'proskomma-json-tools';
 import type ScopeManager from './ScopeManager';
 
-export enum RenderScopeLevel {
-    document,
-    paragraph,
-    sequence,
-    text,
-    phrase,
-    verses,
-    chapter,
-    metaContent,
-    mark,
-    blockGraft,
-    inlineGraft,
-    wrapper,
-    milestone,
-    table,
-    row,
-    cell,
-    unsupported
-}
+const boundedScopes = [
+    'Document',
+    'Paragraph',
+    'Verses',
+    'Chapter',
+    'Sequence',
+    'Wrapper',
+    'Milestone',
+    'Row'
+] as const;
+type StartScope = `start${(typeof boundedScopes)[number]}`;
+type EndScope = `end${(typeof boundedScopes)[number]}`;
+const independentScopes = ['text', 'metaContent', 'mark', 'blockGraft', 'inlineGraft'] as const;
+const additionalScopes = ['table', 'cell', 'unsupported'] as const;
+
+export type RenderScopeLevel =
+    | Lowercase<(typeof boundedScopes)[number]>
+    | (typeof independentScopes | typeof additionalScopes)[number];
 
 export enum RenderEventPosition {
     scopeStart,
@@ -27,42 +29,23 @@ export enum RenderEventPosition {
     standalone
 }
 
-export const RenderEventNamesList = [
-    'startDocument',
-    'endDocument',
-    'startParagraph',
-    'endParagraph',
-    'startVerses',
-    'endVerses',
-    'startChapter',
-    'endChapter',
-    'text',
-    'metaContent',
-    'mark',
-    'startSequence',
-    'endSequence',
-    'blockGraft',
-    'inlineGraft',
-    'startWrapper',
-    'endWrapper',
-    'startMilestone',
-    'endMilestone',
-    'startRow',
-    'endRow'
-] as const;
-export type RenderEventNames = (typeof RenderEventNamesList)[number];
+export const renderEvents = [
+    ...boundedScopes.flatMap((s) => [`start${s}`, `end${s}`]),
+    ...independentScopes
+] as const as RenderEvent[];
+export type RenderEvent = StartScope | EndScope | (typeof independentScopes)[number];
 
 export class RenderEventDescriptor {
-    constructor(eventName: string) {
+    constructor(eventName: RenderEvent) {
         if (eventName.startsWith('start')) {
             this.position = RenderEventPosition.scopeStart;
-            this.level = RenderScopeLevel[eventName.replace('start', '').toLowerCase()];
+            this.level = eventName.replace('start', '').toLowerCase() as RenderScopeLevel;
         } else if (eventName.startsWith('end')) {
             this.position = RenderEventPosition.scopeEnd;
-            this.level = RenderScopeLevel[eventName.replace('end', '').toLowerCase()];
+            this.level = eventName.replace('end', '').toLowerCase() as RenderScopeLevel;
         } else {
             this.position = RenderEventPosition.standalone;
-            this.level = RenderScopeLevel[eventName];
+            this.level = eventName as RenderScopeLevel;
         }
     }
 
@@ -85,13 +68,13 @@ export class RenderScope {
  */
 export type RenderEnvironment = {
     config: any;
-    context: any;
+    context: RenderContext;
     workspace: RenderWorkspace;
     output: any;
 };
 
 export type RenderAction = {
-    eventTriggers: Array<RenderEventNames>;
+    eventTriggers: Array<RenderEvent>;
     action(environment: RenderEnvironment): void;
 };
 
@@ -99,7 +82,7 @@ export type RenderAction = {
  * Methodology from
  * https://stackoverflow.com/questions/55570729/how-to-limit-the-keys-of-an-object-to-the-strings-of-an-array-in-typescript
  */
-export type ActionDictionary = Partial<{ [key in RenderEventNames]: Array<RenderAction> }>;
+export type ActionDictionary = Partial<{ [key in RenderEvent]: Array<RenderAction> }>;
 
 export type FeatureFlag = { tag: string; enabledValue: string };
 
@@ -109,19 +92,19 @@ export class FeatureSpec {
         this.actions = actions;
     }
 
-    flag: FeatureFlag;
+    flag?: FeatureFlag;
     actions: Array<RenderAction>;
 }
 
 export type RenderScratchpad = {
-    [key in RenderEventNames]?: any;
+    [key in RenderEvent]?: any;
 };
 
 export type SequenceType = 'main' | 'title' | 'introduction';
 
 export type RenderWorkspace = {
     document: Document;
-    references: any;
+    references: ReferenceStore;
     currentTextPosition: {
         chapter: string;
         verse: string;
@@ -132,7 +115,7 @@ export type RenderWorkspace = {
     sequenceTypes: Array<SequenceType>;
     root: HTMLDivElement;
     scopeManager: ScopeManager;
-    logSettings: any;
+    logSettings: ScriptureLogConfig;
     scratch: RenderScratchpad;
     separatorRegex: RegExp;
     numeralSystem: NumeralSystem;

@@ -1,7 +1,7 @@
 import { scriptureConfig } from '$assets/config';
 import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
-import { FeatureSpec, RenderScopeLevel, type RenderEnvironment } from './common';
+import { FeatureSpec, type RenderEnvironment } from './common';
 
 const verseNumberFeature = new FeatureSpec([
     {

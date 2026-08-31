@@ -414,6 +414,6 @@ export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $log
                   row: 1,
                   placement: 1
               }
-            : $logs['scripture']
+            : $logs['scripture'] ?? {}
     ) as ScriptureLogConfig;
 });

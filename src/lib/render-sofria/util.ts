@@ -48,16 +48,16 @@ export function addVerseNumberRange(workspace: RenderWorkspace, phraseDiv: HTMLD
     );
     // TODO: parameterize next line
     // TODO: figure out how to hide first verse number
-    const direction = scriptureConfig.bookCollections?.find(
-        (x) => x.id === workspace.references.collection
-    )?.style?.textDirection;
+    const direction =
+        scriptureConfig.bookCollections?.find((x) => x.id === workspace.references.collection)
+            ?.style?.textDirection ?? 'ltr';
 
     const spanV = workspace.document.createElement('span');
     spanV.classList.add('v');
     // 'number' can be a range of verse numbers
     spanV.innerText = numerals.formatNumberRange(
         workspace.numeralSystem,
-        workspace.verseRangeNumber,
+        workspace.verseRangeNumber ?? '0',
         direction
     );
 
