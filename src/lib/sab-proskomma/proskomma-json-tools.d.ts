@@ -19,13 +19,13 @@ declare module 'proskomma-json-tools' {
         element: Element;
     };
 
-    export type Context = {
+    export type RenderContext = {
         document: { metadata: { document: unknown } };
         sequences: Sequence[];
         renderer: SofriaRenderFromProskomma;
     };
 
-    export type ProskommaRenderAction<Params extends { context: Context }> = {
+    export type ProskommaRenderAction<Params extends { context: RenderContext }> = {
         description: string;
         test: (args: Params) => boolean;
         action: (args: Params) => void;

@@ -88,7 +88,7 @@ LOGGING:
     import {
         SofriaRenderFromProskomma,
         type Block,
-        type Context,
+        type RenderContext,
         type Element,
         type Sequence
     } from 'proskomma-json-tools';
@@ -1567,7 +1567,7 @@ LOGGING:
         jmpText: string;
     } & Record<`level${number}ListNum`, number>;
 
-    type Action = { context: Context; workspace: Workspace };
+    type Action = { context: RenderContext; workspace: Workspace };
 
     const output = {};
     async function query(
@@ -1643,7 +1643,7 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements(selectedVerses);
+                            deselectAllElements();
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
