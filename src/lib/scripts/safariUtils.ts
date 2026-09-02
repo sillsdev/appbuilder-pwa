@@ -4,6 +4,9 @@ const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export type SafariWarningContext = 'ios' | 'macos' | null;
 
+// The kinds of annotations that can trigger the first-annotation popup.
+export type AnnotationKind = 'bookmark' | 'note' | 'highlight';
+
 function isIOS(): boolean {
     if (/iPhone|iPod/.test(navigator.userAgent)) {
         return true;
@@ -100,4 +103,17 @@ export function markAnnotationHintShown(): void {
     } catch {
         // silently ignore
     }
+}
+
+const annotationPageKeys: Record<AnnotationKind, string> = {
+    bookmark: 'Annotation_Bookmarks',
+    note: 'Annotation_Notes',
+    highlight: 'Annotation_Highlights'
+};
+
+export function buildAnnotationHintText(t: Record<string, string>, kind: AnnotationKind): string {
+    const template =
+        t['Warning_Apple_Popup'] ??
+        'You may lose your data after inactivity. See %s page to learn more';
+    return template.replace('%s', t[annotationPageKeys[kind]]);
 }
