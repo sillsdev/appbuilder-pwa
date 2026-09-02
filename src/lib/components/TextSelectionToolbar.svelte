@@ -21,6 +21,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
         themeIsDark,
         voiCustomImage
     } from '$lib/data/stores';
+    import { triggerAnnotationHint } from '$lib/data/stores/annotation';
     import { AudioIcon, CopyContentIcon, HighlightIcon, NoteIcon, ShareIcon } from '$lib/icons';
     import { ImageIcon } from '$lib/icons/image';
     import { resolve } from '$lib/utils/paths';
@@ -78,6 +79,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
                 text,
                 reference: $selectedVerses[0].reference
             });
+            triggerAnnotationHint('bookmark');
         } else {
             await removeBookmark(selectedVerseBookmarks);
         }
@@ -94,12 +96,13 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
     ];
 
     async function modifyHighlight(numColor: number) {
+        showHighlightPens = false;
         if (numColor == 6) {
             await removeHighlights($selectedVerses);
         } else {
             await addHighlights(numColor, $selectedVerses, selectedVerses.getVerseTextByIndex);
+            triggerAnnotationHint('highlight');
         }
-
         selectedVerses.reset();
     }
 
@@ -141,7 +144,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
 </script>
 
 <div
-    class="h-12 bg-base-100 mx-auto flex items-center flex-col"
+    class="relative h-12 bg-base-100 mx-auto flex items-center flex-col"
     style:background-color={backgroundColor}
 >
     <div class="flex flex-col justify-center w-11/12 grow">

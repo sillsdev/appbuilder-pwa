@@ -5,6 +5,7 @@
     import '$lib/styles/app.css';
     import { dev } from '$app/environment';
     import config from '$assets/config';
+    import AnnotationHintToast from '$lib/components/AnnotationHintToast.svelte';
     import AudioAlertModal, {
         type AudioAlertModalProps
     } from '$lib/components/AudioAlertModal.svelte';
@@ -207,6 +208,7 @@
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
         >
+            <AnnotationHintToast />
             <div>
                 <!--Div containing the popup modals triggered by the navBar buttons and SideBar entries -->
 

@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation';
     import IconCard from '$lib/components/IconCard.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import SafariAnnotationWarning from '$lib/components/SafariAnnotationWarning.svelte';
     import SortMenu from '$lib/components/SortMenu.svelte';
     import { shareAnnotation, shareAnnotations } from '$lib/data/annotation-share';
     import { Sort, toSorted } from '$lib/data/annotation-sort';
@@ -83,6 +84,7 @@
         class="overflow-y-auto p-2.5 max-w-breakpoint-md mx-auto w-full"
         style:font-size="{$bodyFontSize}px"
     >
+        <SafariAnnotationWarning />
         {#if data.notes.length === 0}
             <div class="annotation-message-none">{$t['Annotation_Notes_None']}</div>
             <div class="annotation-message-none-info">{$t['Annotation_Notes_None_Info']}</div>

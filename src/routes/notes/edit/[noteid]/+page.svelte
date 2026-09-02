@@ -2,6 +2,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { addNote, editNote, removeNote } from '$lib/data/notes';
     import { actionBarColor, selectedVerses, t } from '$lib/data/stores';
+    import { triggerAnnotationHint } from '$lib/data/stores/annotation';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
@@ -58,6 +59,7 @@
             text,
             reference
         });
+        triggerAnnotationHint('note');
         goBack();
     }
 
