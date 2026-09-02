@@ -2,7 +2,6 @@
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
-    import AnnotationHintToast from '$lib/components/AnnotationHintToast.svelte';
     import AudioBar from '$lib/components/AudioBar.svelte';
     import BookSelector from '$lib/components/BookSelector.svelte';
     import BookTabs from '$lib/components/BookTabs.svelte';
@@ -643,27 +642,24 @@
     <!-- Display pop-ups for cross-references, footnotes, etc. -->
     <StackView {...stackSettings} />
 
-    <div class="relative">
-        <AnnotationHintToast />
-        {#if textCopied}
-            <div
-                class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
-            >
-                {$t['Text_Copied']}
+    {#if textCopied}
+        <div
+            class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
+        >
+            {$t['Text_Copied']}
+        </div>
+    {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
+        <div class="text-selection">
+            <TextSelectionToolbar oncopy={onTextCopy} />
+        </div>
+    {:else if $refs.hasAudio && $audioActive}
+        <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
+        <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
+            <div>
+                <AudioBar {checkAudioAvailability} />
             </div>
-        {:else if $selectedVerses.length > 0 && !$audioPlayer.playing}
-            <div class="text-selection">
-                <TextSelectionToolbar oncopy={onTextCopy} />
-            </div>
-        {:else if $refs.hasAudio && $audioActive}
-            <!-- Upgrading to DaisyUI 3, bottom-0 became bottom=-(height of bar) -->
-            <div class="audio-bar p-0" class:audio-bar-desktop={$showDesktopSidebar}>
-                <div>
-                    <AudioBar {checkAudioAvailability} />
-                </div>
-            </div>
-        {/if}
-    </div>
+        </div>
+    {/if}
     {#if scrollingUp && bottomNavBarEnabled && !$selectedVerses.length}
         <BottomNavigationBar {barType} />
     {/if}
