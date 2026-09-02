@@ -105,15 +105,18 @@ export function markAnnotationHintShown(): void {
     }
 }
 
-const annotationPageKeys: Record<AnnotationKind, string> = {
-    bookmark: 'Annotation_Bookmarks',
-    note: 'Annotation_Notes',
-    highlight: 'Annotation_Highlights'
+const annotationPageInfo: Record<AnnotationKind, { key: string; fallback: string }> = {
+    bookmark: { key: 'Annotation_Bookmarks', fallback: 'Bookmarks' },
+    note: { key: 'Annotation_Notes', fallback: 'Notes' },
+    highlight: { key: 'Annotation_Highlights', fallback: 'Highlights' }
 };
 
 export function buildAnnotationHintText(t: Record<string, string>, kind: AnnotationKind): string {
+    // $t can resolve a known key to '' (e.g. a mapping exists but is missing the
+    // current locale), not just undefined, so fall back on any falsy value here.
     const template =
-        t['Warning_Apple_Popup'] ??
+        t['Warning_Apple_Popup'] ||
         'You may lose your data after inactivity. See %s page to learn more';
-    return template.replace('%s', t[annotationPageKeys[kind]]);
+    const { key, fallback } = annotationPageInfo[kind];
+    return template.replace('%s', t[key] || fallback);
 }
