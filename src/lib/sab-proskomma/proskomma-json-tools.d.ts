@@ -2,26 +2,26 @@
 ///<reference path="./proskomma.d.ts" />
 
 declare module 'proskomma-json-tools' {
-    export type Block = { type: string; subType?: string; sequence: Partial<Sequence> };
+    export type Block = { type: string; subType?: string; sequence: Partial<RenderSequence> };
 
-    export type Element = {
+    export type RenderElement = {
         type: string;
         subType: string;
         text: string;
         atts: Record<string, string>;
-        sequence: Partial<Sequence>;
+        sequence: Partial<RenderSequence>;
     };
 
-    export type Sequence = {
+    export type RenderSequence = {
         id: string;
         type: string;
         block: Block;
-        element: Element;
+        element: RenderElement;
     };
 
     export type RenderContext = {
         document: { metadata: { document: unknown } };
-        sequences: Sequence[];
+        sequences: RenderSequence[];
         renderer: SofriaRenderFromProskomma;
     };
 

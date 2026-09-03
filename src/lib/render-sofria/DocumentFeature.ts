@@ -1,4 +1,4 @@
-import { FeatureSpec, RenderScope, type RenderAction, type RenderEnvironment } from './common';
+import { FeatureSpec, type RenderAction, type RenderEnvironment } from './common';
 
 const documentFeature = new FeatureSpec([
     {
@@ -7,8 +7,7 @@ const documentFeature = new FeatureSpec([
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
             baseDiv.setAttribute('data-phrase', 'none');
-            baseDiv.innerText = 'Beginning of document in DocumentFeature.ts! ||';
-
+            // TODO: reset selections
             workspace.root.appendChild(baseDiv);
             workspace.scopeManager.addScope('document', workspace.root);
         }
@@ -16,10 +15,8 @@ const documentFeature = new FeatureSpec([
     {
         eventTriggers: ['endDocument'],
         action({ workspace, output }: RenderEnvironment) {
-            const endDiv = workspace.document.createElement('div');
-            endDiv.innerText = ' || End of document reached in DocumentFeature.ts';
-            workspace.scopeManager.appendInnerContent(endDiv);
             workspace.scopeManager.removeScope('document');
+            // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
         }
     }

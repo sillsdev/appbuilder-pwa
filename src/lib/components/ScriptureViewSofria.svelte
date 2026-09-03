@@ -88,9 +88,9 @@ LOGGING:
     import {
         SofriaRenderFromProskomma,
         type Block,
+        type RenderElement as Element,
         type RenderContext,
-        type Element,
-        type Sequence
+        type RenderSequence as Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount } from 'svelte';
 
