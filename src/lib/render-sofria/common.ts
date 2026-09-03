@@ -100,6 +100,14 @@ export type RenderScratchpad = {
     [key in RenderEvent]?: any;
 };
 
+export function addToScratchPad(
+    pad: RenderScratchpad,
+    scope: RenderEvent,
+    values: Record<string, any>
+) {
+    pad[scope] = { ...pad[scope], ...values };
+}
+
 export type SequenceType = 'main' | 'title' | 'introduction';
 
 export type RenderWorkspace = {
