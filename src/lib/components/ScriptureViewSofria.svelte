@@ -1664,6 +1664,7 @@ LOGGING:
                             addOnClickDivs();
                             if (!displayingIntroduction) {
                                 addNotedVerses();
+                                addBookmarkedVerses();
                                 addHighlightedVerses();
                                 if (showVideo()) {
                                     addVideos(videos);
