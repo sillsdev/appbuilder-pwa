@@ -64,8 +64,6 @@ LOGGING:
     import * as numerals from '$lib/scripts/numeralSystem';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { fromStore, type Readable } from 'svelte/store';
-    import ScriptureViewSofria from './ScriptureViewSofria.svelte';
 
     let {
         audioPhraseEndChars,
@@ -184,6 +182,7 @@ LOGGING:
         };
         workspace.showVerseNumbers = viewShowVerses;
         workspace.logSettings = $scriptureLogs;
+        workspace.scratch = {};
         workspace.numeralSystem = numeralSystem;
         workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
     }
@@ -262,7 +261,7 @@ LOGGING:
         style:font-family={font}
         style:font-size={fontSize}
         style:line-height={lineHeight}
-        class="single"
+        class="single mx-2"
         style:direction
     ></div>
 </article>
