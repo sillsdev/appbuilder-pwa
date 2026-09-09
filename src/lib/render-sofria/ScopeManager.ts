@@ -42,6 +42,8 @@ class ScopeManager {
     }
 
     getTopContentRoot() {
+        const scope = this.getTopScope();
+        console.log('getTopContentRoot: %o -> %o', scope?.level, scope?.contentRoot);
         return this.getTopScope()?.contentRoot;
     }
 

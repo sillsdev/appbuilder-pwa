@@ -127,4 +127,5 @@ export type RenderWorkspace = {
     scratch: RenderScratchpad;
     separatorRegex: RegExp;
     numeralSystem: NumeralSystem;
+    verseLayout: string;
 };

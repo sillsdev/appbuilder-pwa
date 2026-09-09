@@ -1,10 +1,17 @@
-import { FeatureSpec, type RenderEnvironment } from './common';
-import { createLetterIndex, subdividePhrases } from './util';
+import { FeatureSpec, type RenderEnvironment } from '../common';
+import { createLetterIndex, subdividePhrases } from '../util';
 
-const mainTextFeature = new FeatureSpec([
+export const text = new FeatureSpec([
     {
         eventTriggers: ['startParagraph'],
         action({ context, workspace }: RenderEnvironment) {
+            if (workspace.logSettings.paragraph) {
+                console.log(
+                    'Start Paragraph %o %o',
+                    context.sequences[0].block,
+                    context.sequences[0].type
+                );
+            }
             if (context.sequences[0].type === 'main') {
                 workspace.sequenceTypes.push('main');
                 // Render main text
@@ -14,11 +21,13 @@ const mainTextFeature = new FeatureSpec([
 
                 const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass ?? '');
+                console.log(paraClass);
                 if (paraClass === 'b') {
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
                 workspace.scopeManager.addScope('paragraph', paragraphDiv);
+                console.log(paragraphDiv);
             }
         }
     },
@@ -63,6 +72,15 @@ const mainTextFeature = new FeatureSpec([
     {
         eventTriggers: ['endParagraph'],
         action({ context, workspace }: RenderEnvironment) {
+            const sequenceType = context.sequences[0].type;
+            if (workspace.logSettings.paragraph) {
+                console.log('End paragraph: Sequence type ' + sequenceType);
+                console.log(
+                    'End Paragraph %o %o',
+                    context.sequences[0].block,
+                    context.sequences[0].type
+                );
+            }
             if (context.sequences[0].type === 'main') {
                 workspace.scopeManager.promoteContent();
                 if (workspace.sequenceTypes.at(-1) === 'main') {
@@ -74,5 +92,3 @@ const mainTextFeature = new FeatureSpec([
         }
     }
 ]);
-
-export default mainTextFeature;
