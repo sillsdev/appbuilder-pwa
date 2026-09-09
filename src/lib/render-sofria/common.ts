@@ -66,16 +66,16 @@ export class RenderScope {
 /**
  * This should eventually go in proskomma.d.ts
  */
-export type RenderEnvironment = {
+export type RenderEnvironment<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
     config: any;
     context: RenderContext;
-    workspace: RenderWorkspace;
+    workspace: RenderWorkspace<Scratch>;
     output: any;
 };
 
-export type RenderAction = {
+export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
     eventTriggers: Array<RenderEvent>;
-    action(environment: RenderEnvironment): void;
+    action(environment: RenderEnvironment<Scratch>): void;
 };
 
 /**
@@ -86,31 +86,30 @@ export type ActionDictionary = Partial<{ [key in RenderEvent]: Array<RenderActio
 
 export type FeatureFlag = { tag: string; enabledValue: string };
 
-export class FeatureSpec {
-    constructor(actions: Array<RenderAction>, flag?: FeatureFlag) {
+export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> {
+    constructor(actions: Array<RenderAction<Scratch>>, flag?: FeatureFlag) {
         this.flag = flag;
         this.actions = actions;
     }
 
     flag?: FeatureFlag;
-    actions: Array<RenderAction>;
+    actions: Array<RenderAction<Scratch>>;
 }
 
-export type RenderScratchpad = {
-    [key in RenderEvent]?: any;
-};
+type DefaultScratchpad = Partial<Record<RenderEvent, any>>;
 
-export function addToScratchPad(
-    pad: RenderScratchpad,
-    scope: RenderEvent,
-    values: Record<string, any>
-) {
+export type RenderScratchpad<Coerce extends DefaultScratchpad = DefaultScratchpad> = Coerce;
+
+export function addToScratchPad<
+    E extends RenderEvent,
+    T extends DefaultScratchpad = DefaultScratchpad
+>(pad: RenderScratchpad<T>, scope: E, values: T[E]) {
     pad[scope] = { ...pad[scope], ...values };
 }
 
 export type SequenceType = 'main' | 'title' | 'introduction';
 
-export type RenderWorkspace = {
+export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
     document: Document;
     references: ReferenceStore;
     currentTextPosition: {
@@ -124,7 +123,7 @@ export type RenderWorkspace = {
     root: HTMLDivElement;
     scopeManager: ScopeManager;
     logSettings: ScriptureLogConfig;
-    scratch: RenderScratchpad;
+    scratch: RenderScratchpad<Scratch>;
     separatorRegex: RegExp;
     numeralSystem: NumeralSystem;
     verseLayout: string;

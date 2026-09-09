@@ -9,11 +9,16 @@ import {
     type RenderWorkspace
 } from '../common';
 
-export const chapterNumber = new FeatureSpec(
+type MarkScratch = {
+    chapterNumText?: string;
+    handledFirstVerse?: boolean;
+};
+
+export const chapterNumber = new FeatureSpec<{ mark: MarkScratch }>(
     [
         {
             eventTriggers: ['mark'],
-            action({ context, workspace }: RenderEnvironment) {
+            action({ context, workspace }) {
                 const element = context.sequences[0].element;
                 if (workspace.logSettings.mark) {
                     console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
@@ -61,10 +66,10 @@ export const chapterNumber = new FeatureSpec(
     { tag: 'show-chapter-numbers', enabledValue: 'true' }
 );
 
-export const verseNumbers = new FeatureSpec([
+export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>([
     {
         eventTriggers: ['mark'],
-        action({ context, workspace }: RenderEnvironment) {
+        action({ context, workspace }) {
             const element = context.sequences[0].element;
             if (workspace.logSettings.mark) {
                 console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
