@@ -2,15 +2,11 @@ import { scriptureConfig } from '$assets/config';
 import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
 import type { RenderElement } from 'proskomma-json-tools';
-import {
-    addToScratchPad,
-    FeatureSpec,
-    type RenderEnvironment,
-    type RenderWorkspace
-} from '../common';
+import { addToScratchPad, FeatureSpec, type RenderWorkspace } from '../common';
 
 type MarkScratch = {
     chapterNumText?: string;
+    deferChapterNum?: boolean;
     handledFirstVerse?: boolean;
 };
 
@@ -28,19 +24,43 @@ export const chapterNumber = new FeatureSpec<{ mark: MarkScratch }>(
                     workspace.numeralSystem,
                     element.atts['number']
                 );
-                const chapterNumDiv = workspace.document.createElement('div');
-                chapterNumDiv.innerText = chapterNumText;
 
-                addToScratchPad(workspace.scratch, 'mark', { chapterNumText });
+                const deferChapterNum =
+                    getFeatureValueString(
+                        scriptureConfig,
+                        'chapter-number-format',
+                        workspace.references.collection,
+                        workspace.references.book
+                    ) === 'drop-cap';
 
-                const format = getFeatureValueString(
-                    scriptureConfig,
-                    'chapter-number-format',
-                    workspace.references.collection,
-                    workspace.references.book
-                );
-                // NOTE: original rendering code would defer rendering of chapter number until first verse number encountered...
-                if (format === 'drop-cap') {
+                addToScratchPad(workspace.scratch, 'mark', { chapterNumText, deferChapterNum });
+
+                if (!deferChapterNum) {
+                    const chapterNumDiv = workspace.document.createElement('div');
+                    chapterNumDiv.innerText = chapterNumText;
+                    chapterNumDiv.classList.add('c');
+                    workspace.scopeManager.appendInnerContent(chapterNumDiv, 'document');
+                }
+            }
+        },
+        {
+            // handle deferred drop-cap chapter marker
+            eventTriggers: ['mark'],
+            guard: ({ context, workspace }) =>
+                context.sequences[0].element.subType === 'verses_label' &&
+                workspace.scratch.mark.deferChapterNum &&
+                !!workspace.scratch.mark.chapterNumText,
+            action({ context, workspace }) {
+                const element = context.sequences[0].element;
+                if (workspace.logSettings.mark) {
+                    console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
+                }
+
+                const currentParagraph = workspace.scopeManager.getActiveContentRoot('paragraph');
+                if (currentParagraph) {
+                    const chapterNumDiv = workspace.document.createElement('div');
+                    chapterNumDiv.innerText = workspace.scratch.mark.chapterNumText!;
+
                     chapterNumDiv.classList.add('c-drop');
 
                     const direction = scriptureConfig.bookCollections?.find(
@@ -49,15 +69,10 @@ export const chapterNumber = new FeatureSpec<{ mark: MarkScratch }>(
                     chapterNumDiv.style.float =
                         direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
 
-                    const currentParagraph =
-                        workspace.scopeManager.getActiveContentRoot('paragraph');
-                    if (currentParagraph) {
-                        currentParagraph.className = 'm';
-                        currentParagraph.appendChild(chapterNumDiv);
-                    }
-                } else {
-                    chapterNumDiv.classList.add('c');
-                    workspace.scopeManager.appendInnerContent(chapterNumDiv, 'document');
+                    currentParagraph.className = 'm';
+                    currentParagraph.appendChild(chapterNumDiv);
+
+                    addToScratchPad(workspace.scratch, 'mark', { chapterNumText: undefined });
                 }
             }
         }
@@ -75,17 +90,8 @@ export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>(
                 if (workspace.logSettings.mark) {
                     console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
                 }
-                if (
-                    !workspace.scratch.mark.handledFirstVerse &&
-                    workspace.scratch.mark.chapterNumText
-                ) {
-                    const chapterNumberFormatSetting = getFeatureValueString(
-                        scriptureConfig,
-                        'chapter-number-format',
-                        workspace.references.collection,
-                        workspace.references.book
-                    );
-                    if (chapterNumberFormatSetting === 'drop-cap') {
+                if (!workspace.scratch.mark.handledFirstVerse) {
+                    if (workspace.scratch.mark.deferChapterNum) {
                         if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
                             addVerseNumber(workspace, element);
                         }
@@ -96,7 +102,6 @@ export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>(
                 } else {
                     addVerseNumber(workspace, element);
                 }
-                
             }
         }
     ],
