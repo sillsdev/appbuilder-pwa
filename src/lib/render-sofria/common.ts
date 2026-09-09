@@ -75,7 +75,7 @@ export type RenderEnvironment<Scratch extends DefaultScratchpad = DefaultScratch
 
 export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
     eventTriggers: Array<RenderEvent>;
-    guard?: (environment: RenderEnvironment<Scratch>) => boolean;
+    guard?: (environment: RenderEnvironment<Scratch>) => boolean | undefined;
     action(environment: RenderEnvironment<Scratch>): void;
 };
 
