@@ -1,20 +1,19 @@
-import chapterNumberFeature from './ChapterNumberFeature';
 import type { FeatureSpec } from './common';
-import documentFeature from './DocumentFeature';
-import loggingFeature from './LoggingFeature';
-import mainTextFeature from './MainTextFeature';
-import textPositionFeature from './TextPositionFeature';
-import verseNumberFeature from './VerseNumberFeature';
+import { chapterVerses } from './features/chapterVerses';
+import { documentFeature } from './features/document';
+import { chapterNumber, verseNumbers } from './features/mark';
+import { sequences } from './features/sequence';
+import { text } from './features/text';
 
 /**
  * Note: feature order matters. Subsequently listed features can depend
  * on the results of prior ones, but not vice versa
  */
 export const renderFeatures: Array<FeatureSpec> = [
-    loggingFeature,
+    sequences,
     documentFeature,
-    verseNumberFeature,
-    textPositionFeature,
-    mainTextFeature,
-    chapterNumberFeature
+    verseNumbers,
+    chapterVerses,
+    text,
+    chapterNumber
 ];

@@ -1,6 +1,6 @@
-import { FeatureSpec, type RenderEnvironment } from './common';
+import { FeatureSpec, type RenderEnvironment } from '../common';
 
-const loggingFeature = new FeatureSpec([
+export const sequences = new FeatureSpec([
     {
         eventTriggers: ['startSequence'],
         action({ context, workspace }: RenderEnvironment) {
@@ -18,5 +18,3 @@ const loggingFeature = new FeatureSpec([
         }
     }
 ]);
-
-export default loggingFeature;
