@@ -1,5 +1,5 @@
 import { scriptureConfig } from '$assets/config';
-import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
+import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
 import type { RenderElement } from 'proskomma-json-tools';
 import {
@@ -7,9 +7,61 @@ import {
     FeatureSpec,
     type RenderEnvironment,
     type RenderWorkspace
-} from './common';
+} from '../common';
 
-const verseNumberFeature = new FeatureSpec([
+export const chapterNumber = new FeatureSpec(
+    [
+        {
+            eventTriggers: ['mark'],
+            action({ context, workspace }: RenderEnvironment) {
+                const element = context.sequences[0].element;
+                if (workspace.logSettings.mark) {
+                    console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
+                }
+                if (element.subType === 'chapter_label') {
+                    const chapterNumText = numerals.formatNumber(
+                        workspace.numeralSystem,
+                        element.atts['number']
+                    );
+                    const chapterNumDiv = workspace.document.createElement('div');
+                    chapterNumDiv.innerText = chapterNumText;
+
+                    addToScratchPad(workspace.scratch, 'mark', { chapterNumText });
+
+                    const format = getFeatureValueString(
+                        scriptureConfig,
+                        'chapter-number-format',
+                        workspace.references.collection,
+                        workspace.references.book
+                    );
+                    // NOTE: original rendering code would defer rendering of chapter number until first verse number encountered...
+                    if (format === 'drop-cap') {
+                        chapterNumDiv.classList.add('c-drop');
+
+                        const direction = scriptureConfig.bookCollections?.find(
+                            (x) => x.id === workspace.references.collection
+                        )?.style?.textDirection;
+                        chapterNumDiv.style.float =
+                            direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
+
+                        const currentParagraph =
+                            workspace.scopeManager.getActiveContentRoot('paragraph');
+                        if (currentParagraph) {
+                            currentParagraph.className = 'm';
+                            currentParagraph.appendChild(chapterNumDiv);
+                        }
+                    } else {
+                        chapterNumDiv.classList.add('c');
+                        workspace.scopeManager.appendInnerContent(chapterNumDiv, 'document');
+                    }
+                }
+            }
+        }
+    ],
+    { tag: 'show-chapter-numbers', enabledValue: 'true' }
+);
+
+export const verseNumbers = new FeatureSpec([
     {
         eventTriggers: ['mark'],
         action({ context, workspace }: RenderEnvironment) {
@@ -65,5 +117,3 @@ function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
         workspace.scopeManager.appendInnerContent(spanVsp);
     }
 }
-
-export default verseNumberFeature;

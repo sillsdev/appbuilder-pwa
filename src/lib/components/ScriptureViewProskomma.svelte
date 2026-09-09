@@ -185,6 +185,7 @@ LOGGING:
         workspace.scratch = {};
         workspace.numeralSystem = numeralSystem;
         workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
+        workspace.verseLayout = verseLayout;
     }
 
     /**
@@ -197,7 +198,7 @@ LOGGING:
      * @param eventName   - the Proskomma name of the event (e.g. `startDocument`, `text`)
      */
     function handleSofriaRenderEvent(environment: RenderEnvironment, eventName: RenderEvent) {
-        console.log('Handling function called for %s on %o', eventName, environment);
+        //console.log('Handling function called for %s on %o', eventName, environment);
 
         if (!renderWorkspaceInitialized) {
             initRenderWorkspace(environment);
@@ -205,7 +206,7 @@ LOGGING:
         }
 
         for (const a of actionsDict[eventName] ?? []) {
-            console.log('Processing action %o for event %s', a, eventName);
+            //console.log('Processing action %o for event %s', a, eventName);
             a.action(environment);
         }
     }
