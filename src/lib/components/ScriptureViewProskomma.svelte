@@ -207,7 +207,9 @@ LOGGING:
 
         for (const a of actionsDict[eventName] ?? []) {
             //console.log('Processing action %o for event %s', a, eventName);
-            a.action(environment);
+            if (!a.guard || a.guard(environment)) {
+                a.action(environment);
+            }
         }
     }
 
