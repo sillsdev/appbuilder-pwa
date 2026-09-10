@@ -2,6 +2,7 @@ import type { FeatureSpec } from './common';
 import { chapterVerses } from './features/chapterVerses';
 import { documentFeature } from './features/document';
 import { chapterNumber, verseNumbers } from './features/mark';
+import { metaContent } from './features/metaContent';
 import { sequences } from './features/sequence';
 import { tables } from './features/table';
 import { text } from './features/text';
@@ -22,5 +23,6 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     figures,
     glossary,
     jmplinks,
-    usfmWrappers
+    usfmWrappers,
+    metaContent
 ];
