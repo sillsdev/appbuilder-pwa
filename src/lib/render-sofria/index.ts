@@ -5,6 +5,7 @@ import { chapterNumber, verseNumbers } from './features/mark';
 import { sequences } from './features/sequence';
 import { tables } from './features/table';
 import { text } from './features/text';
+import { figures, glossary, jmplinks, usfmWrappers } from './features/wrappers';
 
 /**
  * Note: feature order matters. Subsequently listed features can depend
@@ -17,5 +18,9 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     chapterVerses,
     text,
     chapterNumber,
-    tables
+    tables,
+    figures,
+    glossary,
+    jmplinks,
+    usfmWrappers
 ];
