@@ -4,12 +4,20 @@ export const chapterVerses = new FeatureSpec([
     {
         eventTriggers: ['startChapter'],
         action({ context, workspace }: RenderEnvironment) {
+            if (workspace.logSettings.chapter) {
+                const element = context.sequences[0].element;
+                console.log('Start Chapter %o %o', element.atts['number'], element);
+            }
             workspace.currentTextPosition.chapter = context.sequences[0].element.atts['number'];
         }
     },
     {
         eventTriggers: ['endChapter'],
         action({ context, workspace }: RenderEnvironment) {
+            if (workspace.logSettings.chapter) {
+                const element = context.sequences[0].element;
+                console.log('End Chapter %o %o', element.atts['number'], element);
+            }
             workspace.currentTextPosition.chapter = 'none';
         }
     },
@@ -49,6 +57,8 @@ export const chapterVerses = new FeatureSpec([
                     workspace.scopeManager.appendInnerContent(verseDiv, 'paragraph');
                 }
             }
+
+            // TODO add bookmarks, notes, plans
         }
     }
 ]);

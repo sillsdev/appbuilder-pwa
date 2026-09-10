@@ -21,13 +21,11 @@ export const text = new FeatureSpec([
 
                 const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass ?? '');
-                console.log(paraClass);
                 if (paraClass === 'b') {
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
                 workspace.scopeManager.addScope('paragraph', paragraphDiv);
-                console.log(paragraphDiv);
             }
         }
     },
