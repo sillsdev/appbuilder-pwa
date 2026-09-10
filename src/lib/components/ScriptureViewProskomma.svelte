@@ -207,6 +207,17 @@ LOGGING:
 
         for (const a of actionsDict[eventName] ?? []) {
             //console.log('Processing action %o for event %s', a, eventName);
+            // cleanup table scope
+            if (
+                scopeManager.getCurrentScope('table') &&
+                !scopeManager.getCurrentScope('row') &&
+                eventName !== 'startRow'
+            ) {
+                const scope = scopeManager.removeScope('table');
+                if (scope?.contentRoot) {
+                    environment.workspace.root.appendChild(scope?.contentRoot);
+                }
+            }
             if (!a.guard || a.guard(environment)) {
                 a.action(environment);
             }
