@@ -97,14 +97,14 @@ export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> 
     actions: Array<RenderAction<Scratch>>;
 }
 
-type DefaultScratchpad = Partial<Record<RenderEvent, any>>;
+type DefaultScratchpad = Partial<Record<RenderScopeLevel, any>>;
 
 export type RenderScratchpad<Coerce extends DefaultScratchpad = DefaultScratchpad> = Coerce;
 
 export function addToScratchPad<
-    E extends RenderEvent,
+    S extends RenderScopeLevel,
     T extends DefaultScratchpad = DefaultScratchpad
->(pad: RenderScratchpad<T>, scope: E, values: T[E]) {
+>(pad: RenderScratchpad<T>, scope: S, values: T[S]) {
     pad[scope] = { ...pad[scope], ...values };
 }
 
