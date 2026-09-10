@@ -128,4 +128,10 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
     separatorRegex: RegExp;
     numeralSystem: NumeralSystem;
     verseLayout: string;
+    viewShowBibleImages: string;
+    viewShowIllustrations: boolean;
+    viewShowGlossaryWords: boolean;
+    viewShowRedLetters: boolean;
+    usfmWrapperType: string;
+    textType: string[];
 };
