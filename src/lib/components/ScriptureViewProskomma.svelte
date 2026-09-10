@@ -186,6 +186,12 @@ LOGGING:
         workspace.numeralSystem = numeralSystem;
         workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
         workspace.verseLayout = verseLayout;
+        workspace.viewShowBibleImages = viewShowBibleImages;
+        workspace.viewShowIllustrations = viewShowIllustrations;
+        workspace.viewShowGlossaryWords = viewShowGlossaryWords;
+        workspace.viewShowRedLetters = redLetters;
+        workspace.usfmWrapperType = '';
+        workspace.textType = [];
     }
 
     /**
