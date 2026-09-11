@@ -30,7 +30,9 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
-        selectedVersesStore: SelectedVersesStore;
+        setReference: (value: Reference) => void;
+        setBookTab: (tab: number) => void;
+        selectedVerses: SelectedVersesStore;
     }
 </script>
 
@@ -63,7 +65,6 @@ LOGGING:
         ModalType,
         monoIconColor,
         plan,
-        // refs is only used for set
         refs,
         t,
         userSettings,
@@ -127,7 +128,9 @@ LOGGING:
         viewShowGlossaryWords,
         font,
         proskomma,
-        selectedVersesStore: selectedVerses
+        setReference,
+        setBookTab,
+        selectedVerses
     }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
@@ -276,6 +279,10 @@ LOGGING:
         const c = untrack(() => container);
         if ($refs.chapter === references.chapter && c && $selectedVerses) {
             updateSelections(c, selectedVerses);
+        }
+
+        if (container && $selectedVerses) {
+            updateSelections(container, selectedVerses);
         }
     });
 
@@ -726,7 +733,12 @@ LOGGING:
             // Invalid collection
             return;
         }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
+        setReference({
+            docSet: refDocSet,
+            book: refBook,
+            chapter: splitChapter,
+            verse: splitVerse
+        });
         return;
     }
     async function headerLinkClickReference(event: MouseEvent, target: HTMLElement) {
@@ -782,7 +794,7 @@ LOGGING:
         }
     }
     function navigate(reference: Reference) {
-        refs.set({
+        setReference({
             docSet: reference.docSet,
             book: reference.book,
             chapter: reference.chapter,
@@ -1070,7 +1082,7 @@ LOGGING:
                 planNextReferenceIndex: nextIndex,
                 completed: false
             };
-            refs.set({
+            setReference({
                 docSet: currentBookCollectionId,
                 book: book,
                 chapter: toChapter.toString(),
@@ -1685,7 +1697,9 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements();
+                            if (container) {
+                                deselectAllElements(container);
+                            }
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
@@ -2844,7 +2858,7 @@ LOGGING:
 
     $effect(() => {
         if (!bookTabSelected) {
-            refs.setBookTab(0);
+            setBookTab(0);
         }
     });
 
