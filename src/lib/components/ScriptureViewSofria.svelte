@@ -30,6 +30,9 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
+        setReference: (value: Reference) => void;
+        setBookTab: (tab: number) => void;
+        selectedVerses: SelectedVersesStore;
     }
 </script>
 
@@ -62,11 +65,10 @@ LOGGING:
         ModalType,
         monoIconColor,
         plan,
-        // refs is only used for set
-        refs,
         t,
         userSettings,
-        type GlossaryQueryResult
+        type GlossaryQueryResult,
+        type SelectedVersesStore
     } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import type { SABProskomma } from '$lib/sab-proskomma';
@@ -82,7 +84,11 @@ LOGGING:
     } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
-    import { deselectAllElements, onClickText } from '$lib/scripts/verseSelectUtil';
+    import {
+        deselectAllElements,
+        onClickText,
+        updateSelections
+    } from '$lib/scripts/verseSelectUtil';
     import { resolve } from '$lib/utils/paths';
     import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
     import {
@@ -93,6 +99,7 @@ LOGGING:
         type RenderSequence as Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount } from 'svelte';
+    import { fromStore } from 'svelte/store';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -120,7 +127,10 @@ LOGGING:
         viewShowVerses,
         viewShowGlossaryWords,
         font,
-        proskomma
+        proskomma,
+        setReference,
+        setBookTab,
+        selectedVerses
     }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
@@ -262,6 +272,12 @@ LOGGING:
             });
         } else {
             nextPlanDay = null;
+        }
+    });
+
+    $effect(() => {
+        if (container && $selectedVerses) {
+            updateSelections(container, selectedVerses);
         }
     });
 
@@ -682,7 +698,12 @@ LOGGING:
             // Invalid collection
             return;
         }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
+        setReference({
+            docSet: refDocSet,
+            book: refBook,
+            chapter: splitChapter,
+            verse: splitVerse
+        });
         return;
     }
     async function headerLinkClickReference(event: MouseEvent, target: HTMLElement) {
@@ -738,7 +759,7 @@ LOGGING:
         }
     }
     function navigate(reference: Reference) {
-        refs.set({
+        setReference({
             docSet: reference.docSet,
             book: reference.book,
             chapter: reference.chapter,
@@ -1034,7 +1055,7 @@ LOGGING:
                 planNextReferenceIndex: nextIndex,
                 completed: false
             };
-            refs.set({
+            setReference({
                 docSet: currentBookCollectionId,
                 book: book,
                 chapter: toChapter.toString(),
@@ -1643,7 +1664,9 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements();
+                            if (container) {
+                                deselectAllElements(container);
+                            }
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
@@ -2804,7 +2827,7 @@ LOGGING:
 
     $effect(() => {
         if (!bookTabSelected) {
-            refs.setBookTab(0);
+            setBookTab(0);
         }
     });
 

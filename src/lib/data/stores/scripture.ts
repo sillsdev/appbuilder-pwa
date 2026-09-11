@@ -229,7 +229,6 @@ function createSelectedVerses() {
             const newIndex = getInsertIndex(newVerseNumber, selections);
             selections.splice(newIndex, 0, selection);
             external.set(selections);
-            updateSelections();
         },
         removeVerse: (id: string | number) => {
             const selections = get(external);
@@ -238,11 +237,9 @@ function createSelectedVerses() {
                 selections.splice(index, 1);
                 external.set(selections);
             }
-            updateSelections();
         },
         reset: () => {
             external.set([]);
-            updateSelections();
         },
         length: () => {
             const selections = get(external);

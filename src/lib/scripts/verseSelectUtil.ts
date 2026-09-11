@@ -1,4 +1,4 @@
-import { selectedVerses } from '$lib/data/stores';
+import { selectedVerses, type SelectedVersesStore } from '$lib/data/stores';
 
 export function onClickText(e: MouseEvent, maxSelections: number) {
     let target = e.target as HTMLElement;
@@ -22,8 +22,8 @@ export function onClickText(e: MouseEvent, maxSelections: number) {
         }
     }
 }
-export function updateSelections() {
-    const items = Array.from(document.getElementsByClassName('selected'));
+export function updateSelections(container: HTMLElement, selectedVerses: SelectedVersesStore) {
+    const items = Array.from(container.getElementsByClassName('selected'));
     let lastId = '';
     // Deselect entries not in the selected verses array
     for (let i = 0; i < items.length; i++) {
@@ -32,19 +32,19 @@ export function updateSelections() {
             lastId = id;
             const verse = selectedVerses.getVerseByVerseNumber(id);
             if (verse.verse === '') {
-                modifyClassOfElements(id, 'selected', false);
+                modifyClassOfElements(container, id, 'selected', false);
             }
         }
     }
     // Select items in list
     for (let i = 0; i < selectedVerses.length(); i++) {
         const selectedVerse = selectedVerses.getVerseByIndex(i).verse;
-        modifyClassOfElements(selectedVerse, 'selected', true);
+        modifyClassOfElements(container, selectedVerse, 'selected', true);
     }
 }
 // Deselect all elements
-export function deselectAllElements() {
-    const els = document.getElementsByTagName('div');
+export function deselectAllElements(container: HTMLElement) {
+    const els = container.getElementsByTagName('div');
     for (let i = 0; i < els.length; i++) {
         if (els[i].id != '') {
             els[i].classList.remove('selected');
@@ -54,8 +54,8 @@ export function deselectAllElements() {
 }
 
 // Deselect elements
-export function deselectElements(id: string) {
-    modifyClassOfElements(id, 'selected', false);
+export function deselectElements(container: HTMLElement, id: string) {
+    modifyClassOfElements(container, id, 'selected', false);
     selectedVerses.removeVerse(id);
 }
 
@@ -85,11 +85,16 @@ function isMain(target: HTMLElement) {
     return target.tagName === 'MAIN';
 }
 // Modify class name of elements id, id+1, id+2, ida, ida+1, ida+2, idb, etc.
-function modifyClassOfElements(id: string, clsName: string, select: boolean) {
-    let success = modifyClassOfElement(id, clsName, select);
+function modifyClassOfElements(
+    container: HTMLElement,
+    id: string,
+    clsName: string,
+    select: boolean
+) {
+    let success = modifyClassOfElement(container, id, clsName, select);
     for (let i = 97; i <= 122; i++) {
         const letter = String.fromCharCode(i);
-        success = modifyClassOfElement(id + letter, clsName, select);
+        success = modifyClassOfElement(container, id + letter, clsName, select);
         if (!success) {
             break;
         }
@@ -97,10 +102,15 @@ function modifyClassOfElements(id: string, clsName: string, select: boolean) {
 }
 
 // Modify class name of elements id, id+1, id+2, etc.
-function modifyClassOfElement(id: string, clsName: string, select: boolean): boolean {
+function modifyClassOfElement(
+    container: HTMLElement,
+    id: string,
+    clsName: string,
+    select: boolean
+): boolean {
     let found = false;
     let i = 0;
-    let el = document.getElementById(id);
+    let el = container.querySelector(`#${id}`);
 
     while (el) {
         if (select) {
@@ -111,7 +121,7 @@ function modifyClassOfElement(id: string, clsName: string, select: boolean): boo
             el.classList.remove(clsName);
         }
         i++;
-        el = document.getElementById(id + '+' + i);
+        el = container.querySelector(`#${id}+${i}`);
         found = true;
     }
 
