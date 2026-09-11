@@ -30,7 +30,7 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
-        selectedVerses: SelectedVersesStore;
+        selectedVersesStore: SelectedVersesStore;
     }
 </script>
 
@@ -128,7 +128,7 @@ LOGGING:
         viewShowGlossaryWords,
         font,
         proskomma,
-        selectedVerses
+        selectedVersesStore: selectedVerses
     }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
@@ -273,13 +273,9 @@ LOGGING:
         }
     });
 
-    // svelte-ignore state_referenced_locally
-    const stateSelectedVerses = fromStore(selectedVerses);
     $effect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        stateSelectedVerses.current;
         const c = untrack(() => container);
-        if ($refs.chapter === references.chapter && c) {
+        if ($refs.chapter === references.chapter && c && $selectedVerses) {
             updateSelections(c, selectedVerses);
         }
     });
