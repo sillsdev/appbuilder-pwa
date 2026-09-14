@@ -421,7 +421,7 @@ concern of the caller, not the pager).
         </button>
     </div>
     <div
-        class="basis-5/6 max-w-screen-md"
+        class="basis-5/6 max-w-breakpoint-md"
         style="position: relative; left: {x.current}px; height: {innerHeight}px"
         use:measure
     >
@@ -441,7 +441,7 @@ concern of the caller, not the pager).
                         style="--borderImageSource: url({borders['./border.png']});"
                         class:borderimg={showBorder}
                         aria-hidden="true"
-                        class="max-w-screen-md mx-auto"
+                        class="max-w-breakpoint-md mx-auto"
                         onpointerdown={handleMouseDown}
                         use:pinch
                         onpinch={doPinch}
