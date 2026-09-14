@@ -286,41 +286,71 @@
         }
     }
 
+    // Duration (ms) to finish carrying a committed swipe the rest of the way to the
+    // edge, based on the velocity the user released at. This keeps the release feeling
+    // like a continuation of the finger's motion (momentum) instead of a separate,
+    // fixed-speed animation tacked on afterwards.
+    function slideFinishDuration(remainingDistance: number, velocity: number) {
+        const speed = Math.max(Math.abs(velocity), 0.5); // px/ms floor avoids overlong tweens
+        return Math.min(300, Math.max(60, remainingDistance / speed));
+    }
+
     async function handlePointerCancel(_e: PointerEvent) {
+        isDragging = false;
+        momentum = 0;
+        maxMomentum = 0;
         await x.set(0, { duration: Math.abs(x.current) });
     }
 
     async function handleMouseUp(_event: PointerEvent) {
-        isDragging = false;
-        if (
-            !(Math.abs(x.current) < minSlideDistance() && Math.abs(momentum) < minSlideMomentum) &&
-            draggableWidth > 0
-        ) {
-            if (x.current < 0 && momentum < 0) {
-                if (hasNext && navigateBetweenBooksNext) {
-                    await navigateToTextChapterInDirection(1);
-                    await adjustSettingsCache(1);
-                    await x.set(draggableWidth + x.current, { duration: 1 });
-                }
-            } else {
-                if (hasPrev && navigateBetweenBooksPrev) {
-                    await navigateToTextChapterInDirection(-1);
-                    await adjustSettingsCache(-1);
-                    await x.set(-draggableWidth + x.current, { duration: 1 });
-                }
-            }
-            await tick();
+        if (!isDragging) {
+            return;
         }
+        isDragging = false;
+        const releaseX = x.current;
+        const releaseMomentum = momentum;
         momentum = 0;
         maxMomentum = 0;
-        await x.set(0, { duration: Math.abs(x.current) });
+
+        const distancePassed = Math.abs(releaseX) >= minSlideDistance();
+        // Only let momentum substitute for distance when it agrees with the direction
+        // the user actually ended up dragging toward.
+        const momentumPassed =
+            Math.sign(releaseMomentum) === Math.sign(releaseX) &&
+            Math.abs(releaseMomentum) >= minSlideMomentum;
+        const committing =
+            draggableWidth > 0 && releaseX !== 0 && (distancePassed || momentumPassed);
+
+        if (committing && releaseX < 0 && hasNext && navigateBetweenBooksNext) {
+            // Finish sliding the next chapter fully into view first (using the release
+            // velocity so it reads as a continuation of the swipe), then swap the
+            // underlying chapter data while the view is already settled off-screen.
+            const duration = slideFinishDuration(draggableWidth + releaseX, releaseMomentum);
+            await x.set(-draggableWidth, { duration });
+            await navigateToTextChapterInDirection(1);
+            await adjustSettingsCache(1);
+            await x.set(0, { duration: 0 });
+            await tick();
+        } else if (committing && releaseX > 0 && hasPrev && navigateBetweenBooksPrev) {
+            const duration = slideFinishDuration(draggableWidth - releaseX, releaseMomentum);
+            await x.set(draggableWidth, { duration });
+            await navigateToTextChapterInDirection(-1);
+            await adjustSettingsCache(-1);
+            await x.set(0, { duration: 0 });
+            await tick();
+        } else {
+            await x.set(0, { duration: Math.abs(releaseX) });
+        }
     }
 
     function handleMouseDown(event: PointerEvent) {
         if (navigateBetweenBooksPrev || navigateBetweenBooksNext) {
             isDragging = true;
             startX = event.clientX - x.current;
+            lastX = x.current;
             lastTime = performance.now();
+            momentum = 0;
+            maxMomentum = 0;
         }
     }
 
