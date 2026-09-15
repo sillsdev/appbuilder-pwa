@@ -54,7 +54,6 @@
         showDesktopSidebar,
         t,
         themeColors,
-        userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
     import {
@@ -66,7 +65,6 @@
         TriangleRightIcon
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
@@ -145,25 +143,6 @@
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
 
-    const viewShowVerses = $derived(
-        ($userSettings['verse-numbers'] as boolean) ??
-            getFeatureValueBoolean(
-                scriptureConfig,
-                'show-verse-numbers',
-                $refs.collection,
-                $refs.book
-            )
-    );
-
-    const audioPhraseEndChars = $derived(
-        getFeatureValueString(
-            scriptureConfig,
-            'audio-phrase-end-chars',
-            $refs.collection,
-            $refs.book
-        )
-    );
-
     const showSearch = !!config.mainFeatures['search'];
     const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
     const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
@@ -183,7 +162,6 @@
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
                   fetch: data.fetch,
-                  audioPhraseEndChars: audioPhraseEndChars,
                   bookmarks: $bookmarks,
                   notes: $notes,
                   highlights: $highlights,
@@ -199,7 +177,6 @@
                       'display-videos-in-bible-text'
                   ] as string,
                   viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                  viewShowVerses,
                   viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
                   font: $currentFont!,
                   proskomma: data?.proskomma,

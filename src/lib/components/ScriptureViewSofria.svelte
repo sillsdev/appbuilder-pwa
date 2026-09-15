@@ -11,7 +11,6 @@ LOGGING:
 -->
 <script module lang="ts">
     export interface Props {
-        audioPhraseEndChars: string;
         bodyFontSize: number;
         bodyLineHeight: number;
         bookmarks: Promise<BookmarkItem[]>;
@@ -26,7 +25,6 @@ LOGGING:
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
-        viewShowVerses: boolean;
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
@@ -109,7 +107,6 @@ LOGGING:
     }) as Record<string, string>;
 
     let {
-        audioPhraseEndChars,
         bodyFontSize,
         bodyLineHeight,
         bookmarks,
@@ -124,12 +121,31 @@ LOGGING:
         viewShowBibleImages,
         viewShowBibleVideos,
         viewShowIllustrations,
-        viewShowVerses,
         viewShowGlossaryWords,
         font,
         proskomma,
         selectedVersesStore: selectedVerses
     }: Props = $props();
+
+    // Resolved from this instance's own references (not a value baked in by the caller),
+    // since a book-level feature override could differ from whichever book is currently
+    // active elsewhere in the app - e.g. when this instance is a pager's prev/next panel.
+    const viewShowVerses = $derived(
+        getFeatureValueBoolean(
+            scriptureConfig,
+            'show-verse-numbers',
+            references.collection,
+            references.book
+        ) && ($userSettings['verse-numbers'] as boolean)
+    );
+    const audioPhraseEndChars = $derived(
+        getFeatureValueString(
+            scriptureConfig,
+            'audio-phrase-end-chars',
+            references.collection,
+            references.book
+        )
+    );
 
     const scriptureLogs = $derived.by(() =>
         $userSettings['scripture-logs']
