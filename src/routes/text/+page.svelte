@@ -171,48 +171,49 @@
     const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
+    // A superset of HtmlBookViewProps and ScriptureViewSofriaProps. Prev/next panels can
+    // land on a book whose own format differs from the currently active book's, so every
+    // panel needs both shapes available regardless of which format is actually current -
+    // the panel snippet picks the renderer (and the fields it uses) per its own book.
     const viewSettings = $derived(
-        book?.format === 'html'
-            ? ({
+        book?.testament === 'quiz'
+            ? {}
+            : ({
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
-                  fetch: data.fetch
-              } satisfies HtmlBookViewProps)
-            : book?.testament !== 'quiz'
-              ? ({
-                    audioPhraseEndChars: audioPhraseEndChars,
-                    bodyFontSize: $bodyFontSize,
-                    bodyLineHeight: $bodyLineHeight,
-                    bookmarks: $bookmarks,
-                    notes: $notes,
-                    highlights: $highlights,
-                    maxSelections: config.mainFeatures['annotation-max-select'] as number,
-                    redLetters: $userSettingsOrDefault['red-letters'] as boolean,
-                    references: $refs,
-                    glossary: $glossary,
-                    themeColors: $themeColors,
-                    verseLayout: $userSettingsOrDefault['verse-layout'] as string,
-                    viewShowBibleImages: $userSettingsOrDefault[
-                        'display-images-in-bible-text'
-                    ] as string,
-                    viewShowBibleVideos: $userSettingsOrDefault[
-                        'display-videos-in-bible-text'
-                    ] as string,
-                    viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                    viewShowVerses,
-                    viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
-                    font: $currentFont!,
-                    proskomma: data?.proskomma,
-                    selectedVersesStore: selectedVerses
-                } satisfies ScriptureViewSofriaProps)
-              : {}
+                  fetch: data.fetch,
+                  audioPhraseEndChars: audioPhraseEndChars,
+                  bookmarks: $bookmarks,
+                  notes: $notes,
+                  highlights: $highlights,
+                  maxSelections: config.mainFeatures['annotation-max-select'] as number,
+                  redLetters: $userSettingsOrDefault['red-letters'] as boolean,
+                  glossary: $glossary,
+                  themeColors: $themeColors,
+                  verseLayout: $userSettingsOrDefault['verse-layout'] as string,
+                  viewShowBibleImages: $userSettingsOrDefault[
+                      'display-images-in-bible-text'
+                  ] as string,
+                  viewShowBibleVideos: $userSettingsOrDefault[
+                      'display-videos-in-bible-text'
+                  ] as string,
+                  viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
+                  viewShowVerses,
+                  viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
+                  font: $currentFont!,
+                  proskomma: data?.proskomma,
+                  selectedVersesStore: selectedVerses
+              } satisfies HtmlBookViewProps & ScriptureViewSofriaProps)
     );
 
-    function getFormat(bcId: string, bookId: string) {
+    // Looks up any book in the current collection by id (not just the active `book`) -
+    // needed because a pager panel can show an adjacent book with a different
+    // format/testament than the currently active one.
+    function findBook(bookId: string) {
         return scriptureConfig.bookCollections
-            ?.find((x) => x.id === bcId)
-            ?.books.find((x) => x.id === bookId)?.format;
+            ?.find((x) => x.id === $refs.collection)
+            ?.books.find((x) => x.id === bookId);
     }
 
     const stackSettings = $derived({
@@ -536,9 +537,10 @@
         >
             <ScripturePager bind:this={pager} {viewSettings}>
                 {#snippet panel(settings)}
-                    {#if book?.format === 'html'}
+                    {@const panelBook = findBook(settings.references.book)}
+                    {#if panelBook?.format === 'html'}
                         <HtmlBookView {...settings as HtmlBookViewProps} />
-                    {:else if book?.testament !== 'quiz'}
+                    {:else if panelBook?.testament !== 'quiz'}
                         <ScriptureViewSofria {...settings as ScriptureViewSofriaProps} />
                     {/if}
                 {/snippet}
