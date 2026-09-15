@@ -11,6 +11,7 @@
         type Props as HtmlBookViewProps
     } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
+    import ScripturePager from '$lib/components/ScripturePager.svelte';
     import ScriptureViewSofria, {
         type Props as ScriptureViewSofriaProps
     } from '$lib/components/ScriptureViewSofria.svelte';
@@ -59,7 +60,6 @@
     import {
         AudioIcon,
         BibleIcon,
-        ChevronIcon,
         SearchIcon,
         TextAppearanceIcon,
         TriangleLeftIcon,
@@ -70,12 +70,7 @@
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
-    import {
-        pinch,
-        swipe,
-        type PinchPointerEventDetail,
-        type SwipePointerEventDetail
-    } from 'svelte-gestures';
+    import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
     import type { PageData } from './$types';
 
     const illustrationURLs = import.meta.glob('./*', {
@@ -84,13 +79,6 @@
         query: '?url',
         base: '/src/gen-assets/illustrations'
     }) as Record<string, string>;
-
-    const borders = import.meta.glob('./*', {
-        import: 'default',
-        eager: true,
-        query: '?url',
-        base: '/src/gen-assets/borders'
-    });
 
     interface Props {
         data: PageData;
@@ -125,10 +113,11 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
+
+    let innerWidth = $state(0);
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     async function doSwipe(event: CustomEvent<SwipePointerEventDetail>) {
         const swipeDirection = event.detail.direction;
-        console.log('SWIPE', swipeDirection);
         if (
             swipeBetweenBooks ||
             ($refs.prev.book === $refs.book && swipeDirection === 'right') ||
@@ -137,6 +126,9 @@
             await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
         }
     }
+
+    let pager: ScripturePager;
+
     const book = $derived(
         scriptureConfig?.bookCollections
             ?.find((x) => x.id === $refs.collection)
@@ -153,17 +145,6 @@
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
 
-    async function prevChapter() {
-        await navigateToTextChapterInDirection(-1);
-    }
-    async function nextChapter() {
-        await navigateToTextChapterInDirection(1);
-    }
-
-    const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
-    const navigateBetweenBooksNext = $derived(swipeBetweenBooks || $refs.next.book === $refs.book);
-    const hasPrev = $derived($refs.prev.chapter !== null);
-    const hasNext = $derived($refs.next.chapter !== null);
     const viewShowVerses = $derived(
         ($userSettings['verse-numbers'] as boolean) ??
             getFeatureValueBoolean(
@@ -173,23 +154,6 @@
                 $refs.book
             )
     );
-
-    const minFontSize = config.mainFeatures['text-size-min'] as number;
-    const maxFontSize = config.mainFeatures['text-size-max'] as number;
-    let lastPinch = 1.0;
-    function doPinch(event: CustomEvent<PinchPointerEventDetail>) {
-        const currPinch = event.detail.scale;
-        bodyFontSize.update((fontSize) => {
-            if (Math.abs(currPinch - lastPinch) > 0.1) {
-                const newFontSize = currPinch > lastPinch ? fontSize + 1.0 : fontSize - 1.0;
-                lastPinch = currPinch;
-                const clampedFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
-                return clampedFontSize;
-            } else {
-                return fontSize;
-            }
-        });
-    }
 
     const audioPhraseEndChars = $derived(
         getFeatureValueString(
@@ -201,27 +165,12 @@
     );
 
     const showSearch = !!config.mainFeatures['search'];
-
+    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
+    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
+    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
+    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
-    const isIntro = $derived($refs.chapter === 'i');
-
-    const showBorderSetting = $derived(
-        isIntro
-            ? getFeatureValueBoolean(
-                  scriptureConfig,
-                  'show-border-intro',
-                  $refs.collection,
-                  $refs.book
-              )
-            : getFeatureValueBoolean(scriptureConfig, 'show-border', $refs.collection, $refs.book)
-    );
-    const showBorder = $derived(
-        !!(
-            scriptureConfig.traits?.['has-borders'] &&
-            ($userSettings['show-border'] ?? showBorderSetting)
-        )
-    );
     const viewSettings = $derived(
         book?.format === 'html'
             ? ({
@@ -254,10 +203,17 @@
                     viewShowVerses,
                     viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
                     font: $currentFont!,
-                    proskomma: data?.proskomma
+                    proskomma: data?.proskomma,
+                    selectedVersesStore: selectedVerses
                 } satisfies ScriptureViewSofriaProps)
               : {}
     );
+
+    function getFormat(bcId: string, bookId: string) {
+        return scriptureConfig.bookCollections
+            ?.find((x) => x.id === bcId)
+            ?.books.find((x) => x.id === bookId)?.format;
+    }
 
     const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
@@ -458,13 +414,15 @@
     }
 </script>
 
+<svelte:window bind:innerWidth />
+
 <div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
         <Navbar {backNavigation} {showBackButton}>
             {#snippet start()}
                 <div class={showOverlowMenu ? 'hidden md:flex flex-nowrap' : 'flex flex-nowrap'}>
-                    <BookSelector />
-                    <ChapterSelector />
+                    <BookSelector onBookSelection={() => pager?.setupSettingsCache()} />
+                    <ChapterSelector onChapterSelection={() => pager?.setupSettingsCache()} />
                 </div>
             {/snippet}
 
@@ -475,7 +433,7 @@
                     class="flex flex-nowrap"
                     onclick={showOverlowMenu ? handleMenuClick : () => ({})}
                 >
-                    <!-- (mobile) handleMenuClick() is called to collpase the extraButtons menu when any button inside right-buttons is clicked. -->
+                    <!-- (mobile) handleMenuClick() is called to collapse the extraButtons menu when any button inside right-buttons is clicked. -->
                     <div class="flex">
                         {#if $refs.hasAudio && showAudio}
                             <!-- Mute/Volume Button -->
@@ -554,17 +512,6 @@
         {/if}
     </div>
 
-    {#if showCollection.viewer && moreThanOneCollection}
-        <button
-            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
-            style:top={navBarHeight}
-            style={convertStyle($s?.['ui.pane1.name'])}
-            onclick={() => goto(resolve(`/layout`))}
-        >
-            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
-                ?.collectionAbbreviation}
-        </button>
-    {/if}
     <div class="flex flex-col overflow-y-auto">
         {#if bookType === 'story'}
             {@const illustrationFile = getCurrentIllustrationFile()}
@@ -582,65 +529,39 @@
                 />
             {/if}
         {/if}
-        <div class="overflow-y-auto grow" bind:this={scrollingDiv} onscroll={saveScrollPosition}>
-            <!-- flex causes the imported html to display outside of the view port. Use md: -->
-            <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
-                <div class="hidden md:flex basis-1/12 justify-center">
-                    <button
-                        onclick={prevChapter}
-                        class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
-                        navigateBetweenBooksPrev
-                            ? 'visible'
-                            : 'invisible'}"
-                    >
-                        <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
-                    </button>
-                </div>
-                <div class="basis-5/6 max-w-breakpoint-md">
-                    <div class="p-2 w-full">
-                        <main>
-                            <div
-                                style="--borderImageSource: url({borders['./border.png']});"
-                                class:borderimg={showBorder}
-                                class="max-w-breakpoint-md mx-auto"
-                                use:pinch
-                                onpinch={doPinch}
-                                use:swipe={{
-                                    timeframe: 300,
-                                    minSwipeDistance: 60,
-                                    touchAction: 'pan-y'
-                                }}
-                                onswipe={doSwipe}
-                            >
-                                {#if book?.format === 'html'}
-                                    <HtmlBookView {...viewSettings as HtmlBookViewProps} />
-                                {:else if book?.testament !== 'quiz'}
-                                    <ScriptureViewSofria
-                                        {...viewSettings as ScriptureViewSofriaProps}
-                                    />
-                                {/if}
-                            </div>
-                        </main>
-                    </div>
-                </div>
-                <div class="hidden basis-1/12 md:flex justify-center">
-                    <button
-                        onclick={nextChapter}
-                        class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
-                        navigateBetweenBooksNext
-                            ? 'visible'
-                            : 'invisible'}"
-                    >
-                        <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
-                    </button>
-                </div>
-            </div>
+        <div
+            class="overflow-y-auto grow overflow-x-hidden"
+            bind:this={scrollingDiv}
+            onscroll={saveScrollPosition}
+        >
+            <ScripturePager bind:this={pager} {viewSettings}>
+                {#snippet panel(settings)}
+                    {#if book?.format === 'html'}
+                        <HtmlBookView {...settings as HtmlBookViewProps} />
+                    {:else if book?.testament !== 'quiz'}
+                        <ScriptureViewSofria {...settings as ScriptureViewSofriaProps} />
+                    {/if}
+                {/snippet}
+            </ScripturePager>
         </div>
+        <!-- Display pop-ups for cross-references, footnotes, etc. -->
+        <StackView {...stackSettings} />
+        <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
     </div>
 
-    <!-- Display pop-ups for cross-references, footnotes, etc. -->
-    <StackView {...stackSettings} />
-
+    {#if showCollectionViewer && enoughCollections}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="absolute dy-badge dy-badge-outline dy-badge-md rounded-xs p-1 inset-e-3 m-1"
+            style:top={navBarHeight}
+            style={convertStyle($s?.['ui.pane1.name'])}
+            onclick={() => goto(resolve(`/layout`))}
+        >
+            {scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)
+                ?.collectionAbbreviation}
+        </div>
+    {/if}
     {#if textCopied}
         <div
             class="flex h-12 p-2 bg-black text-white items-center justify-center text-center text-sm"
@@ -669,10 +590,5 @@
         .audio-bar-desktop {
             left: 320px;
         }
-    }
-    .borderimg {
-        border: 30px solid transparent;
-        border-image-source: var(--borderImageSource);
-        border-image-slice: 100;
     }
 </style>

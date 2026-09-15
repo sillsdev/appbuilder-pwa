@@ -30,6 +30,7 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
+        selectedVersesStore: SelectedVersesStore;
     }
 </script>
 
@@ -66,7 +67,8 @@ LOGGING:
         refs,
         t,
         userSettings,
-        type GlossaryQueryResult
+        type GlossaryQueryResult,
+        type SelectedVersesStore
     } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import type { SABProskomma } from '$lib/sab-proskomma';
@@ -82,7 +84,11 @@ LOGGING:
     } from '$lib/scripts/scripture-reference-utils';
     import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
     import { ciEquals, isDefined, isNotBlank, splitString } from '$lib/scripts/stringUtils';
-    import { deselectAllElements, onClickText } from '$lib/scripts/verseSelectUtil';
+    import {
+        deselectAllElements,
+        onClickText,
+        updateSelections
+    } from '$lib/scripts/verseSelectUtil';
     import { resolve } from '$lib/utils/paths';
     import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
     import {
@@ -92,7 +98,8 @@ LOGGING:
         type Element,
         type Sequence
     } from 'proskomma-json-tools';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, untrack } from 'svelte';
+    import { fromStore } from 'svelte/store';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -120,7 +127,8 @@ LOGGING:
         viewShowVerses,
         viewShowGlossaryWords,
         font,
-        proskomma
+        proskomma,
+        selectedVersesStore: selectedVerses
     }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
@@ -265,7 +273,14 @@ LOGGING:
         }
     });
 
-    function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
+    $effect(() => {
+        const c = untrack(() => container);
+        if ($refs.chapter === references.chapter && c && $selectedVerses) {
+            updateSelections(c, selectedVerses);
+        }
+    });
+
+    const countSubheadingPrefixes = (subHeadings: string[], labelPrefix: string) => {
         let result = 0;
         for (let i in subHeadings) {
             if (subHeadings[i] === labelPrefix) {
@@ -273,7 +288,7 @@ LOGGING:
             }
         }
         return result;
-    }
+    };
 
     function phraseTerminated(phrase: string) {
         return phrase.match(seprgx) != null;
@@ -771,13 +786,13 @@ LOGGING:
         notes.then((notes) => {
             for (var k = 0; k < notes.length; k++) {
                 const note = notes[k];
-                const bookmarksSpan = document.getElementById('bookmarks' + note.verse);
+                const bookmarksSpan = container?.querySelector('#bookmarks' + note.verse);
                 if (!bookmarksSpan) {
                     console.warn('No bookmarks span for verse %s', note.verse);
                     continue;
                 }
 
-                const existingNoteSpan = document.getElementById('note' + k);
+                const existingNoteSpan = container?.querySelector('#note' + k);
                 if (!existingNoteSpan) {
                     let noteSpan = document.createElement('span');
                     noteSpan.id = 'note' + k;
@@ -808,13 +823,14 @@ LOGGING:
     function addBookmarkedVerses() {
         bookmarks.then((bookmarks) => {
             for (var j = 0; j < bookmarks.length; j++) {
-                const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
+                // const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
+                const bookmarksSpan = container?.querySelector(`#bookmarks${bookmarks[j].verse}`);
                 if (!bookmarksSpan) {
                     console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
                     continue;
                 }
 
-                const existingBookmarkSpan = document.getElementById('bookmark' + j);
+                const existingBookmarkSpan = container?.querySelector(`#bookmark${j}`);
                 if (!existingBookmarkSpan) {
                     let bookmarkSpan = document.createElement('span');
                     bookmarkSpan.id = 'bookmark' + j;
@@ -1074,9 +1090,9 @@ LOGGING:
         return false;
     }
     function findBookmarkElementForVerse(verse: number, verseRangeSeparator: string) {
-        const elements = document.querySelectorAll('[id^="bookmarks"]');
+        const elements = container?.querySelectorAll('[id^="bookmarks"]');
 
-        for (const element of elements) {
+        for (const element of elements ?? []) {
             const id = element.id.replace('bookmarks', '');
             const separatorRegex = verseRangeSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex characters
             const rangeMatch = id.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
@@ -1145,7 +1161,11 @@ LOGGING:
                 console.log('Could not find data element for verse', verse);
             }
         } else if (pos === 'top') {
-            const el = document.getElementsByClassName('m')[0];
+            let els = container.getElementsByClassName('m');
+            if (els.length === 0) {
+                els = container.getElementsByClassName('c');
+            }
+            const el = els[0];
             el.insertAdjacentElement('beforebegin', element);
         } else if (pos === 'bottom') {
             const els = container.querySelectorAll('span[id^=bookmarks]');
@@ -1480,7 +1500,7 @@ LOGGING:
                     headerLinkClickReference(e, target);
                 }
                 if (!$audioPlayer.playing) {
-                    onClickText(e, maxSelections);
+                    onClickText(e, selectedVerses, maxSelections);
                 }
                 break;
         }
@@ -1504,10 +1524,12 @@ LOGGING:
         }
     }
     function addOnClickDivs() {
-        var els = document.getElementsByTagName('div');
-        for (var i = 0; i < els.length; i++) {
+        const els = container?.getElementsByTagName('div') ?? [];
+        for (let i = 0; i < els.length; i++) {
             if (hasClickableClass(els[i])) {
-                els[i].addEventListener('click', onClick, false);
+                if (!els[i].onclick) {
+                    els[i].addEventListener('click', onClick, false);
+                }
             }
         }
     }
@@ -1643,7 +1665,7 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements();
+                            deselectAllElements(selectedVerses);
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
