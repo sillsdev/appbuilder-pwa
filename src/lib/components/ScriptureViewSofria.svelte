@@ -1172,7 +1172,11 @@ LOGGING:
                 els = container.getElementsByClassName('c');
             }
             const el = els[0];
-            el.insertAdjacentElement('beforebegin', element);
+            if (el) {
+                el.insertAdjacentElement('beforebegin', element);
+            } else {
+                console.log('Could not find top anchor element for chapter');
+            }
         } else if (pos === 'bottom') {
             const els = container.querySelectorAll('span[id^=bookmarks]');
             const el = els[els.length - 1];
