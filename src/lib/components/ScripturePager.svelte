@@ -239,6 +239,18 @@ concern of the caller, not the pager).
         });
     });
 
+    $effect(() => {
+        const notes = viewSettings.notes;
+
+        // untrack prevents these reads from becoming dependencies
+        untrack(() => {
+            if (x.current === 0 && transitionDone) {
+                const idx = panels_X.indexOf(0);
+                settingsCache[idx].notes = notes;
+            }
+        });
+    });
+
     async function adjustPanelX(panelX: number, direction: number) {
         if (Math.abs(panels_X[panelX]) > draggableWidth) {
             // this panel needs to be rotated to the other side and reloaded with a new page content
