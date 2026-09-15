@@ -275,7 +275,13 @@ LOGGING:
 
     $effect(() => {
         const c = untrack(() => container);
-        if ($refs.chapter === references.chapter && c && $selectedVerses) {
+        if (
+            $refs.docSet === references.docSet &&
+            $refs.book === references.book &&
+            $refs.chapter === references.chapter &&
+            c &&
+            $selectedVerses
+        ) {
             updateSelections(c, selectedVerses);
         }
     });
