@@ -9,7 +9,7 @@ This document distinguishes **verified facts** (with file/line or URL citations)
 explicitly rather than assumed.
 
 At the time of writing, the repo is checked out on branch `refactor/proskomma-render-actions`
-(the branch for PR #1090), with `proskomma-core@0.11.3` and `proskomma-json-tools@0.9.1`
+(the branch for PR #1135), with `proskomma-core@0.11.3` and `proskomma-json-tools@0.9.1`
 installed (`node_modules/*/package.json`).
 
 The refactored renderer lives at `src/lib/render-sofria/*Feature.ts`
@@ -232,30 +232,31 @@ reproduce a build. See §G.
 ## B. USFM rendering taxonomy
 
 Derived from `usfm.ext`'s `\category` field, `.sty`'s `\TextProperties`, and — critically — how
-Proskomma's Sofria event stream and the current renderer actually treat each category (verified
-by reading `src/lib/components/ScriptureViewSofria.svelte` line-by-line, not assumed):
+Proskomma's Sofria event stream and the current renderers actually treat each category (verified
+by reading `src/lib/components/ScriptureViewSofria.svelte` and the `src/lib/render-sofria/`
+feature modules line-by-line, not assumed):
 
 | Taxonomy group | Grammar category source | Proskomma/Sofria event | Renderer behavior today (verified) |
 |---|---|---|---|
 | Book identification/metadata (`\id`, `\ide`, `\h`, `\toc1-3`, `\usfm`) | `internal`/`attribute`/`header` | consumed at document-header level, not emitted as body events `[inference — not traced further, out of scope for HTML rendering]` | Not rendered inline; used upstream in `convert/` for catalog/config generation. |
-| Chapter markers (`\c`) | `internal` | `startChapter`/`endChapter` + `mark subType usfm:chapter_label` (namespaced mark) | `chapter_label` mark → chapter-number div (`ScriptureViewSofria.svelte:2496-2530`-adjacent region; new renderer: `ChapterNumberFeature.ts`). |
-| Verse markers (`\v`) | `internal` | `startVerses`/`endVerses` + `mark subType usfm:verses_label` | `verses_label` mark → verse-number span (old: inline; new: `VerseNumberFeature.ts`, `util.ts:addVerseNumberRange`). |
-| Alternate/publishable numbering (`\ca`, `\cp`, `\va`, `\vp`) | `attribute` | `mark` with `subType` presumably `alt_chapter/alt_verse/pub_chapter/pub_verse` (fixed Sofria enum, confirmed in schema) | **Not handled** by current renderer — no case matches these subtypes. Gap, see §H. |
-| Paragraph markers (`\p`, `\m`, `\pi`, `\q1-4`, `\pc`, `\b`, etc.) | `versepara`/`otherpara` | `startParagraph`/`endParagraph`, `block.subType` | Generic: `<div class="{subtype}">`. Special case: `b` also appends `&nbsp;`. (Old: `ScriptureViewSofria.svelte:1642-1673`; new: `MainTextFeature.ts:11-19`.) |
-| Character markers (`\add`, `\bd`, `\it`, `\nd`, `\sig`, `\bk`, `\ord`, `\qs`, `\tl`, `\dc`, …) | `char` | `startWrapper`/`endWrapper` `subType usfm:<name>` | Generic fallback: `<span class="{name}">text</span>` (`ScriptureViewSofria.svelte:536-566` `addTextNode`/`usfmSpan`). **All of these share one rendering behavior** — one parametrized test covers dozens of markers. |
-| Character markers with unique behavior (`\wj`, `\w`, `\xt`) | `char` | same `startWrapper` path, explicitly special-cased | `\wj` → conditionally wrapped in `<span class="wj">` gated on a "show words of Jesus" setting; `\w` → glossary-match `<a class="glossary">` or plain span depending on a setting, uses `lemma` attribute; `\xt` → sets `innerHTML` instead of text content. Each needs its **own** dedicated fixture. |
-| Figures (`\fig`) | `char` (per `.sty`, actually a distinct figure marker family) | `startWrapper`/`endWrapper subType usfm:fig` | Dedicated: builds an image block (`addFigureDiv`) inserted into the paragraph on `endWrapper`. Pre-processed heavily in `convert/convertBooks.ts` (caption/missing-image handling, see §D). |
-| Hyperlinks (`\jmp`) | not in base `usfm.ext` `[unverified — likely added in 3.1.2+, agent did not confirm exact version it was introduced]` | `startWrapper`/`endWrapper subType usfm:jmp` | Dedicated: `prepareJmpLink`/`addJmpLink`, produces an `<a>`. |
-| Footnotes/cross-references (`\f...\f*`, `\x...\x*`) | `footnote`/`crossreference` (container) + `footnotechar`/`crossreferencechar` (children `\fr`,`\ft`,`\fk`,`\xo`,`\xt`,…) | `inlineGraft` `subType xref\|footnote`, nested sub-sequence | Dedicated: `createFootnoteDiv`, builds a caller `<span>` + popup content div, appended to the current phrase/heading/title container depending on context (`ScriptureViewSofria.svelte:2314-2347`). Structurally the most complex construct — deserves its own compound fixture (nested char markers *inside* a footnote, e.g. `\fq`/`\ft` mixed with `\add`). |
-| Note callers (`\fp`? / automatic caller machinery) | n/a — Sofria-level `subtype note_caller` | `inlineGraft subType note_caller` | Handled, pushes/pops `textType` stack; `[unverified]` exact visible HTML difference from footnote — not traced in this pass. |
-| Introductions (`\imt`, `\ip`, `\iot`, …) | `introduction`/`introchar`/`introlist` | `blockGraft subType introduction` (out-of-line sequence) | Conditionally rendered based on a "show introduction" flag (`ScriptureViewSofria.svelte:2261-2266`). Not yet ported to render-sofria (§H). |
-| Section headings (`\s`, `\s1-4`, `\r`, `\ms`, `\mr`) | `sectionpara` | `startParagraph`, `block.subType` | Falls into the same generic paragraph-div path unless separately special-cased — `[unverified — not traced whether headings get distinct div structure vs. plain paragraph class]`. |
-| Titles (`\mt1-4`, `\imt1-4`) | `title` | `blockGraft subType title` | Conditionally rendered (`ScriptureViewSofria.svelte:2267-2269`, `titleSpan`). Not yet ported to render-sofria. |
+| Chapter markers (`\c`) | `internal` | `startChapter`/`endChapter` + `mark subType usfm:chapter_label` (namespaced mark) | `chapter_label` mark → chapter-number div. Old: `ScriptureViewSofria.svelte:2496-2530`-adjacent region. New (render-sofria): `features/mark.ts` (`chapterNumber`), including the deferred drop-cap case (`chapterNumText` staged on `workspace.scratch.mark` until the first `verses_label` mark). |
+| Verse markers (`\v`) | `internal` | `startVerses`/`endVerses` + `mark subType usfm:verses_label` | `verses_label` mark → verse-number span. Old: inline. New: `features/mark.ts` (`verseNumbers`, `addVerseNumber`), `util.ts`. |
+| Alternate/publishable numbering (`\ca`, `\cp`, `\va`, `\vp`) | `attribute` | `mark` with `subType` presumably `alt_chapter/alt_verse/pub_chapter/pub_verse` (fixed Sofria enum, confirmed in schema) | **Not handled** by either renderer — no case matches these subtypes in the legacy switch statements or in `features/mark.ts`. Gap, see §H. |
+| Paragraph markers (`\p`, `\m`, `\pi`, `\q1-4`, `\pc`, `\b`, etc.) | `versepara`/`otherpara` | `startParagraph`/`endParagraph`, `block.subType` | Generic: `<div class="{subtype}">`. Special case: `b` also appends `&nbsp;`. Old: `ScriptureViewSofria.svelte:1642-1673`. New: `features/text.ts:15-30`. |
+| Character markers (`\add`, `\bd`, `\it`, `\nd`, `\sig`, `\bk`, `\ord`, `\qs`, `\tl`, `\dc`, …) | `char` | `startWrapper`/`endWrapper` `subType usfm:<name>` | Generic fallback: `<span class="{name}">` wrapping the phrase content. Old: `ScriptureViewSofria.svelte:536-566` (`addTextNode`/`usfmSpan`). New: `features/wrappers/index.ts` (`usfmWrappers`) — now ported, using the `ScopeManager` to build a real nested `<span>` scope rather than string-concatenating `innerHTML`. **All of these share one rendering behavior** — one parametrized test covers dozens of markers, and can now target either renderer. |
+| Character markers with unique behavior (`\wj`, `\w`, `\xt`) | `char` | same `startWrapper` path, explicitly special-cased | `\wj`: old conditionally wraps in `<span class="wj">` gated on a "show words of Jesus" setting; new (`features/wrappers/index.ts:23-25`, `shouldAddWrapper`) suppresses the wrapper span entirely when `workspace.viewShowRedLetters` is false — `[unverified]` whether `viewShowRedLetters` is the same underlying setting as the legacy renderer's `workspace.showWordsOfJesus`, or a distinct flag; worth pinning down with a fixture. `\w`: old produces glossary-match `<a class="glossary">` or plain span depending on a setting, using `lemma`; new has a dedicated `features/wrappers/glossary.ts` doing the same (glossary-on path builds the `<a>` after the wrapper closes; glossary-off path falls through to the generic `usfmWrappers` span, guarded via `isGlossaryWrapper` in `features/wrappers/index.ts:17`). `\xt`: **no dedicated handling found in the new renderer** — falls through the generic `usfmWrappers` span path; `[unverified]` whether that's equivalent to the legacy renderer's `innerHTML`-instead-of-text special-case (old: `ScriptureViewSofria.svelte:511-513`), since the new architecture builds real nested DOM scopes rather than string-concatenated HTML — needs a dedicated nested-markup fixture to confirm either way. |
+| Figures (`\fig`) | `char` (per `.sty`, actually a distinct figure marker family) | `startWrapper`/`endWrapper subType usfm:fig` | Old: dedicated, builds an image block (`addFigureDiv`) inserted into the paragraph on `endWrapper`. New: dedicated `features/wrappers/figures.ts`, also ported — plus a **new runtime behavior not present in the legacy renderer**: an async `fetch(src, {method:'HEAD'})` existence check (`checkImageExists`) that hides the image block if the request fails, in addition to the convert-time missing-image check in `convert/convertBooks.ts`. This asynchronous check is a testing-design wrinkle (§F) — assertions on figure visibility need to await it or mock `fetch`. Pre-processed heavily in `convert/convertBooks.ts` regardless (caption/missing-image handling, see §D). |
+| Hyperlinks (`\jmp`) | not in base `usfm.ext` `[unverified — likely added in 3.1.2+, agent did not confirm exact version it was introduced]` | `startWrapper`/`endWrapper subType usfm:jmp` | Old: dedicated `prepareJmpLink`/`addJmpLink`, produces an `<a>`. New: dedicated `features/wrappers/jmplinks.ts`, also ported — plus a **new safety behavior not present in the legacy renderer**: an explicit protocol allowlist (`http:`, `https:`, `mailto:`, `tel:`); any other scheme (e.g. `javascript:`) is silently dropped and a plain `<span>` is emitted instead of an `<a>`. This is a deliberate behavior divergence between the two renderers, not a bug — the coverage framework should treat the new renderer's allowlisted behavior as the go-forward contract and add a fixture asserting a disallowed-protocol `\jmp` does **not** produce a clickable link. |
+| Footnotes/cross-references (`\f...\f*`, `\x...\x*`) | `footnote`/`crossreference` (container) + `footnotechar`/`crossreferencechar` (children `\fr`,`\ft`,`\fk`,`\xo`,`\xt`,…) | `inlineGraft` `subType xref\|footnote`, nested sub-sequence | Old: dedicated, `createFootnoteDiv`, builds a caller `<span>` + popup content div, appended to the current phrase/heading/title container depending on context (`ScriptureViewSofria.svelte:2314-2347`). New: **still not implemented** — no feature file registers an `inlineGraft` action, and `inlineGraft` doesn't appear in any `eventTriggers` array under `src/lib/render-sofria/`. Structurally the most complex construct — deserves its own compound fixture (nested char markers *inside* a footnote, e.g. `\fq`/`\ft` mixed with `\add`) once ported. |
+| Note callers (`\fp`? / automatic caller machinery) | n/a — Sofria-level `subtype note_caller` | `inlineGraft subType note_caller` | Old: handled, pushes/pops `textType` stack; `[unverified]` exact visible HTML difference from footnote — not traced in this pass. New: not implemented (same `inlineGraft` gap as footnotes/xrefs). |
+| Introductions (`\imt`, `\ip`, `\iot`, …) | `introduction`/`introchar`/`introlist` | `blockGraft subType introduction` (out-of-line sequence) | Old: conditionally rendered based on a "show introduction" flag (`ScriptureViewSofria.svelte:2261-2266`). New: **still not implemented** — no `blockGraft` action registered anywhere under `src/lib/render-sofria/` (§H). |
+| Section headings (`\s`, `\s1-4`, `\r`, `\ms`, `\mr`) | `sectionpara` | `startParagraph`, `block.subType` | Falls into the same generic paragraph-div path unless separately special-cased — `[unverified — not traced whether headings get distinct div structure vs. plain paragraph class, in either renderer]`. |
+| Titles (`\mt1-4`, `\imt1-4`) | `title` | `blockGraft subType title` | Old: conditionally rendered (`ScriptureViewSofria.svelte:2267-2269`, `titleSpan`). New: **still not implemented** (same `blockGraft` gap as introductions). |
 | Lists (`\li1-4`, standard USFM) | `list`/`listchar` | `startParagraph`, `block.subType` | `[unverified — not traced; SAB does not appear to author standard `\li` markers, instead using its own `\zuli`/`\zoli`/`\zon` extensions, see §D]`. |
-| Tables (`\tr`, `\tc1-9`, `\th1-9`) | not fully categorized by `usfm.ext` alone; `.sty` likely has explicit table fields `[unverified]` | `startRow`/`endRow`, `startWrapper subType cell` | Dedicated: builds `<table><tr><td class="tc{n}">`. `convert/convertBooks.ts:311-318` (`addParagraphMarkersAroundTableRows`) wraps table row runs in `\p`/`\p` first — a SAB-side pre-processing quirk worth its own fixture. |
-| Milestones — standard USFM (`\qt-s/-e`, `\ts-s/-e`) | `milestone` | `startMilestone`/`endMilestone subType usfm:qt`/`usfm:ts` | **Not handled** — no case matches `qt`/`ts` in the milestone switch statements. Gap, see §H. |
-| Milestones — SAB private-use (`\zvideo-s/-e`, `\zstyle`, `\zcstyle-s/-e`, `\zaudioc-s/-e`, `\zreflink-s/-e`, `\zuli{n}`, `\zoli{n}`, `\zon{n}`) | not in base grammar; would live in SAB's own `markers.ext`-equivalent | `startMilestone`/`endMilestone subType usfm:z*` (namespaced exactly like standard custom milestones) | Fully explicit, dedicated handling per marker (`ScriptureViewSofria.svelte:2485-2616`). See §D for full inventory. |
-| Deprecated markers (`\addpn`, `\fdc`, `\h1`, `\h2`, `\ide`, `\ph1`, `\rb`, `\xdc`) | flagged only via free-text description | whatever their base category implies (mostly `char`/`header`) | No special-case in the renderer — presumably fall through to the generic paragraph/character path. `[unverified — not confirmed to actually round-trip cleanly, e.g. `\rb` (ruby/pronunciation glossing) has non-trivial attribute structure that the generic char-span path may not handle correctly]`. |
+| Tables (`\tr`, `\tc1-9`, `\th1-9`) | not fully categorized by `usfm.ext` alone; `.sty` likely has explicit table fields `[unverified]` | `startRow`/`endRow`, `startWrapper subType cell` | Old: dedicated, builds `<table><tr><td class="tc{n}">`. New: dedicated `features/table.ts` — also ported, same `tc{n}` class scheme, using a `table`/`row`/`cell` scope stack instead of manual element tracking. `convert/convertBooks.ts:311-318` (`addParagraphMarkersAroundTableRows`) wraps table row runs in `\p`/`\p` first — a SAB-side pre-processing quirk worth its own fixture. |
+| Milestones — standard USFM (`\qt-s/-e`, `\ts-s/-e`) | `milestone` | `startMilestone`/`endMilestone subType usfm:qt`/`usfm:ts` | **Not handled** by either renderer — no case matches `qt`/`ts` in the legacy milestone switch statements, and `startMilestone`/`endMilestone` (though still declared as valid events in the new renderer's `common.ts` `boundedScopes`) have no registered action in any `src/lib/render-sofria/` feature file. Gap, see §H. |
+| Milestones — SAB private-use (`\zvideo-s/-e`, `\zstyle`, `\zcstyle-s/-e`, `\zaudioc-s/-e`, `\zreflink-s/-e`, `\zuli{n}`, `\zoli{n}`, `\zon{n}`) | not in base grammar; would live in SAB's own `markers.ext`-equivalent | `startMilestone`/`endMilestone subType usfm:z*` (namespaced exactly like standard custom milestones) | Old: fully explicit, dedicated handling per marker (`ScriptureViewSofria.svelte:2485-2616`). New: **still not implemented** — same milestone-event gap as above; none of §D's SAB markers work in render-sofria yet. |
+| Deprecated markers (`\addpn`, `\fdc`, `\h1`, `\h2`, `\ide`, `\ph1`, `\rb`, `\xdc`) | flagged only via free-text description | whatever their base category implies (mostly `char`/`header`) | No special-case in either renderer — presumably fall through to the generic paragraph/character path (the new renderer's generic path now exists too, see above). `[unverified — not confirmed to actually round-trip cleanly, e.g. `\rb` (ruby/pronunciation glossing) has non-trivial attribute structure that the generic char-span path may not handle correctly]`. |
 
 **Taxonomy summary** (answering the research brief's own candidate list): book
 metadata/chapter/verse/paragraph/character/nested-character/footnotes/xrefs/milestones/tables/
@@ -263,7 +264,12 @@ figures/word-attributes/introductions/section-headings/deprecated/extensions all
 be real, distinct categories — but **peripheral material** (`periphpara`) has **no observed
 renderer handling at all** and `[unverified]` whether the PWA ever ingests peripheral content
 (front/back matter, standalone glossary-as-periph); this needs a product decision, not just a
-test (§H).
+test (§H). One more distinction worth calling out: the new renderer models "produces no HTML"
+*explicitly* rather than just omitting a case — `features/metaContent.ts` registers a real
+`metaContent` action that only logs and intentionally does nothing else — which is a small but
+useful pattern the taxonomy/grouping config (§F) should reuse for every other
+intentionally-non-rendering category (`\rem`, `\ide`, etc.), rather than leaving them as an
+absence a future reader has to interpret.
 
 ---
 
@@ -278,19 +284,19 @@ shows the *shape* of the grouping).
 | `\p`, `\m`, `\pi1-3`, `\cls`, `\li1-4` | `versepara`/`otherpara`/`list` | `startParagraph`, `block.subType = <name>` | generic `<div class="{name}">` | one shared param. test: assert wrapping `div` has class = marker name | one fixture per representative marker, shared assertion helper | Supported — grammar+parser+render coverage all green |
 | `\b` (blank line) | `versepara` | `startParagraph subType b` | same generic div + forced `&nbsp;` | assert div contains a non-breaking space in addition to class | dedicated (differs from generic group) | Supported |
 | `\q1-4` | `versepara` | `startParagraph subType q1..4` | generic div, but relies on CSS for indent levels | assert class only (indent is a CSS/product concern, not an HTML-structure concern — do **not** assert computed style) | shared with generic paragraph group | Supported |
-| `\add`, `\bd`, `\it`, `\bk`, `\dc`, `\k`, `\nd`, `\ord`, `\pn`, `\qs`, `\sig`, `\sls`, `\tl`, `\em`, `\no` | `char` | `startWrapper/endWrapper subType usfm:<name>` | generic `<span class="{name}">text</span>` | one shared param. test: assert `<span>` with class = marker name, wrapping the literal phrase text | one minimal fixture per marker sharing one assertion helper; can legitimately be *one* generated test file iterating the whole group | Supported (renderer); **untested today** |
-| `\wj` | `char` | `startWrapper subType usfm:wj` | conditionally wrapped span, gated on a setting | two fixtures: setting on → `<span class="wj">`; setting off → plain text, no span | dedicated | Supported; needs 2-state fixture |
-| `\w ...\|lemma="..."\w*` | `char` + attribute | `startWrapper subType usfm:w`, `atts.lemma` | glossary `<a class="glossary" match="...">` or plain `<span class="w">` depending on a setting | two fixtures (glossary on/off) + assert `match` attribute value derived from `lemma` | dedicated | Supported; needs 2-state fixture |
-| `\xt ...\xt*` | `char` (cross-reference target, inside footnote/xref content) | `startWrapper subType usfm:xt` | `innerHTML` set directly (not textContent) | assert nested markup survives (e.g. embedded `\+bd` inside `\xt`) — this is the one character marker where nested-markup-through matters | dedicated compound fixture | Supported; needs nested-markup fixture |
-| `\fig ...\fig*` | figure (own family in `.sty`) | `startWrapper/endWrapper subType usfm:fig` | image block built from `src`/caption attrs, appended to paragraph on close | assert an `<img>`-bearing block with resolved `src`; also test the `convert/convertBooks.ts` pre-processing (`handleNoCaptionFigures`, `removeMissingFigures`, `moveFigureToNextNonVerseMarker`) as separate **conversion-layer** unit tests | dedicated + conversion-layer fixtures | Supported; conversion-layer logic **untested today** |
-| `\jmp ...\|href="..."\jmp*` | not in base `usfm.ext` `[unverified version]` | `startWrapper/endWrapper subType usfm:jmp` | `<a>` built from `href`/`title` | assert `<a href>` | dedicated | Supported; **untested today** |
-| `\f + ...\f*`, `\x + ...\x*` | `footnote`/`crossreference` container | `inlineGraft subType footnote\|xref`, nested sequence | caller span + popup div, placed depending on surrounding context (phrase/heading/title) | compound fixture: caller + content, and a variant with nested char markup inside (`\ft`, `\fq`, `\add` mixed) | dedicated compound fixtures (≥2: plain, nested) | Supported; **untested today**, high-value target |
-| `\qt-s ... \qt-e\*` (quoted text milestone) | `milestone` | `startMilestone/endMilestone subType usfm:qt` | **no matching case found** | `[unverified exact current behavior — likely silently dropped/no visual effect]` | none yet | **Gap — needs product decision before a fixture can be written** (§H) |
-| `\ts-s ... \ts-e\*` / bare `\ts` (translator section) | `milestone` | `startMilestone/endMilestone subType usfm:ts` | **no matching case found** | same as above | none yet | **Gap** (§H) |
-| `\ca`/`\cp`, `\va`/`\vp` (alt/pub numbering) | `attribute` | `mark subType alt_chapter\|alt_verse\|pub_chapter\|pub_verse` (fixed Sofria enum) | **no matching case found** in chapter/verse-number features | n/a | none yet | **Gap** (§H) |
-| `\tr` rows / `\tc1-9`/`\th1-9` cells | table family | `startRow/endRow`, `startWrapper subType cell` | builds `<table><tr><td class="tc{n}">` | compound fixture: multi-row/multi-cell table; also test `addParagraphMarkersAroundTableRows` conversion-layer wrapping | dedicated + conversion-layer fixture | Supported; **untested today** |
-| `\imt`,`\ip`,`\iot`,`\ili1-2` (introduction) | `introduction`/`introchar`/`introlist` | `blockGraft subType introduction` | conditionally rendered based on setting | fixture with setting on/off | dedicated | Supported in legacy renderer; **not yet ported** to render-sofria (§H) |
-| `\mt1-4` (title) | `title` | `blockGraft subType title` | conditionally rendered | fixture | dedicated | Supported in legacy renderer; **not yet ported** to render-sofria |
+| `\add`, `\bd`, `\it`, `\bk`, `\dc`, `\k`, `\nd`, `\ord`, `\pn`, `\qs`, `\sig`, `\sls`, `\tl`, `\em`, `\no` | `char` | `startWrapper/endWrapper subType usfm:<name>` | generic `<span class="{name}">text</span>` | one shared param. test: assert `<span>` with class = marker name, wrapping the literal phrase text | one minimal fixture per marker sharing one assertion helper; can legitimately be *one* generated test file iterating the whole group | Supported in **both** renderers (`features/wrappers/index.ts` in render-sofria); **untested today** |
+| `\wj` | `char` | `startWrapper subType usfm:wj` | conditionally wrapped span, gated on a setting (`viewShowRedLetters` in render-sofria) | two fixtures: setting on → `<span class="wj">`; setting off → plain text, no span | dedicated | Supported in both renderers; needs 2-state fixture; also confirm the two renderers' gating settings (`showWordsOfJesus` vs. `viewShowRedLetters`) are actually the same toggle |
+| `\w ...\|lemma="..."\w*` | `char` + attribute | `startWrapper subType usfm:w`, `atts.lemma` | glossary `<a class="glossary" match="...">` or plain `<span class="w">` depending on a setting | two fixtures (glossary on/off) + assert `match` attribute value derived from `lemma` | dedicated | Supported in both renderers (`features/wrappers/glossary.ts` in render-sofria); needs 2-state fixture |
+| `\xt ...\xt*` | `char` (cross-reference target, inside footnote/xref content) | `startWrapper subType usfm:xt` | Old: `innerHTML` set directly (not textContent). New: no dedicated handling — falls through the generic wrapper span | assert nested markup survives (e.g. embedded `\+bd` inside `\xt`) — this is the one character marker where nested-markup-through matters, and where the two renderers may genuinely diverge | dedicated compound fixture | Old: supported. New: **unverified equivalence** — needs a nested-markup fixture run against both renderers before assuming parity |
+| `\fig ...\fig*` | figure (own family in `.sty`) | `startWrapper/endWrapper subType usfm:fig` | image block built from `src`/caption attrs, appended to paragraph on close; render-sofria (`features/wrappers/figures.ts`) additionally does an async `fetch` HEAD existence check at render time | assert an `<img>`-bearing block with resolved `src` (await/mock the async check for render-sofria); also test the `convert/convertBooks.ts` pre-processing (`handleNoCaptionFigures`, `removeMissingFigures`, `moveFigureToNextNonVerseMarker`) as separate **conversion-layer** unit tests | dedicated + conversion-layer fixtures | Supported in both renderers; conversion-layer logic **untested today**; render-sofria's async check needs an async-aware assertion |
+| `\jmp ...\|href="..."\jmp*` | not in base `usfm.ext` `[unverified version]` | `startWrapper/endWrapper subType usfm:jmp` | `<a>` built from `href`/`title`; render-sofria (`features/wrappers/jmplinks.ts`) additionally allowlists the `href` protocol (`http`/`https`/`mailto`/`tel`), dropping the link (plain `<span>`) for anything else | assert `<a href>` for allowed protocols; assert **no** `<a>` for a disallowed protocol (e.g. `javascript:`) — the latter is a deliberate new-renderer-only behavior, not a bug | dedicated | Supported in both renderers; **untested today**; the protocol-allowlist fixture is new-renderer-specific by design |
+| `\f + ...\f*`, `\x + ...\x*` | `footnote`/`crossreference` container | `inlineGraft subType footnote\|xref`, nested sequence | Old: caller span + popup div, placed depending on surrounding context (phrase/heading/title). New: **not implemented** — no `inlineGraft` action registered anywhere in `src/lib/render-sofria/` | compound fixture: caller + content, and a variant with nested char markup inside (`\ft`, `\fq`, `\add` mixed) | dedicated compound fixtures (≥2: plain, nested) | Old: supported, **untested today**, high-value target. New: **not yet ported** (§H) |
+| `\qt-s ... \qt-e\*` (quoted text milestone) | `milestone` | `startMilestone/endMilestone subType usfm:qt` | **no matching case found** in either renderer | `[unverified exact current behavior — likely silently dropped/no visual effect]` | none yet | **Gap — needs product decision before a fixture can be written** (§H) |
+| `\ts-s ... \ts-e\*` / bare `\ts` (translator section) | `milestone` | `startMilestone/endMilestone subType usfm:ts` | **no matching case found** in either renderer | same as above | none yet | **Gap** (§H) |
+| `\ca`/`\cp`, `\va`/`\vp` (alt/pub numbering) | `attribute` | `mark subType alt_chapter\|alt_verse\|pub_chapter\|pub_verse` (fixed Sofria enum) | **no matching case found** in either renderer's chapter/verse-number features | n/a | none yet | **Gap** (§H) |
+| `\tr` rows / `\tc1-9`/`\th1-9` cells | table family | `startRow/endRow`, `startWrapper subType cell` | builds `<table><tr><td class="tc{n}">` | compound fixture: multi-row/multi-cell table; also test `addParagraphMarkersAroundTableRows` conversion-layer wrapping | dedicated + conversion-layer fixture | Supported in **both** renderers (`features/table.ts` in render-sofria); **untested today** |
+| `\imt`,`\ip`,`\iot`,`\ili1-2` (introduction) | `introduction`/`introchar`/`introlist` | `blockGraft subType introduction` | conditionally rendered based on setting | fixture with setting on/off | dedicated | Supported in legacy renderer; **not yet ported** to render-sofria — no `blockGraft` action registered (§H) |
+| `\mt1-4` (title) | `title` | `blockGraft subType title` | conditionally rendered | fixture | dedicated | Supported in legacy renderer; **not yet ported** to render-sofria (same `blockGraft` gap) |
 | `\rem`, `\ide`, `\usfm`, `\id` | `internal`/`attribute`/`header` | consumed at header/catalog level, not emitted as body render events `[inference]` | not rendered | assert **absence** of any visible HTML for these — a "must not render" test is still real coverage | dedicated negative-assertion fixture | Intentionally unsupported (correct) — should be tested as such, not skipped |
 | `\addpn`,`\fdc`,`\h1`,`\h2`,`\ide`,`\ph1`,`\rb`,`\xdc` (deprecated) | varies, flagged only in description text | falls through to base category's normal event path | no special-case; generic fallback | best-effort: assert graceful fallback (doesn't crash, produces *some* reasonable span/div), not a specific product-approved appearance | dedicated, marked low-priority/best-effort | Grammar coverage: yes. Rendering coverage: optional/best-effort by design (§H) |
 
@@ -301,7 +307,11 @@ shows the *shape* of the grouping).
 All entries verified directly in `convert/convertBooks.ts` (filter pipeline, lines 372–385: the
 `usfmFilterFunctions` array) and `convert/convertMarkdown.ts`, cross-checked against the
 `case 'usfm:z...'` switches in `src/lib/components/ScriptureViewSofria.svelte`
-(lines 2485–2616) and `src/lib/scripts/milestoneLinks.ts`.
+(lines 2485–2616) and `src/lib/scripts/milestoneLinks.ts`. The "Renderer behavior" column below
+describes the **legacy** renderer only: as of the current branch, render-sofria has no
+`startMilestone`/`endMilestone` action registered in any feature file (§B, §H), so **none** of
+these SAB constructs are implemented in the new renderer yet — every row in this table is a
+render-sofria gap, not just an untested-but-working construct.
 
 | SAB SFM | Input syntax | `convertBooks.ts` conversion | Proskomma representation | Renderer behavior | Expected HTML | Test |
 |---|---|---|---|---|---|---|
@@ -466,16 +476,22 @@ extension" without reading TypeScript.
 
 ### A testability constraint that shapes the whole design
 
-The **new** renderer (`src/lib/render-sofria/*Feature.ts`) exports plain `FeatureSpec`/
-`RenderAction` objects — directly importable and unit-testable without mounting any Svelte
-component. The **legacy** renderer's render-action definitions are inline inside
-`ScriptureViewSofria.svelte`'s `<script>` block, not exported — testing it directly requires
-mounting the actual component (needs `@testing-library/svelte`, not currently installed) or
-duplicating logic (which defeats the purpose).
+The **new** renderer (`src/lib/render-sofria/**/*.ts`) exports plain `FeatureSpec`/`RenderAction`
+objects from small, single-purpose modules under `src/lib/render-sofria/features/` (and
+`features/wrappers/`) — directly importable and unit-testable without mounting any Svelte
+component. As of the current branch this now covers considerably more ground than when this
+constraint was first identified: generic and special-cased character markers, `\w` glossary
+matching, `\fig` figures, `\jmp` links, and tables are all implemented as standalone,
+independently-testable feature modules (§B). The **legacy** renderer's render-action definitions
+remain inline inside `ScriptureViewSofria.svelte`'s `<script>` block, not exported — testing it
+directly still requires mounting the actual component (needs `@testing-library/svelte`, not
+currently installed) or duplicating logic (which defeats the purpose).
 
 **Recommendation**: prioritize building generated/hand-authored coverage against
-**render-sofria**, since (a) it's already unit-testable with zero new dependencies, (b) it's
-the direction the team is actively moving (PR #1090), and (c) a coverage suite against
+**render-sofria**, since (a) it's already unit-testable with zero new dependencies — and,
+unlike at the time this constraint was first written, a large share of the taxonomy is now
+actually implemented there, not just architecturally ready for it — (b) it's
+the direction the team is actively moving (PR #1135), and (c) a coverage suite against
 soon-to-be-replaced code has a short shelf life. Use the *legacy* renderer only as a one-time,
 human-reviewed reference when first writing expected-HTML values (see next section) — never as
 a live, auto-diffed oracle.
@@ -624,19 +640,40 @@ Gaps found, each with an explicit judgment on whether it's actually a problem:
   missed, or (b) this is dead/vestigial handling code. **Needs investigation before writing a
   fixture for these three** — write the fixture only once the producer question is resolved,
   otherwise the "fixture" would be untestable via the real pipeline.
-- **render-sofria (PR #1090) is intentionally incomplete today.** Per its own progress doc, it
-  currently implements only document/paragraph/text/verse-number/chapter-number features.
-  Missing: all milestone handling (so none of §D's SAB markers work yet), grafts
-  (footnotes/xrefs/introductions/titles), and tables. This is **not a bug** — it's declared,
-  in-progress work — but the coverage framework must represent it as such (a
-  "not yet ported to render-sofria" status distinct from "regression"), or the first run of
-  generated tests against render-sofria will look like a wall of failures indistinguishable
-  from real breakage.
+- **render-sofria (PR #1135) is intentionally incomplete today, but considerably further along
+  than its own progress doc (`rendering-refactor.md`) suggests** — that doc's "Completed work"
+  list (text phrases/paragraphs, verse/chapter numbers, `TextPositionFeature`) is stale; the
+  code itself (source of truth, not the doc) now also implements generic + special-cased
+  character markers, `\w` glossary matching, `\fig` figures, `\jmp` links, and tables
+  (`src/lib/render-sofria/features/wrappers/*.ts`, `features/table.ts`) — see §B. Still missing:
+  **all milestone handling** (`startMilestone`/`endMilestone` have no registered action anywhere
+  in `src/lib/render-sofria/`, so none of §D's SAB `z*` markers or standard `\qt`/`\ts` work
+  yet), and **all graft handling** (`blockGraft`/`inlineGraft` are likewise unregistered, so
+  footnotes, cross-references, note callers, introductions, and titles are all unported).
+  `features/chapterVerses.ts`'s `endVerses` action also carries an explicit
+  `// TODO add bookmarks, notes, plans` comment, confirming those remain out of scope for now
+  too. None of this is a bug — it's declared, in-progress work — but the coverage framework must
+  represent it precisely (a per-construct "not yet ported to render-sofria" status distinct from
+  "regression"), and should **not** rely on the progress doc's own completed/remaining lists to
+  determine that status, since the doc has already fallen behind the code once.
 - **Deprecated markers** (`addpn`, `fdc`, `h1`, `h2`, `ide`, `ph1`, `rb`, `xdc`): no
   special-casing; fall through to generic handling. Recommend treating these as
   grammar-coverage-required but rendering-coverage-optional/best-effort (§C), since the spec
   itself discourages continued use and a "produces *some* reasonable output, doesn't crash" bar
   is more proportionate than pinning an exact appearance.
+- **Behavior divergences between the two renderers on constructs both now implement**: (1)
+  `\jmp` — render-sofria added an `href` protocol allowlist (`http`/`https`/`mailto`/`tel`) that
+  the legacy renderer doesn't have (`features/wrappers/jmplinks.ts`); (2) `\fig` — render-sofria
+  added an async runtime `fetch` HEAD existence check that the legacy renderer doesn't have
+  (`features/wrappers/figures.ts`); (3) `\wj` — the two renderers gate visibility on
+  differently-named settings (`showWordsOfJesus` vs. `viewShowRedLetters`), `[unverified]`
+  whether these are actually the same underlying app setting; (4) `\xt` — the legacy renderer's
+  `innerHTML`-not-textContent special case has no counterpart in render-sofria's generic wrapper
+  path, `[unverified]` whether the new scope-based architecture makes that special case
+  unnecessary or silently drops needed behavior. None of these are necessarily bugs — (1) and
+  (2) read as deliberate improvements — but the coverage framework needs a way to say "these two
+  renderers are expected to differ here, on purpose" rather than treating any legacy/new
+  divergence as an undifferentiated failure.
 - **Legacy renderer testability**: `ScriptureViewSofria.svelte`'s render actions are inline,
   unexported. This is an architectural gap independent of USFM coverage — it means any
   coverage we write against the legacy renderer needs either a full component-mount test setup
@@ -667,12 +704,15 @@ Gaps found, each with an explicit judgment on whether it's actually a problem:
    against Stage 3's config, emit the inventory JSON + `test.todo` scaffolds + console diff
    summary. Wire `npm run update-usfm-test-coverage`. At this point the suite runs and reports
    gaps, but has no real assertions yet — this itself is a useful, reviewable checkpoint.
-5. **Hand-author expected-HTML fixtures**, highest-value groups first: generic character
+5. **Hand-author expected-HTML fixtures**, highest-value groups first, targeting
+   **render-sofria**. Start with the constructs it already implements — generic character
    markers (one file, many markers), generic paragraph markers, chapter/verse numbering,
-   footnotes/xrefs (including the nested-markup compound case), tables, then the SAB `z*`
-   milestones (video/style/cstyle/lists) — targeting **render-sofria**, accepting that most
-   will initially report as failing/todo since render-sofria doesn't implement milestones yet.
-   This becomes the concrete, living contract the PR #1090 refactor works against.
+   `\fig`, `\jmp`, `\w` glossary matching, and tables — which should pass close to immediately
+   once fixtures exist, and are the fastest way to get real (non-`test.todo`) coverage on the
+   books. Then move to footnotes/xrefs (including the nested-markup compound case) and the SAB
+   `z*` milestones (video/style/cstyle/lists), accepting that these will initially report as
+   failing/todo since render-sofria doesn't implement grafts or milestones yet. This becomes the
+   concrete, living contract the PR #1135 refactor works against.
 6. **Add the conversion-layer unit tests** for the currently-untested `convertBooks.ts` filter
    functions (§H), generated from `grammar/sab-sfm-conversions.md`, following the existing
    `storybookTests.test.ts`/`convertMarkdown.test.ts` pattern already idiomatic in this repo.
