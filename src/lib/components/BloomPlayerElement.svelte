@@ -69,7 +69,6 @@
     let iframeEl: HTMLIFrameElement;
 
     function buildSrc(): string {
-        //const params = new URLSearchParams();
         const params = new SvelteURLSearchParams();
         params.set('url', bookUrl);
         if (lang) {
@@ -93,9 +92,6 @@
         return `${playerUrl}?${params.toString()}`;
     }
 
-    // Rebuild src only when the base identifying props change; runtime
-    // controls (pause/resume/play/reset) should go through postMessage
-    // (see the exported methods below) rather than by reloading the iframe.
     $: src = buildSrc();
 
     function postToPlayer(message: Record<string, unknown>) {
@@ -218,7 +214,7 @@
         const translateX = Math.max((winWidth - actualWidth) / 2, 0);
         const translateY = Math.max((winHeight - actualHeight) / 2, 0);
 
-        // IMPORTANT: .bloom-page's contents (.marginBox and everything inside
+        // NOTE: .bloom-page's contents (.marginBox and everything inside
         // it - image containers, text boxes, etc.) are laid out in fixed,
         // absolute mm/px units matching the page's *native* size - they are
         // NOT sized as percentages of .bloom-page. bloom-player's own
