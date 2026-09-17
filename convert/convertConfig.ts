@@ -149,6 +149,11 @@ function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
         titles.push({ lang: key, name: (allTitles[key] as string).trim() });
     }
 
+    if (verbose >= 3) {
+        console.log(`Bloom titles found: ${titles.length}`);
+        console.log(`Bloom languages found: ${langs.length}`);
+    }
+
     return {
         languages: langs,
         titles: titles

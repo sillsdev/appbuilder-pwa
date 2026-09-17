@@ -520,11 +520,6 @@ export async function convertBooks(
                     break;
                 case 'bloom-player':
                     bookConverted = true;
-                    //FIX: remove these console logs before PR
-                    console.warn(`book.id: ${book.id} book.name: ${book.name}`);
-                    console.warn('------------------------------------------------');
-                    console.log(book);
-
                     // Create specific bloom blook directory for generated assets
                     const bloomBookPath = path.join(
                         'src',
@@ -714,6 +709,9 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
     });
 }
 
+// RegEx to find media or css files that are listed.
+// Once they are found the links can be replaced to allow for
+// the links to be replaced with hashed files
 const MEDIA_REF_REGEXES: RegExp[] = [
     /(\b(?:src|href)\s*=\s*)(["'])([^"']*)\2()/gi,
     /(url\(\s*)(["'])([^"']*)\2(\s*\))/gi,
@@ -773,9 +771,6 @@ function getBloomFilesRecursively(dataDir: string, src: string, dest: string): F
                     dest: fullDest
                 };
 
-                //console.log(`File: ${file}`);
-                //console.log(f);
-
                 returnFiles.push(f);
 
                 if (stats.isDirectory()) {
@@ -830,6 +825,9 @@ function convertBloomBook(
                     // the hashed name given by convertConfig. According to Claude examining
                     // bloom-player there is only one html page per bloom book
                     bookContent = newContent;
+                    if (verbose >= 3) {
+                        console.log(`Found the Bloom main html file: ${bloomFile.src}`);
+                    }
                     continue; // Should be only for the html file as there is only one
                 } else {
                 }
