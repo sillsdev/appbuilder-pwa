@@ -29,7 +29,9 @@ export function persistedLocal<
 
     // Keep localStorage in sync
     start.subscribe((value) => {
-        localStorage.setItem(key, JSON.stringify(value));
+        if (browser) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
     });
 
     return start as ReturnType<S>;

@@ -149,6 +149,11 @@ function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
         titles.push({ lang: key, name: (allTitles[key] as string).trim() });
     }
 
+    if (verbose >= 3) {
+        console.log(`Bloom titles found: ${titles.length}`);
+        console.log(`Bloom languages found: ${langs.length}`);
+    }
+
     return {
         languages: langs,
         titles: titles
@@ -906,7 +911,7 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 }
             }
             let hashedFileName: string | undefined;
-            let bloomMetaData: {} = {};
+            let bloomMetaData: Record<string, unknown> = {};
             const bookType = book.attributes.getNamedItem('type')?.value;
             if (bookType !== undefined && ['html', 'bloom-player'].includes(bookType)) {
                 if (bookType === 'html') {
