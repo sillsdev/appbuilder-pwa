@@ -48,7 +48,7 @@
     function handleMenuClick() {
         showOverlowMenu = false;
     }
-    const book = data.book;
+    const book = $derived(data.book);
 
     function backNavigation() {
         if ($contentsStack.length > 0) {
@@ -62,21 +62,27 @@
     );
 
     let player;
-    let bookUrl = encodeURI(
-        `/src/gen-assets/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? ''}`
+    const bookUrl = $derived(
+        encodeURI(
+            `/src/gen-assets/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? ''}`
+        )
     );
-    let lang: string = data?.bookCollection?.languageCode ?? ''; // Intended as the fallback if main method of getting language name fails
-    if (lang.length > 0 && data.book?.bloomMeta?.languages) {
-        for (const k of Object.entries(data.book.bloomMeta.languages)) {
-            const key = k[0] as string;
-            if (
-                data.book.bloomMeta.languages[key].name.toLowerCase() ===
-                data.bookCollection?.languageName?.toLowerCase()
-            ) {
-                lang = data.book.bloomMeta.languages[key].lang;
+    const lang = $derived.by(() => {
+        // Intended as the fallback if main method of getting language name fails
+        let result = data?.bookCollection?.languageCode ?? '';
+        if (result.length > 0 && data.book?.bloomMeta?.languages) {
+            for (const k of Object.entries(data.book.bloomMeta.languages)) {
+                const key = k[0] as string;
+                if (
+                    data.book.bloomMeta.languages[key].name.toLowerCase() ===
+                    data.bookCollection?.languageName?.toLowerCase()
+                ) {
+                    result = data.book.bloomMeta.languages[key].lang;
+                }
             }
         }
-    }
+        return result;
+    });
 </script>
 
 <div class="h-screen">

@@ -1,9 +1,6 @@
-<svelte:options
-    customElement={{
-        tag: 'bloom-player',
-        shadow: 'none'
-    }}
-/>
+<script context="module" lang="ts">
+    export type AutoPlayType = 'yes' | 'no' | 'motion';
+</script>
 
 <script lang="ts">
     // Svelte wrapper around bloom-player's iframe embedding protocol.
@@ -11,9 +8,7 @@
     // bloom-player is NOT a custom element itself - it's a React app served as
     // bloomplayer.htm, configured via URL query params and controlled via
     // window.postMessage. This component owns the iframe and translates its
-    // postMessage protocol into Svelte props/events, and (via <svelte:options
-    // customElement>) can also be compiled into a real <bloom-player> custom
-    // element for use outside Svelte.
+    // postMessage protocol into Svelte props/events.
     //
     // Protocol reference: bloom-player's src/externalContext.ts and
     // src/bloom-player-controls.tsx (BloomPlayerProps / handleControlMessage).
@@ -22,10 +17,6 @@
 
     import { createEventDispatcher, onDestroy, onMount } from 'svelte';
     import { SvelteURLSearchParams } from 'svelte/reactivity';
-
-    export type AutoPlayType = 'yes' | 'no' | 'motion';
-
-    // --- Props -------------------------------------------------------------
 
     /** Base URL of the bloom-player build, e.g. "/src/gen-assets/bloom-player/bloomplayer.htm" */
     export let playerUrl: string;
@@ -47,12 +38,6 @@
     export let videoPreviewMode = false;
     export let reportSoundLog = false;
 
-    // --- Events --------------------------------------------------------
-    // Used only when this file is consumed as a plain Svelte component
-    // (import BloomPlayer from ".../BloomPlayer.svelte"). When compiled as a
-    // custom element, Svelte automatically re-dispatches these as CustomEvents
-    // on the host element (e.g. document.querySelector("bloom-player")
-    // .addEventListener("playbackComplete", ...)).
     const dispatch = createEventDispatcher<{
         playbackComplete: any;
         reportBookProperties: any;
@@ -127,7 +112,6 @@
         postToPlayer({ messageType: 'control', controlAction: action });
     }
 
-    // --- Scale-fix workaround -----------------------------------------
     // bloom-player computes the book's on-screen scale by measuring the
     // rendered .bloom-page box once per book load (see
     // scalePageToWindow()/localMaxPageDimension in bloom-player-controls.tsx).
@@ -365,4 +349,4 @@
     title="Bloom Player"
     style="width: 100%; height: 100%; border: none;"
     allow="autoplay"
-/>
+></iframe>
