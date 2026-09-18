@@ -13,7 +13,7 @@ function logHistoryItemAdded(itemAdded: HistoryItem) {
 export function navigateToUrl(item: { collection: string; book: string; url: string }) {
     addHistory({ ...item, chapter: '' }, logHistoryItemAdded);
     // the url should have the full path??
-    // eslint-disable-next-line svelte/no-navigation-without-resolve
+     
     goto(item.url);
 }
 
