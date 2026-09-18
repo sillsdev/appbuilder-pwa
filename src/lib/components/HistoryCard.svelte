@@ -35,7 +35,7 @@ TODO:
         if (history.url) {
             // the url should have the full path??
 
-            goto(history.url);
+            goto(resolve(history.url));
         } else if (docSet) {
             refs.set({
                 docSet,

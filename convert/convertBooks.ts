@@ -514,14 +514,17 @@ export async function convertBooks(
 
         for (const book of collection.books) {
             let bookConverted = false;
+            let bloomBookPath: string;
+            let bloomFiles: FileSrcDest[];
+
             switch (book.type) {
                 case 'audio-only':
                 case 'undefined':
                     break;
-                case 'bloom-player':
+                case 'bloom-player': {
                     bookConverted = true;
                     // Create specific bloom blook directory for generated assets
-                    const bloomBookPath = path.join(
+                    bloomBookPath = path.join(
                         'src',
                         'gen-assets',
                         'collections',
@@ -530,7 +533,7 @@ export async function convertBooks(
                     );
                     createOutputDir(bloomBookPath);
 
-                    const bloomFiles: FileSrcDest[] = getBloomFilesRecursively(
+                    bloomFiles = getBloomFilesRecursively(
                         dataDir,
                         path.join('books', context.bcId, book.id),
                         path.join('src', 'gen-assets', 'collections', context.bcId, book.id)
@@ -541,6 +544,7 @@ export async function convertBooks(
 
                     bloomBooks[context.docSet].push({ id: book.id, name: book.name });
                     break;
+                }
                 case 'quiz':
                     bookConverted = true;
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
@@ -821,15 +825,11 @@ function convertBloomBook(
                 // Read file as string to ensure that it is the correct type
                 newContent = fs.readFileSync(bloomFile.src, 'utf-8');
                 if (ext !== undefined && ['htm', 'html'].includes(ext) && !isActivityFile) {
-                    // This is the main part of our bloom book. We need to preserve
-                    // the hashed name given by convertConfig. According to Claude examining
-                    // bloom-player there is only one html page per bloom book
                     bookContent = newContent;
                     if (verbose >= 3) {
                         console.log(`Found the Bloom main html file: ${bloomFile.src}`);
                     }
-                    continue; // Should be only for the html file as there is only one
-                } else {
+                    continue;
                 }
             } else {
                 // read binary files

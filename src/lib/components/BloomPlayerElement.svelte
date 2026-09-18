@@ -53,7 +53,7 @@
 
     let iframeEl: HTMLIFrameElement;
 
-    function buildSrc(): string {
+    $: src = (() => {
         const params = new SvelteURLSearchParams();
         params.set('url', bookUrl);
         if (lang) {
@@ -75,9 +75,7 @@
         params.set('videoPreviewMode', String(videoPreviewMode));
         params.set('reportSoundLog', String(reportSoundLog));
         return `${playerUrl}?${params.toString()}`;
-    }
-
-    $: src = buildSrc();
+    })();
 
     function postToPlayer(message: Record<string, unknown>) {
         iframeEl?.contentWindow?.postMessage(JSON.stringify(message), '*');
