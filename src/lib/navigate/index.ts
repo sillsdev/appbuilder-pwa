@@ -14,7 +14,7 @@ export function navigateToUrl(item: { collection: string; book: string; url: str
     addHistory({ ...item, chapter: '' }, logHistoryItemAdded);
     // the url should have the full path??
 
-    goto(item.url);
+    goto(resolve(item.url));
 }
 
 export async function navigateToText(item: {
