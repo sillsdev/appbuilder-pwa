@@ -1,0 +1,48 @@
+import type { Block } from 'proskomma-json-tools';
+import { addToScratchPad, FeatureSpec, type RenderEnvironment } from '../../common';
+import type { BlockGraftScratch } from './common';
+
+// NOTE: Are there any other block grafts besides titles and introductions??
+
+// HACK: for proskomma, introduction will only be given as a graft on chapter 1, so we need to pass chapter 1 into proskomma
+// open an issue?
+
+export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
+    {
+        eventTriggers: ['blockGraft'],
+        action: (environment) => {
+            const { context, workspace } = environment;
+            if (workspace.logSettings.blockGraft) {
+                console.log('Block Graft %o', context.sequences[0].block);
+            }
+            const currentBlock = context.sequences[0].block;
+            const graftRecord: Block = {
+                type: currentBlock.type,
+                sequence: {}
+            };
+
+            if (currentBlock.sequence) {
+                const div = workspace.document.createElement('div');
+                if (currentBlock.subType) {
+                    div.setAttribute('data-blockgraft-subtype', currentBlock.subType);
+                }
+                workspace.scopeManager.addScope('blockGraft', div);
+                graftRecord.sequence = {};
+                const cachedSequencePointer = workspace.scratch.blockGraft?.currentSequence;
+                addToScratchPad(workspace.scratch, 'blockGraft', {
+                    currentSequence: graftRecord.sequence
+                });
+                context.renderer.renderSequence(environment);
+                addToScratchPad(workspace.scratch, 'blockGraft', {
+                    currentSequence: cachedSequencePointer
+                });
+
+                workspace.scopeManager.promoteContent();
+            }
+
+            if (workspace.logSettings.blockGraft) {
+                console.log('Block Graft End %o %o', graftRecord, currentBlock);
+            }
+        }
+    }
+]);

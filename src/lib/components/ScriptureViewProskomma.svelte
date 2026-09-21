@@ -168,7 +168,10 @@ LOGGING:
      * Proskomma uses to handle events, for easier access within render actions.
      * @param environment - the render environment on which to set state from this component
      */
-    function initRenderWorkspace({ workspace }: RenderEnvironment) {
+    function initRenderWorkspace(
+        { workspace }: RenderEnvironment,
+        workspaceOptions: Partial<RenderWorkspace> = {}
+    ) {
         scriptureRoot.replaceChildren();
         scopeManager.reset();
         workspace.document = document;
@@ -192,6 +195,9 @@ LOGGING:
         workspace.viewShowRedLetters = redLetters;
         workspace.usfmWrapperType = '';
         workspace.textType = [];
+        workspace.config = scriptureConfig;
+
+        Object.assign(workspace, workspaceOptions);
     }
 
     /**
@@ -203,16 +209,25 @@ LOGGING:
      * @param environment - the render environment passed in from Proskomma
      * @param eventName   - the Proskomma name of the event (e.g. `startDocument`, `text`)
      */
-    function handleSofriaRenderEvent(environment: RenderEnvironment, eventName: RenderEvent) {
+    function handleSofriaRenderEvent(
+        environment: RenderEnvironment,
+        eventName: RenderEvent,
+        workspaceOptions: Partial<RenderWorkspace> = {}
+    ) {
         //console.log('Handling function called for %s on %o', eventName, environment);
 
         if (!renderWorkspaceInitialized) {
-            initRenderWorkspace(environment);
+            initRenderWorkspace(environment, workspaceOptions);
             renderWorkspaceInitialized = true;
         }
 
         for (const a of actionsDict[eventName] ?? []) {
-            //console.log('Processing action %o for event %s', a, eventName);
+            /* console.log(
+                'Processing action for event %s\naction: %o\nenv: %o',
+                eventName,
+                a,
+                environment
+            ); */
             // cleanup table scope
             if (
                 scopeManager.getCurrentScope('table') &&
@@ -226,19 +241,29 @@ LOGGING:
             }
             if (!a.guard || a.guard(environment)) {
                 a.action(environment);
+            } else {
+                //console.log('Skipped action for event %s', eventName);
             }
         }
     }
 
     async function renderDocumentSofria(docSet: string, bookCode: string, chapter: string) {
         const actionObject: { [key in RenderEvent]?: ProskommaRenderAction[] } = {};
+
+        // HACK: The introduction is handled as a block graft on chapter 1, so we need to render chapter 1, but only the introduction
+        const hackRenderIntro =
+            chapter === 'i' &&
+            references.catalog.documents.find((x) => x.bookCode === bookCode)?.hasIntroduction;
+        if (hackRenderIntro) {
+            chapter = '1';
+        }
         for (const name of renderEvents) {
             actionObject[name] = [
                 {
                     description: `Handling ${name}`,
                     test: () => true,
                     action: (environment: RenderEnvironment) => {
-                        handleSofriaRenderEvent(environment, name);
+                        handleSofriaRenderEvent(environment, name, { hackRenderIntro });
                     }
                 }
             ];
