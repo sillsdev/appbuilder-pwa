@@ -64,7 +64,7 @@
     let player;
     const bookUrl = $derived(
         encodeURI(
-            `/gen-assets/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? book?.file}`
+            `/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? book?.file}`
         )
     );
     const lang = $derived.by(() => {
