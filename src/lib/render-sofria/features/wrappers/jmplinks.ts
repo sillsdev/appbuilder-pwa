@@ -5,7 +5,7 @@ export function isJmplinkWrapper(usfmType: string) {
     return usfmType === 'jmp';
 }
 
-export const jmplinks = new FeatureSpec<{ wrapper: { jmpTitle?: string } }>([
+export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
     {
         eventTriggers: ['startWrapper'],
         guard: ({ context }) => isJmplinkWrapper(usfmType(context)),
@@ -73,7 +73,7 @@ export const jmplinks = new FeatureSpec<{ wrapper: { jmpTitle?: string } }>([
             workspace.textType.pop();
             const jmpLink = workspace.scopeManager.removeScope('wrapper');
             if (jmpLink?.contentRoot) {
-                if (workspace.scratch.wrapper.jmpTitle) {
+                if (workspace.scratch.wrapper?.jmpTitle) {
                     // must use inline style
                     const tip = document.createElement('span');
                     tip.style.display = 'inline';

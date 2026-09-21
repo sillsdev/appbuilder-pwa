@@ -3,7 +3,7 @@ import { FeatureSpec, type RenderAction, type RenderEnvironment } from '../commo
 export const documentFeature = new FeatureSpec([
     {
         eventTriggers: ['startDocument'],
-        action({ workspace }: RenderEnvironment) {
+        action({ workspace }) {
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
             baseDiv.setAttribute('data-phrase', 'none');
@@ -14,7 +14,7 @@ export const documentFeature = new FeatureSpec([
     },
     {
         eventTriggers: ['endDocument'],
-        action({ workspace, output }: RenderEnvironment) {
+        action({ workspace, output }) {
             workspace.scopeManager.removeScope('document');
             // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
