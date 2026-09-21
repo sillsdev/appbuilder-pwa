@@ -1,8 +1,8 @@
 import { FeatureSpec, type RenderEnvironment } from '$lib/render-sofria/common';
 import { isCellWrapper } from '../table';
 import { usfmType } from './common';
-import { isFigureWrapper, figures } from './figures';
-import { isGlossaryWrapper, glossary } from './glossary';
+import { figures, isFigureWrapper } from './figures';
+import { glossary, isGlossaryWrapper } from './glossary';
 import { isJmplinkWrapper, jmplinks } from './jmplinks';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
