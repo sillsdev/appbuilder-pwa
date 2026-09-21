@@ -1,37 +1,63 @@
-import { FeatureSpec, type RenderEnvironment } from '../common';
+import {
+    addToScratchPad,
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro
+} from '../common';
 import { createLetterIndex, subdividePhrases } from '../util';
 
-export const text = new FeatureSpec([
+export const text = new FeatureSpec<{ paragraph?: { subheadingPrefixes?: string[] } }>([
     {
         eventTriggers: ['startParagraph'],
-        action({ context, workspace }: RenderEnvironment) {
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ context, workspace }) {
+            const sequenceType = context.sequences[0].type;
             if (workspace.logSettings.paragraph) {
                 console.log(
                     'Start Paragraph %o %o',
-                    context.sequences[0].block,
-                    context.sequences[0].type
+                    sequenceType,
+                    context.sequences[0].block
                 );
             }
-            if (context.sequences[0].type === 'main') {
+            const paraClass =
+                context.sequences[0].block.subType?.split(':')[1] ||
+                context.sequences[0].block.subType ||
+                '';
+            if (sequenceType === 'main' && !workspace.hackRenderIntro) {
                 workspace.sequenceTypes.push('main');
-                // Render main text
-                const paraClass =
-                    context.sequences[0].block.subType?.split(':')[1] ||
-                    context.sequences[0].block.subType;
-
                 const paragraphDiv = workspace.document.createElement('div');
-                paragraphDiv.classList.add(paraClass ?? '');
+                paragraphDiv.classList.add(paraClass);
                 if (paraClass === 'b') {
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
                 workspace.scopeManager.addScope('paragraph', paragraphDiv);
+            } else if (sequenceType === 'introduction') {
+                const introductionDiv = workspace.document.createElement('div');
+                introductionDiv.classList.add(paraClass);
+                workspace.scopeManager.addScope('paragraph', introductionDiv);
+            } else if (sequenceType === 'title') {
+                const titleDiv = workspace.document.createElement('div');
+                titleDiv.classList.add(paraClass);
+                workspace.scopeManager.addScope('paragraph', titleDiv);
+            } else if (sequenceType === 'heading') {
+                const headerDiv = document.createElement('div');
+                headerDiv.classList.add(paraClass);
+
+                const prefix = paraClass.replaceAll(/[0-9]/g, '');
+                const subheaders = workspace.scratch.paragraph?.subheadingPrefixes ?? [];
+                subheaders.push(prefix);
+                addToScratchPad(workspace.scratch, 'paragraph', { subheadingPrefixes: subheaders });
+                const count = countSubheadingPrefixes(subheaders, prefix);
+
+                headerDiv.id = prefix + count;
+                workspace.scopeManager.addScope('paragraph', headerDiv);
             }
         }
     },
     {
         eventTriggers: ['text'],
-        action({ context, workspace }: RenderEnvironment) {
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ context, workspace }) {
             let text: string = context.sequences[0].element.text;
 
             // Ignore stretches of whitespace
@@ -45,7 +71,13 @@ export const text = new FeatureSpec([
             text = text === '|default=""' ? '| ' : text;
 
             if (workspace.logSettings.text) {
-                console.log('Adding text:', text);
+                console.log(
+                    'Text element: %o %o %o',
+                    context.sequences[0].element.type,
+                    context.sequences[0].element.text,
+                    context.sequences[0].block
+                );
+                console.log('Text Type: %o', workspace.textType.at(-1));
             }
 
             const phrases = subdividePhrases(workspace, text);
@@ -69,24 +101,33 @@ export const text = new FeatureSpec([
     },
     {
         eventTriggers: ['endParagraph'],
-        action({ context, workspace }: RenderEnvironment) {
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
             if (workspace.logSettings.paragraph) {
-                console.log('End paragraph: Sequence type ' + sequenceType);
                 console.log(
                     'End Paragraph %o %o',
-                    context.sequences[0].block,
-                    context.sequences[0].type
+                    sequenceType,
+                    context.sequences[0].block
                 );
             }
-            if (context.sequences[0].type === 'main') {
+            if (sequenceType === 'main' && !workspace.hackRenderIntro) {
                 workspace.scopeManager.promoteContent();
-                if (workspace.sequenceTypes.at(-1) === 'main') {
-                    workspace.sequenceTypes.pop();
-                } else {
-                    throw new Error(`Unbalanced sequence type ${workspace.sequenceTypes.at(-1)}`);
-                }
+                // TODO: videoDiv? verseDiv?
+            } else if (sequenceType === 'introduction') {
+                workspace.scopeManager.promoteContent();
+            } else if (sequenceType === 'title') {
+                workspace.scopeManager.promoteContent();
+            } else if (sequenceType === 'heading') {
+                workspace.scopeManager.promoteContent();
             }
         }
     }
 ]);
+
+function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
+    return subHeadings.reduce(
+        (count, subHeading) => (subHeading === labelPrefix ? count + 1 : count),
+        0
+    );
+}

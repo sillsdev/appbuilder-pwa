@@ -1,6 +1,7 @@
 import type { FeatureSpec } from './common';
 import { chapterVerses } from './features/chapterVerses';
 import { documentFeature } from './features/document';
+import { blockGrafts } from './features/grafts';
 import { chapterNumber, verseNumbers } from './features/mark';
 import { metaContent } from './features/metaContent';
 import { sequences } from './features/sequence';
@@ -13,6 +14,7 @@ import { figures, glossary, jmplinks, usfmWrappers } from './features/wrappers';
  * on the results of prior ones, but not vice versa
  */
 export const renderFeatures: Array<FeatureSpec<any>> = [
+    blockGrafts,
     sequences,
     documentFeature,
     verseNumbers,

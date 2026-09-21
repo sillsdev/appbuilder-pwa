@@ -2,7 +2,12 @@ import { scriptureConfig } from '$assets/config';
 import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
 import type { RenderElement } from 'proskomma-json-tools';
-import { addToScratchPad, FeatureSpec, type RenderWorkspace } from '../common';
+import {
+    addToScratchPad,
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro,
+    type RenderWorkspace
+} from '../common';
 
 type MarkScratch = {
     chapterNumText?: string;
@@ -14,7 +19,9 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
     [
         {
             eventTriggers: ['mark'],
-            guard: ({ context }) => context.sequences[0].element.subType === 'chapter_label',
+            guard: ({ context, workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) &&
+                context.sequences[0].element.subType === 'chapter_label',
             action({ context, workspace }) {
                 const element = context.sequences[0].element;
                 if (workspace.logSettings.mark) {
@@ -47,6 +54,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
             // handle deferred drop-cap chapter marker
             eventTriggers: ['mark'],
             guard: ({ context, workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) &&
                 context.sequences[0].element.subType === 'verses_label' &&
                 workspace.scratch.mark?.deferChapterNum &&
                 !!workspace.scratch.mark?.chapterNumText,
@@ -84,7 +92,9 @@ export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>(
     [
         {
             eventTriggers: ['mark'],
-            guard: ({ context }) => context.sequences[0].element.subType === 'verses_label',
+            guard: ({ context, workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) &&
+                context.sequences[0].element.subType === 'verses_label',
             action({ context, workspace }) {
                 const element = context.sequences[0].element;
                 if (workspace.logSettings.mark) {

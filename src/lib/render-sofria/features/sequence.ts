@@ -1,19 +1,73 @@
-import { FeatureSpec, type RenderEnvironment } from '../common';
+import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } from '../common';
 
 export const sequences = new FeatureSpec([
     {
         eventTriggers: ['startSequence'],
-        action({ context, workspace }: RenderEnvironment) {
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ context, workspace }) {
+            const sequenceType = context.sequences[0].type;
             if (workspace.logSettings.sequence) {
-                console.log('Start sequence |%o|', context.sequences[0].type);
+                console.log('Start sequence |%o|', sequenceType);
+            }
+            switch (sequenceType) {
+                case 'title': {
+                    workspace.textType.push('title');
+                    const div = document.createElement('div');
+                    div.setAttribute('data-verse', 'title');
+                    div.setAttribute('data-phrase', 'none');
+                    div.classList.add('scroll-item');
+                    workspace.scopeManager.addScope('sequence', div);
+                    break;
+                }
+                case 'heading':
+                case 'main':
+                case 'introduction':
+                case 'fig':
+                case 'footnote':
+                case 'xref': {
+                    workspace.textType.push(sequenceType);
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
         }
     },
     {
         eventTriggers: ['endSequence'],
-        action({ context, workspace }: RenderEnvironment) {
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ context, workspace }) => {
+            const sequenceType = context.sequences[0].type;
             if (workspace.logSettings.sequence) {
-                console.log('End sequence |%o|', context.sequences[0].type);
+                console.log('End sequence |%o|', sequenceType);
+            }
+
+            switch (sequenceType) {
+                case 'title': {
+                    workspace.textType.pop();
+                    const div = workspace.scopeManager.removeScope('sequence')?.contentRoot;
+                    if (div) {
+                        div.innerHTML += `<div class="b"></div><div class="b"></div>`;
+                        if (workspace.logSettings.sequence) {
+                            console.log('TITLE DIV %o', div);
+                        }
+                        workspace.root.append(div);
+                    }
+                    break;
+                }
+                case 'heading':
+                case 'main':
+                case 'introduction':
+                case 'fig':
+                case 'footnote':
+                case 'xref': {
+                    workspace.textType.pop();
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
         }
     }
