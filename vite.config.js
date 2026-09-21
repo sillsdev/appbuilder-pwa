@@ -2,181 +2,139 @@
 
 // polyfill code sourced from: https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
 // yarn add --dev @esbuild-plugins/node-globals-polyfill
-import fs from 'node:fs';
-import path from 'node:path';
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 // yarn add --dev @esbuild-plugins/node-modules-polyfill
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
-import { sveltekit } from '@sveltejs/kit/vite';
-import tailwindcss from '@tailwindcss/vite';
+import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill";
+import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
 // You don't need to add this to deps, it's included by @esbuild-plugins/node-modules-polyfill
-import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
-import { visualizer } from 'rollup-plugin-visualizer';
-import { createLogger, defineConfig } from 'vite';
-import { androidDevice } from './scripts/vite-plugin-android-device';
-
-// SvelteKit's dev middleware intercepts requests for .html/.htm files to run
-// its own page-rendering pipeline (for client-side routing), which breaks
-// when the request is actually for a plain static HTML file living under
-// src/ (e.g. a bloom-player activity's index.html), producing a
-// "TypeError: next is not a function" from vite's internal static
-// middleware. Files under static/ don't hit this because sirv serves them
-// before SvelteKit's page pipeline is reached. Since our gen-assets output
-// intentionally lives under src/ (not static/), serve matching extensions
-// raw here so they never reach SvelteKit's transform/page middleware.
-const GEN_ASSETS_RAW_CONTENT_TYPES = {
-    '.css': 'text/css',
-    '.html': 'text/html',
-    '.htm': 'text/html'
-};
-
-function serveGenAssetsRaw() {
-    return {
-        name: 'serve-gen-assets-raw',
-        configureServer(server) {
-            server.middlewares.use((req, res, next) => {
-                const url = req.url ?? '';
-                const ext = Object.keys(GEN_ASSETS_RAW_CONTENT_TYPES).find((e) => url.endsWith(e));
-                if (url.includes('?') || !url.includes('/gen-assets/') || !ext) {
-                    next();
-                    return;
-                }
-                const filePath = path.join(process.cwd(), decodeURIComponent(url));
-                fs.readFile(filePath, (err, data) => {
-                    if (err) {
-                        next();
-                        return;
-                    }
-                    res.setHeader('Content-Type', GEN_ASSETS_RAW_CONTENT_TYPES[ext]);
-                    res.end(data);
-                });
-            });
-        }
-    };
-}
+import rollupNodePolyFill from "rollup-plugin-node-polyfills";
+import { visualizer } from "rollup-plugin-visualizer";
+import { createLogger, defineConfig } from "vite";
+import { androidDevice } from "./scripts/vite-plugin-android-device";
 
 const logger = createLogger();
 const loggerWarn = logger.warn;
 /** @type {((msg: string) => boolean)[]} */
 const matchers = [
-    // "pinch" and "swipe" are imported from external module "svelte-gestures" but never used in "src/routes/text/+page.svelte".
-    (msg) =>
-        !!(
-            msg.match(/"pinch"/) &&
-            msg.match(/"swipe"/) &&
-            msg.match(/"svelte-gestures"/) &&
-            msg.match(/"src\/routes\/text\/\+page.svelte"/)
-        ),
-    // [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "node_modules/sql.js/dist/sql-wasm.js".
-    (msg) =>
-        !!(
-            msg.match(/vite:resolve/) &&
-            msg.match(/externalized/) &&
-            msg.match(/sql\.js\/dist\/sql-wasm\.js/)
-        ),
-    // [plugin vite:resolve] Module "process" has been externalized for browser compatibility, imported by "node_modules/@firebase/util/dist/index.esm2017.js".
-    (msg) => !!(msg.match(/vite:resolve/) && msg.match(/externalized/) && msg.match(/@firebase/)),
-    /*
+  // "pinch" and "swipe" are imported from external module "svelte-gestures" but never used in "src/routes/text/+page.svelte".
+  (msg) =>
+    !!(
+      msg.match(/"pinch"/) &&
+      msg.match(/"swipe"/) &&
+      msg.match(/"svelte-gestures"/) &&
+      msg.match(/"src\/routes\/text\/\+page.svelte"/)
+    ),
+  // [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "node_modules/sql.js/dist/sql-wasm.js".
+  (msg) =>
+    !!(
+      msg.match(/vite:resolve/) &&
+      msg.match(/externalized/) &&
+      msg.match(/sql\.js\/dist\/sql-wasm\.js/)
+    ),
+  // [plugin vite:resolve] Module "process" has been externalized for browser compatibility, imported by "node_modules/@firebase/util/dist/index.esm2017.js".
+  (msg) => !!(msg.match(/vite:resolve/) && msg.match(/externalized/) && msg.match(/@firebase/)),
+  /*
     (!) Some chunks are larger than 500 kB after minification. Consider:
         - Using dynamic import() to code-split the application
         - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
         - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
     */
-    (msg) => !!msg.match(/Some chunks are larger than/)
+  (msg) => !!msg.match(/Some chunks are larger than/),
 ];
 /** @type {(msg: string, options: any) => void} */
 logger.warn = (msg, options) => {
-    // suppress specific warning messages on build
-    if (process.env.BUILD_ENV !== 'appbuilders' || !matchers.some((m) => m(msg))) {
-        loggerWarn(msg, options);
-    }
+  // suppress specific warning messages on build
+  if (process.env.BUILD_ENV !== "appbuilders" || !matchers.some((m) => m(msg))) {
+    loggerWarn(msg, options);
+  }
 };
 
 export default defineConfig(({ mode }) => {
-    /** @type {any[]} */
-    const rollupPlugins = [
-        // Enable rollup polyfills plugin
-        // used during production bundling
-        rollupNodePolyFill()
-    ];
+  /** @type {any[]} */
+  const rollupPlugins = [
+    // Enable rollup polyfills plugin
+    // used during production bundling
+    rollupNodePolyFill(),
+  ];
 
-    // Add visualizer plugin when mode is 'analyze'
-    if (mode === 'analyze') {
-        rollupPlugins.push(
-            visualizer({
-                open: false, // Don't auto-open (SvelteKit builds multiple bundles)
-                gzipSize: true,
-                brotliSize: true,
-                filename: 'stats.html',
-                template: 'treemap' // Use single template: 'treemap', 'sunburst', 'network', or 'raw-data'
-            })
-        );
-    }
+  // Add visualizer plugin when mode is 'analyze'
+  if (mode === "analyze") {
+    rollupPlugins.push(
+      visualizer({
+        open: false, // Don't auto-open (SvelteKit builds multiple bundles)
+        gzipSize: true,
+        brotliSize: true,
+        filename: "stats.html",
+        template: "treemap", // Use single template: 'treemap', 'sunburst', 'network', or 'raw-data'
+      }),
+    );
+  }
 
-    return {
-        plugins: [serveGenAssetsRaw(), sveltekit(), tailwindcss(), androidDevice()],
-        worker: {
-            format: 'es',
-            plugins: () => []
+  return {
+    plugins: [serveGenAssetsRaw(), sveltekit(), tailwindcss(), androidDevice()],
+    worker: {
+      format: "es",
+      plugins: () => [],
+    },
+    resolve: {
+      alias: {
+        // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
+        // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
+        // process and buffer are excluded because already managed
+        // by node-globals-polyfill
+        //util: 'rollup-plugin-node-polyfills/polyfills/util',
+        //sys: 'util',
+        //events: 'rollup-plugin-node-polyfills/polyfills/events',
+        stream: "rollup-plugin-node-polyfills/polyfills/stream",
+        // //path: 'rollup-plugin-node-polyfills/polyfills/path',
+        // querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
+        // punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
+        // url: 'rollup-plugin-node-polyfills/polyfills/url',
+        // string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
+        // http: 'rollup-plugin-node-polyfills/polyfills/http',
+        // https: 'rollup-plugin-node-polyfills/polyfills/http',
+        // os: 'rollup-plugin-node-polyfills/polyfills/os',
+        // assert: 'rollup-plugin-node-polyfills/polyfills/assert',
+        // constants: 'rollup-plugin-node-polyfills/polyfills/constants',
+        // _stream_duplex: 'rollup-plugin-node-polyfills/polyfills/readable-stream/duplex',
+        // _stream_passthrough:
+        //     'rollup-plugin-node-polyfills/polyfills/readable-stream/passthrough',
+        // _stream_readable: 'rollup-plugin-node-polyfills/polyfills/readable-stream/readable',
+        // _stream_writable: 'rollup-plugin-node-polyfills/polyfills/readable-stream/writable',
+        // _stream_transform: 'rollup-plugin-node-polyfills/polyfills/readable-stream/transform',
+        // timers: 'rollup-plugin-node-polyfills/polyfills/timers',
+        // console: 'rollup-plugin-node-polyfills/polyfills/console',
+        // vm: 'rollup-plugin-node-polyfills/polyfills/vm',
+        // zlib: 'rollup-plugin-node-polyfills/polyfills/zlib',
+        // tty: 'rollup-plugin-node-polyfills/polyfills/tty',
+        // domain: 'rollup-plugin-node-polyfills/polyfills/domain'
+      },
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        // Node.js global to browser globalThis
+        define: {
+          global: "globalThis",
         },
-        resolve: {
-            alias: {
-                // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
-                // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
-                // process and buffer are excluded because already managed
-                // by node-globals-polyfill
-                //util: 'rollup-plugin-node-polyfills/polyfills/util',
-                //sys: 'util',
-                //events: 'rollup-plugin-node-polyfills/polyfills/events',
-                stream: 'rollup-plugin-node-polyfills/polyfills/stream'
-                // //path: 'rollup-plugin-node-polyfills/polyfills/path',
-                // querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
-                // punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
-                // url: 'rollup-plugin-node-polyfills/polyfills/url',
-                // string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-                // http: 'rollup-plugin-node-polyfills/polyfills/http',
-                // https: 'rollup-plugin-node-polyfills/polyfills/http',
-                // os: 'rollup-plugin-node-polyfills/polyfills/os',
-                // assert: 'rollup-plugin-node-polyfills/polyfills/assert',
-                // constants: 'rollup-plugin-node-polyfills/polyfills/constants',
-                // _stream_duplex: 'rollup-plugin-node-polyfills/polyfills/readable-stream/duplex',
-                // _stream_passthrough:
-                //     'rollup-plugin-node-polyfills/polyfills/readable-stream/passthrough',
-                // _stream_readable: 'rollup-plugin-node-polyfills/polyfills/readable-stream/readable',
-                // _stream_writable: 'rollup-plugin-node-polyfills/polyfills/readable-stream/writable',
-                // _stream_transform: 'rollup-plugin-node-polyfills/polyfills/readable-stream/transform',
-                // timers: 'rollup-plugin-node-polyfills/polyfills/timers',
-                // console: 'rollup-plugin-node-polyfills/polyfills/console',
-                // vm: 'rollup-plugin-node-polyfills/polyfills/vm',
-                // zlib: 'rollup-plugin-node-polyfills/polyfills/zlib',
-                // tty: 'rollup-plugin-node-polyfills/polyfills/tty',
-                // domain: 'rollup-plugin-node-polyfills/polyfills/domain'
-            }
-        },
-        optimizeDeps: {
-            esbuildOptions: {
-                // Node.js global to browser globalThis
-                define: {
-                    global: 'globalThis'
-                },
-                // Enable esbuild polyfill plugins
-                plugins: [
-                    NodeGlobalsPolyfillPlugin({
-                        process: true,
-                        buffer: true
-                    }),
-                    NodeModulesPolyfillPlugin()
-                ]
-            }
-        },
-        build: {
-            rollupOptions: {
-                plugins: rollupPlugins
-            }
-        },
-        test: {
-            environment: 'jsdom'
-        },
-        customLogger: logger
-    };
+        // Enable esbuild polyfill plugins
+        plugins: [
+          NodeGlobalsPolyfillPlugin({
+            process: true,
+            buffer: true,
+          }),
+          NodeModulesPolyfillPlugin(),
+        ],
+      },
+    },
+    build: {
+      rollupOptions: {
+        plugins: rollupPlugins,
+      },
+    },
+    test: {
+      environment: "jsdom",
+    },
+    customLogger: logger,
+  };
 });

@@ -452,7 +452,10 @@ export async function convertBooks(
     // copy book-related folder resources
     ['quiz', 'songs', 'bloom-player'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('src/gen-assets', folder);
+        const folderDstDir = path.join(
+            folder === 'bloom-player' ? 'static/gen-assets' : 'src/gen-assets',
+            folder
+        );
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
@@ -525,7 +528,7 @@ export async function convertBooks(
                     bookConverted = true;
                     // Create specific bloom blook directory for generated assets
                     bloomBookPath = path.join(
-                        'src',
+                        'static',
                         'gen-assets',
                         'collections',
                         context.bcId,
@@ -536,7 +539,7 @@ export async function convertBooks(
                     bloomFiles = getBloomFilesRecursively(
                         dataDir,
                         path.join('books', context.bcId, book.id),
-                        path.join('src', 'gen-assets', 'collections', context.bcId, book.id)
+                        path.join('static', 'gen-assets', 'collections', context.bcId, book.id)
                     );
 
                     convertBloomBook(context, book, bloomFiles, files, verbose);
@@ -854,7 +857,7 @@ function convertBloomBook(
         // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
         files.push({
             path: path.join(
-                'src',
+                'static',
                 'gen-assets',
                 'collections',
                 context.bcId,
@@ -870,7 +873,7 @@ function convertBloomBook(
             console.log(`Replace links for ${book.name}`);
         }
         const bookSrcRoot = join(context.dataDir, 'books', context.bcId, book.id);
-        const bookDestRoot = path.join('src', 'gen-assets', 'collections', context.bcId, book.id);
+        const bookDestRoot = path.join('static', 'gen-assets', 'collections', context.bcId, book.id);
         const pathToDestUrl = new Map<string, string>();
         for (const fileChange of fileChanges) {
             const relSrc = path.relative(bookSrcRoot, fileChange.src).split(path.sep).join('/');
@@ -888,7 +891,7 @@ function convertBloomBook(
     }
     files.push({
         path: join(
-            'src',
+            'static',
             'gen-assets',
             'collections',
             context.bcId,
