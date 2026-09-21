@@ -5,7 +5,7 @@ export function isCellWrapper(context: RenderContext) {
     return context.sequences[0].element.subType === 'cell';
 }
 
-export const tables = new FeatureSpec<{ table: { colIndex?: number } }>([
+export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
     {
         eventTriggers: ['startRow'],
         action: ({ context, workspace }) => {
@@ -39,7 +39,7 @@ export const tables = new FeatureSpec<{ table: { colIndex?: number } }>([
                 console.log('Start Wrapper %o', context.sequences[0].element);
             }
 
-            const colIndex = (workspace.scratch.table.colIndex ?? 0) + 1;
+            const colIndex = (workspace.scratch.table?.colIndex ?? 0) + 1;
             addToScratchPad(workspace.scratch, 'table', { colIndex });
             const tableCellElement = workspace.document.createElement('td');
             tableCellElement.classList.add(`tc${colIndex}`);

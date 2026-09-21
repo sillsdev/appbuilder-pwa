@@ -10,7 +10,7 @@ type MarkScratch = {
     handledFirstVerse?: boolean;
 };
 
-export const chapterNumber = new FeatureSpec<{ mark: MarkScratch }>(
+export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
     [
         {
             eventTriggers: ['mark'],
@@ -48,8 +48,8 @@ export const chapterNumber = new FeatureSpec<{ mark: MarkScratch }>(
             eventTriggers: ['mark'],
             guard: ({ context, workspace }) =>
                 context.sequences[0].element.subType === 'verses_label' &&
-                workspace.scratch.mark.deferChapterNum &&
-                !!workspace.scratch.mark.chapterNumText,
+                workspace.scratch.mark?.deferChapterNum &&
+                !!workspace.scratch.mark?.chapterNumText,
             action({ context, workspace }) {
                 const element = context.sequences[0].element;
                 if (workspace.logSettings.mark) {
@@ -59,7 +59,7 @@ export const chapterNumber = new FeatureSpec<{ mark: MarkScratch }>(
                 const currentParagraph = workspace.scopeManager.getActiveContentRoot('paragraph');
                 if (currentParagraph) {
                     const chapterNumDiv = workspace.document.createElement('div');
-                    chapterNumDiv.innerText = workspace.scratch.mark.chapterNumText!;
+                    chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
 
                     chapterNumDiv.classList.add('c-drop');
 
