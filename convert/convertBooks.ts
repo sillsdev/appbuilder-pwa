@@ -873,7 +873,13 @@ function convertBloomBook(
             console.log(`Replace links for ${book.name}`);
         }
         const bookSrcRoot = join(context.dataDir, 'books', context.bcId, book.id);
-        const bookDestRoot = path.join('static', 'gen-assets', 'collections', context.bcId, book.id);
+        const bookDestRoot = path.join(
+            'static',
+            'gen-assets',
+            'collections',
+            context.bcId,
+            book.id
+        );
         const pathToDestUrl = new Map<string, string>();
         for (const fileChange of fileChanges) {
             const relSrc = path.relative(bookSrcRoot, fileChange.src).split(path.sep).join('/');
