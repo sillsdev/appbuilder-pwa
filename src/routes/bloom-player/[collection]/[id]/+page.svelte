@@ -64,7 +64,7 @@
     let player;
     const bookUrl = $derived(
         encodeURI(
-            `/src/gen-assets/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? ''}`
+            `/gen-assets/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? ''}`
         )
     );
     const lang = $derived.by(() => {
@@ -88,7 +88,7 @@
 <div class="h-screen">
     <BloomPlayerElement
         bind:this={player}
-        playerUrl="/src/gen-assets/bloom-player/bloomplayer.htm"
+        playerUrl="/gen-assets/bloom-player/bloomplayer.htm"
         {bookUrl}
         {lang}
     />

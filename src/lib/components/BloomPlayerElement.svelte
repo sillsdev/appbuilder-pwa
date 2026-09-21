@@ -18,7 +18,7 @@
     import { createEventDispatcher, onDestroy, onMount } from 'svelte';
     import { SvelteURLSearchParams } from 'svelte/reactivity';
 
-    /** Base URL of the bloom-player build, e.g. "/src/gen-assets/bloom-player/bloomplayer.htm" */
+    /** Base URL of the bloom-player build, e.g. "/gen-assets/bloom-player/bloomplayer.htm" */
     export let playerUrl: string;
     /** URL of the book folder to load. */
     export let bookUrl: string;
