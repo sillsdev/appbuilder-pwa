@@ -527,19 +527,13 @@ export async function convertBooks(
                 case 'bloom-player': {
                     bookConverted = true;
                     // Create specific bloom blook directory for generated assets
-                    bloomBookPath = path.join(
-                        'static',
-                        'gen-assets',
-                        'collections',
-                        context.bcId,
-                        book.id
-                    );
+                    bloomBookPath = path.join('static', 'collections', context.bcId, book.id);
                     createOutputDir(bloomBookPath);
 
                     bloomFiles = getBloomFilesRecursively(
                         dataDir,
                         path.join('books', context.bcId, book.id),
-                        path.join('static', 'gen-assets', 'collections', context.bcId, book.id)
+                        path.join('static', 'collections', context.bcId, book.id)
                     );
 
                     convertBloomBook(context, book, bloomFiles, files, verbose);
@@ -856,14 +850,7 @@ function convertBloomBook(
         // if .distribution is missing on the web version it has a console error
         // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
         files.push({
-            path: path.join(
-                'static',
-                'gen-assets',
-                'collections',
-                context.bcId,
-                book.id,
-                '.distribution'
-            ),
+            path: path.join('static', 'collections', context.bcId, book.id, '.distribution'),
             content: 'bloom-web'
         });
     }
@@ -873,13 +860,7 @@ function convertBloomBook(
             console.log(`Replace links for ${book.name}`);
         }
         const bookSrcRoot = join(context.dataDir, 'books', context.bcId, book.id);
-        const bookDestRoot = path.join(
-            'static',
-            'gen-assets',
-            'collections',
-            context.bcId,
-            book.id
-        );
+        const bookDestRoot = path.join('static', 'collections', context.bcId, book.id);
         const pathToDestUrl = new Map<string, string>();
         for (const fileChange of fileChanges) {
             const relSrc = path.relative(bookSrcRoot, fileChange.src).split(path.sep).join('/');
@@ -898,7 +879,6 @@ function convertBloomBook(
     files.push({
         path: join(
             'static',
-            'gen-assets',
             'collections',
             context.bcId,
             book.id,
