@@ -1,3 +1,4 @@
+import type { ScriptureConfig } from '$config';
 import type { ScriptureLogConfig } from '$lib/data/stores';
 import type { ReferenceStore } from '$lib/data/stores/reference';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
@@ -134,4 +135,26 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
     viewShowRedLetters: boolean;
     usfmWrapperType: string;
     textType: string[];
+    config: Readonly<ScriptureConfig>;
+    hackRenderIntro: boolean;
 };
+
+/**
+ * returns true if:
+ * 1. Proskomma has encountered an introduction block graft and we are rendering the introduction instead of chapter 1.
+ * OR
+ * 2. Proskomma has not encountered an introduction block graft and we are rendering a chapter normally.
+ * OR
+ * 3. Proskomma has encountered a title block graft and we are rendering the introduction instead of chapter 1.
+ */
+export function renderIfRegularOrIfHackedIntro(workspace: RenderWorkspace) {
+    const blockGraftSubType = workspace.scopeManager
+        .getCurrentScope('blockGraft')
+        ?.contentRoot?.getAttribute('data-blockgraft-subtype');
+    const hasIntroductionGraft = blockGraftSubType === 'introduction';
+    const hasTitleGraft = blockGraftSubType === 'title';
+    return (
+        hasIntroductionGraft === workspace.hackRenderIntro ||
+        (hasTitleGraft && workspace.hackRenderIntro)
+    );
+}

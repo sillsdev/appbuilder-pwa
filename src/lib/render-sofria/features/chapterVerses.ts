@@ -1,8 +1,9 @@
-import { FeatureSpec, type RenderEnvironment } from '../common';
+import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } from '../common';
 
 export const chapterVerses = new FeatureSpec([
     {
         eventTriggers: ['startChapter'],
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             if (workspace.logSettings.chapter) {
                 const element = context.sequences[0].element;
@@ -13,6 +14,7 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         eventTriggers: ['endChapter'],
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             if (workspace.logSettings.chapter) {
                 const element = context.sequences[0].element;
@@ -23,6 +25,7 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         eventTriggers: ['startVerses'],
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const element = context.sequences[0].element;
             workspace.currentTextPosition.verse = element.atts['number'];
@@ -44,6 +47,7 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         eventTriggers: ['endVerses'],
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const element = context.sequences[0].element;
             if (workspace.logSettings.verses) {
