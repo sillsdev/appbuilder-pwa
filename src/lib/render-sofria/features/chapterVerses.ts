@@ -3,7 +3,7 @@ import { FeatureSpec, type RenderEnvironment } from '../common';
 export const chapterVerses = new FeatureSpec([
     {
         eventTriggers: ['startChapter'],
-        action({ context, workspace }: RenderEnvironment) {
+        action({ context, workspace }) {
             if (workspace.logSettings.chapter) {
                 const element = context.sequences[0].element;
                 console.log('Start Chapter %o %o', element.atts['number'], element);
@@ -13,7 +13,7 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         eventTriggers: ['endChapter'],
-        action({ context, workspace }: RenderEnvironment) {
+        action({ context, workspace }) {
             if (workspace.logSettings.chapter) {
                 const element = context.sequences[0].element;
                 console.log('End Chapter %o %o', element.atts['number'], element);
@@ -23,7 +23,7 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         eventTriggers: ['startVerses'],
-        action({ context, workspace }: RenderEnvironment) {
+        action({ context, workspace }) {
             const element = context.sequences[0].element;
             workspace.currentTextPosition.verse = element.atts['number'];
             workspace.currentTextPosition.phraseIndex = 0;
@@ -44,7 +44,7 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         eventTriggers: ['endVerses'],
-        action({ context, workspace }: RenderEnvironment) {
+        action({ context, workspace }) {
             const element = context.sequences[0].element;
             if (workspace.logSettings.verses) {
                 console.log('End Verses %o %o', element.atts['number'], element);

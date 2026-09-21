@@ -15,7 +15,7 @@ export function isFigureWrapper(usfmType: string) {
     return usfmType === 'fig';
 }
 
-export const figures = new FeatureSpec<{ wrapper: { figureDiv?: HTMLDivElement } }>([
+export const figures = new FeatureSpec<{ wrapper?: { figureDiv?: HTMLDivElement } }>([
     {
         eventTriggers: ['startWrapper'],
         guard: ({ context }) => isFigureWrapper(usfmType(context)),
@@ -51,7 +51,7 @@ export const figures = new FeatureSpec<{ wrapper: { figureDiv?: HTMLDivElement }
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
-            if (shouldShowImage(workspace) && workspace.scratch.wrapper.figureDiv) {
+            if (shouldShowImage(workspace) && workspace.scratch.wrapper?.figureDiv) {
                 workspace.scopeManager.appendInnerContent(
                     workspace.scratch.wrapper.figureDiv,
                     'paragraph'
