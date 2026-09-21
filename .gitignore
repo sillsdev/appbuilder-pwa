@@ -20,6 +20,7 @@ static/manifest*.json
 static/assets
 static/collections
 static/contents
+static/gen-assets
 src/lib/data/catalog.js
 src/gen-assets
 vite.config.js.timestamp*
