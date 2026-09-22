@@ -14,6 +14,7 @@ data-*/*
 data-sandbox/node_modules
 !data/.empty
 static/sab-stylesheet.css
+static/bloom-player
 static/illustrations
 static/icons
 static/manifest*.json
