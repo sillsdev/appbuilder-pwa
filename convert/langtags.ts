@@ -46,7 +46,7 @@ export async function getLangTagLookup(verbose: number): Promise<Map<string, str
         }
     } catch (e) {
         console.error(
-            ` ⚠️ Could not fetch ${LANGTAGS_URL} (${e instanceof Error ? e.message : e}). Bloom book language resolution will fall back to each collection's configured language code.`
+            `Could not fetch ${LANGTAGS_URL} (${e instanceof Error ? e.message : e}). This Bloom book's language resolution will fall back to each collection's configured language code.`
         );
     }
     cachedLookup = lookup;

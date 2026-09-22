@@ -68,12 +68,13 @@
         )
     );
     const lang = $derived(data.book?.resolvedLang ?? data.bookCollection?.languageCode ?? '');
+    console.log(`Lang: ${lang}`);
 </script>
 
 <div class="h-screen">
     <BloomPlayerElement
         bind:this={player}
-        playerUrl="/gen-assets/bloom-player/bloomplayer.htm"
+        playerUrl="/bloom-player/bloom-player/bloomplayer.htm"
         {bookUrl}
         {lang}
     />
