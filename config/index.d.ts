@@ -77,6 +77,7 @@ export type BookConfig = {
     file: string;
     hashedFileName?: string; // currently just for HTML books
     bloomMeta?: BloomMetaData;
+    resolvedLang?: string; // bloom-player: language code resolved against the collection via langtags.json
     audio: BookCollectionAudioConfig[];
     features: FeatureConfig;
     quizFeatures?: FeatureConfig;

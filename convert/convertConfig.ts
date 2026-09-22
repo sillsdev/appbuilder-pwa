@@ -23,6 +23,7 @@ import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
 import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
+import { getLangTagLookup, resolveLangTag } from './langtags';
 import { compareVersions, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
@@ -266,6 +267,12 @@ function openConfigAsXMLDocument(dataDir: string) {
     return document;
 }
 
+function documentHasBloomPlayerBooks(document: Document): boolean {
+    return Array.from(document.getElementsByTagName('book')).some(
+        (book) => book.attributes.getNamedItem('type')?.value === 'bloom-player'
+    );
+}
+
 function extractProgramType(document: Document) {
     const appDefinition = document.getElementsByTagName('app-definition')[0];
     const programType = appDefinition.attributes.getNamedItem('type')!.value;
@@ -333,7 +340,10 @@ async function convertConfig(dataDir: string, verbose: number) {
 
     if (isSAB(data)) {
         data.traits = parseTraits(document, dataDir, verbose);
-        data.bookCollections = parseBookCollections(document, dataDir, verbose);
+        const langTagLookup = documentHasBloomPlayerBooks(document)
+            ? await getLangTagLookup(verbose)
+            : new Map<string, string>();
+        data.bookCollections = parseBookCollections(document, dataDir, verbose, langTagLookup);
 
         // After all the book collections have been parsed, we can determine some traits
         data.traits['has-glossary'] =
@@ -671,7 +681,12 @@ export function parseTraits(document: Document, dataDir: string, verbose: number
     return traits;
 }
 
-export function parseBookCollections(document: Document, dataDir: string, verbose: number) {
+export function parseBookCollections(
+    document: Document,
+    dataDir: string,
+    verbose: number,
+    langTagLookup: Map<string, string>
+) {
     const booksTags = document.getElementsByTagName('books');
     const bookCollections = [];
 
@@ -993,6 +1008,27 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
         const languageName = writingSystem
             .getElementsByTagName('display-names')[0]
             ?.getElementsByTagName('form')[0].innerHTML;
+
+        const collectionCanonical =
+            resolveLangTag(languageCode, langTagLookup) ??
+            resolveLangTag(languageName, langTagLookup);
+        for (const book of books) {
+            if (book.type !== 'bloom-player' || !book.bloomMeta?.languages?.length) {
+                continue;
+            }
+            let resolvedLang = languageCode;
+            if (collectionCanonical) {
+                const match = book.bloomMeta.languages.find(
+                    (l) =>
+                        resolveLangTag(l.lang, langTagLookup) === collectionCanonical ||
+                        resolveLangTag(l.name, langTagLookup) === collectionCanonical
+                );
+                if (match) {
+                    resolvedLang = match.lang;
+                }
+            }
+            book.resolvedLang = resolvedLang;
+        }
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
         const collectionDescription = collectionDescriptionTags[0]?.innerHTML.length
             ? collectionDescriptionTags[0].innerHTML

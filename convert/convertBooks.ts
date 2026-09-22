@@ -453,7 +453,9 @@ export async function convertBooks(
     ['quiz', 'songs', 'bloom-player'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
         const folderDstDir = path.join(
-            folder === 'bloom-player' ? 'static/gen-assets' : 'src/gen-assets',
+            folder === 'bloom-player'
+                ? path.join('static', 'bloom-player')
+                : path.join('src', 'gen-assets'),
             folder
         );
         if (fs.existsSync(folderSrcDir)) {

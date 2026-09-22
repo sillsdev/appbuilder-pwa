@@ -7,6 +7,7 @@ async function main() {
             'build',
             'src/gen-assets',
             'src/lib/data/catalog.js',
+            'static/bloom-player',
             'static/illustrations',
             'static/icons',
             'static/collections',
