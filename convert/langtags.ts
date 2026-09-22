@@ -10,7 +10,8 @@ type LangTagsEntry = {
 
 let cachedLookup: Map<string, string> | undefined;
 
-// Fetched once per conversion run; on failure returns an empty lookup so callers fall back
+// Fetched once per conversion run
+// If a failure occurs then it returns an empty lookup so callers fall back
 // to the collection's configured language code instead of failing the build.
 export async function getLangTagLookup(verbose: number): Promise<Map<string, string>> {
     if (cachedLookup) {
