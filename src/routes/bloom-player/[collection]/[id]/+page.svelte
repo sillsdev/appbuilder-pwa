@@ -67,22 +67,7 @@
             `/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? book?.file}`
         )
     );
-    const lang = $derived.by(() => {
-        // Intended as the fallback if main method of getting language name fails
-        let result = data?.bookCollection?.languageCode ?? '';
-        if (result.length > 0 && data.book?.bloomMeta?.languages) {
-            for (const k of Object.entries(data.book.bloomMeta.languages)) {
-                const key = k[0] as string;
-                if (
-                    data.book.bloomMeta.languages[key].name.toLowerCase() ===
-                    data.bookCollection?.languageName?.toLowerCase()
-                ) {
-                    result = data.book.bloomMeta.languages[key].lang;
-                }
-            }
-        }
-        return result;
-    });
+    const lang = $derived(data.book?.resolvedLang ?? data.bookCollection?.languageCode ?? '');
 </script>
 
 <div class="h-screen">
