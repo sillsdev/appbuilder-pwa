@@ -64,7 +64,7 @@
     let player;
     const bookUrl = $derived(
         encodeURI(
-            `/collections/${data.collection}/${data.id}/${book?.hashedFileName ?? book?.file}`
+            `/collections/${data.collection}/${book?.hashedDir ?? data.id}/${book?.file.normalize('NFC')}`
         )
     );
     const lang = $derived(data.book?.resolvedLang ?? data.bookCollection?.languageCode ?? '');
