@@ -88,11 +88,20 @@ export type RenderEnvironment<Scratch extends DefaultScratchpad = DefaultScratch
     output: any;
 };
 
-export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
-    eventTriggers: Array<RenderEvent>;
-    guard?: (environment: RenderEnvironment<Scratch>) => boolean | undefined;
-    action(environment: RenderEnvironment<Scratch>): void;
-};
+/**
+ * pass `default: true` if this is meant to be a fallback after other actions have been filtered out. required if no guard is specified
+ */
+export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> = Readonly<
+    {
+        event: RenderEvent;
+        name?: string;
+        action(environment: RenderEnvironment<Scratch>): void;
+    } & ({ guard: Guard<Scratch>; default?: boolean } | { default: true; guard?: Guard<Scratch> })
+>;
+
+type Guard<Scratch extends DefaultScratchpad> = (
+    environment: RenderEnvironment<Scratch>
+) => boolean | undefined;
 
 /**
  * Methodology from
@@ -109,7 +118,7 @@ export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> 
     }
 
     flag?: FeatureFlag;
-    actions: Array<RenderAction<Scratch>>;
+    actions: Readonly<Array<RenderAction<Scratch>>>;
 }
 
 type DefaultScratchpad = Partial<Record<RenderScopeLevel, any>>;

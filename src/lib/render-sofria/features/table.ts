@@ -7,7 +7,8 @@ export function isCellWrapper(context: RenderContext) {
 
 export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
     {
-        eventTriggers: ['startRow'],
+        event: 'startRow',
+        default: true,
         action: ({ context, workspace }) => {
             if (workspace.logSettings.row) {
                 console.log('Start Row %o', context.sequences[0].element);
@@ -27,7 +28,8 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         }
     },
     {
-        eventTriggers: ['endRow'],
+        event: 'endRow',
+        default: true,
         action: ({ context, workspace }) => {
             if (workspace.logSettings.row) {
                 console.log('End Row %o', context.sequences[0].element);
@@ -36,7 +38,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         }
     },
     {
-        eventTriggers: ['startWrapper'],
+        event: 'startWrapper',
         guard: ({ context }) => isCellWrapper(context),
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {
@@ -52,7 +54,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         }
     },
     {
-        eventTriggers: ['endWrapper'],
+        event: 'endWrapper',
         guard: ({ context }) => isCellWrapper(context),
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {

@@ -8,7 +8,7 @@ export function isGlossaryWrapper(usfmType: string) {
 // if glossary words are disabled, glossary wrappers will be handled in usfmWrappers in ../index.ts
 export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     {
-        eventTriggers: ['startWrapper'],
+        event: 'startWrapper',
         guard: ({ context, workspace }) =>
             isGlossaryWrapper(usfmType(context)) && workspace.viewShowGlossaryWords,
         action: ({ context, workspace }) => {
@@ -32,7 +32,7 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
         }
     },
     {
-        eventTriggers: ['endWrapper'],
+        event: 'endWrapper',
         guard: ({ context, workspace }) =>
             isGlossaryWrapper(usfmType(context)) && workspace.viewShowGlossaryWords,
         action: ({ context, workspace }) => {

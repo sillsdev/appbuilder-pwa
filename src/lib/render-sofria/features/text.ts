@@ -7,7 +7,8 @@ import { createLetterIndex, subdividePhrases } from '../util';
 
 export const text = new FeatureSpec<{ paragraph?: { subheadingPrefixes?: string[] } }>([
     {
-        eventTriggers: ['startParagraph'],
+        event: 'startParagraph',
+        default: true,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
@@ -51,16 +52,13 @@ export const text = new FeatureSpec<{ paragraph?: { subheadingPrefixes?: string[
         }
     },
     {
-        eventTriggers: ['text'],
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        event: 'text',
+        default: true,
+        guard: ({ workspace, context }) =>
+            renderIfRegularOrIfHackedIntro(workspace) &&
+            context.sequences[0].element.text.trim().length > 0,
         action({ context, workspace }) {
             let text: string = context.sequences[0].element.text;
-
-            // Ignore stretches of whitespace
-            const onlySpaces = text.trim().length === 0;
-            if (onlySpaces) {
-                return;
-            }
 
             // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
             // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
@@ -96,7 +94,8 @@ export const text = new FeatureSpec<{ paragraph?: { subheadingPrefixes?: string[
         }
     },
     {
-        eventTriggers: ['endParagraph'],
+        event: 'endParagraph',
+        default: true,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
