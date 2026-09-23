@@ -2,7 +2,6 @@
 ///<reference path="./proskomma.d.ts"/>
 
 import * as fs from 'fs';
-import { existsSync, readdirSync, statSync } from 'fs';
 import path, { basename, extname, join } from 'path';
 import type {
     BookConfig,
@@ -17,11 +16,9 @@ import { freeze, postQueries, queries } from '../sab-proskomma-tools';
 import { SABProskomma } from '../src/lib/sab-proskomma';
 import type { ConfigTaskOutput } from './convertConfig';
 import { convertMarkdownsToMilestones } from './convertMarkdown';
-import type { FileSrcDest } from './fileUtils';
 import {
     createHashedFile,
     createOutputDir,
-    getHashedName,
     getHashedNameFromContents,
     joinUrlPath
 } from './fileUtils';
@@ -519,8 +516,6 @@ export async function convertBooks(
 
         for (const book of collection.books) {
             let bookConverted = false;
-            let bloomBookPath: string;
-            let bloomFiles: FileSrcDest[];
 
             switch (book.type) {
                 case 'audio-only':
@@ -528,17 +523,7 @@ export async function convertBooks(
                     break;
                 case 'bloom-player': {
                     bookConverted = true;
-                    // Create specific bloom blook directory for generated assets
-                    bloomBookPath = path.join('static', 'collections', context.bcId, book.id);
-                    createOutputDir(bloomBookPath);
-
-                    bloomFiles = getBloomFilesRecursively(
-                        dataDir,
-                        path.join('books', context.bcId, book.id),
-                        path.join('static', 'collections', context.bcId, book.id)
-                    );
-
-                    convertBloomBook(context, book, bloomFiles, files, verbose);
+                    convertBloomBook(context, book, verbose);
                     displayBookId(context.bcId, book.id);
 
                     bloomBooks[context.docSet].push({ id: book.id, name: book.name });
@@ -712,182 +697,107 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
     });
 }
 
-// RegEx to find media or css files that are listed.
-// Once they are found the links can be replaced to allow for
-// the links to be replaced with hashed files
-const MEDIA_REF_REGEXES: RegExp[] = [
-    /(\b(?:src|href)\s*=\s*)(["'])([^"']*)\2()/gi,
-    /(url\(\s*)(["'])([^"']*)\2(\s*\))/gi,
-    /(url\(\s*)()([^"')]*)()(\s*\))/gi,
-    /(\bdata-backgroundaudio\s*=\s*)(["'])([^"']*)\2()/gi
-];
-
-function replaceBloomLinks(pathToDestUrl: Map<string, string>, content: string): string {
-    for (const regex of MEDIA_REF_REGEXES) {
-        content = content.replace(regex, (match, prefix, quote, rawValue, suffix) => {
-            let decodedValue = rawValue;
-            try {
-                decodedValue = decodeURIComponent(rawValue);
-            } catch {
-                // leave as-is
+function convertBloomBook(context: ConvertBookContext, book: BookConfig, verbose: number) {
+    const collDir = path.join('static', 'collections', context.bcId);
+    if (fs.existsSync(collDir)) {
+        for (const entry of fs.readdirSync(collDir, { withFileTypes: true })) {
+            if (
+                entry.isDirectory() &&
+                (entry.name === book.id || entry.name.startsWith(`${book.id}.`))
+            ) {
+                fs.rmSync(path.join(collDir, entry.name), { recursive: true, force: true });
             }
-            const destUrl = pathToDestUrl.get(rawValue) ?? pathToDestUrl.get(decodedValue);
-            if (destUrl === undefined) {
-                return match;
-            }
-            return `${prefix}${quote}${destUrl}${quote}${suffix}`;
-        });
-    }
-    return content;
-}
-
-function getBloomFilesRecursively(dataDir: string, src: string, dest: string): FileSrcDest[] {
-    const srcFullPath = join(dataDir, src);
-    let files: any[] = [];
-    const returnFiles: FileSrcDest[] = [];
-
-    try {
-        if (existsSync(srcFullPath)) {
-            files = readdirSync(srcFullPath);
-            for (const file of files) {
-                const stats = statSync(join(srcFullPath, file));
-                const hashedName: string = stats.isDirectory()
-                    ? '' // intended that it will not be used because stats.isDirectory check should be used
-                    : basename(getHashedName(dataDir, join(src, file)));
-                let fullDest: string;
-
-                if (['meta.json'].includes(file) || isExcludedHashedNameDir(srcFullPath)) {
-                    // bloom-player requires meta.json. I could not find a good
-                    // way for it to use the hashed name version.
-                    // Also the directories for audio and activities are not hashed. This
-                    // is because the audio would not play properly because the hashed names could not
-                    // be updated.
-                    // Likewise the activities have issues being updated
-                    fullDest = join(dest, file);
-                } else {
-                    // default behavoir of hashed file names
-                    fullDest = stats.isDirectory() ? join(dest, file) : join(dest, hashedName);
-                }
-                const f: FileSrcDest = {
-                    dir: stats.isDirectory(),
-                    src: join(srcFullPath, file),
-                    dest: fullDest
-                };
-
-                returnFiles.push(f);
-
-                if (stats.isDirectory()) {
-                    returnFiles.push(
-                        ...getBloomFilesRecursively(dataDir, join(src, file), fullDest)
-                    );
-                }
-            }
-            return returnFiles;
-        } else {
-            console.warn(`Could not locate ${src}, full path: ${srcFullPath}`);
-        }
-    } catch (e) {
-        console.error(`Error when reading ${src}:\n${e}`);
-    }
-
-    return returnFiles;
-}
-
-function encodeUrlPathSegments(relPath: string): string {
-    return relPath.split('/').map(encodeURIComponent).join('/');
-}
-
-function isExcludedHashedNameDir(src: string): boolean {
-    const parts = src.split(path.sep);
-    return parts.includes('activities') || parts.includes('audio');
-}
-
-function convertBloomBook(
-    context: ConvertBookContext,
-    book: BookConfig,
-    bloomFiles: FileSrcDest[],
-    files: any[],
-    verbose: number
-) {
-    let distExists: boolean = false;
-    let bookContent: string | undefined = undefined;
-    const fileChanges: FileSrcDest[] = [];
-
-    for (const bloomFile of bloomFiles) {
-        if (bloomFile.dir && bloomFile.dest !== undefined) {
-            createOutputDir(bloomFile.dest);
-        } else {
-            let newContent;
-            const ext = bloomFile.src.split('.').pop() ?? '';
-            const isActivityFile = bloomFile.src.split(path.sep).includes('activities');
-            if (ext !== undefined && ['htm', 'js', 'json', 'txt', 'html', 'css'].includes(ext)) {
-                // Read file as string to ensure that it is the correct type
-                newContent = fs.readFileSync(bloomFile.src, 'utf-8');
-                if (ext !== undefined && ['htm', 'html'].includes(ext) && !isActivityFile) {
-                    bookContent = newContent;
-                    if (verbose >= 3) {
-                        console.log(`Found the Bloom main html file: ${bloomFile.src}`);
-                    }
-                    continue;
-                }
-            } else {
-                // read binary files
-                newContent = fs.readFileSync(bloomFile.src);
-            }
-
-            fileChanges.push(bloomFile);
-
-            if (bloomFile.src.includes('.distribution')) {
-                distExists = true;
-            }
-
-            files.push({
-                path: bloomFile.dest,
-                content: newContent
-            });
         }
     }
 
-    if (!distExists) {
-        // if .distribution is missing on the web version it has a console error
-        // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
-        files.push({
-            path: path.join('static', 'collections', context.bcId, book.id, '.distribution'),
-            content: 'bloom-web'
-        });
+    const srcDir = path.join(context.dataDir, 'books', context.bcId, book.id);
+    const destDir = path.join(collDir, book.hashedDir ?? book.id);
+    if (!fs.existsSync(srcDir)) {
+        console.warn(`Could not locate ${srcDir}`);
+        return;
     }
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.cpSync(srcDir, destDir, { recursive: true });
+    normalizeBloomFileNames(destDir);
+    normalizeBloomRefs(destDir);
 
-    if (fileChanges.length > 0 && bookContent !== undefined) {
-        if (verbose >= 3) {
-            console.log(`Replace links for ${book.name}`);
-        }
-        const bookSrcRoot = join(context.dataDir, 'books', context.bcId, book.id);
-        const bookDestRoot = path.join('static', 'collections', context.bcId, book.id);
-        const pathToDestUrl = new Map<string, string>();
-        for (const fileChange of fileChanges) {
-            const relSrc = path.relative(bookSrcRoot, fileChange.src).split(path.sep).join('/');
-            const encodedRelSrc = encodeUrlPathSegments(relSrc);
-            const relDest = path.relative(bookDestRoot, fileChange.dest).split(path.sep).join('/');
-            const destUrl = encodeURI(relDest);
-            pathToDestUrl.set(relSrc, destUrl);
-            pathToDestUrl.set(encodedRelSrc, destUrl);
-        }
-        bookContent = replaceBloomLinks(pathToDestUrl, bookContent);
+    // if .distribution is missing on the web version it has a console error
+    // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
+    const distPath = path.join(destDir, '.distribution');
+    if (!fs.existsSync(distPath)) {
+        fs.writeFileSync(distPath, 'bloom-web');
     }
 
     if (verbose >= 3) {
-        console.log(`Save bloom html file for ${book.name} --> ${book.hashedFileName}`);
+        console.log(`Copied bloom book ${book.name} --> ${destDir}`);
     }
-    files.push({
-        path: join(
-            'static',
-            'collections',
-            context.bcId,
-            book.id,
-            book.hashedFileName !== undefined ? book.hashedFileName : book.file
-        ),
-        content: bookContent
-    });
+}
+
+function normalizeBloomFileNames(dir: string) {
+    const names = fs.readdirSync(dir);
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const nfcName = entry.name.normalize('NFC');
+        let entryPath = path.join(dir, entry.name);
+        if (nfcName !== entry.name) {
+            if (names.includes(nfcName)) {
+                console.warn(`Cannot normalize ${entryPath}: ${nfcName} already exists`);
+            } else {
+                const nfcPath = path.join(dir, nfcName);
+                fs.renameSync(entryPath, nfcPath);
+                entryPath = nfcPath;
+            }
+        }
+        if (entry.isDirectory()) {
+            normalizeBloomFileNames(entryPath);
+        }
+    }
+}
+
+const BLOOM_REF_REGEXES: RegExp[] = [
+    /(\b(?:src|href|data-backgroundaudio)\s*=\s*)(["'])([^"']*)\2/gi,
+    /(url\(\s*)(["']?)([^"')]*)\2/gi
+];
+
+function normalizeBloomRef(value: string): string {
+    if (!/[\u0080-￿]|%[89A-F][0-9A-F]/i.test(value)) {
+        return value;
+    }
+    let decoded = value;
+    try {
+        decoded = decodeURIComponent(value);
+    } catch {
+        return value.normalize('NFC');
+    }
+    const normalized = decoded.normalize('NFC');
+    if (normalized === decoded) {
+        return value;
+    }
+    return decoded === value ? normalized : encodeURI(normalized);
+}
+
+function normalizeBloomRefs(dir: string) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            normalizeBloomRefs(entryPath);
+            continue;
+        }
+        if (!['.htm', '.html', '.css'].includes(path.extname(entry.name).toLowerCase())) {
+            continue;
+        }
+        const content = fs.readFileSync(entryPath, 'utf-8');
+        let updated = content;
+        for (const regex of BLOOM_REF_REGEXES) {
+            updated = updated.replace(
+                regex,
+                (_match, prefix, quote, value) =>
+                    `${prefix}${quote}${normalizeBloomRef(value)}${quote}`
+            );
+        }
+        if (updated !== content) {
+            fs.writeFileSync(entryPath, updated);
+        }
+    }
 }
 
 function convertQuizBook(context: ConvertBookContext, book: BookConfig): Quiz {

@@ -75,7 +75,8 @@ export type BookConfig = {
     chaptersLabels?: { [key: string]: string };
     fonts: string[];
     file: string;
-    hashedFileName?: string; // currently just for HTML books
+    hashedFileName?: string; // currently just for Bloom Books
+    hashedDir?: string;
     bloomMeta?: BloomMetaData;
     resolvedLang?: string; // bloom-player: language code resolved against the collection via langtags.json
     audio: BookCollectionAudioConfig[];

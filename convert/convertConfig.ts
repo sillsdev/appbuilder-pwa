@@ -22,7 +22,7 @@ import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
 import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
-import { getHashedName } from './fileUtils';
+import { getDirHash, getHashedName } from './fileUtils';
 import { getLangTagLookup, resolveLangTag } from './langtags';
 import { compareVersions, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
@@ -926,6 +926,7 @@ export function parseBookCollections(
                 }
             }
             let hashedFileName: string | undefined;
+            let hashedDir: string | undefined;
             let bloomMetaData: Record<string, unknown> = {};
             const bookType = book.attributes.getNamedItem('type')?.value;
             if (bookType !== undefined && ['html', 'bloom-player'].includes(bookType)) {
@@ -934,7 +935,8 @@ export function parseBookCollections(
                 }
 
                 if (bookType === 'bloom-player') {
-                    hashedFileName = getHashedName(join(dataDir, 'books', tag.id, book.id), file);
+                    const dirHash = getDirHash(join(dataDir, 'books', tag.id, book.id));
+                    hashedDir = dirHash ? `${book.id}.${dirHash}` : undefined;
                     bloomMetaData = parseBloomMeta(
                         join(dataDir, 'books', tag.id, book.id, 'meta.json'),
                         verbose
@@ -960,6 +962,7 @@ export function parseBookCollections(
                 audio,
                 file: format ? file : file.replace(/\.\w*$/, '.usfm'), // Default format is USFM and multiple files are combined into single .usfm
                 hashedFileName: hashedFileName,
+                ...(hashedDir !== undefined && { hashedDir }),
                 features: bookFeatures,
                 bloomMeta: bloomMetaData,
                 quizFeatures,
