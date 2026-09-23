@@ -33,7 +33,7 @@ class ScopeManager {
         return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
     }
 
-    appendInnerContent(content: HTMLElement, level?: RenderScopeWithSubType) {
+    appendInnerContent(content: HTMLElement | Text, level?: RenderScopeWithSubType) {
         const root = this.getScope(level)?.contentRoot;
         if (root) {
             root.appendChild(content);
