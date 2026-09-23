@@ -12,11 +12,15 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             if (workspace.logSettings.row) {
                 console.log('Start Row %o', context.sequences[0].element);
             }
-            let tableElement = workspace.scopeManager.getActiveContentRoot('table');
-            if (!tableElement) {
-                tableElement = workspace.document.createElement('table');
+            const scope = workspace.scopeManager.getScope('table');
+            if (!scope || !scope.contentRoot) {
+                const tableElement = workspace.document.createElement('table');
                 tableElement.setAttribute('cellpadding', '5');
-                workspace.scopeManager.addScope('table', tableElement);
+                if (!scope) {
+                    workspace.scopeManager.addScope('table', tableElement);
+                } else {
+                    scope.contentRoot = tableElement;
+                }
             }
             workspace.scopeManager.addScope('row', workspace.document.createElement('tr'));
             addToScratchPad(workspace.scratch, 'table', { colIndex: 0 });

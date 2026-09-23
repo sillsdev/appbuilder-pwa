@@ -24,6 +24,8 @@ export type RenderScopeLevel =
     | Lowercase<(typeof boundedScopes)[number]>
     | (typeof independentScopes | typeof additionalScopes)[number];
 
+export type RenderScopeWithSubType = RenderScopeLevel | `${RenderScopeLevel}:${Lowercase<string>}`;
+
 export enum RenderEventPosition {
     scopeStart,
     scopeEnd,
@@ -55,13 +57,25 @@ export class RenderEventDescriptor {
 }
 
 export class RenderScope {
-    constructor(doc: Document, level: RenderScopeLevel, contentRoot?: HTMLElement) {
-        this.level = level;
+    constructor(doc: Document, level: RenderScopeWithSubType, contentRoot?: HTMLElement) {
+        const parts = level.split(':');
+        this.level = parts[0] as RenderScopeLevel;
+        this.subType = parts[1];
         this.contentRoot = contentRoot;
     }
 
     level: RenderScopeLevel;
+    subType?: string;
     contentRoot?: HTMLElement;
+
+    match(level: RenderScopeWithSubType) {
+        const parts = level.split(':');
+        let matches = this.level === parts[0];
+        if (parts[1]) {
+            matches &&= this.subType === parts[1];
+        }
+        return matches;
+    }
 }
 
 /**
@@ -148,11 +162,8 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
  * 3. Proskomma has encountered a title block graft and we are rendering the introduction instead of chapter 1.
  */
 export function renderIfRegularOrIfHackedIntro(workspace: RenderWorkspace) {
-    const blockGraftSubType = workspace.scopeManager
-        .getCurrentScope('blockGraft')
-        ?.contentRoot?.getAttribute('data-blockgraft-subtype');
-    const hasIntroductionGraft = blockGraftSubType === 'introduction';
-    const hasTitleGraft = blockGraftSubType === 'title';
+    const hasIntroductionGraft = !!workspace.scopeManager.getScope('blockGraft:introduction');
+    const hasTitleGraft = !!workspace.scopeManager.getScope('blockGraft:title');
     return (
         hasIntroductionGraft === workspace.hackRenderIntro ||
         (hasTitleGraft && workspace.hackRenderIntro)
