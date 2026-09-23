@@ -128,7 +128,7 @@ export function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleC
 
 function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
     if (!existsSync(jsonPath)) {
-        console.error(`Could not open ${path}`);
+        console.error(`Could not open ${jsonPath}`);
     }
 
     const meta = JSON.parse(readFileSync(jsonPath, 'utf-8'));
@@ -142,7 +142,7 @@ function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
     // Pull the titles from meta.json. The allTitles is a string literal that
     // contains a serlized json string. However some of these strings have
     // unneeded and unwanted whitespace that causes the JSON parser to fail.
-    // This sanitation is how we remove that.
+    // This sanitation is how we remove that unwanted whitespace.
     const sanitizedAllTitles = meta.allTitles.replace(/[\r\n\t]+/g, ' ');
     const allTitles = JSON.parse(sanitizedAllTitles);
     for (const k of Object.entries(allTitles)) {
