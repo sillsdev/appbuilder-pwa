@@ -1,4 +1,4 @@
-import { RenderScope, type RenderScopeLevel } from './common';
+import { RenderScope, type RenderScopeWithSubType } from './common';
 
 class ScopeManager {
     constructor(document: Document, stack: RenderScope[]) {
@@ -9,21 +9,17 @@ class ScopeManager {
     document: Document;
     stack: Array<RenderScope>;
 
-    addScope(level: RenderScopeLevel, root?: HTMLElement) {
-        if (root) {
-            this.stack.push(new RenderScope(this.document, level, root));
-        } else {
-            this.stack.push(new RenderScope(this.document, level));
-        }
+    addScope(level: RenderScopeWithSubType, root?: HTMLElement) {
+        this.stack.push(new RenderScope(this.document, level, root));
     }
 
-    removeScope(level?: RenderScopeLevel) {
+    removeScope(level?: RenderScopeWithSubType) {
         if (!level) {
             return this.stack.pop();
         } else {
             for (let i = this.stack.length - 1; i >= 0; i--) {
-                if (this.stack[i].level === level) {
-                    return this.stack.splice(i)[0];
+                if (this.stack[i].match(level)) {
+                    return this.stack.splice(i, 1)[0];
                 }
             }
         }
@@ -33,50 +29,12 @@ class ScopeManager {
         this.stack = [];
     }
 
-    getDepth() {
-        return this.stack.length;
+    getScope(level?: RenderScopeWithSubType) {
+        return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
     }
 
-    getTopScope() {
-        return this.stack.at(-1);
-    }
-
-    getTopContentRoot() {
-        const scope = this.getTopScope();
-        console.log('getTopContentRoot: %o -> %o', scope?.level, scope?.contentRoot);
-        return this.getTopScope()?.contentRoot;
-    }
-
-    getCurrentScope(level: RenderScopeLevel) {
-        let scope: RenderScope | undefined;
-
-        for (let i = this.stack.length - 1; i >= 0; i--) {
-            if (this.stack[i].level === level) {
-                scope = this.stack[i];
-            }
-        }
-
-        console.log('getCurrentScope(%o): found %o', level, scope);
-
-        return scope ?? undefined;
-    }
-
-    getActiveContentRoot(level: RenderScopeLevel) {
-        const result = this.getCurrentScope(level)?.contentRoot ?? undefined;
-        console.log('getActiveContentRoot: %o -> %o', level, result);
-        return result;
-    }
-
-    setActiveContentRoot(level: RenderScopeLevel, contentRoot: HTMLElement) {
-        console.log('setActiveContentRoot: %o, %o', level, contentRoot);
-        const currentScope = this.getCurrentScope(level);
-        if (currentScope) {
-            currentScope.contentRoot = contentRoot;
-        }
-    }
-
-    appendInnerContent(content: HTMLElement, level?: RenderScopeLevel) {
-        const root = level ? this.getActiveContentRoot(level) : this.getTopContentRoot();
+    appendInnerContent(content: HTMLElement, level?: RenderScopeWithSubType) {
+        const root = this.getScope(level)?.contentRoot;
         if (root) {
             root.appendChild(content);
         } else {
@@ -87,7 +45,7 @@ class ScopeManager {
     }
 
     promoteContent() {
-        const layers = this.getDepth();
+        const layers = this.stack.length;
         if (layers < 1) {
             throw new Error('Tried to promote content on empty scope stack');
         }
@@ -95,7 +53,7 @@ class ScopeManager {
         const innerRoot = this.stack.pop()?.contentRoot;
         if (layers > 1) {
             if (innerRoot) {
-                const outerScope = this.getTopScope();
+                const outerScope = this.stack.at(-1);
                 if (outerScope) {
                     if (outerScope.contentRoot) {
                         outerScope.contentRoot.appendChild(innerRoot);

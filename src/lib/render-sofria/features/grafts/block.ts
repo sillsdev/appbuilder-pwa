@@ -23,10 +23,6 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
 
             if (currentBlock.sequence) {
                 const div = workspace.document.createElement('div');
-                if (currentBlock.subType) {
-                    div.setAttribute('data-blockgraft-subtype', currentBlock.subType);
-                }
-                workspace.scopeManager.addScope('blockGraft', div);
                 graftRecord.sequence = {};
                 const cachedSequencePointer = workspace.scratch.blockGraft?.currentSequence;
                 addToScratchPad(workspace.scratch, 'blockGraft', {
@@ -36,6 +32,10 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
                 addToScratchPad(workspace.scratch, 'blockGraft', {
                     currentSequence: cachedSequencePointer
                 });
+                workspace.scopeManager.addScope(
+                    `blockGraft:${currentBlock.subType?.toLowerCase() as Lowercase<string>}`,
+                    div
+                );
 
                 workspace.scopeManager.promoteContent();
             }

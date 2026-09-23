@@ -12,11 +12,7 @@ export const text = new FeatureSpec<{ paragraph?: { subheadingPrefixes?: string[
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
             if (workspace.logSettings.paragraph) {
-                console.log(
-                    'Start Paragraph %o %o',
-                    sequenceType,
-                    context.sequences[0].block
-                );
+                console.log('Start Paragraph %o %o', sequenceType, context.sequences[0].block);
             }
             const paraClass =
                 context.sequences[0].block.subType?.split(':')[1] ||
@@ -105,11 +101,7 @@ export const text = new FeatureSpec<{ paragraph?: { subheadingPrefixes?: string[
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
             if (workspace.logSettings.paragraph) {
-                console.log(
-                    'End Paragraph %o %o',
-                    sequenceType,
-                    context.sequences[0].block
-                );
+                console.log('End Paragraph %o %o', sequenceType, context.sequences[0].block);
             }
             if (sequenceType === 'main' && !workspace.hackRenderIntro) {
                 workspace.scopeManager.promoteContent();

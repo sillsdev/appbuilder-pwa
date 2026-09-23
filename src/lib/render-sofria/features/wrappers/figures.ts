@@ -1,7 +1,13 @@
 import { scriptureConfig } from '$assets/config';
-import { addToScratchPad, FeatureSpec, type RenderWorkspace } from '$lib/render-sofria/common';
+import {
+    addToScratchPad,
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro,
+    type RenderWorkspace
+} from '$lib/render-sofria/common';
 import { isBibleBook } from '$lib/scripts/scripture-reference-utils';
 import type { RenderElement } from 'proskomma-json-tools';
+import { terminatePhrase } from '../text';
 import { usfmType } from './common';
 
 const illustrations = import.meta.glob('./*', {
@@ -15,48 +21,38 @@ export function isFigureWrapper(usfmType: string) {
     return usfmType === 'fig';
 }
 
-export const figures = new FeatureSpec<{ wrapper?: { figureDiv?: HTMLDivElement } }>([
+export const figures = new FeatureSpec([
     {
         eventTriggers: ['startWrapper'],
-        guard: ({ context }) => isFigureWrapper(usfmType(context)),
+        guard: ({ context, workspace }) =>
+            renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {
                 console.log('Start Wrapper %o', context.sequences[0].element);
             }
             const srcFromAtts = extractFigureSource(context.sequences[0].element);
-            if (srcFromAtts) {
-                /* 
-                // TODO: I think this is here to make sure the current text is properly appended
-                // Need to figure out if this is still necessary...
-                if (workspace.phraseDiv != null && workspace.phraseDiv.innerText !== '') {
-                    appendPhrase(workspace);
-                }
-                workspace.phraseDiv = null; */
+            if (srcFromAtts && shouldShowImage(workspace)) {
+                terminatePhrase(workspace);
                 const { imageBlockDiv, mappedSource } = createIllustrationBlock(
                     workspace,
                     srcFromAtts,
                     null
                 );
-                addToScratchPad(workspace.scratch, 'wrapper', { figureDiv: imageBlockDiv });
-                if (shouldShowImage(workspace)) {
-                    checkImageExists(mappedSource, imageBlockDiv);
-                }
+                workspace.scopeManager.addScope('wrapper:figure', imageBlockDiv);
+                checkImageExists(mappedSource, imageBlockDiv);
             }
         }
     },
     {
         eventTriggers: ['endWrapper'],
-        guard: ({ context }) => isFigureWrapper(usfmType(context)),
+        guard: ({ context, workspace }) =>
+            renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
-            if (shouldShowImage(workspace) && workspace.scratch.wrapper?.figureDiv) {
-                workspace.scopeManager.appendInnerContent(
-                    workspace.scratch.wrapper.figureDiv,
-                    'paragraph'
-                );
-                addToScratchPad(workspace.scratch, 'wrapper', { figureDiv: undefined });
+            if (shouldShowImage(workspace)) {
+                workspace.scopeManager.promoteContent();
             }
         }
     }
