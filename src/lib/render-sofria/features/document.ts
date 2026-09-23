@@ -1,8 +1,9 @@
-import { FeatureSpec, type RenderAction, type RenderEnvironment } from '../common';
+import { FeatureSpec } from '../common';
 
 export const documentFeature = new FeatureSpec([
     {
-        eventTriggers: ['startDocument'],
+        event: 'startDocument',
+        default: true,
         action({ workspace }) {
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
@@ -13,11 +14,12 @@ export const documentFeature = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['endDocument'],
+        event: 'endDocument',
+        default: true,
         action({ workspace, output }) {
             workspace.scopeManager.removeScope('document');
             // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
         }
     }
-] as Array<RenderAction>);
+]);

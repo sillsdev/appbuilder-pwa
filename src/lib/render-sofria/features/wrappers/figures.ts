@@ -23,7 +23,7 @@ export function isFigureWrapper(usfmType: string) {
 
 export const figures = new FeatureSpec([
     {
-        eventTriggers: ['startWrapper'],
+        event: 'startWrapper',
         guard: ({ context, workspace }) =>
             renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
@@ -44,7 +44,7 @@ export const figures = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['endWrapper'],
+        event: 'endWrapper',
         guard: ({ context, workspace }) =>
             renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
