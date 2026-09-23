@@ -230,8 +230,8 @@ LOGGING:
             ); */
             // cleanup table scope
             if (
-                scopeManager.getCurrentScope('table') &&
-                !scopeManager.getCurrentScope('row') &&
+                scopeManager.getScope('table') &&
+                !scopeManager.getScope('row') &&
                 eventName !== 'startRow'
             ) {
                 const scope = scopeManager.removeScope('table');

@@ -64,7 +64,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
                 }
 
-                const currentParagraph = workspace.scopeManager.getActiveContentRoot('paragraph');
+                const currentParagraph = workspace.scopeManager.getScope('paragraph')?.contentRoot;
                 if (currentParagraph) {
                     const chapterNumDiv = workspace.document.createElement('div');
                     chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
