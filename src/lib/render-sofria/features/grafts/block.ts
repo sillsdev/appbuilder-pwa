@@ -1,6 +1,6 @@
 import type { Block } from 'proskomma-json-tools';
 import { addToScratchPad, FeatureSpec, type RenderEnvironment } from '../../common';
-import type { BlockGraftScratch } from './common';
+import { renderGraftedSequence, type BlockGraftScratch } from './common';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
 
@@ -24,19 +24,12 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
 
             if (currentBlock.sequence) {
                 const div = workspace.document.createElement('div');
-                graftRecord.sequence = {};
-                const cachedSequencePointer = workspace.scratch.blockGraft?.currentSequence;
-                addToScratchPad(workspace.scratch, 'blockGraft', {
-                    currentSequence: graftRecord.sequence
-                });
-                context.renderer.renderSequence(environment);
-                addToScratchPad(workspace.scratch, 'blockGraft', {
-                    currentSequence: cachedSequencePointer
-                });
                 workspace.scopeManager.addScope(
                     `blockGraft:${currentBlock.subType?.toLowerCase() as Lowercase<string>}`,
                     div
                 );
+
+                renderGraftedSequence(environment, graftRecord.sequence);
 
                 workspace.scopeManager.promoteContent();
             }

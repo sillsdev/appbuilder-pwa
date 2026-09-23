@@ -2,6 +2,7 @@ import type { FeatureSpec } from './common';
 import { chapterVerses } from './features/chapterVerses';
 import { documentFeature } from './features/document';
 import { blockGrafts } from './features/grafts';
+import { inlineGrafts } from './features/grafts/inline';
 import { chapterNumber, verseNumbers } from './features/mark';
 import { metaContent } from './features/metaContent';
 import { sequences } from './features/sequence';
@@ -15,6 +16,7 @@ import { figures, glossary, jmplinks, usfmWrappers } from './features/wrappers';
  */
 export const renderFeatures: Array<FeatureSpec<any>> = [
     blockGrafts,
+    inlineGrafts,
     sequences,
     documentFeature,
     verseNumbers,
